@@ -11,6 +11,9 @@
 
   position editing
 
+- Resize ascii windows after popup, so that the whole board is
+  minimally visible
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs

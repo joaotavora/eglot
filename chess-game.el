@@ -10,8 +10,6 @@
 ;; game, and a list of plies representing the main variation.
 
 (require 'chess-ply)
-(require 'chess-algebraic)
-(require 'chess-fen)
 
 (defvar chess-illegal nil)
 (put 'chess-illegal 'error-conditions '(error))
