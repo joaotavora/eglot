@@ -49,10 +49,9 @@ engine, and the computer the second engine."
   (interactive "sFirst engine: \nsSecond engine: ")
   (setq first-engine-type (intern (concat "chess-" first-engine-type))
 	second-engine-type (intern (concat "chess-" second-engine-type)))
-  (require chess-default-display)
   (let* ((my-color t)			; we start out as white always
-	 (game (chess-game-create))
-	 (display (chess-create-display-object my-color)))
+	 (display (chess-create-display-object my-color))
+	 (game (chess-display-game display)))
     (chess-game-set-data game 'my-color my-color)
     (chess-module-set-leader display)
     (chess-display-disable-popup display)
