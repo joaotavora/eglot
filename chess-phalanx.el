@@ -38,6 +38,9 @@
 		chess-engine-opponent-name "Phalanx")
 	  t)))
 
+     ((eq event 'resign)
+      (chess-game-set-data game 'active nil))
+
      (t
       (apply 'chess-common-handler game event args)))))
 
