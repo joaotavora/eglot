@@ -71,20 +71,23 @@
       (assert (listp ann))
       (chess-pgn-insert-plies index ann))))
 
-(defun chess-pgn-insert-plies (index plies &optional for-black indented)
+(defun chess-pgn-insert-plies (index plies &optional
+				     for-black indented no-annotations)
   "NYI: Still have to implement INDENTED argument."
   (while plies
     (unless for-black
       (insert (format "%d. %s" index
 		      (chess-ply-to-algebraic (car plies))))
-      (chess-pgn-insert-annotations index (car plies))
+      (unless no-annotations
+	(chess-pgn-insert-annotations index (car plies)))
       (setq plies (cdr plies) index (1+ index)))
     (when plies
       (when for-black
 	(insert (format "%d. ..." index))
 	(setq for-black nil))
       (insert (format " %s" (chess-ply-to-algebraic (car plies))))
-      (chess-pgn-insert-annotations index (car plies))
+      (unless no-annotations
+	(chess-pgn-insert-annotations index (car plies)))
       (setq plies (cdr plies)))
     (if plies
 	(insert ? ))))
