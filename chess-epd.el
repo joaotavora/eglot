@@ -41,7 +41,7 @@
      ((eq opcode 'ce)
       (assert (integerp value))
       (format "%S %d;" opcode value))
-     ((eq opcode 'pv)
+     ((or (eq opcode 'pv) (eq opcode 'sv))
       (format "%S %s;"
 	      opcode (chess-var-to-algebraic value)))
      (t
@@ -105,9 +105,9 @@ and advance point after the correctly parsed position."
 				 (split-string val " ")))
 			((eq opcode 'ce)
 			 (read val))
-			((eq opcode 'pm)
+			((or (eq opcode 'pm) (eq opcode 'sm)) ;predicted/supplied move
 			 (chess-ply-from-string pos val))
-			((eq opcode 'pv) ; predicted variation
+			((or (eq opcode 'pv) (eq opcode 'sv)) ; predicted/supplied variation
 			 (let ((var (chess-var-create pos)))
 			   (mapc (lambda (ply)
 				   (chess-var-move var
