@@ -252,7 +252,7 @@ standard position).  In those cases, this variable should be set to nil.")
 			       (concat "^" chess-ics-prompt-regexp))))
 		(delete-region (match-beginning 0) (1+ (match-end 0)))))
 	    t)))
-   (cons "^\\([A-Za-z0-9]+\\)\\((\\*)\\|(B)\\|(CA?)\\|(H)\\|(T[DM]?)\\|(SR)\\|(FM)\\|(W?[GI]M)\\|(U)\\|([0-9-]+)\\)*\\((\\([0-9]+\\))\\| tells you\\| s-shouts\\|\\[\\([0-9]+\\)\\] kibitzes\\): \\(.+\\)$"
+   (cons "^\\([A-Za-z0-9]+\\)\\((\\*)\\|(B)\\|(CA?)\\|(H)\\|(DM)\\|(T[DM]?)\\|(SR)\\|(FM)\\|(W?[GI]M)\\|(U)\\|([0-9-]+)\\)*\\((\\([0-9]+\\))\\| tells you\\| s-shouts\\|\\[\\([0-9]+\\)\\] kibitzes\\): \\(.+\\)$"
 	 (function
 	  (lambda ()
 	    (let ((fill-prefix (make-string
@@ -921,7 +921,7 @@ This function should be put on `comint-preoutput-filter-functions'."
 		(concat name
 			(mapconcat (lambda (title)
 				     (concat "(" title ")"))
-				   titles "")))
+				   (split-string titles " ") "")))
 	  (setq string
 		(format "%s\n%s[%s] %s: %s\n%s"
 			pre name game-number action text post))))
