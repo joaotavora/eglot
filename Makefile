@@ -1,5 +1,5 @@
 SPECIAL = chess-auto.el
-SOURCE	= $(filter-out $(SPECIAL),$(wildcard *.el))
+SOURCE	= $(filter-out scid-browser.el $(SPECIAL),$(wildcard *.el))
 TARGET	= $(patsubst %.el,%.elc,$(SPECIAL) $(SOURCE))
 EMACS   = emacs
 
