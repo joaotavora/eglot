@@ -11,22 +11,27 @@
   "Engine for interacting with Internet Chess Servers."
   :group 'chess-engine)
 
-(defcustom chess-ics-server "freechess.org"
-  "The default ICS server to connect to."
-  :type 'string
+(defcustom chess-ics-server-list
+  '(("freechess.org" 5000))
+  "A list of servers to connect to.
+The format of each entry is:
+
+  (SERVER PORT [HANDLE] [PASSWORD-OR-FILENAME] [HELPER] [HELPER ARGS...])"
+  :type '(repeat (list (string :tag "Server")
+		       (integer :tag "Port")
+		       (choice (const :tag "No password or ask" nil)
+			       (string :tag "Password")
+			       (file :tag "Filename"))
+		       (choice (const :tag "Direct connection" nil)
+			       (file :tag "Command"))
+		       (choice (const :tag "No arguments" nil)
+			       (repeat string))))
   :group 'chess-ics)
 
-(defcustom chess-ics-port 5000
-  "The port to use when connecting to `chess-ics-server'."
-  :type 'integer
-  :group 'chess-ics)
-
-(defcustom chess-ics-handle "jwiegley"
-  "The default handle used when logging into `chess-ics-server'."
-  :type 'string
-  :group 'chess-ics)
-
+(defvar chess-ics-handle)
 (defvar chess-ics-ensure-ics12 nil)
+
+(make-variable-buffer-local 'chess-ics-handle)
 (make-variable-buffer-local 'chess-ics-ensure-ics12)
 
 ;; ICS12 format (with artificial line breaks):
@@ -140,8 +145,7 @@ who is black."
 	  (assert (equal (car info) (chess-engine-position nil))))
       (let ((chess-game-inhibit-events t) plies)
 	(chess-game-set-data chess-engine-game
-			     'my-color (string= (nth 2 info)
-						chess-ics-handle))
+			     'my-color (string= (nth 2 info) chess-ics-handle))
 	(chess-game-set-data chess-engine-game 'active t)
 	(chess-game-set-start-position chess-engine-game (car info)))
       (chess-game-run-hooks chess-engine-game 'orient))
@@ -161,20 +165,48 @@ who is black."
   (cond
    ((eq event 'initialize)
     (kill-buffer (current-buffer))
-    (message "Connecting to Internet Chess Server '%s'..." chess-ics-server)
 
-    (let ((buf (make-comint "chess-ics"
-			    (cons chess-ics-server chess-ics-port))))
-      (message "Connecting to Internet Chess Server '%s'...done"
-	       chess-ics-server)
+    (let ((server
+	   (if (= (length chess-ics-server-list) 1)
+	       (car chess-ics-server-list)
+	     (assoc (completing-read "Connect to chess server: "
+				     chess-ics-server-list
+				     nil t (caar chess-ics-server-list))
+		    chess-ics-server-list))))
 
-      (display-buffer buf)
-      (set-buffer buf)
+      (message "Connecting to Internet Chess Server '%s'..." (car server))
 
-      (add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
-      (set (make-local-variable 'comint-preoutput-filter-functions)
-	   '(chess-ics-strip))
-      nil))
+      (let ((buf (apply 'make-comint "chess-ics"
+			(if (nth 3 server)
+			    (cons (nth 4 server) (nth 5 server))
+			  (list (cons (nth 0 server) (nth 1 server)))))))
+
+	(message "Connecting to Internet Chess Server '%s'...done"
+		 (car server))
+
+	(display-buffer buf)
+	(set-buffer buf)
+
+	(add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
+	(set (make-local-variable 'comint-preoutput-filter-functions)
+	     '(chess-ics-strip))
+
+	(if (nth 2 server)
+	    (progn
+	      (setq chess-ics-handle (nth 2 server))
+	      (comint-send-string (concat chess-ics-handle "\n"))
+	      (let ((pass (nth 3 server)))
+		(when pass
+		  (if (file-readable-p pass)
+		      (setq pass (with-temp-buffer
+				   (insert-file-contents file)
+				   (buffer-string))))
+		  (comint-send-string (concat pass "\n")))))
+	  ;; jww (2002-04-13): Have to parse out the allocated Guest
+	  ;; name from the output
+	  (comint-send-string "guest\n\n"))))
+
+      nil)
 
    ((eq event 'match)
     (setq chess-engine-pending-offer 'match)

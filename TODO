@@ -35,29 +35,20 @@ laptop.
 
 - detect draw/resign/abort/retract, etc., from ICS and common engines
 
-- incorporate the .wav files from xchat's sounds that chess-sound
-  currently doesn't have
-
 - devise a better scheme for printing messages (use a catalog?) and
   for when engines need to ask questions
 
-- there needs to be much more robustness; it's too easy to get the
-  game into an unplayable state right now
-
 - in chess-engine-filter and chess-ics-filter, if an error is
   encountered, skip that line so the same error isn't triggered again
-
-- in chess-ics use a server-alist, and make the default handle be
-  "guest".  Allow a password to be specified, or a filename containing
-  the password
-
-  (HOST [PORT HANDLE PASSWORD HELPER HELPER-ARGS...])
 
 ----------------------------------------------------------------------
 
 - Add support for adjournments; also, implement this is such a way
   that an e-mail or postal game is basically a game that's adjourned
   after every move
+
+- There needs to be much more robustness; it's too easy to get the
+  game into an unplayable state right now
 
 - Break my dependency on cl
 
