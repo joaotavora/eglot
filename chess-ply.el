@@ -150,7 +150,9 @@
       (setq pos (chess-incr-index king 0 bias))
       (while (and pos (not (equal pos rook))
 		  (chess-pos-piece-p position pos ? )
-		  (chess-pos-legal-candidates position color pos (list king)))
+		  (or (and long (< (chess-index-file pos) 2))
+		      (chess-pos-legal-candidates
+		       position color pos (list king))))
 	(setq pos (chess-incr-index pos 0 bias)))
       (if (equal pos rook)
 	  (list king (chess-rf-to-index (if color 7 0) (if long 2 6))
