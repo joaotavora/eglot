@@ -12,7 +12,8 @@
   :group 'chess)
 
 (defcustom chess-display-popup t
-  "If non-nil, popup displays whenever a significant event occurs."
+  "If non-nil (the default), popup displays whenever a significant event
+occurs."
   :type 'boolean
   :group 'chess-display)
 
@@ -334,7 +335,11 @@ also view the same game."
 			     (downcase new-piece)) to)
 		(funcall chess-display-event-handler 'draw-square
 			 (chess-display-index-pos nil to)
-			 (chess-pos-piece position from) to))))
+			 (chess-pos-piece position from) to)))
+	    (when (chess-ply-keyword ply :en-passant)
+	      (funcall chess-display-event-handler 'draw-square
+		       (chess-display-index-pos nil (chess-pos-en-passant position))
+		       ?  (chess-pos-en-passant position))))
 	  (setq ch (cddr ch)))))))
 
 (chess-message-catalog 'english
