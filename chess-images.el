@@ -44,9 +44,8 @@
 (defcustom chess-images-directory
   (if (file-directory-p "/usr/share/games/xboard/pixmaps")
       "/usr/share/games/xboard/pixmaps"
-    (expand-file-name "pieces/xboard"
-		      (file-name-directory
-		       (or load-file-name buffer-file-name))))
+    (expand-file-name "pieces" (file-name-directory
+				(or load-file-name buffer-file-name))))
   "Directory containing the chess piece bitmap images.
 You are free to use your own chess pieces, of any size.  By default, I
 assume you have xboard installed, or can go get the pixmaps that come
