@@ -20,6 +20,7 @@
     (require 'chess-engine)
     (require 'chess-fen)
     (require 'chess-game)
+    (require 'chess-ics)
     (require 'chess-pgn)
     (require 'chess-ply)
     (require 'chess-pos)

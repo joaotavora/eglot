@@ -117,6 +117,7 @@ Chess puzzles are most often provided as a set of positions.
 @c lispfun chess-pos-copy
 
 @defvar chess-starting-position
+Starting position of a chess game.
 @end defvar
 
 @c lispfun chess-fischer-random-position
@@ -139,6 +140,8 @@ are two conversion functions:
 @c lispfun chess-coord-to-index
 
 @c lispfun chess-index-to-coord
+
+There is also one helper function for iterative changes of an index:
 
 @c lispfun chess-incr-index
 
@@ -173,9 +176,13 @@ square, or set that square's value:
 
 @c lispfun chess-pos-set-side-to-move
 
-@c lispfun chess-pos-move
+@defvar chess-pos-always-white
+When set, it is assumed that white is always on move.
+This is really only useful when setting up training positions.
+This variable automatically becomes buffer-local when changed.
+@end defvar
 
-Missing documentation for 'chess-pos-move'
+@c lispfun chess-pos-move
 
 @subsection Annotations
 
@@ -184,6 +191,37 @@ Missing documentation for 'chess-pos-move'
 @c lispfun chess-pos-add-annotation
 
 @subsection FEN notation
+
+FEN notation encodes a chess position using a simple string.  The
+format is:
+
+   POSITION SIDE CASTLING EN-PASSANT
+
+The POSITION gives all eight ranks, by specifying a letter for each
+piece on the position, and a number for any intervening spaces.
+Trailing spaces need not be counted.  Uppercase letters signify
+white, and lowercase black.  For example, if your position only had
+a black king on d8, your POSITION string would be:
+
+  3k////////
+
+For the three spaces (a, b and c file), the black king, and then
+all the remaining ranks (which are all empty, so their spaces can
+be ignored).
+
+The SIDE is w or b, to indicate whose move it is.
+
+CASTLING can contain K, Q, k or q, to signify whether the white or
+black king can still castle on the king or queen side.  EN-PASSANT
+signifies the target sqaure of an en passant capture, such as "e3" or "a6".
+
+The starting chess position always looks like this:
+
+  rnbqkbnr/pppppppp/////PPPPPPPP/RNBQKBNR/ w KQkq -
+
+And in "full" mode (where all spaces are accounted for):
+
+  rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
 
 @c lispfun chess-fen-to-pos
 
@@ -236,11 +274,34 @@ form of confirmation during the course of a game.
 
 @subsection Algebraic notation
 
-@c lispfun chess-ply-to-algebraic
+A thing to deal with in chess is algebraic move notation, such as
+Nxf3+.  (I leave description of this notation to better manuals
+than this).  This notation is a shorthand way of representing where
+a piece is moving from and to, by specifying the piece is involved,
+where it's going, and whether or not a capture or check is
+involved.
+
+You can convert from algebraic notation to a ply (one pair in most
+cases, but two for a castle) using the following function (NOTE:
+POSITION determines which side is on move (by calling
+`chess-pos-side-to-move')):
 
 @c lispfun chess-algebraic-to-ply
 
+The function also checks if a move is legal, and will raise an
+error if not.
+
+To convert from a ply to algebraic notation, use:
+
+@c lispfun chess-ply-to-algebraic
+
+Lastly, there is a regexp for quickly checking if a string is in
+algebraic notation or not, or searching out algebraic strings in a
+buffer:
+
 @defvar chess-algebraic-regexp
+A regular expression that matches all possible algebraic moves.
+This regexp handles both long and short form.
 @end defvar
 
 @section Variations
@@ -362,6 +423,8 @@ for variations.
 
 @subsubsection PGN mode
 
+@c lispfun chess-pgn-visualize
+
 @section Collections
 
 A @dfn{collection} is a set of games archived for later perusal.  A set
@@ -385,6 +448,8 @@ List of database modules to try when `chess-database-open' is called.
 
 @subsection Querying Databases
 
+@c lispfun chess-database-filename
+
 @c lispfun chess-database-count
 
 @c lispfun chess-database-read
@@ -392,6 +457,8 @@ List of database modules to try when `chess-database-open' is called.
 @c lispfun chess-database-query
 
 @subsection Modifying Databases
+
+@c lispfun chess-database-read-only-p
 
 @c lispfun chess-database-write
 
@@ -402,6 +469,23 @@ List of database modules to try when `chess-database-open' is called.
 @c lispfun chess-database-save
 
 @c lispfun chess-database-close
+
+@subsection Database Modules
+
+Currently, there are two subclasses of the above defined
+database base-class:
+
+@subsubsection chess-file
+
+This module does not use an external chess database program
+to store and retrieve games.  It uses the PGN format parsing
+routines provided in `chess-pgn.el' to implement Collections
+for ordinary PGN files.
+
+@subsubsection chess-scid
+
+This modules implement basic reading and writing functionality
+for SCID (Shane's Chess Information Database) files.
 
 @chapter Modules
 
@@ -531,7 +615,7 @@ object.
 
 @c lispfun chess-display-create
 
-@c lispfun/c chess-display-destroy
+@c lispfun chess-display-destroy
 
 @chapter Chessboard displays
 
@@ -604,6 +688,38 @@ object.
 @c lispfun chess-engine-command
 
 @c lispfun chess-engine-send
+
+@chapter Internet Chess Servers
+
+Based on the services provided above, there is also a speical mode
+for communication with Internet Chess Servers.
+
+ON an Internet Chess Server you can seek to play against other
+human or computer players, observe other games being player of examined,
+play tournaments, be part of a group game, or do various other interesting
+chess related things.
+
+A default set of well known servers is defined in the following variable:
+
+@defvar chess-ics-server-list
+A list of servers to connect to.
+The format of each entry is:
+
+  (SERVER PORT [HANDLE] [PASSWORD-OR-FILENAME] [HELPER] [HELPER ARGS...])
+@end defvar
+
+@section Connecting to a server
+
+To open a new connection to an Internet Chess Server, use:
+
+@c lispfun chess-ics
+
+@section Seeking an opponent for a new game
+
+After you connected to a server, one of the first things you will
+want to do is find an oponent for a new game.  You can use the
+ICS command "seek" to announce your availability for a chess game
+to interested people.
 
 @unnumbered Concept Index
 
