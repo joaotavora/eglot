@@ -18,6 +18,10 @@
 (defun chess-transport-handler (event &rest args)
   "This is an example of a generic transport engine."
   (cond
+   ((eq event 'initialize)
+    ;; initialize your transport here
+    )
+
    ((eq event 'send)
     ;; transmit the string given in (car args) to your outbound
     ;; transport from here
