@@ -163,8 +163,8 @@ This conveys the status of the game at the given index."
 	  (1+ (/ index 2)))
       1)))
 
-(defsubst chess-game-side-to-move (game)
-  (chess-pos-side-to-move (chess-game-pos game)))
+(defsubst chess-game-side-to-move (game &optional index)
+  (= (mod (or index (chess-game-index game)) 2) 0))
 
 (defun chess-game-ply (game &optional index)
   "Return the position related to GAME's INDEX position."
@@ -191,6 +191,13 @@ This conveys the status of the game at the given index."
   (let ((chess-game-inhibit-events t))
     (chess-game-set-plies game (nbutlast (chess-game-plies game) count)))
   (chess-game-run-hooks game 'post-undo count))
+
+
+(defun chess-game-strip-annotations (game)
+  "Strip all annotations from the given GAME."
+  (dotimes (i (chess-game-index game))
+    (let ((position (chess-game-pos game i)))
+      (chess-pos-set-annotations position nil))))
 
 
 (defsubst chess-game-over-p (game)

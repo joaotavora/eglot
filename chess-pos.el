@@ -77,8 +77,8 @@
   "Routines for manipulating chess positions."
   :group 'chess)
 
-(defvar chess-pos-white-always-on-move nil)
-(make-variable-buffer-local 'chess-pos-white-always-on-move)
+(defvar chess-pos-always-white nil)
+(make-variable-buffer-local 'chess-pos-always-white)
 
 (defconst chess-starting-position
   [;; the eight ranks and files of the chess position
@@ -334,7 +334,7 @@ trying to move a blank square."
 	  (chess-pos-set-en-passant position (cadr changes))))))
 
     ;; toggle the side whose move it is
-    (unless chess-pos-white-always-on-move
+    (unless chess-pos-always-white
       (chess-pos-set-side-to-move position (not color)))
 
     ;; promote the piece if we were meant to
@@ -538,30 +538,36 @@ CANDIDATES is a list of position indices which indicate the piece to
 be moved, and TARGET is the index of the location to be moved to.
 
 Note: All of the pieces specified by CANDIDATES must be of the same
-type."
+type.  Also, it is the callers responsibility to ensure that the piece
+can legally reach the square in question.  This function merely
+assures that the resulting position is valid."
   (let ((cand candidates)
 	(piece (chess-pos-piece position (car candidates)))
-	taken-piece last-cand king-pos)
+	other-piece last-cand king-pos)
     (while cand
       ;; determine the resulting position
-      (chess-pos-set-piece position (car cand) ? )
-      (setq taken-piece (chess-pos-piece position target))
-      (chess-pos-set-piece position target piece)
-      ;; find the king (only once if the king isn't moving)
-      (if (or (null king-pos)
-	      (memq piece '(?K ?k)))
-	  (setq king-pos (chess-pos-king-index position color)))
-      ;; can anybody from the opposite side reach him?  if so,
-      ;; drop the candidate
-      (if (catch 'in-check
-	    (chess-search-position position king-pos (not color) t))
-	  (if last-cand
-	      (setcdr last-cand (cdr cand))
-	    (setq candidates (cdr candidates)))
-	(setq last-cand cand))
-      ;; return the position to its original state
-      (chess-pos-set-piece position target taken-piece)
-      (chess-pos-set-piece position (car cand) piece)
+      (setq other-piece (chess-pos-piece position (car cand)))
+      (when (if color
+		(> other-piece ?a)
+	      (< other-piece ?A))
+	(chess-pos-set-piece position (car cand) ? )
+	(setq other-piece (chess-pos-piece position target))
+	(chess-pos-set-piece position target piece)
+	;; find the king (only once if the king isn't moving)
+	(if (or (null king-pos)
+		(memq piece '(?K ?k)))
+	    (setq king-pos (chess-pos-king-index position color)))
+	;; can anybody from the opposite side reach him?  if so, drop
+	;; the candidate
+	(if (catch 'in-check
+	      (chess-search-position position king-pos (not color) t))
+	    (if last-cand
+		(setcdr last-cand (cdr cand))
+	      (setq candidates (cdr candidates)))
+	  (setq last-cand cand))
+	;; return the position to its original state
+	(chess-pos-set-piece position target other-piece)
+	(chess-pos-set-piece position (car cand) piece))
       ;; try the next candidate
       (setq cand (cdr cand)))
     candidates))

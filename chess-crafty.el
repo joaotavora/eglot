@@ -3,7 +3,6 @@
 ;; Play against crafty!
 ;;
 
-(require 'chess-engine)
 (require 'chess-common)
 
 (defgroup chess-crafty nil

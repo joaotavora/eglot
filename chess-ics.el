@@ -59,7 +59,7 @@ who is black."
 				 piece))))
       (setq parts (cdr parts)))
 
-    ;; next, the "side to move
+    ;; next, the "side to move"
     (chess-pos-set-side-to-move position (string= (car parts) "W"))
     (setq parts (cdr parts))
 
@@ -67,7 +67,7 @@ who is black."
     ;; the chess board file (numbered 0--7 for a--h) in which the
     ;; double push was made
     (let ((index (string-to-number (car parts))))
-      (when (> index 0)
+      (when (>= index 0)
 	(chess-pos-set-en-passant
 	 position (chess-rf-to-index
 		   (if (chess-pos-side-to-move position) 3 4) index))))
@@ -90,8 +90,6 @@ who is black."
 	(chess-pos-set-can-castle position ?q t))
     (setq parts (cdr parts))
 
-    ;; jww (2002-04-11): How is check indicated?
-
     ;; the number of moves made since the last irreversible move.  (0
     ;; if last move was irreversible.  If the value is >= 100, the
     ;; game can be declared a draw due to the 50 move rule.)
@@ -101,10 +99,8 @@ who is black."
     (setq parts (cdr parts))
 
     ;; white player, black player
-    (setq white (car parts))
-    (setq parts (cdr parts))
-    (setq black (car parts))
-    (setq parts (cdr parts))
+    (setq white (car parts) parts (cdr parts))
+    (setq black (car parts) parts (cdr parts))
 
     ;; my relation to this game:
     ;; -3 isolated position, such as for "ref 3" or the "sposition"
@@ -136,13 +132,13 @@ who is black."
     ;; numbering -- White's and Black's first moves are both 1, etc.)
     (setq parts (cdr parts))
 
-    ;; move in elaborated notation
+    ;; move in long alegebraic notation
     (setq parts (cdr parts))
 
     ;; time taken to make previous move "(min:sec)".
     (setq parts (cdr parts))
 
-    ;; move in algebraic notation
+    ;; move in short algebraic notation (SAN)
     (setq move (unless (string= (car parts) "none")
 		 (car parts)))
     (setq parts (cdr parts))
@@ -151,6 +147,7 @@ who is black."
     ;; White at bottom.
     (setq parts (cdr parts))
 
+    ;; jww (2002-04-18): what do these two mean?
     (setq parts (cdr parts))
     (setq parts (cdr parts))
 

@@ -97,7 +97,10 @@ not available."
 
 (defcustom chess-default-modules
   '((chess-sound chess-announce)
-    chess-autosave)
+    chess-autosave
+    chess-clock
+    chess-kibitz
+    chess-chat)
   "Modules to be used when starting a chess session.
 A sublist indicates a series of alternatives, if the first is not
 available.
@@ -119,13 +122,12 @@ available."
   :group 'chess)
 
 (defun chess--create-display (module game my-color disable-popup)
-  (when (require module nil t)
-    (let ((display (chess-display-create game module my-color)))
-      (when display
-	(chess-game-set-data game 'my-color my-color)
-	(if disable-popup
-	    (chess-display-disable-popup display))
-	display))))
+  (let ((display (chess-display-create game module my-color)))
+    (when display
+      (chess-game-set-data game 'my-color my-color)
+      (if disable-popup
+	  (chess-display-disable-popup display))
+      display)))
 
 (defun chess--create-engine (module game response-handler ctor-args)
   (let ((engine (apply 'chess-engine-create module game
@@ -216,20 +218,6 @@ available."
 			     'chess--create-display
 			     (chess-game-create) perspective nil)))
 
-;;;###autoload
-(defun chess-read-pgn (&optional file)
-  "Read and display a PGN game after point."
-  (interactive "P")
-  (if (or file (not (search-forward "[Event " nil t)))
-      (setq file (read-file-name "Read a PGN game from file: ")))
-  (if file
-      (find-file file))
-  (let ((game (chess-pgn-to-game))
-	display)
-    (when game
-      (setq display (chess-create-display))
-      (chess-display-set-game display game))))
-
 (defvar chess-puzzle-indices nil)
 (defvar chess-puzzle-position nil)
 (make-variable-buffer-local 'chess-puzzle-indices)
@@ -284,6 +272,34 @@ making it easy to go on to the next puzzle once you've solved one."
 			     (chess-pos-side-to-move (chess-game-pos game)))
 	(dolist (key '(database database-index database-count))
 	  (chess-game-set-data game key (chess-game-data next-game key)))))))
+
+(chess-message-catalog 'english
+  '((queen-would-take . "The queen would take your knight!")
+    (congratulations  . "Congratulations!")))
+
+(defun chess-tutorial-knight-1 (game ignore event &rest args)
+  (if (eq event 'move)
+      (let ((position (chess-game-pos game)))
+	(if (null (chess-pos-search position ?p))
+	    (chess-message 'congratulations)
+	  (when (chess-search-position
+		 position (car (chess-pos-search position ?N)) ?q)
+	    (chess-game-run-hooks chess-module-game 'undo 1)
+	    (chess-display-update nil)
+	    (chess-error 'queen-would-take))))))
+
+(defun chess-tutorial ()
+  (interactive)
+  (let* (chess-default-modules
+	 (display (chess-create-display)))
+    (with-current-buffer display
+      (chess-game-set-start-position
+       (chess-display-game nil)
+       (chess-fen-to-pos "8/3p1p/2p3p/4q/2p3p/3p1p/8/N w - -"))
+      (chess-game-add-hook (chess-display-game nil) 'chess-tutorial-knight-1)
+      (setq chess-pos-always-white t)
+      (chess-display-popup nil)
+      (message "Goal: take all the pawns, without letting the queen take your knight"))))
 
 (provide 'chess)
 

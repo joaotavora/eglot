@@ -3,7 +3,6 @@
 ;; Play against phalanx!
 ;;
 
-(require 'chess-engine)
 (require 'chess-common)
 
 (defgroup chess-phalanx nil

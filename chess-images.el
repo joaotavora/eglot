@@ -69,6 +69,15 @@ light_piece."
   :set 'chess-images-clear-image-cache
   :group 'chess-images)
 
+(defcustom chess-images-default-size nil
+  "The default pixel width to use for chess pieces.
+If this width is not available, then next smallest will be chosen.
+If there is none smaller, then the best size available will be chosen.
+If `chess-images-default-size' is nil (the default), then the best
+width for the current display is calculated used."
+  :type '(choice integer (const :tag "Best fit" nil))
+  :group 'chess-images)
+
 (defcustom chess-images-background-image "blank"
   "The name of the file used for background squares.
 This file is optional.  If there is no file available by this name, a
@@ -151,7 +160,7 @@ called."
   "The names and index values of the different pieces.")
 
 (chess-message-catalog 'english
-  '((no-images-fallback . "Could not find suitable chess images")))
+  '((no-images-fallback . "Could not find any suitable or properly sized chess images")))
 
 (defun chess-images-handler (event &rest args)
   (cond
@@ -175,12 +184,7 @@ called."
    ((eq event 'highlight)
     (apply 'chess-images-highlight args))))
 
-(defun chess-images-initialize ()
-  (let ((map (current-local-map)))
-    (define-key map [?^] 'chess-images-increase-size)
-    (define-key map [?V] 'chess-images-decrease-size)
-    (define-key map [?P] 'chess-images-set-directory))
-
+(defun chess-images-determine-size ()
   (let ((display (and (stringp chess-images-separate-frame)
 		      chess-images-separate-frame)))
     (setq cursor-type nil
@@ -192,6 +196,13 @@ called."
 			     (- (if display
 				    (x-display-pixel-width display)
 				  (display-pixel-width)) 20)))))
+
+(defun chess-images-initialize ()
+  (let ((map (current-local-map)))
+    (define-key map [?^] 'chess-images-increase-size)
+    (define-key map [?V] 'chess-images-decrease-size)
+    (define-key map [?P] 'chess-images-set-directory))
+  (chess-images-determine-size))
 
 (chess-message-catalog 'english
   '((no-images . "Cannot find any piece images; check `chess-images-directory'")))
@@ -288,6 +299,29 @@ Common modes are:
 				       mode))))
     (put-text-property pos (1+ pos) 'display highlight)))
 
+(chess-message-catalog 'english
+  '((redrawing-frame . "Redrawing chess display with different size...")
+    (redrawing-frame-done . "Redrawing chess display with different size...done")))
+
+(defun chess-images-change-size (size)
+  (let* ((buffer (current-buffer))
+	 (window (get-buffer-window buffer))
+	 (frame (and window (window-frame window))))
+    (setq chess-images-size size
+	  chess-images-cache nil )
+    (if frame
+	(delete-frame frame t))
+    (chess-message 'redrawing-frame)
+    (chess-display-update buffer t)
+    (chess-message 'redrawing-frame-done)))
+
+(defun chess-images-resize ()
+  "Resize the chessboard based on the frame or window's new size."
+  (chess-images-determine-size)
+  (if chess-images-size
+      (chess-images-change-size chess-images-size)
+    (chess-message 'no-images-fallback)))
+
 (defun chess-images-alter-size (test)
   (let ((sizes chess-images-sizes))
     (if (eq test '<)
@@ -295,11 +329,8 @@ Common modes are:
     (while sizes
       (if (funcall test (car sizes) chess-images-size)
 	  (progn
-	    (setq chess-images-size (car sizes)
-		  chess-images-cache nil
-		  sizes nil)
-	    ;; jww (2002-04-09): need to create a new frame here!
-	    (chess-display-update nil))
+	    (chess-images-change-size (car sizes))
+	    (setq sizes nil))
 	(setq sizes (cdr sizes))))))
 
 (defun chess-images-increase-size ()
@@ -333,10 +364,11 @@ They are returned in ascending order, or nil for no sizes available."
 
 (defun chess-images-best-size (&optional height width)
   "Return the piece size that works best for a window of HEIGHT."
-  (let* ((size (min (- (/ (or height (frame-pixel-height)) 8)
-		       (or chess-images-border-width 0))
-		    (- (/ (or width (frame-pixel-width)) 8)
-		       (or chess-images-border-width 0))))
+  (let* ((size (or chess-images-default-size
+		   (min (- (/ (or height (frame-pixel-height)) 8)
+			   (or chess-images-border-width 0))
+			(- (/ (or width (frame-pixel-width)) 8)
+			   (or chess-images-border-width 0)))))
 	 (sizes (chess-images-sizes))
 	 (last (car sizes)))
     (while sizes
@@ -344,7 +376,9 @@ They are returned in ascending order, or nil for no sizes available."
 	  (setq sizes nil)
 	(setq last (car sizes)
 	      sizes (cdr sizes))))
-    last))
+    (or last (and chess-images-default-size
+		  (let (chess-images-default-size)
+		    (chess-images-best-size height width))))))
 
 (defun chess-images-set-directory (directory)
   "Increase the size of the pieces on the board."

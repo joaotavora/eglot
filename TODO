@@ -1,51 +1,13 @@
 
-			Feature work remaining
-
-  2.0  annotations
-       chatting
-
-  2.x  display/database tie-in
-       analysis/highlight tools
-       bughouse/crazyhouse
-
-----------------------------------------------------------------------
-
 			       Hotlist
-
-- TAB in chess-pgn-mode at move 1 thinks O-O and O-O-O are legal
-  moves.
 
 - Follow what `edit-env' does, in order to make chess-query.el
 
-- Make a command binding (for reading NG articles and such) which will
-  assume there is a PGN game under point and will read it as such and
-  jump to the move before cursor; right now, C-c C-c in chess-pgn
-  requires that the buffer be in pgn-mode
-
-- Move chess-assert-can-move into chess-display-move
-
-- Allow an "index N" command to the network protocol, so two people
-  can review a game together
-
-- Make ( create variations in a display, and { begin an annotation.  "
-  or ; will begin a chat string.
-
-- Have C-p and C-n move forward and backward plies, and C-f and C-b
-  move into and out of variations
-
-- Make chess-display-create use require, not chess.el
-
-- PGN files aren't sendable via IRC yet; I will have to convert ^J
-  into ^K or something.
-
-- Polish chess-input.el
+- Make ( create variations in a display, and C-f and C-b move into and
+  out of them
 
 - Find a way that regexp-alist entries that only need to fire once are
   only scanned once.
-
-- Make any game-modifying commands in a display use C-c C-?
-
-- Complete the ICS12 parser, based on Mario's comments
 
 - Add support for ICS observing
 
@@ -55,13 +17,6 @@
 
 - Still need to test many areas: position editing
 
-- Add chess-game-strip-annotations, for removing all annotations from
-  a game object
-
-- Let the user specify a default size for the chess-images display
-
-- Resize the chess board on a window resize event, if possible.
-
 - In chess-ics.el, setup a completion function based on handles
 
 - Break chess-legal-plies into two parts, one of which would be the
@@ -69,10 +24,6 @@
 
 - Have elp.el not instrument defsubst functions; it obscures the
   results too much
-
-- Mario reports that using chess-plain and chess-link, he ends up with
-  impossible positions being displayed (with too many pieces, bishops
-  of the same color, etc).
 
 ----------------------------------------------------------------------
 
@@ -130,7 +81,9 @@
 
 ----------------------------------------------------------------------
 
-			  Training features
+			       Training
+
+- Write a scripted chess-tutorial.
 
 - Allow the opponent to give hints.
 
@@ -164,6 +117,12 @@
   how well, which are attacked, which moves would increase
   defense/attack/both, etc.  Basically, everything that can be known
   about the current board, and one move ahead (on both sides).
+
+----------------------------------------------------------------------
+
+			   Other variations
+
+Need a way to play bughouse/crazyhouse games.
 
 ----------------------------------------------------------------------
 

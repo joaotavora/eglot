@@ -185,6 +185,22 @@ If INDENTED is non-nil, indent the move texts."
 (make-variable-buffer-local 'chess-pgn-current-game)
 (make-variable-buffer-local 'chess-pgn-current-index)
 
+(chess-message-catalog 'english
+  '((could-not-read-pgn . "Could not read or find a PGN game")))
+
+;;;###autoload
+(defun chess-pgn-read (&optional file)
+  "Read and display a PGN game after point."
+  (interactive "P")
+  (if (or file (not (search-forward "[Event " nil t)))
+      (setq file (read-file-name "Read a PGN game from file: ")))
+  (if file
+      (find-file file))
+  (let ((game (chess-pgn-to-game)))
+    (if game
+	(chess-display-set-game (chess-create-display) game)
+      (chess-error 'could-not-read-pgn))))
+
 ;;;###autoload
 (define-derived-mode chess-pgn-mode text-mode "PGN"
   "A mode for editing chess PGN files."
@@ -327,10 +343,24 @@ If INDENTED is non-nil, indent the move texts."
 						   'database-index)))
 	  (chess-display-set-index chess-pgn-display index))))))
 
+(defun chess-pgn-visualize ()
+  "Visualize the move for the PGN game under point.
+This does not require that the buffer be in PGN mode."
+  (let (game)
+    (save-excursion
+      (if (search-backward "[Event " nil t)
+	  (setq game (chess-pgn-to-game))))
+    (if game
+	(let ((chess-pgn-current-game game))
+	  (chess-pgn-show-position))
+      (chess-error 'could-not-read-pgn))))
+
 (defun chess-pgn-show-position ()
   (interactive)
-  (chess-pgn-read-game)
-  (chess-pgn-create-display))
+  (if (not (eq major-mode 'chess-pgn-mode))
+      (chess-pgn-visualize)
+    (chess-pgn-read-game)
+    (chess-pgn-create-display)))
 
 (defun chess-pgn-mouse-show-position (event)
   (interactive "e")

@@ -118,12 +118,19 @@
 	(if (chess-pos-piece-p position index (if color ?R ?r))
 	    (setq rook index file king-file)
 	  (setq file (funcall (if long '1+ '1-) file)))))
-    (if (and rook (chess-legal-plies position :any :index king
-				     :target king-target))
+    (setq file (chess-index-file king)
+	  file (funcall (if long '1- '1+) file))
+    (while (and rook (funcall (if long '>= '<=) file
+			      (chess-index-file king-target)))
+      (let ((index (chess-rf-to-index (if color 7 0) file)))
+	(if (chess-pos-piece-p position index ? )
+	    (setq file (funcall (if long '1- '1+) file))
+	  (setq rook nil))))
+    (if (and rook (chess-pos-legal-moves position color king-target
+					 (list king)))
 	(list king king-target rook
 	      (chess-rf-to-index (if color 7 0) (if long 3 5))
-	      (if long :long-castle :castle))
-      (assert (not "Could not determine castling manuever")))))
+	      (if long :long-castle :castle)))))
 
 (chess-message-catalog 'english
   '((pawn-promote-query . "Promote pawn to queen/rook/knight/bishop? ")))
@@ -196,7 +203,8 @@ maneuver."
 
 	  ;; we must determine whether this ply results in a check,
 	  ;; checkmate or stalemate
-	  (unless (or (memq :check changes)
+	  (unless (or chess-pos-always-white
+		      (memq :check changes)
 		      (memq :checkmate changes)
 		      (memq :stalemate changes))
 	    (let* ((chess-ply-checking-mate t)
@@ -380,9 +388,18 @@ position object passed in."
 		(chess-ply--add nil nil pos)))
 
 	  (if (chess-pos-can-castle position (if color ?K ?k))
-	      (chess-ply--add 0 2))
+	      (let ((changes (chess-ply-create-castle position nil candidate)))
+		(if changes
+		    (if chess-ply-throw-if-any
+			(throw 'any-found t)
+		      (push (cons position changes) plies)))))
+
 	  (if (chess-pos-can-castle position (if color ?Q ?q))
-	      (chess-ply--add 0 -2)))
+	      (let ((changes (chess-ply-create-castle position t candidate)))
+		(if changes
+		    (if chess-ply-throw-if-any
+			(throw 'any-found t)
+		      (push (cons position changes) plies))))))
 
 	 ;; the knight is a zesty little piece; there may be more than
 	 ;; one, but at only one possible square in each direction

@@ -35,13 +35,7 @@
 (defcustom chess-display-mode-line-format
   '("   " chess-display-side-to-move "   "
     chess-display-move-text "   "
-    (:eval
-     (let ((white (chess-game-data chess-module-game 'white-remaining))
-	   (black (chess-game-data chess-module-game 'black-remaining)))
-       (if (and white black)
-	   (format "W %02d:%02d B %02d:%02d   "
-		   (/ (floor white) 60) (% (abs (floor white)) 60)
-		   (/ (floor black) 60) (% (abs (floor black)) 60)))))
+    (:eval (chess-display-clock-string))
     "(" (:eval (chess-game-tag chess-module-game "White")) "-"
     (:eval (chess-game-tag chess-module-game "Black")) ", "
     (:eval (chess-game-tag chess-module-game "Site"))
@@ -85,8 +79,10 @@ See `mode-line-format' for syntax details."
 
 (defun chess-display-create (game style perspective)
   "Create a chess display, for displaying chess objects."
-  (let ((chess-display-style style))
-    (chess-module-create 'chess-display game "*Chessboard*" perspective)))
+  (if (require style nil t)
+      (let ((chess-display-style style))
+	(chess-module-create 'chess-display game "*Chessboard*"
+			     perspective))))
 
 (defalias 'chess-display-destroy 'chess-module-destroy)
 
@@ -130,7 +126,8 @@ See `mode-line-format' for syntax details."
 
 (defun chess-display-set-ply (display ply)
   (chess-with-current-buffer display
-    (chess-display-set-index* nil 1)
+    (let ((chess-game-inhibit-events t))
+      (chess-display-set-index nil 1))
     (chess-game-set-plies chess-module-game
 			  (list ply (chess-ply-create*
 				     (chess-ply-next-pos ply))))))
@@ -146,7 +143,8 @@ the user able to scroll back and forth through the moves in the
 variation.  Any moves made on the board will extend/change the
 variation that was passed in."
   (chess-with-current-buffer display
-    (chess-display-set-index* nil (or index (chess-var-index variation)))
+    (let ((chess-game-inhibit-events t))
+      (chess-display-set-index nil (or index (chess-var-index variation))))
     (chess-game-set-plies chess-module-game variation)))
 
 (defun chess-display-variation (display)
@@ -170,40 +168,54 @@ also view the same game."
 
 (defalias 'chess-display-game 'chess-module-game)
 
-(defun chess-display-set-index* (display index)
+(defun chess-display-clock-string ()
+  (let ((white (chess-game-data chess-module-game 'white-remaining))
+	(black (chess-game-data chess-module-game 'black-remaining)))
+    (if (and (not (and white black))
+	     (> chess-display-index 0))
+	(let ((last-ply (chess-game-ply chess-module-game
+					(1- chess-display-index))))
+	  (setq white (chess-ply-keyword last-ply :white)
+		black (chess-ply-keyword last-ply :black))))
+    (if (and white black)
+	(format "W %02d:%02d B %02d:%02d   "
+		(/ (floor white) 60) (% (abs (floor white)) 60)
+		(/ (floor black) 60) (% (abs (floor black)) 60)))))
+
+(defun chess-display-set-index (display index)
   (chess-with-current-buffer display
     (unless (or (not (integerp index))
 		(< index 0)
 		(> index (chess-game-index chess-module-game)))
-      ;; setup the mode-line variables as well
-      (setq chess-display-index index
-	    chess-display-move-text
-	    (if (= index 0)
-		(chess-string 'mode-start)
-	      (concat (int-to-string (if (> index 1)
-					 (if (= (mod index 2) 0)
-					     (/ index 2)
-					   (1+ (/ index 2)))
-				       1))
-		      ". " (and (= 0 (mod index 2)) "... ")
-		      (chess-ply-to-algebraic
-		       (chess-game-ply chess-module-game (1- index)))))
-	    chess-display-side-to-move
-	    (let ((status (chess-game-status chess-module-game index)))
-	      (cond
-	       ((eq status :resign)    (chess-string 'mode-resigned))
-	       ((eq status :draw)      (chess-string 'mode-drawn))
-	       ((eq status :checkmate) (chess-string 'mode-checkmate))
-	       ((eq status :stalemate) (chess-string 'mode-stalemate))
-	       (t
-		(if (chess-pos-side-to-move (chess-display-position nil))
-		    (chess-string 'mode-white)
-		  (chess-string 'mode-black)))))))))
+      (chess-game-run-hooks chess-module-game 'set-index index))))
 
-(defun chess-display-set-index (display index)
+(defun chess-display-set-index* (display index)
   (chess-with-current-buffer display
-    (chess-display-set-index* nil index)
-    (chess-display-update nil t)))
+    (setq chess-display-index index
+	  chess-display-move-text
+	  (if (= index 0)
+	      (chess-string 'mode-start)
+	    (concat (int-to-string (if (> index 1)
+				       (if (= (mod index 2) 0)
+					   (/ index 2)
+					 (1+ (/ index 2)))
+				     1))
+		    ". " (and (= 0 (mod index 2)) "... ")
+		    (chess-ply-to-algebraic
+		     (chess-game-ply chess-module-game (1- index)))))
+	  chess-display-side-to-move
+	  (let ((status (chess-game-status chess-module-game index)))
+	    (cond
+	     ((eq status :resign)    (chess-string 'mode-resigned))
+	     ((eq status :draw)      (chess-string 'mode-drawn))
+	     ((eq status :checkmate) (chess-string 'mode-checkmate))
+	     ((eq status :stalemate) (chess-string 'mode-stalemate))
+	     (t
+	      (if (or chess-pos-always-white
+		      (chess-game-side-to-move chess-module-game index))
+		  (chess-string 'mode-white)
+		(chess-string 'mode-black))))))
+    (force-mode-line-update)))
 
 (defsubst chess-display-index (display)
   (chess-with-current-buffer display
@@ -215,7 +227,6 @@ also view the same game."
     (funcall chess-display-event-handler 'draw
 	     (chess-display-position nil)
 	     (chess-display-perspective nil))
-    (force-mode-line-update)
     (if (and popup (not chess-display-no-popup)
 	     (chess-module-leader-p nil))
 	(chess-display-popup nil))))
@@ -268,28 +279,24 @@ also view the same game."
 The position of PLY must match the currently displayed position.
 If only START is given, it must be in algebraic move notation."
   (chess-with-current-buffer display
+    (if (and (chess-display-active-p)
+	     ;; `active' means we're playing against an engine
+	     (chess-game-data chess-module-game 'active)
+	     (not (eq (chess-game-data chess-module-game 'my-color)
+		      (chess-game-side-to-move chess-module-game))))
+	(chess-error 'not-your-move)
+      (if (and (= chess-display-index
+		  (chess-game-index chess-module-game))
+	       (chess-game-over-p chess-module-game))
+	  (chess-error 'game-is-over)))
     ;; jww (2002-03-28): This should beget a variation within the
     ;; game, or alter the game, just as SCID allows
     (if (= chess-display-index (chess-game-index chess-module-game))
 	(let ((chess-display-handling-event t))
-	  (if (= chess-display-index 0)
-	      (chess-game-set-tag chess-module-game "White"
-				  chess-full-name))
 	  (chess-display-paint-move nil ply)
-	  (chess-game-move chess-module-game ply))
+	  (chess-game-move chess-module-game ply)
+	  (chess-display-set-index* nil (chess-game-index chess-module-game)))
       (error "What to do here??  NYI"))))
-
-(defun chess-assert-can-move (position)
-  (if (and (chess-display-active-p)
-	   ;; `active' means we're playing against an engine
-	   (chess-game-data chess-module-game 'active)
-	   (not (eq (chess-game-data chess-module-game 'my-color)
-		    (chess-pos-side-to-move position))))
-      (chess-error 'not-your-move)
-    (if (and (= chess-display-index
-		(chess-game-index chess-module-game))
-	     (chess-game-over-p chess-module-game))
-	(chess-error 'game-is-over))))
 
 (defun chess-display-highlight (display &rest args)
   "Highlight the square at INDEX on the current position.
@@ -358,7 +365,8 @@ that is supported by most displays, and is the default mode."
 ;; Event handler
 ;;
 
-(defcustom chess-display-interesting-events nil
+(defcustom chess-display-interesting-events
+  '(set-index)
   "Events which will cause a display refresh."
   :type '(repeat symbol)
   :group 'chess-display)
@@ -396,21 +404,25 @@ See `chess-display-type' for the different kinds of displays."
 	  (chess-game-set-data game 'my-color (not my-color))
 	  (chess-display-set-perspective* nil (not my-color))))
 
+       ((eq event 'set-index)
+	(chess-display-set-index* nil (car args)))
+
        ((eq event 'orient)
 	(let ((my-color (chess-game-data game 'my-color)))
 	  ;; Set the display's perspective to whichever color I'm
 	  ;; playing
 	  (chess-display-set-perspective* nil my-color))))
 
-      (let ((momentous (memq event chess-display-momentous-events)))
-	(if momentous
-	    (chess-display-set-index* nil (chess-game-index game)))
-	(if (or momentous (memq event chess-display-interesting-events))
+      (if (memq event chess-display-momentous-events)
+	  (progn
+	    (chess-display-set-index* nil (chess-game-index game))
 	    (if (eq event 'move)
 		(progn
 		  (chess-display-paint-move nil (car args))
 		  (chess-display-popup nil))
-	      (chess-display-update nil momentous)))))))
+	      (chess-display-update nil t)))
+	(if (memq event chess-display-interesting-events)
+	    (chess-display-update nil))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -440,6 +452,8 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(meta ?w)] 'chess-display-kill-board)
 
     (define-key map [(control ?l)] 'chess-display-redraw)
+    (define-key map [(control ?n)] 'chess-display-move-forward)
+    (define-key map [(control ?p)] 'chess-display-move-backward)
 
     map)
   "The mode map used in read-only display buffers.")
@@ -462,6 +476,10 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(control ?c) (control ?t)] 'chess-display-undo)
     (define-key map [?X] 'chess-display-quit)
 
+    (define-key map [?\{] 'chess-display-annotate)
+    (define-key map [?\"] 'chess-display-chat)
+    (define-key map [?\'] 'chess-display-chat)
+
     (define-key map [(control ?r)] 'chess-display-search-backward)
     (define-key map [(control ?s)] 'chess-display-search-forward)
     (define-key map [(control ?y)] 'chess-display-yank-board)
@@ -471,8 +489,8 @@ See `chess-display-type' for the different kinds of displays."
 		   ?r ?n ?b ?q ?k
 		   ?R ?N ?B ?Q ?K
 		   ?o ?O ?x))
-      (define-key map (vector key) 'chess-keyboard-shortcut))
-    (define-key map [backspace] 'chess-keyboard-shortcut-delete)
+      (define-key map (vector key) 'chess-input-shortcut))
+    (define-key map [backspace] 'chess-input-shortcut-delete)
 
     (define-key map [(control ?m)] 'chess-display-select-piece)
     (define-key map [return] 'chess-display-select-piece)
@@ -512,11 +530,16 @@ See `chess-display-type' for the different kinds of displays."
 The key bindings available in this mode are:
 \\{chess-display-mode-map}"
   (interactive)
-  (setq major-mode 'chess-display-mode mode-name "Chessboard")
+  (setq major-mode 'chess-display-mode
+	mode-name "Chessboard")
   (use-local-map chess-display-mode-map)
   (buffer-disable-undo)
   (setq buffer-auto-save-file-name nil
 	mode-line-format 'chess-display-mode-line-format)
+  (setq chess-input-position-function
+	(function
+	 (lambda ()
+	   (chess-display-position nil))))
   (setq chess-input-move-function 'chess-display-move))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -677,6 +700,14 @@ Basically, it means we are playing, not editing or reviewing."
   (if (or (not (chess-module-leader-p nil))
 	  (yes-or-no-p (chess-string 'want-to-quit)))
       (chess-module-destroy nil)))
+
+(defun chess-display-annotate ()
+  (interactive)
+  (chess-game-run-hooks chess-module-game 'switch-to-annotations))
+
+(defun chess-display-chat ()
+  (interactive)
+  (chess-game-run-hooks chess-module-game 'switch-to-chat))
 
 (defun chess-display-manual-move (move)
   "Move a piece manually, using chess notation."
@@ -936,7 +967,6 @@ Clicking once on a piece selects it; then click on the target location."
 			  (throw 'message (chess-string 'move-not-legal)))
 			(chess-display-move nil ply (car last-sel) (point))))
 		    (setq chess-display-last-selected nil))
-		(chess-assert-can-move position)
 		(let ((piece (chess-pos-piece position coord)))
 		  (cond
 		   ((eq piece ? )

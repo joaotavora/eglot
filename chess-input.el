@@ -7,33 +7,35 @@
 ;; only way to move your pieces around!
 ;;
 
-(defvar chess-move-string "")
-(defvar chess-legal-moves-pos nil)
-(defvar chess-legal-moves nil)
+(defvar chess-input-move-string "")
+(defvar chess-input-moves-pos nil)
+(defvar chess-input-moves nil)
+(defvar chess-input-position-function nil)
 (defvar chess-input-move-function nil)
 
-(make-variable-buffer-local 'chess-move-string)
-(make-variable-buffer-local 'chess-legal-moves-pos)
-(make-variable-buffer-local 'chess-legal-moves)
+(make-variable-buffer-local 'chess-input-move-string)
+(make-variable-buffer-local 'chess-input-moves-pos)
+(make-variable-buffer-local 'chess-input-moves)
+(make-variable-buffer-local 'chess-input-position-function)
 (make-variable-buffer-local 'chess-input-move-function)
 
 (chess-message-catalog 'english
   '((not-your-move . "It is not your turn to move")
     (game-is-over  . "This game is over")))
 
-(defun chess-keyboard-test-move (move-ply)
+(defun chess-input-test-move (move-ply)
   "Return the given MOVE if it matches the user's current input."
   (let* ((move (cdr move-ply))
 	 (i 0) (x 0) (l (length move))
-	 (xl (length chess-move-string))
+	 (xl (length chess-input-move-string))
 	 (match t))
-    (unless (or (and (equal (downcase chess-move-string) "ok")
+    (unless (or (and (equal (downcase chess-input-move-string) "ok")
 		     (string-match "\\`O-O[+#]?\\'" move))
-		(and (equal (downcase chess-move-string) "oq")
+		(and (equal (downcase chess-input-move-string) "oq")
 		     (string-match "\\`O-O-O[+#]?\\'" move)))
       (while (and (< i l) (< x xl))
 	(let ((move-char (aref move i))
-	      (entry-char (aref chess-move-string x)))
+	      (entry-char (aref chess-input-move-string x)))
 	  (if (and (= move-char ?x)
 		   (/= entry-char ?x))
 	      (setq i (1+ i))
@@ -45,44 +47,43 @@
     (if match
 	move-ply)))
 
-(defsubst chess-keyboard-display-moves (&optional move-list)
-  (if (> (length chess-move-string) 0)
-      (message "[%s] %s" chess-move-string
+(defsubst chess-input-display-moves (&optional move-list)
+  (if (> (length chess-input-move-string) 0)
+      (message "[%s] %s" chess-input-move-string
 	       (mapconcat 'cdr
 			  (or move-list
-			      (delq nil (mapcar 'chess-keyboard-test-move
-						(cdr chess-legal-moves))))
+			      (delq nil (mapcar 'chess-input-test-move
+						(cdr chess-input-moves))))
 			  " "))))
 
-(defun chess-keyboard-shortcut-delete ()
+(defun chess-input-shortcut-delete ()
   (interactive)
-  (when (and chess-move-string
-	     (stringp chess-move-string)
-	     (> (length chess-move-string) 0))
-    (setq chess-move-string
-	  (substring chess-move-string 0 (1- (length chess-move-string))))
-    (chess-keyboard-display-moves)))
+  (when (and chess-input-move-string
+	     (stringp chess-input-move-string)
+	     (> (length chess-input-move-string) 0))
+    (setq chess-input-move-string
+	  (substring chess-input-move-string 0 (1- (length chess-input-move-string))))
+    (chess-input-display-moves)))
 
-(defun chess-keyboard-shortcut (&optional display-only)
+(defun chess-input-shortcut (&optional display-only)
   (interactive)
-  (let* ((position (chess-display-position nil))
+  (let* ((position (funcall chess-input-position-function))
 	 (color (chess-pos-side-to-move position))
 	 char)
-    (chess-assert-can-move position)
-    (unless (memq last-command '(chess-keyboard-shortcut
-				 chess-keyboard-shortcut-delete))
-      (setq chess-move-string nil))
+    (unless (memq last-command '(chess-input-shortcut
+				 chess-input-shortcut-delete))
+      (setq chess-input-move-string nil))
     (unless display-only
-      (setq chess-move-string
-	    (concat chess-move-string (char-to-string last-command-char))))
-    (unless (and chess-legal-moves
-		 (eq position chess-legal-moves-pos)
-		 (or (> (length chess-move-string) 1)
-		     (eq (car chess-legal-moves) last-command-char)))
+      (setq chess-input-move-string
+	    (concat chess-input-move-string (char-to-string last-command-char))))
+    (unless (and chess-input-moves
+		 (eq position chess-input-moves-pos)
+		 (or (> (length chess-input-move-string) 1)
+		     (eq (car chess-input-moves) last-command-char)))
       (setq char (if (eq (downcase last-command-char) ?o) ?k
 		   last-command-char)
-	    chess-legal-moves-pos position
-	    chess-legal-moves
+	    chess-input-moves-pos position
+	    chess-input-moves
 	    (cons char
 		  (sort
 		   (mapcar
@@ -106,8 +107,8 @@
 		   (function
 		    (lambda (left right)
 		      (string-lessp (cdr left) (cdr right)))))))))
-  (let ((moves (delq nil (mapcar 'chess-keyboard-test-move
-				 (cdr chess-legal-moves)))))
+  (let ((moves (delq nil (mapcar 'chess-input-test-move
+				 (cdr chess-input-moves)))))
     (cond
      ((or (= (length moves) 1)
 	  ;; if there is an exact match except for case, it must be an
@@ -119,13 +120,13 @@
 			(downcase (cdr (cadr moves))))
 	       (setq moves (cdr moves))))
       (funcall chess-input-move-function nil (caar moves))
-      (setq chess-move-string nil
-	    chess-legal-moves nil
-	    chess-legal-moves-pos nil))
+      (setq chess-input-move-string nil
+	    chess-input-moves nil
+	    chess-input-moves-pos nil))
      ((null moves)
-      (chess-keyboard-shortcut-delete))
+      (chess-input-shortcut-delete))
      (t
-      (chess-keyboard-display-moves moves)))))
+      (chess-input-display-moves moves)))))
 
 (provide 'chess-input)
 

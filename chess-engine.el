@@ -254,7 +254,15 @@
 	t))
 
      ((eq event 'illegal)
-      (chess-message 'opp-illegal)))))
+      (chess-message 'opp-illegal))
+
+     ((eq event 'kibitz)
+      (let ((chess-engine-handling-event t))
+	(chess-game-run-hooks game 'kibitz (car args))))
+
+     ((eq event 'chat)
+      (let ((chess-engine-handling-event t))
+	(chess-game-run-hooks game 'chat (car args)))))))
 
 (defun chess-engine-create (module game &optional response-handler
 				 &rest handler-ctor-args)

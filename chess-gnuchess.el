@@ -3,7 +3,6 @@
 ;; Play against gnuchess!
 ;;
 
-(require 'chess-engine)
 (require 'chess-common)
 
 (defgroup chess-gnuchess nil

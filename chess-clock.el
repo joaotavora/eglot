@@ -33,31 +33,41 @@
 (defun chess-clock-handler (game event &rest args)
   (cond
    ((eq event 'initialize)
-    (unless (chess-game-data game 'white-remaining)
-      (chess-game-set-data game 'white-remaining (float (or (car args) 0))))
-    (unless (chess-game-data game 'black-remaining)
-      (chess-game-set-data game 'black-remaining (float (or (car args) 0))))
-    (setq chess-clock-timer
-	  (run-with-timer 0 1 'chess-clock-tick-tock (current-buffer)))
+    (unless (or (null (car args))
+		(chess-game-data game 'white-remaining))
+      (chess-game-set-data game 'white-remaining (float (car args)))
+      (chess-game-set-data game 'black-remaining (float (car args))))
     t)
 
    ((eq event 'post-undo)
-    (let ((last-ply (car (last (chess-game-plies game) 2))))
-      (chess-game-set-data game 'white-remaining
-			   (chess-ply-keyword last-ply :white))
-      (chess-game-set-data game 'black-remaining
-			   (chess-ply-keyword last-ply :black))))
+    (let* ((last-ply (car (last (chess-game-plies game) 2)))
+	   (white (chess-ply-keyword last-ply :white))
+	   (black (chess-ply-keyword last-ply :black)))
+      (when (and white black)
+	(chess-game-set-data game 'white-remaining white)
+	(chess-game-set-data game 'black-remaining black))))
 
    ((eq event 'move)
-    (when (> (chess-game-index game) 0)
-      (let ((last-ply (car (last (chess-game-plies game) 2))))
-	(chess-ply-set-keyword last-ply :white
-			       (chess-game-data game 'white-remaining))
-	(chess-ply-set-keyword last-ply :black
-			       (chess-game-data game 'black-remaining)))))
+    (let ((white (chess-game-data game 'white-remaining))
+	  (black (chess-game-data game 'black-remaining)))
+      (when (and white black (> (chess-game-index game) 0))
+	(setq chess-clock-timer
+	      (run-with-timer 0 1 'chess-clock-tick-tock (current-buffer)))
+	(let ((last-ply (car (last (chess-game-plies game) 2))))
+	  (chess-ply-set-keyword last-ply :white white)
+	  (chess-ply-set-keyword last-ply :black black))))
+    (if (chess-game-over-p game)
+	(chess-clock-handler game 'destroy)))
 
-   ((eq event 'destroy)
-    (cancel-timer chess-clock-timer))))
+   ((eq event 'set-data)
+    (if (and (eq (car args) 'active)
+	     (null (chess-game-data game 'active)))
+	(chess-clock-handler game 'destroy)))
+
+   ((memq event '(destroy resign drawn))
+    (when chess-clock-timer
+      (cancel-timer chess-clock-timer)
+      (setq chess-clock-timer)))))
 
 (defvar chess-clock-tick-tocking nil)
 

@@ -83,7 +83,7 @@
 	(setq i (1+ i)))
        (t
 	(setq error t)))
-      (setq i (1+ i) c (aref fen i)))
+      (setq i (1+ i) c (and (< i l) (aref fen i))))
     (unless error
       position)))
 

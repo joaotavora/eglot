@@ -3,7 +3,7 @@
 ;; Play against an opponent over the network
 ;;
 
-(require 'chess-engine)
+(require 'chess-common)
 (require 'chess-fen)
 (require 'chess-algebraic)
 
@@ -28,7 +28,8 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'setup-game
-		     (chess-engine-convert-pgn (match-string 1))))))
+		     (chess-engine-convert-pgn
+		      (chess-network-parse-multiline (match-string 1)))))))
    (cons "pass$"
 	 (function
 	  (lambda ()
@@ -66,12 +67,36 @@
    (cons "retract$"
 	 (function
 	  (lambda ()
-	    (funcall chess-engine-response-handler 'retract))))))
+	    (funcall chess-engine-response-handler 'retract))))
+   (cons "illegal$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'illegal))))
+   (cons "kibitz\\s-+\\(.+\\)$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'kibitz
+		     (chess-network-parse-multiline (match-string 1))))))
+   (cons "chat\\s-+\\(.+\\)$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'chat
+		     (chess-network-parse-multiline (match-string 1))))))))
 
 (chess-message-catalog 'english
   '((network-starting  . "Starting network client/server...")
     (network-waiting   . "Now waiting for your opponent to connect...")
     (network-connected ."You have connected; pass now or make your move.")))
+
+(defun chess-network-flatten-multiline (str)
+  (while (string-match "\n" str)
+    (setq str (replace-match "\C-k" t t str)))
+  str)
+
+(defun chess-network-parse-multiline (str)
+  (while (string-match "\C-k" str)
+    (setq str (replace-match "\n" t t str)))
+  str)
 
 (defun chess-network-handler (game event &rest args)
   "Initialize the network chess engine."
@@ -94,8 +119,7 @@
 	  (chess-message 'network-connected))
 	t))
 
-     ((eq event 'destroy)
-      (chess-engine-send nil "quit\n"))
+     ((eq event 'ready))		; don't set active yet
 
      ((eq event 'setup-pos)
       (chess-engine-send nil (format "fen %s\n"
@@ -103,7 +127,8 @@
 
      ((eq event 'setup-game)
       (chess-engine-send nil (format "pgn %s\n"
-				     (chess-game-to-string (car args)))))
+				     (chess-network-flatten-multiline
+				      (chess-game-to-string (car args))))))
 
      ((eq event 'pass)
       (chess-engine-send nil "pass\n"))
@@ -150,12 +175,21 @@
      ((eq event 'illegal)
       (chess-engine-send nil "illegal\n"))
 
-     ((eq event 'move)
-      (if (= 1 (chess-game-index game))
-	  (chess-game-set-tag game "Black" chess-engine-opponent-name))
-      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
-      (if (chess-game-over-p game)
-	  (chess-game-set-data game 'active nil))))))
+     ((eq event 'kibitz)
+      (chess-engine-send nil (format "kibitz %s\n"
+				     (chess-network-flatten-multiline
+				      (car args)))))
+
+     ((eq event 'chat)
+      (chess-engine-send nil (format "chat %s\n"
+				     (chess-network-flatten-multiline
+				      (car args)))))
+
+     ((eq event 'set-index)
+      (chess-engine-send nil (format "index %d\n" (car args))))
+
+     (t
+      (apply 'chess-common-handler game event args)))))
 
 (provide 'chess-network)
 
