@@ -5,6 +5,12 @@
   best for chess-images.  I still need to figure out how best to
   handle cursor-type with that display.
 
+- There is presently no way to start a new game!
+
+- Still need to test many areas:
+
+  position editing
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs

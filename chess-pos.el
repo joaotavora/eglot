@@ -130,12 +130,13 @@ SIDE must be either ?q or ?k (case determines color)."
 
 (defsubst chess-pos-status (position)
   "Return whether the side to move is in a special state.
-The symbols allowed are: `check', `checkmate', `stalemate'."
+The symbols allowed are: `check', `checkmate', `stalemate'.
+Also, EPD evaluation numbers/strings can be set here."
   (aref position 69))
 
-(defsubst chess-pos-set-status (position value)
+(defsubst chess-pos-set-status (position &rest values)
   "Set whether the side to move is in a special state."
-  (aset position 69 value))
+  (aset position 69 values))
 
 (defsubst chess-pos-side-to-move (position)
   "Return the color whose move it is in POSITION."
@@ -231,17 +232,21 @@ color will do."
   "Move a piece on the POSITION directly, using the indices FROM and TO.
 This function does not check any rules, it only makes sure you are not
 trying to move a blank square."
-  (while changes
-    (if (symbolp (car changes))
-	(setq changes nil)
-      (let* ((from (car changes))
-	     (to (cadr changes))
-	     (piece (chess-pos-piece position from)))
-	(if (= piece ? )
-	    (error "Attempted piece move from blank square %s" from))
-	(chess-pos-set-piece position from ? )
-	(chess-pos-set-piece position to piece))
-      (setq changes (cddr changes))))
+  (assert changes)
+  (let ((ch changes))
+    (while ch
+      (if (symbolp (car ch))
+	  (setq ch nil)
+	(let* ((from (car ch))
+	       (to (cadr ch))
+	       (piece (chess-pos-piece position from)))
+	  (if (= piece ? )
+	      (error "Attempted piece move from blank square %s" from))
+	  (chess-pos-set-piece position from ? )
+	  (chess-pos-set-piece position to piece))
+	(setq ch (cddr ch)))))
+
+  ;; now fix up the position
   (let ((color (chess-pos-side-to-move position)))
 
     ;; once a piece is moved, en passant is no longer available
@@ -249,7 +254,7 @@ trying to move a blank square."
 
     ;; if a king or rook moves, no more castling; also, if a pawn
     ;; jumps ahead two, mark it en-passantable
-    (let ((piece (downcase (car changes))))
+    (let ((piece (downcase (chess-pos-piece position (car changes)))))
       (cond
        ((and (= piece ?k)
 	     (equal (car changes)
@@ -279,6 +284,15 @@ trying to move a blank square."
     (let ((new-piece (cadr (assq :promote changes))))
       (if new-piece
 	  (chess-pos-set-piece position (cadr changes) new-piece)))
+
+    ;; did we leave the position in check, mate or stalemate?
+    (cond
+     ((memq :check changes)
+      (chess-pos-set-status position :check))
+     ((memq :checkmate changes)
+      (chess-pos-set-status position :checkmate))
+     ((memq :stalemate changes)
+      (chess-pos-set-status position :stalemate)))
 
     ;; return the final position
     position))

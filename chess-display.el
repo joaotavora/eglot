@@ -366,29 +366,33 @@ The key bindings available in this mode are:
   (let ((color (chess-pos-side-to-move (chess-display-position nil)))
 	(index (chess-display-index nil))
 	ply)
-    (if (and index (= index 0))
+    (if (null index)
 	(setq chess-display-mode-line
-	      (format "   %s   START" (if color "White" "BLACK")))
-      (cond
-       (chess-display-ply
-	(setq ply chess-display-ply))
-       (chess-display-game
-	(setq ply (chess-game-ply chess-display-game (1- index))))
-       (chess-display-variation
-	(setq ply (chess-var-ply chess-display-variation (1- index)))))
-      (if ply
+	      (if color "  White to move" "  Black to move"))
+      (if (and index (= index 0))
 	  (setq chess-display-mode-line
-		(concat
-		 (if (chess-ply-final-p ply)
-		     "  FINISHED"
-		   (concat "  " (if color "White" "BLACK")))
-		 (if index
-		     (concat "   " (int-to-string
-				    (if (> index 1)
-					(/ index 2) (1+ (/ index 2))))))
-		 (if ply
-		     (concat ". " (if color "... ")
-			     (or (chess-ply-to-algebraic ply) "???")))))))))
+		(format "   %s   START" (if color "White" "Black")))
+	(cond
+	 (chess-display-ply
+	  (setq ply chess-display-ply))
+	 (chess-display-game
+	  (setq ply (chess-game-ply chess-display-game (1- index))))
+	 (chess-display-variation
+	  (setq ply (chess-var-ply chess-display-variation (1- index)))))
+	(if ply
+	    (setq chess-display-mode-line
+		  (concat
+		   (if (chess-ply-final-p ply)
+		       "  FINISHED"
+		     (concat "  " (if color "White" "Black")))
+		   (if index
+		       (concat "   " (int-to-string
+				      (if (> index 1)
+					  (/ index 2) (1+ (/ index 2))))))
+		   (if ply
+		       (concat ". " (if color "... ")
+			       (or (chess-ply-to-algebraic ply)
+				   "???"))))))))))
 
 (defsubst chess-display-active-p ()
   "Return non-nil if the displayed chessboard reflects an active game.
