@@ -236,10 +236,6 @@ also view the same game."
 	  (aset chess-display-index-positions 0 (point-min)))))
     (aref chess-display-index-positions index)))
 
-(defsubst chess-display-goto-index (index)
-  (chess-with-current-buffer display
-    (goto-char (chess-display-index-pos nil index))))
-
 (defun chess-display-paint-move (display ply)
   (chess-with-current-buffer display
     (let ((position (chess-ply-pos ply))
@@ -569,10 +565,7 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-duplicate (style)
   (interactive
    (list (concat "chess-"
-		 (read-from-minibuffer
-		  "Create new display using style: "
-		  (substring (symbol-name (chess-display-style nil))
-			     0 (length "chess-"))))))
+		 (read-from-minibuffer "Create new display using style: "))))
   (chess-display-clone (current-buffer) (intern-soft style)
 		       (chess-display-perspective nil)))
 

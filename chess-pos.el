@@ -525,7 +525,7 @@ indices which indicate where a piece may have moved from."
     ;; prune from the discovered candidates list any moves which would
     ;; leave the king in check; castling through check has already
     ;; been eliminated.
-    (if (char-valid-p piece)
+    (if (and candidates (char-valid-p piece))
 	(setq candidates
 	      (apply 'chess-pos-legal-moves
 		     position color target candidates)))
