@@ -82,15 +82,23 @@
   (chess-game-run-hooks game 'delete-tag tag))
 
 
+(defsubst chess-game-data (game)
+  (nth 2 game))
+
+(defsubst chess-game-set-data (game data)
+  (setcar (nthcdr 1 game) data)
+  (chess-game-run-hooks game 'set-data))
+
+
 (defsubst chess-game-plies (game)
   "Return the tags alist associated with GAME."
-  (nth 2 game))
+  (nth 3 game))
 
 (defalias 'chess-game-main-var 'chess-game-plies)
 
 (defsubst chess-game-set-plies (game plies)
   "Return the tags alist associated with GAME."
-  (setcdr (nthcdr 1 game) (list plies))
+  (setcdr (nthcdr 2 game) (list plies))
   (chess-game-run-hooks game 'setup (chess-ply-pos (car (last plies)))))
 
 (defsubst chess-game-set-start-position (game position)
@@ -131,7 +139,7 @@
 Optionally use the given starting POSITION.
 TAGS is the starting set of game tags (which can always be changed
 later using the various tag-related methods)."
-  (let ((game (list nil tags
+  (let ((game (list nil tags nil
 		    (list (chess-ply-create (or position
 						(chess-pos-create)))))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
