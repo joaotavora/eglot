@@ -132,6 +132,24 @@ game number.")
 	    'once)))
    (cons "\\(\\S-+\\) (\\([0-9+-]+\\)) seeking \\([1-9][0-9]*\\) \\([0-9]+\\) \\(.+\\) (\"\\([^\"]+\\)\" to respond)\\s-*$"
 	 'chess-ics-handle-seek)
+   (cons "^\\([A-Za-z]+\\)\\((\*)\\|(B)\\|(CA?)\\|(T[DM]?)\\|(SR)\\|(FM)\\|(W?\\(GM\\|IM\\))\\)*(\\([0-9]+\\)): .+$"
+	 (function
+	  (lambda ()
+	    (let ((fill-prefix (make-string
+				(- (match-end 1) (match-beginning 1)) ? )))
+	      (goto-char (match-beginning 0))
+	      (save-excursion
+		(while (and (forward-line -1)
+			    (or (looking-at "^[ \t]*$")
+				(looking-at "^[^% \t\n\r]+%\\s-*$")))
+		  (delete-region (match-beginning 0) (1+ (match-end 0)))))
+	      (save-excursion
+		(while (and (forward-line 1)
+			    (looking-at "^\\\\\\s-+"))
+		  (delete-region (1- (match-beginning 0)) (match-end 0))))
+	      (when (> (- (line-end-position) (line-beginning-position))
+		       fill-column)
+		(fill-region (point) (line-end-position)))))))
    (cons "{Game \\([0-9]+\\) (\\(\\S-+\\) vs\\. \\(\\S-+\\)) Creating [^ ]+ \\([^ ]+\\).*}"
 	 (function
 	  (lambda ()
@@ -440,7 +458,7 @@ See `chess-ics-game'.")
 	(if error
 	    (chess-message 'failed-ics-parse error
 			   (buffer-substring-no-properties begin end)))
-	(when nil
+	(unless error
 	  (goto-char begin)
 	  (delete-region begin end)
 	  (save-excursion
