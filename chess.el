@@ -82,7 +82,7 @@
   "An Emacs chess playing program."
   :group 'games)
 
-(defconst chess-version "2.0a7"
+(defconst chess-version "2.0a8"
   "The version of the Emacs chess program.")
 
 (defcustom chess-default-display (if (display-graphic-p)
