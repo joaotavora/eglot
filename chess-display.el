@@ -231,8 +231,7 @@ modeline."
 (defun chess-display-set-index (display index)
   (chess-with-current-buffer display
     (chess-display-set-index* nil index)
-    (chess-display-update nil t)
-    (chess-display-update-modeline)))
+    (chess-display-update nil t)))
 
 (defsubst chess-display-index (display)
   (chess-with-current-buffer display
@@ -244,6 +243,7 @@ modeline."
     (funcall chess-display-event-handler 'draw
 	     (chess-display-position nil)
 	     (chess-display-perspective nil))
+    (chess-display-update-modeline)
     (if (and popup (not chess-display-no-popup)
 	     (chess-display-main-p nil))
 	(chess-display-popup nil))))
@@ -334,9 +334,6 @@ See `chess-display-type' for the different kinds of displays."
 
      ((eq event 'destroy)
       (chess-display-detach-game nil))
-
-     ((eq event 'post-move)
-      (chess-display-update-modeline))
 
      ((eq event 'pass)
       (let ((my-color (chess-game-data game 'my-color)))
@@ -525,8 +522,7 @@ The key bindings available in this mode are:
   "Just redraw the current display."
   (interactive)
   (erase-buffer)
-  (chess-display-update nil)
-  (chess-display-update-modeline))
+  (chess-display-update nil))
 
 (defsubst chess-display-active-p ()
   "Return non-nil if the displayed chessboard reflects an active game.
@@ -1041,9 +1037,9 @@ Clicking once on a piece selects it; then click on the target location."
 			(> piece ?a)
 		      (< piece ?a))
 		    (throw 'message (chess-string 'wrong-color)))
-		   ;((null (chess-legal-plies position :index coord))
-		   ; (throw 'message (chess-string 'piece-immobile)))
-		   )
+		   ((and chess-display-highlight-legal
+			 (null (chess-legal-plies position :any :index coord)))
+		    (throw 'message (chess-string 'piece-immobile))))
 		  (setq chess-display-last-selected (list (point) coord))
 		  (chess-display-highlight nil coord)
 		  (if chess-display-highlight-legal

@@ -237,8 +237,7 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	  (chess-game-run-hooks game 'move current-ply))))
 
      (t
-      (chess-game-run-hooks game 'move current-ply)
-      (chess-game-run-hooks game 'post-move)))))
+      (chess-game-run-hooks game 'move current-ply)))))
 
 (defsubst chess-game-end (game keyword)
   "End the current game, by resignation, draw, etc."
