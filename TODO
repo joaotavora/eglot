@@ -1,6 +1,9 @@
 
 			       Hotlist
 
+- After I resign (against crafty, for example), the mode-line does not
+  look as it should
+
 - Follow what `edit-env' does, in order to make chess-query.el
 
 - Make ( create variations in a display, and C-f and C-b move into and
