@@ -15,7 +15,7 @@
   :group 'chess-autosave)
 
 (chess-message-catalog 'english
-  '((chess-read-autosave . "There is a chess autosave file, read it? ")
+  '((chess-read-autosave   . "There is a chess autosave file, read it? ")
     (chess-delete-autosave . "Delete the autosave file? ")))
 
 (defun chess-autosave-handler (game event &rest args)
