@@ -271,7 +271,8 @@ who is black."
       (goto-char begin)
       (delete-region begin end)
       ;; we need to counter the forward-line in chess-engine-filter
-      (forward-line -1))
+      (unless error
+	(forward-line -1)))
     t))
 
 (defun chess-ics-handler (game event &rest args)
