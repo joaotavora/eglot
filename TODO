@@ -4,6 +4,9 @@ These are features scheduled for future 2.x releases.
 
 			   General Features
 
+- Write chess-epd.el, which is based on chess-fen, and is also a
+  database module for accessing positions within an EPD file
+
 - Make ( create variations in a display, and keys to move into and out
   of them.  At the moment, variations are supported programmatically,
   but not in the UI.

@@ -182,8 +182,10 @@ also view the same game."
 	  (setq white (chess-ply-keyword last-ply :white)
 		black (chess-ply-keyword last-ply :black))))
     (if (and white black)
-	(format "W %02d:%02d B %02d:%02d   "
+	(format "W %s%02d:%02d B %s%02d:%02d   "
+		(if (and (< white 0) (= 0 (floor white))) "-" "")
 		(/ (floor white) 60) (% (abs (floor white)) 60)
+		(if (and (< black 0) (= 0 (floor black))) "-" "")
 		(/ (floor black) 60) (% (abs (floor black)) 60)))))
 
 (defun chess-display-set-index (display index)

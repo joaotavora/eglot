@@ -9,9 +9,8 @@ chess-ply
 - Thus there will be a mirror set of chess-pos-has-keyword, etc.,
   functions
 
-chess-epd
-- based on chess-fen, this will also be a database module for
-  accessing positions within an EPD file
+chess-display
+- there is no way to call flag right now
 
 chess-ics
 - detect draw/resign/retract, etc.
@@ -22,21 +21,19 @@ chess-clock
   user to call-flag in order to win on time; note: the user should be
   allowed to try anyway, in case our clock has become out-of-sync with
   the server's
-- when the clock goes under, it starts counting up!  Need a "-0".
 
 chess-images
 - in a generic emacs, with a light background, there are white lines
   in wierd places on the chessboard
 
-The PGN chapter of the manual is not fully representative of the
-original, owing to the lack of subsubsubsection in texinfo.
-
 			 BEFORE FINAL RELEASE
 
   use more asserts throughout the code
   break my dependency on cl
-* profile
-* mem profile
+
+  profile
+  mem profile
+
   elint
   docstring/texi
   checkdoc
