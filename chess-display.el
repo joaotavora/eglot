@@ -47,6 +47,7 @@
 ;; User interface
 ;;
 
+(defvar chess-display-style)
 (defvar chess-display-game)
 (defvar chess-display-variation)
 (defvar chess-display-index)
@@ -59,6 +60,7 @@
 (defvar chess-display-edit-mode nil)
 (defvar chess-display-mode-line "")
 
+(make-variable-buffer-local 'chess-display-style)
 (make-variable-buffer-local 'chess-display-game)
 (make-variable-buffer-local 'chess-display-variation)
 (make-variable-buffer-local 'chess-display-index)
@@ -87,17 +89,40 @@
     (with-current-buffer (generate-new-buffer "*Chessboard*")
       (chess-display-mode)
       (funcall handler 'initialize)
-      (setq chess-display-event-handler handler
-	    chess-display-perspective perspective)
+      (setq chess-display-style style
+	    chess-display-perspective perspective
+	    chess-display-event-handler handler)
       (add-hook 'kill-buffer-hook 'chess-display-quit nil t)
       (current-buffer))))
+
+(defun chess-display-clone (display style perspective)
+  (let ((new-display (chess-display-create style perspective)))
+    (with-current-buffer display
+      (cond
+       (chess-display-game
+	(chess-display-set-game new-display chess-display-game)
+	(chess-display-set-index new-display chess-display-index))
+       (chess-display-variation
+	(chess-display-set-variation new-display chess-display-variation)
+	(chess-display-set-index new-display chess-display-index))
+       (chess-display-ply
+	(chess-display-set-ply new-display chess-display-ply))
+       (chess-display-position
+	(chess-display-set-game new-display chess-display-position))))
+    (chess-display-update new-display t)
+    new-display))
 
 (defun chess-display-destroy (display)
   "Destroy a chess display object, killing all of its buffers."
   (let ((buf (or display (current-buffer))))
     (when (buffer-live-p buf)
-      (funcall chess-display-event-handler 'destroy)
+      (chess-display-event-handler (chess-display-game nil)
+				   buf 'destroy)
       (kill-buffer buf))))
+
+(defsubst chess-display-style (display)
+  (chess-with-current-buffer display
+    chess-display-style))
 
 (defsubst chess-display-perspective (display)
   (chess-with-current-buffer display
@@ -219,7 +244,8 @@ modeline."
   (chess-with-current-buffer display
     (if chess-display-game
 	(chess-game-remove-hook chess-display-game
-				'chess-display-event-handler))))
+				'chess-display-event-handler
+				(or display (current-buffer))))))
 
 (defsubst chess-display-game (display)
   (chess-with-current-buffer display
@@ -356,7 +382,7 @@ See `chess-display-type' for the different kinds of displays."
 
     (define-key map [??] 'describe-mode)
     (define-key map [?B] 'chess-display-list-buffers)
-    (define-key map [?C] 'chess-display-clear-board)
+    (define-key map [?C] 'chess-display-duplicate)
     (define-key map [?E] 'chess-display-edit-board)
     (define-key map [?F] 'chess-display-set-from-fen)
     (define-key map [?I] 'chess-display-invert)
@@ -384,6 +410,7 @@ See `chess-display-type' for the different kinds of displays."
 		      ?r ?n ?b ?q ?k ?o))
       (define-key map (vector key) 'chess-keyboard-shortcut))
     (define-key map [backspace] 'chess-keyboard-shortcut-delete)
+    (define-key map [?x] 'ignore)
 
     (define-key map [(control ?m)] 'chess-display-select-piece)
     (define-key map [return] 'chess-display-select-piece)
@@ -531,9 +558,15 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive "sDisplay this game on X server: ")
   (require 'chess-images)
   (let ((chess-images-separate-frame display))
-    ;; jww (2002-04-08): also set-position, set-ply, etc.
-    (chess-display-set-game (chess-display-create 'chess-images t)
-			    (chess-display-game nil))))
+    (chess-display-clone (current-buffer) 'chess-images
+			 (chess-display-perspective nil))))
+
+(defun chess-display-duplicate (style)
+  (interactive
+   (list (read-from-minibuffer "Create new display using style: "
+			       (symbol-name (chess-display-style nil)))))
+  (chess-display-clone (current-buffer) (intern-soft style)
+		       (chess-display-perspective nil)))
 
 (defun chess-display-pass ()
   "Pass the move to your opponent.  Only valid on the first move."
@@ -689,7 +722,7 @@ to the end or beginning."
 (make-variable-buffer-local 'chess-legal-moves)
 
 (defun chess-keyboard-test-move (move)
-  "Return the given MOVE if it matching the user's current input."
+  "Return the given MOVE if it matches the user's current input."
   (let ((i 0) (x 0)
 	(l (length move))
 	(xl (length chess-move-string))

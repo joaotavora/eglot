@@ -192,7 +192,8 @@
   (chess-with-current-buffer engine
     (if chess-engine-game
 	(chess-game-remove-hook chess-engine-game
-				'chess-engine-event-handler))))
+				'chess-engine-event-handler
+				(or engine (current-buffer))))))
 
 (defun chess-engine-game (engine)
   (chess-with-current-buffer engine

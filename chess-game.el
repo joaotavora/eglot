@@ -40,10 +40,22 @@
 	  (chess-game-set-hooks game (cons (cons function data) hooks))
 	(nconc hooks (list (cons function data)))))))
 
-(defsubst chess-game-remove-hook (game function)
-  "Return the tags alist associated with GAME."
-  (chess-game-set-hooks game (assq-delete-all function
-					      (chess-game-hooks game))))
+(defun chess-game-remove-hook (game function &optional data)
+  "Remove from GAME all event hooks that match FUNCTION.
+If DATA is specified, only remove those hooks whose associated data
+matches."
+  (let* ((hooks (chess-game-hooks game))
+	 (h hooks) last-hook)
+    (while h
+      (if (and (eq (caar h) function)
+	       (or (null data)
+		   (eq data (cdar h))))
+	  (if last-hook
+	      (setcdr last-hook (cdr h))
+	    (setq hooks (cdr h)))
+	(setq last-hook h))
+      (setq h (cdr h)))
+    (chess-game-set-hooks game hooks)))
 
 (defsubst chess-game-run-hooks (game &rest args)
   "Return the tags alist associated with GAME."
