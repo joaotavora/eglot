@@ -1,0 +1,108 @@
+\input texinfo  @c -*-texinfo-*-
+
+@c "@(#)$Name$:$Id$"
+
+@c Documentation for Chess.el.
+@c Copyright (C) 2001, 20002 John Wiegley.
+
+@c This file is free software; you can redistribute it and/or modify it
+@c under the terms of the GNU General Public License as published by the
+@c Free Software Foundation; either version 2 of the License, or (at
+@c your option) any later version.
+
+@c This file is distributed in the hope that it will be useful, but
+@c WITHOUT ANY WARRANTY; without even the implied warraonty of
+@c MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+@c General Public License for more details.
+
+@c You should have received a copy of the GNU General Public License
+@c along with Eshell; see the file COPYING.  If not, write to the Free
+@c Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+@c %**start of header
+@setfilename chess
+@settitle Chess.el
+@c %**end of header
+
+@dircategory Emacs
+@direntry
+* Chess: (chess).     Chess.el is an Emacs chess client.
+@end direntry
+@setchapternewpage on
+
+@ifinfo
+Copyright @copyright{} 2001, 2002 John Wiegley.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation.
+@end ifinfo
+
+@synindex vr fn
+@c The titlepage section does not appear in the Info file.
+@titlepage
+@sp 4
+@c The title is printed in a large font.
+@center @titlefont{User's Guide}
+@sp
+@center @titlefont{to}
+@sp
+@center @titlefont{Chess.el}
+@ignore
+@sp 2
+@center release 2.0
+@c -release-
+@end ignore
+@sp 3
+@center John Wiegley
+@c -date-
+
+@c  The following two commands start the copyright page for the printed
+@c  manual.  This will not appear in the Info file.
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2001, 2002 John Wiegley.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation.
+@end titlepage
+
+@contents
+
+@c ================================================================
+@c                   The real text starts here
+@c ================================================================
+
+@ifinfo
+@top Chess.el
+
+Chess.el is an Emacs chess environment, designed in a modular fashion to
+be used either as a library for writing chess-related programs, or as a
+plain client for playing chess, analyzing variations, or browsing
+historical games.
+
+The purpose of this manual is to help you understand how Chess.el is
+structured for use as a library, and also how to use the optional
+modules which make it useful as a client.  These modules also serve as
+an example of how to make use of the library.
+@end ifinfo
+
+@chapter What is Chess.el?
+@cindex what is chess.el?
+@cindex chess.el, what it is
+
+
+
+@unnumbered Concept Index
+
+@printindex cp
+
+@unnumbered Function and Variable Index
+
+@printindex fn
+
+@unnumbered Key Index
+
+@printindex ky
+@bye
