@@ -108,6 +108,7 @@ See `mode-line-format' for syntax details."
     new-display))
 
 (defsubst chess-display-perspective (display)
+  "Return the current perspective of DISPLAY."
   (chess-with-current-buffer display
     chess-display-perspective))
 
@@ -118,11 +119,13 @@ See `mode-line-format' for syntax details."
     (erase-buffer)))			; force a complete redraw
 
 (defun chess-display-set-perspective (display perspective)
+  "Set PERSPECTIVE of DISPLAY."
   (chess-with-current-buffer display
     (chess-display-set-perspective* nil perspective)
     (chess-display-update nil)))
 
 (defun chess-display-set-position (display &optional position my-color)
+  "Set the game associated with DISPLAY to use POSITION and MY-COLOR."
   (chess-with-current-buffer display
     (if position
 	(progn
@@ -134,7 +137,7 @@ See `mode-line-format' for syntax details."
     (chess-display-set-index nil 0)))
 
 (defun chess-display-position (display)
-  "Return the position currently viewed."
+  "Return the position currently viewed on DISPLAY."
   (chess-with-current-buffer display
     (if chess-display-edit-mode
 	chess-display-edit-position
@@ -153,10 +156,10 @@ See `mode-line-format' for syntax details."
     (chess-game-ply chess-module-game chess-display-index)))
 
 (defun chess-display-set-variation (display variation &optional index)
-  "Set the display variation.
-This will cause the first ply in the variation to be displayed, with
-the user able to scroll back and forth through the moves in the
-variation.  Any moves made on the board will extend/change the
+  "Set DISPLAY VARIATION.
+If INDEX is not specified, this will cause the first ply in the variation
+to be displayed, with the user able to scroll back and forth through the
+moves in the variation.  Any moves made on the board will extend/change the
 variation that was passed in."
   (chess-with-current-buffer display
     (let ((chess-game-inhibit-events t))
