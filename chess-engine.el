@@ -342,10 +342,8 @@
 
 (defun chess-engine-set-game (engine game &optional no-setup)
   (chess-with-current-buffer engine
-    (chess-game-set-tags chess-engine-game (chess-game-tags game))
-    ;; this call triggers `setup-game' for us
     (let ((chess-game-inhibit-events no-setup))
-      (chess-game-set-plies chess-engine-game (chess-game-plies game)))))
+      (chess-game-copy-game chess-engine-game game))))
 
 (defun chess-engine-set-game* (engine game &optional no-setup)
   (chess-with-current-buffer engine

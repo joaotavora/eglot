@@ -202,9 +202,7 @@ This is the function to call to cause a display to view a game.  It
 will also update all of the listening engines and other displays to
 also view the same game."
   (chess-with-current-buffer display
-    (chess-game-set-tags chess-display-game (chess-game-tags game))
-    ;; this call triggers `setup-game' for us
-    (chess-game-set-plies chess-display-game (chess-game-plies game))
+    (chess-game-copy-game chess-display-set-game game)
     (chess-display-set-index nil (or index (chess-game-index game)))))
 
 (defun chess-display-detach-game (display)

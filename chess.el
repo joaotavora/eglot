@@ -88,7 +88,8 @@
 
 (defcustom chess-default-displays
   '((chess-images chess-ics1 chess-plain)
-    (chess-sound chess-announce))
+    (chess-sound chess-announce)
+    chess-autosave)
   "Default displays to be used when starting a chess session.
 This is a list of display modules, all of which will be invoked.  If
 any entry is itself a list, then it specifies a series of alternatives
@@ -249,22 +250,6 @@ making it easy to go on to the next puzzle once you've solved one."
       (dolist (key '(database database-index database-count))
 	(chess-game-set-data chess-display-game key
 			     (chess-game-data next-game key))))))
-
-(defun chess-write-game (game file)
-  "Write a chess GAME to FILE as raw Lisp."
-  (let ((game-copy (copy-alist game)))
-    (chess-game-set-hooks game-copy nil)
-    (chess-game-set-data-alist game-copy nil)
-    (with-current-buffer (find-file-noselect)
-      (erase-buffer)
-      (prin1 game)
-      (save-buffer))))
-
-(defun chess-read-game (file)
-  "Read a chess game as raw Lisp from FILE."
-  (with-current-buffer (find-file-noselect)
-    (goto-char (point-min))
-    (read)))
 
 (provide 'chess)
 

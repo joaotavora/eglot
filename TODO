@@ -9,6 +9,9 @@
     analysis/highlight tools
     bughouse/crazyhouse
 
+- if someone says Bx in the san input, use the x to constrain; but
+  using x is totally optional
+
 - undoing a single move (my move) and moving again, causes
   chess-algebraic to get a little screwed up
 
@@ -51,9 +54,6 @@
   playing, etc.
 
 - Use server-side sockets in chess-network, if Emacs supports it
-
-- Support auto-saving of games to PGN, and saving them at appropriate
-  points; this will require database interaction support
 
 - Allow ASCII displays to use a separate frame
 

@@ -196,6 +196,11 @@ matches."
   (chess-pgn-to-game pgn))
 
 
+(defsubst chess-game-copy-game (game new-game)
+  (chess-game-set-tags game (chess-game-tags new-game))
+  (chess-game-set-plies game (chess-game-plies new-game)))
+
+
 (defun chess-game-create (&optional position tags)
   "Create a new chess game object.
 Optionally use the given starting POSITION.
@@ -237,7 +242,8 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	  (chess-game-run-hooks game 'move current-ply))))
 
      (t
-      (chess-game-run-hooks game 'move current-ply)))))
+      (chess-game-run-hooks game 'move current-ply)))
+    (chess-game-run-hooks game 'post-move)))
 
 (defsubst chess-game-end (game keyword)
   "End the current game, by resignation, draw, etc."
