@@ -9,13 +9,25 @@
 
 (make-variable-buffer-local 'chess-file-locations)
 
+(defvar chess-file-type nil)
+(make-variable-buffer-local 'chess-file-type)
+
+(defvar chess-file-types
+  `((pgn "^\\[Event " chess-pgn-to-game chess-game-to-pgn (?\n ?\n))
+    (epd ,(concat chess-fen-regexp "\\(\\s-+.+\\);\\s-*$")
+	 chess-epd-to-game chess-game-to-epd (?\n)))))
+
 (defun chess-file-handler (event &rest args)
   (cond
    ((eq event 'open)
     (with-current-buffer (find-file-noselect (car args))
-      (when (or (string-match "\\.pgn\\'" (car args))
-		(save-excursion
-		  (re-search-forward "^\\[Event" nil t)))
+      (when (setq chess-file-type
+		  (cond
+		   ((or (string-match "\\.pgn\\'" (car args))
+			(save-excursion (re-search-forward "^\\[Event" nil t)))
+		    'pgn)
+		   ((string-match "\\.epd\\'" (car args))
+		    'epd)))
 	(chess-file-handler 'rescan)
 	(current-buffer))))
 
@@ -23,7 +35,8 @@
     (save-excursion
       (goto-char (point-min))
       (setq chess-file-locations nil)
-      (while (re-search-forward "^\\[Event " nil t)
+      (while (re-search-forward (nth 1 (assq chess-file-type chess-file-types))
+				nil t)
 	(goto-char (match-beginning 0))
 	(push (point) chess-file-locations)
 	(forward-char 1))
@@ -46,7 +59,8 @@
       (when (and (>= index 0)
 		 (< index (chess-file-handler 'count)))
 	(goto-char (nth index chess-file-locations))
-	(when (setq game (chess-pgn-to-game))
+	(when (setq game (funcall (nth 2 (assq chess-file-type
+					       chess-file-types))))
 	  (chess-game-set-data game 'database (current-buffer))
 	  (chess-game-set-data game 'database-index index)
 	  (chess-game-set-data game 'database-count
@@ -57,9 +71,9 @@
     (goto-char (point-max))
     (while (memq (char-before) '(?  ?\t ?\n ?\r))
       (delete-backward-char 1))
-    (insert ?\n ?\n)
+    (apply 'insert (nth 4 (assq chess-file-type chess-file-types)))
     (push (point) chess-file-locations)
-    (chess-game-to-pgn (car args))
+    (funcall (nth 3 (assq chess-file-type chess-file-types)) (car args))
     (1- (chess-file-handler 'count)))
 
    ((eq event 'replace)
@@ -72,8 +86,8 @@
 	(delete-region (point) (if (= (1+ index) count)
 				   (point-max)
 				 (nth (1+ index) chess-file-locations)))
-	(chess-game-to-pgn (car args))
-	(insert ?\n))))))
+	(funcall (nth 3 (assq chess-file-type chess-file-types)) (car args))
+	(when (eq chess-file-type 'pgn) (insert ?\n)))))))
 
 (provide 'chess-file)
 
