@@ -23,8 +23,8 @@
 ;;
 ;; The FLAGS can contain K, Q, k or q, to signify whether the white or
 ;; black king can still castle on the king or queen side.  You can
-;; also have coordinates, such as e4, a5, to specify which pawns may
-;; be captured by en passant.
+;; also have coordinates, such as e3, a6, to specify the target sqaure
+;; of an en passant capture.
 ;;
 ;; The starting chess position always looks like this:
 ;;
@@ -77,8 +77,12 @@
        ((= c ?k) (chess-pos-set-can-castle position ?k t))
        ((= c ?q) (chess-pos-set-can-castle position ?q t))
        ((and (>= c ?a) (<= c ?h))
-	(chess-pos-set-en-passant position (chess-coord-to-index
-					    (substring fen i (+ i 2))))
+	(chess-pos-set-en-passant
+	 position
+	 (let ((target (chess-coord-to-index (substring fen i (+ i 2)))))
+	   (chess-incr-index target (if (= (chess-index-rank target) 2)
+					1 (if (= (chess-index-rank target) 5)
+					      -1 (setq error t) 0)) 0)))
 	(setq i (1+ i)))
        (t
 	(setq error t)))
@@ -105,20 +109,26 @@ If FULL is non-nil, represent trailing spaces as well."
     (setq str (if (chess-pos-side-to-move position)
 		  (concat str " w ")
 		(concat str " b ")))
-    (if (chess-pos-can-castle position ?K)
-	(setq str (concat str "K") output t))
-    (if (chess-pos-can-castle position ?Q)
-	(setq str (concat str "Q") output t))
-    (if (chess-pos-can-castle position ?k)
-	(setq str (concat str "k") output t))
-    (if (chess-pos-can-castle position ?q)
-	(setq str (concat str "q") output t))
+    (mapc (lambda (castle)
+	    (if (chess-pos-can-castle position castle)
+		(setq str (concat str (string castle)) output t)))
+	  '(?K ?Q ?k ?q))
     (if output
 	(setq str (concat str " "))
       (setq str (concat str "- ")))
     (let ((index (chess-pos-en-passant position)))
-      (if index
-	  (concat str (chess-index-to-coord index))
+      (if (and index
+	       (let ((pawn (if (chess-pos-side-to-move position) ?P ?p)))
+		 (or (and (chess-incr-index index 0 -1)
+			  (eq (chess-pos-piece position (chess-incr-index
+							 index 0 -1)) pawn))
+		     (and (chess-incr-index index 0 1)
+			  (eq (chess-pos-piece position (chess-incr-index
+							 index 0 1)) pawn)))))
+	  (concat str (chess-index-to-coord
+		       (if (chess-pos-side-to-move position)
+			   (chess-incr-index index -1 0)
+			 (chess-incr-index index 1 0))))
 	(concat str "-")))))
 
 (provide 'chess-fen)
