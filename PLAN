@@ -66,7 +66,7 @@ chess-network
 - does not work at all!
 
 chess-ply
-- detect games drawn by three-fold repetition
+- detect games drawn by three-fold repetition and the 50 move rule
 
 chess-pgn
 - when saving a full game to the clipboard, it shouldn't need to save
@@ -74,11 +74,6 @@ chess-pgn
   always happen)
 - sometimes when clipping to the clipboard the final "*" is stuck to
   the text of the last move
-
-chess-file
-- .epd files contain a series of positions, not games.  How to integrate
-  this concept into database modules?  Creating games instead of positions
-  seems wrong in this case.
 
 chess-german
 - complete translation
