@@ -26,8 +26,11 @@ making it easy to go on to the next puzzle once you've solved one."
   (interactive "fRead chess puzzles from: ")
   (let* ((database (chess-database-open 'chess-file file))
 	 (objects (and database (chess-session)))
+	 (engine (car objects))
 	 (display (cadr objects)))
     (when database
+      (if engine
+	  (chess-engine-set-option engine 'resign nil))
       (with-current-buffer display
 	;; make sure the database is closed when the display is shutdown
 	(chess-game-add-hook (chess-display-game nil)
