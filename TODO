@@ -9,11 +9,15 @@
 
 ----------------------------------------------------------------------
 
+- test making an en passant capture
+
+
 - if I parse disambiguating information from chess-algebraic, store it
   in the ply.  Then, in ply-to-algebraic it won't need to be
   calculated.  Also, I can then easily announce it in chess-announce
 
 - when announcing abiguous pieces, name the rank/file ("e pawn")
+
 
 - restrict keyboard shorcutting so that it only looks if the move is
   related to the given letter
@@ -21,15 +25,28 @@
 - modify displays and engines so they ONLY keep game objects; thus
   set-start-position would become just set-position
 
+- Why doesn't S-b produce [B] in the keyboard shortcutting?
+
+
 - distinguish between chess-display-set-game and
   chess-display-set-game*.  The latter detaches and sets a new game
   object.  The former just overwrites the current game object.
 
-- detect draw/resign/abort/retract, etc., from ICS and common engines
-
-- Why doesn't S-b produce [B] in the keyboard shortcutting?
 
 - the game should go inactive once I lose by stalemate/checkmate
+
+- detect draw/resign/abort/retract, etc., from ICS and common engines
+
+
+- in chess-ply-create signal an error on invalid plies describing why
+
+- for network transports, if an illegal move is encountered, report
+  this with "illegal move: REASON"
+
+
+- incorporate the .wav files from xchat's sounds that chess-sound
+  currently doesn't have
+
 
 - devise a better scheme for printing messages (use a catalog?) and
   for when engines need to ask questions
@@ -37,20 +54,8 @@
 - there needs to be much more robustness; it's too easy to get the
   game into an unplayable state right now
 
-- for network transports, if an illegal move is encountered, report
-  this with "illegal move: REASON"
-
-- incorporate the .wav files from xchat's sounds that chess-sound
-  currently doesn't have
-
 - in chess-engine-filter and chess-ics-filter, if an error is
   encountered, skip that line so the same error isn't triggered again
-
-- in chess-ply-create signal an error on invalid plies describing why
-
-- require `cl' into chess-ply, or break my dependency on cl
-
-- test making an en passant capture
 
 - in chess-ics use a server-alist, and make the default handle be
   "guest".  Allow a password to be specified, or a filename containing
@@ -59,6 +64,8 @@
   (HOST [PORT HANDLE PASSWORD HELPER HELPER-ARGS...])
 
 ----------------------------------------------------------------------
+
+- Break my dependency on cl
 
 - Use more asserts throughout the code
 

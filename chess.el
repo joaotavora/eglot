@@ -175,6 +175,8 @@ minibuffer, which works well for Emacspeak users."
 
     (cons display engine)))
 
+(defalias 'chess-session 'chess)
+
 ;;;###autoload
 (defun chess-read-pgn (&optional file)
   "Read and display a PGN game after point."

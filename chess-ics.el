@@ -4,8 +4,8 @@
 ;;
 ;; $Revision$
 
+(require 'comint)
 (require 'chess-network)
-(require 'ics)
 
 (defgroup chess-ics nil
   "Engine for interacting with Internet Chess Servers."
@@ -42,7 +42,7 @@ The list is comprised of: the ply the string represents, who is white,
 who is black."
   (let ((parts (split-string string " "))
 	(position (chess-pos-create t))
-	white black ply)
+	white black move)
 
     (assert (= (length parts) 32))
 
