@@ -8,6 +8,13 @@
 
 ;;; Code:
 
+(defun chess-display-position (&optional position)
+  "This is a debugging function, and not meant from general use."
+  (interactive)
+  (let ((pos (or position (chess-engine-position nil))))
+    (with-current-buffer (get-buffer-create "*scratch*")
+      (chess-ics1-draw pos))))
+
 (defun chess-ics1-draw (&optional disppos)
   "Draw the given POSITION from PERSPECTIVE's point of view.
 PERSPECTIVE is t for white or nil for black."
@@ -17,7 +24,8 @@ PERSPECTIVE is t for white or nil for black."
 	(pos (point)))
     (erase-buffer)
     (let* ((position (or disppos (chess-display-position nil)))
-	   (inverted (null (chess-display-perspective nil)))
+	   (inverted (and (null disppos)
+			  (null (chess-display-perspective nil))))
 	   (rank (if inverted 7 0))
 	   (file (if inverted 7 0))
 	   beg)
