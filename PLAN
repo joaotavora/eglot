@@ -7,6 +7,9 @@ chess-german
 chess-ply
 - detect games drawn by three-fold repetition
 
+chess-autosave
+- make autosaving much faster, but only adding the latest ply
+
 chess
 - have an option which causes all completed games to be added to a
   given database
