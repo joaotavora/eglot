@@ -374,10 +374,16 @@ that is supported by most displays, and is the default mode."
   :type '(repeat symbol)
   :group 'chess-display)
 
+(defcustom chess-display-boring-events
+  '(set-data set-tags set-tag draw abort undo shutdown)
+  "Events which will not even cause a refresh of the display."
+  :type '(repeat symbol)
+  :group 'chess-display)
+
 (defun chess-display-event-handler (game display event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
-  (unless (memq event '(set-data set-tags set-tag))
+  (unless (memq event chess-display-boring-events)
     (with-current-buffer display
       (cond
        ((eq event 'shutdown)
@@ -428,7 +434,8 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?E] 'chess-display-edit-board)
     (define-key map [?F] 'chess-display-set-from-fen)
     (define-key map [?I] 'chess-display-invert)
-    (define-key map [?M] 'chess-display-manual-move)
+    ;;(define-key map [?M] 'chess-display-manual-move)
+    (define-key map [?M] 'chess-display-match)
     (define-key map [?N] 'chess-display-abort)
     (define-key map [?R] 'chess-display-resign)
     (define-key map [?S] 'chess-display-shuffle)
@@ -651,6 +658,11 @@ Basically, it means we are playing, not editing or reviewing."
       (chess-game-set-start-position chess-display-game
 				     (chess-fischer-random-position))
     (ding)))
+
+(defun chess-display-match (whom)
+  "Resign the current game."
+  (interactive "sWhom do you wish to play? ")
+  (chess-game-run-hooks chess-display-game 'match whom))
 
 (defun chess-display-resign ()
   "Resign the current game."

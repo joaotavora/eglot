@@ -5,37 +5,61 @@
   clocks
   bughouse/crazyhouse
   analysis/highlight tools
-  scid interaction
+  database interaction (chess-file.el, chess-scid.el)
+  full ICS interaction
+
+----------------------------------------------------------------------
+
+- Make sure chess-pos-move does full validation.
+
+- Have chess-algebraic-to-ply use chess-ply-create, since I can't
+  trust :check and :checkmate anyway.
+
+- Make sure that when chess-algebraic-to-ply is used, and then
+  chess-pos-move is used, that I don't redo all the checks.  There
+  should be a way of "blessing" a ply.
 
 - In M-x chess, if chess-images is being used, ensure that
   chess-images-directory is valid, otherwise fall back on chess-ics1.
 
-- Turn on memory gc collection messages, and see how much of a pig
-  chess.el is
-
-- Profile!
+- Only use "chess-engine-game" in chess-engine.el.  All other modules
+  should call "(chess-engine-game nil)".
 
 - Add CTCP (optional) support to chess-irc.el
 
-- Use server-side sockets in chess-network, if Emacs supports it
-
 - In chess-fen-to-pos, syntax check incoming FEN strings
 
-- Support auto-saving of games to PGN, and saving them at appropriate
-  points
+- Make the mode-line much more informative, with information on who is
+  playing, etc.
+
+- Add the capacity to abort/resign when there is no engine
+
+- Clean/rewrite ics.el
+
+- Make use of the my-color data in chess-game.el to ensure that I only
+  do what I should be doing
+
+----------------------------------------------------------------------
+
+- Turn on memory gc collection messages, and see how much of a pig
+  chess.el is
+
+- Profile!  Make as much of chess-game/ply/pos, etc., defsubst as
+  possible.
 
 - Create a series of generic functions and predicates, so that users
   can say (chess-position OBJECT) or (chess-move OBJECT), without
   needing to know the type of OBJECT.
 
+- Change chess-display-set-... to chess-display-set, and make it use
+  the new generic functions.
+
+- Use server-side sockets in chess-network, if Emacs supports it
+
+- Support auto-saving of games to PGN, and saving them at appropriate
+  points; this will require database interaction support
+
 - Allow ASCII displays to use a separate frame
-
-- Add the capacity to abort/resign when there is no engine
-
-- Rewrite ics.el
-
-- Make use of the my-color data in chess-game.el to ensure that I only
-  do what I should be doing
 
 - In edit mode, mouse-2 and mouse-3 should provide a drop-down list of
   pieces the square can be set to.  Cursor movement is really not the
@@ -56,8 +80,6 @@
   doing them on a copy of the board with no hook except the display
   hook.  Then, if you like the result, it call be a `set' on the
   original board from the copied board.
-
-- Make the mode-line much more informative
 
 - Resize the chess board on a window resize event, if possible.
 

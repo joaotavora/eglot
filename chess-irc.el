@@ -69,6 +69,10 @@
       (setq chess-irc-process proc))
     nil)
 
+   ((eq event 'match)
+    (setq chess-irc-opponent (car args))
+    (chess-network-handler 'match (car args)))
+
    ((eq event 'shutdown)
     (chess-engine-send nil "quit")
     (process-send-string chess-irc-process "QUIT :Goodbye\n")
@@ -80,16 +84,6 @@
 				 chess-irc-opponent (car args))))
    (t
     (apply 'chess-network-handler event args))))
-
-(defun chess-irc-challenge (nick)
-  "Begin playing with another chess-irc user with the given NICK.
-NOTE: This function is meant to be called from a display buffer!"
-  (interactive "sYour opponent's IRC nick: ")
-  (with-current-buffer
-      (cdr (assq 'chess-engine-event-handler
-		 (chess-game-hooks (chess-display-game nil))))
-    (setq chess-irc-opponent nick)
-    (chess-engine-send nil (format "chess match %s\n" chess-full-name))))
 
 ;; This filter translates IRC syntax into basic chess-network protocol
 (defun chess-irc-filter (proc string)

@@ -178,6 +178,10 @@ who is black."
 
       nil))
 
+   ((eq event 'match)
+    (setq chess-engine-pending-offer 'match)
+    (chess-engine-send nil (format "match %s\n" (car args))))
+
    ((eq event 'move)
     (unless chess-ics-ensure-ics12
       (comint-send-string (get-buffer-process (current-buffer))
