@@ -1,6 +1,15 @@
 polish: chess-chat, chess-kibitz
 translate: chess-german
 
+chess
+- clean up this code; let people override the chess-default-* lists
+
+chess-pos
+- in chess-pos-can-castle, the return value should be nil, or the
+  position of the rook to be used when castling on that side
+- create chess-pos-legal-move, which returns non-nil if a specific
+  move can be made; this makes the castling code much easier to write
+
 chess-ply
 - When creating the next position, set the annotations to point to the
   keywords of the ply that led to that position; in fact, just point
@@ -9,6 +18,7 @@ chess-ply
 - Thus there will be a mirror set of chess-pos-has-keyword, etc.,
   functions
 - Need to detect games drawn by three-fold repetition
+- Rename chess-ply-create-castle to chess-ply-castling-changes
 
 chess-display
 - there is no way to call flag right now
