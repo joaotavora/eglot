@@ -191,9 +191,7 @@ This conveys the status of the game at the given index."
   (assert game)
   (let ((index (chess-game-index game)))
     (if (> index 1)
-	(if (= (mod index 2) 0)
-	    (/ index 2)
-	  (1+ (/ index 2)))
+	(+ 1 (mod index 2) (/ index 2))
       1)))
 
 (defsubst chess-game-side-to-move (game &optional index)
