@@ -77,27 +77,25 @@
 
 (defsubst chess-engine-convert-fen (fen)
   (or (chess-fen-to-pos fen)
-      (ignore
-       (chess-message 'invalid-fen fen))))
+      (ignore (chess-message 'invalid-fen fen))))
 
 (defsubst chess-engine-convert-pgn (pgn)
   (or (chess-pgn-to-game pgn)
-      (ignore
-       (chess-message 'invalid-pgn))))
+      (ignore (chess-message 'invalid-pgn))))
 
 (defun chess-engine-default-handler (event &rest args)
+  "Default engine response handler."
   (let ((game (chess-engine-game nil)))
     (cond
      ((eq event 'move)
       (let ((chess-engine-handling-event t))
 	(when (and (car args)
 		   (chess-game-data game 'active))
-
 	  ;; if the game index is still 0, then our opponent
 	  ;; is white, and we need to pass over the move
 	  (when (and (not chess-engine-inhibit-auto-pass)
 		     (chess-game-data game 'my-color)
-		     (= (chess-game-index game) 0))
+		     (zerop (chess-game-index game)))
 	    (chess-game-set-tag game "White" chess-engine-opponent-name)
 	    (chess-game-set-tag game "Black" chess-full-name)
 	    (chess-message 'now-black)
@@ -296,7 +294,7 @@
 	(setq chess-engine-regexp-alist
 	      (copy-alist
 	       (symbol-value
-		(intern (concat (symbol-name module) "-regexp-alist"))))
+		(intern-soft (concat (symbol-name module) "-regexp-alist"))))
 	      chess-engine-response-handler
 	      (or response-handler 'chess-engine-default-handler))
 	(let ((proc chess-engine-process))
