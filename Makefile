@@ -36,8 +36,18 @@ chess.dvi: chess-final.texi
 	$(ENVADD) $(TEXI2DVI) chess-final.texi
 
 clean:
-	rm -f $(TARGET) *~ chess.dvi chess.info chess-final.*
+	rm -f *~ chess.dvi chess-final.*
 	rm -f *.aux *.cp *.cps *.fn *.fns *.ky *.log *.pg *.toc *.tp *.vr
 
 fullclean: clean
-	-rm *.elc chess-auto.el
+	-rm $(TARGET) chess.info chess-auto.el
+
+VERSION=$(shell perl -ne 'print $$1 if /chess-version.*"([^"]+)"/;' chess.el)
+
+dist: fullclean all clean
+	cp -ar . /var/tmp/chess-$(VERSION)
+	tar cvjfXC /var/tmp/chess-$(VERSION).tar.bz2 \
+		.exclude /var/tmp chess-$(VERSION)
+	rm -fr /var/tmp/chess-$(VERSION)
+	mv /var/tmp/chess-$(VERSION).tar.bz2 \
+		$(HOME)/public_html/Emacs/packages
