@@ -66,6 +66,12 @@
   (apply 'chess-pos-move (chess-pos-copy (chess-ply-pos ply))
 	 (chess-ply-changes ply)))
 
+(defconst chess-piece-name-table
+  '(("queen"  . ?q)
+    ("rook"   . ?r)
+    ("knight" . ?n)
+    ("bishop" . ?b)))
+
 (defun chess-ply-create (position &rest changes)
   "Create a ply from the given POSITION by applying the suppiled CHANGES.
 This function will guarantee the resulting ply is legal, and will also
@@ -98,37 +104,54 @@ maneuver."
 			       (list (chess-rf-to-index (if color 7 0) 0)
 				     (chess-rf-to-index (if color 7 0) 3)))))))
 
-	;; is the opponent's king in check/mate or stalemate now, as a
-	;; result of the changes?  NOTE: engines, whom we should
-	;; trust, may already have determine if check/checkmate
-	;; applies.
-	(unless (or (memq :check changes)
-		    (memq :checkmate changes))
-	  (let* ((next-pos (chess-ply-next-pos ply))
-		 (color (chess-pos-side-to-move next-pos))
-		 (can-move (catch 'can-move
-			     (dotimes (rank 8)
-			       (dotimes (file 8)
-				 (let* ((to (chess-rf-to-index rank file))
-					(piece (chess-pos-piece next-pos to)))
-				   (when (or (eq piece ? )
-					     (if color
-						 (> piece ?a)
-					       (< piece ?a)))
-				     (if (chess-search-position next-pos
-								to color)
-					 (throw 'can-move t)))))))))
-	    (if (chess-search-position next-pos
-				       (car (chess-pos-search
-					     next-pos (if color ?K ?k)))
-				       (not color))
-		;; yes, well is in he in checkmate?
-		(if can-move
-		    (nconc changes (list :check))
-		  (nconc changes (list :checkmate)))
-	      ;; no, but is he in stalemate?
-	      (unless can-move
-		(nconc changes (list :stalemate))))))
+	(let* ((next-pos (chess-ply-next-pos ply))
+	       (color (chess-pos-side-to-move next-pos)))
+	  ;; is the opponent's king in check/mate or stalemate now, as
+	  ;; a result of the changes?  NOTE: engines, whom we should
+	  ;; trust, may already have determine if check/checkmate
+	  ;; applies.
+	  (unless (or (memq :check changes)
+		      (memq :checkmate changes))
+	    (let ((can-move (catch 'can-move
+			      (dotimes (rank 8)
+				(dotimes (file 8)
+				  (let* ((to (chess-rf-to-index rank file))
+					 (piece (chess-pos-piece next-pos to)))
+				    (when (or (eq piece ? )
+					      (if color
+						  (> piece ?a)
+						(< piece ?a)))
+				      (if (chess-search-position next-pos
+								 to color)
+					  (throw 'can-move t)))))))))
+	      (if (chess-search-position next-pos
+					 (car (chess-pos-search
+					       next-pos (if color ?K ?k)))
+					 (not color))
+		  ;; yes, well is in he in checkmate?
+		  (if can-move
+		      (nconc changes (list :check))
+		    (nconc changes (list :checkmate)))
+		;; no, but is he in stalemate?
+		(unless can-move
+		  (nconc changes (list :stalemate))))))
+
+	  ;; is this a pawn move to the ultimate rank?  if so, and we
+	  ;; haven't already been told, ask for the piece to promote
+	  ;; it to
+	  (unless (memq :promote changes)
+	    (if (and (= ?p (downcase (chess-pos-piece next-pos
+						      (cadr changes))))
+		     (= (if color 0 7)
+			(chess-index-rank (cadr changes))))
+		(let ((new-piece (completing-read
+				  "Promote pawn to queen/rook/knight/bishop? "
+				  chess-piece-name-table nil t "queen")))
+		  (setq new-piece
+			(cdr (assoc new-piece chess-piece-name-table)))
+		  (if color
+		      (setq new-piece (upcase new-piece)))
+		  (nconc changes (list :promote new-piece))))))
 
 	;; return the annotated ply
 	ply))))

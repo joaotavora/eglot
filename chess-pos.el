@@ -232,21 +232,56 @@ color will do."
 This function does not check any rules, it only makes sure you are not
 trying to move a blank square."
   (while changes
-    (unless (symbolp (car changes))
+    (if (symbolp (car changes))
+	(setq changes nil)
       (let* ((from (car changes))
 	     (to (cadr changes))
 	     (piece (chess-pos-piece position from)))
 	(if (= piece ? )
 	    (error "Attempted piece move from blank square %s" from))
 	(chess-pos-set-piece position from ? )
-	(chess-pos-set-piece position to piece)))
-    (setq changes (cddr changes)))
-  ;; once a piece is moved, en passant is no longer available
-  (chess-pos-set-en-passant position nil)
-  ;; toggle the side whose move it is
-  (chess-pos-set-side-to-move position
-			      (not (chess-pos-side-to-move position)))
-  position)
+	(chess-pos-set-piece position to piece))
+      (setq changes (cddr changes))))
+  (let ((color (chess-pos-side-to-move position)))
+
+    ;; once a piece is moved, en passant is no longer available
+    (chess-pos-set-en-passant position nil)
+
+    ;; if a king or rook moves, no more castling; also, if a pawn
+    ;; jumps ahead two, mark it en-passantable
+    (let ((piece (downcase (car changes))))
+      (cond
+       ((and (= piece ?k)
+	     (equal (car changes)
+		    (chess-rf-to-index (if color 7 0) 4)))
+	(chess-pos-set-can-castle position (if color ?K ?k) nil)
+	(chess-pos-set-can-castle position (if color ?Q ?q) nil))
+
+       ((and (= piece ?r)
+	     (equal (car changes)
+		    (chess-rf-to-index (if color 7 0) 0)))
+	(chess-pos-set-can-castle position (if color ?Q ?q) nil))
+
+       ((and (= piece ?r)
+	     (equal (car changes)
+		    (chess-rf-to-index (if color 7 0) 7)))
+	(chess-pos-set-can-castle position (if color ?K ?k) nil))
+
+       ((and (= piece ?p)
+	     (> (abs (- (chess-index-rank (cadr changes))
+			(chess-index-rank (car changes)))) 1))
+	(chess-pos-set-en-passant position (cadr changes)))))
+
+    ;; toggle the side whose move it is
+    (chess-pos-set-side-to-move position (not color))
+
+    ;; promote the piece if we were meant to
+    (let ((new-piece (cadr (assq :promote changes))))
+      (if new-piece
+	  (chess-pos-set-piece position (cadr changes) new-piece)))
+
+    ;; return the final position
+    position))
 
 (defun chess-search-position (position target piece)
   "Look on POSITION from TARGET for a PIECE that can move there.
@@ -286,8 +321,8 @@ indices which indicate where a piece may have moved from."
 		(and (= (chess-index-rank target) (if color 2 5))
 		     (setq pos (chess-add-index target bias 0))
 		     (chess-pos-piece-p position pos (if color ?p ?P))
-		     (and (chess-pos-en-passant position)
-			  (= (chess-pos-en-passant position) target))
+		     ;; make this fail if no en-passant is possible
+		     (= (or (chess-pos-en-passant position) 100) target)
 		     (setq candidates (list pos)))
 	      (if color (> p ?a) (< p ?a)))
 	    (let ((cands (list t)))
