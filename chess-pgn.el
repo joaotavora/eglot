@@ -198,6 +198,13 @@ If INDENTED is non-nil, indent the move texts."
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.pgn\\'" . chess-pgn-mode))
 
+(eval-after-load "mm-decode"
+  '(unless (fboundp 'mm-display-pgn-inline)
+     (defun mm-display-pgn-inline (handle)
+       (mm-display-inline-fontify handle 'chess-pgn-mode))
+     (push ("application/x-chess-pgn" mm-display-pgn-inline identity)
+	   mm-inline-media-tests)))
+
 (defun chess-pgn-move ()
   "Make a move from a PGN buffer."
   (interactive)

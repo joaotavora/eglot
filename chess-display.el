@@ -74,20 +74,22 @@ cause the underlying game object to be shutdown when it is destroyed.
 If READ-ONLY is non-nil, then the display will not allow the user to
 makes moves, or any other changes to the underlying game."
   (let* ((name (symbol-name style))
-	 (handler (intern-soft (concat name "-handler"))))
+	 (handler (intern-soft (concat name "-handler")))
+	 buffer)
     (unless handler
       (chess-error 'no-such-style name))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
+      (setq buffer (current-buffer))
       (chess-display-mode read-only)
       (when (funcall handler 'initialize)
+	(add-hook 'kill-buffer-hook 'chess-display-quit nil t)
 	(setq chess-display-style style
 	      chess-display-perspective perspective
 	      chess-display-event-handler handler)
 	(if main
 	    (chess-display-set-main nil))
 	(chess-display-set-game* nil game)
-	(add-hook 'kill-buffer-hook 'chess-display-quit nil t)
-	(current-buffer)))))
+	buffer))))
 
 (defun chess-display-clone (display style perspective)
   (let ((new-display (chess-display-create chess-display-game

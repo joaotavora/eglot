@@ -261,10 +261,13 @@
 				 &rest handler-ctor-args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
-	(handler (intern-soft (concat (symbol-name module) "-handler"))))
+	(handler (intern-soft (concat (symbol-name module) "-handler")))
+	buffer)
     (with-current-buffer (generate-new-buffer " *chess-engine*")
+      (setq buffer (current-buffer))
       (let ((proc (apply handler 'initialize handler-ctor-args)))
 	(when proc			;must be a process or t
+	  (add-hook 'kill-buffer-hook 'chess-engine-on-kill nil t)
 	  (setq chess-engine-regexp-alist (symbol-value regexp-alist)
 		chess-engine-event-handler handler
 		chess-engine-response-handler
@@ -277,8 +280,7 @@
 	    (set-process-buffer proc (current-buffer))
 	    (set-process-filter proc 'chess-engine-filter))
 	  (setq chess-engine-current-marker (point-marker))
-	  (add-hook 'kill-buffer-hook 'chess-engine-on-kill nil t)
-	  (current-buffer))))))
+	  buffer)))))
 
 (defun chess-engine-on-kill ()
   "Function called when the buffer is killed."
