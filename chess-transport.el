@@ -5,10 +5,6 @@
 ;; receive.  This could be used for transmitting chess.el protocol
 ;; over CTCP, for example.
 ;;
-;; NOTE: Make sure that any housekeeping data you use is kept in
-;; buffer-local variables.  Otherwise, multiple games played using the
-;; same kind of transport might collide.
-;;
 ;; $Revision$
 
 (require 'chess-network)
@@ -19,15 +15,18 @@
   "This is an example of a generic transport engine."
   (cond
    ((eq event 'initialize)
-    ;; initialize your transport here
+    ;; Initialize your transport here.  Make sure that any
+    ;; housekeeping data you use is kept in buffer-local variables.
+    ;; Otherwise, multiple games played using the same kind of
+    ;; transport might collide.
     )
 
    ((eq event 'send)
-    ;; transmit the string given in (car args) to your outbound
+    ;; Transmit the string given in (car args) to your outbound
     ;; transport from here
     )))
 
-;; call (chess-engine-submit engine STRING) for text that arrives from
+;; Call (chess-engine-submit engine STRING) for text that arrives from
 ;; your inbound transport
 
 (provide 'chess-transport)
