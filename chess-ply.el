@@ -305,6 +305,7 @@ KEYWORDS allowed are:
   :file <number 0 to 7> [can only be used if :piece is present]
   :index <coordinate index>
   :target <specific target index>
+  :candidates <list of inddices>
 
 These will constrain the plies generated to those matching the above
 criteria.
@@ -344,6 +345,8 @@ position object passed in."
       ;; more focused search
       (dolist (candidate
 	       (cond
+		((cadr (memq :candidates keywords))
+		 (cadr (memq :candidates keywords)))
 		((setq pos (cadr (memq :index keywords)))
 		 (list pos))
 		((setq file (cadr (memq :file keywords)))
