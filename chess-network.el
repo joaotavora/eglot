@@ -126,7 +126,7 @@
 				     (read-string "Port: "))))
 	(if (eq which ?s)
 	    (chess-message 'network-waiting)
-	  (chess-network-handler 'match)
+	  (chess-network-handler game 'match)
 	  (chess-message 'network-connected))
 	t))
 
