@@ -385,6 +385,9 @@ who is black."
       (if (chess-game-over-p game)
 	  (chess-game-set-data game 'active nil)))
 
+     ((eq event 'flag-fell)
+      (chess-common-handler game 'flag-fell))
+
      ((eq event 'send)
       (comint-send-string (get-buffer-process (current-buffer))
 			  (car args)))
