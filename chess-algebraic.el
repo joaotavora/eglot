@@ -57,6 +57,7 @@ This regexp handles both long and short form.")
     (error "Cannot parse non-algebraic move notation: %s" move))
   (let* ((color (chess-pos-side-to-move position))
 	 (mate (match-string 10 move))
+	 (promotion (match-string 9 move))
 	 (piece (aref move 0))
 	 (changes
 	  (if (eq piece ?O)
@@ -96,6 +97,9 @@ This regexp handles both long and short form.")
 			(if (null which)
 			    (error "Could not determine which piece to use")
 			  (list which target)))))))))))
+    (if promotion
+	(nconc changes
+	       (list :promote (aref promotion 0))))
     (if mate
 	(nconc changes
 	       (list (if (equal mate "#")

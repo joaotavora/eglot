@@ -209,7 +209,7 @@ variation that was passed in."
 	(chess-display-detach-game nil))
     (setq chess-display-game nil
 	  chess-display-variation variation
-	  chess-display-index (or index 0)
+	  chess-display-index (chess-var-index variation)
 	  chess-display-ply nil
 	  chess-display-position nil)
     (chess-display-update nil t)))
@@ -230,7 +230,7 @@ modeline."
 	(chess-display-detach-game nil))
     (setq chess-display-game game
 	  chess-display-variation nil
-	  chess-display-index (or index 0)
+	  chess-display-index (chess-game-index game)
 	  chess-display-ply nil
 	  chess-display-position nil)
     (chess-game-add-hook game 'chess-display-event-handler display)
@@ -509,19 +509,38 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive "sSet from FEN string: ")
   (chess-display-set-position nil (chess-fen-to-pos fen)))
 
-(defun chess-display-copy-board ()
+(defun chess-display-copy-board (&optional arg)
   "Send the current board configuration to the user."
-  (interactive)
-  (let* ((x-select-enable-clipboard t)
-	 (fen (chess-pos-to-fen (chess-display-position nil))))
-    (kill-new fen)))
+  (interactive "P")
+  (let ((x-select-enable-clipboard t))
+    (if (and arg chess-display-game)
+	(kill-new (with-temp-buffer
+		    (chess-game-to-pgn (chess-display-game nil))
+		    (buffer-string)))
+      (kill-new (chess-pos-to-fen (chess-display-position nil))))))
 
 (defun chess-display-paste-board ()
   "Send the current board configuration to the user."
   (interactive)
-  (let* ((x-select-enable-clipboard t)
-	 (fen (current-kill 0)))
-    (chess-display-set-from-fen fen)))
+  (let ((x-select-enable-clipboard t)
+	(display (current-buffer)))
+    (with-temp-buffer
+      (insert (current-kill 0))
+      (goto-char (point-max))
+      (while (and (bolp) (not (bobp)))
+	(delete-backward-char 1))
+      (goto-char (point-min))
+      (cond
+       ((search-forward "[Event" nil t)
+	(goto-char (match-beginning 0))
+	(chess-display-set-game display (chess-pgn-to-game)))
+       ((looking-at (concat chess-algebraic-regexp "$"))
+	(let ((move (buffer-string)))
+	  (with-current-buffer display
+	    (chess-display-manual-move move))))
+       (t
+	(with-current-buffer display
+	  (chess-display-set-from-fen (buffer-string))))))))
 
 (defun chess-display-set-piece ()
   "Set the piece under point to command character, or space for clear."
@@ -778,11 +797,7 @@ to the end or beginning."
 				   chess-legal-moves))))
       (cond
        ((= (length moves) 1)
-	(let ((ply (chess-algebraic-to-ply (chess-display-position nil)
-					   (car moves))))
-	  (unless ply
-	    (error "Illegal move notation: %s" (car moves)))
-	  (chess-display-move nil ply))
+	(chess-display-manual-move (car moves))
 	(setq chess-move-string nil
 	      chess-legal-moves nil
 	      chess-legal-moves-pos nil))

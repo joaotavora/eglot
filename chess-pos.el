@@ -301,7 +301,10 @@ trying to move a blank square."
     ;; promote the piece if we were meant to
     (let ((new-piece (cadr (memq :promote changes))))
       (if new-piece
-	  (chess-pos-set-piece position (cadr changes) new-piece)))
+	  (chess-pos-set-piece position (cadr changes)
+			       (if color
+				   new-piece
+				 (downcase new-piece)))))
 
     ;; did we leave the position in check, mate or stalemate?
     (cond

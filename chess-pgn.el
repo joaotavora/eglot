@@ -21,7 +21,7 @@
 	(goto-char (match-end 0))
 	(setq prevpos position)
 	(let* ((move (match-string 0))
-	       (ply (chess-algebraic-to-ply (chess-game-pos game)
+	       (ply (chess-algebraic-to-ply position
 					    (match-string 0))))
 	  (unless ply
 	    (error "Error reading move: %s" move))
@@ -69,7 +69,9 @@
 			    (chess-fen-to-pos fen)
 			  (chess-pos-copy chess-starting-position)) t)
 		  ;; set the starting position to the FEN string
-		  (list (chess-ply-create (chess-fen-to-pos fen))))))
+		  (list (chess-ply-create (if fen
+					      (chess-fen-to-pos fen)
+					    chess-starting-position))))))
       game)))
 
 (defun chess-pgn-insert-annotations (game index ply)
