@@ -682,28 +682,24 @@ assures that the resulting position is valid."
 	other-piece last-cand king-pos)
     (while cand
       ;; determine the resulting position
-      (setq other-piece (chess-pos-piece position (car cand)))
-      (when (if color
-		(> other-piece ?a)
-	      (< other-piece ?A))
-	(chess-pos-set-piece position (car cand) ? )
-	(setq other-piece (chess-pos-piece position target))
-	(chess-pos-set-piece position target piece)
-	;; find the king (only once if the king isn't moving)
-	(if (or (null king-pos)
-		(memq piece '(?K ?k)))
-	    (setq king-pos (chess-pos-king-index position color)))
-	;; can anybody from the opposite side reach him?  if so, drop
-	;; the candidate
-	(if (catch 'in-check
-	      (chess-search-position position king-pos (not color) t))
-	    (if last-cand
-		(setcdr last-cand (cdr cand))
-	      (setq candidates (cdr candidates)))
-	  (setq last-cand cand))
-	;; return the position to its original state
-	(chess-pos-set-piece position target other-piece)
-	(chess-pos-set-piece position (car cand) piece))
+      (chess-pos-set-piece position (car cand) ? )
+      (setq other-piece (chess-pos-piece position target))
+      (chess-pos-set-piece position target piece)
+      ;; find the king (only once if the king isn't moving)
+      (if (or (null king-pos)
+	      (memq piece '(?K ?k)))
+	  (setq king-pos (chess-pos-king-index position color)))
+      ;; can anybody from the opposite side reach him?  if so, drop
+      ;; the candidate
+      (if (catch 'in-check
+	    (chess-search-position position king-pos (not color) t))
+	  (if last-cand
+	      (setcdr last-cand (cdr cand))
+	    (setq candidates (cdr candidates)))
+	(setq last-cand cand))
+      ;; return the position to its original state
+      (chess-pos-set-piece position target other-piece)
+      (chess-pos-set-piece position (car cand) piece)
       ;; try the next candidate
       (setq cand (cdr cand)))
     candidates))
