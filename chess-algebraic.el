@@ -76,7 +76,8 @@ This regexp handles both long and short form.")
 		    ;; move, to determine which piece is meant by the
 		    ;; piece indicator
 		    (when (setq candidates
-				(funcall (or search-func chess-standard-search)
+				(funcall (or search-func
+					     'chess-standard-search-position)
 					 position target (if color piece
 							   (downcase piece))))
 		      (if (= (length candidates) 1)
@@ -119,9 +120,9 @@ If LONG is non-nil, render the move into long notation."
 			     (if (= to (chess-rf-to-index (if color 7 0) 2))
 				 "O-O-O"))))
 		str
-	      (let ((candidates
-		     (funcall (or search-func chess-standard-search)
-			      pos to from-piece))
+	      (let ((candidates (funcall (or search-func
+					     'chess-standard-search-position)
+					 pos to from-piece))
 		    (rank 0) (file 0)
 		    (from-rank (/ from 8))
 		    (from-file (mod from 8))

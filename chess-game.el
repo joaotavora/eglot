@@ -37,21 +37,13 @@
   "Return the tags alist associated with GAME."
   (setcdr (cdr game) plies))
 
-(defsubst chess-game-validation-func (game)
+(defsubst chess-game-search-function (game)
   "Return the tags alist associated with GAME."
-  (car (cadr game)))
+  (cadr game))
 
-(defsubst chess-game-set-validation-func (game func)
+(defsubst chess-game-set-search-function (game func)
   "Return the tags alist associated with GAME."
-  (setcar (cadr game) func))
-
-(defsubst chess-game-search-func (game)
-  "Return the tags alist associated with GAME."
-  (cdr (cadr game)))
-
-(defsubst chess-game-set-search-func (game func)
-  "Return the tags alist associated with GAME."
-  (setcdr (cadr game) func))
+  (setcar (cdr game) func))
 
 (defsubst chess-game-tag (game tag)
   "Return the value for TAG in GAME."
@@ -75,7 +67,7 @@
 
 (defsubst chess-game-index (game)
   "Return the GAME's current position index."
-  (length (chess-game-plies game)))
+  (1- (length (chess-game-plies game))))
 
 (defsubst chess-game-seq (game)
   "Return the current GAME sequence."
@@ -105,13 +97,10 @@ keywords are:
 
   :position POS          ; set the start position
   :search   FUNC         ; function used to search chess positions
-  :validate FUNC         ; function used to validate chess moves
   :tags     ALIST"
   (let ((game (list (cdr (assq ':tags keywords))
-		    (cons (or (cdr (assq ':validate keywords))
-			      chess-standard-validate)
-			  (or (cdr (assq ':search keywords))
-			      chess-standard-search)))))
+		    (or (cdr (assq ':search keywords))
+			'chess-standard-search-position))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))
@@ -127,11 +116,14 @@ This creates a new position and adds it to the main variation.
 The 'changes' of the last ply reflect whether the game is currently in
 progress (nil), if it is drawn, resigned, mate, etc."
   (let ((current-ply (chess-game-ply game))
-	(changes (chess-ply-changes ply)))
-    (unless (equal (chess-ply-pos current-ply)
-		   (chess-ply-pos ply))
+	(changes (chess-ply-changes ply))
+	(position (chess-ply-pos ply)))
+    (unless (equal position (chess-ply-pos current-ply))
       (error "Positions do not match"))
-    (funcall (chess-game-validation-func game) ply)
+    (unless (funcall (chess-game-search-function game)
+		     position (cadr (chess-ply-changes ply))
+		     (chess-pos-piece position (car (chess-ply-changes ply))))
+      (signal 'chess-illegal "Illegal move"))
     (chess-ply-set-changes current-ply changes)
     (cond
      ((or (memq ':draw changes)
@@ -152,15 +144,15 @@ progress (nil), if it is drawn, resigned, mate, etc."
 (defsubst chess-game-legal-plies (game)
   "Return all legal plies from GAME's current position."
   (chess-legal-plies (chess-game-pos game)
-		     (chess-game-search-func game)))
+		     (chess-game-search-function game)))
 
 (defsubst chess-game-algebraic-to-ply (game move)
   (chess-algebraic-to-ply (chess-game-pos game) move
-			  (chess-game-search-func game)))
+			  (chess-game-search-function game)))
 
 (defsubst chess-game-ply-to-algebraic (game &optional ply long)
   (chess-ply-to-algebraic (or ply (chess-game-ply game)) long
-			  (chess-game-search-func game)))
+			  (chess-game-search-function game)))
 
 (provide 'chess-game)
 

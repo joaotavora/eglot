@@ -232,14 +232,19 @@ jww (2001-06-23): This is still not fully implemented."
     (set-buffer-modified-p nil)
     (goto-char pos)))
 
-(defun chess-images-highlight (pos index &optional mode)
+(defun chess-images-highlight (index &optional mode)
   "Highlight the piece on BOARD at INDEX, using the given MODE.
 Common modes are:
   `selected'    show that the piece has been selected for movement.
   `unselected'  show that the piece has been unselected."
   (if (null (get-buffer-window (current-buffer) t))
       (chess-images-popup-board))
-  (let ((highlight (copy-alist (get-text-property pos 'display))))
+  (let* ((pos (save-excursion
+		(beginning-of-line)
+		(goto-line (1+ (chess-index-rank index)))
+		(forward-char (* 2 (chess-index-file index)))
+		(point)))
+	 (highlight (copy-alist (get-text-property pos 'display))))
     (setcar (last highlight)
 	    (list (cons "light_square" chess-images-highlight-color)
 		  (cons "dark_square" chess-images-highlight-color)

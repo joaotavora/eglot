@@ -15,7 +15,7 @@
 ;; that could make it to e4 (either by taking a piece, or by moving
 ;; there) you'd call:
 ;;
-;;  (chess-standard-search POSITION (chess-coord-to-index "e4") ?P)
+;;  (chess-standard-search-position POSITION (chess-coord-to-index "e4") ?P)
 ;;
 ;; This returns a list of indices specifying all white pawns that
 ;; could reach e4 in one move.  NOTE: The general search order is from
@@ -29,7 +29,7 @@
 
 ;;; Code:
 
-(defun chess-standard-validate (ply)
+(defun chess-standard-validate-ply (ply &optoinal search-func)
   "Validate the given PLY against standard chess rules."
   (let* ((pos (chess-ply-pos ply))
 	 (color (chess-pos-side-to-move pos))
@@ -55,11 +55,12 @@
 	  (signal 'chess-illegal
 		  "Cannot move on top of your own pieces")))
 
-    (unless (chess-standard-search pos target piece)
+    (unless (funcall (or search-func
+			 'chess-standard-search-position) pos target piece)
       (signal 'chess-illegal "Illegal move"))))
 
-(defun chess-standard-search (position target piece)
-  "Look on POSITION from position TARGET for PIECE.
+(defun chess-standard-search-position (position target piece)
+  "Look on POSITION from TARGET for a PIECE that can move there.
 This routine looks along legal paths of movement for PIECE.
 
 If PIECE is t or nil, legal piece movements for any piece of that
@@ -80,8 +81,8 @@ indices which indicate where a piece may have moved from."
       (setq candidates (list t))
       (dolist (p '(?P ?R ?N ?B ?K ?Q))
 	(nconc candidates
-	       (chess-standard-search position target
-				      (if piece p (downcase p)))))
+	       (chess-standard-search-position position target
+					       (if piece p (downcase p)))))
       (setq candidates (cdr candidates)))
 
      ;; pawn movement, which is diagonal 1 when taking, but forward
@@ -166,21 +167,26 @@ indices which indicate where a piece may have moved from."
 		      (chess-pos-can-castle position (if c ?K ?k))
 		      (setq pos (chess-rf-to-index rank 5))
 		      (chess-pos-piece-p position pos ? )
-		      (not (chess-standard-search position pos (not c)))
+		      (not (chess-standard-search-position position
+							   pos (not c)))
 		      (setq pos (chess-rf-to-index rank 6))
 		      (chess-pos-piece-p position pos ? )
-		      (not (chess-standard-search position pos (not c))))
+		      (not (chess-standard-search-position position
+							   pos (not c))))
 		 (and (equal target (cons rank 2))
 		      (chess-pos-can-castle position (if c ?Q ?q))
 		      (setq pos (chess-rf-to-index rank 1))
 		      (chess-pos-piece-p position pos ? )
-		      (not (chess-standard-search position pos (not c)))
+		      (not (chess-standard-search-position position
+							   pos (not c)))
 		      (setq pos (chess-rf-to-index rank 2))
 		      (chess-pos-piece-p position pos ? )
-		      (not (chess-standard-search position pos (not c)))
+		      (not (chess-standard-search-position position
+							   pos (not c)))
 		      (setq pos (chess-rf-to-index rank 3))
 		      (chess-pos-piece-p position pos ? )
-		      (not (chess-standard-search position pos (not c))))))
+		      (not (chess-standard-search-position position
+							   pos (not c))))))
 	    (setq candidates (list (chess-rf-to-index rank 4))))))
 
      ;; the knight is a zesty little piece; there may be more than

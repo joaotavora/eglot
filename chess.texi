@@ -416,6 +416,70 @@ with a chess database engine for the purpose of storing and retrieving
 games from the library, or performing library-wide analyses and
 searches.
 
+@node
+@chapter Displays
+
+The previous chapter described all the objects found in
+chess---positions, plies, variations, games and collections.  However,
+these objects can only be manipulated programmitically using the
+functions given so far.  In order to present them in a meaningful
+fashion to a human reader, it is necessary to create and use a display
+object.
+
+@defun chess-display-create style perspective
+@end defun
+
+@defun chess-display-destroy display
+@end defun
+
+@defun chess-display-set-perspective display perspective
+@end defun
+
+@defun chess-display-search-function display
+@end defun
+
+@defun chess-display-search-position display position target piece
+@end defun
+
+@defun chess-display-set-position display position &optional search-func
+@end defun
+
+@defun chess-display-position display
+@end defun
+
+@defun chess-display-set-ply display ply &optional search-func
+@end defun
+
+@defun chess-display-ply display
+@end defun
+
+@defun chess-display-set-variation display plies &optional index search-func
+@end defun
+
+@defun chess-display-variation display
+@end defun
+
+@defun chess-display-set-game display game &optional index
+@end defun
+
+@defun chess-display-game display
+@end defun
+
+@defun chess-display-set-index display index
+@end defun
+
+@defun chess-display-index display
+@end defun
+
+@defun chess-display-update display
+@end defun
+
+@defun chess-display-move display start &optional target
+@end defun
+
+@defun chess-display-highlight display index &optional mode
+@end defun
+
 @node Play sessions, Display modules, The Chess.el library, Top
 @chapter Play sessions
 

@@ -82,7 +82,7 @@
 			(> piece ?a)
 		      (< piece ?a)))
 	    (dolist (candidate (funcall (or search-func
-					    chess-standard-search)
+					    'chess-standard-search-position)
 					position to t))
 	      (push (chess-ply-create position candidate to)
 		    plies))))))

@@ -40,11 +40,284 @@
   "Face to use for highlighting pieces that have been selected."
   :group 'chess-display)
 
+;;; Code:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; User interface
+;;
+
+(defvar chess-display-game)
+(defvar chess-display-search-function)
+(defvar chess-display-variation)
+(defvar chess-display-index)
+(defvar chess-display-ply)
+(defvar chess-display-position)
+(defvar chess-display-perspective)
 (defvar chess-display-draw-function nil)
 (defvar chess-display-highlight-function nil)
+(defvar chess-display-mode-line "")
 
+(make-variable-buffer-local 'chess-display-game)
+(make-variable-buffer-local 'chess-display-search-function)
+(make-variable-buffer-local 'chess-display-variation)
+(make-variable-buffer-local 'chess-display-index)
+(make-variable-buffer-local 'chess-display-ply)
+(make-variable-buffer-local 'chess-display-position)
+(make-variable-buffer-local 'chess-display-perspective)
 (make-variable-buffer-local 'chess-display-draw-function)
 (make-variable-buffer-local 'chess-display-highlight-function)
+(make-variable-buffer-local 'chess-display-mode-line)
+
+(defmacro chess-with-current-buffer (buffer &rest body)
+  `(if buffer
+       (with-current-buffer buffer
+	 ,@body)
+     ,@body))
+
+(defun chess-display-create (style perspective &optional search-func)
+  "Create a chess display, for displaying chess objects."
+  (let ((draw (intern-soft (concat (symbol-name style) "-draw")))
+	(highlight (intern-soft (concat (symbol-name style) "-highlight"))))
+    (with-current-buffer (generate-new-buffer "*Chessboard*")
+      (setq cursor-type nil
+	    chess-display-draw-function draw
+	    chess-display-highlight-function highlight
+	    chess-display-perspective perspective
+	    chess-display-search-function search-func)
+      (chess-display-mode)
+      (current-buffer))))
+
+(defsubst chess-display-destroy (display)
+  "Destroy a chess display object, killing all of its buffers."
+    (if (buffer-live-p display)
+	(kill-buffer display)))
+
+(defsubst chess-display-perspective (display)
+  (chess-with-current-buffer display
+    chess-display-perspective))
+
+(defun chess-display-set-perspective (display perspective)
+  (chess-with-current-buffer display
+    (setq chess-display-perspective perspective)
+    (chess-display-update nil)))
+
+(defun chess-display-set-search-function (display search-func)
+  (chess-with-current-buffer display
+    (if chess-display-game
+	(error "Cannot alter a display's search function when viewing a game")
+      (setq chess-display-search-function search-func))))
+
+(defun chess-display-search-function (display)
+  (chess-with-current-buffer display
+    (if chess-display-game
+	(chess-game-search-function chess-display-game)
+      (or chess-display-search-function
+	  'chess-standard-search-position))))
+
+(defsubst chess-display-search-position (display position target piece)
+  (chess-with-current-buffer display
+    (funcall (chess-display-search-function nil)
+	     position target piece)))
+
+(defun chess-display-set-position (display position &optional search-func)
+  "Set the display position.
+Note that when a single position is being displayed, out of context of
+a game, the user's move will cause a new variation to be created,
+without a game object.
+If the position is merely edited, it will change the POSITION object
+that was passed in."
+  (chess-with-current-buffer display
+    (setq chess-display-game nil
+	  chess-display-search-function search-func
+	  chess-display-variation nil
+	  chess-display-index nil
+	  chess-display-ply nil
+	  chess-display-position position)
+    (chess-display-update nil)))
+
+(defun chess-display-position (display)
+  "Return the position currently viewed."
+  (chess-with-current-buffer display
+    (or (and chess-display-game
+	     (chess-game-pos chess-display-game chess-display-index))
+	(and chess-display-variation
+	     (chess-ply-next-pos
+	      (nth chess-display-index chess-display-variation)))
+	(and chess-display-ply
+	     (chess-ply-next-pos chess-display-ply))
+	chess-display-position)))
+
+(defun chess-display-set-ply (display ply &optional search-func)
+  "Set the display ply.
+This differs from a position display, only in that the algebraic form
+of the move made to the reach the displayed position will be shown in
+the modeline."
+  (chess-with-current-buffer display
+    (setq chess-display-game nil
+	  chess-display-search-function search-func
+	  chess-display-variation nil
+	  chess-display-index nil
+	  chess-display-ply ply
+	  chess-display-position nil)
+    (chess-display-update display)))
+
+(defun chess-display-ply (display)
+  (chess-with-current-buffer display
+    (or (and chess-display-game
+	     (chess-game-ply chess-display-game chess-display-index))
+	(and chess-display-variation
+	     (nth chess-display-index chess-display-variation))
+	chess-display-ply)))
+
+(defun chess-display-set-variation (display plies &optional index search-func)
+  "Set the display variation.
+This will cause the first ply in the variation to be displayed, with
+the user able to scroll back and forth through the moves in the
+variation.  Any moves made on the board will extend/change the
+variation that was passed in."
+  (chess-with-current-buffer display
+    (setq chess-display-game nil
+	  chess-display-search-function search-func
+	  chess-display-variation plies
+	  chess-display-index (or index 0)
+	  chess-display-ply nil
+	  chess-display-position nil)
+    (chess-display-update nil)))
+
+(defun chess-display-variation (display)
+  (chess-with-current-buffer display
+    (or (and chess-display-game
+	     (chess-game-plies chess-display-game))
+	chess-display-variation)))
+
+(defun chess-display-set-game (display game &optional index)
+  "Set the display game.
+This will cause the first ply in the game's main variation to be
+displayed.  Also, information about the game is shown in the
+modeline."
+  (chess-with-current-buffer display
+    (setq chess-display-game game
+	  chess-display-search-function nil
+	  chess-display-variation nil
+	  chess-display-index (or index 0)
+	  chess-display-ply nil
+	  chess-display-position nil)
+    (chess-display-update nil)))
+
+(defsubst chess-display-game (display)
+  (chess-with-current-buffer display
+    chess-display-game))
+
+(defun chess-display-set-index (display index)
+  (chess-with-current-buffer display
+    (unless chess-display-index
+      (error "There is no game or variation currently being displayed."))
+    (if chess-display-game
+	(unless (chess-game-pos chess-display-game index)
+	  (error "There is no position in the displayed game at index %d."
+		 index))
+      (if (or (not (integerp index))
+	      (< index 0)
+	      (>= index (length chess-display-variation)))
+	  (error "There is no position in the display variation at index %d."
+		 index)))
+    (setq chess-display-index index)
+    (chess-display-update nil)))
+
+(defsubst chess-display-index (display)
+  (chess-with-current-buffer display
+    chess-display-index))
+
+(defun chess-display-update (display)
+  "This should be called if any object passed in has been changed.
+That is, if you call `chess-display-set-position', and then later
+change that position object, the display can be updated by calling
+`chess-display-update'."
+  (chess-with-current-buffer display
+    (if chess-display-draw-function
+	(funcall chess-display-draw-function
+		 (chess-display-position nil)
+		 chess-display-perspective))
+    (chess-display-set-modeline)))
+
+(defun chess-display-move (display start &optional target)
+  "Move a piece on DISPLAY from START to TARGET.
+If only START is given, it must be in algebraic move notation."
+  (chess-with-current-buffer display
+    ;; jww (2002-03-28): how is this going to handle castling?  There
+    ;; needs to be a way to "flesh" out a move using the standard
+    ;; search function.
+    (let ((ply (if (null target)
+		   (chess-algebraic-to-ply
+		    (chess-display-position nil) start
+		    (chess-display-search-function nil))
+		 (chess-ply-create (chess-display-position nil)
+				   start target))))
+      (cond
+       ((chess-display-active-p)
+	(chess-session-event chess-current-session 'move ply))
+       (chess-display-game
+	;; jww (2002-03-28): This should beget a variation, or alter
+	;; the game, just as SCID allows
+	(unless (= (chess-display-index nil)
+		   (chess-game-index chess-display-game))
+	  (error "Cannot move partway in a game"))
+	(chess-game-move chess-display-game ply))
+       (chess-display-variation
+	(nconc chess-display-variation (list ply)))
+       (chess-display-ply
+	(setq chess-display-ply ply))
+       (t				; an ordinary position
+	(setq chess-display-position (chess-ply-next-pos ply)))))
+    (chess-display-update nil)))
+
+(defun chess-display-highlight (display index &optional mode)
+  "Highlight the square at INDEX on the current position.
+The given highlighting MODE is used, or the default if the style you
+are displaying with doesn't support that mode.  `selected' is a mode
+that is supported by most displays, and is the default mode."
+  (chess-with-current-buffer display
+    (if (chess-display-active-p)
+	(chess-session-event chess-current-session 'highlight
+			     index (or mode 'selected))
+      (if chess-display-highlight-function
+	  (funcall chess-display-highlight-function index
+		   (or mode 'selected)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Module method
+;;
+
+;;;###autoload
+(defun chess-display (session display event &rest args)
+  "This display module presents a standard chessboard.
+See `chess-display-type' for the different kinds of displays."
+  (if (eq event 'initialize)
+      (chess-display-create (car args)
+			    (chess-session-data session 'my-color))
+    (ignore
+     (cond
+      ((eq event 'shutdown)
+       (chess-display-destroy display))
+
+      ((eq event 'setup)
+       (chess-display-set-game display (car args)))
+
+      ((eq event 'highlight)
+       ;; calling `chess-display-highlight' would be recursive
+       (if chess-display-highlight-function
+	   (funcall chess-display-highlight-function
+		    (car args) (cadr args))))
+
+      (t
+       (chess-display-update display))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; chess-display-mode
+;;
 
 (defvar chess-display-mode-map
   (let ((map (make-keymap)))
@@ -57,10 +330,8 @@
     (define-key map [??] 'describe-mode)
     (define-key map [?C] 'chess-display-clear-board)
     (define-key map [?E] 'chess-display-edit-board)
-    (define-key map [?G] 'chess-display-restore-board)
     (define-key map [?F] 'chess-display-set-from-fen)
     (define-key map [?I] 'chess-display-invert)
-    (define-key map [?S] 'chess-display-send-board)
     (define-key map [?X] 'chess-display-quit)
     (define-key map [?M] 'chess-display-manual-move)
 
@@ -82,11 +353,6 @@
       (define-key map (vector key) 'chess-keyboard-shortcut))
     (define-key map [backspace] 'chess-keyboard-shortcut-delete)
 
-;;    (let ((keys '(?  ?p ?r ?n ?b ?q ?k ?P ?R ?N ?B ?Q ?K)))
-;;      (while keys
-;;	(define-key map (vector (car keys)) 'chess-display-set-piece)
-;;	(setq keys (cdr keys))))
-
     (define-key map [(control ?m)] 'chess-display-select-piece)
     (define-key map [return] 'chess-display-select-piece)
     (cond
@@ -99,67 +365,10 @@
     map)
   "The mode map used in a chessboard display buffer.")
 
-(defvar chess-display-game)
-(defvar chess-display-game-index)
-(defvar chess-display-position)
-(defvar chess-display-perspective)
-(defvar chess-display-mode-line "")
-
-(make-variable-buffer-local 'chess-display-game)
-(make-variable-buffer-local 'chess-display-game-index)
-(make-variable-buffer-local 'chess-display-position)
-(make-variable-buffer-local 'chess-display-perspective)
-(make-variable-buffer-local 'chess-display-mode-line)
-
-;;; Code:
-
-;;;###autoload
-(defun chess-display (session buffer event &rest args)
-  "This display module presents a standard chessboard.
-See `chess-display-type' for the different kinds of displays."
-  (cond
-   ((eq event 'initialize)
-    (let ((buf (generate-new-buffer "*Chessboard*")))
-      (with-current-buffer buf
-	(setq cursor-type nil
-	      chess-display-draw-function (car args)
-	      chess-display-highlight-function (cadr args)
-	      chess-display-perspective
-	      (chess-session-data session 'my-color))
-	(chess-display-mode)
-	buf)))
-   ((eq event 'shutdown)
-    (ignore
-     (if (buffer-live-p buffer)
-	 (kill-buffer buffer))))
-   (t
-    (ignore
-     (with-current-buffer buffer
-       (cond
-	((eq event 'setup)
-	 (setq cursor-type nil
-	       chess-display-game (car args)
-	       chess-display-game-index (chess-game-index (car args))
-	       chess-display-position (chess-game-pos (car args)))
-	 (funcall chess-display-draw-function))
-
-	((eq event 'highlight)
-	 ;; if they are unselecting the piece, just redraw
-	 (if (eq (nth 2 args) 'unselected)
-	     (funcall chess-display-draw-function)
-	   (apply chess-display-highlight-function args)))
-
-	((eq event 'move)
-	 (assert (eq chess-display-game
-		     (chess-session-data session 'current-game)))
-	 (setq chess-display-game-index (chess-game-index chess-display-game)
-	       chess-display-position (chess-game-pos chess-display-game))
-	 (funcall chess-display-draw-function))
-
-	(t
-	 (funcall chess-display-draw-function)))
-
-       (chess-display-set-modeline))))))
+(defun chess-display-redraw ()
+  "Just redraw the current display."
+  (interactive)
+  (chess-display-update nil))
 
 (defun chess-display-mode ()
   "A mode for displaying and interacting with a chessboard.
@@ -174,75 +383,52 @@ The key bindings available in this mode are:
 
 (defun chess-display-set-modeline ()
   "Set the modeline to reflect the current game position."
-  (let ((color (chess-pos-side-to-move chess-display-position))
-	(index chess-display-game-index))
-    (if (= index 1)
+  (let ((ply (chess-display-ply nil))
+	(color (chess-pos-side-to-move (chess-display-position nil)))
+	(index (chess-display-index nil)))
+    (if (and index (= index 1))
 	(setq chess-display-mode-line
 	      (format "   %s   START" (if color "White" "BLACK")))
       (setq chess-display-mode-line
 	    (concat
 	     "  " (if color "White" "BLACK")
-	     "   " (int-to-string (if (> index 1)
-				      (/ index 2) (1+ (/ index 2))))
-	     ". " (if color "... ")
-	     (chess-game-ply-to-algebraic chess-display-game))))))
+	     (if index
+		 (concat "   " (int-to-string
+				(if (> index 1)
+				    (/ index 2) (1+ (/ index 2))))))
+	     (if ply
+		 (concat ". " (if color "... ")
+			 (chess-ply-to-algebraic
+			  ply (chess-display-search-function nil)))))))))
 
-(defsubst chess-display-current-p ()
-  "Return non-nil if the displayed chessboard reflects the current game.
-This means that no editing is being done."
-  (eq chess-display-position
-      (chess-game-pos chess-display-game)))
+(defsubst chess-display-active-p ()
+  "Return non-nil if the displayed chessboard reflects an active game.
+Basically, it means we are not editing or reviewing.
+The game must be part of an active session (i.e., not just reviewing a
+game object), and the board must represent the current position in
+that game (i.e., not editing the position, or reviewing an earlier
+position within the game)."
+  (and chess-current-session
+       chess-display-game
+       (= (chess-display index nil)
+	  (chess-game-index chess-display-game))
+       (not chess-display-edit-mode)))
 
 (defun chess-display-invert ()
   "Invert the perspective of the current chess board."
   (interactive)
-  (setq chess-display-perspective (not chess-display-perspective))
-  (funcall chess-display-draw-function))
-
-(defun chess-display-edit-board ()
-  "Setup the current board for editing."
-  (interactive)
-  (when (chess-display-current-p)
-    (setq cursor-type t
-	  chess-display-position
-	  (chess-pos-copy (chess-game-pos chess-display-game)))
-    (message "Now editing board, use S to send...")))
-
-(defun chess-display-restore-board ()
-  "Setup the current board for editing."
-  (interactive)
-  (setq cursor-type nil
-	chess-display-position (chess-game-pos chess-display-game)
-	chess-display-game-index (chess-game-index chess-display-game))
-  (funcall chess-display-draw-function))
-
-(defun chess-display-clear-board ()
-  "Setup the current board for editing."
-  (interactive)
-  (when (y-or-n-p "Really clear the chessboard? ")
-    (chess-display-edit-board)
-    (dotimes (rank 8)
-      (dotimes (file 8)
-	(chess-pos-set-piece chess-display-position (cons rank file) ? )))
-    (funcall chess-display-draw-function)))
+  (chess-display-set-perspective nil (not (chess-display-perspective nil))))
 
 (defun chess-display-set-from-fen (fen)
   "Send the current board configuration to the user."
   (interactive "sSet from FEN string: ")
-  (setq chess-display-position (chess-fen-to-pos fen))
-  (funcall chess-display-draw-function))
-
-(defun chess-display-send-board ()
-  "Send the current board configuration to the user."
-  (interactive)
-  (chess-session-event chess-current-session 'setup
-		       (chess-game-create chess-display-position)))
+  (chess-display-set-position nil (chess-fen-to-pos fen)))
 
 (defun chess-display-copy-board ()
   "Send the current board configuration to the user."
   (interactive)
   (let* ((x-select-enable-clipboard t)
-	 (fen (chess-fen-from-pos chess-display-position)))
+	 (fen (chess-fen-from-pos (chess-display-position nil))))
     (kill-new fen)
     (message "Copied board: %s" fen)))
 
@@ -254,70 +440,126 @@ This means that no editing is being done."
     ;; jww (2001-06-26): not yet implemented
     (message "Pasted board: %s" fen)))
 
-(defun chess-display-redraw ()
-  "Just redraw the current display."
-  (interactive)
-  (funcall chess-display-draw-function))
-
 (defun chess-display-set-piece ()
   "Set the piece under point to command character, or space for clear."
   (interactive)
-  (unless (chess-display-current-p)
-    (chess-pos-set-piece chess-display-position
+  (unless (chess-display-active-p)
+    (chess-pos-set-piece (chess-display-position nil)
 			 (get-text-property (point) 'chess-coord)
 			 last-command-char)
-    (funcall chess-display-draw-function)))
+    (chess-display-update nil)))
 
 (defun chess-display-quit ()
   "Quit the current game."
   (interactive)
-  (chess-session-event chess-current-session 'shutdown))
+  (if (chess-display-active-p)
+      (chess-session-event chess-current-session 'shutdown)
+    (chess-display-destroy nil)))
 
 (defun chess-display-manual-move (move)
   "Move a piece manually, using chess notation."
   (interactive
    (list (read-string
 	  (format "%s(%d): "
-		  (if (chess-pos-side-to-move chess-display-position)
+		  (if (chess-pos-side-to-move (chess-display-position nil))
 		      "White" "Black")
-		  (1+ (/ chess-display-game-index 2))))))
-  (chess-session-event chess-current-session 'move
-		       (chess-game-algebraic-to-ply chess-display-game move)))
+		  (1+ (/ (or (chess-display-index nil) 0) 2))))))
+  (chess-display-move nil move))
 
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
 Direction may be - or +, to move forward or back, or t or nil to jump
 to the end or beginning."
-  (let ((index (cond ((eq dir ?-) (1- chess-display-game-index))
-		     ((eq dir ?+) (1+ chess-display-game-index))
+  (let ((index (cond ((eq dir ?-) (1- chess-display-index))
+		     ((eq dir ?+) (1+ chess-display-index))
 		     ((eq dir t) nil)
-		     ((eq dir nil) 1))))
-    (setq chess-display-position
-	  (or (chess-game-pos chess-display-game index)
-	      (error "You are already at the first or last position"))
-	  chess-display-game-index
-	  (or index (chess-game-index chess-display-game)))
-    (funcall chess-display-draw-function)
-    (chess-display-set-modeline)
-    (if (chess-display-current-p)
-	(message "This is the current position")
-      (message "Use G or M-> to return to the current position"))))
+		     ((eq dir nil) 0))))
+    (chess-display-set-index
+     nil (or index
+	     (if chess-display-game
+		 (chess-game-index chess-display-game)
+	       (1- (length chess-display-variation)))))
+    (message "Use '>' to return to the current position")))
 
 (defun chess-display-move-backward ()
   (interactive)
-  (chess-display-set-current ?-))
+  (if chess-display-index
+      (chess-display-set-current ?-)))
 
 (defun chess-display-move-forward ()
   (interactive)
-  (chess-display-set-current ?+))
+  (if chess-display-index
+      (chess-display-set-current ?+)))
 
 (defun chess-display-move-first ()
   (interactive)
-  (chess-display-set-current nil))
+  (if chess-display-index
+      (chess-display-set-current nil)))
 
 (defun chess-display-move-last ()
   (interactive)
-  (chess-display-set-current t))
+  (if chess-display-index
+      (chess-display-set-current t)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; chess-display-edit-mode (for editing the position directly)
+;;
+
+(defvar chess-display-edit-mode-map
+  (let ((map (make-keymap)))
+    (suppress-keymap map)
+    (set-keymap-parent map chess-display-mode-map)
+
+    (define-key map [?C] 'chess-display-clear-board)
+    (define-key map [?G] 'chess-display-restore-board)
+    (define-key map [?S] 'chess-display-send-board)
+
+    (let ((keys '(?  ?p ?r ?n ?b ?q ?k ?P ?R ?N ?B ?Q ?K)))
+      (while keys
+	(define-key map (vector (car keys)) 'chess-display-set-piece)
+	(setq keys (cdr keys))))
+    map)
+  "The mode map used for editing a chessboard position.")
+
+(defun chess-display-edit-board ()
+  "Setup the current board for editing."
+  (interactive)
+  (setq cursor-type t
+	chess-display-edit-mode t)
+  ;; Take us out of any game/ply/variation we might be looking at,
+  ;; since we are not moving pieces now, but rather placing them --
+  ;; for which purpose the movement keys can still be used.
+  (chess-display-set-position nil (chess-display-position nil))
+  ;; jww (2002-03-28): setup edit-mode keymap here
+  (message "Now editing position directly, use S when complete..."))
+
+(defun chess-display-send-board ()
+  "Send the current board configuration to the user."
+  (interactive)
+  (if chess-current-session
+      (chess-session-event chess-current-session 'setup
+			   (chess-game-create (chess-display-position nil))))
+  (setq cursor-type nil
+	chess-display-edit-mode nil))
+
+(defun chess-display-restore-board ()
+  "Setup the current board for editing."
+  (interactive)
+  (setq cursor-type nil
+	chess-display-edit-mode nil)
+  ;; jww (2002-03-28): NYI
+  (chess-display-update nil))
+
+(defun chess-display-clear-board ()
+  "Setup the current board for editing."
+  (interactive)
+  (when (y-or-n-p "Really clear the chessboard? ")
+    (let ((position (chess-display-position nil)))
+      (dotimes (rank 8)
+	(dotimes (file 8)
+	  (chess-pos-set-piece position (cons rank file) ? ))))
+    (chess-display-update nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -327,6 +569,10 @@ to the end or beginning."
 (defvar chess-move-string nil)
 (defvar chess-legal-moves-pos nil)
 (defvar chess-legal-moves nil)
+
+(make-variable-buffer-local 'chess-move-string)
+(make-variable-buffer-local 'chess-legal-moves-pos)
+(make-variable-buffer-local 'chess-legal-moves)
 
 (defun chess-keyboard-shortcut-delete ()
   (interactive)
@@ -343,53 +589,49 @@ to the end or beginning."
     (setq chess-move-string
 	  (concat chess-move-string
 		  (char-to-string (downcase last-command-char)))))
-  (unless (and chess-legal-moves
-	       (eq chess-display-position chess-legal-moves-pos))
-    (let ((search-func (chess-game-search-func chess-display-game)))
-      (setq chess-legal-moves-pos chess-display-position
+  (let ((position (chess-display-position nil))
+	(search-func (chess-display-search-function nil)))
+    (unless (and chess-legal-moves
+		 (eq position chess-legal-moves-pos))
+      (setq chess-legal-moves-pos position
 	    chess-legal-moves
 	    (sort (mapcar (function
 			   (lambda (ply)
 			     (chess-ply-to-algebraic ply nil search-func)))
-		   (chess-legal-plies chess-display-position search-func))
-		  'string-lessp))))
-  (let ((moves
-	 (mapcar (function
-		  (lambda (move)
-		    (let ((i 0) (x 0)
-			  (l (length move))
-			  (xl (length chess-move-string))
-			  (match t))
-		      (unless (or (and (equal chess-move-string "ok")
-				       (equal move "O-O"))
-				  (and (equal chess-move-string "oq")
-				       (equal move "O-O-O")))
-			(while (and (< i l) (< x xl))
-			  (if (= (aref move i) ?x)
-			      (setq i (1+ i)))
-			  (if (/= (downcase (aref move i))
-				  (aref chess-move-string x))
-			      (setq match nil i l)
-			    (setq i (1+ i) x (1+ x)))))
-		      (if match move))))
-		 chess-legal-moves)))
-    (setq moves (delq nil moves))
-    (cond
-     ((= (length moves) 1)
-      (chess-session-event
-       chess-current-session 'move
-       (chess-algebraic-to-ply chess-display-position (car moves)
-			       (chess-game-search-func chess-display-game)))
-      (setq chess-move-string nil
-	    chess-legal-moves nil
-	    chess-legal-moves-pos nil))
-     ((null moves)
-      (setq chess-move-string
-	    (substring chess-move-string 0
-		       (1- (length chess-move-string)))))
-     (t
-      (message "[%s] %s" chess-move-string
-	       (mapconcat 'identity moves " "))))))
+			  (chess-legal-plies position search-func))
+		  'string-lessp)))
+    (let ((moves (mapcar
+		  (function
+		   (lambda (move)
+		     (let ((i 0) (x 0)
+			   (l (length move))
+			   (xl (length chess-move-string))
+			   (match t))
+		       (unless (or (and (equal chess-move-string "ok")
+					(equal move "O-O"))
+				   (and (equal chess-move-string "oq")
+					(equal move "O-O-O")))
+			 (while (and (< i l) (< x xl))
+			   (if (= (aref move i) ?x)
+			       (setq i (1+ i)))
+			   (if (/= (downcase (aref move i))
+				   (aref chess-move-string x))
+			       (setq match nil i l)
+			     (setq i (1+ i) x (1+ x)))))
+		       (if match move))))
+		  chess-legal-moves)))
+      (setq moves (delq nil moves))
+      (cond
+       ((= (length moves) 1)
+	(chess-display-move nil (car moves))
+	(setq chess-move-string nil
+	      chess-legal-moves nil
+	      chess-legal-moves-pos nil))
+       ((null moves)
+	(chess-keyboard-shortcut-delete))
+       (t
+	(message "[%s] %s" chess-move-string
+		 (mapconcat 'identity moves " ")))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -411,7 +653,6 @@ to the end or beginning."
 ;;
 
 (defvar chess-display-last-selected nil)
-
 (make-variable-buffer-local 'chess-display-last-selected)
 
 (defun chess-display-select-piece ()
@@ -421,32 +662,17 @@ Clicking once on a piece selects it; then click on the target location."
   (let ((coord (get-text-property (point) 'chess-coord)))
     (when coord
       (if chess-display-last-selected
-	  (let ((last-sel chess-display-last-selected)
-		move-error)
+	  (let ((last-sel chess-display-last-selected))
 	    ;; if they select the same square again, just deselect it
 	    (if (/= (point) (car last-sel))
-		(if (chess-display-current-p)
-		    (chess-session-event
-		     chess-current-session 'move
-		     (chess-ply-create chess-display-position
-				       (cadr last-sel) coord))
-		  (chess-pos-move chess-display-position
-				  (cadr last-sel) coord)
-		  (funcall chess-display-draw-function))
+		(chess-display-move (cadr last-sel) coord)
 	      ;; put the board back to rights
-	      (funcall chess-display-draw-function))
-	    (setq chess-display-last-selected nil)
-	    (when move-error
-	      (funcall chess-display-draw-function)
-	      (error (error-message-string move-error))))
+	      (chess-display-update nil))
+	    (setq chess-display-last-selected nil))
 	(setq chess-display-last-selected (list (point) coord))
-       ;; just as in a normal chess game, if you touch the piece, your
-	;; opponent will see this
-	(if (chess-display-current-p)
-	    (chess-session-event chess-current-session
-				 'highlight (point) coord 'selected)
-	  (funcall chess-display-highlight-function
-		   (point) coord 'selected))))))
+	;; just as in a normal chess game, if you touch the piece,
+	;; your opponent will see this right away
+	(chess-display-highlight nil coord 'selected)))))
 
 (defun chess-display-mouse-select-piece (event)
   "Select the piece the user clicked on."
