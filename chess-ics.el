@@ -79,6 +79,11 @@ string which should be sent (newline characters will be added automatically.)"
 		(choice (string :tag "Server Name") (const :tag "Default" nil))
 		(repeat :inline t (string :tag "Command")))))
 
+(defcustom chess-ics-prompt-regexp "\\(?:[0-2][0-9]:[0-6][0-9]_\\)?[af]ics% $"
+  "*Regexp which matches an ICS prompt."
+  :group 'chess-ics
+  :type 'regexp)
+
 (defvar chess-ics-server nil
   "The ICS server name of this connection.")
 (make-variable-buffer-local 'chess-ics-server)
@@ -152,7 +157,7 @@ standard position).  In those cases, this variable should be set to nil.")
  	   "(" (group (+ (not (in " )")))) ") "
  	   (group (+ (not (in " ")))) " "
  	   (group (and (? ?-) digit)) " " (group (and (? ?-) digit)) " "
- 	   (group (and (? ?-) digit))))
+ 	   (group (and (? ?-) (+ digit)))))
   "A regular expression matching a style12 board string.")
 
 (defvar chess-ics-matcher-alist
@@ -199,6 +204,16 @@ standard position).  In those cases, this variable should be set to nil.")
 	  (lambda ()
 	    (setq chess-ics-movelist-start-position nil)
 	    'once)))
+   (cons (concat "^Game [0-9]+: \\S-+ moves: " chess-algebraic-regexp-entire)
+	 (function
+	  (lambda ()
+	    (save-excursion
+	      (while (and (forward-line -1)
+			  (or (looking-at "^[ \t]*$")
+			      (looking-at
+			       (concat "^" chess-ics-prompt-regexp))))
+		(delete-region (match-beginning 0) (1+ (match-end 0)))))
+	    t)))
    (cons "^\\([A-Za-z0-9]+\\)\\((\\*)\\|(B)\\|(CA?)\\|(H)\\|(T[DM]?)\\|(SR)\\|(FM)\\|(W?[GI]M)\\|(U)\\|([0-9-]+)\\)*\\((\\([0-9]+\\))\\| tells you\\| s-shouts\\|\\[\\([0-9]+\\)\\] kibitzes\\): \\(.+\\)$"
 	 (function
 	  (lambda ()
@@ -411,10 +426,12 @@ See `chess-ics-game'.")
 		  (if (string= (chess-game-tag game tag) val)
 		      (setq tag-pairs (cddr tag-pairs))
 		    (setq found nil))))
-	      (chess-engine-destroy (cadar sessions))
-	      (if last-session
-		  (setcdr last-session (cdr sessions))
-		(setq chess-ics-sessions (cdr sessions)))))))
+	      (if (not found)
+		  (error "Game not found")
+		(chess-engine-destroy (cadar sessions))
+		(if last-session
+		    (setcdr last-session (cdr sessions))
+		  (setq chess-ics-sessions (cdr sessions))))))))
       (setq last-triggers sessions
 	    sessions (cdr sessions)))))
 
@@ -425,16 +442,17 @@ See `chess-ics-game'.")
 	(wmove (match-string 2))
 	(bmove (match-string 14))
 	(game chess-ics-movelist-game))
-    (when (and game
-	       (chess-pos-side-to-move (chess-game-pos game))
-	       (= (chess-game-seq game) seq))
-      (chess-game-set-data game 'my-color nil)
-      (chess-game-move
-       game (chess-algebraic-to-ply (chess-game-pos game) wmove))
-      (when bmove
-	(chess-game-set-data game 'my-color t)
-	(chess-game-move
-	 game (chess-algebraic-to-ply (chess-game-pos game) bmove))))
+    (when game
+      (if (/= (chess-game-seq game) seq)
+	  (progn
+	    (goto-char (match-beginning 0))
+	    (insert (format "SeqNr. unmatched (%d): " seq)))
+	(when (chess-pos-side-to-move (chess-game-pos game))
+	  (chess-game-move
+	   game (chess-algebraic-to-ply (chess-game-pos game) wmove))
+	  (when bmove
+	    (chess-game-move
+	     game (chess-algebraic-to-ply (chess-game-pos game) bmove))))))
     t))
 
 ;; ICS style12 format (with artificial line breaks):
@@ -705,10 +723,10 @@ descending order.")
 	  "Variant%-")))
 
 (defun chess-ics-seeking (string)
-  (if (not (string-match
-	    "\\`[\n\r]+\\(\\S-+\\) (\\([0-9+ -]+\\)) seeking \\([a-z]\\S-+ \\)?\\([0-9]+\\) \\([0-9]+\\) \\(\\(un\\)?rated\\) \\([^(]*\\)(\"\\([^\"]+\\)\" to respond)\\s-*[\n\r]+\\([0-2][0-9]:[0-6][0-9]_\\)?[af]ics% \\'"
-	    string))
-      string
+  (while (string-match
+	  (concat "[\n\r]+\\(\\S-+\\) (\\([0-9+ -]+\\)) seeking \\([a-z]\\S-+ \\)?\\([0-9]+\\) \\([0-9]+\\) \\(\\(un\\)?rated\\) \\([^(]*\\)(\"\\([^\"]+\\)\" to respond)\\s-*[\n\r]+"
+		  chess-ics-prompt-regexp)
+	  string)
     (let* ((name (match-string 1 string))
 	   (rating (string-to-int (match-string 2 string)))
 	   (time (string-to-int (match-string 4 string)))
@@ -719,7 +737,9 @@ descending order.")
 			    (match-string 8 string)))
 	   (cmd (match-string 9 string))
 	   (id (substring cmd 5))
-	   (ics-buffer (current-buffer)))
+	   (ics-buffer (current-buffer))
+	   (pre (substring string 0 (match-beginning 0)))
+	   (post (substring string (match-end 0))))
       (setq id (concat id (make-string (- 3 (length id)) ? )))
       (setq name (concat name (make-string (- 20 (length name)) ? )))
       (setq variant (concat variant (make-string (- 25 (length variant)) ? )))
@@ -747,14 +767,17 @@ descending order.")
 	    (insert "\n"))
 	  (chess-ics-sought-sort)
 	  (goto-char here)))
-      "")))
+      (setq string (concat pre post))))
+  string)
 
 (defun chess-ics-ads-removed (string)
   "Look for Seek ad removal announcements in the output stream.
 This function should be put on `comint-preoutput-filter-functions'."
   (let (ids)
-    (while (string-match "[\n\r]+Ads removed: \\([0-9 ]+\\)\\s-*[\n\r]+\\([0-2][0-9]:[0-6][0-9]_\\)?[af]ics% $"
-			 string)
+    (while (string-match
+	    (concat "[\n\r]+Ads removed: \\([0-9 ]+\\)\\s-*[\n\r]+"
+		    chess-ics-prompt-regexp)
+	    string)
       (setq ids (append (save-match-data
 			  (split-string (match-string 1 string) " +")) ids))
       (setq string (concat (substring string 0 (match-beginning 0))
