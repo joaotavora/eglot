@@ -94,7 +94,7 @@ structured for use as a library, and also how to use it as a client.
 @section Positions
 
 A chess @dfn{position} is a given layout of pieces on a chess board,
-reflecting also which side is next to move, and what privileges are
+also reflecting which side is next to move, and what privileges are
 currently available to each side (castling short or long, en passant
 capture, etc).
 
@@ -432,7 +432,7 @@ of games conceptually represents a large tree of branching variations,
 and can be used for studying current theory, examining Master
 preferences, etc.
 
-Chess.el itself does not attempt to provide library services, or does it
+Chess.el itself does not attempt to provide library services, nor does it
 ever represent library collections in memory.  Instead, it interacts
 with a chess database engine for the purpose of storing and retrieving
 games from the library, or performing library-wide analyses and
@@ -515,7 +515,7 @@ move has been made by receiving the `move' event which is passed to
 all modules associated with the game object.
 
 There may be any number of modules associated with a chess game, and
-they may do anything you like.  Basically, for a module call
+they may do anything you like.  Basically, for a module called
 chess-sample, a function must exist called `chess-sample-handler'.
 This takes two or more arguments: a game object, the event symbol, and
 whatever other arguments were passed along with the event symbol.
