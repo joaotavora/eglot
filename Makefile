@@ -43,14 +43,21 @@ fullclean: clean
 	-rm $(TARGET) chess.info chess-auto.el
 
 VERSION=$(shell perl -ne 'print $$1 if /chess-version.*"([^"]+)"/;' chess.el)
+TAG=$(shell echo $(VERSION) | sed 's/\./-/g')
+CAT=$(shell echo $(VERSION) | perl -ne 'print $$1 if /[-0-9]+([ab])[0-9]+/;')
+SUB=$(shell echo $(VERSION) | perl -ne 'print $$1 if /[-0-9]+[ab]([0-9]+)/;')
+NEXT=$(shell expr $(SUB) + 1)
 
 dist: fullclean all clean
+	cvs tag $(TAG)
 	cp -ar . /var/tmp/chess-$(VERSION)
 	tar cvjfXC /var/tmp/chess-$(VERSION).tar.bz2 \
 		.exclude /var/tmp chess-$(VERSION)
 	rm -fr /var/tmp/chess-$(VERSION)
 	mv /var/tmp/chess-$(VERSION).tar.bz2 \
 		$(HOME)/public_html/Emacs/packages
+	perl -ne 's/(chess-version.*)"([0-9.]+)[ab][0-9]+"/$$1"$$2$(CAT)$(NEXT)"/;' chess.el
+	cvs commit -m "bumped minor rev" chess.el
 
 update:
 	make dist
