@@ -71,7 +71,7 @@
 
    ((eq event 'shutdown)
     (ignore-errors
-      (chess-engine-send nil "quit"))
+      (chess-engine-send nil "game over"))
     (ignore-errors
       (process-send-string chess-irc-process "QUIT :Goodbye\n"))
     (ignore-errors
