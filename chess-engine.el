@@ -265,7 +265,7 @@
 	    (unless (memq (process-status proc) '(run open))
 	      (chess-error 'failed-engine-start))
 	    (setq chess-engine-process proc)
-	    (when (not (equal (process-filter proc) 'comint-output-filter))
+	    (unless (process-filter proc)
 	      (set-process-filter proc 'chess-engine-filter)))
 	  (setq chess-engine-current-marker (point-marker))
 	  (current-buffer))))))
