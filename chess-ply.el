@@ -72,6 +72,16 @@
   ;; annotate and extend the ply correctly
   (cons (chess-pos-copy position) changes))
 
+(defun chess-ply-final-p (ply)
+  "Return non-nil if this is the last ply of a game/variation."
+  (let ((changes (chess-ply-changes ply)))
+    (or (memq ':draw changes)
+	(memq ':perpetual changes)
+	(memq ':repetition changes)
+	(memq ':stalemate changes)
+	(memq ':resign changes)
+	(memq ':checkmate changes))))
+
 (defun chess-legal-plies (position &optional search-func)
   "Return a list of all legal plies in POSITION."
   (let (plies)

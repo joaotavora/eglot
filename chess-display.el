@@ -404,7 +404,9 @@ The key bindings available in this mode are:
       (if ply
 	  (setq chess-display-mode-line
 		(concat
-		 "  " (if color "White" "BLACK")
+		 (if (chess-ply-final-p ply)
+		     "  FINISHED"
+		   (concat "  " (if color "White" "BLACK")))
 		 (if index
 		     (concat "   " (int-to-string
 				    (if (> index 1)

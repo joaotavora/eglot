@@ -1,44 +1,16 @@
-* 2.0
-
-** Breakdown
-
-*** Core library
-*** Display modules
-*** Chess engines
-
-** Finished writing `define-chess-module'
-
-** Call `chess-game-move' in chess-display to move the pieces
-
-** Keyboard shortcuts
-
-*** Right now "nf, nf", causes an error
-*** Castling is not supported
-*** Capital letters not supported
-
-** Long castling is signaled as an illegal move from chess-standard
-
-** Support pre-defined sessions, like `crafty'
-
-Or, allow the user to choose the rules modules with C-u M-x eshell,
-and the core engine module all the time.  So M-x eshell would prompt
-for the engine module, defaulting to crafty.
-
-* Other
-
-- Clipboard copy and paste should be global, and occur in this module
 
 - Port image display code to XEmacs
 
-- Keep a history of boards, and the moves corresponding with them, so
-  that the move history can be stepped through forward and back.
+- Allow the user to retract a move when playing against an engine.
 
-- Allow the user to retract a move when playing against crafty.
+- Long castling is signaled as an illegal move from chess-standard
+
+- Capital letters not supported in keyboard shortcut entry
+
+----------------------------------------------------------------------
 
 - Tie-in to ics.el, by adding "Internet opponent" to the opponents
   list.
-
-- The ability to read and playback existing PGN files.
 
 - A way to set the time control, and display its status.
 
@@ -55,35 +27,12 @@ for the engine module, defaulting to crafty.
 
 - Allow the opponent to give hints.
 
-- Choose the default image set based on the screen size.
-
-- Find some prettier image sets.
-
-- If the chess computer croaks, handle it gracefully.
-
-- A better way to visually show who's turn it is now?
-
-- The source have some strings with non-ascii content.
-
-- In a PGN file, offer the commands: chess-continue, chess-replay,
-  chess-show-position (which works for whichever sequence the cursor
-  is in).
-
-- For modified boards, add a command key to say that it's really black
-  to play, not white (or vice versa).
-
-- Multiple game buffer selection is a bit screwy.  M-1 M-x chess will
-  not select the first buffer, for example.  Perhaps named games would
-  be better?
-
 - Add a command that will load a saved game, continue it, and then
   enter a move for whichever color is next to play.  This would make
   it trivial to add chess drivers to AIM, IRC, etc.  The mere command
   "!chess johnw37 Nf3" would mean: load the chess game johnw37, and
   make my move as Nf3.  It would also make chess by e-mail a snap to
   implement.
-
-- Modify etalk's chess.el to use this chess.el as its library.
 
 - Add an analyze command that will indicate which pieces are defended,
   how well, which are attacked, which moves would increase

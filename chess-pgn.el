@@ -79,18 +79,20 @@
   "NYI: Still have to implement INDENTED argument."
   (while plies
     (unless for-black
-      (insert (format "%d. %s" index
-		      (chess-game-ply-to-algebraic game (car plies))))
-      (unless no-annotations
-	(chess-pgn-insert-annotations game index (car plies)))
+      (when (chess-ply-changes (car plies))
+	(insert (format "%d. %s" index
+			(chess-game-ply-to-algebraic game (car plies))))
+	(unless no-annotations
+	  (chess-pgn-insert-annotations game index (car plies))))
       (setq plies (cdr plies) index (1+ index)))
     (when plies
-      (when for-black
-	(insert (format "%d. ..." index))
-	(setq for-black nil))
-      (insert (format " %s" (chess-game-ply-to-algebraic game (car plies))))
-      (unless no-annotations
-	(chess-pgn-insert-annotations game index (car plies)))
+      (when (chess-ply-changes (car plies))
+	(when for-black
+	  (insert (format "%d. ..." index))
+	  (setq for-black nil))
+	(insert (format " %s" (chess-game-ply-to-algebraic game (car plies))))
+	(unless no-annotations
+	  (chess-pgn-insert-annotations game index (car plies))))
       (setq plies (cdr plies)))
     (if plies
 	(insert ? ))))

@@ -129,7 +129,7 @@
 
 (defsubst chess-game-pos (game &optional index)
   "Return the position related to GAME's INDEX position."
-  (car (chess-game-ply game index)))
+  (chess-ply-pos (chess-game-ply game index)))
 
 
 (defun chess-game-create (&optional position search-func tags)
@@ -166,19 +166,23 @@ progress (nil), if it is drawn, resigned, mate, etc."
 		     (chess-pos-piece position (car (chess-ply-changes ply))))
       (signal 'chess-illegal "Illegal move"))
     (chess-ply-set-changes current-ply changes)
+    (chess-game-add-ply game (chess-ply-create
+			      (chess-ply-next-pos current-ply)))
     (cond
      ((or (memq ':draw changes)
 	  (memq ':perpetual changes)
 	  (memq ':repetition changes)
 	  (memq ':stalemate changes))
-      (chess-game-set-tag game "Result" "1/2-1/2"))
+      (chess-game-set-tag game "Result" "1/2-1/2")
+      (chess-game-run-hooks game 'game-over))
+
      ((or (memq ':resign changes)
 	  (memq ':checkmate changes))
       (chess-game-set-tag game "Result" (if (chess-game-side-to-move game)
-					    "0-1" "1-0")))
+					    "0-1" "1-0"))
+      (chess-game-run-hooks game 'game-over))
+
      (t
-      (chess-game-add-ply game (chess-ply-create
-				(chess-ply-next-pos current-ply)))
       (chess-game-run-hooks game 'move current-ply)))))
 
 ;; A few convenience functions
