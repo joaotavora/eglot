@@ -104,6 +104,10 @@
     (if (buffer-live-p buf)
 	(kill-buffer buf))))
 
+(defsubst chess-display-session (display)
+  (chess-with-current-buffer display
+    chess-display-session))
+
 (defsubst chess-display-perspective (display)
   (chess-with-current-buffer display
     chess-display-perspective))
@@ -306,8 +310,8 @@ that is supported by most displays, and is the default mode."
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
   (if (eq event 'initialize)
-      (chess-display-create (car args)
-			    (chess-session-data session 'my-color))
+      (chess-display-create
+       (car args) (chess-session-data session 'my-color) session)
     (ignore
      (cond
       ((eq event 'shutdown)
