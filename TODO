@@ -10,9 +10,6 @@
 
 ----------------------------------------------------------------------
 
-- Have positions remember where both kings are; this will save a lot
-  of calls to chess-pos-search
-
 - Make use of the new chess-incr-index*, which does no checks
 
 - Don't popup the display if it's already the currently selected
