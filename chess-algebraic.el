@@ -90,6 +90,7 @@ This regexp handles both long and short form.")
 			      (list (car candidates) target)
 			    (if (null source)
 				(error "Clarify piece to move by rank or file")
+			      (nconc changes (list :which source))
 			      (while candidates
 				(if (if (>= source ?a)
 					(eq (chess-index-file (car candidates))
@@ -120,30 +121,31 @@ If LONG is non-nil, render the move into long notation."
   (if (let ((source (chess-ply-source ply)))
 	(or (null source) (symbolp source)))
       ""
-    (or (and (chess-ply-has-keyword ply :castle) "O-O")
-	(and (chess-ply-has-keyword ply :long-castle) "O-O-O")
+    (or (and (chess-ply-keyword ply :castle) "O-O")
+	(and (chess-ply-keyword ply :long-castle) "O-O-O")
 	(let* ((pos (chess-ply-pos ply))
 	       (from (chess-ply-source ply))
 	       (to (chess-ply-target ply))
 	       (from-piece (chess-pos-piece pos from))
 	       (color (chess-pos-side-to-move pos))
-	       (candidates (chess-search-position pos to from-piece))
 	       (rank 0) (file 0)
 	       (from-rank (/ from 8))
 	       (from-file (mod from 8))
-	       differentiator)
-	  (when (> (length candidates) 1)
-	    (dolist (candidate candidates)
-	      (if (= (/ candidate 8) from-rank)
-		  (setq rank (1+ rank)))
-	      (if (= (mod candidate 8) from-file)
-		  (setq file (1+ file))))
-	    (cond
-	     ((= file 1)
-	      (setq differentiator (+ from-file ?a)))
-	     ((= rank 1)
-	      (setq differentiator (+ (- 7 from-rank) ?1)))
-	     (t (error "Could not differentiate piece"))))
+	       (differentiator (cdr (memq :which (chess-ply-changes ply)))))
+	  (unless differentiator
+	    (let ((candidates (chess-search-position pos to from-piece)))
+	      (when (> (length candidates) 1)
+		(dolist (candidate candidates)
+		  (if (= (/ candidate 8) from-rank)
+		      (setq rank (1+ rank)))
+		  (if (= (mod candidate 8) from-file)
+		      (setq file (1+ file))))
+		(cond
+		 ((= file 1)
+		  (setq differentiator (+ from-file ?a)))
+		 ((= rank 1)
+		  (setq differentiator (+ (- 7 from-rank) ?1)))
+		 (t (error "Could not differentiate piece"))))))
 	  (concat
 	   (unless (= (upcase from-piece) ?P)
 	     (char-to-string (upcase from-piece)))
@@ -162,8 +164,8 @@ If LONG is non-nil, render the move into long notation."
 	     (if promote
 		 (concat "=" (char-to-string
 			      (upcase (cadr promote))))))
-	   (if (chess-ply-has-keyword ply :check) "+"
-	     (if (chess-ply-has-keyword ply :checkmate) "#")))))))
+	   (if (chess-ply-keyword ply :check) "+"
+	     (if (chess-ply-keyword ply :checkmate) "#")))))))
 
 (provide 'chess-algebraic)
 

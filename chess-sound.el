@@ -23,7 +23,7 @@
 					 'play-sound-file
 				       'chess-sound-play)
   "Non-nil if chess-sound should play sounds ."
-  :type 'file
+  :type 'function
   :group 'chess-sound)
 
 (defcustom chess-sound-program (or (executable-find "esdplay")
@@ -37,9 +37,14 @@
   :type '(repeat string)
   :group 'chess-sound)
 
+(defcustom chess-sound-my-moves nil
+  "If non-nil, plays the move.wav sound whenever you make a move."
+  :type 'boolean
+  :group 'chess-sound)
+
 (defun chess-sound-available-p ()
   (and (file-directory-p chess-sound-directory)
-       (file-readable-p (expand-file-name "tap.wav"
+       (file-readable-p (expand-file-name "move.wav"
 					  chess-sound-directory))
        (or (eq chess-sound-play-function 'play-sound-file)
 	   (file-executable-p chess-sound-program))))
@@ -48,17 +53,10 @@
   "Announce the opponent's moves in GAME."
   (chess-game-add-hook game 'chess-sound-handler))
 
-(defun chess-sound (ch)
-  (let ((file
-	 (cond
-	  ((stringp ch)
-	   (format "%s.wav" ch))
-	  ((memq ch '(?\# ?\+ ?k ?q ?b ?n ?r ?p ?x))
-	   (format "%c_.wav" ch))
-	  (t
-	   (format "%s.wav" (chess-index-to-coord ch))))))
-    (funcall chess-sound-play-function
-	     (expand-file-name file chess-sound-directory))))
+(defsubst chess-sound (file)
+  (funcall chess-sound-play-function
+	   (expand-file-name (concat file ".wav")
+			     chess-sound-directory)))
 
 (defun chess-sound-play (file)
   (apply 'call-process chess-sound-program
@@ -72,30 +70,37 @@ See `chess-display-type' for the different kinds of displays."
 	   (pos (chess-ply-pos ply)))
       (if (eq (chess-game-data game 'my-color)
 	      (chess-pos-side-to-move pos))
-	  (chess-sound "tap")
+	  (if chess-sound-my-moves
+	      (chess-sound "move"))
 	(let* ((source (chess-ply-source ply))
 	       (target (chess-ply-target ply))
 	       (s-piece (chess-pos-piece pos source))
 	       (t-piece (chess-pos-piece pos target))
+	       (which (chess-ply-keyword ply :which))
 	       text)
 	  (cond
-	   ((chess-ply-has-keyword :castle)
+	   ((chess-ply-keyword ply :castle)
 	    (chess-sound "O-O"))
-	   ((chess-ply-has-keyword :long-castle)
+	   ((chess-ply-keyword ply :long-castle)
 	    (chess-sound "O-O-O"))
 	   ((= t-piece ? )
-	    (chess-sound (downcase s-piece))
-	    (chess-sound target))
+	    (if which
+		(chess-sound (char-to-string which)))
+	    (chess-sound (format "%c_" (downcase s-piece)))
+	    (chess-sound (chess-index-to-coord target)))
 	   (t
-	    (chess-sound (downcase s-piece))
-	    (chess-sound ?x)
-	    (chess-sound (downcase t-piece))
-	    (chess-sound target)))
-	  (if (chess-ply-has-keyword :check)
-	      (chess-sound ?+))
-	  (if (chess-ply-has-keyword :checkmate)
-	      (chess-sound ?#))
-	  (if (chess-ply-has-keyword :stalemate)
+	    (if which
+		(chess-sound (char-to-string which)))
+	    (chess-sound (format "%c_" (downcase s-piece)))
+	    (chess-sound "x_")
+	    (chess-sound (format "%c_" (downcase t-piece)))
+	    (chess-sound (chess-index-to-coord target))))
+
+	  (if (chess-ply-keyword ply :check)
+	      (chess-sound "+_"))
+	  (if (chess-ply-keyword ply :checkmate)
+	      (chess-sound "#_"))
+	  (if (chess-ply-keyword ply :stalemate)
 	      (chess-sound "smate")))))))
 
 (provide 'chess-sound)

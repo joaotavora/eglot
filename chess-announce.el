@@ -52,27 +52,36 @@ See `chess-display-type' for the different kinds of displays."
 	       (target (chess-ply-target ply))
 	       (s-piece (chess-pos-piece pos source))
 	       (t-piece (chess-pos-piece pos target))
+	       (which (chess-ply-keyword ply :which))
 	       text)
+	  (if which
+	      (setq which (char-to-string which)))
 	  (cond
-	   ((chess-ply-has-keyword ply :castle)
-	    (setq text "kingside castle"))
-	   ((chess-ply-has-keyword :long-castle)
-	    (setq text "queenside castle"))
+	   ((chess-ply-keyword ply :castle)
+	    (setq text "short castle"))
+	   ((chess-ply-keyword ply :long-castle)
+	    (setq text "long castle"))
 	   ((= t-piece ? )
-	    (setq text (concat (cdr (assq (downcase s-piece)
+	    (setq text (concat which
+			       (cdr (assq (downcase s-piece)
 					  chess-announce-names))
 			       " to "
 			       (chess-index-to-coord target))))
 	   (t
-	    (setq text (concat (cdr (assq (downcase s-piece)
+	    (setq text (concat which
+			       (cdr (assq (downcase s-piece)
 					  chess-announce-names))
-			       " takes at "
+			       " takes "
+			       (cdr (assq (downcase t-piece)
+					  chess-announce-names))
+			       " at "
 			       (chess-index-to-coord target)))))
-	  (if (chess-ply-has-keyword :check)
+
+	  (if (chess-ply-keyword ply :check)
 	      (setq text (concat text ", check")))
-	  (if (chess-ply-has-keyword :checkmate)
+	  (if (chess-ply-keyword ply :checkmate)
 	      (setq text (concat text ", checkmate")))
-	  (if (chess-ply-has-keyword :stalemate)
+	  (if (chess-ply-keyword ply :stalemate)
 	      (setq text (concat text ", stalemate")))
 
 	  (funcall (nth 1 chess-announce-functions) text)))))))

@@ -63,17 +63,28 @@
 (defsubst chess-ply-set-changes (ply changes)
   (setcdr ply changes))
 
-(defun chess-ply-has-keyword (ply &rest keywords)
+(defun chess-ply-any-keyword (ply &rest keywords)
   (catch 'found
     (dolist (keyword keywords)
       (if (memq keyword (chess-ply-changes ply))
 	  (throw 'found keyword)))))
 
+(defun chess-ply-keyword (ply keyword)
+  (let ((item (memq keyword (chess-ply-changes ply))))
+    (if item
+	(if (memq keyword '(:which :promote))
+	    (cdr item)
+	  t))))
+
 (defsubst chess-ply-source (ply)
-  (car (chess-ply-changes ply)))
+  (let ((changes (chess-ply-changes ply)))
+    (and (listp changes) (not (symbolp (car changes)))
+	 (car changes))))
 
 (defsubst chess-ply-target (ply)
-  (cadr (chess-ply-changes ply)))
+  (let ((changes (chess-ply-changes ply)))
+    (and (listp changes) (not (symbolp (car changes)))
+	 (cadr changes))))
 
 (defsubst chess-ply-next-pos (ply)
   (apply 'chess-pos-move (chess-pos-copy (chess-ply-pos ply))
@@ -206,7 +217,7 @@ maneuver."
 
 (defsubst chess-ply-final-p (ply)
   "Return non-nil if this is the last ply of a game/variation."
-  (chess-ply-has-keyword ply :draw :perpetual :repetition :stalemate
+  (chess-ply-any-keyword ply :draw :perpetual :repetition :stalemate
 			 :resign :checkmate))
 
 (defun chess-legal-plies (position)

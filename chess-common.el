@@ -13,11 +13,11 @@
 (make-variable-buffer-local 'chess-common-temp-files)
 
 (defmacro chess-with-temp-file (&rest body)
-  (let ((file (make-temp-file "chess")))
-    (with-temp-file file
-      ,@body)
-    (push file chess-common-temp-files)
-    file))
+  `(let ((file (make-temp-file "chess")))
+     (with-temp-file file
+       ,@body)
+     (push file chess-common-temp-files)
+     file))
 
 (put 'chess-with-temp-file 'lisp-indent-function 1)
 
@@ -65,6 +65,8 @@
     (when (chess-engine-game nil)
       (dotimes (i (car args))
 	(chess-engine-send nil "undo\n"))
+      (if (= 1 (mod (car args) 2))
+	  (chess-engine-send nil "go\n"))
       (chess-game-undo (chess-engine-game nil) (car args))))
 
    ((eq event 'move)

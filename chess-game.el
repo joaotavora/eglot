@@ -213,14 +213,14 @@ progress (nil), if it is drawn, resigned, mate, etc."
     (chess-game-add-ply game (chess-ply-create
 			      (chess-ply-next-pos current-ply)))
     (cond
-     ((chess-ply-has-keyword ply :draw :perpetual :repetition :stalemate)
+     ((chess-ply-any-keyword ply :draw :perpetual :repetition :stalemate)
       (chess-game-set-tag game "Result" "1/2-1/2")
       (chess-game-run-hooks game 'game-drawn))
 
-     ((chess-ply-has-keyword ply :resign :checkmate)
+     ((chess-ply-any-keyword ply :resign :checkmate)
       (let ((color (chess-game-side-to-move game)))
 	(chess-game-set-tag game "Result" (if color "0-1" "1-0"))
-	(if (chess-ply-has-keyword ply :resign)
+	(if (chess-ply-keyword ply :resign)
 	    (chess-game-run-hooks game 'resign color)
 	  (chess-game-run-hooks game 'move current-ply))))
 
