@@ -415,7 +415,7 @@ that is supported by most displays, and is the default mode."
   :group 'chess-display)
 
 (defcustom chess-display-momentous-events
-  '(orient post-undo setup-game pass move)
+  '(orient post-undo setup-game pass move resign abort)
   "Events that will refresh, and cause 'main' displays to popup.
 These are displays for which `chess-display-set-main' has been
 called."
