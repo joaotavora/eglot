@@ -34,6 +34,9 @@ will be announced."
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
   (cond
+   ((eq event 'pass)
+    (chess-announce-change-perspective game (not perspective)))
+
    ((memq event '(move game-over))
     (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
 	   (pos (chess-ply-pos ply)))
