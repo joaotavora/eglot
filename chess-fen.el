@@ -38,6 +38,8 @@
 ;; relate to the game, not the position.
 ;;
 
+(require 'chess-pos)
+
 (defun chess-fen-to-pos (fen)
   "Convert a FEN-like notation string to a chess position."
   (assert (stringp fen))
