@@ -204,6 +204,11 @@ who is black."
 		   (funcall chess-engine-response-handler 'accept)))))
 	(cons "<12> \\(.+\\)"
 	      'chess-ics-handle-move)
+	(cons "Illegal move (\\([^)]+\\))\\."
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'illegal
+			  (match-string 1)))))
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function
 	       (lambda ()

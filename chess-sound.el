@@ -68,8 +68,8 @@
 	      (chess-sound "move"))
 	(let* ((source (chess-ply-source ply))
 	       (target (chess-ply-target ply))
-	       (s-piece (chess-pos-piece pos source))
-	       (t-piece (chess-pos-piece pos target))
+	       (s-piece (and source (chess-pos-piece pos source)))
+	       (t-piece (and target (chess-pos-piece pos target)))
 	       (which (chess-ply-keyword ply :which))
 	       text)
 	  (cond
@@ -77,12 +77,12 @@
 	    (chess-sound "O-O"))
 	   ((chess-ply-keyword ply :long-castle)
 	    (chess-sound "O-O-O"))
-	   ((= t-piece ? )
+	   ((and s-piece t-piece (= t-piece ? ) target)
 	    (if which
 		(chess-sound (char-to-string which)))
 	    (chess-sound (format "%c_" (downcase s-piece)))
 	    (chess-sound (chess-index-to-coord target)))
-	   (t
+	   ((and s-piece t-piece target)
 	    (if which
 		(chess-sound (char-to-string which)))
 	    (chess-sound (format "%c_" (downcase s-piece)))

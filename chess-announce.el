@@ -60,8 +60,8 @@ shutdown the announcer process, if necessary.")
 		  (chess-pos-side-to-move pos))
 	(let* ((source (chess-ply-source ply))
 	       (target (chess-ply-target ply))
-	       (s-piece (chess-pos-piece pos source))
-	       (t-piece (chess-pos-piece pos target))
+	       (s-piece (and source (chess-pos-piece pos source)))
+	       (t-piece (and target (chess-pos-piece pos target)))
 	       (which (chess-ply-keyword ply :which))
 	       text)
 	  (if which
@@ -71,7 +71,7 @@ shutdown the announcer process, if necessary.")
 	    (setq text (chess-string 'short-castle)))
 	   ((chess-ply-keyword ply :long-castle)
 	    (setq text (chess-string 'long-castle)))
-	   ((= t-piece ? )
+	   ((and s-piece t-piece (= t-piece ? ) target)
 	    (setq text
 		  (concat which
 			  (chess-string 'piece-moves
@@ -79,7 +79,7 @@ shutdown the announcer process, if necessary.")
 					 (cdr (assq (downcase s-piece)
 						    chess-announce-names)))
 					(chess-index-to-coord target)))))
-	   (t
+	   ((and s-piece t-piece target)
 	    (setq text
 		  (concat which
 			  (chess-string 'piece-takes

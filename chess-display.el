@@ -559,7 +559,8 @@ The key bindings available in this mode are:
 (defsubst chess-display-active-p ()
   "Return non-nil if the displayed chessboard reflects an active game.
 Basically, it means we are playing, not editing or reviewing."
-  (and (= chess-display-index
+  (and (chess-game-data chess-module-game 'active)
+       (= chess-display-index
 	  (chess-game-index chess-module-game))
        (not (chess-game-over-p chess-module-game))
        (not chess-display-edit-mode)))
