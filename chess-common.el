@@ -67,7 +67,7 @@
    ((eq event 'drawn)
     (chess-game-set-data game 'active nil))
 
-   ((memq event '(resign abort))
+   ((memq event '(resign abort new))
     (chess-engine-send nil "new\n")
     (chess-engine-set-position nil))
 
@@ -77,7 +77,7 @@
     (if (= 1 (mod (car args) 2))
 	(chess-engine-send nil "go\n"))
 
-    ;; prevent use from handling the `undo' event which this triggers
+    ;; prevent us from handling the `undo' event which this triggers
     (let ((chess-engine-handling-event t))
       (chess-game-undo game (car args))))
 
