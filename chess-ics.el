@@ -1182,6 +1182,23 @@ This function should be put on `comint-preoutput-filter-functions'."
 
      ((eq event 'forward)
       (chess-ics-send "forward" (chess-game-data game 'ics-buffer)))
+
+     ((eq event 'undo)
+      (chess-ics-send (format "takeback %d" (car args))
+		      (chess-game-data game 'ics-buffer)))
+
+     ((eq event 'abort)
+      (chess-ics-send "abort" (chess-game-data game 'ics-buffer)))
+
+     ((eq event 'call-flag)
+      (chess-ics-send "flag" (chess-game-data game 'ics-buffer)))
+
+     ((eq event 'draw)
+      (chess-ics-send "draw" (chess-game-data game 'ics-buffer)))
+
+     ((eq event 'resign)
+      (chess-ics-send "resign" (chess-game-data game 'ics-buffer)))
+
      (t
       (apply 'chess-network-handler game event args)))))
 
