@@ -187,7 +187,7 @@ who is black."
     t))
 
 (defvar chess-ics-regexp-alist
-  (list (cons "^[^% \r\n]+% "
+  (list (cons "^[^% \t\n\r]+%"
 	      (function
 	       (lambda ()
 		 (chess-engine-send nil "set style 12\n")
@@ -198,7 +198,7 @@ who is black."
 	       (lambda ()
 		 (setq chess-ics-handle (match-string 1))
 		 'once)))
-	(cons "\\(\\([ \t\n\r]*[A-Za-z0-9_]+%[ \t\n\r]*\\)?<12> \\(.+\\)\\)\n"
+	(cons "<12> \\(.+\\)"
 	      'chess-ics-handle-move)
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function

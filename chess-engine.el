@@ -414,7 +414,7 @@
 			(setq last-trigger triggers
 			      triggers (cdr triggers)))))
 		  (forward-line))
-	      (setq chess-engine-last-pos (point-marker)
+	      (setq chess-engine-last-pos (point)
 		    chess-engine-working nil))))))))
 
 (provide 'chess-engine)
