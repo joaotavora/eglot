@@ -40,11 +40,6 @@ These are features scheduled for future 2.x releases.
   algebraic notation.  Also, chess-announce and chess-sound can be
   collapsed into one module, with different "styles" of announcing.
 
-- Write chess-epd.el, which is based on chess-fen, and is also a
-  database module for accessing positions within an EPD file
-  (This has mostly already been done, however, chess-epd still needs to be
-   converted to a database module.)
-
 - Make ( create variations in a display, and keys to move into and out
   of them.  At the moment, variations are supported programmatically,
   but not in the UI.
