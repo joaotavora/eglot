@@ -41,7 +41,7 @@
 	  (let ((begin (point)))
 	    (search-forward "}")
 	    (forward-char)
-	    (chess-pos-add-annotation prevpos (buffer-substring-no-properties
+	    (chess-pos-add-annotation position (buffer-substring-no-properties
 					       begin (- (point) 2)))))
 	 ((looking-at "(")
 	  (forward-char)
@@ -58,11 +58,12 @@
 	  (nconc plies (list (chess-ply-create*
 			      (chess-ply-next-pos (car (last plies))))))
 	  (throw 'done t)))
-	(skip-chars-forward " \t\n")))
+	(skip-chars-forward " \t\n\r")))
     (cdr plies)))
 
 (defun chess-pgn-to-game (&optional string)
-  "Convert PGN notation at point into a chess game."
+  "Convert PGN notation at point into a chess game.
+Optionally use the supplied STRING instead of the current buffer."
   (if string
       (with-temp-buffer
 	(insert string)
@@ -75,7 +76,7 @@
 		 (goto-char (match-beginning 0))))
     (let ((game (chess-game-create)))
       (chess-game-set-tags game nil)
-      (while (looking-at "\\[\\(\\S-+\\)\\s-+\\(\".+?\"\\)\\][ \t\n]+")
+      (while (looking-at "\\[\\(\\S-+\\)\\s-+\\(\".+?\"\\)\\][ \t\n\r]+")
 	(chess-game-set-tag game (match-string-no-properties 1)
 			    (read (match-string-no-properties 2)))
 	(goto-char (match-end 0)))
@@ -127,7 +128,9 @@
 
 (defun chess-game-to-pgn (game &optional indented to-string)
   "Convert a chess GAME to PGN notation.
-If INDENTED is non-nil, indent the move texts."
+If INDENTED is non-nil, indent the move texts.
+If TO-STRING is non-nil, return a string instead of inserting the resulting
+PGN text."
   (if to-string
       (with-temp-buffer
 	(chess-insert-pgn game indented)
@@ -178,13 +181,17 @@ If INDENTED is non-nil, indent the move texts."
 (require 'chess-database)
 (require 'chess-file)
 
-(defvar chess-pgn-database)
-(defvar chess-pgn-display)
+(defvar chess-pgn-database nil
+  "Chess database object.")
+(make-variable-buffer-local 'chess-pgn-database)
+
+(defvar chess-pgn-display nil
+  "If non-nil, the chess display object used for this buffer.")
+(make-variable-buffer-local 'chess-pgn-display)
+
 (defvar chess-pgn-current-game)
 (defvar chess-pgn-current-index)
 
-(make-variable-buffer-local 'chess-pgn-database)
-(make-variable-buffer-local 'chess-pgn-display)
 (make-variable-buffer-local 'chess-pgn-current-game)
 (make-variable-buffer-local 'chess-pgn-current-index)
 
@@ -201,7 +208,9 @@ If INDENTED is non-nil, indent the move texts."
       (find-file file))
   (let ((game (chess-pgn-to-game)))
     (if game
-	(chess-display-set-game (chess-create-display t) game)
+	(chess-display-set-game
+	 (setq chess-pgn-display (chess-create-display t))
+	 game)
       (chess-error 'could-not-read-pgn))))
 
 ;;;###autoload
@@ -249,7 +258,7 @@ If INDENTED is non-nil, indent the move texts."
     (font-lock-add-keywords
      'chess-pgn-mode
      (list (list "\\[\\(\\S-+\\)\\s-+\".*\"\\]" 1 'font-lock-keyword-face)
-	   (cons "\\(1-0\\|0-1\\|\\*\\)$" 'chess-pgn-bold-face))))
+	   (cons "\\(1-0\\|0-1\\|1/2-1/2\\*\\)$" 'chess-pgn-bold-face))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.pgn\\'" . chess-pgn-mode))
@@ -301,10 +310,10 @@ If INDENTED is non-nil, indent the move texts."
 	  ply))))
 
 (defun chess-pgn-read-game ()
-  ;; load a database to represent this file if not already up
+  "load a database to represent this file if not already up."
   (unless chess-pgn-database
     (setq chess-pgn-database
-	  (chess-database-open 'chess-file buffer-file-name)))
+	  (chess-database-open buffer-file-name 'chess-file)))
 
   ;; a hack for speed's sake to read the current game text
   (save-excursion
@@ -346,7 +355,8 @@ If INDENTED is non-nil, indent the move texts."
 				  'database-index
 				  (chess-game-data chess-pgn-current-game
 						   'database-index)))
-	  (chess-display-set-index chess-pgn-display index))))))
+	  (chess-display-set-index chess-pgn-display index))
+	(chess-display-popup chess-pgn-display)))))
 
 (defun chess-pgn-visualize ()
   "Visualize the move for the PGN game under point.
