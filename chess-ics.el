@@ -195,8 +195,11 @@ to run whenever the regexp matches.")
     (setq parts (cdr parts))
 
     ;; material values for each side
-    (chess-pos-set-epd position 'ce (* 100 (- (string-to-int (pop parts))
-					      (string-to-int (pop parts)))))
+    (let ((centipawn (* 100 (- (string-to-int (pop parts))
+			       (string-to-int (pop parts))))))
+      (chess-pos-set-epd position 'ce (if (chess-pos-side-to-move position)
+					  centipawn
+					(- centipawn))))
 
     ;; White's and Black's remaining time
     (chess-game-set-data game 'white-remaining (string-to-number (pop parts)))
@@ -223,7 +226,9 @@ to run whenever the regexp matches.")
        ((= ?+ (aref move (1- (length move))))
 	(chess-pos-set-status position :check))
        ((= ?# (aref move (1- (length move))))
-	(chess-pos-set-status position :checkmate))
+	(chess-pos-set-status position :checkmate)
+	(chess-pos-set-epd position 'ce (if (chess-pos-side-to-move position)
+					    32767 -32767)))
        (nil
 	;; jww (2002-04-30): what about stalemate?  do I need to
 	;; calculate this each time?
