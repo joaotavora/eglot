@@ -5,8 +5,7 @@
 ;; $Revision$
 
 (require 'chess-engine)
-(require 'chess-fen)
-(require 'chess-algebraic)
+(require 'chess-common)
 
 (defgroup chess-crafty nil
   "The publically available chess engine 'crafty'."
@@ -17,9 +16,6 @@
   "The path to the crafty executable."
   :type 'file
   :group 'chess-crafty)
-
-(defvar chess-crafty-temp-files nil)
-(make-variable-buffer-local 'chess-crafty-temp-files)
 
 (defvar chess-crafty-regexp-alist
   (list
@@ -37,13 +33,7 @@
 (defun chess-crafty-handler (event &rest args)
   (cond
    ((eq event 'initialize)
-    (let (proc)
-      (message "Starting chess program 'crafty'...")
-      (unless chess-crafty-path
-	(error "Cannot find crafty executable; check `chess-crafty-path'"))
-      (setq proc (start-process "chess-process" (current-buffer)
-				chess-crafty-path))
-      (message "Starting chess program 'crafty'...done")
+    (let ((proc (chess-common-handler 'initialize "crafty")))
       (process-send-string proc (concat "display nogeneral\n"
 					"display nochanges\n"
 					"display noextstats\n"
@@ -58,47 +48,17 @@
 					"ansi off\n"))
       proc))
 
-   ((eq event 'shutdown)
-    (chess-engine-send nil "quit\n")
-    (dolist (file chess-crafty-temp-files)
-      (if (file-exists-p file)
-	  (delete-file file))))
-
-   ((eq event 'ready)
-    (and (chess-engine-game nil)
-	 (chess-game-set-data (chess-engine-game nil) 'active t)))
-
    ((eq event 'setup-pos)
     (chess-engine-send nil (format "setboard %s\n"
-				   (chess-pos-to-fen (car args)))))
+				   (chess-pos-to-string (car args)))))
 
    ((eq event 'setup-game)
-    (let ((file (make-temp-file "cra")))
-      (with-temp-file file
-	(insert (chess-game-to-string (car args)) ?\n))
-      (chess-engine-send nil (format "read %s\n" file))
-      (push file chess-crafty-temp-files)))
+    (let ((file (chess-with-temp-file
+		    (insert (chess-game-to-string (car args)) ?\n))))
+      (chess-engine-send nil (format "read %s\n" file))))
 
-   ((eq event 'pass)
-    (chess-engine-send nil "go\n"))
-
-   ((memq event '(abort resign))
-    (chess-engine-send nil "new\n")
-    (and (chess-engine-game nil)
-	 (chess-engine-set-start-position nil)))
-
-   ((eq event 'draw)
-    (chess-engine-default-handler 'decline-draw))
-
-   ((eq event 'undo)
-    (when (chess-engine-game nil)
-      (dotimes (i (car args))
-	(chess-engine-send nil "undo\n"))
-      (chess-game-undo (chess-engine-game nil) (car args))))
-
-   ((eq event 'move)
-    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				   "\n")))))
+   (t
+    (apply 'chess-common-handler event args))))
 
 (provide 'chess-crafty)
 

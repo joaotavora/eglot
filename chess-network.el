@@ -18,12 +18,7 @@
    (cons "chess match\\(\\s-+\\(.+\\)\\)?$"
 	 (function
 	  (lambda ()
-	    (funcall chess-engine-response-handler 'connect
-		     (match-string 2)))))
-   (cons "accept match\\(\\s-+\\(.+\\)\\)?$"
-	 (function
-	  (lambda ()
-	    (funcall chess-engine-response-handler 'accept-connect
+	    (funcall chess-engine-response-handler 'match
 		     (match-string 2)))))
    (cons "fen\\s-+\\(.+\\)"
 	 (function
@@ -51,40 +46,28 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'draw))))
-   (cons "accept draw$"
-	 (function
-	  (lambda ()
-	    (funcall chess-engine-response-handler 'accept-draw))))
-   (cons "decline draw$"
-	 (function
-	  (lambda ()
-	    (funcall chess-engine-response-handler 'decline-draw))))
    (cons "abort$"
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'abort))))
-   (cons "accept abort$"
-	 (function
-	  (lambda ()
-	    (funcall chess-engine-response-handler 'accept-abort))))
-   (cons "decline abort$"
-	 (function
-	  (lambda ()
-	    (funcall chess-engine-response-handler 'decline-abort))))
    (cons "takeback\\s-+\\([0-9]+\\)$"
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'undo
 		     (string-to-int (match-string 1))))))
-   (cons "accept takeback\\s-+\\([0-9]+\\)$"
+   (cons "accept\\(\\s-+\\(.+\\)\\)?$"
 	 (function
 	  (lambda ()
-	    (funcall chess-engine-response-handler 'accept-undo
-		     (string-to-int (match-string 1))))))
-   (cons "decline takeback$"
+	    (funcall chess-engine-response-handler 'accept
+		     (match-string 2)))))
+   (cons "decline$"
 	 (function
 	  (lambda ()
-	    (funcall chess-engine-response-handler 'decline-undo))))))
+	    (funcall chess-engine-response-handler 'decline))))
+   (cons "retract$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'retract))))))
 
 (defun chess-network-handler (event &rest args)
   "Initialize the network chess engine."
@@ -123,44 +106,40 @@
    ((eq event 'busy)
     (chess-engine-send nil "playing\n"))
 
-   ((eq event 'connect)
+   ((eq event 'match)
+    (setq chess-engine-pending-offer 'match)
     (chess-engine-send nil (format "chess match %s\n" chess-full-name)))
-
-   ((eq event 'accept-connect)
-    (chess-engine-send nil (format "accept match %s\n" chess-full-name)))
-
-   ((eq event 'decline)
-    (chess-engine-send nil "decline\n"))
 
    ((eq event 'resign)
     (chess-engine-send nil "resign\n"))
 
    ((eq event 'draw)
+    (if chess-engine-pending-offer
+	(chess-engine-command nil 'retract))
+    (setq chess-engine-pending-offer 'draw)
     (chess-engine-send nil "draw\n"))
 
-   ((eq event 'accept-draw)
-    (chess-engine-send nil "accept draw\n"))
-
-   ((eq event 'decline-draw)
-    (chess-engine-send nil "decline draw\n"))
-
    ((eq event 'abort)
+    (if chess-engine-pending-offer
+	(chess-engine-command nil 'retract))
+    (setq chess-engine-pending-offer 'abort)
     (chess-engine-send nil "abort\n"))
 
-   ((eq event 'accept-abort)
-    (chess-engine-send nil "accept abort\n"))
-
-   ((eq event 'decline-abort)
-    (chess-engine-send nil "decline abort\n"))
-
    ((eq event 'undo)
+    (if chess-engine-pending-offer
+	(chess-engine-command nil 'retract))
+    (setq chess-engine-pending-offer 'undo
+	  chess-engine-pending-arg (car args))
     (chess-engine-send nil (format "takeback %d\n" (car args))))
 
-   ((eq event 'accept-undo)
-    (chess-engine-send nil (format "accept takeback %d\n" (car args))))
+   ((eq event 'accept)
+    (chess-engine-send nil "accept\n"))
 
-   ((eq event 'decline-undo)
-    (chess-engine-send nil "decline takeback\n"))
+   ((eq event 'decline)
+    (chess-engine-send nil "decline\n"))
+
+   ((eq event 'retract)
+    (chess-engine-send nil "retract\n"))
 
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))

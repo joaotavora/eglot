@@ -5,8 +5,7 @@
 ;; $Revision$
 
 (require 'chess-engine)
-(require 'chess-fen)
-(require 'chess-algebraic)
+(require 'chess-common)
 
 (defgroup chess-phalanx nil
   "The publically available chess engine 'phalanx'."
@@ -32,43 +31,12 @@
 (defun chess-phalanx-handler (event &rest args)
   (cond
    ((eq event 'initialize)
-    (let (proc)
-      (message "Starting chess program 'phalanx'...")
-      (unless chess-phalanx-path
-	(error "Cannot find phalanx executable; check `chess-phalanx-path'"))
-      (setq proc (start-process "chess-process" (current-buffer)
-				chess-phalanx-path))
-      (message "Starting chess program 'phalanx'...done")
+    (let ((proc (chess-common-handler 'initialize "phalanx")))
       (process-send-string proc "nopost\n")
       proc))
 
-   ((eq event 'shutdown)
-    (chess-engine-send nil "quit\n"))
-
-   ((eq event 'ready)
-    (and (chess-engine-game nil)
-	 (chess-game-set-data (chess-engine-game nil) 'active t)))
-
-   ((eq event 'pass)
-    (chess-engine-send nil "go\n"))
-
-   ((memq event '(abort resign))
-    (chess-engine-send nil "new\n")
-    (and (chess-engine-game nil)
-	 (chess-engine-set-start-position nil)))
-
-   ((eq event 'draw)
-    (chess-engine-default-handler 'decline-draw))
-
-   ((eq event 'undo)
-    (when (chess-engine-game nil)
-      (dotimes (i (car args))
-	(chess-engine-send nil "undo\n"))
-      (chess-game-undo (chess-engine-game nil) (car args))))
-
-   ((eq event 'move)
-    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				   "\n")))))
+   (t
+    (apply 'chess-common-handler event args))))
 
 (provide 'chess-phalanx)
 

@@ -17,8 +17,8 @@
 	 (second-engine (chess-game-data game 'second-engine))
 	 return-value)
     (cond
-     ((eq event 'connect)
-      (chess-engine-command nil 'accept-connect)
+     ((eq event 'match)
+      (chess-engine-command nil 'accept)
       t)
 
      (t

@@ -5,8 +5,7 @@
 ;; $Revision$
 
 (require 'chess-engine)
-(require 'chess-fen)
-(require 'chess-algebraic)
+(require 'chess-common)
 
 (defgroup chess-gnuchess nil
   "The publically available chess engine 'gnuchess'."
@@ -17,9 +16,7 @@
   :type 'file
   :group 'chess-gnuchess)
 
-(defvar chess-gnuchess-temp-files nil)
 (defvar chess-gnuchess-bad-board nil)
-(make-variable-buffer-local 'chess-gnuchess-temp-files)
 (make-variable-buffer-local 'chess-gnuchess-bad-board)
 
 (defvar chess-gnuchess-regexp-alist
@@ -44,40 +41,19 @@
 (defun chess-gnuchess-handler (event &rest args)
   (cond
    ((eq event 'initialize)
-    (let (proc)
-      (message "Starting chess program 'gnuchess'...")
-      (unless chess-gnuchess-path
-	(error "Cannot find gnuchess executable; check `chess-gnuchess-path'"))
-      (setq proc (start-process "chess-process" (current-buffer)
-				chess-gnuchess-path))
-      (message "Starting chess program 'gnuchess'...done")
+    (let ((proc (chess-common-handler 'initialize "gnuchess")))
       (process-send-string proc "nopost\n")
       proc))
 
-   ((eq event 'shutdown)
-    (chess-engine-send nil "quit\n")
-    (dolist (file chess-gnuchess-temp-files)
-      (if (file-exists-p file)
-	  (delete-file file))))
-
-   ((eq event 'ready)
-    (let ((game (chess-engine-game nil)))
-      (if game
-	  (chess-game-set-data game 'active t))))
-
    ((eq event 'setup-pos)
-    (let ((file (make-temp-file "gch")))
-      (with-temp-file file
-	(insert (chess-pos-to-string (car args)) ?\n))
-      (chess-engine-send nil (format "epdload %s\n" file))
-      (push file chess-gnuchess-temp-files)))
+    (let ((file (chess-with-temp-file
+		    (insert (chess-pos-to-string (car args)) ?\n))))
+      (chess-engine-send nil (format "epdload %s\n" file))))
 
    ((eq event 'setup-game)
-    (let ((file (make-temp-file "gch")))
-      (with-temp-file file
-	(insert (chess-game-to-string (car args)) ?\n))
-      (chess-engine-send nil (format "pgnload %s\n" file))
-      (push file chess-gnuchess-temp-files)))
+    (let ((file (chess-with-temp-file
+		    (insert (chess-game-to-string (car args)) ?\n))))
+      (chess-engine-send nil (format "pgnload %s\n" file))))
 
    ((eq event 'pass)
     (chess-engine-send nil (concat (if (chess-pos-side-to-move
@@ -87,26 +63,15 @@
     (chess-engine-send nil "go\n")
     (setq chess-gnuchess-bad-board nil))
 
-   ((memq event '(abort resign))
-    (chess-engine-send nil "new\n")
-    (and (chess-engine-game nil)
-	 (chess-engine-set-start-position nil)))
-
-   ((eq event 'draw)
-    (chess-engine-default-handler 'decline-draw))
-
-   ((eq event 'undo)
-    (when (chess-engine-game nil)
-      (dotimes (i (car args))
-	(chess-engine-send nil "undo\n"))
-      (chess-game-undo (chess-engine-game nil) (car args))))
-
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
 				   "\n"))
     (when chess-gnuchess-bad-board
       (chess-engine-send nil "go\n")
-      (setq chess-gnuchess-bad-board nil)))))
+      (setq chess-gnuchess-bad-board nil)))
+
+   (t
+    (apply 'chess-common-handler event args))))
 
 (provide 'chess-gnuchess)
 

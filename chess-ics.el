@@ -126,7 +126,7 @@ who is black."
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function
 	       (lambda ()
-		 (funcall chess-engine-response-handler 'connect
+		 (funcall chess-engine-response-handler 'match
 			  (match-string 1)))))))
 
 (defun chess-ics-handler (event &rest args)
@@ -178,34 +178,19 @@ who is black."
 
       nil))
 
-   ((eq event 'shutdown)
-    (chess-engine-send nil "quit\n"))
-
    ((eq event 'move)
     (unless chess-ics-ensure-ics12
       (comint-send-string (get-buffer-process (current-buffer))
 			  "set style 12\n")
       (setq chess-ics-ensure-ics12 t))
-    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				   "\n")))
-
-   ((memq event '(accept-connect accept-undo accept-draw accept-abort))
-    (chess-engine-send nil "accept\n"))
-
-   ((memq event '(decline-connect decline-undo decline-draw decline-abort))
-    (chess-engine-send nil "decline\n"))
-
-   ((eq event 'resign)
-    (chess-engine-send nil "resign\n"))
-
-   ((eq event 'abort)
-    (chess-engine-send nil "abort\n"))
-
-   ((eq event 'undo)
-    (chess-engine-send nil (format "takeback %d\n" (car args))))
+    (chess-network-handler 'move (car args)))
 
    ((eq event 'send)
-    (comint-send-string (get-buffer-process (current-buffer)) (car args)))))
+    (comint-send-string (get-buffer-process (current-buffer))
+			(car args)))
+
+   (t
+    (apply 'chess-network-handler event args))))
 
 (defun chess-ics-filter (string)
   (save-excursion

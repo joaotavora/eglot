@@ -20,6 +20,8 @@
 (defvar chess-engine-current-marker nil)
 (defvar chess-engine-position nil)
 (defvar chess-engine-game nil)
+(defvar chess-engine-pending-offer nil)
+(defvar chess-engine-pending-arg nil)
 
 (make-variable-buffer-local 'chess-engine-regexp-alist)
 (make-variable-buffer-local 'chess-engine-event-handler)
@@ -27,6 +29,8 @@
 (make-variable-buffer-local 'chess-engine-current-marker)
 (make-variable-buffer-local 'chess-engine-position)
 (make-variable-buffer-local 'chess-engine-game)
+(make-variable-buffer-local 'chess-engine-pending-offer)
+(make-variable-buffer-local 'chess-engine-pending-arg)
 
 (defvar chess-engine-process nil)
 (defvar chess-engine-last-pos nil)
@@ -105,7 +109,7 @@
 	(message "Your opponent has passed the move to you")
 	t))
 
-     ((eq event 'connect)
+     ((eq event 'match)
       (if (and game (chess-game-data game 'active))
 	  (chess-engine-command nil 'busy)
 	(if (y-or-n-p
@@ -113,23 +117,12 @@
 		 (format "Do you wish to play a chess game against %s? "
 			 (car args))
 	       (format "Do you wish to play a chess game against an anonymous opponent? ")))
-	    (chess-engine-command nil 'accept-connect)
+	    (chess-engine-command nil 'accept)
 	  (chess-engine-send nil 'decline)))
       t)
 
-     ((eq event 'accept-connect)
-      (unless (and game (chess-game-data game 'active))
-	(if (and (car args) (> (length (car args)) 0))
-	    (message "Your opponent, %s, is now ready to play" (car args))
-	  (message "Your opponent is now ready to play"))
-
-	;; NOTE: There will be no display for this game object!  This
-	;; is really only useful if you are using a computer on the
-	;; accepting side
-	(unless game
-	  (setq game (chess-engine-set-game nil (chess-game-create))))
-	(chess-engine-set-start-position nil)
-	t))
+     ((eq event 'accept)
+)
 
      ((eq event 'setup-pos)
       (when (car args)
@@ -162,67 +155,101 @@
 	(chess-game-set-data game 'active nil)
 	t))
 
-     ((eq event 'abort)
-      (when game
-	(if (y-or-n-p "Your opponent wants to abort this game, accept? ")
-	    (progn
-	      (chess-game-set-data game 'active nil)
-	      (chess-engine-command nil 'accept-abort))
-	  (chess-engine-command nil 'decline-abort))
-	t))
-
-     ((eq event 'accept-abort)
-      (when game
-	(message "Your offer to abort was accepted")
-	(chess-game-set-data game 'active nil)
-	t))
-
-     ((eq event 'decline-abort)
-      (when game
-	(message "Your offer to abort was declined")
-	t))
-
-     ((eq event 'undo)
-      (when game
-	(if (y-or-n-p (format "Your opponent wants to take back %d moves, accept? "
-			      (car args)))
-	    (progn
-	      (chess-game-undo game (car args))
-	      (chess-engine-command nil 'accept-undo))
-	  (chess-engine-command nil 'decline-undo))
-	t))
-
-     ((eq event 'accept-undo)
-      (when game
-	(message "Undo of %d moves accepted" (car args))
-	(chess-game-undo game (car args))
-	t))
-
-     ((eq event 'decline-undo)
-      (when game
-	(message "Undo of %d moves declined" (car args))
-	t))
-
      ((eq event 'draw)
       (when game
 	(if (y-or-n-p "Your opponent offers a draw, accept? ")
 	    (progn
 	      (chess-game-draw game)
-	      (chess-engine-command nil 'accept-draw)
+	      (chess-engine-command nil 'accept)
 	      (chess-game-set-data game 'active nil))
-	  (chess-engine-command nil 'decline-draw))
+	  (chess-engine-command nil 'decline))
 	t))
 
-     ((eq event 'accept-draw)
+     ((eq event 'abort)
       (when game
-	(message "Your draw offer was accepted")
-	(chess-game-draw game)
-	(chess-game-set-data game 'active nil)
+	(if (y-or-n-p "Your opponent wants to abort this game, accept? ")
+	    (progn
+	      (chess-game-set-data game 'active nil)
+	      (chess-engine-command nil 'accept))
+	  (chess-engine-command nil 'decline))
 	t))
 
-     ((eq event 'decline-draw)
+     ((eq event 'undo)
       (when game
-	(message "Your draw offer was declined")
+	(if (y-or-n-p
+	     (format "Your opponent wants to take back %d moves, accept? "
+		     (car args)))
+	    (progn
+	      (chess-game-undo game (car args))
+	      (chess-engine-command nil 'accept))
+	  (chess-engine-command nil 'decline))
+	t))
+
+     ((eq event 'accept)
+      (when chess-engine-pending-offer
+	(if (eq chess-engine-pending-offer 'match)
+	    (unless (and game (chess-game-data game 'active))
+	      (if (and (car args) (> (length (car args)) 0))
+		  (message "Your opponent, %s, is now ready to play"
+			   (car args))
+		(message "Your opponent is now ready to play"))
+
+	      ;; NOTE: There will be no display for this game object!  This
+	      ;; is really only useful if you are using a computer on the
+	      ;; accepting side
+	      (unless game
+		(setq game (chess-engine-set-game nil (chess-game-create))))
+	      (chess-engine-set-start-position nil))
+	  (cond
+	   ((eq chess-engine-pending-offer 'draw)
+	    (message "Your draw offer was accepted")
+	    (chess-game-draw game)
+	    (chess-game-set-data game 'active nil))
+
+	   ((eq chess-engine-pending-offer 'abort)
+	    (message "Your offer to abort was accepted")
+	    (chess-game-set-data game 'active nil))
+
+	   ((eq chess-engine-pending-offer 'undo)
+	    (message "Request to undo %d moves was accepted"
+		     chess-engine-pending-arg)
+	    (chess-game-undo game (car args)))))
+	(setq chess-engine-pending-offer nil
+	      chess-engine-pending-arg nil)
+	t))
+
+     ((eq event 'decline)
+      (when (and game chess-engine-pending-offer)
+	(cond
+	 ((eq chess-engine-pending-offer 'draw)
+	  (message "Your draw offer was declined"))
+
+	 ((eq chess-engine-pending-offer 'abort)
+	  (message "Your offer to abort was declined"))
+
+	 ((eq chess-engine-pending-offer 'undo)
+	  (message "Your request to undo %d moves was decline"
+		   chess-engine-pending-arg)))
+
+	(setq chess-engine-pending-offer nil
+	      chess-engine-pending-arg nil)
+	t))
+
+     ((eq event 'retract)
+      (when (and game chess-engine-pending-offer)
+	(cond
+	 ((eq chess-engine-pending-offer 'draw)
+	  (message "Your opponent has retracted their draw offer"))
+
+	 ((eq chess-engine-pending-offer 'abort)
+	  (message "Your opponent has retracted their offer to abort"))
+
+	 ((eq chess-engine-pending-offer 'undo)
+	  (message "Your opponent has retracted their request to undo %d moves"
+		   chess-engine-pending-arg)))
+
+	(setq chess-engine-pending-offer nil
+	      chess-engine-pending-arg nil)
 	t)))))
 
 (defun chess-engine-create (module &optional response-handler &rest args)
@@ -366,22 +393,6 @@ function in all cases; this is merely a bandwidth-saver."
   (chess-with-current-buffer engine
     (chess-engine-do-move ply)
     (chess-engine-command engine 'move ply)))
-
-(defun chess-engine-pass (engine)
-  (chess-with-current-buffer engine
-    (chess-engine-command engine 'pass)))
-
-(defun chess-engine-resign (engine)
-  (chess-with-current-buffer engine
-    (chess-engine-command engine 'resign)))
-
-(defun chess-engine-abort (engine)
-  (chess-with-current-buffer engine
-    (chess-engine-command engine 'abort)))
-
-(defun chess-engine-undo (engine count)
-  (chess-with-current-buffer engine
-    (chess-engine-command engine 'undo count)))
 
 (defun chess-engine-send (engine string)
   "Send the given STRING to ENGINE."
