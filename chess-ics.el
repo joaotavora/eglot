@@ -5,8 +5,11 @@
 ;; jww (2002-04-23): This module has only been tested on FICS.
 ;;
 
+(eval-when-compile (require 'cl))
+
 (require 'comint)
 (require 'chess-network)
+(require 'chess-pos)
 
 (defgroup chess-ics nil
   "Engine for interacting with Internet Chess Servers."
@@ -42,68 +45,71 @@ The format of each entry is:
 (make-variable-buffer-local 'chess-ics-prompt)
 
 (defvar chess-ics-regexp-alist
-  (list (cons "\\(ogin\\|name\\):"
-	      (function
-	       (lambda ()
-		 (chess-engine-send nil (concat chess-ics-handle "\n"))
-		 'once)))
-	(cons "[Pp]assword:"
-	      (function
-	       (lambda ()
-		 (chess-engine-send nil (concat chess-ics-password "\n"))
-		 'once)))
-	(cons "%"
-	      (function
-	       (lambda ()
-		 (chess-engine-send nil "set style 12\n")
-		 (chess-engine-send nil "set bell 0\n")
-		 'once)))
-	(cons "Logging you in as \"\\([^\"]+\\)\""
-	      (function
-	       (lambda ()
-		 (setq chess-ics-handle (match-string 1))
-		 'once)))
-	(cons "Press return to enter the server as"
-	      (function
-	       (lambda ()
-		 (chess-engine-send nil "\n")
-		 'once)))
-	(cons "The game has been aborted on move [^.]+\\."
-	      (function
-	       (lambda ()
-		 (let ((chess-engine-pending-offer 'abort))
-		   (funcall chess-engine-response-handler 'accept)))))
-	(cons "<12>\\s-+\\(.+\\)" 'chess-ics-handle-move)
-	(cons "\\S-+ would like to take back \\([0-9]+\\) half move(s)."
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'undo
-			  (string-to-int (match-string 1))))))
-	(cons "\\S-+ accepts the takeback request\\."
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'accept))))
-	(cons "\\(\\S-+\\) resigns}"
-	      (function
-	       (lambda ()
-		 (if (string= (match-string 1) chess-engine-opponent-name)
-		     (funcall chess-engine-response-handler 'resign)))))
-	(cons "\\(\\S-+\\) forfeits on time}"
-	      (function
-	       (lambda ()
-		 (if (string= (match-string 1) chess-engine-opponent-name)
-		     (funcall chess-engine-response-handler 'flag-fell)
-		   (funcall chess-engine-response-handler 'call-flag t)))))
-	(cons "Illegal move (\\([^)]+\\))\\."
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'illegal
-			  (match-string 1)))))
-	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'match
-			  (match-string 1)))))))
+  (list
+   (cons "\\(ogin\\|name\\):"
+	 (function
+	  (lambda ()
+	    (chess-engine-send nil (concat chess-ics-handle "\n"))
+	    'once)))
+   (cons "[Pp]assword:"
+	 (function
+	  (lambda ()
+	    (chess-engine-send nil (concat chess-ics-password "\n"))
+	    'once)))
+   (cons "%"
+	 (function
+	  (lambda ()
+	    (chess-engine-send nil "set style 12\nset bell 0\n")
+	    'once)))
+   (cons "Logging you in as \"\\([^\"]+\\)\""
+	 (function
+	  (lambda ()
+	    (setq chess-ics-handle (match-string 1))
+	    'once)))
+   (cons "Press return to enter the server as"
+	 (function
+	  (lambda ()
+	    (chess-engine-send nil "\n")
+	    'once)))
+   (cons "The game has been aborted on move [^.]+\\."
+	 (function
+	  (lambda ()
+	    (let ((chess-engine-pending-offer 'abort))
+	      (funcall chess-engine-response-handler 'accept)))))
+   (cons "<12>\\s-+\\(.+\\)" 'chess-ics-handle-move)
+   (cons "\\S-+ would like to take back \\([0-9]+\\) half move(s)."
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'undo
+		     (string-to-int (match-string 1))))))
+   (cons "\\S-+ accepts the takeback request\\."
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'accept))))
+   (cons "\\(\\S-+\\) resigns}"
+	 (function
+	  (lambda ()
+	    (if (string= (match-string 1) chess-engine-opponent-name)
+		(funcall chess-engine-response-handler 'resign)))))
+   (cons "\\(\\S-+\\) forfeits on time}"
+	 (function
+	  (lambda ()
+	    (if (string= (match-string 1) chess-engine-opponent-name)
+		(funcall chess-engine-response-handler 'flag-fell)
+	      (funcall chess-engine-response-handler 'call-flag t)))))
+   (cons "Illegal move (\\([^)]+\\))\\."
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'illegal
+		     (match-string 1)))))
+   (cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'match
+		     (match-string 1))))))
+  "An alist of regular expressions to use to scan ICS server output.
+The car of each element is the regexp to try, and the cdr is a function
+to run whenever the regexp matches.")
 
 ;; ICS12 format (with artificial line breaks):
 ;;
@@ -123,44 +129,30 @@ who is black."
     (assert (= (length parts) 32))
 
     ;; first, handle the layout of the position
-    (dotimes (i 8)
-      (dotimes (j 8)
-	(let ((piece (aref (car parts) j)))
-	  (unless (= piece ?-)
-	    (chess-pos-set-piece position (chess-rf-to-index i j)
-				 piece))))
-      (setq parts (cdr parts)))
+    (dotimes (r 8)
+      (let ((rank (pop parts)))
+	(dotimes (f 8)
+	  (let ((piece (aref rank f)))
+	    (unless (= piece ?-)
+	      (chess-pos-set-piece position (chess-rf-to-index r f) piece)))))
 
     ;; next, the "side to move"
-    (chess-pos-set-side-to-move position (string= (car parts) "W"))
-    (setq parts (cdr parts))
+    (chess-pos-set-side-to-move position (string= (pop parts) "W"))
 
     ;; -1 if the previous move was NOT a double pawn push, otherwise
     ;; the chess board file (numbered 0--7 for a--h) in which the
     ;; double push was made
-    (let ((index (string-to-number (car parts))))
+    (let ((index (string-to-number (pop parts))))
       (when (>= index 0)
 	(chess-pos-set-en-passant
 	 position (chess-rf-to-index
 		   (if (chess-pos-side-to-move position) 3 4) index))))
-    (setq parts (cdr parts))
 
-    ;; can White still castle short? (0=no, 1=yes)
-    (if (string= (car parts) "1")
-	(chess-pos-set-can-castle position ?K t))
-    (setq parts (cdr parts))
-    ;; can White still castle long?
-    (if (string= (car parts) "1")
-	(chess-pos-set-can-castle position ?Q t))
-    (setq parts (cdr parts))
-    ;; can Black still castle short?
-    (if (string= (car parts) "1")
-	(chess-pos-set-can-castle position ?k t))
-    (setq parts (cdr parts))
-    ;; can Black still castle long?
-    (if (string= (car parts) "1")
-	(chess-pos-set-can-castle position ?q t))
-    (setq parts (cdr parts))
+    ;; can White/Black still castle short/long? (0=no, 1=yes)
+    (mapc (lambda (castle)
+	    (if (string= (pop parts) "1")
+		(chess-pos-set-can-castle position castle t)))
+	  '(?K ?Q ?k ?q))
 
     ;; the number of moves made since the last irreversible move.  (0
     ;; if last move was irreversible.  If the value is >= 100, the
@@ -171,8 +163,8 @@ who is black."
     (setq parts (cdr parts))
 
     ;; white player, black player
-    (setq white (car parts) parts (cdr parts))
-    (setq black (car parts) parts (cdr parts))
+    (setq white (pop parts)
+	  black (pop parts))
 
     ;; my relation to this game:
     ;; -3 isolated position, such as for "ref 3" or the "sposition"
@@ -182,13 +174,12 @@ who is black."
     ;; -1 I am playing, it is my opponent's move
     ;;  1 I am playing and it is my move
     ;;  0 I am observing a game being played
-    (setq status (string-to-int (car parts))
-	  parts (cdr parts))
+    (setq status (string-to-int (pop parts)))
 
     ;;  initial time (in seconds) of the match
     (setq parts (cdr parts))
 
-    ;;  increment In seconds) of the match
+    ;; increment (in seconds) of the match
     (setq parts (cdr parts))
 
     ;; material values for each side
@@ -196,10 +187,8 @@ who is black."
     (setq parts (cdr parts))
 
     ;;  White's and Black's remaining time
-    (setq white-time (string-to-number (car parts)))
-    (setq parts (cdr parts))
-    (setq black-time (string-to-number (car parts)))
-    (setq parts (cdr parts))
+    (setq white-time (string-to-number (pop parts))
+	  black-time (string-to-number (pop parts)))
 
     ;; the number of the move about to be made (standard chess
     ;; numbering -- White's and Black's first moves are both 1, etc.)
@@ -314,14 +303,22 @@ who is black."
      ((eq event 'initialize)
       (kill-buffer (current-buffer))
       (chess-game-run-hooks game 'disable-autosave)
-      (let ((server
+      (let* ((server
 	     (if (= (length chess-ics-server-list) 1)
 		 (car chess-ics-server-list)
 	       (assoc (completing-read (chess-string 'ics-server-prompt)
 				       chess-ics-server-list
 				       nil t (caar chess-ics-server-list))
-		      chess-ics-server-list))))
-
+		      chess-ics-server-list)))
+	     (handle (or (nth 2 server) "guest"))
+	     (password (when (nth 2 server)
+			 (let ((pass (or (nth 3 server)
+					 (read-passwd "Password: "))))
+			   (if (file-readable-p pass)
+			       (with-temp-buffer
+				 (insert-file-contents pass)
+				 (buffer-string))
+			     pass)))))
 	(chess-message 'ics-connecting (nth 0 server))
 
 	(let ((buf (if (nth 4 server)
@@ -329,29 +326,18 @@ who is black."
 			      (nth 4 server) nil (nth 5 server))
 		     (make-comint "chess-ics" (cons (nth 0 server)
 						    (nth 1 server))))))
-
 	  (chess-message 'ics-connected (nth 0 server))
 
 	  (display-buffer buf)
 	  (set-buffer buf)
 
 	  (setq chess-ics-server server
+		chess-ics-handle handle
+		chess-ics-password password
 		comint-prompt-regexp "^[^%\n]*% *"
 		comint-scroll-show-maximum-output t)
 
-	  (add-hook 'comint-output-filter-functions 'chess-engine-filter t t)
-
-	  (if (null (nth 2 server))
-	      (setq chess-ics-handle "guest")
-	    (setq chess-ics-handle (nth 2 server)
-		  chess-ics-password
-		  (let ((pass (or (nth 3 server)
-				  (read-passwd "Password: "))))
-		    (if (file-readable-p pass)
-			(with-temp-buffer
-			  (insert-file-contents pass)
-			  (buffer-string))
-		      pass))))))
+	  (add-hook 'comint-output-filter-functions 'chess-engine-filter t t)))
       t)
 
      ((eq event 'ready)
@@ -372,15 +358,15 @@ who is black."
 	(chess-game-set-tag game "White" chess-full-name)
 	(chess-game-set-tag game "Black" chess-engine-opponent-name))
 
-      (let ((move
-	     (if (chess-ply-any-keyword (car args)
-					:castle :long-castle)
-		 (chess-ply-to-algebraic (car args))
-	       (concat (chess-index-to-coord
-			(car (chess-ply-changes (car args)))) "-"
-			(chess-index-to-coord
-			 (cadr (chess-ply-changes (car args))))))))
-	(chess-engine-send nil (concat move "\n")))
+      (chess-engine-send
+       nil
+       (concat (if (chess-ply-any-keyword (car args) :castle :long-castle)
+		   (chess-ply-to-algebraic (car args))
+		 (concat (chess-index-to-coord
+			  (car (chess-ply-changes (car args)))) "-"
+			 (chess-index-to-coord
+			  (cadr (chess-ply-changes (car args))))))
+	       "\n"))
 
       (if (chess-game-over-p game)
 	  (chess-game-set-data game 'active nil)))
