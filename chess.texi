@@ -105,10 +105,28 @@ an example of how to make use of the library.
 * Plies::                       
 * Variations::                  
 * Games::                       
+* Collections::                 
 @end menu
 
 @node Positions, Plies, The Chess.el library, The Chess.el library
 @section Positions
+
+A chess @dfn{position} is a given layout of pieces on the chess board,
+reflecting also which side is next to move, and what privileges are
+currently available to each side (castling short or long, en passant
+capture, etc).
+
+A position may be represented in ASCII using FEN notation, or
+graphically by displaying a chess board.  It is rather inconvenient to
+render them verbally.
+
+The position can be represented on a remote terminal using X windows, or
+by transmitting the FEN string via a network connection, or clipboard,
+to another chess board rendering tool.  It may of course also be
+represented physically, by setting up the pieces to match the FEN
+notation.
+
+Chess puzzles are most often provided as a set of positions.
 
 @menu
 * Creating positions::          
@@ -215,6 +233,23 @@ an example of how to make use of the library.
 @node Plies, Variations, Positions, The Chess.el library
 @section Plies
 
+A @dfn{ply} is the differential between two positions.  Or, it is the
+coordinate transformations applied to one position in order to arrive at
+the following position.  It is also informally called "a move".
+
+A ply may be represented in ASCII by printing the FEN string of the base
+position, and then printing the positional transformation in algebraic
+notation.  Since the starting position is usually known, the FEN string
+is optional.  A ply may be represented graphically by moving the chess
+piece(s) involved.  It may be rendered verbally by voicing which piece
+is to move, where it will move to, and what will happen a result of the
+move (piece capture, check, etc).
+
+Plies may be sent over network connections, postal mail, e-mail, etc.,
+so long as the current position is maintained at both sides.
+Transmitting the base position's FEN string along with the ply offers a
+form of confirmation during the course of a game.
+
 @menu
 * Creating plies::              
 * Ply details::                 
@@ -267,8 +302,35 @@ an example of how to make use of the library.
 @node Variations, Games, Plies, The Chess.el library
 @section Variations
 
-@node Games,  , Variations, The Chess.el library
+A @dfn{variation} is a sequence of plies that occur after some starting
+position.  If the starting position represents the initial setup of a
+chess board, and if the final ply results in completion of the game, it
+is called the "main variation".  Otherwise, variations typically
+represented interesting tangents during a game---but not actually
+played---as envisioned by the player, an annotator, or someone studying
+the game.
+
+Variations may be represented in ASCII by stating the FEN string for
+starting position, followed by the list of plies that follow that
+position.  They are difficult to represent graphically, except for
+showing each position in turn with a slight pause between---or by
+allowing the user to navigate each of the subsequent positions in turn.
+They may be represented verbally by announcing each of the plies in
+turn, as mentioned above.
+
+@node Games, Collections, Variations, The Chess.el library
 @section Games
+
+A @dfn{game} includes its main variation, incidental information about
+the game (who played it, where, when, who won, etc), and any
+sub-variations of interest to those studying the game afterwards.
+
+Where TAGS is an alist that associates arbitrary English tag names to
+their values.
+
+A game may be represented in ASCII using standard PGN notation.
+Representing them graphically or verbally is similar to what is done
+for variations.
 
 @menu
 * Creating games::              
@@ -339,6 +401,20 @@ an example of how to make use of the library.
 @end defun
 
 @subsubsection PGN mode
+
+@node Collections,  , Games, The Chess.el library
+@section Collections
+
+A @dfn{collection} is a set of games archived for later perusal.  A set
+of games conceptually represents a large tree of branching variations,
+and can be used for studying current theory, examining Master
+preferences, etc.
+
+Chess.el itself does not attempt to provide library services, or does it
+ever represent library collections in memory.  Instead, it interacts
+with a chess database engine for the purpose of storing and retrieving
+games from the library, or performing library-wide analyses and
+searches.
 
 @node Play sessions, Display modules, The Chess.el library, Top
 @chapter Play sessions
