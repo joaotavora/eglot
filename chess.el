@@ -41,7 +41,7 @@
 ;;
 ;; To just get a chessboard up, put the following in your .emacs file:
 ;;
-;;   (add-to-list 'load-list "<the path to Emacs Chess>")
+;;   (add-to-list 'load-path "<the path to Emacs Chess>")
 ;;
 ;;   (autoload 'chess "chess" "Play a game of chess" t)
 ;;
