@@ -246,7 +246,7 @@
 
 (defun chess-engine-on-kill ()
   "Function called when the buffer is killed."
-  (chess-engine-command nil 'shutdown))
+  (chess-engine-command (current-buffer) 'shutdown))
 
 (defun chess-engine-destroy (engine)
   (let ((buf (or engine (current-buffer))))
