@@ -19,6 +19,9 @@
 - Implement engine options; then, in chess-puzzle set the option that
   tells the engine not to resign.
 
+- Add a display command for writing out the currently displayed game
+  to a file.  It will use PGN for games, and FEN for positions.
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs
