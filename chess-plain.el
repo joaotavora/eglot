@@ -17,7 +17,7 @@
   :type 'boolean)
 
 (defcustom chess-plain-border-chars '(?+ ?- ?+ ?| ?| ?+ ?- ?+)
-  "*Characters used to draw borders."
+  "*A list of Characters used to draw borders."
   :group 'chess-plain
   :type '(list (character :tag "Upper left corner")
 	       (character :tag "Upper border")
@@ -29,12 +29,12 @@
 	       (character :tag "Lower right corner")))
 
 (defcustom chess-plain-black-square-char ?.
-  "*Character used to indicate black squares."
+  "*Character used to indicate empty black squares."
   :group 'chess-plain
   :type 'character)
 
 (defcustom chess-plain-white-square-char ?.
-  "*Character used to indicate white squares."
+  "*Character used to indicate empty white squares."
   :group 'chess-plain
   :type 'character)
 
@@ -67,7 +67,7 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   :type '(choice (const color) (const square-color)))
 
 (defcustom chess-plain-spacing 1
-  "*Number of spaces between pieces."
+  "*Number of spaces between files."
   :group 'chess-plain
   :type 'integer)
 

@@ -28,6 +28,7 @@ object from/into the buffer and SEPARATOR is a list of characters to insert
 inbetween of individual records.")
 
 (defun chess-file-handler (event &rest args)
+  "Event handler for file database objects."
   (cond
    ((eq event 'open)
     (with-current-buffer (find-file-noselect (car args))
