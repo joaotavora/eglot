@@ -23,27 +23,11 @@
 
 ;; $Revision$
 
-(require 'chess-session)
-(require 'chess-pos)
-(require 'chess-ply)
-(require 'chess-game)
-
 (defgroup chess-standard nil
   "The rules of standard chess."
   :group 'chess)
 
 ;;; Code:
-
-;;;###autoload
-(defun chess-standard (session var event &rest args)
-  (cond
-   ((eq event 'move)
-    (ignore
-     (chess-standard-validate (car args))
-     (chess-game-move (chess-session-data session 'current-game)
-		      (car args))))
-   ((eq event 'search)
-    (apply 'chess-standard-search args))))
 
 (defun chess-standard-validate (ply)
   "Validate the given PLY against standard chess rules."

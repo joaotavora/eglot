@@ -1,5 +1,15 @@
 * 2.0
 
+** Breakdown
+
+*** Core library
+*** Display modules
+*** Chess engines
+
+** Finished writing `define-chess-module'
+
+** Call `chess-game-move' in chess-display to move the pieces
+
 ** Keyboard shortcuts
 
 *** Right now "nf, nf", causes an error

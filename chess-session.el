@@ -44,6 +44,16 @@
       (setq listeners (cdr listeners)))
     result))
 
+;; (define-chess-module MODULE (&rest args))
+;; (define-chess-module (MODULE BASES...) (&rest args)
+;;   :ctor-args (ARGS...)
+;;   :create-buffer
+;;   (EVENT
+;;    FORMS...)
+;;   ...)
+;;
+;; (chess-call-derived args &optional base-module)
+
 (provide 'chess-session)
 
 ;;; chess-session.el ends here

@@ -45,6 +45,7 @@
 ;;; Code:
 
 (require 'chess-pos)
+(require 'chess-standard)
 
 (defgroup chess-ply nil
   "Routines for manipulating chess plies."
@@ -69,19 +70,20 @@
 (defsubst chess-ply-create (position &rest changes)
   (cons position changes))
 
-(defun chess-legal-plies (position color)
-  "Return a list of all legal plies in POSITION for COLOR."
+(defun chess-legal-plies (position &optional search-func)
+  "Return a list of all legal plies in POSITION."
   (let (plies)
     (dotimes (rank 8)
       (dotimes (file 8)
 	(let* ((to (chess-rf-to-index rank file))
 	       (piece (chess-pos-piece position to)))
 	  (when (or (eq piece ? )
-		    (if color
+		    (if (chess-pos-side-to-move position)
 			(> piece ?a)
 		      (< piece ?a)))
-	    (dolist (candidate (funcall (car chess-modules)
-					nil nil 'search position to t))
+	    (dolist (candidate (funcall (or search-func
+					    chess-standard-search)
+					position to t))
 	      (push (chess-ply-create position candidate to)
 		    plies))))))
     plies))

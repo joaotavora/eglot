@@ -185,8 +185,7 @@ The key bindings available in this mode are:
 	     "   " (int-to-string (if (> index 1)
 				      (/ index 2) (1+ (/ index 2))))
 	     ". " (if color "... ")
-	     (chess-ply-to-algebraic
-	      (chess-game-ply chess-display-game (1- index))))))))
+	     (chess-game-ply-to-algebraic chess-display-game))))))
 
 (defsubst chess-display-current-p ()
   "Return non-nil if the displayed chessboard reflects the current game.
@@ -237,7 +236,7 @@ This means that no editing is being done."
   "Send the current board configuration to the user."
   (interactive)
   (chess-session-event chess-current-session 'setup
-		       (chess-game-create nil chess-display-position)))
+		       (chess-game-create chess-display-position)))
 
 (defun chess-display-copy-board ()
   "Send the current board configuration to the user."
@@ -283,7 +282,7 @@ This means that no editing is being done."
 		      "White" "Black")
 		  (1+ (/ chess-display-game-index 2))))))
   (chess-session-event chess-current-session 'move
-		       (chess-algebraic-to-ply chess-display-position move)))
+		       (chess-game-algebraic-to-ply chess-display-game move)))
 
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
@@ -346,13 +345,14 @@ to the end or beginning."
 		  (char-to-string (downcase last-command-char)))))
   (unless (and chess-legal-moves
 	       (eq chess-display-position chess-legal-moves-pos))
-    (setq chess-legal-moves-pos chess-display-position
-	  chess-legal-moves
-	  (sort (mapcar 'chess-ply-to-algebraic
-			(chess-legal-plies chess-display-position
-					   (chess-pos-side-to-move
-					    chess-display-position)))
-		'string-lessp)))
+    (let ((search-func (chess-game-search-func chess-display-game)))
+      (setq chess-legal-moves-pos chess-display-position
+	    chess-legal-moves
+	    (sort (mapcar (function
+			   (lambda (ply)
+			     (chess-ply-to-algebraic ply nil search-func)))
+		   (chess-legal-plies chess-display-position search-func))
+		  'string-lessp))))
   (let ((moves
 	 (mapcar (function
 		  (lambda (move)
@@ -376,9 +376,10 @@ to the end or beginning."
     (setq moves (delq nil moves))
     (cond
      ((= (length moves) 1)
-      (chess-session-event chess-current-session 'move
-			   (chess-algebraic-to-ply chess-display-position
-						   (car moves)))
+      (chess-session-event
+       chess-current-session 'move
+       (chess-algebraic-to-ply chess-display-position (car moves)
+			       (chess-game-search-func chess-display-game)))
       (setq chess-move-string nil
 	    chess-legal-moves nil
 	    chess-legal-moves-pos nil))

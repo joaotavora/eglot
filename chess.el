@@ -84,13 +84,10 @@ a0 243
 (defconst chess-version "2.0a7"
   "The version of the Emacs chess program.")
 (defcustom chess-modules
-  (list 'chess-standard 'chess-crafty
+  (list 'chess-crafty
 	(if (display-graphic-p)
 	    'chess-images 'chess-ascii))
-  "Default module set to be used when starting a chess session.
-Any rules modules, if they are being used, must appear first in this
-list!  This usually means `chess-standard' must be the very first
-entry."
+				     'chess-images 'chess-ics1)
   :type (list 'radio (apropos-internal "\\`chess-[^-]+\\'" 'functionp))
   :type 'sexp
   :group 'chess)

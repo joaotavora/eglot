@@ -33,7 +33,6 @@
 
 ;; $Revision$
 
-(require 'chess-pos)
 (require 'chess-ply)
 
 (defconst chess-algebraic-pieces-regexp "[RNBKQ]")
@@ -52,7 +51,7 @@
   "A regular expression that matches all possible algebraic moves.
 This regexp handles both long and short form.")
 
-(defun chess-algebraic-to-ply (position move)
+(defun chess-algebraic-to-ply (position move &optional search-func)
   "Convert the algebraic notation MOVE for POSITION to a ply."
   (when (string-match chess-algebraic-regexp move)
     (let* ((color (chess-pos-side-to-move position))
@@ -77,10 +76,9 @@ This regexp handles both long and short form.")
 		    ;; move, to determine which piece is meant by the
 		    ;; piece indicator
 		    (when (setq candidates
-				(funcall (car chess-modules) nil nil
-					 'search position target
-					 (if color piece
-					   (downcase piece))))
+				(funcall (or search-func chess-standard-search)
+					 position target (if color piece
+							   (downcase piece))))
 		      (if (= (length candidates) 1)
 			  (list (car candidates) target)
 			(if (null source)
@@ -101,7 +99,7 @@ This regexp handles both long and short form.")
 			 ':check))))
       (apply 'chess-ply-create position changes))))
 
-(defun chess-ply-to-algebraic (ply &optional long)
+(defun chess-ply-to-algebraic (ply &optional long search-func)
   "Convert the given PLY to algebraic notation.
 If LONG is non-nil, render the move into long notation."
   (if (null (car (chess-ply-changes ply)))
@@ -122,8 +120,8 @@ If LONG is non-nil, render the move into long notation."
 				 "O-O-O"))))
 		str
 	      (let ((candidates
-		     (funcall (car chess-modules)
-			      nil nil 'search pos to from-piece))
+		     (funcall (or search-func chess-standard-search)
+			      pos to from-piece))
 		    (rank 0) (file 0)
 		    (from-rank (/ from 8))
 		    (from-file (mod from 8))
