@@ -11,7 +11,7 @@
 
 (defcustom chess-gnuchess-path (let ((exec-path (cons "/usr/games" exec-path)))
 				 (executable-find "gnuchess"))
-  "The path to the gnuchess executable."
+  "*The path to the gnuchess executable."
   :type 'file
   :group 'chess-gnuchess)
 
