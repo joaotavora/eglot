@@ -55,7 +55,7 @@
 	(chess-engine-send nil (format "epdload %s\n" file))))
 
      ((eq event 'setup-game)
-      (if (= 0 (chess-game-index (car args)))
+      (if (zerop (chess-game-index (car args)))
 	  (chess-gnuchess-handler game 'setup-pos (chess-game-pos game 0))
 	(let ((file (chess-with-temp-file
 			(insert (chess-game-to-string (car args)) ?\n))))
