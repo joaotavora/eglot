@@ -86,7 +86,7 @@ a0 243
 (defcustom chess-modules
   (list 'chess-standard 'chess-crafty
 	(if (display-graphic-p)
-	    'chess-images 'chess-ics1))
+	    'chess-images 'chess-ascii))
   "Default module set to be used when starting a chess session.
 Any rules modules, if they are being used, must appear first in this
 list!  This usually means `chess-standard' must be the very first
