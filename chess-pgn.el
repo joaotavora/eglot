@@ -3,6 +3,8 @@
 ;; Convert a chess game to/from PGN notation
 ;;
 
+(require 'chess-algebraic)
+
 (defvar chess-pgn-fill-column 60)
 
 (chess-message-catalog 'english
@@ -67,6 +69,7 @@ Optionally use the supplied STRING instead of the current buffer."
   (if string
       (with-temp-buffer
 	(insert string)
+	(goto-char (point-min))
 	(chess-pgn-parse))
     (chess-pgn-parse)))
 
