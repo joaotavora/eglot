@@ -37,7 +37,7 @@
 (defconst chess-algebraic-regexp
   (format (concat "\\("
 		    "O-O\\(-O\\)?\\|"
-		    "\\(%s?\\)"
+		    "\\(%s?\\)/?"
 		    "\\([a-h]?[1-8]?\\)"
 		    "\\([x-]?\\)"
 		    "\\([a-h][1-8]\\)"
@@ -62,64 +62,65 @@ This regexp handles both long and short form.")
   "Convert the algebraic notation MOVE for POSITION to a ply."
   (assert (vectorp position))
   (assert (stringp move))
-  (when (string-match chess-algebraic-regexp-entire move)
-    (let ((color (chess-pos-side-to-move position))
-	  (mate (match-string 9 move))
-	  (piece (aref move 0))
-	  changes long-style)
-      (if (eq piece ?O)
-	  (setq changes (chess-ply-castling-changes
-			 position (= (length (match-string 1 move)) 5)))
-	(let ((promotion (match-string 8 move)))
-	  (setq changes
-		(let ((source (match-string 4 move))
-		      (target (chess-coord-to-index (match-string 6 move))))
-		  (if (and source (= (length source) 2))
-		      (prog1
-			  (list (chess-coord-to-index source) target)
-			(setq long-style t))
-		    (if (= (length source) 0)
-			(setq source nil)
-		      (setq source (aref source 0)))
-		    (let (candidates which)
-		      (unless (< piece ?a)
-			(setq source piece piece ?P))
-		      ;; we must use our knowledge of how pieces can
-		      ;; move, to determine which piece is meant by the
-		      ;; piece indicator
-		      (if (setq candidates
-				(chess-search-position position target
-						       (if color piece
-							 (downcase piece))))
-			  (if (= (length candidates) 1)
-			      (list (car candidates) target)
-			    (if (null source)
-				(chess-error 'clarify-piece)
-			      (nconc changes (list :which source))
-			      (while candidates
-				(if (if (>= source ?a)
-					(eq (chess-index-file (car candidates))
-					    (- source ?a))
-				      (eq (chess-index-rank (car candidates))
-					  (- 7 (- source ?1))))
-				    (setq which (car candidates)
-					  candidates nil)
-				  (setq candidates (cdr candidates))))
-			      (if (null which)
-				  (chess-error 'could-not-clarify)
-				(list which target))))
-			(chess-error 'no-candidates move))))))
-	  (if promotion
-	      (nconc changes (list :promote (aref promotion 0))))))
+  (let ((case-fold-search nil))
+    (when (string-match chess-algebraic-regexp-entire move)
+      (let ((color (chess-pos-side-to-move position))
+	    (mate (match-string 9 move))
+	    (piece (aref move 0))
+	    changes long-style)
+	(if (eq piece ?O)
+	    (setq changes (chess-ply-castling-changes
+			   position (= (length (match-string 1 move)) 5)))
+	  (let ((promotion (match-string 8 move)))
+	    (setq changes
+		  (let ((source (match-string 4 move))
+			(target (chess-coord-to-index (match-string 6 move))))
+		    (if (and source (= (length source) 2))
+			(prog1
+			    (list (chess-coord-to-index source) target)
+			  (setq long-style t))
+		      (if (= (length source) 0)
+			  (setq source nil)
+			(setq source (aref source 0)))
+		      (let (candidates which)
+			(unless (< piece ?a)
+			  (setq source piece piece ?P))
+			;; we must use our knowledge of how pieces can
+			;; move, to determine which piece is meant by the
+			;; piece indicator
+			(if (setq candidates
+				  (chess-search-position position target
+							 (if color piece
+							   (downcase piece))))
+			    (if (= (length candidates) 1)
+				(list (car candidates) target)
+			      (if (null source)
+				  (chess-error 'clarify-piece)
+				(nconc changes (list :which source))
+				(while candidates
+				  (if (if (>= source ?a)
+					  (eq (chess-index-file (car candidates))
+					      (- source ?a))
+					(eq (chess-index-rank (car candidates))
+					    (- 7 (- source ?1))))
+				      (setq which (car candidates)
+					    candidates nil)
+				    (setq candidates (cdr candidates))))
+				(if (null which)
+				    (chess-error 'could-not-clarify)
+				  (list which target))))
+			  (chess-error 'no-candidates move))))))
+	    (if promotion
+		(nconc changes (list :promote (aref promotion 0))))))
 
-      (when changes
-	(when trust
-	  (if mate
-	      (nconc changes (list (if (equal mate "#") :checkmate :check)))))
-	(unless long-style
-	  (nconc changes (list :san move)))
+	(when changes
+	  (when trust
+	    (if mate
+		(nconc changes (list (if (equal mate "#") :checkmate :check)))))
+	  (unless long-style
+	    (nconc changes (list :san move)))
 
-	(apply 'chess-ply-create position trust changes)))))
+	  (apply 'chess-ply-create position trust changes))))))
 
 (defsubst chess-ply--move-text (ply long)
   (or (and (chess-ply-keyword ply :castle) "O-O")
@@ -176,18 +177,11 @@ This regexp handles both long and short form.")
   "Convert the given PLY to algebraic notation.
 If LONG is non-nil, render the move into long notation."
   (assert (listp ply))
-  (let (source san)
-    (cond
-     ((or (null (setq source (chess-ply-source ply)))
-	  (symbolp source))
-      "")
-     ((setq san (chess-ply-keyword ply :san))
-      san)
-     (t
+  (or (and (not long) (chess-ply-keyword ply :san))
+      (and (null (chess-ply-source ply)) "")
       (let ((move (chess-ply--move-text ply long)))
-	(unless long
-	  (chess-ply-set-keyword ply :san move))
-	move)))))
+	(unless long (chess-ply-set-keyword ply :san move))
+	move)))
 
 (provide 'chess-algebraic)
 
