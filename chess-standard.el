@@ -69,13 +69,12 @@ case of the PIECE determines color.
 
 The return value is a list of candidates, which means a list of
 indices which indicate where a piece may have moved from."
+  ;; jww (2002-04-07): This function is a bit slow
   (let* ((color (if (char-valid-p piece)
 		    (< piece ?a)
 		  piece))
 	 (bias (if color -1 1))
 	 p pos candidates)
-    ;; jww (2002-04-07): Don't return candidates that leave the king
-    ;; in check.
     (cond
      ;; if the piece is `t', it means to find the candidates resulting
      ;; from any piece movement.  This is useful for testing whether a
