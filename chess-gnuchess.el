@@ -8,6 +8,15 @@
 (require 'chess-fen)
 (require 'chess-algebraic)
 
+(defgroup chess-gnuchess nil
+  "The publically available chess engine 'gnuchess'."
+  :group 'chess-engine)
+
+(defcustom chess-gnuchess-path (executable-find "gnuchess")
+  "The path to the gnuchess executable."
+  :type 'file
+  :group 'chess-gnuchess)
+
 (defvar chess-gnuchess-now-moving nil)
 (defvar chess-gnuchess-temp-files nil)
 (make-variable-buffer-local 'chess-gnuchess-temp-files)
@@ -33,8 +42,10 @@
    ((eq event 'initialize)
     (let (proc)
       (message "Starting chess program 'gnuchess'...")
+      (unless chess-gnuchess-path
+	(error "Cannot find gnuchess executable; check `chess-gnuchess-path'"))
       (setq proc (start-process "chess-process" (current-buffer)
-				(executable-find "gnuchess")))
+				chess-gnuchess-path))
       (message "Starting chess program 'gnuchess'...done")
       (process-send-string proc "nopost\n")
       proc))

@@ -49,7 +49,7 @@
   "Initialize the network chess engine."
   (cond
    ((eq event 'initialize)
-    (let ((which (read-char "cAre you the c)lient or s)erver? "))
+    (let ((which (read-char "Are you the c)lient or s)erver? "))
 	  proc)
       (message "Starting network client/server...")
       (setq proc (if (eq which ?s)

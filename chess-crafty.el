@@ -8,6 +8,16 @@
 (require 'chess-fen)
 (require 'chess-algebraic)
 
+(defgroup chess-crafty nil
+  "The publically available chess engine 'crafty'."
+  :group 'chess-engine)
+
+(defcustom chess-crafty-path (or (executable-find "crafty")
+				 (executable-find "wcrafty"))
+  "The path to the crafty executable."
+  :type 'file
+  :group 'chess-crafty)
+
 (defvar chess-crafty-now-moving nil)
 
 (defvar chess-crafty-regexp-alist
@@ -37,9 +47,10 @@
    ((eq event 'initialize)
     (let (proc)
       (message "Starting chess program 'crafty'...")
+      (unless chess-crafty-path
+	(error "Cannot find crafty executable; check `chess-crafty-path'"))
       (setq proc (start-process "chess-process" (current-buffer)
-				(or (executable-find "crafty")
-				    (executable-find "wcrafty"))))
+				chess-crafty-path))
       (message "Starting chess program 'crafty'...done")
       (process-send-string proc (concat "display nogeneral\n"
 					"display nochanges\n"
