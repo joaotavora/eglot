@@ -200,7 +200,7 @@ VALUE should either be nil, to indicate that the POSITION is normal,
 or one of the symbols: `check', `checkmate', `stalemate'."
   (assert position)
   (assert (or (eq value nil) (symbolp value)))
-  (aset position 69 values))
+  (aset position 69 value))
 
 (defsubst chess-pos-side-to-move (position)
   "Return the color whose move it is in POSITION."
