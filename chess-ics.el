@@ -258,6 +258,7 @@ who is black."
 		  (chess-game-set-data game 'white-remaining (nth 4 info))
 		  (chess-game-set-data game 'black-remaining (nth 5 info))
 		  (setq error 'applying-move)
+		  ;; save us from generating a position we already have
 		  (chess-ply-set-keyword ply :next-pos (nth 0 info))
 		  (chess-pos-set-preceding-ply (nth 0 info) ply)
 		  (chess-game-move game ply)
