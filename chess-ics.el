@@ -667,6 +667,16 @@ descending order.")
   :group 'chess-ics
   :type 'sexp)
 
+(defvar chess-ics-sought-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'chess-ics-sought-accept)
+    (define-key map [mouse-2] 'chess-ics-sought-accept)
+    (define-key map [??] 'describe-mode)
+    (define-key map [?s] 'chess-ics-sought-toggle-sort-state)
+    (define-key map [? ] 'chess-ics-sought-toggle-sort-direction)
+    map)
+  "Keymap for `chess-ics-sought-mode'.")
+
 (define-derived-mode chess-ics-sought-mode fundamental-mode "Seek Ads"
   "A mode for displaying ICS game seek advertisments."
   (let ((map (current-local-map)))
