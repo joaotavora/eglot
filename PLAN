@@ -1,3 +1,6 @@
+
+			 BEFORE FINAL RELEASE
+
 chess-ics, chess-kibitz, chess-chat
 - finish all elements of regular use as a client
 
@@ -7,14 +10,9 @@ chess-ply
 chess-german
 - complete translation
 
-			 BEFORE FINAL RELEASE
-
-  use more asserts throughout the code
-  break my dependency on cl
-
-  profile
-  mem profile
-
-  elint
-  docstring/texi
-  checkdoc
+general
+- use more asserts throughout the code
+- profile and mem profile
+- elint all files
+- add docstrings/texi content
+- use checkdoc on all files

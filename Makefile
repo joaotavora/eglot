@@ -65,4 +65,4 @@ update: dist
 	cvs commit -m "bumped minor rev" chess.el
 	make fullclean
 	lftp -e "cd /incoming; put $(PKG); quit" upload.sourceforge.net
-	sitecopy
+	sitecopy -ua

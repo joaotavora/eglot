@@ -16,17 +16,13 @@
   :group 'chess-autosave)
 
 (defcustom chess-autosave-database nil
-  "If non-nil, a chess database file in which completed games are appended."
-  :type '(choice file (const :tag "Do not save completed games" nil))
-  :group 'chess-autosave)
-
-(defcustom chess-autosave-filter-function nil
-  "A function called to determine which games are saved in databases.
-The function will receive a game object, and usually will make its
-determination based on the headers.  If it returns a non-nil value,
-the game will be stored in the `chess-autosave-database'.
-If this variable is set to nil, all games will be saved."
-  :type '(choice (const :tag "Always save" nil) function)
+  "If non-nil, a chess database file in which completed games are appended.
+If a function, it will receive a game object and is expected to do the
+work of saving the game object to whichever database(s) it chooses.
+Whether it closes those databases or caches them for later use is up
+to the user."
+  :type '(choice (const :tag "Do not save completed games" nil)
+		 file function)
   :group 'chess-autosave)
 
 (chess-message-catalog 'english
@@ -67,12 +63,13 @@ If this variable is set to nil, all games will be saved."
     (if (not (chess-game-over-p game))
 	(chess-autosave-write game chess-autosave-file)
       (erase-buffer)
-      (if (and chess-autosave-database
-	       (or (null chess-autosave-filter-function)
-		   (funcall chess-autosave-filter-function game)))
-	  (let ((database (chess-database-open chess-autosave-database)))
-	    (chess-database-write database game)
-	    (chess-database-close database)))))
+      (if chess-autosave-database
+	  (if (functionp chess-autosave-database)
+	      (funcall chess-autosave-database game)
+	    (let ((database (chess-database-open chess-autosave-database)))
+	      (when database
+		(chess-database-write database game)
+		(chess-database-close database)))))))
 
    ((eq event 'destroy)
     (set-buffer-modified-p nil)
