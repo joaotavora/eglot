@@ -5,7 +5,6 @@
 ;; $Revision$
 
 (require 'chess-module)
-(require 'chess-game)
 (require 'chess-var)
 (require 'chess-algebraic)
 (require 'chess-fen)
@@ -34,37 +33,15 @@
     (mode-drawn     . "DRAWMN")))
 
 (defcustom chess-display-mode-line-format
-  '("   "
-    (:eval (let ((final (chess-ply-final-p
-			 (chess-game-ply chess-module-game
-					 chess-display-index))))
-	     (cond
-	      ((eq final :checkmate) (chess-string 'mode-checkmate))
-	      ((eq final :resign)    (chess-string 'mode-resigned))
-	      ((eq final :stalemate) (chess-string 'mode-stalemate))
-	      ((eq final :draw)      (chess-string 'mode-drawn))
-	      (t
-	       (if (chess-game-side-to-move chess-module-game)
-		   (chess-string 'mode-white)
-		 (chess-string 'mode-black))))))
-    "   "
-    (:eval (if (= chess-display-index 0)
-	       (chess-string 'mode-start)
-	     (concat (int-to-string (chess-game-seq chess-module-game))
-		     ". "
-		     (if (chess-game-side-to-move chess-module-game)
-			 "... ")
-		     (chess-ply-to-algebraic
-		      (chess-game-ply chess-module-game
-				      (1- chess-display-index))))))
-    (:eval (let ((white (chess-game-data chess-module-game
-					 'white-remaining))
-		 (black (chess-game-data chess-module-game
-					 'black-remaining)))
-	     (if (and white black)
-		 (format "   W %02d:%02d B %02d:%02d"
-			 (/ (floor white) 60) (% (abs (floor white)) 60)
-			 (/ (floor black) 60) (% (abs (floor black)) 60))))))
+  '("   " chess-display-side-to-move "   "
+    chess-display-move-text
+    (:eval
+     (let ((white (chess-game-data chess-module-game 'white-remaining))
+	   (black (chess-game-data chess-module-game 'black-remaining)))
+       (if (and white black)
+	   (format "   W %02d:%02d B %02d:%02d"
+		   (/ (floor white) 60) (% (abs (floor white)) 60)
+		   (/ (floor black) 60) (% (abs (floor black)) 60))))))
   "The format of a chess display's modeline.
 See `mode-line-format' for syntax details."
   :type 'sexp
@@ -78,12 +55,16 @@ See `mode-line-format' for syntax details."
 ;;
 
 (defvar chess-display-index)
+(defvar chess-display-move-text)
+(defvar chess-display-side-to-move)
 (defvar chess-display-perspective)
 (defvar chess-display-event-handler nil)
 (defvar chess-display-no-popup nil)
 (defvar chess-display-edit-mode nil)
 
 (make-variable-buffer-local 'chess-display-index)
+(make-variable-buffer-local 'chess-display-move-text)
+(make-variable-buffer-local 'chess-display-side-to-move)
 (make-variable-buffer-local 'chess-display-perspective)
 (make-variable-buffer-local 'chess-display-event-handler)
 (make-variable-buffer-local 'chess-display-no-popup)
@@ -141,7 +122,7 @@ See `mode-line-format' for syntax details."
 
 (defun chess-display-set-ply (display ply)
   (chess-with-current-buffer display
-    (setq chess-display-index 1)
+    (chess-display-set-index* nil 1)
     (chess-game-set-plies chess-module-game
 			  (list ply (chess-ply-create
 				     (chess-ply-next-pos ply))))))
@@ -157,7 +138,7 @@ the user able to scroll back and forth through the moves in the
 variation.  Any moves made on the board will extend/change the
 variation that was passed in."
   (chess-with-current-buffer display
-    (setq chess-display-index (or index (chess-var-index variation)))
+    (chess-display-set-index* nil (or index (chess-var-index variation)))
     (chess-game-set-plies chess-module-game variation)))
 
 (defun chess-display-variation (display)
@@ -186,14 +167,37 @@ also view the same game."
     (unless (or (not (integerp index))
 		(< index 0)
 		(> index (chess-game-index chess-module-game)))
-      (setq chess-display-index index))))
+      (setq chess-display-index index
+	    chess-display-move-text
+	    (if (= index 0)
+		(chess-string 'mode-start)
+	      (concat (int-to-string (if (> index 1)
+					 (/ index 2)
+				       (1+ (/ index 2))))
+		      ". " (and (= 0 (mod index 2)) "... ")
+		      (chess-ply-to-algebraic
+		       (chess-game-ply chess-module-game (1- index)))))
+	    chess-display-side-to-move
+	    (let ((final (chess-ply-final-p
+			  (chess-game-ply chess-module-game index))))
+	      (cond
+	       ((eq final :checkmate) (chess-string 'mode-checkmate))
+	       ((eq final :resign)    (chess-string 'mode-resigned))
+	       ((eq final :stalemate) (chess-string 'mode-stalemate))
+	       ((eq final :draw)      (chess-string 'mode-drawn))
+	       (t
+		(if (chess-game-side-to-move chess-module-game)
+		    (chess-string 'mode-white)
+		  (chess-string 'mode-black)))))))))
 
 (defun chess-display-set-index (display index)
   (chess-with-current-buffer display
     (chess-display-set-index* nil index)
     (chess-display-update nil t)))
 
-(defalias 'chess-display-index 'chess-module-game-index)
+(defsubst chess-display-index (display)
+  (chess-with-current-buffer display
+    chess-display-index))
 
 (defun chess-display-update (display &optional popup)
   "Update the chessboard DISPLAY.  POPUP too, if that arg is non-nil."
@@ -278,6 +282,7 @@ See `chess-display-type' for the different kinds of displays."
       (progn
 	(chess-display-mode)
 	(setq chess-display-index (chess-game-index game)
+	      chess-display-move-text (chess-string 'mode-start)
 	      chess-display-perspective (car args)
 	      chess-display-event-handler
 	      (intern-soft (concat (symbol-name chess-display-style)
@@ -916,7 +921,8 @@ Clicking once on a piece selects it; then click on the target location."
 					  (> s-piece ?a))))
 			    (throw 'message (chess-string 'cannot-mount)))
 			(unless (setq ply (chess-ply-create position
-							    (cadr last-sel) coord))
+							    (cadr last-sel)
+							    coord))
 			  (throw 'message (chess-string 'move-not-legal)))
 			(chess-display-move nil ply)))
 		    (setq chess-display-last-selected nil))
