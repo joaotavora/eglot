@@ -36,8 +36,14 @@
 	  (goto-char (match-end 0))
 	  (chess-game-set-tag game "Result" (match-string-no-properties 0))
 	  (unless (eq t (car (last plies)))
-	    (nconc plies (list (chess-ply-create*
-				(chess-ply-next-pos (car (last plies)))))))
+	    (cond
+	     ((string= "1/2-1/2" (match-string 1))
+	      (nconc plies (list (chess-ply-create
+				  (chess-ply-next-pos (car (last plies)))
+				  t :drawn))))
+	     (t
+	      (nconc plies (list (chess-ply-create*
+				  (chess-ply-next-pos (car (last plies)))))))))
 	  (throw 'done t))
 
 	 ((looking-at "{")
@@ -262,7 +268,7 @@ PGN text."
     (font-lock-add-keywords
      'chess-pgn-mode
      (list (list "\\[\\(\\S-+\\)\\s-+\".*\"\\]" 1 'font-lock-keyword-face)
-	   (cons "\\(1-0\\|0-1\\|1/2-1/2\\*\\)$" 'chess-pgn-bold-face))))
+	   (cons "\\(1-0\\|0-1\\|1/2-1/2\\|\\*\\)$" 'chess-pgn-bold-face))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.pgn\\'" . chess-pgn-mode))
