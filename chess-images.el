@@ -181,9 +181,12 @@ called."
 				    (x-display-pixel-width display)
 				  (display-pixel-width)) 20)))))
 
+(chess-message-catalog 'english
+  '((no-images . "Cannot find any piece images; check `chess-images-directory'")))
+
 (defun chess-images-popup ()
   (unless chess-images-size
-    (error "Cannot find any piece images; check `chess-images-directory'"))
+    (chess-error 'no-images))
   (if chess-images-separate-frame
       (let* ((size (float (+ (* (or chess-images-border-width 0) 8)
 			     (* chess-images-size 8))))
@@ -411,9 +414,13 @@ This is necessary for bizzare Emacs reasons."
       (create-image file nil (string-match "\\`/\\* XPM \\*/" file)
 		    :color-symbols syms))))
 
+(chess-message-catalog 'english
+  '((piece-images-loading . "Loading chess piece images...")
+    (piece-images-loaded  . "Loading chess piece images...done")))
+
 (defun chess-images-init-cache ()
   "Initialize the display image cache."
-  (message "Loading chess piece images...")
+  (chess-message 'piece-images-loading)
   ;; Make a vector of two vectors of 6-item vectors: each piece of
   ;; each color on each color square; and lastly two slots for the
   ;; blank squares
@@ -496,7 +503,7 @@ This is necessary for bizzare Emacs reasons."
 				      chess-images-border-width)
 	     nil t :color-symbols
 	     (list (cons "background" chess-images-border-color))))))
-  (message "Loading chess piece images...done"))
+  (chess-message 'piece-images-loaded))
 
 (provide 'chess-images)
 

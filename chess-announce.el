@@ -6,13 +6,28 @@
 
 (require 'chess-game)
 
+(chess-message-catalog 'english
+  '((queen	  . "queen")
+    (king	  . "king")
+    (bishop	  . "bishop")
+    (knight	  . "knight")
+    (rook	  . "rook")
+    (pawn	  . "pawn")
+    (short-castle . "short castle")
+    (long-castle  . "long castle")
+    (check	  . "check")
+    (checkmate	  . "checkmate")
+    (stalemate	  . "stalemate")
+    (piece-moves  . "%s to %s")
+    (piece-takes  . "%s takes %s at %s")))
+
 (defvar chess-announce-names
-  '((?q . "queen")
-    (?k . "king")
-    (?b . "bishop")
-    (?n . "knight")
-    (?r . "rook")
-    (?p . "pawn")))
+  '((?q . queen)
+    (?k . king)
+    (?b . bishop)
+    (?n . knight)
+    (?r . rook)
+    (?p . pawn)))
 
 (autoload 'festival-start-process "festival")
 (autoload 'festival-kill-process "festival")
@@ -58,31 +73,35 @@ See `chess-display-type' for the different kinds of displays."
 	      (setq which (char-to-string which)))
 	  (cond
 	   ((chess-ply-keyword ply :castle)
-	    (setq text "short castle"))
+	    (setq text (chess-string 'short-castle)))
 	   ((chess-ply-keyword ply :long-castle)
-	    (setq text "long castle"))
+	    (setq text (chess-string 'long-castle)))
 	   ((= t-piece ? )
-	    (setq text (concat which
-			       (cdr (assq (downcase s-piece)
-					  chess-announce-names))
-			       " to "
-			       (chess-index-to-coord target))))
+	    (setq text
+		  (concat which
+			  (chess-string 'piece-moves
+					(chess-string
+					 (cdr (assq (downcase s-piece)
+						    chess-announce-names)))
+					(chess-index-to-coord target)))))
 	   (t
-	    (setq text (concat which
-			       (cdr (assq (downcase s-piece)
-					  chess-announce-names))
-			       " takes "
-			       (cdr (assq (downcase t-piece)
-					  chess-announce-names))
-			       " at "
-			       (chess-index-to-coord target)))))
+	    (setq text
+		  (concat which
+			  (chess-string 'piece-takes
+					(chess-string
+					 (cdr (assq (downcase s-piece)
+						    chess-announce-names)))
+					(chess-string
+					 (cdr (assq (downcase t-piece)
+						    chess-announce-names)))
+					(chess-index-to-coord target))))))
 
 	  (if (chess-ply-keyword ply :check)
-	      (setq text (concat text ", check")))
+	      (setq text (concat text ", " (chess-string 'check))))
 	  (if (chess-ply-keyword ply :checkmate)
-	      (setq text (concat text ", checkmate")))
+	      (setq text (concat text ", " (chess-string 'checkmate))))
 	  (if (chess-ply-keyword ply :stalemate)
-	      (setq text (concat text ", stalemate")))
+	      (setq text (concat text ", " (chess-string 'stalemate))))
 
 	  (funcall (nth 1 chess-announce-functions) text)))))))
 

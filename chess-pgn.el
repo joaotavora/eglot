@@ -11,6 +11,10 @@
 
 (defvar chess-pgn-fill-column 60)
 
+(chess-message-catalog 'english
+  '((pgn-read-error  . "Error reading move: %s")
+    (pgn-parse-error . "Error parsing PGN syntax")))
+
 (defun chess-pgn-read-plies (game position &optional top-level)
   (let ((plies (list t)) prevpos done)
     (while (not (or done (eobp)))
@@ -23,7 +27,7 @@
 	(let* ((move (match-string 0))
 	       (ply (chess-algebraic-to-ply position (match-string 0))))
 	  (unless ply
-	    (error "Error reading move: %s" move))
+	    (chess-error 'pgn-read-error move))
 	  (setq position (chess-ply-next-pos ply))
 	  (nconc plies (list ply))))
        ((and top-level
@@ -49,7 +53,7 @@
 	     (looking-at ")"))
 	(forward-char)
 	(setq done t))
-       (t (error "Error parsing PGN syntax")))
+       (t (chess-error 'pgn-parse-error)))
       (skip-chars-forward " \t\n"))
     (cdr plies)))
 

@@ -111,6 +111,9 @@ minibuffer, which works well for Emacspeak users."
   :type 'string
   :group 'chess)
 
+(chess-message-catalog 'english
+  '((no-images-fallback . "Could not find suitable chess images; using ics1 display")))
+
 ;;;###autoload
 (defun chess (&optional engine disable-popup engine-response-handler
 			&rest engine-ctor-args)
@@ -135,7 +138,7 @@ minibuffer, which works well for Emacspeak users."
     (when (and (eq chess-default-display 'chess-images)
 	       (with-current-buffer display
 		 (null chess-images-size)))
-      (message "Could not find suitable chess images; using ics1 display")
+      (chess-message 'no-images-fallback)
       (chess-display-destroy display)
       (require 'chess-ics1)
       (setq display (chess-display-create game 'chess-ics1 my-color)))
@@ -155,7 +158,8 @@ minibuffer, which works well for Emacspeak users."
 	  ;; let them know we're ready to begin
 	  (chess-engine-command engine 'ready))
 
-	(when chess-announce-moves
+	(when (and (not (eq engine-module 'chess-none))
+		   chess-announce-moves)
 	  (if (and (not (eq chess-announce-moves t))
 		   (symbolp chess-announce-moves))
 	      (let ((name (symbol-name chess-announce-moves)))

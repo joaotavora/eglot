@@ -4,8 +4,6 @@
 ;;
 ;; $Revision$
 
-;;; Code:
-
 (require 'chess-game)
 (require 'chess-var)
 (require 'chess-algebraic)
@@ -64,6 +62,9 @@
 	   ,@body)
        ,@body)))
 
+(chess-message-catalog 'english
+  '((no-such-style . "There is no such chessboard display style '%s'")))
+
 (defun chess-display-create (game style perspective &optional main read-only)
   "Create a chess display, for displaying chess objects.
 The display is drawn using the given STYLE, from the PERSPECTIVE
@@ -75,7 +76,7 @@ makes moves, or any other changes to the underlying game."
   (let* ((name (symbol-name style))
 	 (handler (intern-soft (concat name "-handler"))))
     (unless handler
-      (error "There is no such chessboard display style '%s'" name))
+      (chess-error 'no-such-style name))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
       (chess-display-mode read-only)
       (funcall handler 'initialize)
@@ -549,6 +550,9 @@ Basically, it means we are playing, not editing or reviewing."
       (chess-game-run-hooks chess-display-game 'shutdown)
     (chess-display-destroy nil)))
 
+(chess-message-catalog 'english
+  '((illegal-notation . "Illegal move notation: %s")))
+
 (defun chess-display-manual-move (move)
   "Move a piece manually, using chess notation."
   (interactive
@@ -559,7 +563,7 @@ Basically, it means we are playing, not editing or reviewing."
 		  (1+ (/ (or chess-display-index 0) 2))))))
   (let ((ply (chess-algebraic-to-ply (chess-display-position nil) move)))
     (unless ply
-      (error "Illegal move notation: %s" move))
+      (chess-error 'illegal-notation move))
     (chess-display-move nil ply)))
 
 (defun chess-display-remote (display)
@@ -616,12 +620,15 @@ Basically, it means we are playing, not editing or reviewing."
       (chess-game-run-hooks chess-display-game 'abort)
     (ding)))
 
+(chess-message-catalog 'english
+  '((draw-offer . "You offer a draw")))
+
 (defun chess-display-draw ()
   "Offer to draw the current game."
   (interactive)
   (if (chess-display-active-p)
       (progn
-	(message "You offer a draw")
+	(chess-message 'draw-offer)
 	(chess-game-run-hooks chess-display-game 'draw))
     (ding)))
 
@@ -663,6 +670,9 @@ Basically, it means we are playing, not editing or reviewing."
 	  (call-interactively lb-command))
       (fset 'buffer-list buffer-list-func))))
 
+(chess-message-catalog 'english
+  '((return-to-current . "Use '>' to return to the current position")))
+
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
 Direction may be - or +, to move forward or back, or t or nil to jump
@@ -674,7 +684,7 @@ to the end or beginning."
     (chess-display-set-index
      nil (or index (chess-game-index chess-display-game)))
     (unless (chess-display-active-p)
-      (message "Use '>' to return to the current position"))))
+      (chess-message 'return-to-current))))
 
 (defun chess-display-move-backward ()
   (interactive)
@@ -713,6 +723,10 @@ to the end or beginning."
     map)
   "The mode map used for editing a chessboard position.")
 
+(chess-message-catalog 'english
+  '((editing-directly
+     . "Now editing position directly, use S when complete...")))
+
 (defun chess-display-edit-board ()
   "Setup the current board for editing."
   (interactive)
@@ -722,7 +736,7 @@ to the end or beginning."
   ;; for which purpose the movement keys can still be used.
   (chess-display-set-position nil (chess-display-position nil))
   ;; jww (2002-03-28): setup edit-mode keymap here
-  (message "Now editing position directly, use S when complete..."))
+  (chess-message 'editing-directly))
 
 (defun chess-display-send-board ()
   "Send the current board configuration to the user."
@@ -804,17 +818,21 @@ to the end or beginning."
 (make-variable-buffer-local 'chess-legal-moves-pos)
 (make-variable-buffer-local 'chess-legal-moves)
 
+(chess-message-catalog 'english
+  '((not-your-move . "It is not your turn to move")
+    (game-is-over  . "This game is over")))
+
 (defun chess-display-assert-can-move ()
   (if (and (chess-display-active-p)
 	   ;; `active' means we're playing against an engine
 	   (chess-game-data chess-display-game 'active)
 	   (not (eq (chess-game-data chess-display-game 'my-color)
 		    (chess-pos-side-to-move position))))
-      (error "It is not your turn to move")
+      (chess-error 'not-your-move)
     (if (and (= chess-display-index
 		(chess-game-index chess-display-game))
 	     (chess-game-over-p chess-display-game))
-	(error "This game is over"))))
+	(chess-error 'game-is-over))))
 
 (defun chess-keyboard-test-move (move-ply)
   "Return the given MOVE if it matches the user's current input."
@@ -929,49 +947,63 @@ to the end or beginning."
 
 (make-variable-buffer-local 'chess-display-last-selected)
 
+(chess-message-catalog 'english
+  '((cannot-mount   . "You cannot move pieces on top of each other")
+    (move-not-legal . "That is not a legal move")
+    (wrong-color    . "You cannot move your opponent's pieces")
+    (selected-empty . "You cannot select an empty square")
+    (piece-immobile . "That piece cannot move now")))
+
 (defun chess-display-select-piece ()
   "Select the piece under the cursor.
 Clicking once on a piece selects it; then click on the target location."
   (interactive)
   (let ((coord (get-text-property (point) 'chess-coord))
-	(position (chess-display-position nil)))
+	(position (chess-display-position nil))
+	message)
     (when coord
-      (condition-case err
-	  (if chess-display-last-selected
-	      (let ((last-sel chess-display-last-selected))
-		;; if they select the same square again, just deselect it
-		(if (= (point) (car last-sel))
-		    (error "")
-		  (let ((s-piece (chess-pos-piece position (cadr last-sel)))
-			(t-piece (chess-pos-piece position coord)) ply)
-		    (if (and (/= t-piece ? )
-			     (or (and (< t-piece ?a)
-				      (< s-piece ?a))
-				 (and (> t-piece ?a)
-				      (> s-piece ?a))))
-			(error "You cannot move pieces on top of each other"))
-		    (unless (setq ply (chess-ply-create position
-							(cadr last-sel) coord))
-		      (error "That is not a legal move"))
-		    (chess-display-move nil ply)))
-		(setq chess-display-last-selected nil))
-	    (chess-display-assert-can-move)
-	    (let ((piece (chess-pos-piece position coord)))
-	      (cond
-	       ((eq piece ? )
-		(error "You cannot select an empty square"))
-	       ((if (chess-pos-side-to-move position)
-		    (> piece ?a)
-		  (< piece ?a))
-		(error "You cannot move your opponent's pieces")))
-	      (setq chess-display-last-selected (list (point) coord))
-	      (chess-display-highlight nil coord)
-	      (if chess-display-highlight-legal
-		  (chess-display-highlight-legal nil coord))))
-	(error
-	 (setq chess-display-last-selected nil)
-	 (chess-display-update nil)
-	 (message (error-message-string err)))))))
+      (setq message
+	    (catch 'message
+	      (if chess-display-last-selected
+		  (let ((last-sel chess-display-last-selected))
+		    ;; if they select the same square again, just deselect
+		    ;; it by redrawing the display and removing all
+		    ;; highlights
+		    (if (= (point) (car last-sel))
+			(chess-display-update nil)
+		      (let ((s-piece (chess-pos-piece position
+						      (cadr last-sel)))
+			    (t-piece (chess-pos-piece position coord)) ply)
+			(if (and (/= t-piece ? )
+				 (or (and (< t-piece ?a)
+					  (< s-piece ?a))
+				     (and (> t-piece ?a)
+					  (> s-piece ?a))))
+			    (throw 'message (chess-string 'cannot-mount)))
+			(unless (setq ply (chess-ply-create position
+							    (cadr last-sel) coord))
+			  (throw 'message (chess-string 'move-not-legal)))
+			(chess-display-move nil ply)))
+		    (setq chess-display-last-selected nil))
+		(chess-display-assert-can-move)
+		(let ((piece (chess-pos-piece position coord)))
+		  (cond
+		   ((eq piece ? )
+		    (throw 'message (chess-string 'selected-empty)))
+		   ((if (chess-pos-side-to-move position)
+			(> piece ?a)
+		      (< piece ?a))
+		    (throw 'message (chess-string 'wrong-color)))
+		   ((null (chess-legal-plies position :index coord))
+		    (throw 'message (chess-string 'piece-immobile))))
+		  (setq chess-display-last-selected (list (point) coord))
+		  (chess-display-highlight nil coord)
+		  (if chess-display-highlight-legal
+		      (chess-display-highlight-legal nil coord))))))
+      (when message
+	(setq chess-display-last-selected nil)
+	(chess-display-update nil)
+	(error message)))))
 
 (defun chess-display-mouse-select-piece (event)
   "Select the piece the user clicked on."

@@ -69,13 +69,18 @@
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'retract))))))
 
+(chess-message-catalog 'english
+  '((network-starting  . "Starting network client/server...")
+    (network-waiting   . "Now waiting for your opponent to connect...")
+    (network-connected ."You have connected; pass now or make your move.")))
+
 (defun chess-network-handler (event &rest args)
   "Initialize the network chess engine."
   (cond
    ((eq event 'initialize)
     (let ((which (read-char "Are you the c)lient or s)erver? "))
 	  proc)
-      (message "Starting network client/server...")
+      (chess-message 'network-starting)
       (setq proc (if (eq which ?s)
 		     (start-process "*chess-network*"
 				    (current-buffer) "/usr/bin/nc"
@@ -84,9 +89,9 @@
 					(read-string "Host: ")
 					(read-string "Port: "))))
       (if (eq which ?s)
-	  (message "Now waiting for your opponent to connect...")
+	  (chess-message 'network-waiting)
 	(chess-network-handler 'match)
-	(message "You have connected; pass now or make your move."))
+	(chess-message 'network-connected))
       proc))
 
    ((eq event 'shutdown)

@@ -163,10 +163,14 @@ matches."
       (let ((chess-game-inhibit-events t))
 	(chess-game-set-plies game (list ply))))))
 
+(chess-message-catalog 'english
+  '((undo-limit-reached . "Cannot undo further")
+    (add-to-completed	. "Cannot add moves to a completed game")))
+
 (defun chess-game-undo (game count)
   "Undo the last COUNT plies of GAME."
   (if (> count (chess-game-index game))
-      (error "Cannot undo further"))
+      (chess-error 'undo-limit-reached))
   (let ((chess-game-inhibit-events t))
     (chess-game-set-plies game (nbutlast (chess-game-plies game) count)))
   (chess-game-run-hooks game 'update))
@@ -208,7 +212,7 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	(changes (chess-ply-changes ply))
 	(position (chess-ply-pos ply)))
     (if (chess-ply-final-p current-ply)
-	(error "Cannot add moves to a completed game"))
+	(chess-error 'add-to-completed))
     (assert (equal position (chess-ply-pos current-ply)))
     (chess-ply-set-changes current-ply changes)
     (chess-game-add-ply game (chess-ply-create

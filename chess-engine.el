@@ -48,6 +48,32 @@
 ;; User interface
 ;;
 
+(chess-message-catalog 'english
+  '((invalid-fen    . "Received invalid FEN string: %s")
+    (invalid-pgn    . "Received invalid PGN text")
+    (now-black	    . "Your opponent played the first move, you are now black")
+    (move-passed    . "Your opponent has passed the move to you")
+    (want-to-play   . "Do you wish to play a chess game against %s? ")
+    (want-to-play-a . "Do you wish to play a chess game against an anonymous opponent? ")
+    (opp-quit	    . "Your opponent has quit playing")
+    (opp-resigned   . "Your opponent has resigned")
+    (opp-draw	    . "Your opponent offers a draw, accept? ")
+    (opp-abort	    . "Your opponent wants to abort this game, accept? ")
+    (opp-undo	    . "Your opponent wants to take back %d moves, accept? ")
+    (opp-ready	    . "Your opponent, %s, is now ready to play")
+    (opp-ready-a    . "Your opponent is now ready to play")
+    (opp-draw-acc   . "Your draw offer was accepted")
+    (opp-abort-acc  . "Your offer to abort was accepted")
+    (opp-undo-acc   . "Request to undo %d moves was accepted")
+    (opp-draw-dec   . "Your draw offer was declined")
+    (opp-abort-dec  . "Your offer to abort was declined")
+    (opp-undo-dec   . "Your request to undo %d moves was decline")
+    (opp-draw-ret   . "Your opponent has retracted their draw offer")
+    (opp-abort-ret  . "Your opponent has retracted their offer to abort")
+    (opp-undo-ret   . "Your opponent has retracted their request to undo %d moves")
+    (opp-illegal    . "Your opponent states your last command was illegal")
+    (failed-start   . "Failed to start chess engine process")))
+
 (defmacro chess-with-current-buffer (buffer &rest body)
   `(let ((buf ,buffer))
      (if buf
@@ -62,12 +88,12 @@
 (defsubst chess-engine-convert-fen (fen)
   (or (chess-fen-to-pos fen)
       (ignore
-       (message "Received invalid FEN string: %s" fen))))
+       (chess-message 'invalid-fen fen))))
 
 (defsubst chess-engine-convert-pgn (pgn)
   (or (chess-pgn-to-game pgn)
       (ignore
-       (message "Received invalid PGN text"))))
+       (chess-message 'invalid-pgn))))
 
 (defun chess-engine-default-handler (event &rest args)
   (cond
@@ -81,7 +107,7 @@
 	    (when (and (not chess-engine-inhibit-auto-pass)
 		       (chess-game-data chess-engine-game 'my-color)
 		       (= (chess-game-index chess-engine-game) 0))
-	      (message "Your opponent played the first move, you are now black")
+	      (chess-message 'now-black)
 	      (chess-game-run-hooks chess-engine-game 'pass)
 	      ;; if no one else flipped my-color, we'll do it
 	      (if (chess-game-data chess-engine-game 'my-color)
@@ -91,7 +117,7 @@
 
    ((eq event 'pass)
     (when (chess-game-data chess-engine-game 'active)
-      (message "Your opponent has passed the move to you")
+      (chess-message 'move-passed)
       t))
 
    ((eq event 'match)
@@ -99,9 +125,8 @@
 	(chess-engine-command nil 'busy)
       (if (y-or-n-p
 	   (if (and (car args) (> (length (car args)) 0))
-	       (format "Do you wish to play a chess game against %s? "
-		       (car args))
-	     (format "Do you wish to play a chess game against an anonymous opponent? ")))
+	       (chess-string 'want-to-play (car args))
+	     (chess-string 'want-to-play-a)))
 	  (progn
 	    (let ((chess-engine-handling-event t))
 	      (chess-engine-set-position nil))
@@ -130,20 +155,20 @@
       t))
 
    ((eq event 'quit)
-    (message "Your opponent has quit playing")
+    (chess-message 'opp-quit)
     (let ((chess-engine-handling-event t))
       (chess-game-set-data chess-engine-game 'active nil))
     t)
 
    ((eq event 'resign)
     (let ((chess-engine-handling-event t))
-      (message "Your opponent has resigned")
+      (chess-message 'opp-resigned)
       (chess-game-end chess-engine-game :resign)
       (chess-game-set-data chess-engine-game 'active nil)
       t))
 
    ((eq event 'draw)
-    (if (y-or-n-p "Your opponent offers a draw, accept? ")
+    (if (y-or-n-p (chess-string 'opp-draw))
 	(progn
 	  (let ((chess-engine-handling-event t))
 	    (chess-game-end chess-engine-game :draw)
@@ -153,7 +178,7 @@
     t)
 
    ((eq event 'abort)
-    (if (y-or-n-p "Your opponent wants to abort this game, accept? ")
+    (if (y-or-n-p (chess-string 'opp-abort))
 	(progn
 	  (let ((chess-engine-handling-event t))
 	    (chess-game-set-data chess-engine-game 'active nil))
@@ -162,9 +187,7 @@
     t)
 
    ((eq event 'undo)
-    (if (y-or-n-p
-	 (format "Your opponent wants to take back %d moves, accept? "
-		 (car args)))
+    (if (y-or-n-p (chess-string 'opp-undo (car args)))
 	(progn
 	  (let ((chess-engine-handling-event t))
 	    (chess-game-undo chess-engine-game (car args)))
@@ -177,25 +200,23 @@
       (if (eq chess-engine-pending-offer 'match)
 	  (unless (chess-game-data chess-engine-game 'active)
 	    (if (and (car args) (> (length (car args)) 0))
-		(message "Your opponent, %s, is now ready to play"
-			 (car args))
-	      (message "Your opponent is now ready to play"))
+		(chess-message 'opp-ready (car args))
+	      (chess-message 'opp-ready-a))
 	    (let ((chess-engine-handling-event t))
 	      (chess-engine-set-position nil)))
 	(let ((chess-engine-handling-event t))
 	  (cond
 	   ((eq chess-engine-pending-offer 'draw)
-	    (message "Your draw offer was accepted")
+	    (chess-message 'opp-draw-acc)
 	    (chess-game-end chess-engine-game :draw)
 	    (chess-game-set-data chess-engine-game 'active nil))
 
 	   ((eq chess-engine-pending-offer 'abort)
-	    (message "Your offer to abort was accepted")
+	    (chess-message 'opp-abort-acc)
 	    (chess-game-set-data chess-engine-game 'active nil))
 
 	   ((eq chess-engine-pending-offer 'undo)
-	    (message "Request to undo %d moves was accepted"
-		     chess-engine-pending-arg)
+	    (chess-message 'opp-undo-acc chess-engine-pending-arg)
 	    (chess-game-undo chess-engine-game (car args))))))
       (setq chess-engine-pending-offer nil
 	    chess-engine-pending-arg nil)
@@ -205,14 +226,13 @@
     (when chess-engine-pending-offer
       (cond
        ((eq chess-engine-pending-offer 'draw)
-	(message "Your draw offer was declined"))
+	(chess-message 'opp-draw-dec))
 
        ((eq chess-engine-pending-offer 'abort)
-	(message "Your offer to abort was declined"))
+	(chess-message 'opp-abort-dec))
 
        ((eq chess-engine-pending-offer 'undo)
-	(message "Your request to undo %d moves was decline"
-		 chess-engine-pending-arg)))
+	(chess-message 'opp-undo-dec chess-engine-pending-arg)))
 
       (setq chess-engine-pending-offer nil
 	    chess-engine-pending-arg nil)
@@ -222,21 +242,20 @@
     (when chess-engine-pending-offer
       (cond
        ((eq chess-engine-pending-offer 'draw)
-	(message "Your opponent has retracted their draw offer"))
+	(chess-message 'opp-draw-ret))
 
        ((eq chess-engine-pending-offer 'abort)
-	(message "Your opponent has retracted their offer to abort"))
+	(chess-message 'opp-abort-ret))
 
        ((eq chess-engine-pending-offer 'undo)
-	(message "Your opponent has retracted their request to undo %d moves"
-		 chess-engine-pending-arg)))
+	(chess-message 'opp-undo-ret chess-engine-pending-arg)))
 
       (setq chess-engine-pending-offer nil
 	    chess-engine-pending-arg nil)
       t))
 
    ((eq event 'illegal)
-    (message "Your opponent states your last command was illegal"))))
+    (chess-message 'opp-illegal))))
 
 (defun chess-engine-create (game module &optional response-handler
 				 &rest handler-ctor-args)
@@ -252,7 +271,7 @@
 	(chess-engine-set-game* nil game t)
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))
-	    (error "Failed to start chess engine process"))
+	    (chess-error 'failed-engine-start))
 	  (setq chess-engine-process proc)
 	  (set-process-buffer proc (current-buffer))
 	  (set-process-filter proc 'chess-engine-filter))
@@ -350,6 +369,9 @@
     (chess-game-move chess-engine-game ply)
     (chess-engine-command engine 'move ply)))
 
+(chess-message-catalog 'english
+  '((engine-not-running . "The engine you were using is no longer running")))
+
 (defun chess-engine-send (engine string)
   "Send the given STRING to ENGINE."
   (chess-with-current-buffer engine
@@ -357,7 +379,7 @@
       (if proc
 	  (if (memq (process-status proc) '(run open))
 	      (process-send-string proc string)
-	    (message "The engine you were using is no longer running")
+	    (chess-message 'engine-not-running)
 	    (chess-engine-command nil 'destroy))
 	(chess-engine-command nil 'send string)))))
 
@@ -367,7 +389,7 @@
     (let ((proc chess-engine-process))
       (when (and (processp proc)
 		 (not (memq (process-status proc) '(run open))))
-	(message "The engine you were using is no longer running")
+	(chess-message 'engine-not-running)
 	(chess-engine-command nil 'destroy))
       (chess-engine-filter nil string))))
 

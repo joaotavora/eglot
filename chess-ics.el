@@ -161,6 +161,12 @@ who is black."
 		 (funcall chess-engine-response-handler 'match
 			  (match-string 1)))))))
 
+(chess-message-catalog 'english
+  '((ics-server-prompt . "Connect to chess server: ")
+    (ics-connecting    . "Connecting to Internet Chess Server '%s'...")
+    (ics-connected     . "Connecting to Internet Chess Server '%s'...done")
+    (challenge-whom    . "Whom would you like challenge? ")))
+
 (defun chess-ics-handler (event &rest args)
   (cond
    ((eq event 'initialize)
@@ -169,20 +175,19 @@ who is black."
     (let ((server
 	   (if (= (length chess-ics-server-list) 1)
 	       (car chess-ics-server-list)
-	     (assoc (completing-read "Connect to chess server: "
+	     (assoc (completing-read (chess-string 'ics-server-prompt)
 				     chess-ics-server-list
 				     nil t (caar chess-ics-server-list))
 		    chess-ics-server-list))))
 
-      (message "Connecting to Internet Chess Server '%s'..." (car server))
+      (chess-message 'ics-connecting (car server))
 
       (let ((buf (apply 'make-comint "chess-ics"
 			(if (nth 3 server)
 			    (cons (nth 4 server) (nth 5 server))
 			  (list (cons (nth 0 server) (nth 1 server)))))))
 
-	(message "Connecting to Internet Chess Server '%s'...done"
-		 (car server))
+	(chess-message 'ics-connected (car server))
 
 	(display-buffer buf)
 	(set-buffer buf)
@@ -210,8 +215,9 @@ who is black."
 
    ((eq event 'match)
     (setq chess-engine-pending-offer 'match)
-    (chess-engine-send nil (format "match %s\n"
-				   (read-string "Whom would you like challenge? "))))
+    (chess-engine-send
+     nil (format "match %s\n"
+		 (read-string (chess-string 'challenge-whom)))))
 
    ((eq event 'move)
     (unless chess-ics-ensure-ics12

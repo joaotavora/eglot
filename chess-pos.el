@@ -71,6 +71,9 @@
 
 ;;; Code:
 
+(require 'cl)
+(require 'chess-message)
+
 (defgroup chess-pos nil
   "Routines for manipulating chess positions."
   :group 'chess)
@@ -250,6 +253,9 @@ color will do."
 				chess-pos-piece-values)))))
     value))
 
+(chess-message-catalog 'english
+  '((move-from-blank . "Attempted piece move from blank square %s")))
+
 (defun chess-pos-move (position &rest changes)
   "Move a piece on the POSITION directly, using the indices FROM and TO.
 This function does not check any rules, it only makes sure you are not
@@ -263,14 +269,19 @@ trying to move a blank square."
 	       (to (cadr ch))
 	       (piece (chess-pos-piece position from)))
 	  (if (= piece ? )
-	      (error "Attempted piece move from blank square %s"
-		     (chess-index-to-coord from)))
+	      (chess-error 'move-from-blank (chess-index-to-coord from)))
 	  (chess-pos-set-piece position from ? )
 	  (chess-pos-set-piece position to piece))
 	(setq ch (cddr ch)))))
 
   ;; now fix up the resulting position
   (let ((color (chess-pos-side-to-move position)))
+
+    ;; if the move was en-passant, remove the captured pawn
+    (if (memq :en-passant changes)
+	(chess-pos-set-piece position (chess-incr-index (cadr changes)
+							(if color 1 -1) 0)
+			     ? ))
 
     ;; once a piece is moved, en passant is no longer available
     (chess-pos-set-en-passant position nil)
@@ -321,6 +332,9 @@ trying to move a blank square."
     ;; return the final position
     position))
 
+(chess-message-catalog 'english
+  '((piece-unrecognized . "Unrecognized piece identifier")))
+
 (defun chess-search-position (position target piece)
   "Look on POSITION from TARGET for a PIECE that can move there.
 This routine looks along legal paths of movement for PIECE.  It
@@ -362,11 +376,17 @@ indices which indicate where a piece may have moved from."
 	(if (if (= p ? )
 		;; check for en passant
 		(and (= (chess-index-rank target) (if color 2 5))
-		     (setq pos (chess-incr-index target bias 0))
-		     (chess-pos-piece-p position pos (if color ?p ?P))
 		     ;; make this fail if no en-passant is possible
-		     (= (or (chess-pos-en-passant position) 100) target)
-		     (setq candidates (list pos)))
+		     (= (or (chess-pos-en-passant position) 100)
+			(chess-incr-index target (if color 1 -1) 0))
+		     (or (and (setq pos (chess-incr-index target
+							  (if color 1 -1) -1))
+			      (chess-pos-piece-p position pos
+						 (if color ?P ?p)))
+			 (and (setq pos (chess-incr-index target
+							  (if color 1 -1) 1))
+			      (chess-pos-piece-p position pos
+						 (if color ?P ?p)))))
 	      (if color (> p ?a) (< p ?a)))
 	    (let ((cands (list t)))
 	      (setq pos (chess-incr-index target (- bias) -1))
@@ -470,7 +490,7 @@ indices which indicate where a piece may have moved from."
 	    (nconc candidates (list pos))))
       (setq candidates (cdr candidates)))
 
-     (t (error "Unrecognized piece identifier")))
+     (t (chess-error 'piece-unrecognized)))
 
     ;; prune from the discovered candidates list any moves which would
     ;; leave the king in check; castling through check has already

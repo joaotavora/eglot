@@ -29,7 +29,7 @@
    (cons "Illegal move:"
 	 (function
 	  (lambda ()
-	    (error "Illegal move"))))
+	    (chess-error 'illegal-move))))
    (cons "Board is wrong!"
 	 (function
 	  (lambda ()

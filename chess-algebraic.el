@@ -55,6 +55,12 @@ This regexp handles both long and short form.")
 (defconst chess-algebraic-regexp-entire
   (concat chess-algebraic-regexp "$"))
 
+(chess-message-catalog 'english
+  '((clarify-piece     . "Clarify piece to move by rank or file")
+    (could-not-clarify . "Could not determine which piece to use")
+    (could-not-diff    . "Could not differentiate piece")
+    (no-candidates     . "There are no candidate moves for '%s'")))
+
 (defun chess-algebraic-to-ply (position move &optional trust)
   "Convert the algebraic notation MOVE for POSITION to a ply."
   (when (string-match chess-algebraic-regexp-entire move)
@@ -89,7 +95,7 @@ This regexp handles both long and short form.")
 			  (if (= (length candidates) 1)
 			      (list (car candidates) target)
 			    (if (null source)
-				(error "Clarify piece to move by rank or file")
+				(chess-error 'clarify-piece)
 			      (nconc changes (list :which source))
 			      (while candidates
 				(if (if (>= source ?a)
@@ -101,10 +107,9 @@ This regexp handles both long and short form.")
 					  candidates nil)
 				  (setq candidates (cdr candidates))))
 			      (if (null which)
-				  (error "Could not determine which piece to use")
+				  (chess-error could-not-clarify)
 				(list which target))))
-			(error "There are no candidate moves for '%s'"
-			       move))))))
+			(chess-error no-candidates move))))))
 	  (if promotion
 	      (nconc changes (list :promote (aref promotion 0))))))
 
@@ -145,7 +150,7 @@ If LONG is non-nil, render the move into long notation."
 		  (setq differentiator (+ from-file ?a)))
 		 ((= rank 1)
 		  (setq differentiator (+ (- 7 from-rank) ?1)))
-		 (t (error "Could not differentiate piece"))))))
+		 (t (chess-error 'could-not-diff))))))
 	  (concat
 	   (unless (= (upcase from-piece) ?P)
 	     (char-to-string (upcase from-piece)))
@@ -157,10 +162,11 @@ If LONG is non-nil, render the move into long notation."
 			(/= (chess-index-file from)
 			    (chess-index-file to)))
 		   (char-to-string (+ (chess-index-file from) ?a)))))
-	   (if (/= ?  (chess-pos-piece pos to))
+	   (if (or (/= ?  (chess-pos-piece pos to))
+		   (chess-ply-keyword ply :en-passant))
 	       "x" (if long "-"))
 	   (chess-index-to-coord to)
-	   (let ((promote (memq :promote (chess-ply-changes ply))))
+	   (let ((promote (chess-ply-keyword ply :promote)))
 	     (if promote
 		 (concat "=" (char-to-string
 			      (upcase (cadr promote))))))

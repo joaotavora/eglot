@@ -21,6 +21,13 @@
 
 (put 'chess-with-temp-file 'lisp-indent-function 1)
 
+(chess-message-catalog 'english
+  '((starting-engine	   . "Starting chess program '%s'...")
+    (starting-engine-done  . "Starting chess program '%s'...done")
+    (could-not-find-engine . "Cannot find %s executable; check `%s'")
+    (draw-offer-declined   . "Your draw offer was declined")
+    (illegal-move          . "Illegal move")))
+
 (defun chess-common-handler (event &rest args)
   "Initialize the network chess engine."
   (cond
@@ -28,12 +35,12 @@
     (let* ((name (car args))
 	   (path (intern (concat "chess-" name "-path")))
 	   proc)
-      (message "Starting chess program '%s'..." name)
+      (chess-message 'starting-engine name)
       (unless (boundp path)
-	(error "Cannot find %s executable; check `%s'" name path))
+	(chess-error 'could-not-find-engine name path))
       (setq proc (start-process (concat "chess-" name)
 				(current-buffer) (symbol-value path)))
-      (message "Starting chess program '%s'...done" name)
+      (chess-message 'starting-engine-done name)
       proc))
 
    ((eq event 'ready)
@@ -53,7 +60,7 @@
     (chess-engine-send nil "resign\n"))
 
    ((eq event 'draw)
-    (message "Your draw offer was declined"))
+    (chess-message 'draw-offer-declined))
 
    ((memq event '(resign abort))
     (chess-engine-send nil "new\n")

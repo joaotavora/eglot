@@ -25,13 +25,22 @@
   :type 'string
   :group 'chess-irc)
 
+;;; Code:
+
+(chess-message-catalog 'english
+  '((opponent-says  . "Your opponent says: %s")
+    (irc-connecting . "Connecting to IRC server '%s:%d'...")
+    (irc-logging-in . "Connected, now logging in as '%s'...")
+    (irc-waiting    . "Now waiting for 'name USER' via /msg, or `M-x chess-irc-engage'")
+    (irc-challenge  . "IRC nick of user to challenge: ")))
+
 (defvar chess-irc-regexp-alist
   (append chess-network-regexp-alist
 	  (list (cons ".+"
 		      (function
 		       (lambda ()
-			 (message "Your opponent says: %s"
-				  (match-string 0))))))))
+			 (chess-message 'opponent-says
+					(match-string 0))))))))
 
 (defvar chess-irc-process)
 (defvar chess-irc-engine)
@@ -51,14 +60,13 @@
   "This is an example of a generic transport engine."
   (cond
    ((eq event 'initialize)
-    (message "Connecting to IRC server '%s:%d'..."
-	     chess-irc-server chess-irc-port)
+    (chess-message 'irc-connecting chess-irc-server chess-irc-port)
     (let ((engine (current-buffer)) proc)
       (with-current-buffer (generate-new-buffer " *chess-irc*")
 	(setq chess-irc-engine engine
 	      proc (open-network-stream "*chess-irc*" (current-buffer)
 					chess-irc-server chess-irc-port))
-	(message "Connected, now logging in as '%s'..." chess-irc-nick)
+	(chess-message 'irc-logging-in chess-irc-nick)
 	(when (and proc (eq (process-status proc) 'open))
 	  (process-send-string proc (format "USER %s 0 * :%s\n"
 					    (user-login-name)
@@ -67,12 +75,12 @@
 	  (set-process-filter proc 'chess-irc-filter)
 	  (set-process-buffer proc (current-buffer))
 	  (set-marker (process-mark proc) (point))
-	  (message "Now waiting for 'name USER' via /msg, or `M-x chess-irc-engage'")))
+	  (chess-message 'irc-waiting)))
       (setq chess-irc-process proc))
     nil)
 
    ((eq event 'match)
-    (setq chess-irc-opponent (read-string "IRC nick of user to challenge: "))
+    (setq chess-irc-opponent (read-string (chess-string 'irc-challenge)))
     (chess-network-handler 'match chess-irc-opponent))
 
    ((eq event 'shutdown)

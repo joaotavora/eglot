@@ -27,8 +27,6 @@ laptop.
 
 ----------------------------------------------------------------------
 
-- test making an en passant capture
-
 - the game should go inactive once I lose by stalemate/checkmate
 
 - detect draw/resign/abort/retract, etc., from ICS and common engines

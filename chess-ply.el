@@ -44,7 +44,6 @@
 
 ;;; Code:
 
-(require 'cl)
 (require 'chess-pos)
 
 (defgroup chess-ply nil
@@ -158,19 +157,25 @@ maneuver."
 			     (chess-ply-create-castle position long)))
 		  (setcdr ply new-changes))))
 
-	;; is this a pawn move to the ultimate rank?  if so, and we
-	;; haven't already been told, ask for the piece to promote it to
-	(if (and (= piece (if color ?P ?p))
-		 (not (memq :promote changes))
-		 (= (if color 0 7) (chess-index-rank (cadr changes))))
-	    (let ((new-piece (completing-read
-			      "Promote pawn to queen/rook/knight/bishop? "
-			      chess-piece-name-table nil t "queen")))
-	      (setq new-piece
-		    (cdr (assoc new-piece chess-piece-name-table)))
-	      (if color
-		  (setq new-piece (upcase new-piece)))
-	      (nconc changes (list :promote new-piece))))
+	(when (= piece (if color ?P ?p))
+	  ;; is this a pawn move to the ultimate rank?  if so, and we
+	  ;; haven't already been told, ask for the piece to promote
+	  ;; it to
+	  (if (and (not (memq :promote changes))
+		   (= (if color 0 7) (chess-index-rank (cadr changes))))
+	      (let ((new-piece (completing-read
+				"Promote pawn to queen/rook/knight/bishop? "
+				chess-piece-name-table nil t "queen")))
+		(setq new-piece
+		      (cdr (assoc new-piece chess-piece-name-table)))
+		(if color
+		    (setq new-piece (upcase new-piece)))
+		(nconc changes (list :promote new-piece))))
+
+	  ;; is this an en-passant capture?
+	  (if (= (or (chess-pos-en-passant position) 100)
+		 (or (chess-incr-index (cadr changes) (if color 1 -1) 0) 200))
+	      (nconc changes (list :en-passant))))
 
 	(unless (or (memq :check changes)
 		    (memq :checkmate changes)
@@ -258,9 +263,10 @@ criteria."
       (let* ((piece (cadr (memq :piece keywords)))
 	     (color (if piece (< piece ?a)
 		      (chess-pos-side-to-move position)))
-	     (test-piece (if piece (upcase piece)
-			   (chess-pos-piece position
-					    (cadr (memq :index keywords)))))
+	     (test-piece
+	      (upcase (or piece
+			  (chess-pos-piece position
+					   (cadr (memq :index keywords))))))
 	     pos plies file)
 	;; since we're looking for moves of a particular piece, do a
 	;; more focused search
@@ -289,12 +295,20 @@ criteria."
 		(if (and (= (if color 6 1) (chess-index-rank candidate))
 			 (chess-pos-piece-p position 2ahead ? ))
 		    (chess-ply--add (if color -2 2) 0)))
-	      (if (and (setq pos (chess-incr-index candidate bias -1))
-		       (chess-pos-piece-p position pos (not color)))
-		  (chess-ply--add nil nil pos))
-	      (if (and (setq pos (chess-incr-index candidate bias 1))
-		       (chess-pos-piece-p position pos (not color)))
-		  (chess-ply--add nil nil pos))))
+	      (when (setq pos (chess-incr-index candidate bias -1))
+		(if (chess-pos-piece-p position pos (not color))
+		    (chess-ply--add nil nil pos))
+		;; check for en passant capture toward queenside
+		(if (= (or (chess-pos-en-passant position) 100)
+		       (or (chess-incr-index pos (if color 1 -1) 0) 200))
+		    (chess-ply--add nil nil pos)))
+	      (when (setq pos (chess-incr-index candidate bias 1))
+		(if (chess-pos-piece-p position pos (not color))
+		    (chess-ply--add nil nil pos))
+		;; check for en passant capture toward kingside
+		(if (= (or (chess-pos-en-passant position) 100)
+		       (or (chess-incr-index pos (if color 1 -1) 0) 200))
+		    (chess-ply--add nil nil pos)))))
 
 	   ;; the rook, bishop and queen are the easiest; just look along
 	   ;; rank and file and/or diagonal for the nearest pieces!
@@ -302,7 +316,7 @@ criteria."
 	    (dolist (dir (cond
 			  ((= test-piece ?R)
 			   '(        (-1 0)
-				     (0 -1)          (0 1)
+			     (0 -1)          (0 1)
 				     (1 0)))
 			  ((= test-piece ?B)
 			   '((-1 -1)        (-1 1)
@@ -354,8 +368,9 @@ criteria."
 			   (chess-pos-piece-p position pos (not color))))
 		  (chess-ply--add nil nil pos))))
 
-	   (t (error "Unrecognized piece identifier"))))
-	plies))))
+	   (t (chess-error 'piece-unrecognized))))
+
+	(delq nil plies)))))
 
 (provide 'chess-ply)
 
