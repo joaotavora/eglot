@@ -30,6 +30,10 @@ These are features scheduled for future 2.x releases.
 - Write chess-descriptive.el, and have the code in general use
   chess-ply-to-string and chess-string-to-ply, so that users can use
   descriptive notationas an alternative to algebraic.
+  (NOTE: this might proof problematic since descriptive move notation
+   is ambigious if we don't have the full game information, since
+   we need to destinguish between QR KR QN and KN.  So chess-descriptive-to-ply
+   would need to use a game object as reference, rather than just a position.)
 
 - Change chess-announce/sound so that it reads from the text rendition
   of the move; this way it will work with either descriptive or
@@ -38,6 +42,8 @@ These are features scheduled for future 2.x releases.
 
 - Write chess-epd.el, which is based on chess-fen, and is also a
   database module for accessing positions within an EPD file
+  (This has mostly already been done, however, chess-epd still needs to be
+   converted to a database module.)
 
 - Make ( create variations in a display, and keys to move into and out
   of them.  At the moment, variations are supported programmatically,
