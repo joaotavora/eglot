@@ -222,8 +222,10 @@
 			  ;; this could be accelerated by joining
 			  ;; together the regexps
 			  (if (looking-at (caar triggers))
-			      (funcall (cdar triggers)))
-			  (setq triggers (cdr triggers))))
+			      (progn
+				(funcall (cdar triggers))
+				(setq triggers nil))
+			    (setq triggers (cdr triggers)))))
 		    (chess-illegal (error-message-string err)))
 		  (forward-line)))
 	    (setq chess-engine-last-pos (point)

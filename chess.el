@@ -99,7 +99,9 @@ a0 243
   :type 'sexp
   :group 'chess)
 (defcustom chess-announce-moves (and (executable-find "festival") t)
-  "If non-nil, announce your opponent's moves verbally."
+  "If non-nil, announce your opponent's moves verbally.
+This requires the utility 'festival' to be installed.  If it is
+installed, this variable will default to true."
 minibuffer, which works well for Emacspeak users."
   :type 'boolean
   :group 'chess)

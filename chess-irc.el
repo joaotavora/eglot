@@ -11,17 +11,17 @@
   :group 'chess-engine)
 
 (defcustom chess-irc-host "irc.openprojects.net"
-  ""
+  "The IRC host to connect your chess-irc engine to."
   :type 'string
   :group 'chess-irc)
 
 (defcustom chess-irc-port 6667
-  ""
+  "The port of the IRC host specified by `chess-irc-host'."
   :type 'string
   :group 'chess-irc)
 
-(defcustom chess-irc-nick "jwchess"
-  ""
+(defcustom chess-irc-nick (user-login-name)
+  "The nick you wish to use for sending/receiving IRC chess moves."
   :type 'string
   :group 'chess-irc)
 
