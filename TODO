@@ -31,9 +31,6 @@ laptop.
 
 - detect draw/resign/abort/retract, etc., from ICS and common engines
 
-- devise a better scheme for printing messages (use a catalog?) and
-  for when engines need to ask questions
-
 - in chess-engine-filter and chess-ics-filter, if an error is
   encountered, skip that line so the same error isn't triggered again
 
