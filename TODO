@@ -12,6 +12,9 @@
 
 			       Hotlist
 
+- TAB in chess-pgn-mode at move 1 thinks O-O and O-O-O are legal
+  moves.
+
 - Make a command binding (for reading NG articles and such) which will
   assume there is a PGN game under point and will read it as such and
   jump to the move before cursor; right now, C-c C-c in chess-pgn

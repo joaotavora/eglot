@@ -17,13 +17,14 @@
       (current-buffer)))
 
    ((eq event 'rescan)
-    (goto-char (point-min))
-    (setq chess-file-locations nil)
-    (while (search-forward "[Event " nil t)
-      (goto-char (match-beginning 0))
-      (push (point) chess-file-locations)
-      (forward-char 1))
-    (setq chess-file-locations (nreverse chess-file-locations)))
+    (save-excursion
+      (goto-char (point-min))
+      (setq chess-file-locations nil)
+      (while (search-forward "[Event " nil t)
+	(goto-char (match-beginning 0))
+	(push (point) chess-file-locations)
+	(forward-char 1))
+      (setq chess-file-locations (nreverse chess-file-locations))))
 
    ((eq event 'save)
     (save-buffer))

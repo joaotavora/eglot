@@ -315,8 +315,8 @@ If INDENTED is non-nil, indent the move texts."
 		     (let ((chess-game-inhibit-events t))
 		       (setq chess-pgn-display (chess-create-display))))
 		(/= (chess-game-data chess-pgn-current-game 'database-index)
-		    (chess-game-data (chess-display-game chess-pgn-display)
-				     'database-index)))
+		    (or (chess-game-data (chess-display-game chess-pgn-display)
+					 'database-index) -1)))
 	    (progn
 	      (chess-display-disable-popup chess-pgn-display)
 	      (chess-display-set-game chess-pgn-display
