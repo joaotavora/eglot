@@ -136,7 +136,7 @@ If LONG is non-nil, render the move into long notation."
 	       (rank 0) (file 0)
 	       (from-rank (/ from 8))
 	       (from-file (mod from 8))
-	       (differentiator (cdr (memq :which (chess-ply-changes ply)))))
+	       (differentiator (chess-ply-keyword ply :which)))
 	  (unless differentiator
 	    (let ((candidates (chess-search-position pos to from-piece)))
 	      (when (> (length candidates) 1)
@@ -150,14 +150,18 @@ If LONG is non-nil, render the move into long notation."
 		  (setq differentiator (+ from-file ?a)))
 		 ((= rank 1)
 		  (setq differentiator (+ (- 7 from-rank) ?1)))
-		 (t (chess-error 'could-not-diff))))))
+		 (t (chess-error 'could-not-diff)))
+		(nconc (chess-ply-changes ply)
+		       (list :which differentiator)))))
 	  (concat
 	   (unless (= (upcase from-piece) ?P)
 	     (char-to-string (upcase from-piece)))
 	   (if long
 	       (chess-index-to-coord from)
 	     (if differentiator
-		 (char-to-string differentiator)
+		 (prog1
+		     (char-to-string differentiator)
+		   (chess-ply-changes ply))
 	       (if (and (not long) (= (upcase from-piece) ?P)
 			(/= (chess-index-file from)
 			    (chess-index-file to)))
