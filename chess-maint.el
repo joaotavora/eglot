@@ -5,8 +5,9 @@
 (require 'chess-pgn)
 
 (defmacro assert (form)
-  `(unless ,form
-     (error "Assertion failed: %s" (pp-to-string ,form))))
+  (unless (byte-compiling-files-p)
+    `(unless ,form
+       (error "Assertion failed: %s" (pp-to-string ,form)))))
 
 (defun chess-generate-texinfo-file ()
   (require 'lispdoc)
