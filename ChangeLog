@@ -1,3 +1,56 @@
+2002-04-16  John Wiegley  <johnw@gnu.org>
+
+	* chess-ics.el: Send the "set style 12" command immediately,
+	rather than after the first move.
+
+	* all: Removed the $ Revision strings; they are no longer
+	necessary since I tag every revision that I upload.
+
+2002-04-16  Mario Lang  <mlang@aris>
+
+	* chess-ics.el: set en-passent status
+
+	* chess-announce.el: german messages (no idea on how to synth yet
+	:) )
+
+	* chess-ics.el: CR stripping removed/commented.
+
+	* chess-engine.el: Only set process-filter if it isn't already set
+	to comint-output-filter
+
+2002-04-16  John Wiegley  <johnw@gnu.org>
+
+	* chess-var.el, TODO, chess-algebraic.el, chess-display.el,
+	chess-game.el, chess-pgn.el, chess-ply.el, chess-pos.el: Major
+	speed improvement and efficiency work.  chess-legal-plies is much
+	more memory conservative now.  Reduced recursion in
+	chess-search-position by a slight bit.
+
+	* chess.el: bumped minor rev
+
+	* chess-display.el: Compute the mode-line text only once, whenever
+	the current game index is changed.  This saves hundreds of calls
+	to chess-ply-to-algebraic, which were occurring simply because of
+	mode-line updates!
+
+	* chess-algebraic.el: Keep the :which determiner, if ever we
+	calculate it in chess-ply-to-algebraic.
+
+	* ChangeLog, PLAN: new file
+
+	* chess-plain.el: whitespace fix
+
+	* chess-display.el, chess-engine.el: Removed
+	`chess-with-current-buffer', since it is now in chess-module.el.
+
+2002-04-15  Mario Lang  <mlang@aris>
+
+	* chess-plain.el: Added var chess-plain-spacing (default 0) to be
+	able to widen the board.  (I am sure that broke highlighting)
+
+	* chess-ics.el: Added comments to chess-parse-ics12 to describe
+	the format
+
 2002-04-15  John Wiegley  <johnw@gnu.org>
 
 	* Did some major performance work on chess-legal-plies,

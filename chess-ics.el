@@ -64,11 +64,14 @@ who is black."
     (chess-pos-set-side-to-move position (string= (car parts) "W"))
     (setq parts (cdr parts))
 
-    ;; -1 if the previous move was NOT a double pawn push, otherwise the chess 
-    ;; board file  (numbered 0--7 for a--h) in which the double push was made
+    ;; -1 if the previous move was NOT a double pawn push, otherwise
+    ;; the chess board file (numbered 0--7 for a--h) in which the
+    ;; double push was made
     (let ((index (string-to-number (car parts))))
       (when (> index 0)
-	(chess-pos-set-en-passant position index)))
+	(chess-pos-set-en-passant
+	 position (chess-rf-to-index (if (string= (car parts) "W") 4 3)
+				     index))))
     (setq parts (cdr parts))
 
     ;; can White still castle short? (0=no, 1=yes)
@@ -90,9 +93,9 @@ who is black."
 
     ;; jww (2002-04-11): How is check indicated?
 
-    ;; the number of moves made since the last irreversible move.  (0 if last
-    ;; move was irreversible.  If the value is >= 100, the game can be
-    ;; declared a draw due to the 50 move rule.)
+    ;; the number of moves made since the last irreversible move.  (0
+    ;; if last move was irreversible.  If the value is >= 100, the
+    ;; game can be declared a draw due to the 50 move rule.)
     (setq parts (cdr parts))
 
     ;; The game number
@@ -104,13 +107,14 @@ who is black."
     (setq black (car parts))
     (setq parts (cdr parts))
 
-    ;;  my relation to this game:
-    ;; -3 isolated position, such as for "ref 3" or the "sposition" command
+    ;; my relation to this game:
+    ;; -3 isolated position, such as for "ref 3" or the "sposition"
+    ;;    command
     ;; -2 I am observing game being examined
-    ;; 2 I am the examiner of this game
+    ;;  2 I am the examiner of this game
     ;; -1 I am playing, it is my opponent's move
-    ;; 1 I am playing and it is my move
-    ;; 0 I am observing a game being played
+    ;;  1 I am playing and it is my move
+    ;;  0 I am observing a game being played
     (setq parts (cdr parts))
 
     ;;  initial time (in seconds) of the match
@@ -129,8 +133,8 @@ who is black."
     ;; Black's remaining time
     (setq parts (cdr parts))
 
-    ;; the number of the move about to be made (standard chess numbering --
-    ;; White's and Black's first moves are both 1, etc.)
+    ;; the number of the move about to be made (standard chess
+    ;; numbering -- White's and Black's first moves are both 1, etc.)
     (setq parts (cdr parts))
 
     ;; move in elaborated notation
@@ -144,8 +148,8 @@ who is black."
 		 (car parts)))
     (setq parts (cdr parts))
 
-    ;; flip field for board orientation: 1 = Black at bottom, 0 = White at
-    ;; bottom.
+    ;; flip field for board orientation: 1 = Black at bottom, 0 =
+    ;; White at bottom.
     (setq parts (cdr parts))
 
     (setq parts (cdr parts))
@@ -213,36 +217,11 @@ who is black."
 			  (if (nth 3 server)
 			      (cons (nth 4 server) (nth 5 server))
 			    (list (cons (nth 0 server) (nth 1 server)))))))
-	  
+
 	  (chess-message 'ics-connected (car server))
-;;        This doesn't seem necessary. Leaving it here in case windows
-;;        behaves differently.
-;; 	  (let* ((proc (get-buffer-process buf))
-;; 		 (coding-systems (process-coding-system proc))
-;; 		 (encoding (cdr coding-systems))
-;; 		 (decoding (car coding-systems))
-;; 		 changed)
-;; 	    ;; If open-network-stream decided to use some coding system
-;; 	    ;; for decoding data sent from the process and the coding system
-;; 	    ;; doesn't specify EOL conversion, we had better convert CRLF to
-;; 	    ;; LF.
-;; 	    (if (vectorp (coding-system-eol-type decoding))
-;; 		(setq decoding (coding-system-change-eol-conversion decoding 'dos)
-;; 		      changed t))
-;; 	    ;; Even if open-network-stream left the coding system for encoding
-;; 	    ;; data sent from the process undecided, we had better use the
-;; 	    ;; same one as what we use for decoding.  But, we should suppress
-;; 	    ;; EOL conversion.
-;; 	    (if (and decoding (not encoding))
-;; 		(setq encoding (coding-system-change-eol-conversion decoding 'unix)
-;; 		      changed t))
-;; 	    (if changed
-;; 		(set-process-coding-system proc decoding encoding)))
 
 	  (display-buffer buf)
 	  (set-buffer buf)
-
-;	  (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m nil t)
 
 	  (add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
 
@@ -289,8 +268,8 @@ who is black."
 (defun chess-ics-filter (string)
   (save-excursion
     (if chess-engine-last-pos
-	;; ml: Can't we just use comint-last-output-start and process-mark here?
-	;; instead of chess-engine-last-pos?
+	;; ml: Can't we just use comint-last-output-start and
+	;; process-mark here?  instead of chess-engine-last-pos?
 	(goto-char chess-engine-last-pos)
       (goto-char (point-min)))
     (unwind-protect
@@ -306,13 +285,6 @@ who is black."
 		(setq triggers (cdr triggers)))))
 	  (forward-line))
       (setq chess-engine-last-pos (point)))))
-
-(defun chess-ics-strip (string)
-  ;; remove this? CRLF should be done by coding-system or comint-strip-ctrl-m.
-  ;; Bell can be turned off by set bell 0 on login.
-  (while (string-match "[\r\a]" string)
-    (setq string (replace-match "" t t string)))
-  string)
 
 (provide 'chess-ics)
 
