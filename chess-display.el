@@ -269,8 +269,8 @@ If only START is given, it must be in algebraic move notation."
 	(chess-game-move chess-display-game ply)
 	(chess-session-event chess-display-session 'move ply))
        (chess-display-game
-	;; jww (2002-03-28): This should beget a variation, or alter
-	;; the game, just as SCID allows
+	;; jww (2002-03-28): This should beget a variation within the
+	;; game, or alter the game, just as SCID allows
 	(unless (= (chess-display-index nil)
 		   (chess-game-index chess-display-game))
 	  (error "Cannot move partway in a game"))
