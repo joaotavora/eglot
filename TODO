@@ -1,0 +1,118 @@
+* 2.0
+
+Write chess-game-to-pgn and chess-pgn-to-game.
+
+Get keyboard shortcuts working, right now "nf, nf", causes an error.
+
+* Other
+
+- Clipboard copy and paste should be global, and occur in this module
+
+- Port image display code to XEmacs
+
+- Keep a history of boards, and the moves corresponding with them, so
+  that the move history can be stepped through forward and back.
+
+- Allow the user to retract a move when playing against crafty.
+
+- Tie-in to ics.el, by adding "Internet opponent" to the opponents
+  list.
+
+- The ability to read and playback existing PGN files.
+
+- A way to set the time control, and display its status.
+
+- After a castle, the rook might place the opponent's king in check.
+  This is not considered at the moment.
+
+- After piece promotion, change the piece accordingly and look for
+  check posibilities (it's done with the pawn at the moment, which is
+  useless).
+
+- Handle en passant.
+
+- Support chess by mail, with direct tie-ins to Gnus/RMAIL.
+
+- Allow the opponent to give hints.
+
+- Choose the default image set based on the screen size.
+
+- Find some prettier image sets.
+
+- If the chess computer croaks, handle it gracefully.
+
+- A better way to visually show who's turn it is now?
+
+- The source have some strings with non-ascii content.
+
+- In a PGN file, offer the commands: chess-continue, chess-replay,
+  chess-show-position (which works for whichever sequence the cursor
+  is in).
+
+- For modified boards, add a command key to say that it's really black
+  to play, not white (or vice versa).
+
+- Multiple game buffer selection is a bit screwy.  M-1 M-x chess will
+  not select the first buffer, for example.  Perhaps named games would
+  be better?
+
+- Add a command that will load a saved game, continue it, and then
+  enter a move for whichever color is next to play.  This would make
+  it trivial to add chess drivers to AIM, IRC, etc.  The mere command
+  "!chess johnw37 Nf3" would mean: load the chess game johnw37, and
+  make my move as Nf3.  It would also make chess by e-mail a snap to
+  implement.
+
+- Modify etalk's chess.el to use this chess.el as its library.
+
+- Add an analyze command that will indicate which pieces are defended,
+  how well, which are attacked, which moves would increase
+  defense/attack/both, etc.  Basically, everything that can be known
+  about the current board, and one move ahead (on both sides).
+
+- Add a warning mode that will use the results of an analysis to warn
+  the user (and ask for confirmation) before doing something that
+  might lead to an inferior position.
+
+- Create chess-player.el, which creates persistent objects that
+  encapsulate information about any player: where he is, his name, his
+  opponent type, etc.  This would maintain a log of games against that
+  player, their current chess rating, etc.  Then, M-x chess would ask
+  you for a player, not an opponent.
+
+- When editing the board in display mode (or doing speculative moves),
+  doing them on a copy of the board with no hook except the display
+  hook.  Then, if you like the result, it call be a `set' on the
+  original board from the copied board.
+
+- If moving your opponent's piece is bad, why let you select it in the
+  first place?  Also, don't let them select a blank square.
+
+- Allow a networked mode that uses the X display protocol to show the
+  same board on two machines.  That way, the guest machine wouldn't
+  even need to be running Emacs!
+
+- Once this is in place, one could play games without a log by just
+  sending the board config and move, back and forth.
+
+- Add a Map command, that will colorize the squares depending on
+  whether they are reachable by either side.  Green if reachable by
+  you, Red if by your opponent, and blue if by both.  With a prefix
+  argument, colorize only the squares that have pieces on them.  This
+  is a stable modes that remains in effect until turned off.  It also
+  requires the ability to pass a color to the chessboard highlighting
+  routine.
+
+- If a person selects a piece with the mouse, then uses right-click to
+  designate a target square, display the resulting board without
+  making a move.  This requires copying chessboard-current-board to
+  chessboard-draft-board.  If the user right-clicks without selecting
+  a piece, it will reset to chessboard-current-board and redraw.
+
+- Using display-pixel-width, and the images known to be available,
+  find the largest piece size that will fit.
+
+- Break out the display code into its own set of modules, then
+  parameterize the call into them so that alter size and change
+  directory uses them.  Right now those two functions are hard-coded
+  for image displays.
