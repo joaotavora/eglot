@@ -88,8 +88,8 @@
 (defun chess-ply-create-castle (position &optional long)
   "Create a castling ply; this function supports Fischer Random castling."
   (let* ((color (chess-pos-side-to-move position))
-	 (king (chess-pos-search position (if color ?K ?k)))
-	 (king-target (chess-rf-to-index rank (if long 2 6)))
+	 (king (car (chess-pos-search position (if color ?K ?k))))
+	 (king-target (chess-rf-to-index (if color 7 0) (if long 2 6)))
 	 (king-file (chess-index-file king))
 	 (file (if long 0 7))
 	 rook)
@@ -102,7 +102,7 @@
 	     (chess-search-position position king-target (if color ?K ?k)))
 	(cons (chess-pos-copy position)
 	      (list king king-target rook
-		    (chess-rf-to-index rank (if long 3 5))
+		    (chess-rf-to-index (if color 7 0) (if long 3 5))
 		    (if long :long-castle :castle))))))
 
 (defun chess-ply-create (position &rest changes)

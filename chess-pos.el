@@ -281,9 +281,7 @@ trying to move a blank square."
     (unless (symbolp (car changes))
       (let ((piece (downcase (chess-pos-piece position (cadr changes)))))
 	(cond
-	 ((and (= piece ?k)
-	       (equal (car changes)
-		      (chess-rf-to-index (if color 7 0) 4)))
+	 ((= piece ?k)
 	  (chess-pos-set-can-castle position (if color ?K ?k) nil)
 	  (chess-pos-set-can-castle position (if color ?Q ?q) nil))
 
@@ -380,8 +378,9 @@ indices which indicate where a piece may have moved from."
 	  (if (setq pos (chess-add-index target (- bias) 0))
 	      (if (chess-pos-piece-p position pos piece)
 		  (setq candidates (list pos))
-		(when (and (= ?  (chess-pos-piece position pos))
-			   (= (if color 4 3) (chess-index-rank target)))
+		(when (and (chess-pos-piece-p position pos ? )
+			   (= (if color 4 3)
+			      (chess-index-rank target)))
 		  (setq pos (chess-add-index pos (- bias) 0))
 		  (if (and pos (chess-pos-piece-p position pos piece))
 		      (setq candidates (list pos)))))))))
@@ -410,7 +409,7 @@ indices which indicate where a piece may have moved from."
 	      (progn
 		(nconc candidates (list pos))
 		(setq pos nil))
-	    (if (/= (chess-pos-piece position pos) ? )
+	    (if (not (chess-pos-piece-p position pos ? ))
 		(setq pos nil)
 	      (setq pos (apply 'chess-add-index pos dir))))))
       (setq candidates (cdr candidates)))
@@ -430,32 +429,26 @@ indices which indicate where a piece may have moved from."
 	;; if we can still castle, then the king and rook are in their
 	;; squares; also, make sure that the user is not attempting to
 	;; castle through check
-	(if (and
-	     (null candidates)
-	     (or (and (equal target (chess-rf-to-index rank 6))
-		      (= (chess-pos-piece position (chess-rf-to-index rank 4))
-			 (if color ?K ?k))
-		      (chess-pos-can-castle position (if color ?K ?k))
-		      (setq pos (chess-rf-to-index rank 5))
-		      (chess-pos-piece-p position pos ? )
-		      (not (chess-search-position position pos (not color)))
-		      (setq pos (chess-rf-to-index rank 6))
-		      (chess-pos-piece-p position pos ? )
-		      (not (chess-search-position position pos (not color))))
-		 (and (equal target (chess-rf-to-index rank 2))
-		      (= (chess-pos-piece position (chess-rf-to-index rank 4))
-			 (if color ?K ?k))
-		      (chess-pos-can-castle position (if color ?Q ?q))
-		      (setq pos (chess-rf-to-index rank 1))
-		      (chess-pos-piece-p position pos ? )
-		      (not (chess-search-position position pos (not color)))
-		      (setq pos (chess-rf-to-index rank 2))
-		      (chess-pos-piece-p position pos ? )
-		      (not (chess-search-position position pos (not color)))
-		      (setq pos (chess-rf-to-index rank 3))
-		      (chess-pos-piece-p position pos ? )
-		      (not (chess-search-position position pos (not color))))))
-	    (setq candidates (list (chess-rf-to-index rank 4))))))
+	(if (and (null candidates)
+		 (or (and (equal target (chess-rf-to-index rank 6))
+			  (chess-pos-can-castle position (if color ?K ?k)))
+		     (and (equal target (chess-rf-to-index rank 2))
+			  (chess-pos-can-castle position (if color ?Q ?q)))))
+	    (let* ((king (car (chess-pos-search position piece)))
+		   (king-file (chess-index-file king))
+		   (long (= 2 (chess-index-file target)))
+		   (file (if long 1 6))
+		   (legal t))
+	      ;; jww (2002-04-10): this needs to be a bit more subtle
+	      ;; for Fischer Random castling
+	      (while (and legal (funcall (if long '< '>) file king-file))
+		(setq pos (chess-rf-to-index rank file))
+		(if (or (not (chess-pos-piece-p position pos ? ))
+			(chess-search-position position pos (not color)))
+		    (setq legal nil)
+		  (setq file (funcall (if long '1+ '1-) file))))
+	      (if legal
+		  (setq candidates (list (chess-rf-to-index rank 4))))))))
 
      ;; the knight is a zesty little piece; there may be more than
      ;; one, but at only one possible square in each direction

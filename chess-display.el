@@ -959,7 +959,7 @@ Clicking once on a piece selects it; then click on the target location."
 		    (throw 'invalid t))
 		  (setq ply (chess-ply-create position (cadr last-sel) coord))
 		  (unless ply
-		    (message "That piece cannot move there in this position.")
+		    (message "That is not a legal move.")
 		    (throw 'invalid t))
 		  (chess-display-move nil ply)))
 	      (setq chess-display-last-selected nil))

@@ -36,7 +36,7 @@ chess.dvi: chess-final.texi
 	$(ENVADD) $(TEXI2DVI) chess-final.texi
 
 clean:
-	rm -f *~ chess.dvi chess-final.*
+	rm -f *~ chess.dvi chess-final.* game.* log.*
 	rm -f *.aux *.cp *.cps *.fn *.fns *.ky *.log *.pg *.toc *.tp *.vr
 
 fullclean: clean
@@ -51,3 +51,8 @@ dist: fullclean all clean
 	rm -fr /var/tmp/chess-$(VERSION)
 	mv /var/tmp/chess-$(VERSION).tar.bz2 \
 		$(HOME)/public_html/Emacs/packages
+
+update:
+	make dist
+	sitecopy
+	make fullclean

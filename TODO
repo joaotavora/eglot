@@ -30,6 +30,8 @@
 
 - Allow ASCII displays to use a separate frame
 
+- Add the capacity to abort/resign when there is no engine
+
 - Rewrite ics.el
 
 - Make use of the my-color data in chess-game.el to ensure that I only
