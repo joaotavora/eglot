@@ -25,7 +25,7 @@
 	 ((looking-at chess-algebraic-regexp)
 	  (goto-char (match-end 0))
 	  (setq prevpos position)
-	  (let* ((move (match-string 0))
+	  (let* ((move (match-string-no-properties 0))
 		 (ply (chess-algebraic-to-ply position move)))
 	    (unless ply
 	      (chess-error 'pgn-read-error move))
@@ -51,8 +51,8 @@
 	 ((looking-at "(")
 	  (forward-char)
 	  (skip-chars-forward " \t\n")
-	  (chess-pos-add-annotation
-	   prevpos (chess-pgn-read-plies game prevpos)))
+	  (chess-pos-add-annotation prevpos
+				    (chess-pgn-read-plies game prevpos)))
 
 	 ((and (not top-level)
 	       (looking-at ")"))
@@ -84,14 +84,12 @@
 	(chess-game-set-tag game (match-string-no-properties 1)
 			    (read (match-string-no-properties 2)))
 	(goto-char (match-end 0)))
-      (let* ((fen (chess-game-tag game "FEN"))
-	     (position (if fen
-			   (chess-fen-to-pos fen)
-			 chess-starting-position)))
-	(chess-game-set-plies
-	 game (or (chess-pgn-read-plies game position t)
-		  ;; set the starting position to the FEN string
-		  (list (chess-ply-create* position)))))
+      (let ((fen (chess-game-tag game "FEN")) plies)
+	(if fen
+	    (chess-game-set-start-position game (chess-fen-to-pos fen)))
+	(setq plies (chess-pgn-read-plies game (chess-game-pos game) t))
+	(if plies
+	    (chess-game-set-plies game plies)))
       game)))
 
 (defun chess-pgn-insert-annotations (game index ply)

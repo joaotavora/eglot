@@ -202,12 +202,15 @@ available."
 
     objects))
 
+;;;###autoload
 (defalias 'chess-session 'chess)
 
+;;;###autoload
 (defun chess-create-display ()
   "Just make a display to use, letting chess.el decide the style."
   (cadr (chess-session 'chess-none)))
 
+;;;###autoload
 (defun chess-create-display-object (perspective)
   (car (chess-create-modules (list chess-default-display)
 			     'chess--create-display

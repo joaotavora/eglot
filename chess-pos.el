@@ -541,10 +541,11 @@ Note: All of the pieces specified by CANDIDATES must be of the same
 type."
   (let ((cand candidates)
 	(piece (chess-pos-piece position (car candidates)))
-	last-cand king-pos)
+	taken-piece last-cand king-pos)
     (while cand
       ;; determine the resulting position
       (chess-pos-set-piece position (car cand) ? )
+      (setq taken-piece (chess-pos-piece position target))
       (chess-pos-set-piece position target piece)
       ;; find the king (only once if the king isn't moving)
       (if (or (null king-pos)
@@ -559,7 +560,7 @@ type."
 	    (setq candidates (cdr candidates)))
 	(setq last-cand cand))
       ;; return the position to its original state
-      (chess-pos-set-piece position target ? )
+      (chess-pos-set-piece position target taken-piece)
       (chess-pos-set-piece position (car cand) piece)
       ;; try the next candidate
       (setq cand (cdr cand)))
