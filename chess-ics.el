@@ -30,11 +30,66 @@ The format of each entry is:
 			       (repeat string))))
   :group 'chess-ics)
 
+(defvar chess-ics-server)
 (defvar chess-ics-handle)
+(defvar chess-ics-password)
 (defvar chess-ics-prompt)
 
+(make-variable-buffer-local 'chess-ics-server)
 (make-variable-buffer-local 'chess-ics-handle)
+(make-variable-buffer-local 'chess-ics-password)
 (make-variable-buffer-local 'chess-ics-prompt)
+
+(defvar chess-ics-regexp-alist
+  (list (cons "\\(ogin\\|name\\):"
+	      (function
+	       (lambda ()
+		 (chess-engine-send nil (concat chess-ics-handle "\n"))
+		 'once)))
+	(cons "[Pp]assword:"
+	      (function
+	       (lambda ()
+		 (let ((pass (or chess-ics-password
+				 (read-passwd "Password: "))))
+		   (if (file-readable-p pass)
+		       (setq pass (with-temp-buffer
+				    (insert-file-contents pass)
+				    (buffer-string))))
+		   (chess-engine-send nil (concat pass "\n")))
+		 'once)))
+	(cons "%"
+	      (function
+	       (lambda ()
+		 (chess-engine-send nil "set style 12\n")
+		 (chess-engine-send nil "set bell 0\n")
+		 'once)))
+	(cons "Logging you in as \"\\([^\"]+\\)\""
+	      (function
+	       (lambda ()
+		 (setq chess-ics-handle (match-string 1))
+		 'once)))
+	(cons "Press return to enter the server as"
+	      (function
+	       (lambda ()
+		 (chess-engine-send nil "\n")
+		 'once)))
+	(cons "The game has been aborted on move [^.]+\\."
+	      (function
+	       (lambda ()
+		 (let ((chess-engine-pending-offer 'abort))
+		   (funcall chess-engine-response-handler 'accept)))))
+	(cons "<12> \\(.+\\)"
+	      'chess-ics-handle-move)
+	(cons "Illegal move (\\([^)]+\\))\\."
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'illegal
+			  (match-string 1)))))
+	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'match
+			  (match-string 1)))))))
 
 ;; ICS12 format (with artificial line breaks):
 ;;
@@ -156,6 +211,10 @@ who is black."
 
     (list position move white black white-time black-time)))
 
+;; <12> -k------ p-p----- -p------ ----n-R- ---N--p- ---P---- PPP-r--- -K---r-- W -1 0 0 0 0 1 160 GuestLKMM MiloBot 1 15 0 12 17 774 898 26 R/f8-f1 (0:00) Rf1# 0 1 0
+
+;; error in process filter: Assertion failed: (equal (car info) (chess-engine-position nil))
+
 (defun chess-ics-handle-move ()
   (let ((chess-engine-handling-event t)
 	(begin (match-beginning 0))
@@ -171,12 +230,12 @@ who is black."
 		      (cadr info) t)))
 	    (chess-game-set-data game 'white-remaining (nth 4 info))
 	    (chess-game-set-data game 'black-remaining (nth 5 info))
-	    (chess-game-move game ply))
-	  (assert (equal (car info) (chess-engine-position nil))))
+	    (chess-game-move game ply)))
       (let ((chess-game-inhibit-events t) plies)
 	(chess-game-set-data game 'my-color
 			     (string= (nth 2 info) chess-ics-handle))
 	(chess-game-set-data game 'active t)
+	(chess-game-set-tag game "Site" (car chess-ics-server))
 	(chess-game-set-start-position game (car info)))
       (chess-game-run-hooks game 'orient))
     (goto-char begin)
@@ -184,36 +243,6 @@ who is black."
     ;; we need to counter the `forward-line' in `chess-engine-filter'
     (forward-line -1)
     t))
-
-(defvar chess-ics-regexp-alist
-  (list (cons "[A-Za-z0-9_]+%"
-	      (function
-	       (lambda ()
-		 (chess-engine-send nil "set style 12\n")
-		 (chess-engine-send nil "set bell 0\n")
-		 'once)))
-	(cons "Logging you in as \"\\([^\"]+\\)\""
-	      (function
-	       (lambda ()
-		 (setq chess-ics-handle (match-string 1))
-		 'once)))
-	(cons "The game has been aborted on move [^.]+\\."
-	      (function
-	       (lambda ()
-		 (let ((chess-engine-pending-offer 'abort))
-		   (funcall chess-engine-response-handler 'accept)))))
-	(cons "<12> \\(.+\\)"
-	      'chess-ics-handle-move)
-	(cons "Illegal move (\\([^)]+\\))\\."
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'illegal
-			  (match-string 1)))))
-	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'match
-			  (match-string 1)))))))
 
 (chess-message-catalog 'english
   '((ics-server-prompt . "Connect to chess server: ")
@@ -248,21 +277,14 @@ who is black."
 
 	  (add-hook 'comint-output-filter-functions 'chess-engine-filter t t)
 
-	  (setq comint-prompt-regexp "^[^%\n]*% *"
+	  (setq chess-ics-server server
+		comint-prompt-regexp "^[^%\n]*% *"
 		comint-scroll-show-maximum-output t)
 
-	  (let ((proc (get-buffer-process (current-buffer))))
-	    (if (null (nth 2 server))
-		(comint-send-string proc "guest\n")
-	      (setq chess-ics-handle (nth 2 server))
-	      (comint-send-string proc (concat chess-ics-handle "\n"))
-	      (let ((pass (or (nth 3 server)
-			      (read-passwd "Password: "))))
-		(if (file-readable-p pass)
-		    (setq pass (with-temp-buffer
-				 (insert-file-contents file)
-				 (buffer-string))))
-		(comint-send-string proc (concat pass "\n")))))))
+	  (if (null (nth 2 server))
+	      (setq chess-ics-handle "guest")
+	    (setq chess-ics-handle (nth 2 server)
+		  chess-ics-password (nth 3 server)))))
       t)
 
      ((eq event 'match)

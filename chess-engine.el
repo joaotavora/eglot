@@ -395,8 +395,7 @@
 		(goto-char chess-engine-last-pos)
 	      (goto-char (point-min)))
 	    (unwind-protect
-		(while (and (not (eobp))
-			    (/= (line-end-position) (point-max)))
+		(while (not (eobp))
 		  (let ((triggers chess-engine-regexp-alist)
 			last-trigger result)
 		    (while triggers

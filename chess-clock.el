@@ -61,7 +61,7 @@
 
    ((eq event 'set-data)
     (if (and (eq (car args) 'active)
-	     (null (chess-game-data game 'active)))
+	     (not (chess-game-data game 'active)))
 	(chess-clock-handler game 'destroy)))
 
    ((memq event '(destroy resign drawn))
