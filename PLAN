@@ -21,8 +21,6 @@ chess-display
   like CHECKMATE, or FLAG FELL
 - if I win a game, it still reports CHECKMATE incorrect; if I'm white,
   it does so on the last ply (per display)
-- when my opponent took with en passant, it didn't paint the taken
-  pawn square as blank
 - need a "save this game to a PGN file/database" command
 
 chess-input
