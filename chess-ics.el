@@ -209,15 +209,38 @@ who is black."
 			  (if (nth 3 server)
 			      (cons (nth 4 server) (nth 5 server))
 			    (list (cons (nth 0 server) (nth 1 server)))))))
-
+	  
 	  (chess-message 'ics-connected (car server))
+;;        This doesn't seem necessary. Leaving it here in case windows
+;;        behaves differently.
+;; 	  (let* ((proc (get-buffer-process buf))
+;; 		 (coding-systems (process-coding-system proc))
+;; 		 (encoding (cdr coding-systems))
+;; 		 (decoding (car coding-systems))
+;; 		 changed)
+;; 	    ;; If open-network-stream decided to use some coding system
+;; 	    ;; for decoding data sent from the process and the coding system
+;; 	    ;; doesn't specify EOL conversion, we had better convert CRLF to
+;; 	    ;; LF.
+;; 	    (if (vectorp (coding-system-eol-type decoding))
+;; 		(setq decoding (coding-system-change-eol-conversion decoding 'dos)
+;; 		      changed t))
+;; 	    ;; Even if open-network-stream left the coding system for encoding
+;; 	    ;; data sent from the process undecided, we had better use the
+;; 	    ;; same one as what we use for decoding.  But, we should suppress
+;; 	    ;; EOL conversion.
+;; 	    (if (and decoding (not encoding))
+;; 		(setq encoding (coding-system-change-eol-conversion decoding 'unix)
+;; 		      changed t))
+;; 	    (if changed
+;; 		(set-process-coding-system proc decoding encoding)))
 
 	  (display-buffer buf)
 	  (set-buffer buf)
 
+;	  (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m nil t)
+
 	  (add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
-	  (set (make-local-variable 'comint-preoutput-filter-functions)
-	       '(chess-ics-strip))
 
 	  (if (nth 2 server)
 	      (progn
@@ -246,6 +269,8 @@ who is black."
 
      ((eq event 'move)
       (unless chess-ics-ensure-ics12
+	;; ml: we should do this at login time, upon first prompt,
+	;; and also do set bell 0 there.
 	(chess-engine-send nil "set style 12\n")
 	(setq chess-ics-ensure-ics12 t))
       (chess-network-handler 'move (car args)))
@@ -260,6 +285,8 @@ who is black."
 (defun chess-ics-filter (string)
   (save-excursion
     (if chess-engine-last-pos
+	;; ml: Can't we just use comint-last-output-start and process-mark here?
+	;; instead of chess-engine-last-pos?
 	(goto-char chess-engine-last-pos)
       (goto-char (point-min)))
     (unwind-protect
@@ -277,6 +304,8 @@ who is black."
       (setq chess-engine-last-pos (point)))))
 
 (defun chess-ics-strip (string)
+  ;; remove this? CRLF should be done by coding-system or comint-strip-ctrl-m.
+  ;; Bell can be turned off by set bell 0 on login.
   (while (string-match "[\r\a]" string)
     (setq string (replace-match "" t t string)))
   string)
