@@ -3,7 +3,7 @@
 @c "@(#)$Name$:$Id$"
 
 @c Documentation for Chess.el.
-@c Copyright (C) 2001, 20002 John Wiegley.
+@c Copyright (C) 2001, 2002 John Wiegley.
 
 @c This file is free software; you can redistribute it and/or modify it
 @c under the terms of the GNU General Public License as published by the
@@ -90,10 +90,10 @@ an example of how to make use of the library.
 @end ifinfo
 
 @menu
-* The Chess.el library::        
-* Play sessions::               
-* Display modules::             
-* Ply sources::                 
+* The Chess.el library::
+* Play sessions::
+* Display modules::
+* Ply sources::
 @end menu
 
 @node The Chess.el library, Play sessions, Top, Top
@@ -101,11 +101,11 @@ an example of how to make use of the library.
 @cindex library
 
 @menu
-* Positions::                   
-* Plies::                       
-* Variations::                  
-* Games::                       
-* Collections::                 
+* Positions::
+* Plies::
+* Variations::
+* Games::
+* Collections::
 @end menu
 
 @node Positions, Plies, The Chess.el library, The Chess.el library
@@ -129,12 +129,12 @@ notation.
 Chess puzzles are most often provided as a set of positions.
 
 @menu
-* Creating positions::          
-* Position coordinates::        
-* Manipulating pieces::         
-* Position details::            
-* Annotations::                 
-* FEN notation::                
+* Creating positions::
+* Position coordinates::
+* Manipulating pieces::
+* Position details::
+* Annotations::
+* FEN notation::
 @end menu
 
 @node Creating positions, Position coordinates, Positions, Positions
@@ -251,10 +251,10 @@ Transmitting the base position's FEN string along with the ply offers a
 form of confirmation during the course of a game.
 
 @menu
-* Creating plies::              
-* Ply details::                 
-* The "next" position::         
-* Algebraic notation::          
+* Creating plies::
+* Ply details::
+* The "next" position::
+* Algebraic notation::
 @end menu
 
 @node Creating plies, Ply details, Plies, Plies
@@ -333,10 +333,10 @@ Representing them graphically or verbally is similar to what is done
 for variations.
 
 @menu
-* Creating games::              
-* Game tags::                   
-* Game positions::              
-* Game plies::                  
+* Creating games::
+* Game tags::
+* Game positions::
+* Game plies::
 @end menu
 
 @node Creating games, Game tags, Games, Games
@@ -426,7 +426,7 @@ searches.
 @chapter Ply sources
 
 @menu
-* Chess engines::               
+* Chess engines::
 @end menu
 
 @node Chess engines,  , Ply sources, Ply sources
