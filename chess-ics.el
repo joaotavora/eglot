@@ -83,6 +83,11 @@ The format of each entry is:
 	       (lambda ()
 		 (let ((chess-engine-pending-offer 'my-undo))
 		   (funcall chess-engine-response-handler 'accept)))))
+	(cons "\\(\\S-+\\) resigns}"
+	      (function
+	       (lambda ()
+		 (if (string= (match-string 1) chess-engine-opponent-name)
+		     (funcall chess-engine-response-handler 'resign)))))
 	(cons "Illegal move (\\([^)]+\\))\\."
 	      (function
 	       (lambda ()
@@ -258,6 +263,10 @@ who is black."
 	      (chess-game-set-data game 'my-color (if (= 1 (nth 6 info))
 						      color
 						    (not color)))
+	      (setq chess-engine-opponent-name
+		    (if (= 1 (nth 6 info))
+			(nth 3 info)
+		      (nth 2 info)))
 	      (chess-game-set-data game 'active t)
 	      (chess-game-set-data game 'white-remaining (nth 4 info))
 	      (chess-game-set-data game 'black-remaining (nth 5 info)))
@@ -274,6 +283,11 @@ who is black."
 			 (buffer-substring-no-properties begin end)))
       (goto-char begin)
       (delete-region begin end)
+      (save-excursion
+	(while (and (forward-line -1)
+		    (or (looking-at "^[ \t]*$")
+			(looking-at "^[^% \t\n\r]+%\\s-*$")))
+	  (delete-region (match-beginning 0) (1+ (match-end 0)))))
       ;; we need to counter the forward-line in chess-engine-filter
       (unless error
 	(forward-line -1)))
@@ -332,6 +346,8 @@ who is black."
      ((eq event 'send)
       (comint-send-string (get-buffer-process (current-buffer))
 			  (car args)))
+
+     ((eq event 'set-index))
 
      (t
       (apply 'chess-network-handler game event args)))))

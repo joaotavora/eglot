@@ -250,8 +250,10 @@ progress (nil), if it is drawn, resigned, mate, etc."
     (assert changes)
 
     (chess-ply-set-changes current-ply changes)
-    (chess-game-add-ply game (chess-ply-create*
-			      (chess-ply-next-pos current-ply)))
+    (unless (chess-ply-any-keyword ply :draw :perpetual :repetition
+				   :resign)
+      (chess-game-add-ply game (chess-ply-create*
+				(chess-ply-next-pos current-ply))))
 
     (let ((long (> (length changes) 2)))
       (cond

@@ -256,7 +256,9 @@ also view the same game."
 	      (aset chess-display-index-positions pos-index pos))
 	  (setq pos (next-single-property-change pos 'chess-coord)))
 	(unless (aref chess-display-index-positions 0)
-	  (aset chess-display-index-positions 0 (point-min)))))
+	  (aset chess-display-index-positions 0 (point-min)))
+	(unless (aref chess-display-index-positions 63)
+	  (aset chess-display-index-positions 63 (1- (point-max))))))
     (aref chess-display-index-positions index)))
 
 (defun chess-display-paint-move (display ply)
@@ -387,7 +389,7 @@ that is supported by most displays, and is the default mode."
   :group 'chess-display)
 
 (defcustom chess-display-momentous-events
-  '(orient post-undo setup-game pass move resign)
+  '(orient post-undo setup-game pass move resign drawn)
   "Events that will refresh, and cause 'main' displays to popup.
 These are displays for which `chess-display-set-main' has been
 called."

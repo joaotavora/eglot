@@ -8,19 +8,20 @@ chess-ply
   to the creating ply!
 - Thus there will be a mirror set of chess-pos-has-keyword, etc.,
   functions
+- Need to detect games drawn by three-fold repetition
 
 chess-display
 - there is no way to call flag right now
+- invert the mode line to show the side on move?
 
 chess-ics
 - detect draw/resign/retract, etc.
 - add support for ICS observing
 
 chess-clock
-- when a clock runs down, indicate this in the modeline, and allow the
-  user to call-flag in order to win on time; note: the user should be
-  allowed to try anyway, in case our clock has become out-of-sync with
-  the server's
+- when a clock runs down, allow the user to call-flag in order to win
+  on time; note: the user should be allowed to try anyway, in case our
+  clock has become out-of-sync with the server's
 
 chess-images
 - in a generic emacs, with a light background, there are white lines

@@ -191,16 +191,12 @@ maneuver."
 	    ;; is this a pawn move to the ultimate rank?  if so, and
 	    ;; we haven't already been told, ask for the piece to
 	    ;; promote it to
-	    (if (and (not (memq :promote changes))
-		     (= (if color 0 7) (chess-index-rank (cadr changes))))
-		(let ((new-piece (completing-read
-				  (chess-string 'pawn-promote-query)
-				  chess-piece-name-table nil t "queen")))
-		  (setq new-piece
-			(cdr (assoc new-piece chess-piece-name-table)))
-		  (if color
-		      (setq new-piece (upcase new-piece)))
-		  (nconc changes (list :promote new-piece))))
+	    (when (and (not (memq :promote changes))
+		       (= (if color 0 7) (chess-index-rank (cadr changes))))
+	      (discard-input)
+	      (let ((new-piece (if (yes-or-no-p "Promote to queen? ")
+				   ?Q ?N)))
+		(nconc changes (list :promote (upcase new-piece)))))
 
 	    ;; is this an en-passant capture?
 	    (if (= (or (chess-pos-en-passant position) 100)

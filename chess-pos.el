@@ -530,7 +530,8 @@ indices which indicate where a piece may have moved from."
 		   '(?P ?R ?N ?B ?Q ?K)))
 	(mapc 'chess--add-candidate
 	      (chess-search-position position target
-				     (if piece p (downcase p))))))
+				     (if piece p (downcase p))
+				     check-only))))
 
      ;; skip erroneous space requests
      ((= test-piece ? ))
@@ -631,7 +632,8 @@ indices which indicate where a piece may have moved from."
 	      (while (and legal (funcall (if long '< '>) file king-file))
 		(setq pos (chess-rf-to-index rank file))
 		(if (or (not (chess-pos-piece-p position pos ? ))
-			(chess-search-position position pos (not color)))
+			(chess-search-position position pos (not color)
+					       check-only))
 		    (setq legal nil)
 		  (setq file (funcall (if long '1+ '1-) file))))
 	      (if legal

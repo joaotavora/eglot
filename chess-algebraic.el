@@ -165,8 +165,7 @@ This regexp handles both long and short form.")
 	 (chess-index-to-coord to)
 	 (let ((promote (chess-ply-keyword ply :promote)))
 	   (if promote
-	       (concat "=" (char-to-string
-			    (upcase (cadr promote))))))
+	       (concat "=" (char-to-string promote))))
 	 (if (chess-ply-keyword ply :check) "+"
 	   (if (chess-ply-keyword ply :checkmate) "#"))))))
 
