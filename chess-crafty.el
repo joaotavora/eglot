@@ -4,6 +4,7 @@
 ;;
 
 (require 'chess-common)
+(require 'chess-var)
 
 (defgroup chess-crafty nil
   "The publically available chess engine 'crafty'."
@@ -11,7 +12,7 @@
 
 (defcustom chess-crafty-path (or (executable-find "crafty")
 				 (executable-find "wcrafty"))
-  "The path to the crafty executable."
+  "*The path to the crafty executable."
   :type 'file
   :group 'chess-crafty)
 
