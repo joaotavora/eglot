@@ -60,23 +60,9 @@
   "Return the GAME's current position index."
   (length (cdr game)))
 
-(defsubst chess-index-side-to-move (index)
-  "Return the color of the side which has the move."
-  (= (mod index 2) 1))
-
 (defsubst chess-game-seq (game)
   "Return the current GAME sequence."
   (1+ (/ (chess-game-index game) 2)))
-
-(defsubst chess-game-side-to-move (game)
-  "Return the color of the side which has the move."
-  (chess-index-side-to-move (chess-game-index game)))
-
-(defun chess-game-move-color (game &optional invert)
-  "Return the capitalized color name associated with the side to move."
-  (if (if (chess-game-side-to-move game)
-	  (not invert) invert)
-      "White" "Black"))
 
 (defun chess-game-ply (game &optional index)
   "Return the position related to GAME's INDEX position."
@@ -121,7 +107,7 @@ progress (nil), if it is drawn, resigned, mate, etc."
      ((or (memq ':resign changes)
 	  (memq ':checkmate changes))
       (chess-game-set-tag game "Result"
-			  (if (chess-game-side-to-move game)
+			  (if (chess-pos-side-to-move (chess-game-pos game))
 			      "0-1" "1-0")))
      (t (nconc (cdr game)
 	       (list (chess-ply-create
