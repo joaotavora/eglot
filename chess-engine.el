@@ -235,7 +235,7 @@
 		    (while triggers
 		      ;; this could be accelerated by joining
 		      ;; together the regexps
-		      (if (looking-at (caar triggers))
+		      (if (looking-at (concat (caar triggers) "$"))
 			  (progn
 			    (funcall (cdar triggers))
 			    (setq triggers nil))
