@@ -79,7 +79,7 @@ PERSPECTIVE is t for white or nil for black."
 		  (make-string 8 (nth 1 chess-plain-border-chars))
 		  (nth 2 chess-plain-border-chars) ?\n))
       (while (if inverted (>= rank 0) (< rank 8))
-	(if chess-plain-border-chars
+	(if chess-plain-draw-border
 	    (insert (number-to-string (- 8 rank))
 		    (nth 3 chess-plain-border-chars)))
 	(while (if inverted (>= file 0) (< file 8))
@@ -104,7 +104,8 @@ PERSPECTIVE is t for white or nil for black."
 				       (chess-rf-to-index rank file))))
 	  (setq file (if inverted (1- file) (1+ file))))
 	(if chess-plain-draw-border
-	    (insert (nth 4 chess-plain-border-chars) ?\n))
+	    (insert (nth 4 chess-plain-border-chars)))
+	(insert ?\n)
 	(setq file (if inverted 7 0)
 	      rank (if inverted (1- rank) (1+ rank))))
       (if chess-plain-draw-border
