@@ -64,5 +64,5 @@ update: dist
 	perl -i -pe 's/(chess-version.*)"([0-9.]+)[ab][0-9]+"/$$1"$$2$(CAT)$(NEXT)"/;' chess.el
 	cvs commit -m "bumped minor rev" chess.el
 	make fullclean
-	lftp -e "cd /incoming; put $(PKG)" upload.sourceforge.net
+	lftp -e "cd /incoming; put $(PKG); quit" upload.sourceforge.net
 	sitecopy

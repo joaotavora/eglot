@@ -49,13 +49,7 @@ The format of each entry is:
 	(cons "[Pp]assword:"
 	      (function
 	       (lambda ()
-		 (let ((pass (or chess-ics-password
-				 (read-passwd "Password: "))))
-		   (if (file-readable-p pass)
-		       (setq pass (with-temp-buffer
-				    (insert-file-contents pass)
-				    (buffer-string))))
-		   (chess-engine-send nil (concat pass "\n")))
+		 (chess-engine-send nil (concat chess-ics-password "\n"))
 		 'once)))
 	(cons "%"
 	      (function
@@ -284,7 +278,14 @@ who is black."
 	  (if (null (nth 2 server))
 	      (setq chess-ics-handle "guest")
 	    (setq chess-ics-handle (nth 2 server)
-		  chess-ics-password (nth 3 server)))))
+		  chess-ics-password
+		  (let ((pass (or (nth 3 server)
+				  (read-passwd "Password: "))))
+		    (if (file-readable-p pass)
+			(with-temp-buffer
+			  (insert-file-contents pass)
+			  (buffer-string))
+		      pass))))))
       t)
 
      ((eq event 'match)
