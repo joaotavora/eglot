@@ -20,9 +20,7 @@
 	(cons "name\\s-+\\(.+\\)"
 	      (function
 	       (lambda ()
-		 ;; jww (2002-04-07): Set the appropriate Black or
-		 ;; White tag at this point
-		 (message "Your opponent, %s, has connected"
+		 (funcall chess-engine-response-handler 'connect
 			  (match-string 1)))))
 	(cons "fen\\s-+\\(.+\\)"
 	      (function
