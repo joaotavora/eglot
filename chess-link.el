@@ -68,7 +68,8 @@ engine, and the computer the second engine."
 	    ;; tell the first engine to start moving
 	    (chess-engine-command first-engine 'pass))
 
-	  (chess-display-update display t))
+	  (chess-display-update display)
+	  (chess-display-popup display))
       (error
        (chess-display-destroy display)
        (error (error-message-string err))))))

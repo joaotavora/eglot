@@ -61,17 +61,19 @@
     (setq chess-engine-position (chess-ply-next-pos ply)))))
 
 (defsubst chess-engine-convert-algebraic (move)
-  (or (chess-algebraic-to-ply (chess-engine-position nil)
-			      move)
-      (message "Received invalid move string: %s" move)))
+  (or (chess-algebraic-to-ply (chess-engine-position nil) move)
+      (ignore
+       (message "Received invalid move string: %s" move))))
 
 (defsubst chess-engine-convert-fen (fen)
   (or (chess-fen-to-pos fen)
-      (message "Received invalid FEN string: %s" fen)))
+      (ignore
+       (message "Received invalid FEN string: %s" fen))))
 
 (defsubst chess-engine-convert-pgn (pgn)
   (or (chess-pgn-to-game pgn)
-      (message "Received invalid PGN text")))
+      (ignore
+       (message "Received invalid PGN text"))))
 
 (defun chess-engine-default-handler (event &rest args)
   (let ((chess-engine-handling-event t)
