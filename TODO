@@ -1,6 +1,10 @@
-- Allow the user to retract a move when playing against an engine.
+- Allow the user to retract a move when playing against an engine
 
-- Once a king or rook is moving, removed castling rights!
+- Once a king or rook is moved, clear castling rights
+
+- Handle piece promotion, which is not dealt with at all right now
+
+- In chess-pgn.el, output the PGN tags in standard order
 
 ----------------------------------------------------------------------
 
