@@ -85,7 +85,7 @@ See `mode-line-format' for syntax details."
 (make-variable-buffer-local 'chess-display-index-positions)
 
 (defvar chess-display-handling-event nil
-  "If non-nil, chess-display is aleady handling the event.  This variable
+  "If non-nil, chess-display is already handling the event.  This variable
 is used to avoid reentrancy.")
 
 (defvar chess-display-style)
@@ -122,7 +122,7 @@ of the board, if non-nil, the board is viewed from White's perspective."
 (defalias 'chess-display-destroy 'chess-module-destroy)
 
 (defun chess-display-clone (display style perspective)
-  (let ((new-display (chess-display-create chess-module-game
+  (let ((new-display (chess-display-create (chess-display-game display)
 					   style perspective)))
     ;; the display will have already been updated by the `set-' calls,
     ;; it's just not visible yet
@@ -389,6 +389,14 @@ that is supported by most displays, and is the default mode."
 				    :index pos))
       (chess-display-highlight nil "pale green"
 			       (chess-ply-target ply)))))
+
+(defun chess-display-highlight-passed-pawns (&optional display)
+  (interactive)
+  (mapc
+   (lambda (index) (chess-display-highlight display index :selected))
+   (append
+    (chess-pos-passed-pawns (chess-display-position display) t)
+    (chess-pos-passed-pawns (chess-display-position display) nil))))
 
 (defun chess-display-popup (display)
   "Popup the given DISPLAY, so that it's visible to the user."
