@@ -1,5 +1,8 @@
 2002-04-16  John Wiegley  <johnw@gnu.org>
 
+	* chess-display.el (chess-display-handler): Set the side-to-move
+	text to a reasonable default.
+
 	* chess-ics.el: Only send startup commands after login has succeeded.
 	(chess-ics12-parse): Was relying on a variable that wasn't set!
 	(chess-ics-regexp-alist): Added a handler to capture the guest id
