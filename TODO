@@ -9,31 +9,18 @@
 
 ----------------------------------------------------------------------
 
-- undo is not working with gnuchess
-
-
-- test making an en passant capture
-
-
-- if I parse disambiguating information from chess-algebraic, store it
-  in the ply.  Then, in ply-to-algebraic it won't need to be
-  calculated.  Also, I can then easily announce it in chess-announce
-
-- when announcing abiguous pieces, name the rank/file ("e pawn")
-
-
-- restrict keyboard shorcutting so that it only looks if the move is
-  related to the given letter
-
 - modify displays and engines so they ONLY keep game objects; thus
   set-start-position would become just set-position
-
-- Why doesn't S-b produce [B] in the keyboard shortcutting?
-
 
 - distinguish between chess-display-set-game and
   chess-display-set-game*.  The latter detaches and sets a new game
   object.  The former just overwrites the current game object.
+
+
+- undo is not working with gnuchess
+
+
+- test making an en passant capture
 
 
 - the game should go inactive once I lose by stalemate/checkmate
@@ -68,6 +55,10 @@
 
 ----------------------------------------------------------------------
 
+- Add support for adjournments; also, implement this is such a way
+  that an e-mail or postal game is basically a game that's adjourned
+  after every move
+
 - Break my dependency on cl
 
 - Use more asserts throughout the code
@@ -99,9 +90,6 @@
 
 - Turn on memory gc collection messages, and see how much of a pig
   chess.el is
-
-- make sure, if Bxc6 and bxc6 are possible, and the user types "bc6",
-  that bxc6 is chosen
 
 - Make as much of chess-game/ply/pos, etc., defsubst as possible.
 
@@ -150,8 +138,6 @@
 - Add a module for chatting between opponents
 
 - Let the user specify a default size for the chess-images display
-
-- Allow dragging of pieces
 
 - Need to check for chess engine resignations
 
