@@ -198,7 +198,7 @@ who is black."
 	       (lambda ()
 		 (setq chess-ics-handle (match-string 1))
 		 'once)))
-	(cons "<12> \\(.+\\)"
+	(cons "\\(\\([ \t\n\r]*[A-Za-z0-9_]+%[ \t\n\r]*\\)?<12> \\(.+\\)\\)\n"
 	      'chess-ics-handle-move)
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function
