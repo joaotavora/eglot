@@ -274,6 +274,10 @@ also view the same game."
 		     (chess-pos-piece position from) to))
 	  (setq ch (cddr ch)))))))
 
+(chess-message-catalog 'english
+  '((not-your-move . "It is not your turn to move")
+    (game-is-over  . "This game is over")))
+
 (defun chess-display-move (display ply &optional prev-pos pos)
   "Move a piece on DISPLAY, by applying the given PLY.
 The position of PLY must match the currently displayed position.

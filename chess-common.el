@@ -48,7 +48,11 @@
     (chess-game-set-data game 'active t))
 
    ((eq event 'destroy)
-    (chess-engine-send nil "quit\n")
+    (let ((proc (get-buffer-process (current-buffer))))
+      (if (and (processp proc)
+	       (memq (process-status proc) '(run open)))
+	  (chess-engine-send nil "quit\n")))
+
     (dolist (file chess-common-temp-files)
       (if (file-exists-p file)
 	  (delete-file file)))

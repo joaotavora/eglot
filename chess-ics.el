@@ -187,7 +187,7 @@ who is black."
     t))
 
 (defvar chess-ics-regexp-alist
-  (list (cons "^[^% \t\n\r]+%"
+  (list (cons "[A-Za-z0-9_]+%"
 	      (function
 	       (lambda ()
 		 (chess-engine-send nil "set style 12\n")

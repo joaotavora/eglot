@@ -19,10 +19,6 @@
 (make-variable-buffer-local 'chess-input-position-function)
 (make-variable-buffer-local 'chess-input-move-function)
 
-(chess-message-catalog 'english
-  '((not-your-move . "It is not your turn to move")
-    (game-is-over  . "This game is over")))
-
 (defun chess-input-test-move (move-ply)
   "Return the given MOVE if it matches the user's current input."
   (let* ((move (cdr move-ply))
