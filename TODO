@@ -39,6 +39,33 @@
 
 - Resize the chess board on a window resize event, if possible.
 
+- Have a display option that shows legal target squares whenever a
+  piece is selected.
+
+- add chess-game-strip-annotations, for removing all annotations from
+  a game object
+
+- add a module for chatting between opponents
+
+- M-w on a display should kill appropriately (i.e., kill to PGN for a
+  game, to FEN for a position, etc).  C-y should likewise call the
+  appropriate chess-display-set-... function based on the clipboard's
+  contents.  Which might just be a plain algebraic string too!
+
+- Let the user specify a default size for the chess-images display
+
+- chess-display-highlight should accept a list of positions and modes
+  to highlight.  Use keywords for the modes.
+
+- allow dragging of pieces
+
+- add a shuffle chess position generator
+
+- add chess-ply-has-keyword, as a shorthand for using memq on the
+  changes.
+
+- add chess-ply-move-source and chess-ply-move-target
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs
