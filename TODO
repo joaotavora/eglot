@@ -24,6 +24,9 @@
 
 - Make chess-display-create use require, not chess.el
 
+- PGN files aren't sendable via IRC yet; I will have to convert ^J
+  into ^K or something.
+
 - Polish chess-input.el
 
 - Find a way that regexp-alist entries that only need to fire once are
