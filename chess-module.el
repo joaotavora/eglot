@@ -88,8 +88,8 @@
   (let ((buf (or module (current-buffer))))
     (when (buffer-live-p buf)
       (with-current-buffer buf
-	(remove-hook 'kill-buffer-hook 'chess-module-destroy t))
-      (chess-module-detach-game nil)
+	(remove-hook 'kill-buffer-hook 'chess-module-destroy t)
+	(chess-module-detach-game nil))
       (kill-buffer buf))))
 
 (defun chess-module-event-handler (game object event &rest args)
