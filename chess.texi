@@ -176,6 +176,8 @@ square, or set that square's value:
 
 @c lispfun chess-pos-set-side-to-move
 
+@c lispfun chess-pos-passed-pawns
+
 @defvar chess-pos-always-white
 When set, it is assumed that white is always on move.
 This is really only useful when setting up training positions.
@@ -791,11 +793,18 @@ If non-nil, display the chessboard in its own frame.
 
 @chapter Engines
 
+Engines are the representation of an opponent in Chess.  THe main type
+of engine interfaces with an external chess program.  However, there
+can be other uses for engine objects, such as providing networked engined
+for playing with opponent over different types of transports.
+
+@section Common functions
+
 @c lispfun chess-engine-create
 
 @c lispfun chess-engine-set-option
 
-@c lispfun/c chess-engine-destroy
+@c lispfun chess-engine-destroy
 
 @c lispfun chess-engine-set-position
 
@@ -812,6 +821,14 @@ If non-nil, display the chessboard in its own frame.
 @c lispfun chess-engine-command
 
 @c lispfun chess-engine-send
+
+@section Crafty
+
+@section Gnu Chess
+
+@section Phalanx
+
+@section Sjeng
 
 @chapter Internet Chess Servers
 
