@@ -264,8 +264,6 @@ who is black."
 (defun chess-ics-filter (string)
   (save-excursion
     (if chess-engine-last-pos
-	;; ml: Can't we just use comint-last-output-start and
-	;; process-mark here?  instead of chess-engine-last-pos?
 	(goto-char chess-engine-last-pos)
       (goto-char (point-min)))
     (unwind-protect
