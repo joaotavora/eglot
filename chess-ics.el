@@ -352,6 +352,8 @@ See `chess-ics-game'.")
 	 (setq tags (cddr tags)))
        game))))
 
+(defvar last-triggers nil)
+
 (defun chess-ics-game-destroy (game-number &rest tags)
   (let ((sessions chess-ics-sessions)
 	last-session)
@@ -566,6 +568,10 @@ See `chess-ics-game'.")
     map)
   "Keymap used by seek buttons.")
 
+(defvar chess-ics-sought-parent-buffer nil
+  "Contains the buffer from which this seektable originates.")
+(make-variable-buffer-local 'chess-ics-sought-parent-buffer)
+
 (defun chess-ics-sought-accept (&optional pos)
   "Perform the action specified by a button at location POS.
 POS may be either a buffer position or a mouse-event.
@@ -605,10 +611,6 @@ If nil, do not sort entries, i.e., keep the order of arrival.")
 If nil, ads are sorted in ascending order, if non-nil, they are sorted in
 descending order.")
 (make-variable-buffer-local 'chess-ics-sought-sort-direction)
-
-(defvar chess-ics-sought-parent-buffer nil
-  "Contains the buffer from which this seektable originates.")
-(make-variable-buffer-local 'chess-ics-sought-parent-buffer)
 
 (defun chess-ics-sought-sort ()
   (case chess-ics-sought-sort-state
