@@ -17,7 +17,8 @@
 - Allow an "index N" command to the network protocol, so two people
   can review a game together
 
-- Make ( create variations in a display, and { begin an annotation
+- Make ( create variations in a display, and { begin an annotation.  "
+  or ; will begin a chat string.
 
 - Have C-p and C-n move forward and backward plies, and C-f and C-b
   move into and out of variations
