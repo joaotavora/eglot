@@ -12,6 +12,11 @@
 
 			       Hotlist
 
+- Make a command binding (for reading NG articles and such) which will
+  assume there is a PGN game under point and will read it as such and
+  jump to the move before cursor; right now, C-c C-c in chess-pgn
+  requires that the buffer be in pgn-mode
+
 - Move chess-assert-can-move into chess-display-move
 
 - Allow an "index N" command to the network protocol, so two people
