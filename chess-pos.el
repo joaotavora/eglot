@@ -660,7 +660,11 @@ color will be considered (t for white, nil for black).  Otherwise, the
 case of the PIECE determines color.
 
 The return value is a list of candidates, which means a list of
-indices which indicate where a piece may have moved from."
+indices which indicate where a piece may have moved from.
+
+If CHECK-ONLY is non-nil and PIECE is either t or nil, only consider
+pieces which can give check (not the opponents king).
+If NO-CASTLING is non-nil, do not consider castling moves."
   (assert (vectorp position))
   (assert (and (>= target 0) (< target 64)))
   (assert (memq piece '(t nil ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p)))
