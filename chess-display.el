@@ -999,6 +999,7 @@ to the end or beginning."
 (chess-message-catalog 'english
   '((cannot-mount   . "You cannot move pieces on top of each other")
     (move-not-legal . "That is not a legal move")
+    (not-your-move  . "It is not your turn to move")
     (wrong-color    . "You cannot move your opponent's pieces")
     (selected-empty . "You cannot select an empty square")
     (piece-immobile . "That piece cannot move now")))
@@ -1047,6 +1048,12 @@ Clicking once on a piece selects it; then click on the target location."
 		  (cond
 		   ((eq piece ? )
 		    (throw 'message (chess-string 'selected-empty)))
+		   ((not (or chess-display-edit-mode
+			     (not (chess-display-active-p))
+			     (eq (chess-pos-side-to-move position)
+				 (chess-game-data chess-module-game
+						  'my-color))))
+		    (throw 'message (chess-string 'not-your-move)))
 		   ((and (not chess-display-edit-mode)
 			 (if (chess-pos-side-to-move position)
 			     (> piece ?a)
