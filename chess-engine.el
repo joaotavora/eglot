@@ -139,17 +139,19 @@
 
 (defun chess-engine-on-kill ()
   "Function called when the buffer is killed."
-  (chess-engine-detach-game nil))
+  (chess-engine-command (current-buffer) 'shutdown))
 
 (defun chess-engine-destroy (engine)
   (let ((buf (or engine (current-buffer))))
     (when (buffer-live-p buf)
       (chess-engine-command engine 'destroy)
+      (remove-hook 'kill-buffer-hook 'chess-engine-on-kill t)
       (kill-buffer buf))))
 
 (defun chess-engine-command (engine event &rest args)
   (chess-with-current-buffer engine
-    (apply chess-engine-event-handler event args)))
+    (apply 'chess-engine-event-handler
+	   (chess-engine-game nil) engine event args)))
 
 ;; 'ponder
 ;; 'search-depth
@@ -217,16 +219,18 @@
       (if proc
 	  (if (memq (process-status proc) '(run open))
 	      (process-send-string proc string)
-	    (error "The engine you were using is no longer running"))
+	    (message "The engine you were using is no longer running")
+	    (chess-engine-command nil 'destroy))
 	(chess-engine-command nil 'send string)))))
 
 (defun chess-engine-submit (engine string)
   "Submit the given STRING, so ENGINE sees it in its input stream."
   (chess-with-current-buffer engine
     (let ((proc chess-engine-process))
-      (if (and (processp proc)
-	       (not (memq (process-status proc) '(run open))))
-	  (error "The engine you were using is no longer running"))
+      (when (and (processp proc)
+		 (not (memq (process-status proc) '(run open))))
+	(message "The engine you were using is no longer running")
+	(chess-engine-command nil 'destroy))
       (chess-engine-filter nil string))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -243,8 +247,10 @@
 	  (apply chess-engine-event-handler event args)))
     (cond
      ((eq event 'shutdown)
-      (ignore-errors
-	(chess-engine-destroy engine))))))
+      (chess-engine-destroy engine))
+
+     ((eq event 'destroy)
+      (chess-engine-detach-game engine)))))
 
 (defun chess-engine-filter (proc string)
   "Filter for receiving text for an engine from an outside source."

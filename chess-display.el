@@ -53,6 +53,7 @@
 (defvar chess-display-ply)
 (defvar chess-display-position)
 (defvar chess-display-perspective)
+(defvar chess-display-main-p nil)
 (defvar chess-display-event-handler nil)
 (defvar chess-display-no-popup nil)
 (defvar chess-display-edit-mode nil)
@@ -64,6 +65,7 @@
 (make-variable-buffer-local 'chess-display-ply)
 (make-variable-buffer-local 'chess-display-position)
 (make-variable-buffer-local 'chess-display-perspective)
+(make-variable-buffer-local 'chess-display-main-p)
 (make-variable-buffer-local 'chess-display-event-handler)
 (make-variable-buffer-local 'chess-display-no-popup)
 (make-variable-buffer-local 'chess-display-edit-mode)
@@ -87,19 +89,14 @@
       (funcall handler 'initialize)
       (setq chess-display-event-handler handler
 	    chess-display-perspective perspective)
-      (add-hook 'kill-buffer-hook 'chess-display-on-kill nil t)
+      (add-hook 'kill-buffer-hook 'chess-display-quit nil t)
       (current-buffer))))
-
-(defun chess-display-on-kill ()
-  "Function called when the buffer is killed."
-  (chess-display-detach-game nil))
 
 (defun chess-display-destroy (display)
   "Destroy a chess display object, killing all of its buffers."
   (let ((buf (or display (current-buffer))))
     (when (buffer-live-p buf)
       (funcall chess-display-event-handler 'destroy)
-      (chess-display-detach-game display)
       (kill-buffer buf))))
 
 (defsubst chess-display-perspective (display)
@@ -111,6 +108,18 @@
     (setq chess-display-perspective perspective)
     (erase-buffer)			; force a complete redraw
     (chess-display-update nil)))
+
+(defsubst chess-display-main-p (display)
+  (chess-with-current-buffer display
+    chess-display-main-p))
+
+(defun chess-display-set-main (display)
+  (chess-with-current-buffer display
+    (setq chess-display-main-p t)))
+
+(defun chess-display-clear-main (display)
+  (chess-with-current-buffer display
+    (setq chess-display-main-p nil)))
 
 
 (defun chess-display-set-position (display position &optional search-func)
@@ -304,8 +313,10 @@ See `chess-display-type' for the different kinds of displays."
   (with-current-buffer display
     (cond
      ((eq event 'shutdown)
-      (ignore-errors
-	(chess-display-destroy nil)))
+      (chess-display-destroy nil))
+
+     ((eq event 'destroy)
+      (chess-display-detach-game nil))
 
      ((eq event 'pass)
       (let ((my-color (if chess-display-game
@@ -496,7 +507,9 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-quit ()
   "Quit the current game."
   (interactive)
-  (if chess-display-game
+  (remove-hook 'kill-buffer-hook 'chess-display-quit t)
+  (if (and chess-display-main-p
+	   chess-display-game)
       (chess-game-run-hooks chess-display-game 'shutdown)
     (chess-display-destroy nil)))
 

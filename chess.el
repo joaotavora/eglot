@@ -117,8 +117,9 @@ minibuffer, which works well for Emacspeak users."
 
 
     (require chess-default-display)
-    (chess-display-set-game
-     (chess-display-create chess-default-display my-color) game)
+    (let ((display (chess-display-create chess-default-display my-color)))
+      (chess-display-set-game display game)
+      (chess-display-set-main display))
     (chess-display-set-main display)
     (let ((engine-module
 	   (if arg

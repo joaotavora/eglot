@@ -70,12 +70,9 @@
     nil)
 
    ((eq event 'shutdown)
-    (ignore-errors
-      (chess-engine-send nil "quit"))
-    (ignore-errors
-      (process-send-string chess-irc-process "QUIT :Goodbye\n"))
-    (ignore-errors
-      (kill-buffer (process-buffer chess-irc-process))))
+    (chess-engine-send nil "quit")
+    (process-send-string chess-irc-process "QUIT :Goodbye\n")
+    (kill-buffer (process-buffer chess-irc-process)))
 
    ((eq event 'send)
     (process-send-string chess-irc-process

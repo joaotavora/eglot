@@ -57,8 +57,7 @@
     (chess-engine-send nil "quit\n")
     (dolist (file chess-gnuchess-temp-files)
       (if (file-exists-p file)
-	  (ignore-errors
-	    (delete-file file)))))
+	  (delete-file file))))
 
    ((eq event 'setup)
     (if (equal (car args) chess-starting-position)

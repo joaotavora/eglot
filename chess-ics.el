@@ -179,8 +179,7 @@ who is black."
       nil))
 
    ((eq event 'shutdown)
-    (ignore-errors
-      (chess-engine-send nil "quit\n")))
+    (chess-engine-send nil "quit\n"))
 
    ((eq event 'move)
     (unless chess-ics-ensure-ics12
