@@ -1,0 +1,34 @@
+chess-algebraic
+chess-announce   99%
+chess-autosave   90%  [what about multiple simultaneous games?]
+chess-clock
+chess-common
+chess-crafty
+chess-database
+chess-display
+chess-engine
+chess-fen
+chess-file
+chess-game
+chess-gnuchess
+chess-ics
+chess-ics1
+chess-images
+chess-irc
+chess-link
+chess-maint
+chess-message
+chess-module
+chess-network
+chess-none
+chess-pgn
+chess-phalanx
+chess-plain
+chess-ply
+chess-pos
+chess-random
+chess-scid
+chess-sound
+chess-transport
+chess-var
+chess
