@@ -7,6 +7,12 @@
   analysis/highlight tools
   scid interaction
 
+- Make use of the my-color data in chess-game.el to ensure that I only
+  do what I should be doing
+
+- After somebody sends me "name", I need a responding event to tell
+  them my name
+
 - Allow the user to request a move retraction (ala takeback)
 
 - In edit mode, mouse-2 and mouse-3 should provide a drop-down list of

@@ -88,7 +88,7 @@
 (defun chess-game-set-data (game key value)
   (let ((alist (chess-game-data-alist game)))
     (if (null alist)
-	(setcar (nthcdr 1 game) (list (cons key value)))
+	(setcar (nthcdr 2 game) (list (cons key value)))
       (push (cons key value) alist))
     (chess-game-run-hooks game 'set-data key)))
 

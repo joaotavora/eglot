@@ -62,29 +62,26 @@
   (let ((chess-engine-handling-event t))
     (cond
      ((eq event 'move)
-
-      ;; if the game index is still 0, then our opponent is white, and
-      ;; we need to pass over the move
-      (let ((game (chess-engine-game nil)))
-	(when (and game (chess-game-get-data game 'my-color)
-		   (= (chess-game-index game) 0))
-	  (chess-game-run-hooks game 'pass)
-	  ;; if no one else flipped my-color, we'll do it
-	  (if (chess-game-get-data game 'my-color)
-	      (chess-game-set-data game 'my-color nil))))
-
       (let ((ply (chess-algebraic-to-ply (chess-engine-position nil)
 					 (car args))))
-	(if ply
-	    (chess-engine-do-move ply)
-	  (message "Received invalid move from engine: %s" (car args)))))
+	(if (null ply)
+	    (message "Received invalid move from engine: %s" (car args))
+	  ;; if the game index is still 0, then our opponent is white,
+	  ;; and we need to pass over the move
+	  (let ((game (chess-engine-game nil)))
+	    (when (and game (chess-game-get-data game 'my-color)
+		       (= (chess-game-index game) 0))
+	      (chess-game-run-hooks game 'pass)
+	      ;; if no one else flipped my-color, we'll do it
+	      (if (chess-game-get-data game 'my-color)
+		  (chess-game-set-data game 'my-color nil))))
+	  (chess-engine-do-move ply))))
 
      ((eq event 'pass)
       (message "Your opponent has passed the first move to you"))
 
      ((eq event 'connect)
-      (message "Your opponent, %s, is now ready to play" (car args))
-      (chess-engine-send nil (format "name %s\n" (user-full-name))))
+      (message "Your opponent, %s, is now ready to play" (car args)))
 
      ((eq event 'quit)
       (message "Your opponent has quit playing"))
