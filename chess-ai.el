@@ -27,45 +27,84 @@
 (require 'cl)
 
 (defgroup chess-ai ()
-  "A simple chess engine written in elisp."
+  "A simple chess engine written in elisp.
+
+This module does not allow for configuring search time used to calculate
+reply moves.  You can only specify the search depth (see `chess-ai-depth')."
   :group 'chess)
 
 (defcustom chess-ai-depth 2
-  "*The depth used to prune the search tree."
+  "*The default depth used to prune the search tree."
   :group 'chess-ai
   :type 'integer)
 
-(defvar chess-pawn-value 100)
-(defvar chess-knight-value 300)
-(defvar chess-bishop-value 300)
-(defvar chess-rook-value 500)
-(defvar chess-queen-value 900)
-(defvar chess-king-value 10000)
+(defcustom chess-ai-pawn-value 100
+  "*Value of a Pawn."
+  :group 'chess-ai
+  :type 'integer)
+
+(defcustom chess-ai-knight-value 300
+  "*Value of a Knight."
+  :group 'chess-ai
+  :type 'integer)
+
+(defcustom chess-ai-bishop-value 300
+  "*Value of a Bishop."
+  :group 'chess-ai
+  :type 'integer)
+
+(defcustom chess-ai-rook-value 500
+  "*Value of a Rook."
+  :group 'chess-ai
+  :type 'intger)
+
+(defcustom chess-ai-queen-value 900
+  "*Value of a Queen."
+  :group 'chess-ai
+  :type 'integer)
+
+(defcustom chess-ai-passed-pawn 50
+  "*Extra Score for a passed Pawn."
+  :group 'chess-ai
+  :type 'integer)
 
 (defun chess-eval-static (position)
-  "Find the static score for POSITION."
+  "Calculate the static score for POSITION."
   (assert (vectorp position))
   (let ((v 0)
 	(status (chess-pos-status position)))
     (if (eq status :checkmate)
-	-64000
+	-32767
       (if (eq status :stalemate)
-	  v
-	(dotimes (i 64 (if (chess-pos-side-to-move position) v (- v)))
-	  (let ((piece (aref position i)))
-	    (cond
-	     ((= piece ?P) (incf v chess-pawn-value))
-	     ((= piece ?p) (decf v chess-pawn-value))
-	     ((= piece ?K) (incf v chess-king-value))
-	     ((= piece ?k) (decf v chess-king-value))
-	     ((= piece ?Q) (incf v chess-queen-value))
-	     ((= piece ?q) (decf v chess-queen-value))
-	     ((= piece ?R) (incf v chess-rook-value))
-	     ((= piece ?r) (decf v chess-rook-value))
-	     ((= piece ?B) (incf v chess-bishop-value))
-	     ((= piece ?b) (decf v chess-bishop-value))
-	     ((= piece ?N) (incf v chess-knight-value))
-	     ((= piece ?n) (decf v chess-knight-value)))))))))
+	  0
+	(let (white-pawns black-pawns)
+	  (dotimes (i 64)
+	    (let ((piece (aref position i)))
+	      (unless (= piece ? )
+		(cond
+		 ((= piece ?P) (push i white-pawns) (incf v chess-ai-pawn-value))
+		 ((= piece ?p) (push i black-pawns) (decf v chess-ai-pawn-value))
+		 ((= piece ?Q) (incf v chess-ai-queen-value))
+		 ((= piece ?q) (decf v chess-ai-queen-value))
+		 ((= piece ?R) (incf v chess-ai-rook-value))
+		 ((= piece ?r) (decf v chess-ai-rook-value))
+		 ((= piece ?B) (incf v chess-ai-bishop-value))
+		 ((= piece ?b) (decf v chess-ai-bishop-value))
+		 ((= piece ?N) (incf v chess-ai-knight-value))
+		 ((= piece ?n) (decf v chess-ai-knight-value))))))
+	  ;; Reward passed Pawns
+	  (unless white-pawns
+	    (setq v (+ (* (length
+			   (chess-pos-passed-pawns position t white-pawns))
+			  chess-ai-passed-pawn))))
+	  (unless black-pawns
+	    (setq v (- v
+		       (* (length
+			   (chess-pos-passed-pawns position nil black-pawns))
+			  chess-ai-passed-pawn))))
+	  (if (chess-pos-side-to-move position)
+	      v
+	    (- v)))))))
 
 (defun chess-ai-eval (position depth alpha beta &optional line)
   "Evaluate POSITION using a simple AlphaBeta search algorithm using at most
