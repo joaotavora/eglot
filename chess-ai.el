@@ -101,9 +101,6 @@ Returns (VALUE . LIST-OF-PLIES) where
 	      (mapcar func (nreverse (cdr res)))
 	    (nreverse (cdr res))))))
 
-;; TBD: It is somewhat strange that we need to define this variable.
-(defvar chess-ai-regexp-alist nil)
-
 (defun chess-ai-handler (game event &rest args)
   (unless chess-engine-handling-event
     (cond
