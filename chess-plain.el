@@ -81,13 +81,42 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 (defun chess-plain-handler (event &rest args)
   (cond
    ((eq event 'initialize) t)
+
    ((eq event 'popup)
     (if chess-display-popup
 	(funcall chess-plain-popup-function)))
+
    ((eq event 'draw)
     (apply 'chess-plain-draw args))
+
+   ((eq event 'draw-square)
+    (apply 'chess-plain-draw-square args))
+
    ((eq event 'highlight)
     (apply 'chess-plain-highlight args))))
+
+(defun chess-plain-piece-text (piece rank file)
+  (let ((white-square (= (% (+ file rank) 2) 0)))
+    (if (eq piece ? )
+	(if white-square
+	    chess-plain-white-square-char
+	  chess-plain-black-square-char)
+      (let ((what chess-plain-upcase-indicates)
+	    (pchar (cdr (assq piece chess-plain-piece-chars))))
+	(cond
+	 ((eq what 'square-color)
+	  (if white-square
+	      (downcase pchar)
+	    (upcase pchar)))
+	 (t pchar))))))
+
+(defsubst chess-plain-draw-square (pos piece index)
+  "Draw a piece image at point on an already drawn display."
+  (save-excursion
+    (goto-char pos)
+    (delete-char 1)
+    (insert (chess-plain-piece-text piece (chess-index-rank index)
+				    (chess-index-file index)))))
 
 (defun chess-plain-draw (position perspective)
   "Draw the given POSITION from PERSPECTIVE's point of view.
@@ -111,20 +140,8 @@ PERSPECTIVE is t for white or nil for black."
 	(while (if inverted (>= file 0) (< file 8))
 	  (let ((piece (chess-pos-piece position
 					(chess-rf-to-index rank file)))
-		(white-square (evenp (+ file rank)))
 		(begin (point)))
-	    (insert (if (eq piece ? )
-			(if white-square
-			    chess-plain-white-square-char
-			  chess-plain-black-square-char)
-		      (let ((what chess-plain-upcase-indicates)
-			    (pchar (cdr (assq piece chess-plain-piece-chars))))
-			(cond
-			 ((eq what 'square-color)
-			  (if white-square
-			      (downcase pchar)
-			    (upcase pchar)))
-			 (t pchar)))))
+	    (insert (chess-plain-piece-text piece rank file))
 	    (add-text-properties begin (point)
 				 (list 'chess-coord
 				       (chess-rf-to-index rank file)))
@@ -146,26 +163,13 @@ PERSPECTIVE is t for white or nil for black."
       (goto-char pos))))
 
 (defun chess-plain-highlight (index &optional mode)
-  (let ((inverted (not (chess-display-perspective nil))))
-    (save-excursion
-      (beginning-of-line)
-      (let ((rank (chess-index-rank index))
-	    (file (chess-index-file index)))
-	(if inverted
-	    (setq rank (- 7 rank)
-		  file (- 7 file)))
-	(goto-line (if chess-plain-draw-border
-		       (+ 2 rank)
-		     (1+ rank)))
-	(forward-char (if chess-plain-draw-border
-			  (1+ file)
-			file)))
-      (put-text-property (point) (1+ (point)) 'face
-			 (cond
-			  ((eq mode :selected)
-			   'chess-plain-highlight-face)
-			  (t
-			   (chess-display-get-face mode)))))))
+  (let ((pos (chess-display-index-pos nil index)))
+    (put-text-property pos (1+ pos) 'face
+		       (cond
+			((eq mode :selected)
+			 'chess-plain-highlight-face)
+			(t
+			 (chess-display-get-face mode))))))
 
 (provide 'chess-plain)
 

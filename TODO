@@ -12,14 +12,6 @@
 
 - Make use of the new chess-incr-index*, which does no checks
 
-- Don't popup the display if it's already the currently selected
-  window
-
-- Make the drawing/highlighting code just touch single squares, rather
-  than redrawing the whole board each time (fast though this is,
-  touching single squares is all that's necessary, and it would be
-  even faster)
-
 - Fix highlighting in chess-plain when chess-plain-spacing is set.
   chess-coord needs to be applied to a larger area, and also the way
   highlight locations are found needs to be recalculated.
@@ -36,6 +28,9 @@
   only scanned once.
 
 - Extend elp.el to do any kind of memory profiling
+
+- Queue up input that comes in from an engine, then process the queue
+  -- instead of using chess-engine-last-pos
 
 ----------------------------------------------------------------------
 

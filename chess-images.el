@@ -169,6 +169,9 @@ called."
    ((eq event 'draw)
     (apply 'chess-images-draw args))
 
+   ((eq event 'draw-square)
+    (apply 'chess-images-draw-square args))
+
    ((eq event 'highlight)
     (apply 'chess-images-highlight args))))
 
@@ -208,6 +211,25 @@ called."
 				      max-char-width))
     (chess-display-popup-in-window)))
 
+(defun chess-images-piece-image (piece rank file)
+  "Return the image used for PIECE at RANK and FILE.
+Rank and file are important because the colors of the squares on the
+chess board are light or dark depending on location."
+  (let ((white-square (% (+ file rank) 2)))
+    (if (= piece ? )
+	(aref chess-images-cache (+ white-square 2))
+      (aref (aref (aref chess-images-cache
+			(if (> piece ?a) 0 1))
+		  white-square)
+	    (nth 2 (assq (downcase piece)
+			 chess-images-piece-names))))))
+
+(defsubst chess-images-draw-square (pos piece index)
+  "Draw a piece image at point on an already drawn display."
+  (put-text-property pos (1+ pos) 'display
+		     (chess-images-piece-image piece (chess-index-rank index)
+					       (chess-index-file index))))
+
 (defun chess-images-draw (position perspective)
   "Draw the current chess display position."
   (let* ((inhibit-redisplay t)
@@ -222,20 +244,9 @@ called."
       (goto-char (point-min)))
     (while (if inverted (>= rank 0) (< rank 8))
       (while (if inverted (>= file 0) (< file 8))
-	(let* ((piece (chess-pos-piece position (chess-rf-to-index rank file)))
-	       (image
-		(if (= piece ? )
-		    (aref chess-images-cache
-			  (+ 2 (if (= 0 (mod rank 2))
-				   (- 1 (mod file 2))
-				 (mod file 2))))
-		  (aref (aref (aref chess-images-cache
-				    (if (> piece ?a) 0 1))
-			      (if (= 0 (mod rank 2))
-				  (- 1 (mod file 2))
-				(mod file 2)))
-			(nth 2 (assq (downcase piece)
-				     chess-images-piece-names))))))
+	(let* ((piece (chess-pos-piece position
+				       (chess-rf-to-index rank file)))
+	       (image (chess-images-piece-image piece rank file)))
 	  (if (not new)
 	      (progn
 		(put-text-property (point) (1+ (point)) 'display image)
@@ -263,13 +274,7 @@ Common modes are:
   `selected'    show that the piece has been selected for movement.
   `unselected'  show that the piece has been unselected."
   (let* ((inverted (not (chess-display-perspective nil)))
-	 (pos (save-excursion
-		(goto-char (point-min))
-		(let ((rank (chess-index-rank index))
-		      (file (chess-index-file index)))
-		  (goto-line (1+ (if inverted (- 7 rank) rank)))
-		  (forward-char (* 2 (if inverted (- 7 file) file))))
-		(point)))
+	 (pos (chess-display-index-pos nil index))
 	 (highlight (copy-alist (get-text-property pos 'display))))
     (setcar (last highlight)
 	    (list (cons "light_square" (if (eq mode :selected)

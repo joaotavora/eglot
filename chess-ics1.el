@@ -39,13 +39,34 @@
 (defun chess-ics1-handler (event &rest args)
   (cond
    ((eq event 'initialize) t)
+
    ((eq event 'popup)
     (if chess-display-popup
 	(funcall chess-ics1-popup-function)))
+
    ((eq event 'draw)
     (apply 'chess-ics1-draw args))
+
+   ((eq event 'draw-square)
+    (apply 'chess-ics1-draw-square args))
+
    ((eq event 'highlight)
     (apply 'chess-ics1-highlight args))))
+
+(defsubst chess-ics1-piece-text (piece)
+  (let ((p (char-to-string piece)))
+    (add-text-properties 0 1 (list 'face (if (> piece ?a)
+					     'chess-ics1-black-face
+					   'chess-ics1-white-face)) p)
+    p))
+
+(defsubst chess-ics1-draw-square (pos piece index)
+  "Draw a piece image at point on an already drawn display."
+  (save-excursion
+    (goto-char pos)
+    (forward-char)
+    (delete-char 1)
+    (insert (chess-ics1-piece-text piece))))
 
 (defun chess-ics1-draw (position perspective)
   "Draw the given POSITION from PERSPECTIVE's point of view.
@@ -69,13 +90,7 @@ PERSPECTIVE is t for white or nil for black."
 		(insert (format "    %d " (1+ (- 7 rank)))))
 	    (insert "| ")
 	    (setq begin (1- (point)))
-	    (let ((p (char-to-string piece)))
-	      (add-text-properties
-	       0 1 (list 'face (if (> piece ?a)
-				   'chess-ics1-black-face
-				 'chess-ics1-white-face)) p)
-	      (insert p))
-	    (insert ? )
+	    (insert (chess-ics1-piece-text piece) ? )
 	    (add-text-properties begin (point)
 				 (list 'chess-coord
 				       (chess-rf-to-index rank file))))
@@ -91,25 +106,16 @@ PERSPECTIVE is t for white or nil for black."
     (goto-char pos)))
 
 (defun chess-ics1-highlight (index &optional mode)
-  (if (null (get-buffer-window (current-buffer) t))
-      (pop-to-buffer (current-buffer)))
-  (let ((inverted (not (chess-display-perspective nil)))
-	beg end)
-    (save-excursion
-      (goto-char (point-min))
-      (let ((rank (chess-index-rank index))
-	    (file (chess-index-file index)))
-	(goto-line (+ 3 (* 2 (if inverted (- 7 rank) rank))))
-	(forward-char (+ 8 (* 4 (if inverted (- 7 file) file)))))
-      (skip-chars-backward "^|")
-      (setq beg (point))
-      (skip-chars-forward "^|")
-      (put-text-property beg (point) 'face
-			 (cond
-			  ((eq mode :selected)
-			   'chess-ics1-highlight-face)
-			  (t
-			   (chess-display-get-face mode)))))))
+  (let ((pos (chess-display-index-pos nil index)))
+    (put-text-property pos (save-excursion
+			     (goto-char pos)
+			     (skip-chars-forward "^|")
+			     (point))
+		       'face (cond
+			      ((eq mode :selected)
+			       'chess-ics1-highlight-face)
+			      (t
+			       (chess-display-get-face mode))))))
 
 (defun chess-debug-position (&optional position)
   "This is a debugging function, and not meant from general use."

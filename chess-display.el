@@ -69,6 +69,8 @@ See `mode-line-format' for syntax details."
 (make-variable-buffer-local 'chess-display-no-popup)
 (make-variable-buffer-local 'chess-display-edit-mode)
 
+(defvar chess-display-handling-event nil)
+
 (chess-message-catalog 'english
   '((no-such-style . "There is no such chessboard display style '%s'")))
 
@@ -216,7 +218,23 @@ also view the same game."
     (erase-buffer)
     (chess-display-update nil)))
 
-(defun chess-display-move (display ply)
+(defun chess-display-paint-move (display ply)
+  (chess-with-current-buffer display
+    (let ((position (chess-ply-pos ply))
+	  (ch (chess-ply-changes ply)))
+      (while ch
+	(if (symbolp (car ch))
+	    (setq ch nil)
+	  (let ((from (car ch))
+		(to (cadr ch)))
+	    (funcall chess-display-event-handler 'draw-square
+		     (chess-display-index-pos nil from) ?  from)
+	    (funcall chess-display-event-handler 'draw-square
+		     (chess-display-index-pos nil to)
+		     (chess-pos-piece position from) to))
+	  (setq ch (cddr ch)))))))
+
+(defun chess-display-move (display ply &optional prev-pos pos)
   "Move a piece on DISPLAY, by applying the given PLY.
 The position of PLY must match the currently displayed position.
 If only START is given, it must be in algebraic move notation."
@@ -224,9 +242,10 @@ If only START is given, it must be in algebraic move notation."
     ;; jww (2002-03-28): This should beget a variation within the
     ;; game, or alter the game, just as SCID allows
     (if (= chess-display-index (chess-game-index chess-module-game))
-	(chess-game-move chess-module-game ply)
+	(let ((chess-display-handling-event t))
+	  (chess-game-move chess-module-game ply))
       (error "What to do here??  NYI"))
-    (chess-display-update nil)))
+    (chess-display-paint-move nil ply)))
 
 (defun chess-display-highlight (display &rest args)
   "Highlight the square at INDEX on the current position.
@@ -286,36 +305,43 @@ called."
 (defun chess-display-handler (game event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
-  (if (eq event 'initialize)
-      (progn
-	(chess-display-mode)
-	(setq chess-display-index (chess-game-index game)
-	      chess-display-side-to-move
-	      (if (chess-pos-side-to-move (chess-game-pos game))
-		  (chess-string 'mode-white)
-		(chess-string 'mode-black))
-	      chess-display-move-text (chess-string 'mode-start)
-	      chess-display-perspective (car args)
-	      chess-display-event-handler
-	      (intern-soft (concat (symbol-name chess-display-style)
-				   "-handler")))
-	(and chess-display-event-handler
-	     (funcall chess-display-event-handler 'initialize)))
-    (cond
-     ((eq event 'pass)
-      (let ((my-color (chess-game-data game 'my-color)))
-	(chess-game-set-data game 'my-color (not my-color))
-	(chess-display-set-perspective* nil (not my-color))))
+  (unless chess-display-handling-event
+    (if (eq event 'initialize)
+	(progn
+	  (chess-display-mode)
+	  (setq chess-display-index (chess-game-index game)
+		chess-display-side-to-move
+		(if (chess-pos-side-to-move (chess-game-pos game))
+		    (chess-string 'mode-white)
+		  (chess-string 'mode-black))
+		chess-display-move-text (chess-string 'mode-start)
+		chess-display-perspective (car args)
+		chess-display-event-handler
+		(intern-soft (concat (symbol-name chess-display-style)
+				     "-handler")))
+	  (and chess-display-event-handler
+	       (funcall chess-display-event-handler 'initialize)))
+      (cond
+       ((eq event 'pass)
+	(let ((my-color (chess-game-data game 'my-color)))
+	  (chess-game-set-data game 'my-color (not my-color))
+	  (chess-display-set-perspective* nil (not my-color))))
 
-     ((eq event 'orient)
-      ;; Set the display's perspective to whichever color I'm playing
-      (chess-display-set-perspective* nil (chess-game-data game 'my-color))))
+       ((eq event 'orient)
+	(let ((my-color (chess-game-data game 'my-color)))
+	  ;; Set the display's perspective to whichever color I'm
+	  ;; playing
+	  (chess-display-set-perspective* nil my-color))))
 
-    (let ((momentous (memq event chess-display-momentous-events)))
-      (if momentous
-	  (chess-display-set-index* nil (chess-game-index game)))
-      (if (or momentous (memq event chess-display-interesting-events))
-	  (chess-display-update nil momentous)))))
+      (let ((momentous (memq event chess-display-momentous-events)))
+	(if momentous
+	    (chess-display-set-index* nil (chess-game-index game)))
+	(if (or momentous (memq event chess-display-interesting-events))
+	    (if (eq event 'move)
+		(progn
+		  (chess-display-paint-move nil (car args))
+		  (chess-display-popup nil))
+	      (chess-display-update nil momentous)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -482,10 +508,11 @@ Basically, it means we are playing, not editing or reviewing."
   "Set the piece under point to command character, or space for clear."
   (interactive)
   (unless (chess-display-active-p)
-    (chess-pos-set-piece (chess-display-position nil)
-			 (get-text-property (point) 'chess-coord)
-			 last-command-char)
-    (chess-display-update nil)))
+    (let ((index (get-text-property (point) 'chess-coord)))
+      (chess-pos-set-piece (chess-display-position nil) index
+			   last-command-char)
+      (funcall chess-display-event-handler 'draw-square
+	       (point) last-command-char index))))
 
 (chess-message-catalog 'english
   '((illegal-notation . "Illegal move notation: %s")
@@ -916,9 +943,12 @@ Clicking once on a piece selects it; then click on the target location."
 		    ;; it by redrawing the display and removing all
 		    ;; highlights
 		    (if (= (point) (car last-sel))
-			(chess-display-update nil)
+			(funcall chess-display-event-handler 'draw-square
+				 (car last-sel)
+				 (chess-pos-piece position (cdr last-sel))
+				 (cdr last-sel))
 		      (let ((s-piece (chess-pos-piece position
-						      (cadr last-sel)))
+						      (cdr last-sel)))
 			    (t-piece (chess-pos-piece position coord))
 			    ply)
 			(if (and (/= t-piece ? )
@@ -928,10 +958,10 @@ Clicking once on a piece selects it; then click on the target location."
 					  (> s-piece ?a))))
 			    (throw 'message (chess-string 'cannot-mount)))
 			(unless (setq ply (chess-ply-create position nil
-							    (cadr last-sel)
+							    (cdr last-sel)
 							    coord))
 			  (throw 'message (chess-string 'move-not-legal)))
-			(chess-display-move nil ply)))
+			(chess-display-move nil ply (car last-sel) (point))))
 		    (setq chess-display-last-selected nil))
 		(chess-display-assert-can-move position)
 		(let ((piece (chess-pos-piece position coord)))
@@ -945,13 +975,18 @@ Clicking once on a piece selects it; then click on the target location."
 		   ((and chess-display-highlight-legal
 			 (null (chess-legal-plies position :any :index coord)))
 		    (throw 'message (chess-string 'piece-immobile))))
-		  (setq chess-display-last-selected (list (point) coord))
+		  (setq chess-display-last-selected (cons (point) coord))
 		  (chess-display-highlight nil coord)
 		  (if chess-display-highlight-legal
 		      (chess-display-highlight-legal nil coord))))))
       (when message
-	(setq chess-display-last-selected nil)
-	(chess-display-update nil)
+	(when chess-display-last-selected
+	  (funcall chess-display-event-handler 'draw-square
+		   (car chess-display-last-selected)
+		   (chess-pos-piece position
+				    (cdr chess-display-last-selected))
+		   (cdr chess-display-last-selected))
+	  (setq chess-display-last-selected nil))
 	(error message)))))
 
 (defun chess-display-mouse-select-piece (event)
@@ -968,6 +1003,20 @@ Clicking once on a piece selects it; then click on the target location."
 	  (chess-display-select-piece))
       (goto-char (posn-point (event-end event)))
       (chess-display-select-piece))))
+
+(defun chess-display-index-pos (display index)
+  (chess-with-current-buffer display
+    (let ((pos (next-single-property-change (point-min) 'chess-coord))
+	  pos-index)
+      (while (and pos (or (null (setq pos-index
+				      (get-text-property pos 'chess-coord)))
+			  (/= index pos-index)))
+	(setq pos (next-single-property-change pos 'chess-coord)))
+      pos)))
+
+(defsubst chess-display-goto-index (index)
+  (chess-with-current-buffer display
+    (goto-char (chess-display-index-pos nil index))))
 
 (provide 'chess-display)
 
