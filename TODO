@@ -19,7 +19,7 @@
   related to the given letter
 
 - modify displays and engines so they ONLY keep game objects; thus
-  set-start-position now is just set-position
+  set-start-position would become just set-position
 
 - distinguish between chess-display-set-game and
   chess-display-set-game*.  The latter detaches and sets a new game
@@ -40,7 +40,7 @@
 - for network transports, if an illegal move is encountered, report
   this with "illegal move: REASON"
 
-- incorporate any .wav files from xchat's sounds that chess-sound
+- incorporate the .wav files from xchat's sounds that chess-sound
   currently doesn't have
 
 - in chess-engine-filter and chess-ics-filter, if an error is

@@ -120,7 +120,9 @@
 	       (format "Do you wish to play a chess game against an anonymous opponent? ")))
 	    (progn
 	      (let ((chess-engine-handling-event t))
-		(chess-game-set-data game 'active t))
+		(unless game
+		  (setq game (chess-engine-set-game nil (chess-game-create))))
+		(chess-engine-set-start-position nil))
 	      (chess-engine-command nil 'accept))
 	  (chess-engine-command nil 'decline)))
       t)

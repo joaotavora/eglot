@@ -44,6 +44,7 @@
 
 ;;; Code:
 
+(require 'cl)
 (require 'chess-pos)
 
 (defgroup chess-ply nil
