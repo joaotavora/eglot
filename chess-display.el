@@ -375,7 +375,7 @@ that is supported by most displays, and is the default mode."
   :group 'chess-display)
 
 (defcustom chess-display-boring-events
-  '(set-data set-tags set-tag draw abort undo shutdown)
+  '(set-data set-tags set-tag draw abort undo)
   "Events which will not even cause a refresh of the display."
   :type '(repeat symbol)
   :group 'chess-display)
