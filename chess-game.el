@@ -101,8 +101,9 @@ the game's FEN tag).
 SEARCH-FUNC specifies the function used to test the legality of moves.
 TAGS is the starting set of game tags (which can always be changed
 later using the various tag-related methods)."
-  (let ((game (list tags (or search-func
-			     'chess-standard-search-position))))
+  (let ((game (list tags
+		    (or search-func 'chess-standard-search-position)
+		    (or position (chess-pos-create)))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))

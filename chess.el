@@ -134,7 +134,11 @@ a0 243
     (ignore
      (let ((color (not (chess-session-data session 'my-color))))
        (message "You are now playing %s" (if color "White" "Black"))
-       (chess-session-set-data session 'my-color (not color)))))))
+       (chess-session-set-data session 'my-color (not color)))))
+
+   ((eq event 'move)
+    (chess-game-move (chess-session-data session 'current-game)
+		     (car args)))))
 	    (aset chess-puzzle-locations 3 puzzle-engine)))))))
 
 (provide 'chess)

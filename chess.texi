@@ -520,7 +520,44 @@ moves.
 @end menu
 
 @node Chess engines,  , Ply sources, Ply sources
-@section Chess engines
+@section Engines
+
+@defun chess-engine-create style callback &optional session
+@end defun
+
+@defun chess-engine-set-option engine option value
+@end defun
+
+@defun chess-engine-option engine option
+@end defun
+
+@c  'ponder
+@c  'search-depth
+@c  'wall-clock
+
+@defun chess-engine-destroy engine
+@end defun
+
+@defun chess-engine-set-position engine position  ; uses 'edit' command
+@end defun
+
+@defun chess-engine-position engine
+@end defun
+
+@defun chess-engine-set-game engine game
+@end defun
+
+@defun chess-engine-game engine
+@end defun
+
+@defun chess-engine-index engine
+@end defun
+
+@defun chess-engine-move engine ply
+@end defun
+
+@defun chess-engine-command engine string
+@end defun
 
 @unnumbered Concept Index
 

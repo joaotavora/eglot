@@ -98,6 +98,7 @@ This regexp handles both long and short form.")
 		 (list (if (equal mate "#")
 			   ':checkmate
 			 ':check))))
+      (assert changes)
       (apply 'chess-ply-create position changes))))
 
 (defun chess-ply-to-algebraic (ply &optional long search-func)
