@@ -5,6 +5,7 @@
 ;; $Revision$
 
 (require 'chess-game)
+(require 'chess-pos)
 (require 'chess-algebraic)
 (require 'chess-fen)
 
@@ -106,6 +107,60 @@ If INDENTED is non-nil, indent the move texts."
     (chess-pgn-insert-plies 1 (chess-game-plies game))
     (insert (or (chess-game-tag game "Result") "*") ?\n)
     (fill-region begin (point))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; PGN-mode for editing and browsing PGN files.
+;;
+
+(defvar chess-pgn-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [??] 'describe-mode)
+    (define-key map [?T] 'text-mode)
+    (define-key map [return] 'chess-pgn-move)
+    (define-key map [(control ?m)] 'chess-pgn-move)
+    map)
+  "Keymap used by Chess PGN mode.")
+
+(define-derived-mode chess-pgn-mode text-mode "Chess"
+  "A mode for editing Chess PGN files.")
+
+(defun chess-pgn-move ()
+  "Make a move from a PGN buffer."
+  (interactive)
+  (let ((end (point))
+	coords move)
+    (save-excursion
+      (skip-chars-backward "^ ")
+      (setq move (buffer-substring-no-properties (point) end)
+	    coords (chess-algebraic-to-ply chess-display-position move))
+      ;; it will just get reinserted again
+      (delete-region (point) end))
+    (chess-session-event chess-current-session 'move
+			 (chess-algebraic-to-ply chess-display-position))))
+
+(defun chess-pgn-insert-move (move &optional color sequence)
+  "Insert an algebraic move description into a PGN buffer.
+If move is the symbol `wait', it means reflect that we are now waiting
+for the opponent to make his move.  If move is the symbol `ready', it
+means our opponent is now waiting for us to move our move.  Otherwise,
+move should be a string representing the algebraic notation for the
+move."
+  (while (= (char-before) ?.)
+    (delete-backward-char 1))
+  (cond
+   ((eq move 'wait)
+    (insert "..."))
+   ((eq move 'ready) t)
+   (t
+    (if (= (char-syntax (char-before)) ? )
+	(insert move))
+    (if color
+	(move-to-column 11 t)
+      (insert ?\n (format "%d.  " (1+ sequence))))))
+  (let ((wind (get-buffer-window (current-buffer))))
+    (if wind
+	(set-window-point wind (point)))))
 
 (provide 'chess-pgn)
 
