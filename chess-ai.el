@@ -102,6 +102,18 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
 		       (* (length
 			   (chess-pos-passed-pawns position nil black-pawns))
 			  chess-ai-passed-pawn))))
+	  ;; Mobility
+	  (setq v (+ v
+		     (- (length (append (chess-legal-plies position :piece ?Q)
+					(chess-legal-plies position :piece ?R)
+					(chess-legal-plies position :piece ?B)
+					(chess-legal-plies position :piece ?N))
+				)
+			(length (append (chess-legal-plies position :piece ?q)
+					(chess-legal-plies position :piece ?r)
+					(chess-legal-plies position :piece ?b)
+					(chess-legal-plies position :piece ?n))
+				))))
 	  (if (chess-pos-side-to-move position)
 	      v
 	    (- v)))))))
