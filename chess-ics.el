@@ -14,39 +14,118 @@
 (defvar chess-ics-ensure-ics12 nil)
 (make-variable-buffer-local 'chess-ics-ensure-ics12)
 
-;; ICS12 format:
-;; <12> rnbqkbnr pppppppp -------- -------- -------- -------- PPPPPPPP RNBQKBNR W -1 1 1 1 1 0 65 jwiegley GuestZYNJ 1 5 0 39 39 300 300 1 none (0:00) none 0 0 0
+;; ICS12 format (with artificial line breaks):
+;;
+;; <12> rnbqkbnr pppppppp -------- -------- \
+;;      -------- -------- PPPPPPPP RNBQKBNR W \
+;;      -1 1 1 1 1 0 65 jwiegley GuestZYNJ \
+;;      1 5 0 39 39 300 300 1 P/e2-e4 (0:00) e4 0 0 0
+
+(defun chess-ics12-parse (string)
+  "Parse an ICS12 format string, and return a list of its info.
+The list is comprised of: the ply the string represents, who is white,
+who is black."
+  (let ((parts (split-string string " "))
+	(position (chess-pos-create t))
+	white black ply)
+
+    (assert (= (length parts) 31))
+
+    ;; first, handle the layout of the position
+    (dotimes (i 8)
+      (dotimes (j 8)
+	(let ((piece (aref (car parts) j)))
+	  (unless (= piece ?-)
+	    (chess-pos-set-piece position (chess-rf-to-index i j)
+				 piece))))
+      (setq parts (cdr parts)))
+
+    ;; next, the "side to move
+    (chess-pos-set-side-to-move position (string= (car parts) "W"))
+    (setq parts (cdr parts))
+
+    ;; unknown
+    (setq parts (cdr parts))
+
+    ;; castling rights?
+    (if (string= (car parts) "1")
+	(chess-pos-set-can-castle position ?K t))
+    (setq parts (cdr parts))
+    (if (string= (car parts) "1")
+	(chess-pos-set-can-castle position ?Q t))
+    (setq parts (cdr parts))
+    (if (string= (car parts) "1")
+	(chess-pos-set-can-castle position ?k t))
+    (setq parts (cdr parts))
+    (if (string= (car parts) "1")
+	(chess-pos-set-can-castle position ?q t))
+    (setq parts (cdr parts))
+
+    ;; unknown
+    (setq parts (cdr parts))
+    (setq parts (cdr parts))
+
+    ;; white player, black player
+    (setq white (car parts))
+    (setq parts (cdr parts))
+    (setq black (car parts))
+    (setq parts (cdr parts))
+
+    ;; unknown
+    (setq parts (cdr parts))
+    (setq parts (cdr parts))
+    (setq parts (cdr parts))
+
+    ;; material values for each side
+    (setq parts (cdr parts))
+    (setq parts (cdr parts))
+
+    ;; starting time each side
+    (setq parts (cdr parts))
+    (setq parts (cdr parts))
+
+    ;; unknown
+    (setq parts (cdr parts))
+
+    ;; move in elaborated notation
+    (setq parts (cdr parts))
+
+    ;; time elapsed
+    (setq parts (cdr parts))
+
+    ;; move in algebraic notation
+    (setq ply (if (string= (car parts) "none")
+		  (chess-ply-create position)
+		(chess-algebraic-to-ply position (car parts))))
+    (setq parts (cdr parts))
+
+    ;; unknown
+    (setq parts (cdr parts))
+    (setq parts (cdr parts))
+    (setq parts (cdr parts))
+
+    (list ply white black)))
 
 (defun chess-ics-handle-move ()
   (let ((begin (match-beginning 1))
 	(end (match-end 1))
-	(color (string= (match-string 2) "W"))
-	(white (match-string 3))
-	(move (match-string 4)))
-    (if (and (not (string= white ics-handle))
-	     (= 0 (chess-game-index (chess-engine-game nil))))
-	(chess-game-run-hooks (chess-engine-game nil) 'pass)
-      (if (eq color (chess-pos-side-to-move
-		     (chess-engine-position nil)))
-	  (funcall chess-engine-response-handler
-		   'move move))
-      (delete-region begin end))))
+	(info (chess-ics12-parse (match-string 2))))
+    (if (> (chess-game-index (chess-engine-game nil)) 0)
+	(if (eq color (chess-pos-side-to-move (chess-engine-position nil)))
+	    (chess-engine-do-move (car ply-info)))
+      (chess-game-set-plies (chess-engine-game nil)
+			    (list (car ply-info)))
+      (unless (string= (cadr ply-info) ics-handle)
+	(chess-game-run-hooks (chess-engine-game nil) 'pass)))
+    (delete-region begin end)))
 
 (defvar chess-ics-regexp-alist
-  (list
-   (cons (concat "\\(<12> \\S-+ \\S-+ \\S-+ \\S-+ \\S-+ \\S-+ \\S-+ \\S-+ "
-		 "\\([BW]\\) [-0-9]+ "
-		 "[-0-9]+ [-0-9]+ [-0-9]+ [-0-9]+ [-0-9]+ "
-		 "[-0-9]+ \\(\\S-+\\) \\S-+ "
-		 "[-0-9]+ [-0-9]+ [-0-9]+ "
-		 "[-0-9]+ [-0-9]+ [-0-9]+ [-0-9]+ "
-		 "[-0-9]+ \\S-+ \\S-+ \\(\\S-+\\)\\)")
-	 'chess-ics-handle-move)
-   (cons "You accept the match offer from \\([^\\.]+\\)."
-	 (function
-	  (lambda ()
-	    (funcall chess-engine-response-handler 'connect
-		     (match-string 1)))))))
+  (list (cons "\\(<12> \\(.+\\)\\)" 'chess-ics-handle-move)
+	(cons "You accept the match offer from \\([^\\.]+\\)."
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'connect
+			  (match-string 1)))))))
 
 (defun chess-ics-handler (event &rest args)
   (cond
