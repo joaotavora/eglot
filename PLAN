@@ -38,6 +38,9 @@ chess-irc
 chess-network
 - does not work at all!
 
+chess-pos
+- typing a number in a chessboard display gets an assertion
+
 chess-ply
 - detect games drawn by three-fold repetition and the 50 move rule
   (Note, FIDE rules define that a draw must be claimed by one
