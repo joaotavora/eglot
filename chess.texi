@@ -21,7 +21,7 @@
 
 @c %**start of header
 @setfilename chess.info
-@settitle Chess.el
+@settitle Emacs Chess: chess.el
 @c %**end of header
 
 @dircategory Emacs
@@ -47,7 +47,7 @@ any later version published by the Free Software Foundation.
 @sp
 @center @titlefont{to}
 @sp
-@center @titlefont{Chess.el}
+@center @titlefont{Emacs Chess: chess.el}
 @ignore
 @sp 2
 @center release 2.0
@@ -75,8 +75,8 @@ any later version published by the Free Software Foundation.
 @c ================================================================
 
 @ifinfo
-@node Top, Chess.el, (dir), (dir)
-@top Chess.el
+@node Top, Emacs Chess: chess.el, (dir), (dir)
+@top Emacs Chess: chess.el
 
 Chess.el is an Emacs chess client and library, designed to be used for
 writing chess-related programs, or for playing games of chess against
@@ -88,7 +88,7 @@ The purpose of this manual is to help you understand how Chess.el is
 structured for use as a library, and also how to use it as a client.
 @end ifinfo
 
-@chapter The Chess.el library
+@chapter The chess.el library
 @cindex library
 
 @section Positions
@@ -423,8 +423,6 @@ object.
 @c lispfun chess-engine-create
 
 @c lispfun chess-engine-set-option
-
-@c lispfun chess-engine-option
 
 @c lispfun/c chess-engine-destroy
 
