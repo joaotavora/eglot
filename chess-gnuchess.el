@@ -9,7 +9,8 @@
   "The publically available chess engine 'gnuchess'."
   :group 'chess-engine)
 
-(defcustom chess-gnuchess-path (executable-find "gnuchess")
+(defcustom chess-gnuchess-path (let ((exec-path (cons "/usr/games" exec-path)))
+				 (executable-find "gnuchess"))
   "The path to the gnuchess executable."
   :type 'file
   :group 'chess-gnuchess)
