@@ -57,7 +57,8 @@
 	 (file-readable-p (expand-file-name "move.wav"
 					    chess-sound-directory))
 	 (or (eq chess-sound-play-function 'play-sound-file)
-	     (file-executable-p chess-sound-program))))
+	     (and chess-sound-program
+		  (file-executable-p chess-sound-program)))))
 
    ((eq event 'move)
     (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
