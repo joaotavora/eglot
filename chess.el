@@ -112,7 +112,8 @@ minibuffer, which works well for Emacspeak users."
   :type 'string
   :group 'chess)
 
-(defun chess (&optional engine)
+;;;###autoload
+(defun chess (&optional engine disable-popup engine-response-handler
 			&rest engine-ctor-args)
   "Start a game of chess, playing against ENGINE (a module name)."
   (interactive
@@ -139,12 +140,15 @@ minibuffer, which works well for Emacspeak users."
       (require 'chess-ics1)
       (setq display (chess-display-create 'chess-ics1 my-color)))
 
+    (chess-game-set-data game 'my-color my-color)
+    (if disable-popup
 	(chess-display-disable-popup display))
     (chess-display-set-game display game)
     (chess-display-set-main display)
 
     (let ((engine-module (or engine chess-default-engine)))
-	(let ((engine (chess-engine-create engine-module)))
+      (when (and engine-module (require engine-module nil t))
+	(let ((engine (apply 'chess-engine-create engine-module nil
 			     engine-ctor-args)))
 	  (chess-engine-set-game* engine game)
 	  ;; for the sake of engines which are ready to play now, and
@@ -167,7 +171,8 @@ minibuffer, which works well for Emacspeak users."
 	      (if (chess-announce-available-p)
 		  (chess-announce-for-game game)))))))
 
-    display))
+    (chess-display-update display t)
+
     (cons display engine)))
 
 ;;;###autoload
