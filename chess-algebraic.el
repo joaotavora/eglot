@@ -72,45 +72,46 @@ This regexp handles both long and short form.")
 	    (setq changes (chess-ply-castling-changes
 			   position (= (length (match-string 1 move)) 5)))
 	  (let ((promotion (match-string 8 move)))
-	    (setq changes
-		  (let ((source (match-string 4 move))
-			(target (chess-coord-to-index (match-string 6 move))))
-		    (if (and source (= (length source) 2))
-			(prog1
-			    (list (chess-coord-to-index source) target)
-			  (setq long-style t))
-		      (if (= (length source) 0)
-			  (setq source nil)
-			(setq source (aref source 0)))
-		      (let (candidates which)
-			(unless (< piece ?a)
-			  (setq source piece piece ?P))
-			;; we must use our knowledge of how pieces can
-			;; move, to determine which piece is meant by the
-			;; piece indicator
-			(if (setq candidates
-				  (chess-search-position position target
-							 (if color piece
-							   (downcase piece))
-							 nil t))
-			    (if (= (length candidates) 1)
-				(list (car candidates) target)
-			      (if (null source)
-				  (chess-error 'clarify-piece)
-				(nconc changes (list :which source))
-				(while candidates
-				  (if (if (>= source ?a)
-					  (eq (chess-index-file (car candidates))
-					      (- source ?a))
-					(eq (chess-index-rank (car candidates))
-					    (- 7 (- source ?1))))
-				      (setq which (car candidates)
-					    candidates nil)
-				    (setq candidates (cdr candidates))))
-				(if (null which)
-				    (chess-error 'could-not-clarify)
-				  (list which target))))
-			  (chess-error 'no-candidates move))))))
+	    (setq
+	     changes
+	     (let ((source (match-string 4 move))
+		   (target (chess-coord-to-index (match-string 6 move))))
+	       (if (and source (= (length source) 2))
+		   (prog1
+		       (list (chess-coord-to-index source) target)
+		     (setq long-style t))
+		 (if (= (length source) 0)
+		     (setq source nil)
+		   (setq source (aref source 0)))
+		 (let (candidates which)
+		   (unless (< piece ?a)
+		     (setq source piece piece ?P))
+		   ;; we must use our knowledge of how pieces can
+		   ;; move, to determine which piece is meant by the
+		   ;; piece indicator
+		   (if (setq candidates
+			     (chess-search-position position target
+						    (if color piece
+						      (downcase piece))
+						    nil t))
+		       (if (= (length candidates) 1)
+			   (list (car candidates) target)
+			 (if (null source)
+			     (chess-error 'clarify-piece)
+			   (nconc changes (list :which source))
+			   (while candidates
+			     (if (if (>= source ?a)
+				     (eq (chess-index-file (car candidates))
+					 (- source ?a))
+				   (eq (chess-index-rank (car candidates))
+				       (- 7 (- source ?1))))
+				 (setq which (car candidates)
+				       candidates nil)
+			       (setq candidates (cdr candidates))))
+			   (if (null which)
+			       (chess-error 'could-not-clarify)
+			     (list which target))))
+		     (chess-error 'no-candidates move))))))
 	    (if promotion
 		(nconc changes (list :promote (aref promotion 0))))))
 
@@ -123,21 +124,21 @@ This regexp handles both long and short form.")
 
 	  (apply 'chess-ply-create position trust changes))))))
 
-(defsubst chess-ply--move-text (ply long)
-  (or (and (chess-ply-keyword ply :castle) "O-O")
-      (and (chess-ply-keyword ply :long-castle) "O-O-O")
-      (let* ((pos (chess-ply-pos ply))
-	     (from (chess-ply-source ply))
-	     (to (chess-ply-target ply))
-	     (from-piece (chess-pos-piece pos from))
-	     (color (chess-pos-side-to-move pos))
-	     (rank 0) (file 0)
-	     (from-rank (/ from 8))
-	     (from-file (mod from 8))
-	     (differentiator (chess-ply-keyword ply :which)))
+(defun chess-ply--move-text (ply long)
+  (or
+   (and (chess-ply-keyword ply :castle) "O-O")
+   (and (chess-ply-keyword ply :long-castle) "O-O-O")
+   (let* ((pos (chess-ply-pos ply))
+	  (from (chess-ply-source ply))
+	  (to (chess-ply-target ply))
+	  (from-piece (chess-pos-piece pos from))
+	  (color (chess-pos-side-to-move pos))
+	  (rank 0) (file 0)
+	  (from-rank (chess-index-rank from))
+	  (from-file (chess-index-file from))
+	  (differentiator (chess-ply-keyword ply :which)))
 	(unless differentiator
-	  (let ((candidates (chess-search-position pos to
-						   from-piece)))
+	  (let ((candidates (chess-search-position pos to from-piece nil t)))
 	    (when (> (length candidates) 1)
 	      (dolist (candidate candidates)
 		(if (= (/ candidate 8) from-rank)
