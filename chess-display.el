@@ -89,13 +89,6 @@ See `mode-line-format' for syntax details."
 (make-variable-buffer-local 'chess-display-no-popup)
 (make-variable-buffer-local 'chess-display-edit-mode)
 
-(defmacro chess-with-current-buffer (buffer &rest body)
-  `(let ((buf ,buffer))
-     (if buf
-	 (with-current-buffer buf
-	   ,@body)
-       ,@body)))
-
 (chess-message-catalog 'english
   '((no-such-style . "There is no such chessboard display style '%s'")))
 

@@ -6,6 +6,7 @@
 
 ;;; Commentary:
 
+(require 'chess-module)
 (require 'chess-game)
 (require 'chess-algebraic)
 (require 'chess-fen)
@@ -69,13 +70,6 @@
     (opp-undo-ret   . "Your opponent has retracted their request to undo %d moves")
     (opp-illegal    . "Your opponent states your last command was illegal")
     (failed-start   . "Failed to start chess engine process")))
-
-(defmacro chess-with-current-buffer (buffer &rest body)
-  `(let ((buf ,buffer))
-     (if buf
-	 (with-current-buffer buf
-	   ,@body)
-       ,@body)))
 
 (defsubst chess-engine-convert-algebraic (move &optional trust-check)
   (or (chess-algebraic-to-ply (chess-engine-position nil) move trust-check)
