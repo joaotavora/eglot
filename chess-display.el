@@ -446,7 +446,7 @@ position within the game)."
   (interactive)
   (let* ((x-select-enable-clipboard t)
 	 (fen (current-kill 0)))
-    ;; jww (2001-06-26): not yet implemented
+    (chess-display-set-from-fen fen)
     (message "Pasted board: %s" fen)))
 
 (defun chess-display-set-piece ()
