@@ -64,27 +64,35 @@ who is black."
     (chess-pos-set-side-to-move position (string= (car parts) "W"))
     (setq parts (cdr parts))
 
-    ;; unknown
+    ;; -1 if the previous move was NOT a double pawn push, otherwise the chess 
+    ;; board file  (numbered 0--7 for a--h) in which the double push was made
     (setq parts (cdr parts))
 
-    ;; castling rights?
+    ;; can White still castle short? (0=no, 1=yes)
     (if (string= (car parts) "1")
 	(chess-pos-set-can-castle position ?K t))
     (setq parts (cdr parts))
+    ;; can White still castle long?
     (if (string= (car parts) "1")
 	(chess-pos-set-can-castle position ?Q t))
     (setq parts (cdr parts))
+    ;; can Black still castle short?
     (if (string= (car parts) "1")
 	(chess-pos-set-can-castle position ?k t))
     (setq parts (cdr parts))
+    ;; can Black still castle long?
     (if (string= (car parts) "1")
 	(chess-pos-set-can-castle position ?q t))
     (setq parts (cdr parts))
 
     ;; jww (2002-04-11): How is check indicated?
 
-    ;; unknown
+    ;; the number of moves made since the last irreversible move.  (0 if last
+    ;; move was irreversible.  If the value is >= 100, the game can be
+    ;; declared a draw due to the 50 move rule.)
     (setq parts (cdr parts))
+
+    ;; The game number
     (setq parts (cdr parts))
 
     ;; white player, black player
@@ -93,26 +101,39 @@ who is black."
     (setq black (car parts))
     (setq parts (cdr parts))
 
-    ;; unknown
+    ;;  my relation to this game:
+    ;; -3 isolated position, such as for "ref 3" or the "sposition" command
+    ;; -2 I am observing game being examined
+    ;; 2 I am the examiner of this game
+    ;; -1 I am playing, it is my opponent's move
+    ;; 1 I am playing and it is my move
+    ;; 0 I am observing a game being played
     (setq parts (cdr parts))
+
+    ;;  initial time (in seconds) of the match
     (setq parts (cdr parts))
+
+    ;;  increment In seconds) of the match
     (setq parts (cdr parts))
 
     ;; material values for each side
     (setq parts (cdr parts))
     (setq parts (cdr parts))
 
-    ;; starting time each side
-    (setq parts (cdr parts))
+    ;;  White's remaining time
     (setq parts (cdr parts))
 
-    ;; unknown
+    ;; Black's remaining time
+    (setq parts (cdr parts))
+
+    ;; the number of the move about to be made (standard chess numbering --
+    ;; White's and Black's first moves are both 1, etc.)
     (setq parts (cdr parts))
 
     ;; move in elaborated notation
     (setq parts (cdr parts))
 
-    ;; time elapsed
+    ;; time taken to make previous move "(min:sec)".
     (setq parts (cdr parts))
 
     ;; move in algebraic notation
@@ -120,7 +141,8 @@ who is black."
 		 (car parts)))
     (setq parts (cdr parts))
 
-    ;; unknown
+    ;; flip field for board orientation: 1 = Black at bottom, 0 = White at
+    ;; bottom.
     (setq parts (cdr parts))
     (setq parts (cdr parts))
     (setq parts (cdr parts))
