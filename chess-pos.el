@@ -265,8 +265,8 @@ return the position of the black king."
   (assert (vectorp position))
   (assert (memq color '(nil t)))
   (or (aref position (if color 72 73))
-      (aset position (if color 72 73)
-	    (chess-pos-search position (if color ?K ?k)))))
+      (chess-pos-set-king-index position color
+				(chess-pos-search position (if color ?K ?k)))))
 
 (defsubst chess-pos-set-king-index (position color index)
   "Set the known index of the king on POSITION for COLOR, to INDEX.
@@ -552,6 +552,40 @@ This string should have been created by `chess-pos-to-string'."
 				chess-pos-piece-values)))))
     value))
 
+(defun chess-pos-passed-pawns (position color &optional pawn-indices)
+  "If COLOR has Passed Pawns in POSITION, return a list of their indices.
+Optionally, if INDICES is non-nil those indices are considered as candidates.
+
+A Pawn whose advance to the eighth rank is not blocked by an
+opposing Pawn in the same file and who does not have to pass one
+on an adjoining file is called a passed Pawn."
+  (let ((seventh (if color 1 6)) (bias (if color -1 1)) (pawn (if color ?p ?P))
+	pawns)
+    (dolist (index (or pawn-indices
+		       (chess-pos-search position (if color ?P ?p))) pawns)
+      (if (= (chess-index-rank index) seventh)
+	  (push index pawns)
+	(let ((file (chess-index-file index)))
+	  (if (catch 'passed-pawn
+		(let ((test (chess-incr-index index (if color -1 1) 0)))
+		  (while (funcall (if color '>= '<=)
+				  (chess-index-rank test) seventh)
+		    (if (if (and (> file 0) (< file 7))
+			    (or (chess-pos-piece-p position test pawn)
+				(chess-pos-piece-p
+				 position (chess-incr-index test 0 1) pawn)
+				(chess-pos-piece-p
+				 position (chess-incr-index test 0 -1) pawn))
+			  (or (chess-pos-piece-p position test pawn)
+			      (chess-pos-piece-p
+			       position
+			       (chess-incr-index test 0 (if (zerop file) 1 -1))
+			       pawn)))
+			(throw 'passed-pawn nil)
+		      (setq test (chess-incr-index test (if color -1 1) 0))))
+		  t))
+	      (push index pawns)))))))
+    
 (chess-message-catalog 'english
   '((move-from-blank . "Attempted piece move from blank square %s")))
 
