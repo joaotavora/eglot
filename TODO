@@ -22,6 +22,9 @@
 - Add a display command for writing out the currently displayed game
   to a file.  It will use PGN for games, and FEN for positions.
 
+- Auto-raise the chess-images frame, if it's being displayed as a
+  separate frame.
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs

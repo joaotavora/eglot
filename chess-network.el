@@ -70,7 +70,8 @@
       proc))
 
    ((eq event 'shutdown)
-    (chess-engine-send nil "QUIT\n"))
+    (ignore-errors
+     (chess-engine-send nil "QUIT\n")))
 
    ((eq event 'setup)
     (chess-engine-send nil (format "SETBOARD %s\n"

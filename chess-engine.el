@@ -146,7 +146,7 @@
     (let ((proc (get-buffer-process (current-buffer))))
       (if (and proc (memq (process-status proc) '(run open)))
 	  (process-send-string proc string)
-	(error "The engine you're using is no longer running")))))
+	(error "The engine you were using is no longer running")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
