@@ -96,7 +96,6 @@ not available."
   '((chess-sound chess-announce)
     chess-autosave
     chess-clock
-    chess-opening
     ;;chess-kibitz   jww (2002-04-30): not fully supported yet
     ;;chess-chat
     )
