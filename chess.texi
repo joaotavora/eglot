@@ -229,17 +229,72 @@ And in "full" mode (where all spaces are accounted for):
 
 @subsection EPD notation
 
-Extended Position Description is an extension of the FEN notation to
-allow to supply additional information in a simple and standardized
-way.  In addition to a FEN notation psotion description, EPD allows
-for an optional list of opcode/value pairs.  There is a standard
-set of opcodes with well defined meanings to choose from.
+EPD is "Extended Position Description"; it is a standard for describing chess
+positions along with an extended set of structured attribute values using the
+ASCII character set.  It is intended for data and command interchange among
+chessplaying programs.  It is also intended for the representation of portable
+opening library repositories.
+
+A single EPD uses one text line of variable length composed of four data field
+followed by zero or more operations.  The four fields of the EPD specification
+are the same as the first four fields of the FEN specification.
+
+A text file composed exclusively of EPD data records should have a file name
+with the suffix ".epd".
 
 @c lispfun chess-epd-to-pos
 
 @c lispfun chess-pos-to-epd
 
 @c lispfun chess-epd-read-file
+
+@subsubsection Operations
+
+An EPD operation is composed of an opcode followed by zero or more operands and
+is concluded by a semicolon.
+
+Multiple operations are separated by a single space character.  If there is at
+least one operation present in an EPD line, it is separated from the last
+(fourth) data field by a single space character.
+
+Some opcodes that allow for more than one operand may have special ordering
+requirements for the operands.  For example, the "pv" (predicted variation)
+opcode requires its operands (moves) to appear in the order in which they would
+be played.  All other opcodes that allow for more than one operand should have
+operands appearing in ASCII order.  An example of the latter set is the "bm"
+(best move[s]) opcode; its operands are moves that are all immediately playable
+from the current position.
+
+@subsubsection Opcode "acd" analysis count depth
+
+The opcode "acd" takes a single non-negative integer operand.  It is used to
+represent the ply depth examined in an analysis.
+
+@subsubsection Opcode "acn" analysis count nodes
+
+The opcode "acn" takes a single non-negative integer operand.  It is used to
+represent the number of nodes examined in an analysis.  Note that the value may
+be quite large for some extended searches and so use of (at least) a long (four
+byte) representation is suggested.
+
+@subsubsection Opcode "acs" analysis count seconds
+
+The opcode "acs" takes a single non-negative integer operand.  It is used to
+represent the number of seconds used for an analysis.  Note that the value may
+be quite large for some extended searches and so use of (at least) a long (four
+byte) representation is suggested.
+
+@subsubsection Opcode "am" avoid move(s)
+
+The opcode "am" indicates a set of zero or more moves, all immediately playable
+from the current position, that are to be avoided in the opinion of the EPD
+writer.  Each operand is a SAN move; they appear in ASCII order.
+
+@subsubsection Opcode "bm" best move(s)
+
+The opcode "bm" indicates a set of zero or more moves, all immediately playable
+from the current position, that are judged to the best available by the EPD
+writer.  Each operand is a SAN move; they appear in ASCII order.
 
 @section Plies
 
