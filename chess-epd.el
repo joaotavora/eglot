@@ -1,4 +1,4 @@
-;;; chess-epd.el --- Extended Position Description module
+;;; chess-epd.el --- Extended Position Description Format
 
 ;; Copyright (C) 2004  Free Software Foundation, Inc.
 
@@ -19,11 +19,16 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
+
+;;; Commentary:
+;; 
+
 ;;; Code:
 
 (require 'chess-fen)
 (require 'chess-ply)
 (require 'chess-pos)
+(require 'chess-var)
 
 (defun chess-epd-annotation-to-string (annotation)
   (let ((opcode (car annotation))
@@ -43,7 +48,8 @@
       (format "%S%s;" opcode (if (eq value t) "" (format " %s" value)))))))
 
 (defun chess-pos-to-epd (position)
-  "Convert a chess POSITION to EPD."
+  "Convert a chess POSITION to a string representation in extended
+position description format."
   (assert position)
   (concat (chess-pos-to-fen position)
 	  (when (consp (chess-pos-annotations position))
@@ -54,7 +60,8 @@
 
 (defun chess-epd-to-pos (&optional string)
   "Convert extended position description to a chess position.
-If STRING is not specified, look for an EPD string in the current buffer."
+If STRING is not specified, look for an EPD string in the current buffer,
+and advance point after the correctly parsed position."
   (if (stringp string)
       (with-temp-buffer
 	(insert string)
@@ -62,7 +69,7 @@ If STRING is not specified, look for an EPD string in the current buffer."
     (chess-epd-parse)))
 
 (defun chess-epd-read-file (file)
-  "Reads in an EPD file and returns a list of positions."
+  "Return a list of positions contained in FILE."
   (let (positions pos)
     (with-temp-buffer
       (insert-file-literally file)
