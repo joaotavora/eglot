@@ -22,7 +22,8 @@
     (setq chess-file-locations nil)
     (while (search-forward "[Event" nil t)
       (goto-char (match-beginning 0))
-      (push (point) chess-file-locations))
+      (push (point) chess-file-locations)
+      (forward-char 1))
     (setq chess-file-locations (nreverse chess-file-locations)))
 
    ((eq event 'save)
@@ -40,7 +41,8 @@
 	  (chess-game-set-data game 'database (current-buffer))
 	  (chess-game-set-data game 'database-index index)
 	  (chess-game-set-data game 'database-count
-			       (chess-file-handler 'count))))))
+			       (chess-file-handler 'count))
+	  game))))
 
    ((eq event 'write)
     (goto-char (point-max))

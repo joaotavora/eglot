@@ -16,7 +16,7 @@
        ,@body)))
 
 (chess-message-catalog 'english
-  '((no-such-style . "There is no such chess database module '%s'")))
+  '((no-such-database . "There is no such chess database module '%s'")))
 
 (defun chess-database-open (module file)
   "Returns the opened database object, or nil."

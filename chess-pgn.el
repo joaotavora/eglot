@@ -167,9 +167,16 @@ If INDENTED is non-nil, indent the move texts."
 ;; chess-pgn-mode for editing and browsing PGN files.
 ;;
 
+(require 'chess-database)
+(require 'chess-file)
+
 (defvar chess-pgn-database)
+(defvar chess-pgn-display)
+(defvar chess-pgn-current-game)
 
 (make-variable-buffer-local 'chess-pgn-database)
+(make-variable-buffer-local 'chess-pgn-display)
+(make-variable-buffer-local 'chess-pgn-current-game)
 
 ;;;###autoload
 (define-derived-mode chess-pgn-mode text-mode "PGN"
@@ -179,6 +186,8 @@ If INDENTED is non-nil, indent the move texts."
   (modify-syntax-entry ?\{ "<")
   (modify-syntax-entry ?\} ">")
   (modify-syntax-entry ?\" "\"")
+  (if (fboundp 'font-lock-mode)
+      (font-lock-mode 1))
   (let ((map (current-local-map)))
     (define-key map [??] 'describe-mode)
     (define-key map [?T] 'text-mode)
@@ -190,13 +199,14 @@ If INDENTED is non-nil, indent the move texts."
 
 (defvar chess-pgn-bold-face 'bold)
 
+(defconst chess-pgn-move-regexp
+  (concat "[^0-9]\\(\\([1-9][0-9]*\\)\\.\\s-+"
+	  "\\(\\.\\.\\.\\|" chess-algebraic-regexp "\\)"
+	  "\\(\\s-+\\(" chess-algebraic-regexp "\\)\\)?\\)"))
+
 (font-lock-add-keywords 'chess-pgn-mode
   (list (list "\\[\\(\\S-+\\)\\s-+\".*\"\\]" 1 'font-lock-keyword-face)
-	(cons (concat "\\([1-9][0-9]*\\.\\s-+\\(\\.\\.\\.\\s-+\\)?"
-		      chess-algebraic-regexp
-		      "\\(\\s-+"
-		      chess-algebraic-regexp
-		      "\\)?\\)")
+	(cons chess-pgn-move-regexp
 	      'chess-pgn-bold-face)
 	(cons "\\(1-0\\|0-1\\|\\*\\)$" 'font-lock-warning-face)))
 
@@ -214,10 +224,55 @@ If INDENTED is non-nil, indent the move texts."
 
 (defun chess-pgn-show-position ()
   (interactive)
+  ;; load a database to represent this file if not already up
   (unless chess-pgn-database
-    (save-excursion
-      (when (re-search-backward "\\[Event \"\\([^\"]+\\)\"\\]" nil t)
-	))))
+    (setq chess-pgn-database
+	  (chess-database-open 'chess-file buffer-file-name)))
+
+  ;; a hack for speed's sake to read the current game text
+  (save-excursion
+    (let ((locations chess-file-locations)
+	  (here (point))
+	  last-location index)
+      (while locations
+	(if (> (car locations) here)
+	    (setq locations nil)
+	  (setq last-location locations
+		locations (cdr locations))))
+      (setq index (if last-location
+		      (1- (length last-location))
+		    0))
+      (when (or (null chess-pgn-current-game)
+		(/= index (chess-game-data chess-pgn-current-game
+					   'database-index)))
+	(setq chess-pgn-current-game
+	      (chess-database-read chess-pgn-database index)))))
+
+  ;; now find what position we're at in the game
+  (save-excursion
+    (when (and chess-pgn-current-game
+	       (re-search-backward chess-pgn-move-regexp nil t))
+      (let* ((index (string-to-int (match-string 2)))
+	     (first-move (match-string 3))
+	     (second-move (match-string 14))
+	     (ply (1+ (* 2 (1- index)))))
+	(if (and second-move (> (length second-move) 0))
+	    (setq ply (1+ ply)))
+	(if (or (and (or (null chess-pgn-display)
+			 (not (buffer-live-p chess-pgn-display)))
+		     (setq chess-pgn-display (chess-create-display)))
+		(/= (chess-game-data chess-pgn-current-game 'database-index)
+		    (chess-game-data (chess-display-game chess-pgn-display)
+				     'database-index)))
+	    (progn
+	      (chess-display-disable-popup chess-pgn-display)
+	      (chess-display-set-game chess-pgn-display
+				      chess-pgn-current-game ply)
+	      (chess-game-set-tag (chess-display-game chess-pgn-display)
+				  'database-index
+				  (chess-game-data chess-pgn-current-game
+						   'database-index)))
+	  (chess-display-set-index chess-pgn-display ply))))))
 
 (defun chess-pgn-mouse-show-position (event)
   (interactive "e")

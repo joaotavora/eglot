@@ -13,7 +13,8 @@ case this engine will do the job of accepting undos, handling
 resignations, etc."
   (cond
    ((memq event '(resign abort))
-    (chess-engine-set-position nil))
+    (chess-engine-set-position nil)
+    t)
 
    ((eq event 'undo)
     (chess-game-undo chess-engine-game (car args)))))

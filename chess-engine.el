@@ -266,7 +266,8 @@
     (with-current-buffer (generate-new-buffer " *chess-engine*")
       (setq buffer (current-buffer))
       (let ((proc (apply handler 'initialize handler-ctor-args)))
-	(when proc			;must be a process or t
+	(if (null proc)			; must be a process or t
+	    (kill-buffer buffer)
 	  (add-hook 'kill-buffer-hook 'chess-engine-on-kill nil t)
 	  (setq chess-engine-regexp-alist (symbol-value regexp-alist)
 		chess-engine-event-handler handler

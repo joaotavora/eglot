@@ -34,6 +34,9 @@ configuration!
 - in chess-engine-filter and chess-ics-filter, if an error is
   encountered, skip that line so the same error isn't triggered again
 
+- SPACE to pass, then try to move (against an engine) fails saying
+  it's not our turn to move
+
 ----------------------------------------------------------------------
 
 - Add support for adjournments; also, implement this is such a way

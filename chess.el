@@ -171,6 +171,8 @@ available."
 	    (push display objects)))
       (setq first nil))
 
+    (setq objects (nreverse objects))
+
     (let ((module (or engine chess-default-engine)))
       (if (symbolp module)
 	  (push (chess--create-engine module game
@@ -193,6 +195,10 @@ available."
     objects))
 
 (defalias 'chess-session 'chess)
+
+(defun chess-create-display ()
+  "Just make a display to use, letting chess.el decide the style."
+  (cadr (chess-session 'chess-none)))
 
 ;;;###autoload
 (defun chess-read-pgn (&optional file)

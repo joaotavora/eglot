@@ -81,7 +81,8 @@ makes moves, or any other changes to the underlying game."
     (with-current-buffer (generate-new-buffer "*Chessboard*")
       (setq buffer (current-buffer))
       (chess-display-mode read-only)
-      (when (setq buffer (funcall handler 'initialize))
+      (if (null (setq buffer (funcall handler 'initialize)))
+	  (kill-buffer buffer)
 	(add-hook 'kill-buffer-hook 'chess-display-quit nil t)
 	(setq chess-display-style style
 	      chess-display-perspective perspective
@@ -221,7 +222,7 @@ modeline."
 (defun chess-display-set-index (display index)
   (chess-with-current-buffer display
     (chess-display-set-index* nil index)
-    (chess-display-update nil)))
+    (chess-display-update nil t)))
 
 (defsubst chess-display-index (display)
   (chess-with-current-buffer display
