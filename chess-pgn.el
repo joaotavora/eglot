@@ -230,8 +230,6 @@ PGN text."
       (font-lock-mode 1))
 
   (let ((map (current-local-map)))
-    (define-key map [??] 'describe-mode)
-    (define-key map [?T] 'text-mode)
     (define-key map [(control ?c) (control ?c)] 'chess-pgn-show-position)
     (define-key map [mouse-2] 'chess-pgn-mouse-show-position)
 
@@ -248,6 +246,7 @@ PGN text."
 	   'chess-pgn-current-word)
       (define-key map [tab] 'chess-pgn-complete-move))))
 
+;;;###autoload
 (defalias 'pgn-mode 'chess-pgn-mode)
 
 (defvar chess-pgn-bold-face 'bold)
@@ -300,9 +299,10 @@ PGN text."
       (setq last-command 'pcomplete))
   (call-interactively 'pcomplete))
 
-(defun chess-pgn-index ()
+(defun chess-pgn-index (&optional location)
   "Return the move index associated with point."
   (save-excursion
+    (when location (goto-char location))
     (if (re-search-backward chess-pgn-move-regexp nil t)
 	(let* ((index (string-to-int (match-string 2)))
 	       (first-move (match-string 3))
@@ -313,7 +313,7 @@ PGN text."
 	  ply))))
 
 (defun chess-pgn-read-game ()
-  "load a database to represent this file if not already up."
+  "Load a database to represent this file if not already up."
   (unless chess-pgn-database
     (setq chess-pgn-database
 	  (chess-database-open buffer-file-name 'chess-file)))
@@ -386,9 +386,8 @@ This does not require that the buffer be in PGN mode."
       (progn
 	(set-buffer (window-buffer (event-window event)))
 	(and (event-point event) (goto-char (event-point event))))
-    (progn
-      (set-buffer (window-buffer (posn-window (event-start event))))
-      (goto-char (posn-point (event-start event)))))
+    (set-buffer (window-buffer (posn-window (event-start event))))
+    (goto-char (posn-point (event-start event))))
   (chess-pgn-show-position))
 
 (provide 'chess-pgn)
