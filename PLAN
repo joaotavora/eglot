@@ -4,6 +4,7 @@ chess-ics
 
 chess-display
 - when I checkmate my opponent, the display says "Black ...#"
+- on the first position, "White" has no white background
 
 chess-engine
 - if I say "y" to accepting something from my opponent (new game,
@@ -20,6 +21,7 @@ chess-german
 - complete translation
 
 general
+- add an 'install' target to the Makefile
 - use more asserts throughout the code
 - profile and mem profile
 - elint all files
