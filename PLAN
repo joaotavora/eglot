@@ -25,6 +25,7 @@ chess-display
   it does so on the last ply (per display)
 - when my opponent took with en passant, it didn't paint the taken
   pawn square as blank
+- need a "save this game to a PGN file/database" command
 
 chess-input
 - In the following game, it wouldn't let me type "rh" to move Rh5,
@@ -67,6 +68,10 @@ chess-irc
 
 chess-ply
 - detect games drawn by three-fold repetition
+
+chess-pgn
+- when saving a full game to the clipboard, it shouldn't need to save
+  the FEN if it's starting from a standard position
 
 chess-pos
 - if I checkmate someone, the last position does not have its status
