@@ -258,7 +258,7 @@
 
 	(setq chess-engine-pending-offer nil
 	      chess-engine-pending-arg nil)
-	t)))))
+	t))))
 
 (defun chess-engine-create (module &optional response-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
