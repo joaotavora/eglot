@@ -437,6 +437,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?R] 'chess-display-resign)
     (define-key map [?A] 'chess-display-abort)
     (define-key map [?N] 'chess-display-abort)
+    (define-key map [?U] 'chess-display-undo)
 
     (define-key map [?<] 'chess-display-move-first)
     (define-key map [?,] 'chess-display-move-backward)
@@ -666,6 +667,23 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive)
   (if (chess-display-active-p)
       (chess-game-run-hooks chess-display-game 'abort)
+    (ding)))
+
+(defun chess-display-undo (count)
+  "Abort the current game."
+  (interactive "P")
+  (if (chess-display-active-p)
+      ;; we can't call `chess-game-undo' directly, because not all
+      ;; engines will accept it right away!  So we just signal the
+      ;; desire to undo
+      (chess-game-run-hooks
+       chess-display-game 'undo
+       (if count
+	   (prefix-numeric-value count)
+	 (if (eq (chess-pos-side-to-move
+		  (chess-display-position nil))
+		 (chess-game-data chess-display-game 'my-color))
+	     2 1)))
     (ding)))
 
 (defun chess-display-list-buffers ()

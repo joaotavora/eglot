@@ -87,6 +87,12 @@
     (and (chess-engine-game nil)
 	 (chess-engine-set-start-position nil)))
 
+   ((eq event 'undo)
+    (when (chess-engine-game nil)
+      (dotimes (i (car args))
+	(chess-engine-send nil "undo\n"))
+      (chess-game-undo (chess-engine-game nil) (car args))))
+
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
 				   "\n")))))
