@@ -1,3 +1,21 @@
+Aha!  I knew there had to be a way.  The old keyboard shortcutting
+code (which uses chess-legal-plies) was just way to slow.  On modern
+machines you couldn't notice it, but on my 300 MHz laptop in battery
+save mode, even with the byte-compiled files, I spent 1/4 of my time
+looking at the hourglass cursor.  So I kept chewing on the algorithm,
+dropping the number of calls to chess-search-position (the biggest and
+slowest function in all of chess.el) from 5400 calls down to 4300
+calls.  But still it was slow.  Then I thought about it long and hard,
+and realized chess-legal-plies was going about its whole job
+backwards.  Since that function is only used by keyboard shortcutting,
+I found a way to optimize it for that task, while keeping it as
+general as before (by adding a "piece-or-color" argument).  The net
+result is that I got the number of calls to chess-search-position down
+to 797!!  That's 5000 calls less.  It dropped the number of uses of
+`chess-incr-index' by 20,000.  The new code is so fast I that when
+it's byte-compiled, I never see an hourglass cursor, even on my
+laptop.
+
 - Feature work remaining:
 
   annotations
@@ -8,14 +26,6 @@
   database interaction (chess-file.el, chess-scid.el)
 
 ----------------------------------------------------------------------
-
-- modify displays and engines so they ONLY keep game objects; thus
-  set-start-position would become just set-position
-
-- distinguish between chess-display-set-game and
-  chess-display-set-game*.  The latter detaches and sets a new game
-  object.  The former just overwrites the current game object.
-
 
 - undo is not working with gnuchess
 

@@ -34,10 +34,7 @@
 
 (defvar chess-display-style)
 (defvar chess-display-game)
-(defvar chess-display-variation)
 (defvar chess-display-index)
-(defvar chess-display-ply)
-(defvar chess-display-position)
 (defvar chess-display-perspective)
 (defvar chess-display-main-p nil)
 (defvar chess-display-event-handler nil)
@@ -47,10 +44,7 @@
 
 (make-variable-buffer-local 'chess-display-style)
 (make-variable-buffer-local 'chess-display-game)
-(make-variable-buffer-local 'chess-display-variation)
 (make-variable-buffer-local 'chess-display-index)
-(make-variable-buffer-local 'chess-display-ply)
-(make-variable-buffer-local 'chess-display-position)
 (make-variable-buffer-local 'chess-display-perspective)
 (make-variable-buffer-local 'chess-display-main-p)
 (make-variable-buffer-local 'chess-display-event-handler)
@@ -65,7 +59,7 @@
 	   ,@body)
        ,@body)))
 
-(defun chess-display-create (style perspective &optional main read-only)
+(defun chess-display-create (game style perspective &optional main read-only)
   "Create a chess display, for displaying chess objects.
 The display is drawn using the given STYLE, from the PERSPECTIVE
 color's point of view.  If MAIN is non-nil, then this is a main
@@ -85,21 +79,13 @@ makes moves, or any other changes to the underlying game."
 	    chess-display-event-handler handler)
       (if main
 	  (chess-display-set-main nil))
+      (chess-display-set-game* nil game)
       (add-hook 'kill-buffer-hook 'chess-display-quit nil t)
       (current-buffer))))
 
 (defun chess-display-clone (display style perspective)
-  (let ((new-display (chess-display-create style perspective)))
-    (with-current-buffer display
-      (cond
-       (chess-display-game
-	(chess-display-set-game new-display chess-display-game))
-       (chess-display-variation
-	(chess-display-set-variation new-display chess-display-variation))
-       (chess-display-ply
-	(chess-display-set-ply new-display chess-display-ply))
-       (chess-display-position
-	(chess-display-set-game new-display chess-display-position))))
+  (let ((new-display (chess-display-create chess-display-game
+					   style perspective)))
     ;; the display will have already been updated by the `set-' calls,
     ;; it's just not visible yet
     (chess-display-popup new-display)
@@ -135,57 +121,31 @@ makes moves, or any other changes to the underlying game."
   (chess-with-current-buffer display
     (setq chess-display-main-p nil)))
 
-
-(defun chess-display-set-position (display position &optional search-func)
-  "Set the display position.
-Note that when a single position is being displayed, out of context of
-a game, the user's move will cause a new variation to be created,
-without a game object.
-If the position is merely edited, it will change the POSITION object
-that was passed in."
+(defun chess-display-set-position (display &optional position my-color)
   (chess-with-current-buffer display
-    (if chess-display-game
-	(chess-display-detach-game nil))
-    (setq chess-display-game nil
-	  chess-display-variation nil
-	  chess-display-index nil
-	  chess-display-ply nil
-	  chess-display-position position)
-    (chess-display-update nil t)))
+    (if position
+	(progn
+	  (chess-game-set-start-position chess-display-game position)
+	  (chess-game-set-data chess-display-game 'my-color my-color))
+      (chess-game-set-start-position chess-display-game
+				     chess-starting-position)
+      (chess-game-set-data chess-display-game 'my-color t))))
 
 (defun chess-display-position (display)
   "Return the position currently viewed."
   (chess-with-current-buffer display
-    (or (and chess-display-game
-	     (chess-game-pos chess-display-game chess-display-index))
-	(and chess-display-variation
-	     (chess-var-pos chess-display-variation chess-display-index))
-	(and chess-display-ply
-	     (chess-ply-next-pos chess-display-ply))
-	chess-display-position)))
+    (chess-game-pos chess-display-game chess-display-index)))
 
 (defun chess-display-set-ply (display ply)
-  "Set the display ply.
-This differs from a position display, only in that the algebraic form
-of the move made to the reach the displayed position will be shown in
-the modeline."
   (chess-with-current-buffer display
-    (if chess-display-game
-	(chess-display-detach-game nil))
-    (setq chess-display-game nil
-	  chess-display-variation nil
-	  chess-display-index nil
-	  chess-display-ply ply
-	  chess-display-position nil)
-    (chess-display-update display t)))
+    (setq chess-game-index 1)
+    (chess-game-set-plies chess-display-game
+			  (list ply (chess-ply-create
+				     (chess-ply-next-pos ply))))))
 
 (defun chess-display-ply (display)
   (chess-with-current-buffer display
-    (or (and chess-display-game
-	     (chess-game-ply chess-display-game chess-display-index))
-	(and chess-display-variation
-	     (chess-var-ply chess-display-variation chess-display-index))
-	chess-display-ply)))
+    (chess-game-ply chess-display-game chess-display-index)))
 
 (defun chess-display-set-variation (display variation &optional index)
   "Set the display variation.
@@ -194,60 +154,40 @@ the user able to scroll back and forth through the moves in the
 variation.  Any moves made on the board will extend/change the
 variation that was passed in."
   (chess-with-current-buffer display
-    (if chess-display-game
-	(chess-display-detach-game nil))
-    (setq chess-display-game nil
-	  chess-display-variation variation
-	  chess-display-index (chess-var-index variation)
-	  chess-display-ply nil
-	  chess-display-position nil)
-    (chess-display-update nil t)))
+    (setq chess-game-index (or index (chess-var-index variation)))
+    (chess-game-set-plies chess-display-game variation)))
 
 (defun chess-display-variation (display)
   (chess-with-current-buffer display
-    (or (and chess-display-game
-	     (chess-game-main-var chess-display-game))
-	chess-display-variation)))
+    (chess-game-main-var chess-display-game)))
 
-(defun chess-display-set-game (display game &optional index)
-  "Set the display game.
-This will cause the first ply in the game's main variation to be
-displayed.  Also, information about the game is shown in the
-modeline."
+(defun chess-display-set-game* (display game &optional index)
+  "Set the game associated with the given DISPLAY.
+If that display is already associated with a game object, detach it
+from the display and associate the new GAME with it.  This is very
+different from `chess-display-set-game', which only copies the details
+of the game, so that in effect it is the same, while preserving all of
+the event handlers registered on the display's previous game object."
   (chess-with-current-buffer display
+    (assert game)
     (if chess-display-game
 	(chess-display-detach-game nil))
     (setq chess-display-game game
-	  chess-display-variation nil
-	  chess-display-index (chess-game-index game)
-	  chess-display-ply nil
-	  chess-display-position nil)
-    (if game
-	(chess-game-add-hook game 'chess-display-event-handler display))
+	  chess-display-index (or index (chess-game-index game)))
+    (chess-game-add-hook game 'chess-display-event-handler
+			 (or display (current-buffer)))
     (chess-display-update nil t)))
 
-(defun chess-display-copy-game (display game)
+(defun chess-display-set-game (display game &optional index)
+  "Set the given DISPLAY to display the GAME object, optionally at INDEX.
+This is the function to call to cause a display to view a game.  It
+will also update all of the listening engines and other displays to
+also view the same game."
   (chess-with-current-buffer display
-    (setq chess-display-index (chess-game-index game))
-    (if (null chess-display-game)
-	(chess-display-set-game nil game)
-      (chess-game-set-tags chess-display-game (chess-game-tags game))
-      ;; this call triggers `setup-game' for us
-      (chess-game-set-plies chess-display-game
-			    (chess-game-plies game)))))
-
-(defun chess-display-set-start-position (display &optional position my-color)
-  (chess-with-current-buffer display
-    (let ((game (chess-display-game nil)))
-      (if (null game)
-	  (chess-display-set-position nil (or position
-					      chess-starting-position))
-	(if position
-	    (progn
-	      (chess-game-set-start-position game position)
-	      (chess-game-set-data game 'my-color my-color))
-	  (chess-game-set-start-position game chess-starting-position)
-	  (chess-game-set-data game 'my-color t))))))
+    (setq chess-display-index (or index (chess-game-index game)))
+    (chess-game-set-tags chess-display-game (chess-game-tags game))
+    ;; this call triggers `setup-game' for us
+    (chess-game-set-plies chess-display-game (chess-game-plies game))))
 
 (defun chess-display-detach-game (display)
   "Set the display game.
@@ -255,10 +195,9 @@ This will cause the first ply in the game's main variation to be
 displayed.  Also, information about the game is shown in the
 modeline."
   (chess-with-current-buffer display
-    (if chess-display-game
-	(chess-game-remove-hook chess-display-game
-				'chess-display-event-handler
-				(or display (current-buffer))))))
+    (chess-game-remove-hook chess-display-game
+			    'chess-display-event-handler
+			    (or display (current-buffer)))))
 
 (defsubst chess-display-game (display)
   (chess-with-current-buffer display
@@ -266,13 +205,9 @@ modeline."
 
 (defun chess-display-set-index* (display index)
   (chess-with-current-buffer display
-    (unless chess-display-index
-      (error "There is no game or variation currently being displayed."))
     (unless (or (not (integerp index))
 		(< index 0)
-		(> index (if chess-display-game
-			     (chess-game-index chess-display-game)
-			   (chess-var-index chess-display-variation))))
+		(> index (chess-game-index chess-display-game)))
       (setq chess-display-index index))))
 
 (defun chess-display-set-index (display index)
@@ -300,22 +235,11 @@ modeline."
 The position of PLY must match the currently displayed position.
 If only START is given, it must be in algebraic move notation."
   (chess-with-current-buffer display
-    (cond
-     (chess-display-game
-      ;; jww (2002-03-28): This should beget a variation within the
-      ;; game, or alter the game, just as SCID allows
-      (if (= (chess-display-index nil)
-	     (chess-game-index chess-display-game))
-	  (chess-game-move chess-display-game ply)
-	(error "What to do here??  NYI")))
-     (chess-display-variation
-      (chess-var-move chess-display-variation ply)
-      (chess-display-set-index* nil (chess-var-index
-				     chess-display-variation)))
-     (chess-display-ply
-      (setq chess-display-ply ply))
-     (chess-display-position		; an ordinary position
-      (setq chess-display-position (chess-ply-next-pos ply))))
+    ;; jww (2002-03-28): This should beget a variation within the
+    ;; game, or alter the game, just as SCID allows
+    (if (= chess-display-index (chess-game-index chess-display-game))
+	(chess-game-move chess-display-game ply)
+      (error "What to do here??  NYI"))
     (chess-display-update nil)))
 
 (defun chess-display-highlight (display &rest args)
@@ -350,8 +274,7 @@ that is supported by most displays, and is the default mode."
   "Destroy a chess display object, killing all of its buffers."
   (let ((buf (or display (current-buffer))))
     (when (buffer-live-p buf)
-      (chess-display-event-handler (chess-display-game nil)
-				   buf 'destroy)
+      (chess-display-event-handler chess-display-game buf 'destroy)
       (with-current-buffer buf
 	(remove-hook 'kill-buffer-hook 'chess-display-quit t))
       (kill-buffer buf))))
@@ -515,41 +438,30 @@ The key bindings available in this mode are:
 (defun chess-display-set-modeline ()
   "Set the modeline to reflect the current game position."
   (let ((color (chess-pos-side-to-move (chess-display-position nil)))
-	(index (chess-display-index nil))
-	ply)
-    (if (null index)
+	(index chess-display-index))
+    (if (= index 0)
 	(setq chess-display-mode-line
-	      (if color "  White to move" "  Black to move"))
-      (if (and index (= index 0))
-	  (setq chess-display-mode-line
-		(format "   %s   START" (if color "White" "Black")))
-	(cond
-	 (chess-display-ply
-	  (setq ply chess-display-ply))
-	 (chess-display-game
-	  (setq ply (chess-game-ply chess-display-game (1- index))))
-	 (chess-display-variation
-	  (setq ply (chess-var-ply chess-display-variation (1- index)))))
-	(if ply
-	    (setq chess-display-mode-line
-		  (concat
-		   "   "
-		   (let ((final (chess-ply-final-p ply)))
-		     (cond
-		      ((eq final :checkmate) "CHECKMATE")
-		      ((eq final :resign)    "RESIGNED")
-		      ((eq final :stalemate) "STALEMATE")
-		      ((eq final :draw)      "DRAWN")
-		      (t
-		       (if color "White" "Black"))))
-		   (if index
-		       (concat "   " (int-to-string
-				      (if (> index 1)
-					  (/ index 2) (1+ (/ index 2))))))
-		   (if ply
-		       (concat ". " (if color "... ")
-			       (or (chess-ply-to-algebraic ply)
-				   "???"))))))))))
+	      (format "   %s   START" (if color "White" "Black")))
+      (let ((ply (chess-game-ply chess-display-game (1- index))))
+	(setq chess-display-mode-line
+	      (concat
+	       "   "
+	       (let ((final (chess-ply-final-p ply)))
+		 (cond
+		  ((eq final :checkmate) "CHECKMATE")
+		  ((eq final :resign)    "RESIGNED")
+		  ((eq final :stalemate) "STALEMATE")
+		  ((eq final :draw)      "DRAWN")
+		  (t
+		   (if color "White" "Black"))))
+	       (if index
+		   (concat "   " (int-to-string
+				  (if (> index 1)
+				      (/ index 2) (1+ (/ index 2))))))
+	       (if ply
+		   (concat ". " (if color "... ")
+			   (or (chess-ply-to-algebraic ply)
+			       "???")))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -565,8 +477,7 @@ The key bindings available in this mode are:
 (defsubst chess-display-active-p ()
   "Return non-nil if the displayed chessboard reflects an active game.
 Basically, it means we are playing, not editing or reviewing."
-  (and chess-display-game
-       (= (chess-display-index nil)
+  (and (= chess-display-index
 	  (chess-game-index chess-display-game))
        (not (chess-game-over-p chess-display-game))
        (not chess-display-edit-mode)))
@@ -585,9 +496,9 @@ Basically, it means we are playing, not editing or reviewing."
   "Send the current board configuration to the user."
   (interactive "P")
   (let ((x-select-enable-clipboard t))
-    (if (and arg chess-display-game)
+    (if arg
 	(kill-new (with-temp-buffer
-		    (chess-game-to-pgn (chess-display-game nil))
+		    (chess-game-to-pgn chess-display-game)
 		    (buffer-string)))
       (kill-new (chess-pos-to-fen (chess-display-position nil))))))
 
@@ -627,8 +538,7 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-quit ()
   "Quit the current game."
   (interactive)
-  (if (and chess-display-main-p
-	   chess-display-game)
+  (if chess-display-main-p
       (chess-game-run-hooks chess-display-game 'shutdown)
     (chess-display-destroy nil)))
 
@@ -639,7 +549,7 @@ Basically, it means we are playing, not editing or reviewing."
 	  (format "%s(%d): "
 		  (if (chess-pos-side-to-move (chess-display-position nil))
 		      "White" "Black")
-		  (1+ (/ (or (chess-display-index nil) 0) 2))))))
+		  (1+ (/ (or chess-display-index 0) 2))))))
   (let ((ply (chess-algebraic-to-ply (chess-display-position nil) move)))
     (unless ply
       (error "Illegal move notation: %s" move))
@@ -674,7 +584,7 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive)
   (require 'chess-random)
   (if (and (chess-display-active-p)
-	   (= 0 (chess-display-index nil)))
+	   (= 0 chess-display-index))
       (chess-game-set-start-position chess-display-game
 				     (chess-fischer-random-position))
     (ding)))
@@ -688,7 +598,7 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive)
   (if (chess-display-active-p)
       (progn
-	(chess-game-end (chess-display-game nil) :resign)
+	(chess-game-end chess-display-game :resign)
 	(chess-game-run-hooks chess-display-game 'resign))
     (ding)))
 
@@ -719,8 +629,7 @@ Basically, it means we are playing, not editing or reviewing."
 	(setq count
 	      (if count
 		  (prefix-numeric-value count)
-		(if (eq (chess-pos-side-to-move
-			 (chess-display-position nil))
+		(if (eq (chess-pos-side-to-move (chess-display-position nil))
 			(chess-game-data chess-display-game 'my-color))
 		    2 1)))
 	(chess-game-run-hooks chess-display-game 'undo count))
@@ -729,24 +638,23 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-list-buffers ()
   "List all buffers related to this display's current game."
   (interactive)
-  (when chess-display-game
-    (let ((buffer-list-func (symbol-function 'buffer-list)))
-      (unwind-protect
-	  (let ((chess-game chess-display-game)
-		(lb-command (lookup-key ctl-x-map [(control ?b)]))
-		(ibuffer-maybe-show-regexps nil))
-	    (fset 'buffer-list
-		  (function
-		   (lambda ()
-		     (delq nil
-			   (mapcar (function
-				    (lambda (cell)
-				      (and (bufferp (cdr cell))
-					   (buffer-live-p (cdr cell))
-					   (cdr cell))))
-				   (chess-game-hooks chess-game))))))
-	    (call-interactively lb-command))
-	(fset 'buffer-list buffer-list-func)))))
+  (let ((buffer-list-func (symbol-function 'buffer-list)))
+    (unwind-protect
+	(let ((chess-game chess-display-game)
+	      (lb-command (lookup-key ctl-x-map [(control ?b)]))
+	      (ibuffer-maybe-show-regexps nil))
+	  (fset 'buffer-list
+		(function
+		 (lambda ()
+		   (delq nil
+			 (mapcar (function
+				  (lambda (cell)
+				    (and (bufferp (cdr cell))
+					 (buffer-live-p (cdr cell))
+					 (cdr cell))))
+				 (chess-game-hooks chess-game))))))
+	  (call-interactively lb-command))
+      (fset 'buffer-list buffer-list-func))))
 
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
@@ -757,32 +665,25 @@ to the end or beginning."
 		     ((eq dir t) nil)
 		     ((eq dir nil) 0))))
     (chess-display-set-index
-     nil (or index
-	     (if chess-display-game
-		 (chess-game-index chess-display-game)
-	       (chess-var-index chess-display-variation))))
+     nil (or index (chess-game-index chess-display-game)))
     (unless (chess-display-active-p)
       (message "Use '>' to return to the current position"))))
 
 (defun chess-display-move-backward ()
   (interactive)
-  (if chess-display-index
-      (chess-display-set-current ?-)))
+  (chess-display-set-current ?-))
 
 (defun chess-display-move-forward ()
   (interactive)
-  (if chess-display-index
-      (chess-display-set-current ?+)))
+  (chess-display-set-current ?+))
 
 (defun chess-display-move-first ()
   (interactive)
-  (if chess-display-index
-      (chess-display-set-current nil)))
+  (chess-display-set-current nil))
 
 (defun chess-display-move-last ()
   (interactive)
-  (if chess-display-index
-      (chess-display-set-current t)))
+  (chess-display-set-current t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -819,9 +720,8 @@ to the end or beginning."
 (defun chess-display-send-board ()
   "Send the current board configuration to the user."
   (interactive)
-  (if chess-display-game
-      (chess-game-set-start-position chess-display-game
-				     (chess-display-position nil)))
+  (chess-game-set-start-position chess-display-game
+				 (chess-display-position nil))
   (setq chess-display-edit-mode nil))
 
 (defun chess-display-restore-board ()
