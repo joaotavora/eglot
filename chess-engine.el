@@ -289,6 +289,8 @@ If conversion fails, this function fired an 'illegal event."
 
 (defun chess-engine-create (module game &optional response-handler
 				 &rest handler-ctor-args)
+  "Create a new chess engine MODULE (a symbol) associated with GAME.
+Optionally supply a new RESPONSE-HANDLER."
   (let* ((engine (apply 'chess-module-create module game nil
 			handler-ctor-args)))
     (when engine
@@ -312,6 +314,7 @@ If conversion fails, this function fired an 'illegal event."
 (defalias 'chess-engine-destroy 'chess-module-destroy)
 
 (defun chess-engine-command (engine event &rest args)
+  "Call the handler of ENGINE with EVENT (a symbol) and ARGS."
   (chess-with-current-buffer engine
     (apply chess-module-event-handler chess-module-game event args)))
 
@@ -426,7 +429,8 @@ event handler can take care of the data."
 	      (goto-char (point-min)))
 	    (unwind-protect
 		(while (not (eobp))
-		  (let ((triggers chess-engine-regexp-alist)
+		  (let ((case-fold-search nil)
+			(triggers chess-engine-regexp-alist)
 			last-trigger result)
 		    (while triggers
 		      ;; this could be accelerated by joining
