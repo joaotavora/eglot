@@ -69,8 +69,8 @@ PERSPECTIVE is t for white or nil for black."
       (pop-to-buffer (current-buffer)))
   (let (beg end)
     (save-excursion
-      (beginning-of-line)
-      (goto-line (+ 2 (chess-index-rank index)))
+      (goto-char (point-min))
+      (goto-line (+ 3 (* 2 (chess-index-rank index))))
       (forward-char (+ 8 (* 4 (chess-index-file index))))
       (skip-chars-backward "^|")
       (setq beg (point))

@@ -145,9 +145,11 @@ that specialized squares may be used such as marble tiles, etc."
     (define-key map [?V] 'chess-images-decrease-size)
     (define-key map [?D] 'chess-images-set-directory))
 
-  (setq chess-images-cache nil
-	chess-images-size (chess-images-best-size (- (display-pixel-height) 20)
-						  (- (display-pixel-width) 20))))
+  (setq cursor-type nil
+	chess-images-cache nil
+	chess-images-size
+	(chess-images-best-size (- (display-pixel-height) 20)
+				(- (display-pixel-width) 20))))
 
 (defun chess-images-popup-board ()
   (let* ((size (float (+ (* (or chess-images-border-width 0) 8)

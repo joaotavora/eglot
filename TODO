@@ -6,6 +6,11 @@
 
 - In chess-pgn.el, output the PGN tags in standard order
 
+- In edit mode, mouse-2 and mouse-3 should provide a drop-down list of
+  pieces the square can be set to.  Cursor movement is really not the
+  best for chess-images.  I still need to figure out how best to
+  handle cursor-type with that display.
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs

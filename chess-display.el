@@ -85,8 +85,7 @@
     (unless draw
       (error "There is no known chessboard display style '%s'" name))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
-      (setq cursor-type nil
-	    chess-display-draw-function draw
+      (setq chess-display-draw-function draw
 	    chess-display-highlight-function highlight
 	    chess-display-perspective perspective)
       (chess-display-mode)
@@ -514,8 +513,7 @@ to the end or beginning."
 (defun chess-display-edit-board ()
   "Setup the current board for editing."
   (interactive)
-  (setq cursor-type t
-	chess-display-edit-mode t)
+  (setq chess-display-edit-mode t)
   ;; Take us out of any game/ply/variation we might be looking at,
   ;; since we are not moving pieces now, but rather placing them --
   ;; for which purpose the movement keys can still be used.
@@ -530,15 +528,13 @@ to the end or beginning."
       (chess-game-set-plies
        chess-display-game
        (list (chess-ply-create (chess-display-position nil)))))
-  (setq cursor-type nil
-	chess-display-edit-mode nil))
+  (setq chess-display-edit-mode nil))
 
 (defun chess-display-restore-board ()
   "Setup the current board for editing."
   (interactive)
-  (setq cursor-type nil
-	chess-display-edit-mode nil)
   ;; jww (2002-03-28): NYI
+  (setq chess-display-edit-mode nil)
   (chess-display-update nil))
 
 (defun chess-display-clear-board ()
