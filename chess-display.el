@@ -932,7 +932,7 @@ to the end or beginning."
   (interactive)
   (chess-display-end-edit-mode)
   ;; reset the modeline
-  (chess-display-set-index* display chess-display-index)
+  (chess-display-set-index* nil chess-display-index)
   (chess-display-update nil))
 
 (defun chess-display-clear-board ()

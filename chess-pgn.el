@@ -193,7 +193,7 @@ If INDENTED is non-nil, indent the move texts."
       (find-file file))
   (let ((game (chess-pgn-to-game)))
     (if game
-	(chess-display-set-game (chess-create-display) game)
+	(chess-display-set-game (chess-create-display t) game)
       (chess-error 'could-not-read-pgn))))
 
 ;;;###autoload
@@ -324,7 +324,7 @@ If INDENTED is non-nil, indent the move texts."
 	(if (or (and (or (null chess-pgn-display)
 			 (not (buffer-live-p chess-pgn-display)))
 		     (let ((chess-game-inhibit-events t))
-		       (setq chess-pgn-display (chess-create-display))))
+		       (setq chess-pgn-display (chess-create-display t))))
 		(/= (chess-game-data chess-pgn-current-game 'database-index)
 		    (or (chess-game-data (chess-display-game chess-pgn-display)
 					 'database-index) -1)))

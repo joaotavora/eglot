@@ -24,7 +24,7 @@
 (defun chess-tutorial ()
   (interactive)
   (let* (chess-default-modules
-	 (display (chess-create-display)))
+	 (display (chess-create-display t)))
     (with-current-buffer display
       (chess-game-set-start-position
        (chess-display-game nil)

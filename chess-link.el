@@ -50,7 +50,7 @@ engine, and the computer the second engine."
   (setq first-engine-type (intern (concat "chess-" first-engine-type))
 	second-engine-type (intern (concat "chess-" second-engine-type)))
   (let* ((my-color t)			; we start out as white always
-	 (display (chess-create-display my-color t))
+	 (display (chess-create-display my-color))
 	 (game (chess-display-game display)))
     (chess-game-set-data game 'my-color my-color)
     (chess-module-set-leader display)

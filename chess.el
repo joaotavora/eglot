@@ -206,16 +206,16 @@ available."
 (defalias 'chess-session 'chess)
 
 ;;;###autoload
-(defun chess-create-display (perspective &optional display-only)
+(defun chess-create-display (perspective &optional modules-too)
   "Create a display, letting the user's customization decide the style.
-If DISPLAY-ONLY is non-nil, then only a display is created, with none
-of the usual ancillary modules."
-  (if display-only
-      (car (chess-create-modules (list chess-default-display)
-				 'chess--create-display
-				 (chess-game-create) perspective nil))
-    (let ((display (cadr (chess-session 'none))))
-      (chess-display-set-perspective* display perspective))))
+If MODULES-TOO is non-nil, also create and associate the modules
+listed in `chess-default-modules'."
+  (if modules-too
+      (let ((display (cadr (chess-session 'none))))
+	(chess-display-set-perspective* display perspective))
+    (car (chess-create-modules (list chess-default-display)
+			       'chess--create-display
+			       (chess-game-create) perspective nil))))
 
 (provide 'chess)
 

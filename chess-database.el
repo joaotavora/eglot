@@ -48,7 +48,7 @@
 
 (defun chess-database-read (database index-or-moniker)
   (if (integerp index-or-moniker)
-      (chess-database-command database 'read index)
+      (chess-database-command database 'read index-or-moniker)
     (if (string-match "\\`\\([^:]+\\):\\([^#]+\\)#\\([0-9]+\\)\\'"
 		      index-or-moniker)
 	(let* ((type (match-string 1 index-or-moniker))
