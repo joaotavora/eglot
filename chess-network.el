@@ -37,8 +37,8 @@
 		 (message "Your opponent has quit playing"))))))
 
 (defun chess-network-perform-move ()
-  (let ((move (match-string 1))
-	(ply (chess-algebraic-to-ply (chess-engine-position nil) move)))
+  (let* ((move (match-string 1))
+	 (ply (chess-algebraic-to-ply (chess-engine-position nil) move)))
     (unless ply
       (error "Could not convert engine move: %s" move))
     (let ((chess-network-now-moving t))
