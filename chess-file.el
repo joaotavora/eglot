@@ -29,6 +29,12 @@
 	(forward-char 1))
       (setq chess-file-locations (nreverse chess-file-locations))))
 
+   ((eq event 'read-only-p)
+    buffer-read-only)
+
+   ((eq event 'filename)
+    buffer-file-name)
+
    ((eq event 'save)
     (save-buffer))
 

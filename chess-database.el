@@ -74,6 +74,10 @@
   "Return non-nil if DATABASE is read only."
   (chess-database-command database 'read-only-p))
 
+(defun chess-database-filename (database)
+  "Return the filename of an already opened DATABASE."
+  (chess-database-command database 'filename))
+
 (defun chess-database-read (database index)
   "Return from DATABASE the chess game object at INDEX."
   (chess-database-command database 'read index))

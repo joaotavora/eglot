@@ -54,6 +54,9 @@
 	nil
       t))
 
+   ((eq event 'filename)
+    (chess-scid-get-result "sc_base filename"))
+
    ((eq event 'count)
     (string-to-int (chess-scid-get-result "sc_base numGames")))
 
@@ -78,14 +81,14 @@
 		  (with-temp-buffer
 		    (chess-pgn-insert-plies
 		     (cadr args) 1 (chess-game-plies (cadr args)))
-		    (insert (or (chess-game-tag (cadr args) "Result") "*"))
+		    (insert " " (or (chess-game-tag (cadr args) "Result") "*"))
 		    (buffer-string))))
 	 "PGN text imported with no errors or warnings.")
 	(let ((here (point-max)))
 	  (chess-scid-send "sc_tree search")
 	  (accept-process-output chess-scid-process)
+	  (goto-char here)
 	  (let ((lines (list t)))
-	    (goto-char here)
 	    (while
 		(re-search-forward
 		 (concat "\\s-*\\([1-9][0-9]*\\):\\s-+\\([^ ]+\\)\\s-+"
@@ -94,8 +97,7 @@
 			 "\\([0-9]+\\|    \\)\\s-+\\([0-9]+\\|    \\)\\s-+"
 			 "\\([0-9.]+\\)%")
 		 nil t)
-	      (let ((num (string-to-int (match-string 1)))
-		    (move (match-string 2))
+	      (let ((move (match-string 2))
 		    (freq (string-to-int (match-string 3)))
 		    (score (string-to-number (match-string 5)))
 		    (avgelo (string-to-int (match-string 6)))
