@@ -83,11 +83,6 @@ The format of each entry is:
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'accept))))
-	(cons "You accept the takeback request from \\S-+\\."
-	      (function
-	       (lambda ()
-		 (let ((chess-engine-pending-offer 'my-undo))
-		   (funcall chess-engine-response-handler 'accept)))))
 	(cons "\\(\\S-+\\) resigns}"
 	      (function
 	       (lambda ()
