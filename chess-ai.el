@@ -24,6 +24,7 @@
 (require 'chess-common)
 (require 'chess-pos)
 (require 'chess-ply)
+(require 'cl)
 
 (defgroup chess-ai ()
   "A simple chess engine written in elisp."
@@ -123,9 +124,11 @@ Returns (VALUE . LIST-OF-PLIES) where
      ((eq event 'post-move)
       (unless (chess-game-over-p game)
 	(let (chess-display-handling-event)
+	  (message "Thinking...")
 	  (funcall chess-engine-response-handler
 		   'move (cadr (chess-ai-best-move (chess-engine-position nil)
-						   chess-ai-depth))))))
+						   chess-ai-depth)))
+	  (message "Thinking... done"))))
 
      (t
       (apply 'chess-common-handler game event args)))))
