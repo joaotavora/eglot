@@ -18,6 +18,7 @@
     (require 'chess-algebraic)
     (require 'chess-display)
     (require 'chess-engine)
+    (require 'chess-epd)
     (require 'chess-fen)
     (require 'chess-game)
     (require 'chess-ics)
