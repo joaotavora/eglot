@@ -64,8 +64,8 @@
    (chess-engine-position
     (setq chess-engine-position (chess-ply-next-pos ply)))))
 
-(defsubst chess-engine-convert-algebraic (move)
-  (or (chess-algebraic-to-ply (chess-engine-position nil) move)
+(defsubst chess-engine-convert-algebraic (move &optional trust-check)
+  (or (chess-algebraic-to-ply (chess-engine-position nil) move trust-check)
       (ignore
        (message "Received invalid move string: %s" move))))
 
@@ -156,7 +156,7 @@
       (when game
 	(if (y-or-n-p "Your opponent offers a draw, accept? ")
 	    (progn
-	      (chess-game-draw game)
+	      (chess-game-end game :draw)
 	      (chess-engine-command nil 'accept)
 	      (chess-game-set-data game 'active nil))
 	  (chess-engine-command nil 'decline))
@@ -200,7 +200,7 @@
 	  (cond
 	   ((eq chess-engine-pending-offer 'draw)
 	    (message "Your draw offer was accepted")
-	    (chess-game-draw game)
+	    (chess-game-end game :draw)
 	    (chess-game-set-data game 'active nil))
 
 	   ((eq chess-engine-pending-offer 'abort)

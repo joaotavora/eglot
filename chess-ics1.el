@@ -10,9 +10,24 @@
   "The ICS1 style ASCII display."
   :group 'chess-display)
 
-(defcustom chess-ics1-popup t
-  "If non-nil, popup the chessboard display whenever the opponent moves."
-  :type 'boolean
+(defface chess-ics1-black-face
+  '((((class color) (background light)) (:foreground "Green"))
+    (((class color) (background dark)) (:foreground "Green"))
+    (t (:bold t)))
+  "*The face used for black pieces on the ASCII display."
+  :group 'chess-ics1)
+
+(defface chess-ics1-white-face
+  '((((class color) (background light)) (:foreground "Yellow"))
+    (((class color) (background dark)) (:foreground "Yellow"))
+    (t (:bold t)))
+  "*The face used for white pieces on the ASCII display."
+  :group 'chess-ics1)
+
+(defface chess-ics1-highlight-face
+  '((((class color) (background light)) (:background "#add8e6"))
+    (((class color) (background dark)) (:background "#add8e6")))
+  "Face to use for highlighting pieces that have been selected."
   :group 'chess-ics1)
 
 (defcustom chess-ics1-popup-function 'chess-display-popup-in-window
@@ -25,7 +40,7 @@
 (defun chess-ics1-handler (event &rest args)
   (cond
    ((eq event 'popup)
-    (if chess-ics1-popup
+    (if chess-display-popup
 	(funcall chess-ics1-popup-function)))
    ((eq event 'draw)
     (apply 'chess-ics1-draw args))
@@ -54,14 +69,12 @@ PERSPECTIVE is t for white or nil for black."
 		(insert (format "    %d " (1+ (- 7 rank)))))
 	    (insert "| ")
 	    (setq begin (1- (point)))
-	    (if (and chess-display-use-faces (/= ?  piece))
-		(let ((p (char-to-string piece)))
-		  (add-text-properties
-		   0 1 (list 'face (if (> piece ?a)
-				       'chess-display-black-face
-				     'chess-display-white-face)) p)
-		  (insert p))
-	      (insert piece))
+	    (let ((p (char-to-string piece)))
+	      (add-text-properties
+	       0 1 (list 'face (if (> piece ?a)
+				   'chess-ics1-black-face
+				 'chess-ics1-white-face)) p)
+	      (insert p))
 	    (insert ? )
 	    (add-text-properties begin (point)
 				 (list 'chess-coord
@@ -91,7 +104,12 @@ PERSPECTIVE is t for white or nil for black."
       (skip-chars-backward "^|")
       (setq beg (point))
       (skip-chars-forward "^|")
-      (put-text-property beg (point) 'face 'chess-display-highlight-face))))
+      (put-text-property beg (point) 'face
+			 (cond
+			  ((eq mode :selected)
+			   'chess-ics1-highlight-face)
+			  (t
+			   (chess-display-get-face mode)))))))
 
 (defun chess-debug-position (&optional position)
   "This is a debugging function, and not meant from general use."

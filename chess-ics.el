@@ -61,6 +61,8 @@ who is black."
 	(chess-pos-set-can-castle position ?q t))
     (setq parts (cdr parts))
 
+    ;; jww (2002-04-11): How is check indicated?
+
     ;; unknown
     (setq parts (cdr parts))
     (setq parts (cdr parts))
@@ -180,7 +182,8 @@ who is black."
 
    ((eq event 'match)
     (setq chess-engine-pending-offer 'match)
-    (chess-engine-send nil (format "match %s\n" (car args))))
+    (chess-engine-send nil (format "match %s\n"
+				   (read-string "Whom would you like challenge? "))))
 
    ((eq event 'move)
     (unless chess-ics-ensure-ics12

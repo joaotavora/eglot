@@ -29,10 +29,12 @@ The first is called one start of the announcer.  The second is called
 with the string to announce each time.  The third is called to
 shutdown the announcer process, if necessary.")
 
+(defun chess-announce-available-p () t)
+
 (defun chess-announce-for-game (game)
   "Announce the opponent's moves in GAME."
-  (chess-game-add-hook game 'chess-announce-event-handler)
-  (funcall (nth 0 chess-announce-functions)))
+  (funcall (nth 0 chess-announce-functions))
+  (chess-game-add-hook game 'chess-announce-event-handler))
 
 (defun chess-announce-event-handler (game ignore event &rest args)
   "This display module presents a standard chessboard.
@@ -52,9 +54,9 @@ See `chess-display-type' for the different kinds of displays."
 	       (t-piece (chess-pos-piece pos target))
 	       text)
 	  (cond
-	   ((memq :castle changes)
+	   ((chess-ply-has-keyword ply :castle)
 	    (setq text "kingside castle"))
-	   ((memq :long-castle changes)
+	   ((chess-ply-has-keyword :long-castle)
 	    (setq text "queenside castle"))
 	   ((= t-piece ? )
 	    (setq text (concat (cdr (assq (downcase s-piece)
@@ -66,11 +68,11 @@ See `chess-display-type' for the different kinds of displays."
 					  chess-announce-names))
 			       " takes at "
 			       (chess-index-to-coord target)))))
-	  (if (memq :check changes)
+	  (if (chess-ply-has-keyword :check)
 	      (setq text (concat text ", check")))
-	  (if (memq :checkmate changes)
+	  (if (chess-ply-has-keyword :checkmate)
 	      (setq text (concat text ", checkmate")))
-	  (if (memq :stalemate changes)
+	  (if (chess-ply-has-keyword :stalemate)
 	      (setq text (concat text ", stalemate")))
 
 	  (funcall (nth 1 chess-announce-functions) text)))))))

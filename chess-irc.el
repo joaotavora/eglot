@@ -70,8 +70,8 @@
     nil)
 
    ((eq event 'match)
-    (setq chess-irc-opponent (car args))
-    (chess-network-handler 'match (car args)))
+    (setq chess-irc-opponent (read-string "IRC nick of user to challenge: "))
+    (chess-network-handler 'match chess-irc-opponent))
 
    ((eq event 'shutdown)
     (chess-engine-send nil "quit")

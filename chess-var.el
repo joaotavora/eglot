@@ -58,12 +58,10 @@ progress (nil), if it is drawn, resigned, mate, etc."
   (let ((current-ply (chess-var-ply var))
 	(changes (chess-ply-changes ply))
 	(position (chess-ply-pos ply)))
+    (if (chess-ply-final-p current-ply)
+	(error "Cannot add moves to a completed game"))
     (unless (equal position (chess-ply-pos current-ply))
       (error "Positions do not match"))
-    (unless (chess-search-position
-	     position (cadr (chess-ply-changes ply))
-	     (chess-pos-piece position (car (chess-ply-changes ply))))
-      (signal 'chess-illegal "Illegal move"))
     (chess-ply-set-changes current-ply changes)
     (chess-var-add-ply var (chess-ply-create
 			    (chess-ply-next-pos current-ply)))))

@@ -37,12 +37,16 @@
   :type '(repeat string)
   :group 'chess-sound)
 
+(defun chess-sound-available-p ()
+  (and (file-directory-p chess-sound-directory)
+       (file-readable-p (expand-file-name "tap.wav"
+					  chess-sound-directory))
+       (or (eq chess-sound-play-function 'play-sound-file)
+	   (file-executable-p chess-sound-program))))
+
 (defun chess-sound-for-game (game)
   "Announce the opponent's moves in GAME."
-  (if (and (file-directory-p chess-sound-directory)
-	   (file-exists-p (expand-file-name "tap.wav"
-					    chess-sound-directory)))
-  (chess-game-add-hook game 'chess-sound-event-handler)))
+  (chess-game-add-hook game 'chess-sound-event-handler))
 
 (defun chess-sound (ch)
   (let ((file
@@ -57,8 +61,7 @@
 	     (expand-file-name file chess-sound-directory))))
 
 (defun chess-sound-play (file)
-  (apply 'call-process chess-sound-program
-	 nil nil nil chess-sound-args))
+  (apply 'call-process chess-sound-program nil nil nil chess-sound-args))
 
 (defun chess-sound-event-handler (game ignore event &rest args)
   "This display module presents a standard chessboard.
@@ -76,9 +79,9 @@ See `chess-display-type' for the different kinds of displays."
 	       (t-piece (chess-pos-piece pos target))
 	       text)
 	  (cond
-	   ((memq :castle changes)
+	   ((chess-ply-has-keyword :castle)
 	    (chess-sound "O-O"))
-	   ((memq :long-castle changes)
+	   ((chess-ply-has-keyword :long-castle)
 	    (chess-sound "O-O-O"))
 	   ((= t-piece ? )
 	    (chess-sound (downcase s-piece))
@@ -88,11 +91,11 @@ See `chess-display-type' for the different kinds of displays."
 	    (chess-sound ?x)
 	    (chess-sound (downcase t-piece))
 	    (chess-sound target)))
-	  (if (memq :check changes)
+	  (if (chess-ply-has-keyword :check)
 	      (chess-sound ?+))
-	  (if (memq :checkmate changes)
+	  (if (chess-ply-has-keyword :checkmate)
 	      (chess-sound ?#))
-	  (if (memq :stalemate changes)
+	  (if (chess-ply-has-keyword :stalemate)
 	      (chess-sound "smate")))))
     nil)))
 

@@ -61,11 +61,6 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   :type '(choice (const 'color) (const 'square-color)))
 	 ;; fails somehow
 
-(defcustom chess-plain-popup t
-  "If non-nil, popup the chessboard display whenever the opponent moves."
-  :type 'boolean
-  :group 'chess-plain)
-
 (defcustom chess-plain-popup-function 'chess-display-popup-in-window
   "The function used to popup a chess-plain display."
   :type 'function
@@ -76,7 +71,7 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 (defun chess-plain-handler (event &rest args)
   (cond
    ((eq event 'popup)
-    (if chess-plain-popup
+    (if chess-display-popup
 	(funcall chess-plain-popup-function)))
    ((eq event 'draw)
     (apply 'chess-plain-draw args))
@@ -151,7 +146,11 @@ PERSPECTIVE is t for white or nil for black."
 			  (1+ file)
 			file)))
       (put-text-property (point) (1+ (point)) 'face
-			 'chess-display-highlight-face))))
+			 (cond
+			  ((eq mode :selected)
+			   'chess-plain-highlight-face)
+			  (t
+			   (chess-display-get-face mode)))))))
 
 (provide 'chess-plain)
 

@@ -10,42 +10,12 @@
 
 ----------------------------------------------------------------------
 
-- Have chess-algebraic-to-ply use chess-ply-create, since I can't
-  trust :check and :checkmate anyway.  Or, break chess-ply-create into
-  multiple functions that get reused by chess-algebraic.
-
-- Make sure that when chess-algebraic-to-ply is used, and then
-  chess-pos-move is used, that I don't redo all the checks.  There
-  should be a way of "blessing" a ply.
-
-- Make sure chess-pos-move does full validation.
-
-- Make sure that chess-search-position can find a rook move due to
-  castling.  For example, O-O includes Rhf1.  So,
-  (chess-search-position ... "f1" ?R) should return the h1 rook, if it
-  could reach that square legally by castling.
-
-- There is an ambiguity in keyboard shortcutting between Bxc6 and bxc6
-
-- In chess-fen-to-pos, syntax check incoming FEN strings
-
 - Detect draw/resign/abort/retract, etc., from ICS and common engines
 
 - Make use of the my-color and active data in chess-game.el to ensure
   that I only do what I should be doing
 
-- Add `chess-display-read-only', to indicate that no changes can be
-  made to a displayed chess board.  This would be good for cloned
-  displays, and when observing a bot (or two engines head-to-head).
-
-- Remove `chess-illegal', and just use plain error.
-
-- Allow S in the display to send arbitrary text to the end
-
-- Make chess-display-popup-in-... first class citizens
-
-- Have chess-display-popup-in-frame autosize based on the content (if
-  possible)
+- Why doesn't S-b produce [B] in the keyboard shortcutting?
 
 ----------------------------------------------------------------------
 

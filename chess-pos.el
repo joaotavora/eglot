@@ -160,7 +160,7 @@ Also, EPD evaluation numbers/strings can be set here."
 (defun chess-pos-copy (position)
   "Create a new chess position, set at the starting position.
 If BLANK is non-nil, all of the squares will be empty.
-The current side-to-move is always white."
+The current side-to-move always starts as white."
   (let ((copy (make-vector 72 nil)) elem)
     (dotimes (i 71)
       (setq elem (aref position i))
@@ -197,17 +197,15 @@ The current side-to-move is always white."
 (defsubst chess-index-rank (index) (/ index 8))
 (defsubst chess-index-file (index) (mod index 8))
 
-(defun chess-add-index (index rank-move file-move)
+(defsubst chess-incr-index (index rank-move file-move)
   "Create a new INDEX from an old one, by adding rank-move and file-move."
-  (let* ((rank (chess-index-rank index))
-	 (file (chess-index-file index))
-	 (newrank (+ rank rank-move))
-	 (newfile (+ file file-move)))
+  (let ((newrank (+ (chess-index-rank index) rank-move))
+	(newfile (+ (chess-index-file index) file-move)))
     (if (and (>= newrank 0) (< newrank 8)
 	     (>= newfile 0) (< newfile 8))
 	(chess-rf-to-index newrank newfile))))
 
-(defun chess-pos-piece-p (position index piece-or-color)
+(defsubst chess-pos-piece-p (position index piece-or-color)
   "Return non-nil if at POSITION/INDEX there is the given PIECE-OR-COLOR.
 If PIECE-OR-COLOR is t for white or nil for black, any piece of that
 color will do."
@@ -218,7 +216,7 @@ color will do."
      ((eq piece-or-color nil) (> p ?a))
      (t (= p piece-or-color)))))
 
-(defun chess-pos-search (position piece-or-color)
+(defsubst chess-pos-search (position piece-or-color)
   "Look on POSITION anywhere for PIECE-OR-COLOR, returning all coordinates.
 If PIECE-OR-COLOR is t for white or nil for black, any piece of that
 color will do."
@@ -270,7 +268,7 @@ trying to move a blank square."
 	  (chess-pos-set-piece position to piece))
 	(setq ch (cddr ch)))))
 
-  ;; now fix up the position
+  ;; now fix up the resulting position
   (let ((color (chess-pos-side-to-move position)))
 
     ;; once a piece is moved, en passant is no longer available
@@ -285,15 +283,14 @@ trying to move a blank square."
 	  (chess-pos-set-can-castle position (if color ?K ?k) nil)
 	  (chess-pos-set-can-castle position (if color ?Q ?q) nil))
 
-	 ((and (= piece ?r)
-	       (equal (car changes)
-		      (chess-rf-to-index (if color 7 0) 0)))
-	  (chess-pos-set-can-castle position (if color ?Q ?q) nil))
-
-	 ((and (= piece ?r)
-	       (equal (car changes)
-		      (chess-rf-to-index (if color 7 0) 7)))
-	  (chess-pos-set-can-castle position (if color ?K ?k) nil))
+	 ((= piece ?r)
+	  (let ((king (car (chess-pos-search position (if color ?K ?k)))))
+	    (if (and (chess-pos-can-castle position (if color ?K ?k))
+		     (< (chess-index-file (car changes)) king))
+		(chess-pos-set-can-castle position (if color ?K ?k) nil)
+	      (if (and (chess-pos-can-castle position (if color ?Q ?q))
+		       (> (chess-index-file (car changes)) king))
+		  (chess-pos-set-can-castle position (if color ?Q ?q) nil)))))
 
 	 ((and (= piece ?p)
 	       (> (abs (- (chess-index-rank (cadr changes))
@@ -339,6 +336,8 @@ indices which indicate where a piece may have moved from."
 		    (< piece ?a)
 		  piece))
 	 (bias (if color -1 1))
+	 (test-piece (and (char-valid-p piece)
+			  (upcase piece)))
 	 p pos candidates)
     (cond
      ;; if the piece is `t', it means to find the candidates resulting
@@ -354,56 +353,58 @@ indices which indicate where a piece may have moved from."
 
      ;; pawn movement, which is diagonal 1 when taking, but forward
      ;; 1 or 2 when moving (the most complex piece, actually)
-     ((= (upcase piece) ?P)
+     ((= test-piece ?P)
       (let ((p (chess-pos-piece position target)))
 	(if (if (= p ? )
 		;; check for en passant
 		(and (= (chess-index-rank target) (if color 2 5))
-		     (setq pos (chess-add-index target bias 0))
+		     (setq pos (chess-incr-index target bias 0))
 		     (chess-pos-piece-p position pos (if color ?p ?P))
 		     ;; make this fail if no en-passant is possible
 		     (= (or (chess-pos-en-passant position) 100) target)
 		     (setq candidates (list pos)))
 	      (if color (> p ?a) (< p ?a)))
 	    (let ((cands (list t)))
-	      (setq pos (chess-add-index target (- bias) -1))
+	      (setq pos (chess-incr-index target (- bias) -1))
 	      (if (and pos (chess-pos-piece-p position pos piece))
 		  (nconc cands (list pos)))
-	      (setq pos (chess-add-index target (- bias) 1))
+	      (setq pos (chess-incr-index target (- bias) 1))
 	      (if (and pos (chess-pos-piece-p position pos piece))
 		  (nconc cands (list pos)))
 	      (if candidates
 		  (nconc candidates (cdr cands))
 		(setq candidates (cdr cands))))
-	  (if (setq pos (chess-add-index target (- bias) 0))
+	  (if (setq pos (chess-incr-index target (- bias) 0))
 	      (if (chess-pos-piece-p position pos piece)
 		  (setq candidates (list pos))
 		(when (and (chess-pos-piece-p position pos ? )
 			   (= (if color 4 3)
 			      (chess-index-rank target)))
-		  (setq pos (chess-add-index pos (- bias) 0))
+		  (setq pos (chess-incr-index pos (- bias) 0))
 		  (if (and pos (chess-pos-piece-p position pos piece))
 		      (setq candidates (list pos)))))))))
 
      ;; the rook, bishop and queen are the easiest; just look along
      ;; rank and file and/or diagonal for the nearest pieces!
-     ((memq (upcase piece) '(?R ?B ?Q))
+     ((memq test-piece '(?R ?B ?Q))
       (setq candidates (list t))
       (dolist (dir (cond
-		    ((= (upcase piece) ?R)
+		    ((= test-piece ?R)
 		     '(        (-1 0)
 		       (0 -1)          (0 1)
 			       (1 0)))
-		    ((= (upcase piece) ?B)
+		    ((= test-piece ?B)
 		     '((-1 -1)        (-1 1)
 
 		       (1 -1)         (1 1)))
-		    ((= (upcase piece) ?Q)
+		    ((= test-piece ?Q)
 		     '((-1 -1) (-1 0) (-1 1)
 			(0 -1)         (0 1)
 			(1 -1)  (1 0)  (1 1)))))
 	;; up the current file
-	(setq pos (apply 'chess-add-index target dir))
+	(setq pos (apply 'chess-incr-index target dir))
+	;; jww (2002-04-11): In Fischer Random castling, the rook can
+	;; move in wacky ways
 	(while pos
 	  (if (chess-pos-piece-p position pos piece)
 	      (progn
@@ -411,20 +412,21 @@ indices which indicate where a piece may have moved from."
 		(setq pos nil))
 	    (if (not (chess-pos-piece-p position pos ? ))
 		(setq pos nil)
-	      (setq pos (apply 'chess-add-index pos dir))))))
+	      (setq pos (apply 'chess-incr-index pos dir))))))
       (setq candidates (cdr candidates)))
 
      ;; the king is a trivial case of the queen, except when castling
-     ((= (upcase piece) ?K)
+     ((= test-piece ?K)
       (let ((dirs '((-1 -1) (-1 0) (-1 1)
 		     (0 -1)         (0 1)
 		     (1 -1)  (1 0)  (1 1))))
 	(while dirs
 	  ;; up the current file
-	  (setq pos (apply 'chess-add-index target (car dirs)))
+	  (setq pos (apply 'chess-incr-index target (car dirs)))
 	  (if (and pos (chess-pos-piece-p position pos piece))
 	      (setq candidates (list pos) dirs nil)
 	    (setq dirs (cdr dirs)))))
+
       (let ((rank (if color 7 0)))
 	;; if we can still castle, then the king and rook are in their
 	;; squares; also, make sure that the user is not attempting to
@@ -452,14 +454,14 @@ indices which indicate where a piece may have moved from."
 
      ;; the knight is a zesty little piece; there may be more than
      ;; one, but at only one possible square in each direction
-     ((= (upcase piece) ?N)
+     ((= test-piece ?N)
       (setq candidates (list t))
       (dolist (dir '((-2 -1) (-2 1)
 		     (-1 -2) (-1 2)
 		      (1 -2)  (1 2)
 		      (2 -1)  (2 1)))
 	;; up the current file
-	(if (and (setq pos (apply 'chess-add-index target dir))
+	(if (and (setq pos (apply 'chess-incr-index target dir))
 		 (chess-pos-piece-p position pos piece))
 	    (nconc candidates (list pos))))
       (setq candidates (cdr candidates)))

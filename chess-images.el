@@ -133,11 +133,6 @@ that specialized squares may be used such as marble tiles, etc."
   :set 'chess-images-clear-image-cache
   :group 'chess-images)
 
-(defcustom chess-images-popup t
-  "If non-nil, popup the chessboard display whenever the opponent moves."
-  :type 'boolean
-  :group 'chess-images)
-
 (defcustom chess-images-popup-function 'chess-images-popup
   "The function used to popup a chess-images display.
 The current-buffer is set to the display buffer when this function is
@@ -147,18 +142,6 @@ called."
 
 ;;; Code:
 
-(defun chess-images-handler (event &rest args)
-  (cond
-   ((eq event 'initialize)
-    (chess-images-initialize))
-   ((eq event 'popup)
-    (if chess-images-popup
-	(funcall chess-images-popup-function)))
-   ((eq event 'draw)
-    (apply 'chess-images-draw args))
-   ((eq event 'highlight)
-    (apply 'chess-images-highlight args))))
-
 (defconst chess-images-piece-names
   '((?r "rook"   0)
     (?n "knight" 1)
@@ -167,6 +150,18 @@ called."
     (?k "king"   4)
     (?p "pawn"   5))
   "The names and index values of the different pieces.")
+
+(defun chess-images-handler (event &rest args)
+  (cond
+   ((eq event 'initialize)
+    (chess-images-initialize))
+   ((eq event 'popup)
+    (if chess-display-popup
+	(funcall chess-images-popup-function)))
+   ((eq event 'draw)
+    (apply 'chess-images-draw args))
+   ((eq event 'highlight)
+    (apply 'chess-images-highlight args))))
 
 (defun chess-images-initialize ()
   (let ((map (current-local-map)))
@@ -197,7 +192,7 @@ called."
 	     (display (and (stringp chess-images-separate-frame)
 			   chess-images-separate-frame)))
 	;; create the frame whenever necessary
-	(chess-display-popup-in-frame display (+ max-char-height 2)
+	(chess-display-popup-in-frame (+ max-char-height 2)
 				      max-char-width))
     (chess-display-popup-in-window)))
 

@@ -131,7 +131,7 @@ Chess puzzles are most often provided as a set of positions.
 
 @c lispfun chess-index-to-coord
 
-@c lispfun chess-add-index
+@c lispfun chess-incr-index
 
 @subsection Position details
 

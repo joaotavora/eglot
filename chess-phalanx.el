@@ -22,11 +22,11 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'move
-		     (chess-engine-convert-algebraic (match-string 1))))))
+		     (chess-engine-convert-algebraic (match-string 1) t)))))
    (cons "Illegal move:\\s-*\\(.*\\)"
 	 (function
 	  (lambda ()
-	    (signal 'chess-illegal (match-string 1)))))))
+	    (error (match-string 1)))))))
 
 (defun chess-phalanx-handler (event &rest args)
   (cond

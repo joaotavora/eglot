@@ -11,9 +11,6 @@
 
 (require 'chess-ply)
 
-(defvar chess-illegal nil)
-(put 'chess-illegal 'error-conditions '(error))
-
 (defvar chess-game-inhibit-events nil)
 
 (defconst chess-game-default-tags
@@ -213,11 +210,6 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	(error "Cannot add moves to a completed game"))
     (unless (equal position (chess-ply-pos current-ply))
       (error "Positions do not match"))
-    (unless (or (chess-ply-has-keyword ply :resign :draw)
-		(chess-search-position
-		 position (cadr (chess-ply-changes ply))
-		 (chess-pos-piece position (car (chess-ply-changes ply)))))
-      (signal 'chess-illegal "Illegal move"))
     (chess-ply-set-changes current-ply changes)
     (chess-game-add-ply game (chess-ply-create
 			      (chess-ply-next-pos current-ply)))

@@ -24,11 +24,11 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'move
-		     (chess-engine-convert-algebraic (match-string 2))))))
+		     (chess-engine-convert-algebraic (match-string 2) t)))))
    (cons "\\(Illegal move\\|unrecognized/illegal command\\):\\s-*\\(.*\\)"
 	 (function
 	  (lambda ()
-	    (signal 'chess-illegal (match-string 1)))))))
+	    (error (match-string 1)))))))
 
 (defun chess-crafty-handler (event &rest args)
   (cond

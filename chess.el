@@ -98,11 +98,13 @@ a0 243
   "Default engine to be used when starting a chess session."
   :type 'sexp
   :group 'chess)
-(defcustom chess-announce-module 'chess-announce
+
 (defcustom chess-announce-moves t
-This happens verbally if 'festival' is installed, otherwise it just
-prints a message in your minibuffer, which works well for Emacspeak
-users."
+  "If non-nil, announce when your opponent makes a move.
+This variable can also be a symbol which names a different announcing
+module to use.  This happens verbally if 'festival' is installed, or
+if you have sound files installed and a sound play (see
+chess-sound.el).  Otherwise it just prints a message in your
 minibuffer, which works well for Emacspeak users."
   :type 'boolean
   :group 'chess)
@@ -112,11 +114,19 @@ minibuffer, which works well for Emacspeak users."
   :type 'string
   :group 'chess)
 
-(defun chess (&optional arg)
-  "Start a game of chess."
-  (interactive "P")
+(defun chess (&optional engine)
+			&rest engine-ctor-args)
+  "Start a game of chess, playing against ENGINE (a module name)."
+  (interactive
+   (list
+    (if current-prefix-arg
+	(intern
+	 (concat "chess-"
+		 (let ((str (read-string "Engine to play against: ")))
+		   (if (> (length str) 0)
+		       str
+		     "none"))))
       chess-default-engine)))
-
 
   (require chess-default-display)
   (let* ((my-color t)			; we start out as white always
@@ -131,17 +141,10 @@ minibuffer, which works well for Emacspeak users."
       (require 'chess-ics1)
       (setq display (chess-display-create 'chess-ics1 my-color)))
 
-
 	(chess-display-disable-popup display))
     (chess-display-set-game display game)
     (chess-display-set-main display)
-    (let ((engine-module
-	   (if arg
-	       (intern
-		(or (concat "chess-"
-			    (read-string "Engine module to play against: "))
-		    "chess-none"))
-	     chess-default-engine)))
+
     (let ((engine-module (or engine chess-default-engine)))
 	(let ((engine (chess-engine-create engine-module)))
 			     engine-ctor-args)))
@@ -151,12 +154,22 @@ minibuffer, which works well for Emacspeak users."
 	  ;; computerized engines fall into this category), we need to
 	  ;; let them know we're ready to begin
 	  (chess-engine-command engine 'ready))
-	(when chess-announce-module
-	  (require chess-announce-module)
-	  (funcall (intern (concat (symbol-name chess-announce-module)
-				   "-for-game")) game))))
+
+	(when chess-announce-moves
+	  (if (and (not (eq chess-announce-moves t))
+		   (symbolp chess-announce-moves))
+	      (let ((name (symbol-name chess-announce-moves)))
+		(require chess-announce-moves)
+		(if (funcall (intern (concat name "-available-p")))
+		    (funcall (intern (concat name "-for-game")) game)))
+	    (require 'chess-sound)
+	    (if (chess-sound-available-p)
+		(chess-sound-for-game game)
+	      (require 'chess-announce)
+	      (if (chess-announce-available-p)
 		  (chess-announce-for-game game)))))))
-    (chess-display-update display t)))
+
+    display))
     (cons display engine)))
 
 ;;;###autoload

@@ -25,11 +25,11 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'move
-		     (chess-engine-convert-algebraic (match-string 1))))))
+		     (chess-engine-convert-algebraic (match-string 1) t)))))
    (cons "Illegal move:"
 	 (function
 	  (lambda ()
-	    (signal 'chess-illegal "Illegal move"))))
+	    (error "Illegal move"))))
    (cons "Board is wrong!"
 	 (function
 	  (lambda ()

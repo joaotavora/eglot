@@ -85,7 +85,7 @@
 					(read-string "Port: "))))
       (if (eq which ?s)
 	  (message "Now waiting for your opponent to connect...")
-	(process-send-string proc (format "chess match %s\n" chess-full-name))
+	(chess-network-handler 'match)
 	(message "You have connected; pass now or make your move."))
       proc))
 
