@@ -197,6 +197,8 @@ This conveys the status of the game at the given index."
       1)))
 
 (defsubst chess-game-side-to-move (game &optional index)
+  "Return the color whose move it is in GAME at INDEX (or at the last position
+if INDEX is nil)."
   (assert game)
   (chess-pos-side-to-move (chess-game-pos game index)))
 
