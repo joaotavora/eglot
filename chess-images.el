@@ -230,7 +230,7 @@ Common modes are:
   (if (null (get-buffer-window (current-buffer) t))
       (chess-images-popup-board))
   (let* ((pos (save-excursion
-		(beginning-of-line)
+		(goto-char (point-min))
 		(goto-line (1+ (chess-index-rank index)))
 		(forward-char (* 2 (chess-index-file index)))
 		(point)))
