@@ -1,13 +1,17 @@
 (add-to-list 'load-path ".")
 
-(require 'cl)
+(require 'pp)
 (require 'chess)
 (require 'chess-pgn)
+
+(defmacro assert (form)
+  (unless (byte-compiling-files-p)
+    `(unless ,form
+       (error "Assertion failed: %s" (pp-to-string ,form)))))
 
 (defun chess-generate-texinfo-file ()
   (require 'lispdoc)
   (require 'texinfo)
-  (require 'pp)
   (with-temp-buffer
     (insert-file-contents-literally "chess.texi")
     (texinfo-mode)

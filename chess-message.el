@@ -23,7 +23,7 @@
 	  (let ((str (assq (car def) (cdr entry))))
 	    (if str
 		(setcdr str (cdr def))
-	      (push def (cdr entry)))))
+	      (setcdr entry (cons def (cdr entry))))))
       (push (cons catalog definitions) chess-message-catalog))))
 
 (defun chess-string (key &rest arguments)
