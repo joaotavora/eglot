@@ -561,6 +561,8 @@ trying to move a blank square."
   (assert (vectorp position))
   (assert (listp changes))
   (assert (> (length changes) 0))
+
+  ;; apply the piece movements listed in `changes'
   (let ((ch changes))
     (while ch
       (if (symbolp (car ch))
