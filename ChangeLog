@@ -1,4 +1,27 @@
-2004-03-06  root  <root@debian>
+2004-12-07  Mario Lang  <mlang@delysid.org>
+
+	* chess-algebraic.el, chess-announce.el, chess-autosave.el,
+	  chess-common.el, chess-display.el:
+	require chess-message whereever necessary (ks)
+
+	* chess-pgn.el 1.46:
+	Make comment-start and comment-end explicitly buffer-local (ks)
+
+2004-12-06  Mario Lang  <mlang@delysid.org>
+
+	* chess-pgn.el:
+	bug in pgn font-locking (Klaus Straubinger <KSNetz@Arcor.DE>)
+
+2004-04-12  jwiegley  <jwiegley@lexx>
+
+	* PLAN: chess-pos - typing a number in a chessboard display gets
+	an assertion
+
+2004-03-08  Mario Lang  <mlang@delysid.org>
+
+	* chess-pgn.el: bah, recursive loading...chess-pgn.el
+
+2004-03-06  Mario Lang  <mlang@delysid.org>
 
 	* README: Rephrase the intro, and add a HISTORY section
 	to document the maintainership change.
