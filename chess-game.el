@@ -64,6 +64,9 @@
   "Return the current GAME sequence."
   (1+ (/ (chess-game-index game) 2)))
 
+(defsubst chess-game-side-to-move (game)
+  (chess-pos-side-to-move (chess-game-pos game)))
+
 (defun chess-game-ply (game &optional index)
   "Return the position related to GAME's INDEX position."
   (if index
