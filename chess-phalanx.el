@@ -19,12 +19,11 @@
 
 (defvar chess-phalanx-regexp-alist
   (list
-   (cons (concat "my move is \\(P?\\("
-		 chess-algebraic-regexp "\\)\\)\\s-*$")
+   (cons (concat "my move is P?\\(" chess-algebraic-regexp "\\)\\s-*$")
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'move
-		     (chess-engine-convert-algebraic (match-string 2))))))
+		     (chess-engine-convert-algebraic (match-string 1))))))
    (cons "Illegal move:\\s-*\\(.*\\)"
 	 (function
 	  (lambda ()

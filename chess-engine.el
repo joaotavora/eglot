@@ -387,7 +387,8 @@ function in all cases; this is merely a bandwidth-saver."
 		(if chess-engine-last-pos
 		    (goto-char chess-engine-last-pos)
 		  (goto-char (point-min)))
-		(while (not (eobp))
+		(while (and (not (eobp))
+			    (/= (line-end-position) (point-max)))
 		  (let ((triggers chess-engine-regexp-alist))
 		    (while triggers
 		      ;; this could be accelerated by joining
@@ -396,9 +397,9 @@ function in all cases; this is merely a bandwidth-saver."
 			       (funcall (cdar triggers)))
 			  (setq triggers nil)
 			(setq triggers (cdr triggers)))))
-		  (forward-line)))
-	    (setq chess-engine-last-pos (point)
-		  chess-engine-working nil)))))))
+		  (forward-line))
+		(setq chess-engine-last-pos (point)))
+	    (setq chess-engine-working nil)))))))
 
 (provide 'chess-engine)
 
