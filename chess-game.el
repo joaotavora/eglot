@@ -11,6 +11,7 @@
 
 (require 'chess-ply)
 (require 'chess-algebraic)
+(require 'chess-fen)
 
 (defvar chess-illegal nil)
 (put 'chess-illegal 'error-conditions '(error))
@@ -93,24 +94,22 @@
   "Return the position related to GAME's INDEX position."
   (car (chess-game-ply game index)))
 
-(defun chess-game-create (&rest keywords)
+(defun chess-game-create (&optional position search-func tags)
   "Create a new chess game object.
-Keywords may be specified to customize the game object.  The supported
-keywords are:
-
-  :position POS          ; set the start position
-  :search   FUNC         ; function used to search chess positions
-  :tags     ALIST"
-  (let ((game (list (cdr (assq ':tags keywords))
-		    (or (cdr (assq ':search keywords))
-			'chess-standard-search-position))))
+Optionally use the given starting POSITION (which is recorded using
+the game's FEN tag).
+SEARCH-FUNC specifies the function used to test the legality of moves.
+TAGS is the starting set of game tags (which can always be changed
+later using the various tag-related methods)."
+  (let ((game (list tags (or search-func
+			     'chess-standard-search-position))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))
 	(chess-game-set-tag game (car tag) (cdr tag))))
-    (chess-game-add-ply game (chess-ply-create
-			      (or (cdr (assq ':position keywords))
-				  (chess-pos-create))))
+    (chess-game-add-ply game (chess-ply-create (or position (chess-pos-create))))
+    (if position
+	(chess-game-set-tag game "FEN" (chess-pos-to-fen position)))
     game))
 
 (defun chess-game-move (game ply)
