@@ -25,7 +25,13 @@
   :type 'string
   :group 'chess-irc)
 
-(defvar chess-irc-regexp-alist chess-network-regexp-alist)
+(defvar chess-irc-regexp-alist
+  (append chess-network-regexp-alist
+	  (list (cons ".+"
+		      (function
+		       (lambda ()
+			 (message "Your opponent says: %s"
+				  (match-string 0))))))))
 
 (defvar chess-irc-process)
 (defvar chess-irc-engine)
@@ -64,6 +70,8 @@
     nil)
 
    ((eq event 'shutdown)
+    (ignore-errors
+      (chess-engine-send nil "game over"))
     (ignore-errors
       (process-send-string chess-irc-process "QUIT :Goodbye\n"))
     (ignore-errors
