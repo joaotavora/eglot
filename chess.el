@@ -84,12 +84,12 @@ a0 243
 (defconst chess-version "2.0a7"
   "The version of the Emacs chess program.")
 
-				     'chess-images 'chess-ascii)
+(defcustom chess-default-display (if (display-graphic-p)
 				     'chess-images 'chess-ics1)
   "Default module set to be used when starting a chess session."
   :type 'sexp
   :group 'chess)
-(defcustom chess-default-engine 'chess-crafty
+
 (defcustom chess-default-engine 'chess-gnuchess
   "Default engine to be used when starting a chess session."
   :type 'sexp
