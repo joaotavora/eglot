@@ -76,7 +76,10 @@ The format of each entry is:
 	  (lambda ()
 	    (let ((chess-engine-pending-offer 'abort))
 	      (funcall chess-engine-response-handler 'accept)))))
-   (cons "<12>\\s-+\\(.+\\)" 'chess-ics-handle-move)
+   (cons (concat "<12>\\s-+\\("
+		 (mapconcat 'identity (make-list 8 "[BKNPQRbknpqr-]\\{8\\}")
+			    " ")
+		 " [BW].+\\)") 'chess-ics-handle-ics12)
    (cons "\\S-+ would like to take back \\([0-9]+\\) half move(s)."
 	 (function
 	  (lambda ()
@@ -111,6 +114,13 @@ The format of each entry is:
 The car of each element is the regexp to try, and the cdr is a function
 to run whenever the regexp matches.")
 
+(chess-message-catalog 'english
+  '((ics-server-prompt . "Connect to chess server: ")
+    (ics-connecting    . "Connecting to Internet Chess Server '%s'...")
+    (ics-connected     . "Connecting to Internet Chess Server '%s'...done")
+    (challenge-whom    . "Whom would you like challenge? ")
+    (failed-ics-parse  . "Failed to parse ICS move string (%s): %s")))
+
 ;; ICS12 format (with artificial line breaks):
 ;;
 ;; <12> rnbqkbnr pppppppp -------- -------- \
@@ -118,13 +128,15 @@ to run whenever the regexp matches.")
 ;;      -1 1 1 1 1 0 65 jwiegley GuestZYNJ \
 ;;      1 5 0 39 39 300 300 1 P/e2-e4 (0:00) e4 0 0 0
 
-(defun chess-ics12-parse (string)
-  "Parse an ICS12 format string, and return a list of its info.
-The list is comprised of: the ply the string represents, who is white,
-who is black."
-  (let ((parts (split-string string " "))
+(defun chess-ics-handle-ics12 ()
+  "Handle an ICS12 format string."
+  (let ((chess-engine-handling-event t)
+	(begin (match-beginning 0))
+	(end (match-end 0))
+	(parts (split-string (match-string 1) " "))
 	(position (chess-pos-create t))
-	white black white-time black-time move status)
+	(game (chess-engine-game nil))
+	white black move status error)
 
     (assert (= (length parts) 32))
 
@@ -142,11 +154,11 @@ who is black."
     ;; -1 if the previous move was NOT a double pawn push, otherwise
     ;; the chess board file (numbered 0--7 for a--h) in which the
     ;; double push was made
-    (let ((index (string-to-number (pop parts))))
-      (when (>= index 0)
+    (let ((file (string-to-number (pop parts))))
+      (when (>= file 0)
 	(chess-pos-set-en-passant
 	 position (chess-rf-to-index
-		   (if (chess-pos-side-to-move position) 3 4) index))))
+		   (if (chess-pos-side-to-move position) 3 4) file))))
 
     ;; can White/Black still castle short/long? (0=no, 1=yes)
     (mapc (lambda (castle)
@@ -176,19 +188,19 @@ who is black."
     ;;  0 I am observing a game being played
     (setq status (string-to-int (pop parts)))
 
-    ;;  initial time (in seconds) of the match
+    ;; initial time (in seconds) of the match
     (setq parts (cdr parts))
 
     ;; increment (in seconds) of the match
     (setq parts (cdr parts))
 
     ;; material values for each side
-    (setq parts (cdr parts))
-    (setq parts (cdr parts))
+    (chess-pos-set-epd position 'ce (* 100 (- (string-to-int (pop parts))
+					      (string-to-int (pop parts)))))
 
-    ;;  White's and Black's remaining time
-    (setq white-time (string-to-number (pop parts))
-	  black-time (string-to-number (pop parts)))
+    ;; White's and Black's remaining time
+    (chess-game-set-data game 'white-remaining (string-to-number (pop parts)))
+    (chess-game-set-data game 'black-remaining (string-to-number (pop parts)))
 
     ;; the number of the move about to be made (standard chess
     ;; numbering -- White's and Black's first moves are both 1, etc.)
@@ -225,60 +237,37 @@ who is black."
     (setq parts (cdr parts))
     (setq parts (cdr parts))
 
-    (list position move white black white-time black-time status)))
-
-(chess-message-catalog 'english
-  '((ics-server-prompt . "Connect to chess server: ")
-    (ics-connecting    . "Connecting to Internet Chess Server '%s'...")
-    (ics-connected     . "Connecting to Internet Chess Server '%s'...done")
-    (challenge-whom    . "Whom would you like challenge? ")
-    (failed-ics-parse  . "Failed to parse ICS move string (%s): %s")))
-
-(defun chess-ics-handle-move ()
-  (let ((chess-engine-handling-event t)
-	(begin (match-beginning 0))
-	(end (match-end 0))
-	(info (chess-ics12-parse (match-string 1)))
-	(game (chess-engine-game nil))
-	error)
     (unwind-protect
-	(if (nth 1 info)
+	(if move
 	    ;; each move gives the _position occurring after the ply_,
 	    ;; which means that if the move says W, it is telling us
 	    ;; what our opponents move was
-	    (if (and (setq error 'comparing-colors)
-		     (eq (chess-pos-side-to-move (nth 0 info))
-			 (chess-game-data game 'my-color)))
+	    (if (progn (setq error 'comparing-colors)
+		       (eq (chess-pos-side-to-move position)
+			   (chess-game-data game 'my-color)))
 		(let ((ign (setq error 'converting-ply))
-		      (ply (chess-engine-convert-algebraic (nth 1 info) t)))
-		  (chess-game-set-data game 'white-remaining (nth 4 info))
-		  (chess-game-set-data game 'black-remaining (nth 5 info))
+		      (ply (chess-engine-convert-algebraic move t)))
 		  (setq error 'applying-move)
 		  ;; save us from generating a position we already have
-		  (chess-ply-set-keyword ply :next-pos (nth 0 info))
-		  (chess-pos-set-preceding-ply (nth 0 info) ply)
+		  (chess-ply-set-keyword ply :next-pos position)
+		  (chess-pos-set-preceding-ply position ply)
 		  (chess-game-move game ply)
 		  (setq error nil))
 	      (setq error nil))
 	  (let ((chess-game-inhibit-events t)
-		(color (chess-pos-side-to-move (nth 0 info)))
+		(color (chess-pos-side-to-move position))
 		plies)
-	    (when (or (= 1 (nth 6 info)) (= -1 (nth 6 info)))
-	      (chess-game-set-data game 'my-color (if (= 1 (nth 6 info))
+	    (when (or (= 1 status) (= -1 status))
+	      (chess-game-set-data game 'my-color (if (= 1 status)
 						      color
 						    (not color)))
-	      (setq chess-engine-opponent-name
-		    (if (= 1 (nth 6 info))
-			(nth 3 info)
-		      (nth 2 info)))
-	      (chess-game-set-data game 'active t)
-	      (chess-game-set-data game 'white-remaining (nth 4 info))
-	      (chess-game-set-data game 'black-remaining (nth 5 info)))
-	    (chess-game-set-tag game "White" (nth 2 info))
-	    (chess-game-set-tag game "Black" (nth 3 info))
+	      (setq chess-engine-opponent-name (if (= 1 status) black white))
+	      (chess-game-set-data game 'active t))
+	    (chess-game-set-tag game "White" white)
+	    (chess-game-set-tag game "Black" black)
 	    (chess-game-set-tag game "Site" (car chess-ics-server))
 	    (setq error 'setting-start-position)
-	    (chess-game-set-start-position game (nth 0 info)))
+	    (chess-game-set-start-position game position))
 	  (setq error 'orienting-board)
 	  (chess-game-run-hooks game 'orient)
 	  (setq error nil))
