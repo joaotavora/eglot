@@ -622,10 +622,11 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-kill-board (&optional arg)
   "Send the current board configuration to the user."
   (interactive "P")
-  (let ((x-select-enable-clipboard t))
+  (let ((x-select-enable-clipboard t)
+	(game chess-module-game))
     (if arg
 	(kill-new (with-temp-buffer
-		    (chess-game-to-pgn chess-module-game)
+		    (chess-game-to-pgn game)
 		    (buffer-string)))
       (kill-new (chess-pos-to-fen (chess-display-position nil))))))
 
