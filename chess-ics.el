@@ -187,7 +187,7 @@ who is black."
     t))
 
 (defvar chess-ics-regexp-alist
-  (list (cons "^\\([A-Za-z0-9_]+\\)%\\s-*$"
+  (list (cons "^[^% \r\n]+% "
 	      (function
 	       (lambda ()
 		 (chess-engine-send nil "set style 12\n")
@@ -244,7 +244,7 @@ who is black."
 
 	  (let ((proc (get-buffer-process (current-buffer))))
 	    (if (null (nth 2 server))
-		(comint-send-string proc "guest\n\n")
+		(comint-send-string proc "guest\n")
 	      (setq chess-ics-handle (nth 2 server))
 	      (comint-send-string proc (concat chess-ics-handle "\n"))
 	      (let ((pass (or (nth 3 server)
