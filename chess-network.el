@@ -120,7 +120,8 @@
 		  (if (fboundp 'open-network-stream-server)
 		      (open-network-stream-server "*chess-network*"
 						  (current-buffer)
-						  (read-string "Port: "))
+						  (string-to-int
+						   (read-string "Port: ")))
 		    (start-process "*chess-network*"
 				   (current-buffer) "/usr/bin/nc"
 				   "-l" "-p" (read-string "Port: ")))
