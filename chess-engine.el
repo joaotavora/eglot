@@ -271,8 +271,9 @@
     (when engine
       (with-current-buffer engine
 	(setq chess-engine-regexp-alist
-	      (symbol-value
-	       (intern (concat (symbol-name module) "-regexp-alist")))
+	      (copy-alist
+	       (symbol-value
+		(intern (concat (symbol-name module) "-regexp-alist"))))
 	      chess-engine-response-handler
 	      (or response-handler 'chess-engine-default-handler))
 	(let ((proc (get-buffer-process (current-buffer))))
@@ -297,11 +298,7 @@
 
 (defun chess-engine-set-option (engine option value)
   (chess-with-current-buffer engine
-    ))
-
-(defun chess-engine-option (engine option) 'ponder 'search-depth 'wall-clock
-  (chess-with-current-buffer engine
-    ))
+    (chess-engine-command engine 'set-option option value)))
 
 (defun chess-engine-set-response-handler (engine &optional response-handler)
   (chess-with-current-buffer engine
@@ -373,20 +370,23 @@
     (set-buffer (process-buffer proc))
     (chess-engine-destroy nil)))
 
-(defun chess-engine-filter (proc string)
+(defun chess-engine-filter (proc &optional string)
   "Filter for receiving text for an engine from an outside source."
   (let ((buf (if (processp proc)
 		 (process-buffer proc)
-	       (current-buffer))))
+	       (current-buffer)))
+	last-point)
     (when (buffer-live-p buf)
       (with-current-buffer buf
-	(let ((moving (= (point) chess-engine-current-marker)))
-	  (save-excursion
-	    ;; Insert the text, advancing the marker.
-	    (goto-char chess-engine-current-marker)
-	    (insert string)
-	    (set-marker chess-engine-current-marker (point)))
-	  (if moving (goto-char chess-engine-current-marker)))
+	(if (stringp proc)
+	    (setq string proc)
+	  (let ((moving (= (point) chess-engine-current-marker)))
+	    (save-excursion
+	      ;; Insert the text, advancing the marker.
+	      (goto-char chess-engine-current-marker)
+	      (insert string)
+	      (set-marker chess-engine-current-marker (point)))
+	    (if moving (goto-char chess-engine-current-marker))))
 	(unless chess-engine-working
 	  (setq chess-engine-working t)
 	  (save-excursion
@@ -396,16 +396,25 @@
 	    (unwind-protect
 		(while (and (not (eobp))
 			    (/= (line-end-position) (point-max)))
-		  (let ((triggers chess-engine-regexp-alist))
+		  (let ((triggers chess-engine-regexp-alist)
+			last-trigger result)
 		    (while triggers
 		      ;; this could be accelerated by joining
 		      ;; together the regexps
-		      (if (and (looking-at (caar triggers))
-			       (funcall (cdar triggers)))
-			  (setq triggers nil)
-			(setq triggers (cdr triggers)))))
+		      (if (and (re-search-forward (caar triggers)
+						  (line-end-position) t)
+			       (setq result (funcall (cdar triggers))))
+			  (progn
+			    (if (eq result 'once)
+				(if last-trigger
+				    (setcdr last-trigger (cdr triggers))
+				  (setq chess-engine-regexp-alist
+					(cdr triggers))))
+			    (setq triggers nil))
+			(setq last-trigger triggers
+			      triggers (cdr triggers)))))
 		  (forward-line))
-	      (setq chess-engine-last-pos (point)
+	      (setq chess-engine-last-pos (point-marker)
 		    chess-engine-working nil))))))))
 
 (provide 'chess-engine)
