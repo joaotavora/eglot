@@ -68,9 +68,8 @@
     (message "Your opponent has quit playing"))
 
    ((eq event 'setup)
-    (let* ((position (chess-fen-to-pos (car args)))
-	   (ply (chess-ply-create position)))
-      (chess-game-set-plies (chess-engine-game nil) (list ply))))))
+    (chess-game-set-start-position (chess-engine-game nil)
+				   (chess-fen-to-pos (car args))))))
 
 (defun chess-engine-create (module &optional user-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
@@ -189,10 +188,7 @@
     (apply chess-engine-event-handler event args)
     (cond
      ((eq event 'shutdown)
-      (chess-engine-destroy engine))
-
-     ((eq event 'setup)
-      (chess-engine-set-game engine (car args))))))
+      (chess-engine-destroy engine)))))
 
 (defun chess-engine-filter (proc string)
   "Filter for receiving text for an engine from an outside source."

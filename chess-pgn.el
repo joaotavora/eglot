@@ -68,6 +68,7 @@
 		   game (if fen
 			    (chess-fen-to-pos fen)
 			  (chess-pos-copy chess-starting-position)) t)
+		  ;; set the starting position to the FEN string
 		  (list (chess-ply-create (chess-fen-to-pos fen))))))
       game)))
 

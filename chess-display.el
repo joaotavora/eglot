@@ -317,6 +317,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?M] 'chess-display-manual-move)
     (define-key map [?@] 'chess-display-remote)
     (define-key map [? ] 'chess-display-pass)
+    (define-key map [?S] 'chess-display-shuffle)
 
     (define-key map [?<] 'chess-display-move-first)
     (define-key map [?,] 'chess-display-move-backward)
@@ -475,6 +476,14 @@ Basically, it means we are playing, not editing or reviewing."
 	     (= 0 (chess-display-index nil)))
     (chess-game-run-hooks chess-display-game 'pass)))
 
+(defun chess-display-shuffle ()
+  "Generate a shuffled opening position."
+  (interactive)
+  (when (and (chess-display-active-p)
+	     (= 0 (chess-display-index nil)))
+    (chess-game-set-start-position chess-display-game
+				   (chess-fischer-random-position))))
+
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
 Direction may be - or +, to move forward or back, or t or nil to jump
@@ -547,9 +556,8 @@ to the end or beginning."
   "Send the current board configuration to the user."
   (interactive)
   (if chess-display-game
-      (chess-game-set-plies
-       chess-display-game
-       (list (chess-ply-create (chess-display-position nil)))))
+      (chess-game-set-start-position chess-display-game
+				     (chess-display-position nil)))
   (setq chess-display-edit-mode nil))
 
 (defun chess-display-restore-board ()
