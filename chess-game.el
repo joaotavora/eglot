@@ -92,7 +92,7 @@
 
 (defsubst chess-game-set-plies (game plies)
   "Return the tags alist associated with GAME."
-  (setcdr (nthcdr 1 game) plies)
+  (setcdr (nthcdr 1 game) (list plies))
   (chess-game-run-hooks game 'set-plies))
 
 (defsubst chess-game-pos (game &optional index)

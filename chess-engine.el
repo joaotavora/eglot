@@ -69,7 +69,8 @@
 	(unless (and proc (memq (process-status proc) '(run open)))
 	  (error "Failed to start chess engine process"))
 	(set-process-buffer proc (current-buffer))
-	(set-process-filter proc 'chess-engine-filter))
+	(set-process-filter proc 'chess-engine-filter)
+	(set-marker (process-mark proc) (point)))
       (current-buffer))))
 
 (defun chess-engine-destroy (engine)
