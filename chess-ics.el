@@ -327,8 +327,8 @@ who is black."
 	(let ((buf (if (nth 4 server)
 		       (apply 'make-comint "chess-ics"
 			      (nth 4 server) nil (nth 5 server))
-		     (apply 'make-comint "chess-ics"
-			    (cons (nth 0 server) (nth 1 server))))))
+		     (make-comint "chess-ics" (cons (nth 0 server)
+						    (nth 1 server))))))
 
 	  (chess-message 'ics-connected (nth 0 server))
 

@@ -383,7 +383,9 @@ that is supported by most displays, and is the default mode."
 (defun chess-display-popup-in-window ()
   "Popup the given DISPLAY, so that it's visible to the user."
   (unless (get-buffer-window (current-buffer))
-    (fit-window-to-buffer (display-buffer (current-buffer)))))
+    (if (> (length (window-list)) 1)
+	(fit-window-to-buffer (display-buffer (current-buffer)))
+      (display-buffer (current-buffer)))))
 
 (defun chess-display-popup-in-frame (height width &optional
 					    display no-minibuffer)
