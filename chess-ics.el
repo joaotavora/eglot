@@ -160,7 +160,7 @@ who is black."
   (let ((chess-engine-handling-event t)
 	(begin (match-beginning 0))
 	(end (match-end 0))
-	(info (chess-ics12-parse (match-string 3))))
+	(info (chess-ics12-parse (match-string 1))))
     (if (and (chess-game-data (chess-engine-game nil) 'active)
 	     (> (chess-engine-index nil) 0))
 	(when (and (cadr info)
@@ -198,7 +198,12 @@ who is black."
 	       (lambda ()
 		 (setq chess-ics-handle (match-string 1))
 		 'once)))
-	(cons "\\(\\([ \t\n\r]*[A-Za-z0-9_]+%[ \t\n\r]*\\)?<12> \\(.+\\)\\)\n"
+	(cons "The game has been aborted on move [^.]+\\."
+	      (function
+	       (lambda ()
+		 (let ((chess-engine-pending-offer 'abort))
+		   (funcall chess-engine-response-handler 'accept)))))
+	(cons "<12> \\(.+\\)"
 	      'chess-ics-handle-move)
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function
