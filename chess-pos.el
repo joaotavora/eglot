@@ -21,7 +21,7 @@
 ;; module.
 
 ;; Once you have a chess position, there are several things you can do
-;; with i.  First of all, a coordinate system of octal indices is
+;; with it.  First of all, a coordinate system of octal indices is
 ;; used, where ?\044 signifies rank 4 file 4 (i.e., "e4").  Rank is
 ;; numbered 0 to 7, top to bottom, and file is 0 to 7, left to right.
 ;; For those who wish to use ASCII coordinates, such as "e4", there
@@ -97,7 +97,7 @@ This variable automatically becomes buffer-local when changed.")
    ;; index of pawn that can be captured en passant
    nil
    ;; can white and black castle on king or queen side?
-   63 56 7 0
+   ?\077 ?\070 ?\007 ?\000
    ;; is the side to move in: `check', `checkmate', `stalemate'
    nil
    ;; which color is it to move next?
@@ -410,6 +410,24 @@ or one of the symbols: `check', `checkmate', `stalemate'."
   (assert opcode)
   (chess-pos-set-annotations
    position (assq-delete-all opcode (chess-pos-annotations position))))
+
+(defun chess-pos-read-epd-file (file)
+  "Reads in an EPD file and returns a list of positions."
+  (let (positions)
+    (with-temp-buffer
+      (insert-file-literally file)
+      (goto-char (point-min))
+      (while (re-search-forward "[bnrqkpBNRQKP1-8/]+ [bw] [KQkq-]+ [1-8-]"
+				nil t)
+	(let ((pos (chess-fen-to-pos (match-string 0))))
+	  (save-restriction
+	    (narrow-to-region (point) (line-end-position))
+	    (while (re-search-forward " *\\([^ ]+\\) \\([^;]+\\); *"
+							     nil t)
+	      (chess-pos-add-annotation pos (cons (intern (match-string 1))
+						  (match-string 2)))))
+	  (setq positions (cons pos positions)))))
+    positions))
 
 (defun chess-pos-preceding-ply (position)
   "Delete the given EPD OPCODE."
