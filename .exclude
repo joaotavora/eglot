@@ -1,3 +1,4 @@
 CVS
 ICS-interaction
 .exclude
+.cvsignore
