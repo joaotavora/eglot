@@ -41,12 +41,8 @@
 
 - Complete chess-pgn-mode
 
-- Write a chess-database.el interface, and then add chess-lisp.el,
-  chess-file.el (PGN games in a flat file) and chess-scid.el
-
 - Use MIME attachments (application/x-chess-pgn) for sending e-mail
-  chess games back and forth.  Add code for special MIME handling of
-  this type in Gnus.
+  chess games back and forth.
 
 - Copy some of ics.el's nicer functionality into chess-ics.el
 
