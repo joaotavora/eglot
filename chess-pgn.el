@@ -164,55 +164,74 @@ If INDENTED is non-nil, indent the move texts."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; PGN-mode for editing and browsing PGN files.
+;; chess-pgn-mode for editing and browsing PGN files.
 ;;
 
-;; (defvar chess-pgn-mode-map
-;;   (let ((map (make-sparse-keymap)))
-;;     (define-key map [??] 'describe-mode)
-;;     (define-key map [?T] 'text-mode)
-;;     (define-key map [return] 'chess-pgn-move)
-;;     (define-key map [(control ?m)] 'chess-pgn-move)
-;;     map)
-;;   "Keymap used by Chess PGN mode.")
-;;
-;; (define-derived-mode chess-pgn-mode text-mode "Chess"
-;;   "A mode for editing Chess PGN files.")
-;;
-;; (defun chess-pgn-move ()
-;;   "Make a move from a PGN buffer."
-;;   (interactive)
-;;   (let ((end (point))
-;;	coords move)
-;;     (save-excursion
-;;       (skip-chars-backward "^ ")
-;;       (setq move (buffer-substring-no-properties (point) end)
-;;	    coords (chess-algebraic-to-ply chess-display-position move))
-;;       ;; it will just get reinserted again
-;;       (delete-region (point) end)))
-;;
-;; (defun chess-pgn-insert-move (move &optional color sequence)
-;;   "Insert an algebraic move description into a PGN buffer.
-;; If move is the symbol `wait', it means reflect that we are now waiting
-;; for the opponent to make his move.  If move is the symbol `ready', it
-;; means our opponent is now waiting for us to move our move.  Otherwise,
-;; move should be a string representing the algebraic notation for the
-;; move."
-;;   (while (= (char-before) ?.)
-;;     (delete-backward-char 1))
-;;   (cond
-;;    ((eq move 'wait)
-;;     (insert "..."))
-;;    ((eq move 'ready) t)
-;;    (t
-;;     (if (= (char-syntax (char-before)) ? )
-;;	(insert move))
-;;     (if color
-;;	(move-to-column 11 t)
-;;       (insert ?\n (format "%d.  " (1+ sequence))))))
-;;   (let ((wind (get-buffer-window (current-buffer))))
-;;     (if wind
-;;	(set-window-point wind (point)))))
+;;;###autoload
+(define-derived-mode chess-pgn-mode text-mode "PGN"
+  "A mode for editing chess PGN files."
+  (setq comment-start "{"
+	comment-end "}")
+  (modify-syntax-entry ?\{ "<")
+  (modify-syntax-entry ?\} ">")
+  (modify-syntax-entry ?\" "\"")
+  (let ((map (current-local-map)))
+    (define-key map [??] 'describe-mode)
+    (define-key map [?T] 'text-mode)
+    (define-key map [return] 'chess-pgn-move)
+    (define-key map [(control ?m)] 'chess-pgn-move)))
+
+(defalias 'pgn-mode 'chess-pgn-mode)
+
+(defvar chess-pgn-bold-face 'bold)
+
+(font-lock-add-keywords 'chess-pgn-mode
+  (list (list "\\[\\(\\S-+\\)\\s-+\".*\"\\]" 1 'font-lock-keyword-face)
+	(cons (concat "\\([1-9][0-9]*\\.\\s-+\\(\\.\\.\\.\\s-+\\)?"
+		      chess-algebraic-regexp
+		      "\\(\\s-+"
+		      chess-algebraic-regexp
+		      "\\)?\\)")
+	      'chess-pgn-bold-face)
+	(cons "\\(1-0\\|0-1\\|\\*\\)$" 'font-lock-warning-face)))
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.pgn\\'" . chess-pgn-mode))
+
+(defun chess-pgn-move ()
+  "Make a move from a PGN buffer."
+  (interactive)
+  (let ((end (point))
+	coords move)
+    (save-excursion
+      (skip-chars-backward "^ ")
+      (setq move (buffer-substring-no-properties (point) end)
+	    coords (chess-algebraic-to-ply chess-display-position move))
+      ;; it will just get reinserted again
+      (delete-region (point) end))))
+
+(defun chess-pgn-insert-move (move &optional color sequence)
+  "Insert an algebraic move description into a PGN buffer.
+If move is the symbol `wait', it means reflect that we are now waiting
+for the opponent to make his move.  If move is the symbol `ready', it
+means our opponent is now waiting for us to move our move.  Otherwise,
+move should be a string representing the algebraic notation for the
+move."
+  (while (= (char-before) ?.)
+    (delete-backward-char 1))
+  (cond
+   ((eq move 'wait)
+    (insert "..."))
+   ((eq move 'ready) t)
+   (t
+    (if (= (char-syntax (char-before)) ? )
+	(insert move))
+    (if color
+	(move-to-column 11 t)
+      (insert ?\n (format "%d.  " (1+ sequence))))))
+  (let ((wind (get-buffer-window (current-buffer))))
+    (if wind
+	(set-window-point wind (point)))))
 
 (provide 'chess-pgn)
 
