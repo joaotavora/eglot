@@ -5,6 +5,10 @@
 ;; receive.  This could be used for transmitting chess.el protocol
 ;; over CTCP, for example.
 ;;
+;; NOTE: Make sure that any housekeeping data you use is kept in
+;; buffer-local variables.  Otherwise, multiple games played using the
+;; same kind of transport might collide.
+;;
 ;; $Revision$
 
 (require 'chess-network)

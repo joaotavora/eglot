@@ -11,28 +11,28 @@
 (defvar chess-network-now-moving nil)
 
 (defvar chess-network-regexp-alist
-  (list (cons (concat "\\(Black\\|White\\):\\s-*"
-		      chess-algebraic-regexp "\\s-+")
+  (list (cons (concat "<move color=\"\\(black\\|white\\)\">"
+		      chess-algebraic-regexp "</move>")
 	      'chess-network-perform-move)
-	(cons "PASS"
+	(cons "<pass/>"
 	      (function
 	       (lambda ()
 		 (message "Your opponent has passed the move to you"))))
-	(cons "CONNECT\\s-+\\(.*\\)"
+	(cons "<connect name=\"\\(.*\\)\"/>"
 	      (function
 	       (lambda ()
 		 ;; jww (2002-04-07): Set the appropriate Black or
 		 ;; White tag at this point
 		 (message "Your opponent, %s, has connected"
 			  (match-string 1)))))
-	(cons "SETBOARD\\s-+\\(.*\\)"
+	(cons "<setup fen=\"\\(.*\\)\"/>"
 	      (function
 	       (lambda ()
 		 (let* ((position (chess-fen-to-pos (match-string 1)))
 			(ply (chess-ply-create position)))
 		   (chess-game-set-plies (chess-engine-game nil)
 					 (list ply))))))
-	(cons "QUIT"
+	(cons "<quit/>"
 	      (function
 	       (lambda ()
 		 (message "Your opponent has quit playing"))))))
@@ -41,7 +41,7 @@
   (let ((position (chess-engine-position nil))
 	(move (match-string 2)) ply)
     (when (string= (if (chess-pos-side-to-move position)
-		       "White" "Black")
+		       "white" "black")
 		   (match-string 1))
       (setq ply (chess-algebraic-to-ply position move))
       (unless ply
@@ -71,23 +71,25 @@
 
    ((eq event 'shutdown)
     (ignore-errors
-     (chess-engine-send nil "QUIT\n")))
+     (chess-engine-send nil "<quit/>\n")))
 
    ((eq event 'setup)
-    (chess-engine-send nil (format "SETBOARD %s\n"
+    (chess-engine-send nil (format "<setup fen=\"%s\">\n"
 				   (chess-pos-to-fen (car args)))))
 
    ((eq event 'pass)
-    (chess-engine-send nil "PASS\n"))
+    (chess-engine-send nil "<pass/>\n"))
 
    ((eq event 'move)
     (unless chess-network-now-moving
       (chess-engine-send
-       nil (concat (if (chess-pos-side-to-move (chess-ply-pos (car args)))
-		       "White:"
-		     "Black:")
+       nil (concat "<move color=\""
+		   (if (chess-pos-side-to-move (chess-ply-pos (car args)))
+		       "white"
+		     "black")
+		   "\">"
 		   (chess-ply-to-algebraic (car args))
-		   "\n"))))))
+		   "</move>\n"))))))
 
 (provide 'chess-network)
 
