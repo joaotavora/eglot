@@ -55,6 +55,8 @@ The format of each entry is:
 			       (repeat string))))
   :group 'chess-ics)
 
+
+
 (defcustom chess-ics-initial-commands
   (list
    (list "freechess.org"
@@ -110,7 +112,7 @@ Possible values are currently FICS (the default, and best supported)
 and ICC.")
 (make-variable-buffer-local 'chess-ics-server-type)
 
-(defcustom chess-ics-icc-datagrams '(26 33 50 51 56 110 111)
+(defcustom chess-ics-icc-datagrams '(22 23 26 33 50 51 56 110 111)
   "*A list of datagrams to request when connecting to ICC."
   :group 'chess-ics
   :type '(repeat (choice (const :tag "DG_SEND_MOVES" 24)
@@ -288,7 +290,7 @@ standard position).  In those cases, this variable should be set to nil.")
 	      (message "Creating game %d (%s vs. %s)" game-number white black)
 	      (chess-ics-game game-number :White white :Black black)))))
    (cons "^<10>$" (function (lambda () (chess-ics-send "style 12\nrefresh"))))
-   (cons "^Game \\([0-9]+\\): \\S-+ backs up \\([0-9]+\\)\\(?: moves\\)?.$"
+   (cons "^Game \\([0-9]+\\): \\S-+ backs up \\([0-9]+\\).$"
 	 (function
 	  (lambda ()
 	    (chess-game-undo (chess-ics-game (string-to-int (match-string 1)))
@@ -894,6 +896,11 @@ This function should be put on `comint-preoutput-filter-functions'."
 	  (dg (string-to-int (match-string 1 string)))
 	  (args (match-string 2 string)))
       (cond
+       ((and (or (= dg 22) (= dg 23))
+	     (string-match "\\([0-9]+\\) \\([1-9][0-9]*\\)" args))
+	(chess-game-undo (chess-ics-game (string-to-int (match-string 1 args)))
+			 (string-to-int (match-string 2 args)))
+	"")
        ((and (or (= dg 101) (= dg 110))
 	     (string-match "\\([0-9]+\\) {\\(.+\\) \\(?:[0-9]+\\) \\(?:[0-9]+\\)} \\([0-9]+\\)" args))
 	(let ((pos (chess-fen-to-pos (match-string 2 args))))
