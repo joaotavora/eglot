@@ -24,6 +24,9 @@ configuration!
 
 ----------------------------------------------------------------------
 
+- undoing a single move (my move) and moving again, causes
+  chess-algebraic to get a little screwed up
+
 - the game should go inactive once I lose by stalemate/checkmate
 
 - detect draw/resign/abort/retract, etc., from ICS and common engines

@@ -903,7 +903,8 @@ to the end or beginning."
 		 (eq position chess-legal-moves-pos)
 		 (or (> (length chess-move-string) 1)
 		     (eq (car chess-legal-moves) last-command-char)))
-      (setq char last-command-char
+      (setq char (if (eq (downcase last-command-char) ?o) ?k
+		   last-command-char)
 	    chess-legal-moves-pos position
 	    chess-legal-moves
 	    (cons char
