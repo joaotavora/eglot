@@ -76,7 +76,7 @@
 
    ((eq event 'move)
     (if (= 0 (chess-game-index game))
-	(chess-game-set-tag game "White" chess-engine-opponent-name)
+	(chess-game-set-tag game "White" chess-full-name)
       (if (= 1 (chess-game-index game))
 	  (chess-game-set-tag game "Black" chess-engine-opponent-name)))
 
