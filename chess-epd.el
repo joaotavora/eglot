@@ -89,10 +89,16 @@ and advance point after the correctly parsed position."
 	(nconc positions (list pos))))
     (cdr positions)))
 
+(defsubst chess-game-to-epd (game &optional to-string index)
+  (if to-string
+      (chess-pos-to-epd (chess-game-pos game index))
+    (insert (chess-pos-to-epd (chess-game-pos game index)) ?\n)))
+
+(defsubst chess-epd-to-game (&optional string)
+  (chess-game-create (chess-epd-to-pos string)))
+
 (defun chess-epd-parse ()
-  (when (re-search-forward
-	 "\\([bnrqkpBNRQKP1-8]*/?\\)+ [bw] \\(-\\|[KQkq]+\\) \\(-\\|[1-8]\\)"
-	 nil t)
+  (when (re-search-forward chess-fen-regexp nil t)
     (let ((pos (chess-fen-to-pos (match-string 0))))
       (while (= 1 (skip-chars-forward " "))
 	(if (looking-at "[A-Za-z]")
