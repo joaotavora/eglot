@@ -25,6 +25,9 @@
 - Auto-raise the chess-images frame, if it's being displayed as a
   separate frame.
 
+- Create a to-text rendering interface for all chess game objects.
+  So, chess-game-to-string would use PGN, etc.
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs
