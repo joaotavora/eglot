@@ -82,12 +82,25 @@
   (chess-game-run-hooks game 'delete-tag tag))
 
 
-(defsubst chess-game-data (game)
+(defsubst chess-game-data-alist (game)
   (nth 2 game))
 
-(defsubst chess-game-set-data (game data)
-  (setcar (nthcdr 1 game) data)
-  (chess-game-run-hooks game 'set-data))
+(defun chess-game-set-data (game key value)
+  (let ((alist (chess-game-data-alist game)))
+    (if (null alist)
+	(setcar (nthcdr 1 game) (list (cons key value)))
+      (push (cons key value) alist))
+    (chess-game-run-hooks game 'set-data key)))
+
+(defun chess-game-get-data (game key)
+  (let ((alist (chess-game-data-alist game)))
+    (if alist
+	(cdr (assq key alist)))))
+
+(defun chess-game-del-data (game key)
+  (let ((alist (chess-game-data-alist game)))
+    (if alist
+	(assq-delete-all key alist))))
 
 
 (defsubst chess-game-plies (game)

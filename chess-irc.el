@@ -65,7 +65,7 @@
 	  (set-process-filter proc 'chess-irc-filter)
 	  (set-process-buffer proc (current-buffer))
 	  (set-marker (process-mark proc) (point))
-	  (message "Now waiting for 'name USER' via /msg; or use `M-x chess-irc-engage'")))
+	  (message "Now waiting for 'name USER' via /msg; or `M-x chess-irc-engage'")))
       (setq chess-irc-process proc))
     nil)
 

@@ -62,10 +62,16 @@
   (let ((chess-engine-handling-event t))
     (cond
      ((eq event 'move)
+
       ;; if the game index is still 0, then our opponent is white, and
       ;; we need to pass over the move
-      (if (= (chess-game-index (chess-engine-game nil)) 0)
-	  (chess-game-run-hooks (chess-engine-game nil) 'pass))
+      (let ((game (chess-engine-game nil)))
+	(when (and game (chess-game-get-data game 'my-color)
+		   (= (chess-game-index game) 0))
+	  (chess-game-run-hooks game 'pass)
+	  ;; if no one else flipped my-color, we'll do it
+	  (if (chess-game-get-data game 'my-color)
+	      (chess-game-set-data game 'my-color nil))))
 
       (let ((ply (chess-algebraic-to-ply (chess-engine-position nil)
 					 (car args))))
@@ -78,7 +84,7 @@
 
      ((eq event 'connect)
       (message "Your opponent, %s, is now ready to play" (car args))
-      (chess-engine-send nil "name %s\n" (user-full-name)))
+      (chess-engine-send nil (format "name %s\n" (user-full-name))))
 
      ((eq event 'quit)
       (message "Your opponent has quit playing"))

@@ -111,9 +111,13 @@ minibuffer, which works well for Emacspeak users."
   (interactive "P")
   (let ((game (chess-game-create))	; start out as white always
 	display engine)
+	 (game (chess-game-create)))
+    (chess-game-set-data game 'my-color t)
+
     (require chess-default-display)
     (chess-display-set-game
      (chess-display-create chess-default-display t) game)
+    (chess-display-set-main display)
     (let ((engine-module
 	   (if arg
 	       (intern (or (read-string "Engine module to play against: ")

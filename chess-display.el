@@ -289,8 +289,12 @@ See `chess-display-type' for the different kinds of displays."
 	(chess-display-destroy nil)))
 
      ((eq event 'pass)
-      (chess-display-set-perspective
-       nil (not (chess-display-perspective nil))))
+      (let ((my-color (if chess-display-game
+			  (chess-game-get-data chess-display-game 'my-color)
+			(chess-display-perspective nil))))
+	(if chess-display-game
+	    (chess-game-set-data chess-display-game 'my-color (not my-color)))
+	(chess-display-set-perspective nil (not my-color))))
 
      ((memq event '(move game-over resign))
       (chess-display-set-index nil (chess-game-index
@@ -634,7 +638,9 @@ to the end or beginning."
 
 (defun chess-keyboard-shortcut-delete ()
   (interactive)
-  (when chess-move-string
+  (when (and chess-move-string
+	     (stringp chess-move-string)
+	     (> (length chess-move-string) 1))
     (setq chess-move-string
 	  (substring chess-move-string 0
 		     (1- (length chess-move-string))))
