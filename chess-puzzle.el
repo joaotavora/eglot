@@ -6,7 +6,15 @@
 (require 'chess-game)
 (require 'chess-random)
 (require 'chess-database)
-(require 'chess-file)
+
+(defgroup chess-puzzle nil
+  "A mode for playing games from a database of puzzles."
+  :group 'chess)
+
+(defcustom chess-puzzle-auto-next nil
+  "If non-nil, move to the next puzzle once the position is won."
+  :type 'boolean
+  :group 'chess-puzzle)
 
 (defvar chess-puzzle-indices nil)
 (defvar chess-puzzle-position nil)
@@ -24,7 +32,7 @@
 The spacebar in the display buffer is bound to `chess-puzzle-next',
 making it easy to go on to the next puzzle once you've solved one."
   (interactive "fRead chess puzzles from: ")
-  (let* ((database (chess-database-open 'chess-file file))
+  (let* ((database (chess-database-open file))
 	 (objects (and database (chess-session)))
 	 (engine (car objects))
 	 (display (cadr objects)))
@@ -32,10 +40,10 @@ making it easy to go on to the next puzzle once you've solved one."
       (if engine
 	  (chess-engine-set-option engine 'resign nil))
       (with-current-buffer display
-	;; make sure the database is closed when the display is shutdown
-	(chess-game-add-hook (chess-display-game nil)
-			     'chess-database-event-handler database)
 	(chess-game-set-data (chess-display-game nil) 'database database)
+	(if chess-puzzle-auto-next
+	    (chess-game-add-hook (chess-display-game nil)
+				 'chess-puzzle-handler display))
 	(define-key (current-local-map) [? ] 'chess-puzzle-next)
 	(let ((count (chess-database-count database)))
 	  (setq chess-puzzle-indices (make-vector count nil))
@@ -65,7 +73,15 @@ making it easy to go on to the next puzzle once you've solved one."
 	(chess-game-set-data game 'my-color
 			     (chess-pos-side-to-move (chess-game-pos game)))
 	(dolist (key '(database database-index database-count))
-	  (chess-game-set-data game key (chess-game-data next-game key)))))))
+	  (chess-game-set-data game key (chess-game-data next-game key)))
+	(let ((chess-display-handling-event nil))
+	  (chess-game-run-hooks game 'orient))))))
+
+(defun chess-puzzle-handler (game display event &rest args)
+  (if (and (eq event 'move)
+	   (chess-game-over-p game))
+      (with-current-buffer display
+	(chess-puzzle-next))))
 
 (provide 'chess-puzzle)
 

@@ -4,37 +4,26 @@ translate: chess-german
 chess
 - clean up this code; let people override the chess-default-* lists
 
-chess-pos
-- in chess-pos-can-castle, the return value should be nil, or the
-  position of the rook to be used when castling on that side
-- create chess-pos-legal-move, which returns non-nil if a specific
-  move can be made; this makes the castling code much easier to write
-
 chess-ply
-- When creating the next position, set the annotations to point to the
-  keywords of the ply that led to that position; in fact, just point
-  to the creating ply!
-- Add :nag, :rav, :ann and :next-pos keywords to a ply
-- Thus there will be a mirror set of chess-pos-has-keyword, etc.,
-  functions
 - Need to detect games drawn by three-fold repetition
-- Rename chess-ply-create-castle to chess-ply-castling-changes
-
-chess-display
-- there is no way to call flag right now
-- invert the mode line to show the side on move?
 
 chess-engine
 - add a `force' event for forcing an engine to move
 
+chess-puzzle
+- after hitting chess-puzzle-next, clear out the engine so that it
+  doesn't try to respond
+
 chess-ics
 - detect draw/retract, etc.
-- add support for ICS observing
+- allow ICS observing
 
-chess-clock
-- when a clock runs down, allow the user to call-flag in order to win
-  on time; note: the user should be allowed to try anyway, in case our
-  clock has become out-of-sync with the server's
+chess-display
+- after Rhe1 in one game, the source rook was not cleared
+
+chess-gnuchess
+- setting up game positions does not work at all, such as with
+  chess-puzzle
 
 chess-images
 - in a generic emacs, with a light background, there are white lines

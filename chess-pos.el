@@ -97,7 +97,7 @@ This variable automatically becomes buffer-local when changed.")
    ;; index of pawn that can be captured en passant
    nil
    ;; can white and black castle on king or queen side?
-   t t t t
+   63 56 7 0
    ;; is the side to move in: `check', `checkmate', `stalemate'
    nil
    ;; which color is it to move next?
@@ -107,13 +107,154 @@ This variable automatically becomes buffer-local when changed.")
    nil
    ;; where are the kings?
    60 4
-   ;; an alist of epd evaluation codes and arguments
+   ;; a pointer to the ply which led to this position
    nil]
   "Starting position of a chess position.")
 
+(chess-message-catalog 'english
+  '((chess-nag-1   . "good move [traditional \"!\"]")
+    (chess-nag-2   . "poor move [traditional \"?\"]")
+    (chess-nag-3   . "very good move (traditional \"!!\"")
+    (chess-nag-4   . "very poor move (traditional \"??\")")
+    (chess-nag-5   . "speculative move (traditional \"!?\")")
+    (chess-nag-6   . "questionable move (traditional \"?!\")")
+    (chess-nag-7   . "forced move (all others lose quickly)")
+    (chess-nag-8   . "singular move (no reasonable alternatives)")
+    (chess-nag-9   . "worst move")
+    (chess-nag-10  . "drawish position")
+    (chess-nag-11  . "equal chances, quiet position")
+    (chess-nag-12  . "equal chances, active position")
+    (chess-nag-13  . "unclear position")
+    (chess-nag-14  . "White has a slight advantage")
+    (chess-nag-15  . "Black has a slight advantage")
+    (chess-nag-16  . "White has a moderate advantage")
+    (chess-nag-17  . "Black has a moderate advantage")
+    (chess-nag-18  . "White has a decisive advantage")
+    (chess-nag-19  . "Black has a decisive advantage")
+    (chess-nag-20  . "White has a crushing advantage (Black should resign)")
+    (chess-nag-21  . "Black has a crushing advantage (White should resign)")
+    (chess-nag-22  . "White is in zugzwang")
+    (chess-nag-23  . "Black is in zugzwang")
+    (chess-nag-24  . "White has a slight space advantage")
+    (chess-nag-25  . "Black has a slight space advantage")
+    (chess-nag-26  . "White has a moderate space advantage")
+    (chess-nag-27  . "Black has a moderate space advantage")
+    (chess-nag-28  . "White has a decisive space advantage")
+    (chess-nag-29  . "Black has a decisive space advantage")
+    (chess-nag-30  . "White has a slight time (development) advantage")
+    (chess-nag-31  . "Black has a slight time (development) advantage")
+    (chess-nag-32  . "White has a moderate time (development) advantage")
+    (chess-nag-33  . "Black has a moderate time (development) advantage")
+    (chess-nag-34  . "White has a decisive time (development) advantage")
+    (chess-nag-35  . "Black has a decisive time (development) advantage")
+    (chess-nag-36  . "White has the initiative")
+    (chess-nag-37  . "Black has the initiative")
+    (chess-nag-38  . "White has a lasting initiative")
+    (chess-nag-39  . "Black has a lasting initiative")
+    (chess-nag-40  . "White has the attack")
+    (chess-nag-41  . "Black has the attack")
+    (chess-nag-42  . "White has insufficient compensation for material deficit")
+    (chess-nag-43  . "Black has insufficient compensation for material deficit")
+    (chess-nag-44  . "White has sufficient compensation for material deficit")
+    (chess-nag-45  . "Black has sufficient compensation for material deficit")
+    (chess-nag-46  . "White has more than adequate compensation for material deficit")
+    (chess-nag-47  . "Black has more than adequate compensation for material deficit")
+    (chess-nag-48  . "White has a slight center control advantage")
+    (chess-nag-49  . "Black has a slight center control advantage")
+    (chess-nag-50  . "White has a moderate center control advantage")
+    (chess-nag-51  . "Black has a moderate center control advantage")
+    (chess-nag-52  . "White has a decisive center control advantage")
+    (chess-nag-53  . "Black has a decisive center control advantage")
+    (chess-nag-54  . "White has a slight kingside control advantage")
+    (chess-nag-55  . "Black has a slight kingside control advantage")
+    (chess-nag-56  . "White has a moderate kingside control advantage")
+    (chess-nag-57  . "Black has a moderate kingside control advantage")
+    (chess-nag-58  . "White has a decisive kingside control advantage")
+    (chess-nag-59  . "Black has a decisive kingside control advantage")
+    (chess-nag-60  . "White has a slight queenside control advantage")
+    (chess-nag-61  . "Black has a slight queenside control advantage")
+    (chess-nag-62  . "White has a moderate queenside control advantage")
+    (chess-nag-63  . "Black has a moderate queenside control advantage")
+    (chess-nag-64  . "White has a decisive queenside control advantage")
+    (chess-nag-65  . "Black has a decisive queenside control advantage")
+    (chess-nag-66  . "White has a vulnerable first rank")
+    (chess-nag-67  . "Black has a vulnerable first rank")
+    (chess-nag-68  . "White has a well protected first rank")
+    (chess-nag-69  . "Black has a well protected first rank")
+    (chess-nag-70  . "White has a poorly protected king")
+    (chess-nag-71  . "Black has a poorly protected king")
+    (chess-nag-72  . "White has a well protected king")
+    (chess-nag-73  . "Black has a well protected king")
+    (chess-nag-74  . "White has a poorly placed king")
+    (chess-nag-75  . "Black has a poorly placed king")
+    (chess-nag-76  . "White has a well placed king")
+    (chess-nag-77  . "Black has a well placed king")
+    (chess-nag-78  . "White has a very weak pawn structure")
+    (chess-nag-79  . "Black has a very weak pawn structure")
+    (chess-nag-80  . "White has a moderately weak pawn structure")
+    (chess-nag-81  . "Black has a moderately weak pawn structure")
+    (chess-nag-82  . "White has a moderately strong pawn structure")
+    (chess-nag-83  . "Black has a moderately strong pawn structure")
+    (chess-nag-84  . "White has a very strong pawn structure")
+    (chess-nag-85  . "Black has a very strong pawn structure")
+    (chess-nag-86  . "White has poor knight placement")
+    (chess-nag-87  . "Black has poor knight placement")
+    (chess-nag-88  . "White has good knight placement")
+    (chess-nag-89  . "Black has good knight placement")
+    (chess-nag-90  . "White has poor bishop placement")
+    (chess-nag-91  . "Black has poor bishop placement")
+    (chess-nag-92  . "White has good bishop placement")
+    (chess-nag-93  . "Black has good bishop placement")
+    (chess-nag-84  . "White has poor rook placement")
+    (chess-nag-85  . "Black has poor rook placement")
+    (chess-nag-86  . "White has good rook placement")
+    (chess-nag-87  . "Black has good rook placement")
+    (chess-nag-98  . "White has poor queen placement")
+    (chess-nag-99  . "Black has poor queen placement")
+    (chess-nag-100 . "White has good queen placement")
+    (chess-nag-101 . "Black has good queen placement")
+    (chess-nag-102 . "White has poor piece coordination")
+    (chess-nag-103 . "Black has poor piece coordination")
+    (chess-nag-104 . "White has good piece coordination")
+    (chess-nag-105 . "Black has good piece coordination")
+    (chess-nag-106 . "White has played the opening very poorly")
+    (chess-nag-107 . "Black has played the opening very poorly")
+    (chess-nag-108 . "White has played the opening poorly")
+    (chess-nag-109 . "Black has played the opening poorly")
+    (chess-nag-110 . "White has played the opening well")
+    (chess-nag-111 . "Black has played the opening well")
+    (chess-nag-112 . "White has played the opening very well")
+    (chess-nag-113 . "Black has played the opening very well")
+    (chess-nag-114 . "White has played the middlegame very poorly")
+    (chess-nag-115 . "Black has played the middlegame very poorly")
+    (chess-nag-116 . "White has played the middlegame poorly")
+    (chess-nag-117 . "Black has played the middlegame poorly")
+    (chess-nag-118 . "White has played the middlegame well")
+    (chess-nag-119 . "Black has played the middlegame well")
+    (chess-nag-120 . "White has played the middlegame very well")
+    (chess-nag-121 . "Black has played the middlegame very well")
+    (chess-nag-122 . "White has played the ending very poorly")
+    (chess-nag-123 . "Black has played the ending very poorly")
+    (chess-nag-124 . "White has played the ending poorly")
+    (chess-nag-125 . "Black has played the ending poorly")
+    (chess-nag-126 . "White has played the ending well")
+    (chess-nag-127 . "Black has played the ending well")
+    (chess-nag-128 . "White has played the ending very well")
+    (chess-nag-129 . "Black has played the ending very well")
+    (chess-nag-130 . "White has slight counterplay")
+    (chess-nag-131 . "Black has slight counterplay")
+    (chess-nag-132 . "White has moderate counterplay")
+    (chess-nag-133 . "Black has moderate counterplay")
+    (chess-nag-134 . "White has decisive counterplay")
+    (chess-nag-135 . "Black has decisive counterplay")
+    (chess-nag-136 . "White has moderate time control pressure")
+    (chess-nag-137 . "Black has moderate time control pressure")
+    (chess-nag-138 . "White has severe time control pressure")
+    (chess-nag-139 . "Black has severe time control pressure")))
+
 (defsubst chess-pos-piece (position index)
   "Return the piece on POSITION at INDEX."
-  (assert position)
+  (assert (vectorp position))
   (assert (and (>= index 0) (< index 64)))
   (aref position index))
 
@@ -121,16 +262,16 @@ This variable automatically becomes buffer-local when changed.")
   "Return the index on POSITION of the king.
 If COLOR is non-nil, return the position of the white king, otherwise
 return the position of the black king."
-  (assert position)
+  (assert (vectorp position))
   (assert (memq color '(nil t)))
   (or (aref position (if color 72 73))
       (aset position (if color 72 73)
 	    (chess-pos-search position (if color ?K ?k)))))
 
-(defsubst chess-pos-set-king-pos (position color index)
+(defsubst chess-pos-set-king-index (position color index)
   "Set the known index of the king on POSITION for COLOR, to INDEX.
 It is never necessary to call this function."
-  (assert position)
+  (assert (vectorp position))
   (assert (memq color '(nil t)))
   (assert (and (>= index 0) (< index 64)))
   (aset position (if color 72 73) index))
@@ -139,24 +280,38 @@ It is never necessary to call this function."
   "Set the piece on POSITION at INDEX to PIECE.
 PIECE must be one of K Q N B R or P.  Use lowercase to set black
 pieces."
-  (assert position)
+  (assert (vectorp position))
   (assert (and (>= index 0) (< index 64)))
   (assert (memq piece '(?  ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p)))
   (aset position index piece)
   (if (= piece ?K)
-      (chess-pos-set-king-pos position t index)
+      (chess-pos-set-king-index position t index)
     (if (= piece ?k)
-	(chess-pos-set-king-pos position nil index))))
+	(chess-pos-set-king-index position nil index))))
 
-(defsubst chess-pos-can-castle (position side)
+(defun chess-pos-can-castle (position side)
   "Return whether the king on POSITION can castle on SIDE.
 SIDE must be either ?K for the kingside, or ?Q for the queenside (use
 lowercase to query if black can castle)."
-  (assert position)
+  (assert (vectorp position))
   (assert (memq side '(?K ?Q ?k ?q)))
-  (aref position (+ 65 (if (< side ?a)
-			   (if (= side ?K) 0 1)
-			 (if (= side ?k) 2 3)))))
+  (let* ((index (+ 65 (if (< side ?a)
+			  (if (= side ?K) 0 1)
+			(if (= side ?k) 2 3))))
+	 (value (aref position index)))
+    (if (or (eq value nil) (integerp value))
+	value
+      (let* ((color (< side ?a))
+	     (long (= ?Q (upcase side)))
+	     (file (if long 0 7))
+	     (king-file (chess-pos-king-index position color))
+	     rook)
+	(while (funcall (if long '< '>) file king-file)
+	  (let ((index (chess-rf-to-index (if color 7 0) file)))
+	    (if (chess-pos-piece-p position index (if color ?R ?r))
+		(setq rook index file king-file)
+	      (setq file (funcall (if long '1+ '1-) file)))))
+	(aset position index rook)))))
 
 (defsubst chess-pos-set-can-castle (position side value)
   "Set whether the king can castle on the given POSITION on SIDE.
@@ -167,7 +322,7 @@ It is only necessary to call this function if setting up a position
 manually.  Note that all newly created positions have full castling
 priveleges set, unless the position is created blank, in which case
 castling priveleges are unset.  See `chess-pos-copy'."
-  (assert position)
+  (assert (vectorp position))
   (assert (memq side '(?K ?Q ?k ?q)))
   (assert (memq value '(nil t)))
   (aset position (+ 65 (if (< side ?a)
@@ -177,12 +332,12 @@ castling priveleges are unset.  See `chess-pos-copy'."
 (defsubst chess-pos-en-passant (position)
   "Return the index of any pawn on POSITION that can be captured en passant.
 Returns nil if en passant is unavailable."
-  (assert position)
+  (assert (vectorp position))
   (aref position 64))
 
 (defsubst chess-pos-set-en-passant (position index)
   "Set the index of any pawn on POSITION that can be captured en passant."
-  (assert position)
+  (assert (vectorp position))
   (assert (or (eq index nil)
 	      (and (>= index 0) (< index 64))))
   (aset position 64 index))
@@ -191,96 +346,89 @@ Returns nil if en passant is unavailable."
   "Return whether the side to move in the POSITION is in a special state.
 nil is returned if not, otherwise one of the symbols: `check',
 `checkmate', `stalemate'."
-  (assert position)
+  (assert (vectorp position))
   (aref position 69))
 
 (defsubst chess-pos-set-status (position value)
   "Set whether the side to move in POSITION is in a special state.
 VALUE should either be nil, to indicate that the POSITION is normal,
 or one of the symbols: `check', `checkmate', `stalemate'."
-  (assert position)
+  (assert (vectorp position))
   (assert (or (eq value nil) (symbolp value)))
   (aset position 69 value))
 
 (defsubst chess-pos-side-to-move (position)
   "Return the color whose move it is in POSITION."
-  (assert position)
+  (assert (vectorp position))
   (aref position 70))
 
 (defsubst chess-pos-set-side-to-move (position color)
   "Set the color whose move it is in POSITION."
-  (assert position)
+  (assert (vectorp position))
   (assert (memq color '(nil t)))
   (aset position 70 color))
 
 (defsubst chess-pos-annotations (position)
   "Return the list of annotations for this position."
-  (assert position)
+  (assert (vectorp position))
   (aref position 71))
 
 (defsubst chess-pos-set-annotations (position annotations)
   "Return the list of annotations for this position."
-  (assert position)
+  (assert (vectorp position))
   (assert (listp annotations))
   (aset position 71 annotations))
 
 (defun chess-pos-add-annotation (position annotation)
   "Add an annotation for this position."
-  (assert position)
+  (assert (vectorp position))
   (assert (or (stringp annotation) (listp annotation)))
   (let ((ann (chess-pos-annotations position)))
     (if ann
 	(nconc ann (list annotation))
       (aset position 71 (list annotation)))))
 
-(defsubst chess-pos-epd-alist (position)
-  "Return the alist of EPD evaluations for this position."
-  (assert position)
-  (aref position 74))
-
-(defsubst chess-pos-set-epd-alist (position alist)
-  "Return the alist of EPD evaluations for this position."
-  (assert position)
-  (assert (listp alist))
-  (aset position 74 alist))
-
 (defsubst chess-pos-epd (position opcode)
   "Return the value of the given EPD OPCODE, or nil if not set."
-  (assert position)
+  (assert (vectorp position))
   (assert opcode)
-  (let ((epd (chess-pos-epd-alist position)))
-    (if epd
-	(cdr (assq opcode epd)))))
+  (cdr (assq opcode (chess-pos-annotations position))))
 
 (defun chess-pos-set-epd (position opcode &optional value)
   "Set the given EPD OPCODE to VALUE, or t if VALUE is not specified."
-  (assert position)
+  (assert (vectorp position))
   (assert opcode)
-  (let* ((epd (chess-pos-epd-alist position))
-	 (entry (assq opcode epd)))
+  (let ((entry (assq opcode (chess-pos-annotations position))))
     (if entry
 	(setcdr entry (or value t))
-      (push (cons opcode (or value t)) epd))))
+      (chess-pos-add-annotation position (cons opcode (or value t))))))
 
 (defun chess-pos-del-epd (position opcode)
   "Delete the given EPD OPCODE."
-  (assert position)
+  (assert (vectorp position))
   (assert opcode)
-  (chess-pos-set-epd-alist position
-			   (assq-delete-all opcode
-					    (chess-pos-epd-alist position))))
+  (chess-pos-set-annotations
+   position (assq-delete-all opcode (chess-pos-annotations position))))
+
+(defun chess-pos-preceding-ply (position)
+  "Delete the given EPD OPCODE."
+  (assert (vectorp position))
+  (aref position 74))
+
+(defun chess-pos-set-preceding-ply (position ply)
+  "Delete the given EPD OPCODE."
+  (assert (vectorp position))
+  (assert (listp ply))
+  (aset position 74 ply))
 
 (defsubst chess-pos-copy (position)
   "Copy the given chess POSITION.
 If there are annotations or EPD opcodes set, these lists are copied as
 well, so that the two positions do not share the same lists."
-  (assert position)
+  (assert (vectorp position))
   (let ((copy (vconcat position)) i)
     (setq i (chess-pos-annotations position))
     (if i (chess-pos-set-annotations copy (copy-alist i)))
-    (setq i (chess-pos-epd-alist position))
-    (if (and (not (eq i nil)) (listp i))
-	(chess-pos-set-epd-alist copy (copy-alist i)))
     copy))
 
 (defsubst chess-pos-create (&optional blank)
@@ -346,7 +494,7 @@ in order to execute faster."
   "Return non-nil if at POSITION/INDEX there is the given PIECE-OR-COLOR.
 If PIECE-OR-COLOR is t for white or nil for black, any piece of that
 color will do."
-  (assert position)
+  (assert (vectorp position))
   (assert (and (>= index 0) (< index 64)))
   (assert (memq piece-or-color
 		'(t nil ?  ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p)))
@@ -361,7 +509,7 @@ color will do."
   "Look on POSITION anywhere for PIECE-OR-COLOR, returning all coordinates.
 If PIECE-OR-COLOR is t for white or nil for black, any piece of that
 color will do."
-  (assert position)
+  (assert (vectorp position))
   (assert (memq piece-or-color
 		'(t nil ?  ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p)))
   (let (found)
@@ -374,7 +522,7 @@ color will do."
   "Convert the given POSITION into a string.
 The returned string can be converted back to a position using
 `chess-pos-from-string'."
-  (assert position)
+  (assert (vectorp position))
   (chess-pos-to-fen position full))
 
 (defsubst chess-pos-from-string (string)
@@ -393,7 +541,7 @@ This string should have been created by `chess-pos-to-string'."
 
 (defun chess-pos-material-value (position color)
   "Return the aggregate material value in POSITION for COLOR."
-  (assert position)
+  (assert (vectorp position))
   (assert (memq color '(nil t)))
   (let ((pieces (chess-pos-search position color))
 	(value 0))
@@ -410,7 +558,7 @@ This string should have been created by `chess-pos-to-string'."
   "Move a piece on the POSITION directly, using the indices FROM and TO.
 This function does not check any rules, it only makes sure you are not
 trying to move a blank square."
-  (assert position)
+  (assert (vectorp position))
   (assert (listp changes))
   (assert (> (length changes) 0))
   (let ((ch changes))
@@ -510,7 +658,7 @@ case of the PIECE determines color.
 
 The return value is a list of candidates, which means a list of
 indices which indicate where a piece may have moved from."
-  (assert position)
+  (assert (vectorp position))
   (assert (and (>= target 0) (< target 64)))
   (assert (memq piece '(t nil ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p)))
   (let* ((color (if (char-valid-p piece)
@@ -589,21 +737,33 @@ indices which indicate where a piece may have moved from."
 			(1 -1)  (1 0)  (1 1)))))
 	;; up the current file
 	(setq pos (apply 'chess-incr-index target dir))
-	;; jww (2002-04-11): In Fischer Random castling, the rook can
-	;; move in wacky ways
 	(while pos
 	  (if (chess-pos-piece-p position pos piece)
 	      (progn
 		(chess--add-candidate pos)
 		(setq pos nil))
 	    (setq pos (and (chess-pos-piece-p position pos ? )
-			   (apply 'chess-incr-index pos dir)))))))
+			   (apply 'chess-incr-index pos dir)))))
+
+	;; test whether the rook can move to the target by castling
+	(if (= test-piece ?R)
+	    (let (rook)
+	      (if (and (equal target (chess-rf-to-index (if color 7 0) 5))
+		       (setq rook (chess-pos-can-castle position
+							(if color ?K ?k)))
+		       (chess-ply-castling-changes position))
+		  (chess--add-candidate rook)
+		(if (and (equal target (chess-rf-to-index (if color 7 0) 3))
+			 (setq rook (chess-pos-can-castle position
+							  (if color ?Q ?q)))
+			 (chess-ply-castling-changes position t))
+		    (chess--add-candidate rook)))))))
 
      ;; the king is a trivial case of the queen, except when castling
      ((= test-piece ?K)
       (let ((dirs '((-1 -1) (-1 0) (-1 1)
-		     (0 -1)         (0 1)
-		     (1 -1)  (1 0)  (1 1))))
+		    (0 -1)         (0 1)
+		    (1 -1)  (1 0)  (1 1))))
 	(while dirs
 	  ;; up the current file
 	  (setq pos (apply 'chess-incr-index target (car dirs)))
@@ -611,33 +771,16 @@ indices which indicate where a piece may have moved from."
 	      (progn
 		(chess--add-candidate pos)
 		(setq dirs nil))
-	    (setq dirs (cdr dirs)))))
+	    (setq dirs (cdr dirs))))
 
-      (let ((rank (if color 7 0)))
-	;; if we can still castle, then the king and rook are in their
-	;; squares; also, make sure that the user is not attempting to
-	;; castle through check
-	(if (and (null candidates)
-		 (or (and (equal target (chess-rf-to-index rank 6))
-			  (chess-pos-can-castle position (if color ?K ?k)))
-		     (and (equal target (chess-rf-to-index rank 2))
-			  (chess-pos-can-castle position (if color ?Q ?q)))))
-	    (let* ((king (chess-pos-king-index position color))
-		   (king-file (chess-index-file king))
-		   (long (= 2 (chess-index-file target)))
-		   (file (if long 1 6))
-		   (legal t))
-	      ;; jww (2002-04-10): this needs to be a bit more subtle
-	      ;; for Fischer Random castling
-	      (while (and legal (funcall (if long '< '>) file king-file))
-		(setq pos (chess-rf-to-index rank file))
-		(if (or (not (chess-pos-piece-p position pos ? ))
-			(chess-search-position position pos (not color)
-					       check-only))
-		    (setq legal nil)
-		  (setq file (funcall (if long '1+ '1-) file))))
-	      (if legal
-		  (chess--add-candidate (chess-rf-to-index rank 4)))))))
+	;; test whether the king can move to the target by castling
+	(if (or (and (equal target (chess-rf-to-index (if color 7 0) 6))
+		     (chess-pos-can-castle position (if color ?K ?k))
+		     (chess-ply-castling-changes position))
+		(and (equal target (chess-rf-to-index (if color 7 0) 2))
+		     (chess-pos-can-castle position (if color ?Q ?q))
+		     (chess-ply-castling-changes position t)))
+	    (chess--add-candidate (chess-pos-king-index position color)))))
 
      ;; the knight is a zesty little piece; there may be more than
      ;; one, but at only one possible square in each direction
@@ -658,12 +801,13 @@ indices which indicate where a piece may have moved from."
     ;; been eliminated.
     (if (and candidates (char-valid-p piece))
 	(setq candidates
-	      (chess-pos-legal-moves position color target candidates)))
+	      (chess-pos-legal-candidates position color target
+					  candidates)))
 
     ;; return the final list of candidate moves
     candidates))
 
-(defun chess-pos-legal-moves (position color target candidates)
+(defun chess-pos-legal-candidates (position color target candidates)
   "Test if TARGET can legally be reached by any of CANDIDATES.
 Return the list of candidates that can reach it.
 
@@ -674,7 +818,7 @@ Note: All of the pieces specified by CANDIDATES must be of the same
 type.  Also, it is the callers responsibility to ensure that the piece
 can legally reach the square in question.  This function merely
 assures that the resulting position is valid."
-  (assert position)
+  (assert (vectorp position))
   (assert (memq color '(nil t)))
   (assert (and (>= target 0) (< target 64)))
   (assert (listp candidates))
@@ -695,8 +839,10 @@ assures that the resulting position is valid."
 		(setq king-pos (chess-pos-king-index position color)))
 	    ;; can anybody from the opposite side reach him?  if so,
 	    ;; drop the candidate
-	    (if (catch 'in-check
-		  (chess-search-position position king-pos (not color) t))
+	    (if (and king-pos
+		     (catch 'in-check
+		       (chess-search-position position king-pos
+					      (not color) t)))
 		(if last-cand
 		    (setcdr last-cand (cdr cand))
 		  (setq candidates (cdr candidates)))

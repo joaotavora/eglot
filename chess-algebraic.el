@@ -60,16 +60,16 @@ This regexp handles both long and short form.")
 
 (defun chess-algebraic-to-ply (position move &optional trust)
   "Convert the algebraic notation MOVE for POSITION to a ply."
+  (assert (vectorp position))
+  (assert (stringp move))
   (when (string-match chess-algebraic-regexp-entire move)
     (let ((color (chess-pos-side-to-move position))
 	  (mate (match-string 9 move))
 	  (piece (aref move 0))
 	  changes ply)
       (if (eq piece ?O)
-	  (let ((long (= (length (match-string 1 move)) 5)))
-	    (if (chess-pos-can-castle position (if long (if color ?Q ?q)
-						 (if color ?K ?k)))
-		(setq changes (chess-ply-create-castle position long))))
+	  (setq changes (chess-ply-castling-changes
+			 position (= (length (match-string 1 move)) 5)))
 	(let ((promotion (match-string 8 move)))
 	  (setq changes
 		(let ((source (match-string 4 move))
@@ -172,6 +172,7 @@ This regexp handles both long and short form.")
 (defun chess-ply-to-algebraic (ply &optional long)
   "Convert the given PLY to algebraic notation.
 If LONG is non-nil, render the move into long notation."
+  (assert (listp ply))
   (let (source san)
     (cond
      ((or (null (setq source (chess-ply-source ply)))

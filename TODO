@@ -4,6 +4,22 @@ These are features scheduled for future 2.x releases.
 
 			   General Features
 
+- Write chess-descriptive.el, and have the code in general use
+  chess-ply-to-string and chess-string-to-ply, so that users can use
+  descriptive notationas an alternative to algebraic.
+
+- Write chess-html.el, for outputting a game to HTML
+
+- Write chess-latex.el, for outputting a game to LaTeX
+
+- Use TrueType or other chess fonts for displaying positions; this
+  might be the best way of displaying positions on Windows
+
+- Change chess-announce/sound so that it reads from the text rendition
+  of the move; this way it will work with either descriptive or
+  algebraic notation.  Also, chess-announce and chess-sound can be
+  collapsed into one module, with different "styles" of announcing.
+
 - Write chess-epd.el, which is based on chess-fen, and is also a
   database module for accessing positions within an EPD file
 
@@ -98,7 +114,12 @@ These are features scheduled for future 2.x releases.
 
 			   Other variations
 
-Need a way to play bughouse/crazyhouse games.
+- Need a way to play bughouse/crazyhouse games.
 
 ----------------------------------------------------------------------
 
+			    Other features
+
+- Keeping a player database in BBDB
+
+- Managing a tournament, setting up pairings, calculating ratings

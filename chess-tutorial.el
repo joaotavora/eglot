@@ -8,24 +8,31 @@
 (chess-message-catalog 'english
   '((queen-would-take . "The queen would take your knight!")
     (congratulations  . "Congratulations!")
-    (knight-1-done    . "Goal: take all the pawns, without letting the queen take your knight")))
+    (knight-1-done    . "Goal: take all the pawns, without letting the queen take your knight")
+    (cannot-take-queen . "You cannot take the queen")))
 
 (defun chess-tutorial-knight-1 (game ignore event &rest args)
   (if (eq event 'move)
       (let ((position (chess-game-pos game)))
 	(if (null (chess-pos-search position ?p))
 	    (chess-message 'congratulations)
-	  (when (chess-search-position
-		 position (car (chess-pos-search position ?N)) ?q)
-	    (chess-game-run-hooks chess-module-game 'undo 1)
-	    (chess-display-update nil)
-	    (chess-error 'queen-would-take))))))
+	  (cond
+	   ((chess-search-position position
+				   (car (chess-pos-search position ?N)) ?q)
+	    (let ((chess-display-handling-event nil))
+	      (chess-game-undo game 1))
+	    (chess-error 'queen-would-take))
+	   ((not (chess-pos-search position ?q))
+	    (let ((chess-display-handling-event nil))
+	      (chess-game-undo game 1))
+	    (chess-error 'cannot-take-queen)))))))
 
 (defun chess-tutorial ()
   (interactive)
   (let* (chess-default-modules
 	 (display (chess-create-display t)))
     (with-current-buffer display
+      (chess-module-set-leader nil)
       (chess-game-set-start-position
        (chess-display-game nil)
        (chess-fen-to-pos "8/3p1p/2p3p/4q/2p3p/3p1p/8/N w - -"))

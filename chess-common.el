@@ -64,10 +64,7 @@
    ((eq event 'draw)
     (chess-message 'draw-offer-declined))
 
-   ((eq event 'drawn)
-    (chess-game-set-data game 'active nil))
-
-   ((memq event '(resign abort new))
+   ((eq event 'new)
     (chess-engine-send nil "new\n")
     (chess-engine-set-position nil))
 
@@ -86,7 +83,12 @@
       (chess-game-set-tag game "White" chess-full-name)
       (chess-game-set-tag game "Black" chess-engine-opponent-name))
 
-    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
+    (cond
+     ((chess-ply-keyword (car args) :resign)
+      (chess-engine-send nil "resign\n"))
+     (t
+      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
+				     "\n"))))
 
     (if (chess-game-over-p game)
 	(chess-game-set-data game 'active nil)))))

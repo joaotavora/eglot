@@ -243,16 +243,13 @@ who is black."
 		     (eq (chess-pos-side-to-move (nth 0 info))
 			 (chess-game-data game 'my-color)))
 		(let ((ign (setq error 'converting-ply))
-		      (ply (chess-algebraic-to-ply
-			    (chess-ply-pos
-			     ;; jww (2002-04-25): change this, once I
-			     ;; allow position to refer to their
-			     ;; causal ply
-			     (car (last (chess-game-plies game))))
-			    (nth 1 info) t)))
+		      (ply (chess-algebraic-to-ply (chess-game-pos game)
+						   (nth 1 info) t)))
 		  (chess-game-set-data game 'white-remaining (nth 4 info))
 		  (chess-game-set-data game 'black-remaining (nth 5 info))
 		  (setq error 'applying-move)
+		  (chess-ply-set-keyword ply :next-pos (nth 0 info))
+		  (chess-pos-set-preceding-ply (nth 0 info) ply)
 		  (chess-game-move game ply)
 		  (setq error nil))
 	      (setq error nil))
@@ -274,7 +271,7 @@ who is black."
 	    (chess-game-set-tag game "Black" (nth 3 info))
 	    (chess-game-set-tag game "Site" (car chess-ics-server))
 	    (setq error 'setting-start-position)
-	    (chess-game-set-start-position game (car info)))
+	    (chess-game-set-start-position game (nth 0 info)))
 	  (setq error 'orienting-board)
 	  (chess-game-run-hooks game 'orient)
 	  (setq error nil))

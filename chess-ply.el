@@ -51,24 +51,33 @@
   :group 'chess)
 
 (defsubst chess-ply-pos (ply)
+  (assert (listp ply))
   (car ply))
 
 (defsubst chess-ply-set-pos (ply position)
+  (assert (listp ply))
+  (assert (vectorp position))
   (setcar ply position))
 
 (defsubst chess-ply-changes (ply)
+  (assert (listp ply))
   (cdr ply))
 
 (defsubst chess-ply-set-changes (ply changes)
+  (assert (listp ply))
+  (assert (listp changes))
   (setcdr ply changes))
 
 (defun chess-ply-any-keyword (ply &rest keywords)
+  (assert (listp ply))
   (catch 'found
     (dolist (keyword keywords)
       (if (memq keyword (chess-ply-changes ply))
 	  (throw 'found keyword)))))
 
 (defun chess-ply-keyword (ply keyword)
+  (assert (listp ply))
+  (assert (symbolp keyword))
   (let ((item (memq keyword (chess-ply-changes ply))))
     (if item
 	(if (eq item (last (chess-ply-changes ply)))
@@ -76,6 +85,8 @@
 	  (cadr item)))))
 
 (defun chess-ply-set-keyword (ply keyword &optional value)
+  (assert (listp ply))
+  (assert (symbolp keyword))
   (let* ((changes (chess-ply-changes ply))
 	 (item (memq keyword changes)))
     (if item
@@ -83,26 +94,37 @@
 	    (setcar (cdr item) value))
       (nconc changes (if value
 			 (list keyword value)
-		       (list keyword))))))
+		       (list keyword))))
+    value))
 
 (defsubst chess-ply-source (ply)
+  (assert (listp ply))
   (let ((changes (chess-ply-changes ply)))
     (and (listp changes) (not (symbolp (car changes)))
 	 (car changes))))
 
 (defsubst chess-ply-target (ply)
+  (assert (listp ply))
   (let ((changes (chess-ply-changes ply)))
     (and (listp changes) (not (symbolp (car changes)))
 	 (cadr changes))))
 
 (defsubst chess-ply-next-pos (ply)
-  (apply 'chess-pos-move (chess-pos-copy (chess-ply-pos ply))
-	 (chess-ply-changes ply)))
+  (assert (listp ply))
+  (or (chess-ply-keyword ply :next-pos)
+      (let ((position (apply 'chess-pos-move
+			     (chess-pos-copy (chess-ply-pos ply))
+			     (chess-ply-changes ply))))
+	(chess-pos-set-preceding-ply position ply)
+	(chess-ply-set-keyword ply :next-pos position))))
 
 (defsubst chess-ply-to-string (ply &optional long)
+  (assert (listp ply))
   (chess-ply-to-algebraic ply long))
 
 (defsubst chess-ply-from-string (position move)
+  (assert (vectorp position))
+  (assert (stringp move))
   (chess-algebraic-to-ply position move))
 
 (defconst chess-piece-name-table
@@ -111,33 +133,25 @@
     ("knight" . ?n)
     ("bishop" . ?b)))
 
-(defun chess-ply-create-castle (position &optional long king-index)
+(defun chess-ply-castling-changes (position &optional long king-index)
   "Create castling changes; this function supports Fischer Random castling."
+  (assert (vectorp position))
   (let* ((color (chess-pos-side-to-move position))
 	 (king (or king-index (chess-pos-king-index position color)))
-	 (king-target (chess-rf-to-index (if color 7 0)
-					 (if long 2 6)))
-	 (king-file (chess-index-file king))
-	 (file (if long 0 7))
-	 rook)
-    (while (funcall (if long '< '>) file king-file)
-      (let ((index (chess-rf-to-index (if color 7 0) file)))
-	(if (chess-pos-piece-p position index (if color ?R ?r))
-	    (setq rook index file king-file)
-	  (setq file (funcall (if long '1+ '1-) file)))))
-    (setq file (chess-index-file king)
-	  file (funcall (if long '1- '1+) file))
-    (while (and rook (funcall (if long '>= '<=) file
-			      (chess-index-file king-target)))
-      (let ((index (chess-rf-to-index (if color 7 0) file)))
-	(if (chess-pos-piece-p position index ? )
-	    (setq file (funcall (if long '1- '1+) file))
-	  (setq rook nil))))
-    (if (and rook (chess-pos-legal-moves position color king-target
-					 (list king)))
-	(list king king-target rook
-	      (chess-rf-to-index (if color 7 0) (if long 3 5))
-	      (if long :long-castle :castle)))))
+	 (rook (chess-pos-can-castle position (if color
+						  (if long ?Q ?K)
+						(if long ?q ?k))))
+	 (bias (if long -1 1)) pos)
+    (when rook
+      (setq pos (chess-incr-index king 0 bias))
+      (while (and pos (not (equal pos rook))
+		  (chess-pos-piece-p position pos ? )
+		  (chess-pos-legal-candidates position color pos (list king)))
+	(setq pos (chess-incr-index pos 0 bias)))
+      (if (equal pos rook)
+	  (list king (chess-rf-to-index (if color 7 0) (if long 2 6))
+		rook (chess-rf-to-index (if color 7 0) (if long 3 5))
+		(if long :long-castle :castle))))))
 
 (chess-message-catalog 'english
   '((pawn-promote-query . "Promote pawn to queen/rook/knight/bishop? ")))
@@ -145,6 +159,7 @@
 (defvar chess-ply-checking-mate nil)
 
 (defsubst chess-ply-create* (position)
+  (assert (vectorp position))
   (list position))
 
 (defun chess-ply-create (position &optional valid-p &rest changes)
@@ -155,6 +170,7 @@ also extend castling, and will prompt for a promotion piece.
 
 Note: Do not pass in the rook move if CHANGES represents a castling
 maneuver."
+  (assert (vectorp position))
   (let* ((ply (cons position changes))
 	 (color (chess-pos-side-to-move position))
 	 piece)
@@ -183,8 +199,8 @@ maneuver."
 				  (chess-pos-can-castle position
 							(if color ?Q ?q))))
 			 (setq new-changes
-			       (chess-ply-create-castle position long
-							(car changes))))
+			       (chess-ply-castling-changes position long
+							   (car changes))))
 		    (setcdr ply new-changes))))
 
 	  (when (= piece (if color ?P ?p))
@@ -240,8 +256,8 @@ maneuver."
 
 (defsubst chess-ply-final-p (ply)
   "Return non-nil if this is the last ply of a game/variation."
-  (chess-ply-any-keyword ply :draw :perpetual :repetition :stalemate
-			 :resign :checkmate))
+  (chess-ply-any-keyword ply :drawn :perpetual :repetition :stalemate
+			 :flag-fell :resign :checkmate :aborted))
 
 (eval-when-compile
   (defvar position)
@@ -257,8 +273,8 @@ maneuver."
   (let ((target (or pos (chess-incr-index* candidate rank-adj file-adj))))
     (if (and (or (not specific-target)
 		 (= target specific-target))
-	     (chess-pos-legal-moves position color target
-				    (list candidate)))
+	     (chess-pos-legal-candidates position color target
+					 (list candidate)))
 	(if chess-ply-throw-if-any
 	    (throw 'any-found t)
 	  (let ((ply (chess-ply-create position t candidate target)))
@@ -281,6 +297,7 @@ criteria.
 
 NOTE: All of the returned plies will reference the same copy of the
 position object passed in."
+  (assert (vectorp position))
   (cond
    ((null keywords)
     (let ((plies (list t)))
@@ -367,10 +384,7 @@ position object passed in."
 			 '((-1 -1) (-1 0) (-1 1)
 			   (0 -1)         (0 1)
 			   (1 -1)  (1 0)  (1 1)))))
-	    ;; up the current file
 	    (setq pos (apply 'chess-incr-index candidate dir))
-	    ;; jww (2002-04-11): In Fischer Random castling, the rook can
-	    ;; move in wacky ways
 	    (while pos
 	      (if (chess-pos-piece-p position pos ? )
 		  (progn
@@ -378,7 +392,24 @@ position object passed in."
 		    (setq pos (apply 'chess-incr-index pos dir)))
 		(if (chess-pos-piece-p position pos (not color))
 		    (chess-ply--add nil nil pos))
-		(setq pos nil)))))
+		(setq pos nil)))
+
+	    (when (= test-piece ?R)
+	      (if (eq candidate
+		      (chess-pos-can-castle position (if color ?K ?k)))
+		  (let ((changes (chess-ply-castling-changes position)))
+		    (if changes
+			(if chess-ply-throw-if-any
+			    (throw 'any-found t)
+			  (push (cons position changes) plies)))))
+
+	      (if (eq candidate
+		      (chess-pos-can-castle position (if color ?Q ?q)))
+		  (let ((changes (chess-ply-castling-changes position t)))
+		    (if changes
+			(if chess-ply-throw-if-any
+			    (throw 'any-found t)
+			  (push (cons position changes) plies))))))))
 
 	 ;; the king is a trivial case of the queen, except when castling
 	 ((= test-piece ?K)
@@ -391,14 +422,16 @@ position object passed in."
 		(chess-ply--add nil nil pos)))
 
 	  (if (chess-pos-can-castle position (if color ?K ?k))
-	      (let ((changes (chess-ply-create-castle position nil candidate)))
+	      (let ((changes (chess-ply-castling-changes position nil
+							 candidate)))
 		(if changes
 		    (if chess-ply-throw-if-any
 			(throw 'any-found t)
 		      (push (cons position changes) plies)))))
 
 	  (if (chess-pos-can-castle position (if color ?Q ?q))
-	      (let ((changes (chess-ply-create-castle position t candidate)))
+	      (let ((changes (chess-ply-castling-changes position t
+							 candidate)))
 		(if changes
 		    (if chess-ply-throw-if-any
 			(throw 'any-found t)

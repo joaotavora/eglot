@@ -67,6 +67,7 @@
     (opp-abort-ret  . "Your opponent has retracted their offer to abort")
     (opp-undo-ret   . "Your opponent has retracted their request to undo %d moves")
     (opp-illegal    . "Your opponent states your last command was illegal")
+    (opp-call-flag  . "Your flag fell, and your opponent has called time")
     (failed-start   . "Failed to start chess engine process")))
 
 (defsubst chess-engine-convert-algebraic (move &optional trust-check)
@@ -167,7 +168,7 @@
       (if (y-or-n-p (chess-string 'opp-draw))
 	  (progn
 	    (let ((chess-engine-handling-event t))
-	      (chess-game-end game :draw)
+	      (chess-game-end game :drawn)
 	      (chess-game-set-data game 'active nil))
 	    (chess-engine-command nil 'accept))
 	(chess-engine-command nil 'decline))
@@ -177,6 +178,7 @@
       (if (y-or-n-p (chess-string 'opp-abort))
 	  (progn
 	    (let ((chess-engine-handling-event t))
+	      (chess-game-end game :aborted)
 	      (chess-game-set-data game 'active nil))
 	    (chess-engine-command nil 'accept))
 	(chess-engine-command nil 'decline))
@@ -206,11 +208,12 @@
 	    (cond
 	     ((eq chess-engine-pending-offer 'draw)
 	      (chess-message 'opp-draw-acc)
-	      (chess-game-end game :draw)
+	      (chess-game-end game :drawn)
 	      (chess-game-set-data game 'active nil))
 
 	     ((eq chess-engine-pending-offer 'abort)
 	      (chess-message 'opp-abort-acc)
+	      (chess-game-end game :aborted)
 	      (chess-game-set-data game 'active nil))
 
 	     ((eq chess-engine-pending-offer 'undo)
@@ -260,8 +263,14 @@
 	(chess-game-undo game 1)))
 
      ((eq event 'call-flag)
-      ;; jww (2002-04-21): what to do here?
-      )
+      (let ((remaining
+	     (chess-game-data game (if (chess-game-data game 'my-color)
+				       'white-remaining
+				     'black-remaining))))
+	(when (< remaining 0)
+	  (chess-message 'opp-call-flag)
+	  (chess-game-end game :flag-fell)
+	  (chess-game-set-data game 'active nil))))
 
      ((eq event 'kibitz)
       (let ((chess-engine-handling-event t))

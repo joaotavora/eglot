@@ -32,6 +32,10 @@
 	  (lambda ()
 	    (setq chess-crafty-evaluation
 		  (string-to-number (match-string 1))))))
+   (cons "{\\(Black\\|White\\) resigns}"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'resign))))
    (cons "\\(Illegal move\\|unrecognized/illegal command\\):\\s-*\\(.*\\)"
 	 (function
 	  (lambda ()

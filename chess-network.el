@@ -70,7 +70,7 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'illegal))))
-   (cons "call flag$"
+   (cons "flag$"
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'call-flag))))
@@ -147,10 +147,6 @@
       (setq chess-engine-pending-offer 'match)
       (chess-engine-send nil (format "chess match %s\n" chess-full-name)))
 
-     ((eq event 'resign)
-      (chess-engine-send nil "resign\n")
-      (chess-game-set-data game 'active nil))
-
      ((eq event 'draw)
       (if chess-engine-pending-offer
 	  (chess-engine-command nil 'retract))
@@ -183,7 +179,7 @@
       (chess-engine-send nil "illegal\n"))
 
      ((eq event 'call-flag)
-      (chess-engine-send nil "call flag\n"))
+      (chess-engine-send nil "flag\n"))
 
      ((eq event 'kibitz)
       (chess-engine-send nil (format "kibitz %s\n"

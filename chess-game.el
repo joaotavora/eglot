@@ -24,14 +24,19 @@
 
 (defsubst chess-game-hooks (game)
   "Return the tags alist associated with GAME."
+  (assert game)
   (car game))
 
 (defsubst chess-game-set-hooks (game hooks)
   "Return the tags alist associated with GAME."
+  (assert game)
+  (assert (or hooks (eq hooks nil)))
   (setcar game hooks))
 
 (defun chess-game-add-hook (game function &optional data prepend)
   "Return the tags alist associated with GAME."
+  (assert game)
+  (assert function)
   (let ((hooks (chess-game-hooks game)))
     (if (null hooks)
 	(chess-game-set-hooks game (list (cons function data)))
@@ -43,6 +48,8 @@
   "Remove from GAME all event hooks that match FUNCTION.
 If DATA is specified, only remove those hooks whose associated data
 matches."
+  (assert game)
+  (assert function)
   (let* ((hooks (chess-game-hooks game))
 	 (h hooks) last-hook)
     (while h
@@ -58,6 +65,7 @@ matches."
 
 (defsubst chess-game-run-hooks (game &rest args)
   "Return the tags alist associated with GAME."
+  (assert game)
   (unless chess-game-inhibit-events
     (let (result)
       (dolist (hook (chess-game-hooks game) result)
@@ -66,20 +74,28 @@ matches."
 
 (defsubst chess-game-tags (game)
   "Return the tags alist associated with GAME."
+  (assert game)
   (cadr game))
 
 (defsubst chess-game-set-tags (game tags)
   "Return the tags alist associated with GAME."
+  (assert game)
+  (assert (or tags (eq tags nil)))
   (setcar (cdr game) tags)
   (chess-game-run-hooks game 'set-tags))
 
 (defsubst chess-game-tag (game tag)
   "Return the value for TAG in GAME."
+  (assert game)
+  (assert tag)
   (let ((tags (chess-game-tags game)))
     (and tags (cdr (assoc tag tags)))))
 
 (defun chess-game-set-tag (game tag value)
   "Set a TAG for GAME to VALUE."
+  (assert game)
+  (assert tag)
+  (assert value)
   (let ((tags (chess-game-tags game)))
     (if (null tags)
 	(chess-game-set-tags game (list (cons tag value)))
@@ -91,17 +107,23 @@ matches."
 
 (defsubst chess-game-del-tag (game tag)
   "Set a TAG for GAME to VALUE."
+  (assert game)
+  (assert tag)
   (chess-game-set-tags game (assq-delete-all tag (chess-game-tags game)))
   (chess-game-run-hooks game 'delete-tag tag))
 
 
 (defsubst chess-game-data-alist (game)
+  (assert game)
   (nth 2 game))
 
 (defsubst chess-game-set-data-alist (game value)
+  (assert game)
   (setcar (nthcdr 2 game) value))
 
 (defun chess-game-set-data (game key value)
+  (assert game)
+  (assert (symbolp key))
   (let* ((alist (chess-game-data-alist game))
 	 (cell (assq key alist)))
     (if cell
@@ -113,11 +135,15 @@ matches."
     (chess-game-run-hooks game 'set-data key)))
 
 (defun chess-game-data (game key)
+  (assert game)
+  (assert (symbolp key))
   (let ((alist (chess-game-data-alist game)))
     (if alist
 	(cdr (assq key alist)))))
 
 (defun chess-game-del-data (game key)
+  (assert game)
+  (assert (symbolp key))
   (let ((alist (chess-game-data-alist game)))
     (if alist
 	(assq-delete-all key alist))))
@@ -125,38 +151,46 @@ matches."
 
 (defsubst chess-game-plies (game)
   "Return the tags alist associated with GAME."
+  (assert game)
   (nth 3 game))
 
 (defalias 'chess-game-main-var 'chess-game-plies)
 
 (defsubst chess-game-set-plies (game plies)
   "Return the tags alist associated with GAME."
-  (setcdr (nthcdr 2 game) (list plies))
+  (assert game)
+  (setcdr (nthcdr 2 game) (if plies (list plies) nil))
   (chess-game-run-hooks game 'setup-game game))
 
 (defsubst chess-game-set-start-position (game position)
   "Return the tags alist associated with GAME."
+  (assert game)
+  (assert (vectorp position))
   (chess-game-set-plies game (list (chess-ply-create* position))))
 
 (defsubst chess-game-pos (game &optional index)
   "Return the position related to GAME's INDEX position."
+  (assert game)
   (chess-ply-pos (chess-game-ply game index)))
 
 (defun chess-game-status (game &optional index)
   "Return a symbol, such as :checkmate, :resign, etc.
 This conveys the status of the game at the given index."
-  (or (chess-pos-status (chess-game-pos chess-module-game index))
-      (let ((final (chess-ply-final-p
-		    (chess-game-ply chess-module-game index))))
-	(and (memq final '(:resign :draw :perpetual :repetition))
+  (assert game)
+  (or (chess-pos-status (chess-game-pos game index))
+      (let ((final (chess-ply-final-p (chess-game-ply game index))))
+	(and (memq final '(:aborted :resign :drawn :perpetual :repetition
+				    :flag-fell))
 	     final))))
 
 (defsubst chess-game-index (game)
   "Return the GAME's current position index."
+  (assert game)
   (1- (length (chess-game-plies game))))
 
 (defun chess-game-seq (game)
   "Return the current GAME sequence."
+  (assert game)
   (let ((index (chess-game-index game)))
     (if (> index 1)
 	(if (= (mod index 2) 0)
@@ -165,16 +199,20 @@ This conveys the status of the game at the given index."
       1)))
 
 (defsubst chess-game-side-to-move (game &optional index)
-  (= (mod (or index (chess-game-index game)) 2) 0))
+  (assert game)
+  (chess-pos-side-to-move (chess-game-pos game index)))
 
 (defun chess-game-ply (game &optional index)
   "Return the position related to GAME's INDEX position."
+  (assert game)
   (if index
       (nth index (chess-game-plies game))
     (car (last (chess-game-plies game)))))
 
 (defun chess-game-add-ply (game ply)
   "Return the position related to GAME's INDEX position."
+  (assert game)
+  (assert (listp ply))
   (let ((plies (chess-game-plies game)))
     (if plies
 	(nconc plies (list ply))
@@ -187,6 +225,8 @@ This conveys the status of the game at the given index."
 
 (defun chess-game-undo (game count)
   "Undo the last COUNT plies of GAME."
+  (assert game)
+  (assert (integerp count))
   (if (> count (chess-game-index game))
       (chess-error 'undo-limit-reached))
   (let ((chess-game-inhibit-events t))
@@ -196,6 +236,7 @@ This conveys the status of the game at the given index."
 
 (defun chess-game-strip-annotations (game)
   "Strip all annotations from the given GAME."
+  (assert game)
   (dotimes (i (chess-game-index game))
     (let ((position (chess-game-pos game i)))
       (chess-pos-set-annotations position nil))))
@@ -203,18 +244,23 @@ This conveys the status of the game at the given index."
 
 (defsubst chess-game-over-p (game)
   "Return the position related to GAME's INDEX position."
+  (assert game)
   (let ((last-ply (car (last (nth 3 game) 2))))
     (and last-ply (chess-ply-final-p last-ply))))
 
 
 (defsubst chess-game-to-string (game &optional indented)
+  (assert game)
   (chess-game-to-pgn game indented t))
 
 (defsubst chess-game-from-string (pgn)
+  (assert (stringp pgn))
   (chess-pgn-to-game pgn))
 
 
 (defsubst chess-game-copy-game (game new-game)
+  (assert game)
+  (assert new-game)
   (chess-game-set-tags game (chess-game-tags new-game))
   (chess-game-set-plies game (chess-game-plies new-game)))
 
@@ -238,6 +284,8 @@ later using the various tag-related methods)."
 This creates a new position and adds it to the main variation.
 The 'changes' of the last ply reflect whether the game is currently in
 progress (nil), if it is drawn, resigned, mate, etc."
+  (assert game)
+  (assert (listp ply))
   (let ((current-ply (chess-game-ply game))
 	(changes (chess-ply-changes ply))
 	(position (chess-ply-pos ply)))
@@ -250,8 +298,8 @@ progress (nil), if it is drawn, resigned, mate, etc."
     (assert changes)
 
     (chess-ply-set-changes current-ply changes)
-    (unless (chess-ply-any-keyword ply :draw :perpetual :repetition
-				   :resign)
+    (unless (chess-ply-any-keyword ply :drawn :perpetual :repetition
+				   :resign :aborted :flag-fell)
       (chess-game-add-ply game (chess-ply-create*
 				(chess-ply-next-pos current-ply))))
 
@@ -259,17 +307,14 @@ progress (nil), if it is drawn, resigned, mate, etc."
       (cond
        ((and long (chess-ply-any-keyword ply :resign :checkmate))
 	(let ((color (chess-game-side-to-move game)))
-	  (chess-game-set-tag game "Result" (if color "0-1" "1-0"))
-	  (if (chess-ply-keyword ply :resign)
-	      (chess-game-run-hooks game 'resign color)
-	    (chess-game-run-hooks game 'move current-ply))))
-       ((and long (chess-ply-any-keyword ply :draw :perpetual :repetition
+	  (if (chess-ply-any-keyword ply :resign :flag-fell)
+	      (chess-game-set-tag game "Result" (if color "0-1" "1-0"))
+	    (chess-game-set-tag game "Result" (if color "1-0" "0-1")))))
+       ((and long (chess-ply-any-keyword ply :drawn :perpetual :repetition
 					 :stalemate))
-	(chess-game-set-tag game "Result" "1/2-1/2")
-	(chess-game-run-hooks game 'drawn))
-       (t
-	(chess-game-run-hooks game 'move current-ply))))
+	(chess-game-set-tag game "Result" "1/2-1/2"))))
 
+    (chess-game-run-hooks game 'move current-ply)
     (chess-game-run-hooks game 'post-move)))
 
 (defsubst chess-game-end (game keyword)

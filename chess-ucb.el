@@ -36,7 +36,7 @@
 	      ;; technically the UCB is just an input interface, not a
 	      ;; true engine.
 	      (let ((chess-ucb-handling-event t))
-		(chess-game-move game move))))))))
+		(chess-game-move (chess-engine-game nil) move))))))))
 
 (defun chess-ucb-handler (game event &rest args)
   (unless chess-ucb-handling-event

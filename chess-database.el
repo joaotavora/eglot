@@ -3,6 +3,17 @@
 ;; Basic code for manipulating game databases
 ;;
 
+(require 'chess-message)
+
+(defgroup chess-database nil
+  "Generic interface to chess database modules."
+  :group 'chess)
+
+(defcustom chess-database-modules '(chess-scid chess-file)
+  "List of database modules to try when `chess-database-open' is called."
+  :type '(repeat (symbol :tag "Module"))
+  :group 'chess-database)
+
 (defvar chess-database-handler nil)
 
 (make-variable-buffer-local 'chess-database-handler)
@@ -10,7 +21,7 @@
 (chess-message-catalog 'english
   '((no-such-database . "There is no such chess database module '%s'")))
 
-(defun chess-database-open (module file)
+(defun chess-database-do-open (module file)
   "Returns the opened database object, or nil."
   (let* ((name (symbol-name module))
 	 (handler (intern-soft (concat name "-handler")))
@@ -23,6 +34,19 @@
 	(add-hook 'kill-buffer-hook 'chess-database-close nil t)
 	(add-hook 'after-revert-hook 'chess-database-rescan nil t)
 	(current-buffer)))))
+
+(defun chess-database-open (file &optional module)
+  "Returns the opened database object, or nil."
+  (if module
+      (chess-database-do-open module file)
+    (let (result)
+      (setq module chess-database-modules)
+      (while module
+	(if (and (require (car module) nil t)
+		 (setq result (chess-database-do-open (car module) file)))
+	    (setq module nil)
+	  (setq module (cdr module))))
+      result)))
 
 (defsubst chess-database-command (database event &rest args)
   (with-current-buffer database
@@ -46,19 +70,8 @@
 (defun chess-database-count (database)
   (chess-database-command database 'count))
 
-(defun chess-database-read (database index-or-moniker)
-  (if (integerp index-or-moniker)
-      (chess-database-command database 'read index-or-moniker)
-    (if (string-match "\\`\\([^:]+\\):\\([^#]+\\)#\\([0-9]+\\)\\'"
-		      index-or-moniker)
-	(let* ((type (match-string 1 index-or-moniker))
-	       (path (match-string 2 index-or-moniker))
-	       (index (string-to-int
-		       (match-string 3 index-or-moniker)))
-	       (db (chess-database-open
-		    (intern (concat "chess-" type)) path)))
-	  (if db
-	      (chess-database-read db index))))))
+(defun chess-database-read (database index)
+  (chess-database-command database 'read index))
 
 (defun chess-database-write (database game)
   (chess-database-command database 'write game))

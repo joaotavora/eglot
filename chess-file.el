@@ -13,14 +13,17 @@
   (cond
    ((eq event 'open)
     (with-current-buffer (find-file-noselect (car args))
-      (chess-file-handler 'rescan)
-      (current-buffer)))
+      (when (or (string-match "\\.pgn\\'" (car args))
+		(save-excursion
+		  (re-search-forward "^\\[Event" nil t)))
+	(chess-file-handler 'rescan)
+	(current-buffer))))
 
    ((eq event 'rescan)
     (save-excursion
       (goto-char (point-min))
       (setq chess-file-locations nil)
-      (while (search-forward "[Event " nil t)
+      (while (re-search-forward "^\\[Event " nil t)
 	(goto-char (match-beginning 0))
 	(push (point) chess-file-locations)
 	(forward-char 1))

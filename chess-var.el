@@ -12,31 +12,39 @@
 
 (defsubst chess-var-plies (var)
   "Return the tags alist associated with VAR."
+  (assert var)
   var)
 
 (defsubst chess-var-pos (var &optional index)
   "Return the position related to VAR's INDEX position."
+  (assert var)
   (chess-ply-pos (chess-var-ply var index)))
 
 (defsubst chess-var-index (var)
   "Return the VAR's current position index."
+  (assert var)
   (1- (length (chess-var-plies var))))
 
 (defsubst chess-var-seq (var)
   "Return the current VAR sequence."
+  (assert var)
   (1+ (/ (chess-var-index var) 2)))
 
 (defsubst chess-var-side-to-move (var)
+  (assert var)
   (chess-pos-side-to-move (chess-var-pos var)))
 
 (defun chess-var-ply (var &optional index)
   "Return the position related to VAR's INDEX position."
+  (assert var)
   (if index
       (nth index (chess-var-plies var))
     (car (last (chess-var-plies var)))))
 
 (defun chess-var-add-ply (var ply)
   "Return the position related to VAR's INDEX position."
+  (assert var)
+  (assert (listp ply))
   (let ((plies (chess-var-plies var)))
     (assert plies)
     (nconc plies (list ply))))
@@ -54,6 +62,8 @@ later using the various tag-related methods)."
 This creates a new position and adds it to the main variation.
 The 'changes' of the last ply reflect whether the var is currently in
 progress (nil), if it is drawn, resigned, mate, etc."
+  (assert var)
+  (assert (listp ply))
   (let ((current-ply (chess-var-ply var))
 	(changes (chess-ply-changes ply))
 	(position (chess-ply-pos ply)))

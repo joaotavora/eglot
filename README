@@ -9,3 +9,59 @@ sufficiently challenging, I'm sure.  Once they are installed, chess.el
 will use them, provided the locations of the binaries is on your PATH.
 
 John Wiegley <johnw@gnu.org>
+
+LAYOUT
+
+Core library
+
+  chess-pos.el
+    chess-fen.el
+
+  chess-ply.el
+   chess-algebraic.el
+
+  chess-var.el
+  chess-game.el
+
+* chess-module.el
+** chess-announce.el
+** chess-sound.el
+** chess-display.el
+*** chess-plain.el
+*** chess-ics1.el
+*** chess-images.el
+** chess-database.el
+*** chess-file.el
+*** chess-pgn.el
+*** chess-scid.el
+** chess-engine.el
+*** chess-none.el
+*** chess-common.el
+**** chess-crafty.el
+**** chess-gnuchess.el
+**** chess-phalanx.el
+*** chess-network.el
+**** chess-irc.el
+**** chess-ics.el
+
+** input modules
+*** chess-input.el
+*** chess-ucb.el
+
+chess-autosave.el
+chess-chat.el
+chess-clock.el
+chess-kibitz.el
+
+* chess-message.el
+** chess-german.el
+
+chess-maint.el
+
+chess.el
+chess-link.el
+chess-puzzle.el
+chess-tutorial.el
+
+chess-random.el
+chess-transport.el

@@ -26,13 +26,15 @@
     (mode-black     . "Black")
     (mode-start     . "START")
     (mode-checkmate . "CHECKMATE")
+    (mode-aborted   . "ABORTED")
     (mode-resigned  . "RESIGNED")
     (mode-stalemate . "STALEMATE")
+    (mode-flag-fell . "FLAG FELL")
     (mode-drawn     . "DRAWN")
     (mode-edit      . "EDIT")))
 
 (defcustom chess-display-mode-line-format
-  '("   " chess-display-side-to-move "   "
+  '("  " chess-display-side-to-move "  "
     chess-display-move-text "   "
     (:eval (chess-display-clock-string))
     "(" (:eval (chess-game-tag chess-module-game "White")) "-"
@@ -44,6 +46,16 @@
   "The format of a chess display's modeline.
 See `mode-line-format' for syntax details."
   :type 'sexp
+  :group 'chess-display)
+
+(defface chess-display-black-face
+  '((t (:background "Black" :foreground "White")))
+  "*The face used for the word Black in the mode-line."
+  :group 'chess-display)
+
+(defface chess-display-white-face
+  '((t (:background "White" :foreground "Black")))
+  "*The face used for the word White in the mode-line."
   :group 'chess-display)
 
 ;;; Code:
@@ -211,15 +223,24 @@ also view the same game."
 	  chess-display-side-to-move
 	  (let ((status (chess-game-status chess-module-game index)))
 	    (cond
+	     ((eq status :aborted)   (chess-string 'mode-aborted))
 	     ((eq status :resign)    (chess-string 'mode-resigned))
-	     ((eq status :draw)      (chess-string 'mode-drawn))
+	     ((eq status :drawn)     (chess-string 'mode-drawn))
 	     ((eq status :checkmate) (chess-string 'mode-checkmate))
 	     ((eq status :stalemate) (chess-string 'mode-stalemate))
+	     ((eq status :flag-fell) (chess-string 'mode-flag-fell))
 	     (t
-	      (if (or chess-pos-always-white
-		      (chess-game-side-to-move chess-module-game index))
-		  (chess-string 'mode-white)
-		(chess-string 'mode-black))))))
+	      (let* ((color (or chess-pos-always-white
+				(chess-game-side-to-move chess-module-game
+							 index)))
+		     (str (format " %s " (if color
+					     (chess-string 'mode-white)
+					   (chess-string 'mode-black)))))
+		(add-text-properties
+		 0 (length str) (list 'face (if color
+						'chess-display-white-face
+					      'chess-display-black-face)) str)
+		str)))))
     (force-mode-line-update)))
 
 (defsubst chess-display-index (display)
@@ -389,7 +410,7 @@ that is supported by most displays, and is the default mode."
   :group 'chess-display)
 
 (defcustom chess-display-momentous-events
-  '(orient post-undo setup-game pass move resign drawn)
+  '(orient post-undo setup-game pass move)
   "Events that will refresh, and cause 'main' displays to popup.
 These are displays for which `chess-display-set-main' has been
 called."
@@ -486,6 +507,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(control ?c) (control ?d)] 'chess-display-draw)
     (define-key map [?E] 'chess-display-edit-board)
     (define-key map [?F] 'chess-display-set-from-fen)
+    (define-key map [(control ?c) (control ?f)] 'chess-display-call-flag)
     (define-key map [?M] 'chess-display-match)
     (define-key map [(control ?c) (control ?r)] 'chess-display-resign)
     (define-key map [?R] 'chess-display-retract)
@@ -788,13 +810,17 @@ Basically, it means we are playing, not editing or reviewing."
       (chess-game-run-hooks chess-module-game 'retract)
     (ding)))
 
+(defun chess-display-call-flag ()
+  (interactive)
+  (if (chess-display-active-p)
+      (chess-game-run-hooks chess-module-game 'call-flag)
+    (ding)))
+
 (defun chess-display-resign ()
   "Resign the current game."
   (interactive)
   (if (chess-display-active-p)
-      (progn
-	(chess-game-end chess-module-game :resign)
-	(chess-game-run-hooks chess-module-game 'resign))
+      (chess-game-end chess-module-game :resign)
     (ding)))
 
 (defun chess-display-abort ()
@@ -1071,8 +1097,11 @@ Clicking once on a piece selects it; then click on the target location."
 							      (cdr last-sel)
 							      coord))
 			    (throw 'message (chess-string 'move-not-legal)))
-			  (chess-display-move nil ply
-					      (car last-sel) (point)))))
+			  (condition-case err
+			      (chess-display-move nil ply
+						  (car last-sel) (point))
+			    (error
+			     (throw 'message (error-message-string err)))))))
 		    (setq chess-display-last-selected nil))
 		(let ((piece (chess-pos-piece position coord)))
 		  (cond

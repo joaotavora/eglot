@@ -22,23 +22,24 @@
 (defun chess-scid-handler (event &rest args)
   (cond
    ((eq event 'open)
-    (let* ((buffer (generate-new-buffer " *chess-scid*"))
-	   (proc (start-process "*chess-scid*" buffer
-				(executable-find "tcscid"))))
-      (if (and proc (eq (process-status proc) 'run))
-	  (with-current-buffer buffer
-	    (accept-process-output proc)
-	    (setq chess-scid-process proc)
-	    (if (= 1 (string-to-int
-		      (chess-scid-get-result
-		       (format "sc_base open %s\n"
-			       (expand-file-name (car args))))))
-		buffer
-	      (kill-process proc)
-	      (kill-buffer buffer)
-	      nil))
-	(kill-buffer buffer)
-	nil)))
+    (if (file-readable-p (concat (car args) ".sg3"))
+	(let* ((buffer (generate-new-buffer " *chess-scid*"))
+	       (proc (start-process "*chess-scid*" buffer
+				    (executable-find "tcscid"))))
+	  (if (and proc (eq (process-status proc) 'run))
+	      (with-current-buffer buffer
+		(accept-process-output proc)
+		(setq chess-scid-process proc)
+		(if (= 1 (string-to-int
+			  (chess-scid-get-result
+			   (format "sc_base open %s\n"
+				   (expand-file-name (car args))))))
+		    buffer
+		  (kill-process proc)
+		  (kill-buffer buffer)
+		  nil))
+	    (kill-buffer buffer)
+	    nil))))
 
    ((eq event 'close)
     (process-send-string chess-scid-process "sc_base close\nexit\n"))
