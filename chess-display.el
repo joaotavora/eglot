@@ -326,12 +326,12 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(control ?y)] 'chess-display-yank-board)
 
     (dolist (key '(?a ?b ?c ?d ?e ?f ?g ?h
-		      ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8
-		      ?r ?n ?b ?q ?k ?o
-		      ?R ?N ?B ?Q ?K ?O))
+		   ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8
+		   ?r ?n ?b ?q ?k
+		   ?R ?N ?B ?Q ?K
+		   ?o ?O ?x))
       (define-key map (vector key) 'chess-keyboard-shortcut))
     (define-key map [backspace] 'chess-keyboard-shortcut-delete)
-    (define-key map [?x] 'ignore)
 
     (define-key map [(control ?m)] 'chess-display-select-piece)
     (define-key map [return] 'chess-display-select-piece)
@@ -804,7 +804,8 @@ to the end or beginning."
       (while (and (< i l) (< x xl))
 	(let ((move-char (aref move i))
 	      (entry-char (aref chess-move-string x)))
-	  (if (= move-char ?x)
+	  (if (and (= move-char ?x)
+		   (/= entry-char ?x))
 	      (setq i (1+ i))
 	    (if (/= entry-char (if (< entry-char ?a)
 				   move-char
