@@ -86,7 +86,7 @@
 	 (draw (intern-soft (concat name "-draw")))
 	 (highlight (intern-soft (concat name "-highlight")))
 	 (initialize (intern-soft (concat name "-initialize"))))
-    (unless initialize
+    (unless draw
       (error "There is no known chessboard display style '%s'" name))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
       (setq cursor-type nil
@@ -96,7 +96,8 @@
 	    chess-display-perspective perspective
 	    chess-display-search-function search-func)
       (chess-display-mode)
-      (funcall initialize)
+      (if initialize
+	  (funcall initialize))
       (if session
 	  (let ((game (chess-session-data session 'current-game)))
 	    (if game

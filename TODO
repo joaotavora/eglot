@@ -1,3 +1,11 @@
+Don't ever use chess-pos-move directly, but instead create ply and
+call chess-ply-next-pos.  This will make sure that castling moves are
+interpreted correctly.
+
+Pawn captures while playing gnuchess cause an error.
+
+Is the whole event model just a bit too fragile?
+----------------------------------------------------------------------
 * 2.0
 
 ** Breakdown
