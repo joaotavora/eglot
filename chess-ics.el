@@ -69,8 +69,8 @@ who is black."
     (let ((index (string-to-number (car parts))))
       (when (> index 0)
 	(chess-pos-set-en-passant
-	 position (chess-rf-to-index (if (string= (car parts) "W") 4 3)
-				     index))))
+	 position (chess-rf-to-index
+		   (if (chess-pos-side-to-move position) 4 3) index))))
     (setq parts (cdr parts))
 
     ;; can White still castle short? (0=no, 1=yes)
