@@ -141,6 +141,16 @@ matches."
   "Return the position related to GAME's INDEX position."
   (chess-ply-pos (chess-game-ply game index)))
 
+(defun chess-game-status (game &optional index)
+  "Return a symbol, such as :checkmate, :resign, etc.
+This conveys the status of the game at the given index."
+  (or (car (chess-pos-status
+	    (chess-game-pos chess-module-game index)))
+      (let ((final (chess-ply-final-p
+		    (chess-game-ply chess-module-game index))))
+	(and (memq final '(:resign :draw :perpetual :repetition))
+	     final))))
+
 (defsubst chess-game-index (game)
   "Return the GAME's current position index."
   (1- (length (chess-game-plies game))))

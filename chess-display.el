@@ -178,13 +178,12 @@ also view the same game."
 		      (chess-ply-to-algebraic
 		       (chess-game-ply chess-module-game (1- index)))))
 	    chess-display-side-to-move
-	    (let ((final (chess-ply-final-p
-			  (chess-game-ply chess-module-game index))))
+	    (let ((status (chess-game-status chess-module-game index)))
 	      (cond
-	       ((eq final :checkmate) (chess-string 'mode-checkmate))
-	       ((eq final :resign)    (chess-string 'mode-resigned))
-	       ((eq final :stalemate) (chess-string 'mode-stalemate))
-	       ((eq final :draw)      (chess-string 'mode-drawn))
+	       ((eq status :resign)    (chess-string 'mode-resigned))
+	       ((eq status :draw)      (chess-string 'mode-drawn))
+	       ((eq status :checkmate) (chess-string 'mode-checkmate))
+	       ((eq status :stalemate) (chess-string 'mode-stalemate))
 	       (t
 		(if (chess-game-side-to-move chess-module-game)
 		    (chess-string 'mode-white)

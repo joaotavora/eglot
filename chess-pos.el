@@ -132,7 +132,8 @@ SIDE must be either ?q or ?k (case determines color)."
 
 (defsubst chess-pos-status (position)
   "Return whether the side to move is in a special state.
-The symbols allowed are: `check', `checkmate', `stalemate'.
+The symbols allowed are: `check', `checkmate', `stalemate', which must
+occurs first if they occur at all.
 Also, EPD evaluation numbers/strings can be set here."
   (aref position 69))
 

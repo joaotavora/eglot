@@ -27,7 +27,12 @@
 
 - Use chess-ply-set-keyword wherever keywords are being set now.
 
+- Find a way that regexp-alist entries that only need to fire once are
+  only scanned once.
+
 ----------------------------------------------------------------------
+
+- Need to implement the "50 moves after irreversible" draw rule
 
 - The game should go inactive once I lose by stalemate/checkmate
 
