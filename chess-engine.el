@@ -58,7 +58,7 @@
    ((eq event 'move)
     (chess-engine-do-move (car args)))))
 
-(defun chess-engine-create (module &optional user-handler)
+(defun chess-engine-create (module &optional user-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
@@ -67,7 +67,7 @@
 	    chess-engine-event-handler handler
 	    chess-engine-response-handler (or 'chess-engine-default-handler
 					      user-handler))
-      (let ((proc (funcall handler 'initialize)))
+      (let ((proc (apply handler 'initialize args)))
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))
 	    (error "Failed to start chess engine process"))

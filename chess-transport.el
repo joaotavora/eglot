@@ -15,10 +15,10 @@
   "This is an example of a generic transport engine."
   (cond
    ((eq event 'initialize)
-    ;; Initialize your transport here.  Make sure that any
-    ;; housekeeping data you use is kept in buffer-local variables.
-    ;; Otherwise, multiple games played using the same kind of
-    ;; transport might collide.
+    ;; Initialize your transport here, if necessary.  Make sure that
+    ;; any housekeeping data you use is kept in buffer-local
+    ;; variables.  Otherwise, multiple games played using the same
+    ;; kind of transport might collide.
     )
 
    ((eq event 'send)

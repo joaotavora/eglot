@@ -73,6 +73,8 @@ a0 243
 ;; interface commands available in each of those buffer types.
 
 ;;; Code:
+(require 'cl)
+
 
 (require 'chess-game)
 (require 'chess-display)

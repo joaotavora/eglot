@@ -28,6 +28,13 @@
 - Create a to-text rendering interface for all chess game objects.
   So, chess-game-to-string would use PGN, etc.
 
+- Remove displays are horribly insecure.
+
+- When editing the board in display mode (or doing speculative moves),
+  doing them on a copy of the board with no hook except the display
+  hook.  Then, if you like the result, it call be a `set' on the
+  original board from the copied board.
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs
@@ -35,16 +42,7 @@
 - Tie-in to ics.el, by adding "Internet opponent" to the opponents
   list.
 
-- A way to set the time control, and display its status.
-
-- After a castle, the rook might place the opponent's king in check.
-  This is not considered at the moment.
-
-- After piece promotion, change the piece accordingly and look for
-  check posibilities (it's done with the pawn at the moment, which is
-  useless).
-
-- Handle en passant.
+- Add a way to set the time control, and display its status.
 
 - Support chess by mail, with direct tie-ins to Gnus/RMAIL.
 
@@ -72,21 +70,6 @@
   player, their current chess rating, etc.  Then, M-x chess would ask
   you for a player, not an opponent.
 
-- When editing the board in display mode (or doing speculative moves),
-  doing them on a copy of the board with no hook except the display
-  hook.  Then, if you like the result, it call be a `set' on the
-  original board from the copied board.
-
-- If moving your opponent's piece is bad, why let you select it in the
-  first place?  Also, don't let them select a blank square.
-
-- Allow a networked mode that uses the X display protocol to show the
-  same board on two machines.  That way, the guest machine wouldn't
-  even need to be running Emacs!
-
-- Once this is in place, one could play games without a log by just
-  sending the board config and move, back and forth.
-
 - Add a Map command, that will colorize the squares depending on
   whether they are reachable by either side.  Green if reachable by
   you, Red if by your opponent, and blue if by both.  With a prefix
@@ -100,11 +83,3 @@
   making a move.  This requires copying chessboard-current-board to
   chessboard-draft-board.  If the user right-clicks without selecting
   a piece, it will reset to chessboard-current-board and redraw.
-
-- Using display-pixel-width, and the images known to be available,
-  find the largest piece size that will fit.
-
-- Break out the display code into its own set of modules, then
-  parameterize the call into them so that alter size and change
-  directory uses them.  Right now those two functions are hard-coded
-  for image displays.
