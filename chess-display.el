@@ -261,15 +261,18 @@ If only START is given, it must be in algebraic move notation."
       (setq chess-display-position (chess-ply-next-pos ply))))
     (chess-display-update nil)))
 
-(defun chess-display-highlight (display index &optional mode)
+(defun chess-display-highlight (display &rest args)
   "Highlight the square at INDEX on the current position.
 The given highlighting MODE is used, or the default if the style you
 are displaying with doesn't support that mode.  `selected' is a mode
 that is supported by most displays, and is the default mode."
   (chess-with-current-buffer display
     (if chess-display-highlight-function
-	(funcall chess-display-highlight-function index
-		 (or mode 'selected)))))
+	(let ((mode :selected))
+	  (dolist (arg args)
+	    (if (symbolp arg)
+		(setq mode arg)
+	      (funcall chess-display-highlight-function arg mode)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

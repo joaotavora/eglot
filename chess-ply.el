@@ -62,6 +62,15 @@
 (defsubst chess-ply-set-changes (ply changes)
   (setcdr ply changes))
 
+(defsubst chess-ply-has-keyword (ply keyword)
+  (memq keyword (chess-ply-changes)))
+
+(defsubst chess-ply-source (ply)
+  (car (chess-ply-changes)))
+
+(defsubst chess-ply-target (ply)
+  (cadr (chess-ply-changes)))
+
 (defsubst chess-ply-next-pos (ply)
   (apply 'chess-pos-move (chess-pos-copy (chess-ply-pos ply))
 	 (chess-ply-changes ply)))
