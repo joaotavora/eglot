@@ -1156,7 +1156,7 @@ Clicking once on a piece selects it; then click on the target location."
 				    (cdr chess-display-last-selected))
 		   (cdr chess-display-last-selected))
 	  (setq chess-display-last-selected nil))
-	(error message)))))
+	(message message)))))
 
 (defun chess-display-mouse-select-piece (event)
   "Select the piece the user clicked on."
