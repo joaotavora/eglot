@@ -72,14 +72,14 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   :type 'integer)
 
 (defface chess-plain-black-face
-  '((((class color) (background light)) (:foreground "Green"))
+  '((((class color) (background light)) (:foreground "Black"))
     (((class color) (background dark)) (:foreground "Green"))
     (t (:bold t)))
   "*The face used for black pieces on the ASCII display."
   :group 'chess-plain)
 
 (defface chess-plain-white-face
-  '((((class color) (background light)) (:foreground "Yellow"))
+  '((((class color) (background light)) (:foreground "Blue"))
     (((class color) (background dark)) (:foreground "Yellow"))
     (t (:bold t)))
   "*The face used for white pieces on the ASCII display."
@@ -190,7 +190,10 @@ PERSPECTIVE is t for white or nil for black."
 		  (make-string (+ 8 (* 7 chess-plain-spacing))
 			       (nth 6 chess-plain-border-chars))
 		  (nth 7 chess-plain-border-chars) ?\n
-		  ? ?  (if (not inverted) "abcdefgh" "hgfedcba")))
+		  ? ?  
+		  (let ((string (if (not inverted) "abcdefgh" "hgfedcba")))
+		    (mapconcat 'string (string-to-list string) 
+			       (make-string chess-plain-spacing ? )))))
       (set-buffer-modified-p nil)
       (goto-char pos))))
 
