@@ -134,7 +134,7 @@ who is black."
 	(dotimes (f 8)
 	  (let ((piece (aref rank f)))
 	    (unless (= piece ?-)
-	      (chess-pos-set-piece position (chess-rf-to-index r f) piece)))))
+	      (chess-pos-set-piece position (chess-rf-to-index r f) piece))))))
 
     ;; next, the "side to move"
     (chess-pos-set-side-to-move position (string= (pop parts) "W"))
