@@ -285,15 +285,18 @@ See `chess-display-type' for the different kinds of displays."
   (with-current-buffer display
     (cond
      ((eq event 'shutdown)
-      (chess-display-destroy nil))
+      (ignore-errors
+	(chess-display-destroy nil)))
 
      ((eq event 'pass)
       (chess-display-set-perspective
        nil (not (chess-display-perspective nil))))
 
-     ((memq event '(move game-over))
-      (chess-display-set-index
-       nil (chess-game-index (chess-display-game nil)))))
+     ((memq event '(move game-over resign))
+      (chess-display-set-index nil (chess-game-index
+				    (chess-display-game nil)))))
+    (if (eq event 'resign)
+	(message-box "%s resigns" (if (car args) "White" "Black")))
 
     (unless (eq event 'shutdown)
       (chess-display-update nil))))
@@ -321,6 +324,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?@] 'chess-display-remote)
     (define-key map [? ] 'chess-display-pass)
     (define-key map [?S] 'chess-display-shuffle)
+    (define-key map [?R] 'chess-display-resign)
 
     (define-key map [?<] 'chess-display-move-first)
     (define-key map [?,] 'chess-display-move-backward)
@@ -424,16 +428,14 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive)
   (let* ((x-select-enable-clipboard t)
 	 (fen (chess-pos-to-fen (chess-display-position nil))))
-    (kill-new fen)
-    (message "Copied board: %s" fen)))
+    (kill-new fen)))
 
 (defun chess-display-paste-board ()
   "Send the current board configuration to the user."
   (interactive)
   (let* ((x-select-enable-clipboard t)
 	 (fen (current-kill 0)))
-    (chess-display-set-from-fen fen)
-    (message "Pasted board: %s" fen)))
+    (chess-display-set-from-fen fen)))
 
 (defun chess-display-set-piece ()
   "Set the piece under point to command character, or space for clear."
@@ -475,17 +477,26 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-pass ()
   "Pass the move to your opponent.  Only valid on the first move."
   (interactive)
-  (when (and (chess-display-active-p)
-	     (= 0 (chess-display-index nil)))
-    (chess-game-run-hooks chess-display-game 'pass)))
+  (if (and (chess-display-active-p)
+	   (= 0 (chess-display-index nil)))
+      (chess-game-run-hooks chess-display-game 'pass)
+    (ding)))
 
 (defun chess-display-shuffle ()
   "Generate a shuffled opening position."
   (interactive)
-  (when (and (chess-display-active-p)
-	     (= 0 (chess-display-index nil)))
-    (chess-game-set-start-position chess-display-game
-				   (chess-fischer-random-position))))
+  (if (and (chess-display-active-p)
+	   (= 0 (chess-display-index nil)))
+      (chess-game-set-start-position chess-display-game
+				     (chess-fischer-random-position))
+    (ding)))
+
+(defun chess-display-resign ()
+  "Generate a shuffled opening position."
+  (interactive)
+  (if (chess-display-active-p)
+      (chess-game-resign chess-display-game)
+    (ding)))
 
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.

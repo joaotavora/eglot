@@ -77,3 +77,7 @@ See `chess-display-type' for the different kinds of displays."
     (when (and proc (eq (process-status proc) 'run))
       (process-send-string proc (concat text "\n"))
       (process-send-eof proc))))
+
+(provide 'chess-announce)
+
+;;; chess-announce.el ends here

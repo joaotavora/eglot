@@ -62,8 +62,12 @@
 (defsubst chess-ply-set-changes (ply changes)
   (setcdr ply changes))
 
-(defsubst chess-ply-has-keyword (ply keyword)
-  (memq keyword (chess-ply-changes)))
+(defun chess-ply-has-keyword (ply &rest keywords)
+  (let (found)
+    (dolist (keyword keywords)
+      (if (memq keyword (chess-ply-changes ply))
+	  (setq found t)))
+    found))
 
 (defsubst chess-ply-source (ply)
   (car (chess-ply-changes)))
@@ -168,15 +172,10 @@ maneuver."
 	;; return the annotated ply
 	ply))))
 
-(defun chess-ply-final-p (ply)
+(defsubst chess-ply-final-p (ply)
   "Return non-nil if this is the last ply of a game/variation."
-  (let ((changes (chess-ply-changes ply)))
-    (or (memq :draw changes)
-	(memq :perpetual changes)
-	(memq :repetition changes)
-	(memq :stalemate changes)
-	(memq :resign changes)
-	(memq :checkmate changes))))
+  (chess-ply-has-keyword ply :draw :perpetual :repetition :stalemate
+			 :resign :checkmate))
 
 (defun chess-legal-plies (position)
   "Return a list of all legal plies in POSITION."

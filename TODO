@@ -54,7 +54,9 @@
 
 - Let the user specify a default size for the chess-images display
 
-- allow dragging of pieces
+- Allow dragging of pieces
+
+- check for chess engine resignations
 
 ----------------------------------------------------------------------
 

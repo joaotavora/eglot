@@ -122,8 +122,9 @@ minibuffer, which works well for Emacspeak users."
       (when (and engine-module
 		 (require engine-module nil t))
 	(chess-engine-set-game (chess-engine-create engine-module) game)
-	(if chess-announce-moves
-	    (chess-announce-for-game game t))))))
+	(when chess-announce-moves
+	  (require 'chess-announce)
+	  (chess-announce-for-game game t))))))
     (cons display engine)))
 
 ;;;###autoload

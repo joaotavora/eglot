@@ -17,8 +17,6 @@
   :type 'file
   :group 'chess-gnuchess)
 
-(defvar chess-gnuchess-now-moving nil)
-
 (defvar chess-gnuchess-temp-files nil)
 (defvar chess-gnuchess-bad-board nil)
 (make-variable-buffer-local 'chess-gnuchess-temp-files)
@@ -28,13 +26,8 @@
   (list (cons (concat "My move is : \\(" chess-algebraic-regexp "\\)")
 	      (function
 	       (lambda ()
-		 (let* ((move (match-string 1))
-			(ply (chess-algebraic-to-ply
-			      (chess-engine-position nil) move)))
-		   (unless ply
-		     (error "Could not convert engine move: %s" move))
-		   (let ((chess-gnuchess-now-moving t))
-		     (funcall chess-engine-response-handler 'move ply))))))
+		 (funcall chess-engine-response-handler 'move
+			  (match-string 1)))))
 	(cons "Illegal move:"
 	      (function
 	       (lambda ()
@@ -85,12 +78,11 @@
     (setq chess-gnuchess-bad-board nil))
 
    ((eq event 'move)
-    (unless chess-gnuchess-now-moving
-      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				     "\n"))
-      (when chess-gnuchess-bad-board
-	(chess-engine-send nil "go\n")
-	(setq chess-gnuchess-bad-board nil))))))
+    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
+				   "\n"))
+    (when chess-gnuchess-bad-board
+      (chess-engine-send nil "go\n")
+      (setq chess-gnuchess-bad-board nil)))))
 
 (provide 'chess-gnuchess)
 

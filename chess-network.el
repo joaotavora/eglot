@@ -8,11 +8,12 @@
 (require 'chess-fen)
 (require 'chess-algebraic)
 
-(defvar chess-network-now-moving nil)
-
 (defvar chess-network-regexp-alist
   (list (cons chess-algebraic-regexp
-	      'chess-network-perform-move)
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'move
+			  (match-string 0)))))
 	(cons "pass"
 	      (function
 	       (lambda ()
@@ -30,15 +31,11 @@
 	(cons "quit"
 	      (function
 	       (lambda ()
-		 (funcall chess-engine-response-handler 'quit))))))
-
-(defun chess-network-perform-move ()
-  (let* ((move (match-string 1))
-	 (ply (chess-algebraic-to-ply (chess-engine-position nil) move)))
-    (if ply
-	(let ((chess-network-now-moving t))
-	  (funcall chess-engine-response-handler 'move ply))
-      (message "Received invalid move: %s" move))))
+		 (funcall chess-engine-response-handler 'quit))))
+	(cons "resign"
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'resign))))))
 
 (defun chess-network-handler (event &rest args)
   "Initialize the network chess engine."
@@ -71,10 +68,12 @@
    ((eq event 'pass)
     (chess-engine-send nil "pass\n"))
 
+   ((eq event 'resign)
+    (chess-engine-send nil "resign\n"))
+
    ((eq event 'move)
-    (unless chess-network-now-moving
-      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				     "\n"))))))
+    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
+				   "\n")))))
 
 (provide 'chess-network)
 

@@ -29,6 +29,7 @@
 (defvar chess-engine-process nil)
 (defvar chess-engine-last-pos nil)
 (defvar chess-engine-working nil)
+(defvar chess-engine-handling-event nil)
 
 (make-variable-buffer-local 'chess-engine-process)
 (make-variable-buffer-local 'chess-engine-last-pos)
@@ -56,33 +57,42 @@
     (setq chess-engine-position (chess-ply-next-pos ply)))))
 
 (defun chess-engine-default-handler (event &rest args)
-  (cond
-   ((eq event 'move)
-    (chess-engine-do-move (car args)))
+  (let ((chess-engine-handling-event t))
+    (cond
+     ((eq event 'move)
+      (let ((ply (chess-algebraic-to-ply (chess-engine-position nil)
+					 (car args))))
+	(if ply
+	    (chess-engine-do-move ply)
+	  (message "Received invalid move from engine: %s" (car args)))))
 
-   ((eq event 'pass)
-    (message "Your opponent has passed the first move to you"))
+     ((eq event 'pass)
+      (message "Your opponent has passed the first move to you"))
 
-   ((eq event 'connect)
-    (message "Your opponent, %s, is now ready to play" (car args)))
+     ((eq event 'connect)
+      (message "Your opponent, %s, is now ready to play" (car args)))
 
-   ((eq event 'quit)
-    (message "Your opponent has quit playing"))
+     ((eq event 'quit)
+      (message "Your opponent has quit playing"))
 
-   ((eq event 'setup)
-    (chess-game-set-start-position (chess-engine-game nil)
-				   (chess-fen-to-pos (car args))))))
+     ((eq event 'resign)
+      (if chess-engine-game
+	  (chess-engine-resign chess-engine-game)))
+
+     ((eq event 'setup)
+      (chess-game-set-start-position (chess-engine-game nil)
+				     (chess-fen-to-pos (car args)))))))
 
 (defun chess-engine-create (module &optional user-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
     (with-current-buffer (generate-new-buffer " *chess-engine*")
-      (setq chess-engine-regexp-alist (symbol-value regexp-alist)
-	    chess-engine-event-handler handler
-	    chess-engine-response-handler (or user-handler
-					      'chess-engine-default-handler))
       (let ((proc (apply handler 'initialize args)))
+	(setq chess-engine-regexp-alist (symbol-value regexp-alist)
+	      chess-engine-event-handler handler
+	      chess-engine-response-handler
+	      (or user-handler 'chess-engine-default-handler))
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))
 	    (error "Failed to start chess engine process"))
@@ -186,12 +196,15 @@
 
 (defun chess-engine-event-handler (game engine event &rest args)
   "Handle any commands being sent to this instance of this module."
-  (with-current-buffer engine
-    (assert (eq game (chess-engine-game nil)))
-    (apply chess-engine-event-handler event args)
+  (unless chess-engine-handling-event
+    (if (buffer-live-p engine)
+	(with-current-buffer engine
+	  (assert (eq game (chess-engine-game nil)))
+	  (apply chess-engine-event-handler event args)))
     (cond
      ((eq event 'shutdown)
-      (chess-engine-destroy engine)))))
+      (ignore-errors
+	(chess-engine-destroy engine))))))
 
 (defun chess-engine-filter (proc string)
   "Filter for receiving text for an engine from an outside source."
@@ -210,23 +223,21 @@
 	(unless chess-engine-working
 	  (setq chess-engine-working t)
 	  (unwind-protect
-	      (progn
+	      (save-excursion
 		(if chess-engine-last-pos
 		    (goto-char chess-engine-last-pos)
 		  (goto-char (point-min)))
 		(beginning-of-line)
 		(while (not (eobp))
-		  (condition-case err
-		      (let ((triggers chess-engine-regexp-alist))
-			(while triggers
-			  ;; this could be accelerated by joining
-			  ;; together the regexps
-			  (if (looking-at (caar triggers))
-			      (progn
-				(funcall (cdar triggers))
-				(setq triggers nil))
-			    (setq triggers (cdr triggers)))))
-		    (chess-illegal (error-message-string err)))
+		  (let ((triggers chess-engine-regexp-alist))
+		    (while triggers
+		      ;; this could be accelerated by joining
+		      ;; together the regexps
+		      (if (looking-at (caar triggers))
+			  (progn
+			    (funcall (cdar triggers))
+			    (setq triggers nil))
+			(setq triggers (cdr triggers)))))
 		  (forward-line)))
 	    (setq chess-engine-last-pos (point)
 		  chess-engine-working nil)))))))

@@ -18,29 +18,17 @@
   :type 'file
   :group 'chess-crafty)
 
-(defvar chess-crafty-now-moving nil)
-
 (defvar chess-crafty-regexp-alist
-  (list (cons
-	 (concat "\\s-*\\(White\\|Black\\)\\s-*([0-9]+):\\s-+\\("
-		 chess-algebraic-regexp "\\)\\s-*$")
-	 'chess-crafty-perform-move)
+  (list (cons (concat "\\s-*\\(White\\|Black\\)\\s-*([0-9]+):\\s-+\\("
+		      chess-algebraic-regexp "\\)\\s-*$")
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'move
+			  (match-string 0)))))
 	(cons "Illegal move:\\s-*\\(.*\\)"
 	      (function
 	       (lambda ()
 		 (signal 'chess-illegal (match-string 1)))))))
-
-(defun chess-crafty-perform-move ()
-  (let ((position (chess-engine-position nil))
-	(move (match-string 2)) ply)
-    (when (string= (if (chess-pos-side-to-move position)
-		       "White" "Black")
-		   (match-string 1))
-      (setq ply (chess-algebraic-to-ply position move))
-      (unless ply
-	(error "Could not convert engine move: %s" move))
-      (let ((chess-crafty-now-moving t))
-	(funcall chess-engine-response-handler 'move ply)))))
 
 (defun chess-crafty-handler (event &rest args)
   (cond
@@ -77,9 +65,8 @@
     (chess-engine-send nil "go\n"))
 
    ((eq event 'move)
-    (unless chess-crafty-now-moving
-      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				     "\n"))))))
+    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
+				   "\n")))))
 
 (provide 'chess-crafty)
 
