@@ -21,8 +21,7 @@
 	(goto-char (match-end 0))
 	(setq prevpos position)
 	(let* ((move (match-string 0))
-	       (ply (chess-algebraic-to-ply position
-					    (match-string 0))))
+	       (ply (chess-algebraic-to-ply position (match-string 0))))
 	  (unless ply
 	    (error "Error reading move: %s" move))
 	  (setq position (chess-ply-next-pos ply))
@@ -31,6 +30,8 @@
 	     (looking-at "\\(\\*\\|1-0\\|0-1\\|1/2-1/2\\)"))
 	(goto-char (match-end 0))
 	(chess-game-set-tag game "Result" (match-string-no-properties 0))
+	(nconc plies (list (chess-ply-create
+			    (chess-ply-next-pos (car (last plies))))))
 	(setq done t))
        ((looking-at "{")
 	(forward-char)
@@ -52,8 +53,15 @@
       (skip-chars-forward " \t\n"))
     (cdr plies)))
 
-(defun chess-pgn-to-game ()
+(defun chess-pgn-to-game (&optional string)
   "Convert PGN notation at point into a chess game."
+  (if string
+      (with-temp-buffer
+	(insert string)
+	(chess-parse-pgn))
+    (chess-parse-pgn)))
+
+(defun chess-parse-pgn ()
   (when (search-forward "[" nil t)
     (let ((game (chess-game-create)))
       (setcar game nil)
@@ -112,9 +120,16 @@
     "White" "WhiteElo" "Black" "BlackElo"
     "Result" "TimeControl"))
 
-(defun chess-game-to-pgn (game &optional indented)
+(defun chess-game-to-pgn (game &optional indented to-string)
   "Convert a chess GAME to PGN notation.
 If INDENTED is non-nil, indent the move texts."
+  (if to-string
+      (with-temp-buffer
+	(chess-insert-pgn game indented)
+	(buffer-string))
+    (chess-insert-pgn game indented)))
+
+(defun chess-insert-pgn (game &optional indented)
   (let ((fen (chess-game-tag game "FEN"))
 	(first-pos (chess-ply-pos (chess-game-ply game 0))))
     (when (and fen (not (equal fen (chess-pos-to-fen first-pos))))
@@ -126,6 +141,7 @@ If INDENTED is non-nil, indent the move texts."
   (dolist (tag (sort (copy-alist (chess-game-tags game))
 		     (function
 		      (lambda (left right)
+			(setq left (car left) right (car right))
 			(let ((l-idx (position left chess-pgn-tag-order
 					       :test 'equal))
 			      (r-idx (position right chess-pgn-tag-order
