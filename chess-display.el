@@ -138,10 +138,8 @@ makes moves, or any other changes to the underlying game."
 
 (defun chess-display-set-ply (display ply)
   (chess-with-current-buffer display
-    (setq chess-game-index 1)
-    (chess-game-set-plies chess-display-game
-			  (list ply (chess-ply-create
-				     (chess-ply-next-pos ply))))))
+    ;; jww (2002-04-13): NYI
+    ))
 
 (defun chess-display-ply (display)
   (chess-with-current-buffer display
@@ -154,8 +152,8 @@ the user able to scroll back and forth through the moves in the
 variation.  Any moves made on the board will extend/change the
 variation that was passed in."
   (chess-with-current-buffer display
-    (setq chess-game-index (or index (chess-var-index variation)))
-    (chess-game-set-plies chess-display-game variation)))
+    ;; jww (2002-04-13): NYI
+    ))
 
 (defun chess-display-variation (display)
   (chess-with-current-buffer display

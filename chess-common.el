@@ -37,8 +37,7 @@
       proc))
 
    ((eq event 'ready)
-    (and (chess-engine-game nil)
-	 (chess-game-set-data (chess-engine-game nil) 'active t)))
+    (chess-game-set-data chess-engine-game 'active t))
 
    ((eq event 'shutdown)
     (chess-engine-send nil "quit\n")
@@ -58,16 +57,14 @@
 
    ((memq event '(resign abort))
     (chess-engine-send nil "new\n")
-    (and (chess-engine-game nil)
-	 (chess-engine-set-start-position nil)))
+    (chess-engine-set-position nil))
 
    ((eq event 'undo)
-    (when (chess-engine-game nil)
-      (dotimes (i (car args))
-	(chess-engine-send nil "undo\n"))
-      (if (= 1 (mod (car args) 2))
-	  (chess-engine-send nil "go\n"))
-      (chess-game-undo (chess-engine-game nil) (car args))))
+    (dotimes (i (car args))
+      (chess-engine-send nil "undo\n"))
+    (if (= 1 (mod (car args) 2))
+	(chess-engine-send nil "go\n"))
+    (chess-game-undo chess-engine-game (car args)))
 
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))

@@ -112,8 +112,7 @@
 
    ((eq event 'resign)
     (chess-engine-send nil "resign\n")
-    (and (chess-engine-game nil)
-	 (chess-game-set-data (chess-engine-game nil) 'active nil)))
+    (chess-game-set-data chess-engine-game 'active nil))
 
    ((eq event 'draw)
     (if chess-engine-pending-offer
@@ -144,10 +143,9 @@
     (chess-engine-send nil "retract\n"))
 
    ((eq event 'move)
-    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				   "\n"))
-    (if (chess-game-over-p (chess-engine-game nil))
-	(chess-game-set-data (chess-engine-game nil) 'active nil)))))
+    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
+    (if (chess-game-over-p chess-engine-game)
+	(chess-game-set-data chess-engine-game 'active nil)))))
 
 (provide 'chess-network)
 

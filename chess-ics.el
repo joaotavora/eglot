@@ -126,25 +126,25 @@ who is black."
   (let ((chess-engine-handling-event t)
 	(begin (match-beginning 1))
 	(end (match-end 1))
-	(info (chess-ics12-parse (match-string 3)))
-	(game (chess-engine-game nil)))
-    (assert game)
-    (if (and (chess-game-data game 'active)
-	     (> (chess-game-index game) 0))
+	(info (chess-ics12-parse (match-string 3))))
+    (if (and (chess-game-data chess-engine-game 'active)
+	     (> (chess-game-index chess-engine-game) 0))
 	(when (and (cadr info)
 		   (eq (chess-pos-side-to-move (car info))
-		       (chess-game-data game 'my-color)))
-	  (chess-engine-do-move
-	   (chess-algebraic-to-ply
-	    (chess-ply-pos (car (last (chess-game-plies game))))
-	    (cadr info) t))
+		       (chess-game-data chess-engine-game 'my-color)))
+	  (chess-game-move chess-engine-game
+			   (chess-algebraic-to-ply
+			    (chess-ply-pos
+			     (car (last (chess-game-plies chess-engine-game))))
+			    (cadr info) t))
 	  (assert (equal (car info) (chess-engine-position nil))))
       (let ((chess-game-inhibit-events t) plies)
-	(chess-game-set-data game 'my-color (string= (nth 2 info)
-						     chess-ics-handle))
-	(chess-game-set-data game 'active t)
-	(chess-game-set-start-position game (car info)))
-      (chess-game-run-hooks game 'orient))
+	(chess-game-set-data chess-engine-game
+			     'my-color (string= (nth 2 info)
+						chess-ics-handle))
+	(chess-game-set-data chess-engine-game 'active t)
+	(chess-game-set-start-position chess-engine-game (car info)))
+      (chess-game-run-hooks chess-engine-game 'orient))
     (delete-region begin end)
     t))
 

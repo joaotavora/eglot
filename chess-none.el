@@ -7,17 +7,16 @@
 (require 'chess-engine)
 
 (defun chess-none-handler (event &rest args)
-  "Initialize the network chess engine."
+  "An empty chess engine, used for fielding key events.
+This is only useful when two humans are playing each other, in which
+case this engine will do the job of accepting undos, handling
+resignations, etc."
   (cond
-   ((eq event 'send))
-
    ((memq event '(resign abort))
-    (and (chess-engine-game nil)
-	 (chess-engine-set-start-position nil)))
+    (chess-engine-set-position nil))
 
    ((eq event 'undo)
-    (if (chess-engine-game nil)
-	(chess-game-undo (chess-engine-game nil) (car args))))))
+    (chess-game-undo chess-engine-game (car args)))))
 
 (provide 'chess-none)
 

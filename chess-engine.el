@@ -18,7 +18,6 @@
 (defvar chess-engine-event-handler nil)
 (defvar chess-engine-response-handler nil)
 (defvar chess-engine-current-marker nil)
-(defvar chess-engine-position nil)
 (defvar chess-engine-game nil)
 (defvar chess-engine-pending-offer nil)
 (defvar chess-engine-pending-arg nil)
@@ -27,7 +26,6 @@
 (make-variable-buffer-local 'chess-engine-event-handler)
 (make-variable-buffer-local 'chess-engine-response-handler)
 (make-variable-buffer-local 'chess-engine-current-marker)
-(make-variable-buffer-local 'chess-engine-position)
 (make-variable-buffer-local 'chess-engine-game)
 (make-variable-buffer-local 'chess-engine-pending-offer)
 (make-variable-buffer-local 'chess-engine-pending-arg)
@@ -57,13 +55,6 @@
 	   ,@body)
        ,@body)))
 
-(defun chess-engine-do-move (ply)
-  (cond
-   (chess-engine-game
-    (chess-game-move chess-engine-game ply))
-   (chess-engine-position
-    (setq chess-engine-position (chess-ply-next-pos ply)))))
-
 (defsubst chess-engine-convert-algebraic (move &optional trust-check)
   (or (chess-algebraic-to-ply (chess-engine-position nil) move trust-check)
       (ignore
@@ -80,201 +71,183 @@
        (message "Received invalid PGN text"))))
 
 (defun chess-engine-default-handler (event &rest args)
-  (let ((game (chess-engine-game nil)))
-    (cond
-     ((eq event 'move)
-      (if (null game)
+  (cond
+   ((eq event 'move)
+    (if (chess-game-data chess-engine-game 'active)
+	;; we don't want the `move' event coming back to us
+	(let ((chess-engine-handling-event t))
 	  (when (car args)
-	    (setq chess-engine-position (chess-ply-next-pos (car args)))
-	    t)
-	(if (chess-game-data game 'active)
-	    ;; we don't want the `move' event coming back to us
+	    ;; if the game index is still 0, then our opponent
+	    ;; is white, and we need to pass over the move
+	    (when (and (not chess-engine-inhibit-auto-pass)
+		       (chess-game-data chess-engine-game 'my-color)
+		       (= (chess-game-index chess-engine-game) 0))
+	      (message "Your opponent played the first move, you are now black")
+	      (chess-game-run-hooks chess-engine-game 'pass)
+	      ;; if no one else flipped my-color, we'll do it
+	      (if (chess-game-data chess-engine-game 'my-color)
+		  (chess-game-set-data chess-engine-game 'my-color nil)))
+	    (chess-game-move chess-engine-game (car args))
+	    t))))
+
+   ((eq event 'pass)
+    (when (chess-game-data chess-engine-game 'active)
+      (message "Your opponent has passed the move to you")
+      t))
+
+   ((eq event 'match)
+    (if (chess-game-data chess-engine-game 'active)
+	(chess-engine-command nil 'busy)
+      (if (y-or-n-p
+	   (if (and (car args) (> (length (car args)) 0))
+	       (format "Do you wish to play a chess game against %s? "
+		       (car args))
+	     (format "Do you wish to play a chess game against an anonymous opponent? ")))
+	  (progn
 	    (let ((chess-engine-handling-event t))
-	      (when (car args)
-		;; if the game index is still 0, then our opponent
-		;; is white, and we need to pass over the move
-		(when (and game
-			   (not chess-engine-inhibit-auto-pass)
-			   (chess-game-data game 'my-color)
-			   (= (chess-game-index game) 0))
-		  (message "Your opponent played the first move, you are now black")
-		  (chess-game-run-hooks game 'pass)
-		  ;; if no one else flipped my-color, we'll do it
-		  (if (chess-game-data game 'my-color)
-		      (chess-game-set-data game 'my-color nil)))
-		(chess-engine-do-move (car args))
-		t)))))
+	      (chess-engine-set-position nil))
+	    (chess-engine-command nil 'accept))
+	(chess-engine-command nil 'decline)))
+    t)
 
-     ((eq event 'pass)
-      (when (and game (chess-game-data game 'active))
-	(message "Your opponent has passed the move to you")
-	t))
+   ((eq event 'setup-pos)
+    (when (car args)
+      ;; we don't want the `setup-game' event coming back to us
+      (let ((chess-engine-handling-event t))
+	(chess-engine-set-position nil (car args) t))
+      t))
 
-     ((eq event 'match)
-      (if (and game (chess-game-data game 'active))
-	  (chess-engine-command nil 'busy)
-	(if (y-or-n-p
-	     (if (and (car args) (> (length (car args)) 0))
-		 (format "Do you wish to play a chess game against %s? "
+   ((eq event 'setup-game)
+    (when (car args)
+      ;; we don't want the `setup-game' event coming back to us
+      (let ((chess-engine-handling-event t))
+	(let ((chess-game-inhibit-events t))
+	  (chess-engine-set-game nil (car args))
+	  (chess-game-set-data chess-engine-game 'active t)
+	  (if (string= chess-full-name
+		       (chess-game-tag chess-engine-game "White"))
+	      (chess-game-set-data chess-engine-game 'my-color t)
+	    (chess-game-set-data chess-engine-game 'my-color nil))))
+      t))
+
+   ((eq event 'quit)
+    (message "Your opponent has quit playing")
+    (let ((chess-engine-handling-event t))
+      (chess-game-set-data chess-engine-game 'active nil))
+    t)
+
+   ((eq event 'resign)
+    (let ((chess-engine-handling-event t))
+      (message "Your opponent has resigned")
+      (chess-game-end chess-engine-game :resign)
+      (chess-game-set-data chess-engine-game 'active nil)
+      t))
+
+   ((eq event 'draw)
+    (if (y-or-n-p "Your opponent offers a draw, accept? ")
+	(progn
+	  (let ((chess-engine-handling-event t))
+	    (chess-game-end chess-engine-game :draw)
+	    (chess-game-set-data chess-engine-game 'active nil))
+	  (chess-engine-command nil 'accept))
+      (chess-engine-command nil 'decline))
+    t)
+
+   ((eq event 'abort)
+    (if (y-or-n-p "Your opponent wants to abort this game, accept? ")
+	(progn
+	  (let ((chess-engine-handling-event t))
+	    (chess-game-set-data chess-engine-game 'active nil))
+	  (chess-engine-command nil 'accept))
+      (chess-engine-command nil 'decline))
+    t)
+
+   ((eq event 'undo)
+    (if (y-or-n-p
+	 (format "Your opponent wants to take back %d moves, accept? "
+		 (car args)))
+	(progn
+	  (let ((chess-engine-handling-event t))
+	    (chess-game-undo chess-engine-game (car args)))
+	  (chess-engine-command nil 'accept))
+      (chess-engine-command nil 'decline))
+    t)
+
+   ((eq event 'accept)
+    (when chess-engine-pending-offer
+      (if (eq chess-engine-pending-offer 'match)
+	  (unless (chess-game-data chess-engine-game 'active)
+	    (if (and (car args) (> (length (car args)) 0))
+		(message "Your opponent, %s, is now ready to play"
 			 (car args))
-	       (format "Do you wish to play a chess game against an anonymous opponent? ")))
-	    (progn
-	      (let ((chess-engine-handling-event t))
-		(unless game
-		  (setq game (chess-engine-set-game nil (chess-game-create))))
-		(chess-engine-set-start-position nil))
-	      (chess-engine-command nil 'accept))
-	  (chess-engine-command nil 'decline)))
-      t)
-
-     ((eq event 'setup-pos)
-      (when (car args)
-	;; we don't want the `setup-game' event coming back to us
+	      (message "Your opponent is now ready to play"))
+	    (let ((chess-engine-handling-event t))
+	      (chess-engine-set-position nil)))
 	(let ((chess-engine-handling-event t))
-	  (chess-engine-set-start-position nil (car args) t))
-	t))
+	  (cond
+	   ((eq chess-engine-pending-offer 'draw)
+	    (message "Your draw offer was accepted")
+	    (chess-game-end chess-engine-game :draw)
+	    (chess-game-set-data chess-engine-game 'active nil))
 
-     ((eq event 'setup-game)
-      (when (car args)
-	;; we don't want the `setup-game' event coming back to us
-	(let ((chess-engine-handling-event t))
-	  (if (null game)
-	      (chess-engine-set-game nil (car args))
-	    (let ((chess-game-inhibit-events t))
-	      (chess-engine-copy-game nil (car args))
-	      (chess-game-set-data game 'active t)
-	      (if (string= chess-full-name (chess-game-tag game "White"))
-		  (chess-game-set-data game 'my-color t)
-		(chess-game-set-data game 'my-color nil)))
-	    (chess-game-run-hooks game 'orient)))
-	t))
+	   ((eq chess-engine-pending-offer 'abort)
+	    (message "Your offer to abort was accepted")
+	    (chess-game-set-data chess-engine-game 'active nil))
 
-     ((eq event 'quit)
-      (message "Your opponent has quit playing")
-      (if game
-	  (let ((chess-engine-handling-event t))
-	    (chess-game-set-data game 'active nil)))
-      t)
+	   ((eq chess-engine-pending-offer 'undo)
+	    (message "Request to undo %d moves was accepted"
+		     chess-engine-pending-arg)
+	    (chess-game-undo chess-engine-game (car args))))))
+      (setq chess-engine-pending-offer nil
+	    chess-engine-pending-arg nil)
+      t))
 
-     ((eq event 'resign)
-      (when game
-	(let ((chess-engine-handling-event t))
-	  (message "Your opponent has resigned")
-	  (chess-game-end game :resign)
-	  (chess-game-set-data game 'active nil))
-	t))
+   ((eq event 'decline)
+    (when chess-engine-pending-offer
+      (cond
+       ((eq chess-engine-pending-offer 'draw)
+	(message "Your draw offer was declined"))
 
-     ((eq event 'draw)
-      (when game
-	(if (y-or-n-p "Your opponent offers a draw, accept? ")
-	    (progn
-	      (let ((chess-engine-handling-event t))
-		(chess-game-end game :draw)
-		(chess-game-set-data game 'active nil))
-	      (chess-engine-command nil 'accept))
-	  (chess-engine-command nil 'decline))
-	t))
+       ((eq chess-engine-pending-offer 'abort)
+	(message "Your offer to abort was declined"))
 
-     ((eq event 'abort)
-      (when game
-	(if (y-or-n-p "Your opponent wants to abort this game, accept? ")
-	    (progn
-	      (let ((chess-engine-handling-event t))
-		(chess-game-set-data game 'active nil))
-	      (chess-engine-command nil 'accept))
-	  (chess-engine-command nil 'decline))
-	t))
+       ((eq chess-engine-pending-offer 'undo)
+	(message "Your request to undo %d moves was decline"
+		 chess-engine-pending-arg)))
 
-     ((eq event 'undo)
-      (when game
-	(if (y-or-n-p
-	     (format "Your opponent wants to take back %d moves, accept? "
-		     (car args)))
-	    (progn
-	      (let ((chess-engine-handling-event t))
-		(chess-game-undo game (car args)))
-	      (chess-engine-command nil 'accept))
-	  (chess-engine-command nil 'decline))
-	t))
+      (setq chess-engine-pending-offer nil
+	    chess-engine-pending-arg nil)
+      t))
 
-     ((eq event 'accept)
-      (when chess-engine-pending-offer
-	(if (eq chess-engine-pending-offer 'match)
-	    (unless (and game (chess-game-data game 'active))
-	      (if (and (car args) (> (length (car args)) 0))
-		  (message "Your opponent, %s, is now ready to play"
-			   (car args))
-		(message "Your opponent is now ready to play"))
-	      (let ((chess-engine-handling-event t))
-		;; NOTE: There will be no display for this game object!  This
-		;; is really only useful if you are using a computer on the
-		;; accepting side
-		(unless game
-		  (setq game (chess-engine-set-game nil (chess-game-create))))
-		(chess-engine-set-start-position nil)))
-	  (let ((chess-engine-handling-event t))
-	    (cond
-	     ((eq chess-engine-pending-offer 'draw)
-	      (message "Your draw offer was accepted")
-	      (chess-game-end game :draw)
-	      (chess-game-set-data game 'active nil))
+   ((eq event 'retract)
+    (when chess-engine-pending-offer
+      (cond
+       ((eq chess-engine-pending-offer 'draw)
+	(message "Your opponent has retracted their draw offer"))
 
-	     ((eq chess-engine-pending-offer 'abort)
-	      (message "Your offer to abort was accepted")
-	      (chess-game-set-data game 'active nil))
+       ((eq chess-engine-pending-offer 'abort)
+	(message "Your opponent has retracted their offer to abort"))
 
-	     ((eq chess-engine-pending-offer 'undo)
-	      (message "Request to undo %d moves was accepted"
-		       chess-engine-pending-arg)
-	      (chess-game-undo game (car args))))))
-	(setq chess-engine-pending-offer nil
-	      chess-engine-pending-arg nil)
-	t))
+       ((eq chess-engine-pending-offer 'undo)
+	(message "Your opponent has retracted their request to undo %d moves"
+		 chess-engine-pending-arg)))
 
-     ((eq event 'decline)
-      (when (and game chess-engine-pending-offer)
-	(cond
-	 ((eq chess-engine-pending-offer 'draw)
-	  (message "Your draw offer was declined"))
+      (setq chess-engine-pending-offer nil
+	    chess-engine-pending-arg nil)
+      t))))
 
-	 ((eq chess-engine-pending-offer 'abort)
-	  (message "Your offer to abort was declined"))
-
-	 ((eq chess-engine-pending-offer 'undo)
-	  (message "Your request to undo %d moves was decline"
-		   chess-engine-pending-arg)))
-
-	(setq chess-engine-pending-offer nil
-	      chess-engine-pending-arg nil)
-	t))
-
-     ((eq event 'retract)
-      (when (and game chess-engine-pending-offer)
-	(cond
-	 ((eq chess-engine-pending-offer 'draw)
-	  (message "Your opponent has retracted their draw offer"))
-
-	 ((eq chess-engine-pending-offer 'abort)
-	  (message "Your opponent has retracted their offer to abort"))
-
-	 ((eq chess-engine-pending-offer 'undo)
-	  (message "Your opponent has retracted their request to undo %d moves"
-		   chess-engine-pending-arg)))
-
-	(setq chess-engine-pending-offer nil
-	      chess-engine-pending-arg nil)
-	t)))))
-
-(defun chess-engine-create (module &optional response-handler &rest args)
+(defun chess-engine-create (game module &optional response-handler
+				 &rest handler-ctor-args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
     (with-current-buffer (generate-new-buffer " *chess-engine*")
-      (let ((proc (apply handler 'initialize args)))
+      (let ((proc (apply handler 'initialize handler-ctor-args)))
 	(setq chess-engine-regexp-alist (symbol-value regexp-alist)
 	      chess-engine-event-handler handler
 	      chess-engine-response-handler
 	      (or response-handler 'chess-engine-default-handler))
+	(chess-engine-set-game* nil game t)
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))
 	    (error "Failed to start chess engine process"))
@@ -299,8 +272,8 @@
 
 (defun chess-engine-command (engine event &rest args)
   (chess-with-current-buffer engine
-    (apply 'chess-engine-event-handler
-	   (chess-engine-game nil) engine event args)))
+    (apply 'chess-engine-event-handler chess-engine-game
+	   engine event args)))
 
 ;; 'ponder
 ;; 'search-depth
@@ -323,75 +296,44 @@
   (chess-with-current-buffer engine
     chess-engine-response-handler))
 
-(defun chess-engine-set-position (engine position)
+(defun chess-engine-set-position (engine &optional position my-color)
   (chess-with-current-buffer engine
-    (if chess-engine-game
-	(chess-engine-detach-game nil))
-    (setq chess-engine-game nil
-	  chess-engine-position position)
-    (chess-engine-command nil 'setup-pos position)))
+    (let ((chess-game-inhibit-events t))
+      (if position
+	  (progn
+	    (chess-game-set-start-position chess-engine-game position)
+	    (chess-game-set-data chess-engine-game 'my-color my-color))
+	(chess-game-set-start-position chess-engine-game
+				       chess-starting-position)
+	(chess-game-set-data chess-engine-game 'my-color t))
+      (chess-game-set-data chess-engine-game 'active t))))
 
 (defun chess-engine-position (engine)
   (chess-with-current-buffer engine
-    (or (and chess-engine-game
-	     (chess-game-pos chess-engine-game))
-	chess-engine-position)))
-
-(defun chess-engine-set-start-position (engine &optional position my-color)
-  (chess-with-current-buffer engine
-    (let ((game (chess-engine-game nil)))
-      (if (null game)
-	  (chess-engine-set-position nil (or position
-					     chess-starting-position))
-	(let ((chess-game-inhibit-events t))
-	  (if position
-	      (progn
-		(chess-game-set-start-position game position)
-		(chess-game-set-data game 'my-color my-color))
-	    (chess-game-set-start-position game chess-starting-position)
-	    (chess-game-set-data game 'my-color t))
-	  (chess-game-set-data game 'active t))
-	(chess-game-run-hooks game 'orient)))))
+    (chess-game-pos chess-engine-game)))
 
 (defun chess-engine-set-game (engine game &optional no-setup)
   (chess-with-current-buffer engine
+    (chess-game-set-tags chess-engine-game (chess-game-tags game))
+    ;; this call triggers `setup-game' for us
+    (let ((chess-game-inhibit-events no-setup))
+      (chess-game-set-plies chess-engine-game (chess-game-plies game)))))
+
+(defun chess-engine-set-game* (engine game &optional no-setup)
+  (chess-with-current-buffer engine
     (if chess-engine-game
 	(chess-engine-detach-game nil))
-    (setq chess-engine-game game
-	  chess-engine-position nil)
-    (when game
-      (chess-game-add-hook game 'chess-engine-event-handler engine)
-      (unless no-setup
-	(chess-engine-command nil 'setup-game game)))))
-
-(defsubst chess-engine-set-game* (engine game)
-  "This function is a special variant of `chess-engine-set-game'.
-It should be used only if:
-  ENGINE is an engine which is newly created, and has not been used.
-  GAME is a new game at the starting position, which has not been used.
-
-This function exists because all engines start out assuming the
-starting position, which in effect means that `setup-game's work has
-already been done, and therefore does not need to be duplicated.
-
-There is no harm in calling `chess-engine-set-game' instead of this
-function in all cases; this is merely a bandwidth-saver."
-  (chess-engine-set-game engine game t))
-
-(defun chess-engine-copy-game (engine game)
-  (chess-with-current-buffer engine
-    (if (null chess-engine-game)
-	(chess-engine-set-game nil game)
-      (chess-game-set-tags chess-engine-game game)
-      ;; this call triggers `setup-game' for us
-      (chess-game-set-plies chess-engine-game game))))
+    (setq chess-engine-game game)
+    (chess-game-add-hook game 'chess-engine-event-handler
+			 (or engine (current-buffer)))
+    (unless no-setup
+      (chess-engine-command nil 'setup-game game))))
 
 (defun chess-engine-detach-game (engine)
   (chess-with-current-buffer engine
-    (if chess-engine-game
-	(chess-game-remove-hook chess-engine-game
-				'chess-engine-event-handler
-				(or engine (current-buffer))))))
+    (chess-game-remove-hook chess-engine-game
+			    'chess-engine-event-handler
+			    (or engine (current-buffer)))))
 
 (defun chess-engine-game (engine)
   (chess-with-current-buffer engine
@@ -399,12 +341,11 @@ function in all cases; this is merely a bandwidth-saver."
 
 (defun chess-engine-index (engine)
   (chess-with-current-buffer engine
-    (if chess-engine-game
-	(chess-game-index chess-engine-game))))
+    (chess-game-index chess-engine-game)))
 
 (defun chess-engine-move (engine ply)
   (chess-with-current-buffer engine
-    (chess-engine-do-move ply)
+    (chess-game-move chess-engine-game ply)
     (chess-engine-command engine 'move ply)))
 
 (defun chess-engine-send (engine string)
@@ -437,7 +378,6 @@ function in all cases; this is merely a bandwidth-saver."
   "Handle any commands being sent to this instance of this module."
   (unless chess-engine-handling-event
     (chess-with-current-buffer engine
-      (assert (eq game (chess-engine-game nil)))
       (apply chess-engine-event-handler event args))
 
     (cond

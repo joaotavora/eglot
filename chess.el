@@ -128,8 +128,9 @@ minibuffer, which works well for Emacspeak users."
 
   (require chess-default-display)
   (let* ((my-color t)			; we start out as white always
-	 (display (chess-display-create chess-default-display my-color))
-	 (game (chess-game-create)))
+	 (game (chess-game-create))
+	 (display (chess-display-create game chess-default-display
+					my-color)))
 
     (when (and (eq chess-default-display 'chess-images)
 	       (with-current-buffer display
@@ -137,19 +138,17 @@ minibuffer, which works well for Emacspeak users."
       (message "Could not find suitable chess images; using ics1 display")
       (chess-display-destroy display)
       (require 'chess-ics1)
-      (setq display (chess-display-create 'chess-ics1 my-color)))
+      (setq display (chess-display-create game 'chess-ics1 my-color)))
 
     (chess-game-set-data game 'my-color my-color)
     (if disable-popup
 	(chess-display-disable-popup display))
-    (chess-display-set-game display game)
     (chess-display-set-main display)
 
     (let ((engine-module (or engine chess-default-engine)))
       (when (and engine-module (require engine-module nil t))
-	(let ((engine (apply 'chess-engine-create engine-module nil
+	(let ((engine (apply 'chess-engine-create game engine-module nil
 			     engine-ctor-args)))
-	  (chess-engine-set-game* engine game)
 	  ;; for the sake of engines which are ready to play now, and
 	  ;; which don't need connect/accept negotiation (most
 	  ;; computerized engines fall into this category), we need to
@@ -187,9 +186,8 @@ minibuffer, which works well for Emacspeak users."
   (let ((game (chess-pgn-to-game)))
     (when game
       (require chess-default-display)
-      (chess-display-set-game
-       (chess-display-create chess-default-display
-			     (chess-game-side-to-move game)) game))))
+      (chess-display-create game chess-default-display
+			    (chess-game-side-to-move game)))))
 
 (defvar chess-puzzle-locations nil)
 
@@ -220,23 +218,23 @@ making it easy to go on to the next puzzle once you've solved one."
       (let ((game (chess-pgn-to-game)))
 	(when game
 	  (require chess-default-display)
-	  (let ((puzzle-display
-		 (or (and (buffer-live-p (aref chess-puzzle-locations 2))
-			  (aref chess-puzzle-locations 2))
-		     (chess-display-create chess-default-display
-					   (chess-game-side-to-move game)))))
-	    (chess-display-set-game puzzle-display game)
+	  (let (puzzle-display)
+	    (if (buffer-live-p (aref chess-puzzle-locations 2))
+		(progn
+		  (setq puzzle-display (aref chess-puzzle-locations 2))
+		  (chess-display-set-game puzzle-display game))
+	      (setq puzzle-display
+		    (chess-display-create game chess-default-display
+					  (chess-game-side-to-move game))))
 	    (aset chess-puzzle-locations 2 puzzle-display)
 	    ;; setup spacebar as a convenient way to jump to the next puzzle
 	    (with-current-buffer puzzle-display
 	      (define-key (current-local-map) [? ] 'chess-puzzle-next)))
 	  (require chess-default-engine)
-	  (let ((puzzle-engine
-		 (or (and (buffer-live-p (aref chess-puzzle-locations 3))
-			  (aref chess-puzzle-locations 3))
-		     (chess-engine-create chess-default-engine))))
-	    (chess-engine-set-game puzzle-engine game)
-	    (aset chess-puzzle-locations 3 puzzle-engine)))))))
+	  (aset chess-puzzle-locations 3
+		(or (and (buffer-live-p (aref chess-puzzle-locations 3))
+			 (aref chess-puzzle-locations 3))
+		    (chess-engine-create game chess-default-engine))))))))
 
 (provide 'chess)
 

@@ -12,10 +12,11 @@
 
 (defun chess-link-response-handler (event &rest args)
   "This function handles responses from the bot's computing engine."
-  (let* ((game (chess-engine-game nil))
-	 (first-engine (chess-game-data game 'first-engine))
-	 (second-engine (chess-game-data game 'second-engine))
-	 return-value)
+  (let ((first-engine
+	 (chess-game-data chess-engine-game 'first-engine))
+	(second-engine
+	 (chess-game-data chess-engine-game 'second-engine))
+	return-value)
     (cond
      ((eq event 'match)
       (chess-engine-command nil 'accept)
@@ -51,23 +52,23 @@ engine, and the computer the second engine."
 	second-engine-type (intern (concat "chess-" second-engine-type)))
   (require chess-default-display)
   (let* ((my-color t)			; we start out as white always
-	 (display (chess-display-create chess-default-display my-color))
-	 (game (chess-game-create)))
+	 (game (chess-game-create))
+	 (display (chess-display-create game chess-default-display
+					my-color)))
     (chess-game-set-data game 'my-color my-color)
-    (chess-display-set-game display game)
     (chess-display-set-main display)
     (chess-display-disable-popup display)
     (condition-case err
 	(when (and (require first-engine-type)
 		   (require second-engine-type))
-	  (let ((first-engine (chess-engine-create first-engine-type))
-		(second-engine (chess-engine-create second-engine-type)))
+	  (let ((first-engine
+		 (chess-engine-create game first-engine-type))
+		(second-engine
+		 (chess-engine-create game second-engine-type)))
 
-	    (chess-engine-set-game* first-engine game)
 	    (chess-game-set-data game 'first-engine first-engine)
 	    (chess-engine-command first-engine 'ready)
 
-	    (chess-engine-set-game* second-engine game)
 	    (chess-game-set-data game 'second-engine second-engine)
 	    (chess-link-connect first-engine second-engine)
 	    (chess-engine-command second-engine 'ready)
