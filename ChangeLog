@@ -1,5 +1,8 @@
 2002-04-16  John Wiegley  <johnw@gnu.org>
 
+	* chess-link.el (chess-link): Fixed an error in display creation,
+	and which game was used.
+
 	* chess-display.el (chess-display-handler): Set the side-to-move
 	text to a reasonable default.
 

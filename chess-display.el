@@ -166,6 +166,7 @@ also view the same game."
     (unless (or (not (integerp index))
 		(< index 0)
 		(> index (chess-game-index chess-module-game)))
+      ;; setup the mode-line variables as well
       (setq chess-display-index index
 	    chess-display-move-text
 	    (if (= index 0)
