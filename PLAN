@@ -81,9 +81,10 @@ chess-pgn
 - sometimes when clipping to the clipboard the final "*" is stuck to
   the text of the last move
 
-chess-pos
-- if I checkmate someone, the last position does not have its status
-  set to :checkmate
+chess-file
+- .epd files contain a series of positions, not games.  How to integrate
+  this concept into database modules?  Creating games instead of positions
+  seems wrong in this case.
 
 chess-german
 - complete translation
