@@ -5,6 +5,10 @@ interpreted correctly.
 Pawn captures while playing gnuchess cause an error.
 
 Is the whole event model just a bit too fragile?
+
+Write a debug function for displaying positions.
+
+The mode-line display is wrong (it's one ply off).
 ----------------------------------------------------------------------
 * 2.0
 
