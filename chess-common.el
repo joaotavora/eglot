@@ -60,6 +60,9 @@
    ((eq event 'draw)
     (chess-message 'draw-offer-declined))
 
+   ((eq event 'drawn)
+    (chess-game-set-data game 'active nil))
+
    ((memq event '(resign abort))
     (chess-engine-send nil "new\n")
     (chess-engine-set-position nil))
