@@ -57,16 +57,12 @@ TAG=$(shell echo $(VERSION) | sed 's/\./-/g')
 CAT=$(shell echo $(VERSION) | perl -ne 'print $$1 if /[-0-9]+([ab])[0-9]+/;')
 SUB=$(shell echo $(VERSION) | perl -ne 'print $$1 if /[-0-9]+[ab]([0-9]+)/;')
 NEXT=$(shell expr $(SUB) + 1)
+PKG = $(HOME)/public_html/Emacs/packages/chess-$(VERSION).tar.bz2
 
 update: dist
 	cvs tag chess-$(TAG)
 	perl -i -pe 's/(chess-version.*)"([0-9.]+)[ab][0-9]+"/$$1"$$2$(CAT)$(NEXT)"/;' chess.el
 	cvs commit -m "bumped minor rev" chess.el
 	make fullclean
-	sitecopy
-
-PKG = $(HOME)/public_html/Emacs/packages/chess-$(VERSION).tar.bz2
-
-upload:
 	lftp -e "cd /incoming; put $(PKG)" upload.sourceforge.net
-	@echo Now edit sourceforge Files list for emacs-chess
+	sitecopy
