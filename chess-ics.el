@@ -233,7 +233,7 @@ who is black."
 			  (car args)))
 
      (t
-      (apply 'chess-network-handler event args)))))
+      (apply 'chess-network-handler game event args)))))
 
 (defun chess-ics-filter (string)
   (save-excursion
