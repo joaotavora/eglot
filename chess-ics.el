@@ -28,6 +28,8 @@
 (require 'chess-network)
 (require 'chess-pos)
 
+(eval-when-compile (require 'rx))
+
 (defgroup chess-ics nil
   "Engine for interacting with Internet Chess Servers."
   :group 'chess-engine)
@@ -123,7 +125,35 @@ standard position).  In those cases, this variable should be set to nil.")
     (ics-logging-in    . "Logging in on Internet Chess Server '%s' as '%s'...")
     (ics-logged-in     . "Logging in on Internet Chess Server '%s' as '%s'...done")
     (challenge-whom    . "Whom would you like challenge? ")
-    (failed-ics-parse  . "Failed to parse ICS move string (%s): %s")))
+    (failed-ics-parse  . "Failed to parse ICS move string (%s): ")))
+
+(defconst chess-ics-style12-regexp
+  (rx (and "<12> " (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+ 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+ 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+ 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+ 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+ 	   (group (in "BW")) ? (group (and (? ?-) (in "0-7"))) ? 
+ 	   (group (and (? ?-) digit)) ? (group (and (? ?-) digit)) ? 
+  	   (group (and (? ?-) digit)) ? (group (and (? ?-) digit)) ? 
+ 	   (group (+ digit)) " "
+ 	   (group (+ digit)) " "
+  	   (group (+ (not (in " ")))) " " (group (+ (not (in " ")))) " "
+  	   (group (and (? ?-) digit)) " "
+ 	   (group (+ digit)) " " (group (+ digit)) " "
+ 	   (group (+ digit)) " " (group (+ digit)) " "
+ 	   (group (and (? ?-) (+ digit))) " "
+ 	   (group (and (? ?-) (+ digit))) " "
+ 	   (group (+ digit)) " "
+ 	   (group (+ (not (in " ")))) " "
+ 	   "(" (group (+ (not (in " )")))) ") "
+ 	   (group (+ (not (in " ")))) " "
+ 	   (group (and (? ?-) digit)) " " (group (and (? ?-) digit)) " "
+ 	   (group (and (? ?-) digit))))
+  "A regular expression matching a style12 board string.")
 
 (defvar chess-ics-matcher-alist
   (list
@@ -208,9 +238,12 @@ standard position).  In those cases, this variable should be set to nil.")
 	  (lambda ()
 	    (chess-game-undo (chess-ics-game (string-to-int (match-string 1)))
 			     (string-to-int (match-string 2))))))
-   (cons "<12>\\s-+\\(\\([BKNPQRbknpqr-]\\{8\\} \\)\\{8\\}[BW] .+\\)$"
-	 #'chess-ics-handle-style12)
+   (cons chess-ics-style12-regexp #'chess-ics-handle-style12)
    (cons "Removing game \\([0-9]+\\) from observation list.$"
+	 (function
+	  (lambda ()
+	    (chess-ics-game-destroy (string-to-int (match-string 1))))))
+   (cons "You are no longer examining game \\([0-9]+\\).$"
 	 (function
 	  (lambda ()
 	    (chess-ics-game-destroy (string-to-int (match-string 1))))))
@@ -415,34 +448,32 @@ See `chess-ics-game'.")
   (let* ((chess-engine-handling-event t)
 	 (begin (match-beginning 0))
 	 (end (match-end 0))
-	 (parts (split-string (match-string 1) " "))
 	 (position (let ((pos (chess-pos-create t)))
-		     (assert (= (length parts) 32))
 		     (dotimes (r 8)
-		       (let ((rank (pop parts)))
+		       (let ((rank (match-string (1+ r))))
 			 (dotimes (f 8)
 			   (unless (= (aref rank f) ?-)
 			     (chess-pos-set-piece
 			      pos (chess-rf-to-index r f) (aref rank f))))))
-		     (chess-pos-set-side-to-move pos (string= (pop parts) "W"))
-		     (let ((file (string-to-int (pop parts))))
+		     (chess-pos-set-side-to-move
+		      pos (string= (match-string 9) "W"))
+		     (let ((file (string-to-int (match-string 10))))
 		       (when (>= file 0)
 			 (chess-pos-set-en-passant
 			  pos (chess-rf-to-index
 			       (if (chess-pos-side-to-move pos) 3 4) file))))
-		     (mapc (lambda (castle)
-			     (if (string= (pop parts) "1")
-				 (chess-pos-set-can-castle pos castle t)))
-			   '(?K ?Q ?k ?q))
-		     ;; the number of moves made since the last irreversible
-		     ;; move.  (0 if last move was irreversible.  If the value
-		     ;; is >= 100, the game can be declared a draw due to the
-		     ;; 50 move rule.)
-		     (setq parts (cdr parts))
-		     (assert (= (length parts) 17))
+		     (if (string= (match-string 11) "1")
+			 (chess-pos-set-can-castle pos ?K t))
+		     (if (string= (match-string 12) "1")
+			 (chess-pos-set-can-castle pos ?Q t))
+		     (if (string= (match-string 13) "1")
+			 (chess-pos-set-can-castle pos ?k t))
+		     (if (string= (match-string 14) "1")
+			 (chess-pos-set-can-castle pos ?q t))
 		     pos))
-	 (game (chess-ics-game (string-to-int (pop parts))
-			       :White (pop parts) :Black (pop parts)))
+	 (game (save-match-data (chess-ics-game (string-to-int (match-string 16))
+			       :White (match-string 17)
+			       :Black (match-string 18))))
 	 (status
 	  ;; my relation to this game:
 	  ;; -3 isolated position, such as for "ref 3" or the "sposition"
@@ -452,47 +483,34 @@ See `chess-ics-game'.")
 	  ;; -1 I am playing, it is my opponent's move
 	  ;;  1 I am playing and it is my move
 	  ;;  0 I am observing a game being played
-	  (string-to-int (pop parts))))
+	  (string-to-int (match-string 19))))
     (when (or (= status 2) (= status -2) (= status 0))
       (chess-game-set-data game 'my-color (chess-pos-side-to-move position)))
     ;; initial time and increment (in seconds) of the match
     (chess-game-set-tag
-     game "TimeControl" (format "%s/%s" (pop parts) (pop parts)))
+     game "TimeControl" (format "%s/%s" (match-string 20) (match-string 21)))
     ;; material values for each side
-    (let ((centipawn (* 100 (- (string-to-int (pop parts))
-			       (string-to-int (pop parts))))))
+    (let ((centipawn (* 100 (- (string-to-int (match-string 22))
+			       (string-to-int (match-string 23))))))
       (chess-pos-set-epd position 'ce (if (chess-pos-side-to-move position)
 					  centipawn (- centipawn))))
     ;; White's and Black's remaining time
-    (mapc (lambda (d) (chess-game-set-data game d (string-to-int (pop parts))))
-	  '(white-remaining black-remaining))
-    (let* ((seq (prog1 (string-to-int (pop parts))
-		  ;; move in long alegebraic notation
-		  (setq parts (cdr parts))
-		  ;; time taken to make previous move "(min:sec)".
-		  (setq parts (cdr parts))))
-	   (index (if (eq (chess-game-data game 'black-moved-first) t)
-		      (- (* seq 2) (if (chess-pos-side-to-move position) 3 2))
-		    (- (* seq 2) (if (chess-pos-side-to-move position) 2 1))))
-	   (move (prog1 (unless (string= (car parts) "none")
-			  (case (aref (car parts) (1- (length (car parts))))
-			    (?+ (chess-pos-set-status position :check))
-			    (?# (chess-pos-set-status position :checkmate)
-				(chess-pos-set-epd position 'ce 32767)))
-			  ;; jww (2002-04-30): what about stalemate?  do I need to
-			  ;; calculate this each time?
-			  (when nil
-			    (chess-pos-set-status position :stalemate))
-			  (car parts))
-		   (setq parts (cdr parts)))))
-      ;; flip field for board orientation: 1 = Black at bottom, 0 =
-      ;; White at bottom.
-      (setq parts (cdr parts))
-
-      ;; jww (2002-04-18): what do these two mean?
-      (setq parts (cdr parts))
-      (setq parts (cdr parts))
-
+    (chess-game-set-data game 'white-remaining (string-to-int (match-string 24)))
+    (chess-game-set-data game 'black-remaining (string-to-int (match-string 25)))
+    (let ((index (- (* (string-to-int (match-string 26)) 2)
+		    (if (eq (chess-game-data game 'black-moved-first) t)
+			(if (chess-pos-side-to-move position) 3 2)
+		      (if (chess-pos-side-to-move position) 2 1))))
+	  (move (unless (string= (match-string 29) "none")
+		  (case (aref (match-string 29) (1- (length (match-string 29))))
+		    (?+ (chess-pos-set-status position :check))
+		    (?# (chess-pos-set-status position :checkmate)
+			(chess-pos-set-epd position 'ce 32767)))
+		  ;; jww (2002-04-30): what about stalemate?  do I need to
+		  ;; calculate this each time?
+		  (when nil
+		    (chess-pos-set-status position :stalemate))
+		  (match-string 29))))
       (unwind-protect
 	  (if move
 	      (if (progn (setq error 'comparing-index)
@@ -530,8 +548,7 @@ See `chess-ics-game'.")
 		  plies)
 	      (when (or (= 1 status) (= -1 status))
 		(chess-game-set-data game 'my-color (if (= 1 status)
-							color
-						      (not color)))
+							color (not color)))
 		(chess-game-set-data game 'active t))
 	      (setq error 'setting-start-position)
 	      (chess-game-set-start-position game position)
@@ -540,9 +557,9 @@ See `chess-ics-game'.")
 	    (chess-game-run-hooks game 'orient)
 	    (setq error nil))
 	(if error
-	    (chess-message 'failed-ics-parse error
-			   (buffer-substring-no-properties begin end)))
-	(unless error
+	    (progn
+	      (goto-char begin)
+	      (insert (chess-string 'failed-ics-parse error)))
 	  (goto-char begin)
 	  (delete-region begin end)
 	  (save-excursion
@@ -551,8 +568,7 @@ See `chess-ics-game'.")
 			    (looking-at "^[^% \t\n\r]+%\\s-*$")))
 	      (delete-region (match-beginning 0) (1+ (match-end 0)))))
 	  ;; we need to counter the forward-line in chess-engine-filter
-	  (unless error
-	    (forward-line -1))))
+	  (forward-line -1)))
       t)))
 
 (defface chess-ics-seek-button '((((type pc) (class color))
