@@ -142,7 +142,13 @@
        ((eq (car args) 'ponder)
 	(if (cadr args)
 	    (chess-engine-send nil "hard\n")
-	  (chess-engine-send nil "easy\n")))))
+	  (chess-engine-send nil "easy\n")))
+       ((eq (car args) 'search-depth)
+	(assert (and (integerp (cadr args)) (>= (cadr args) 0)))
+	(chess-engine-send nil (format "sd %d\n") (cadr args)))
+       ((eq (car args) 'search-time)
+	(assert (and (integerp (cadr args)) (> (cadr args) 0)))
+	(chess-engine-send nil (format "st %d\n") (cadr args)))))
 
      (t
       (if (and (eq event 'undo)
