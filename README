@@ -35,9 +35,9 @@ Core library
 *** chess-pgn.el
 *** chess-scid.el
 ** chess-engine.el
-*** chess-ai.el
 *** chess-none.el
 *** chess-common.el
+**** chess-ai.el
 **** chess-crafty.el
 **** chess-gnuchess.el
 **** chess-phalanx.el
