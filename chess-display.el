@@ -109,7 +109,9 @@
 	(chess-display-set-ply new-display chess-display-ply))
        (chess-display-position
 	(chess-display-set-game new-display chess-display-position))))
-    (chess-display-update new-display t)
+    ;; the display will have already been updated by the `set-' calls,
+    ;; it's just not visible yet
+    (chess-display-popup new-display)
     new-display))
 
 (defsubst chess-display-style (display)
@@ -120,10 +122,14 @@
   (chess-with-current-buffer display
     chess-display-perspective))
 
-(defun chess-display-set-perspective (display perspective)
+(defun chess-display-set-perspective* (display perspective)
   (chess-with-current-buffer display
     (setq chess-display-perspective perspective)
-    (erase-buffer)			; force a complete redraw
+    (erase-buffer)))			; force a complete redraw
+
+(defun chess-display-set-perspective (display perspective)
+  (chess-with-current-buffer display
+    (chess-display-set-perspective* nil perspective)
     (chess-display-update nil)))
 
 (defsubst chess-display-main-p (display)
@@ -228,6 +234,24 @@ modeline."
     (chess-game-add-hook game 'chess-display-event-handler display)
     (chess-display-update nil t)))
 
+(defun chess-display-copy-game (display game)
+  (chess-with-current-buffer display
+    (setq chess-display-index (chess-game-index game))
+    (if (null chess-display-game)
+	(chess-display-set-game nil game)
+      (chess-game-set-tags chess-display-game (chess-game-tags game))
+      ;; this call triggers `setup-game' for us
+      (chess-game-set-plies chess-display-game
+			    (chess-game-plies game)))))
+
+(defun chess-display-set-start-position (display position my-color)
+  (chess-with-current-buffer display
+    (let ((game (chess-display-game nil)))
+      (if (null game)
+	  (chess-display-set-position nil position)
+	(chess-game-set-data game 'my-color my-color)
+	(chess-game-set-start-position game position)))))
+
 (defun chess-display-detach-game (display)
   "Set the display game.
 This will cause the first ply in the game's main variation to be
@@ -243,7 +267,7 @@ modeline."
   (chess-with-current-buffer display
     chess-display-game))
 
-(defun chess-display-set-index (display index)
+(defun chess-display-set-index* (display index)
   (chess-with-current-buffer display
     (unless chess-display-index
       (error "There is no game or variation currently being displayed."))
@@ -252,8 +276,12 @@ modeline."
 		(> index (if chess-display-game
 			     (chess-game-index chess-display-game)
 			   (chess-var-index chess-display-variation))))
-      (setq chess-display-index index)
-      (chess-display-update nil))))
+      (setq chess-display-index index))))
+
+(defun chess-display-set-index (display index)
+  (chess-with-current-buffer display
+    (chess-display-set-index* nil index)
+    (chess-display-update nil)))
 
 (defsubst chess-display-index (display)
   (chess-with-current-buffer display
@@ -266,7 +294,8 @@ modeline."
 	     (chess-display-position nil)
 	     (chess-display-perspective nil))
     (chess-display-set-modeline)
-    (if popup
+    (if (and popup (not chess-display-no-popup)
+	     (chess-display-main-p nil))
 	(chess-display-popup nil))))
 
 (defun chess-display-move (display ply)
@@ -284,7 +313,8 @@ If only START is given, it must be in algebraic move notation."
 	(error "What to do here??  NYI")))
      (chess-display-variation
       (chess-var-move chess-display-variation ply)
-      (chess-display-set-index nil (chess-var-index chess-display-variation)))
+      (chess-display-set-index*
+       nil (chess-var-index chess-display-variation)))
      (chess-display-ply
       (setq chess-display-ply ply))
      (chess-display-position		; an ordinary position
@@ -307,8 +337,7 @@ that is supported by most displays, and is the default mode."
 (defun chess-display-popup (display)
   "Popup the given DISPLAY, so that it's visible to the user."
   (chess-with-current-buffer display
-    (unless chess-display-no-popup
-      (funcall chess-display-event-handler 'popup))))
+    (funcall chess-display-event-handler 'popup)))
 
 (defun chess-display-enable-popup (display)
   "Popup the given DISPLAY, so that it's visible to the user."
@@ -336,36 +365,40 @@ that is supported by most displays, and is the default mode."
 (defun chess-display-event-handler (game display event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
-  (with-current-buffer display
-    (cond
-     ((eq event 'shutdown)
-      (chess-display-destroy nil))
+  (unless (memq event '(set-data set-tags set-tag))
+    (with-current-buffer display
+      (cond
+       ((eq event 'shutdown)
+	(chess-display-destroy nil))
 
-     ((eq event 'destroy)
-      (chess-display-detach-game nil))
+       ((eq event 'destroy)
+	(chess-display-detach-game nil))
 
-     ((eq event 'pass)
-      (let ((my-color (if chess-display-game
-			  (chess-game-get-data chess-display-game
-					       'my-color)
-			(chess-display-perspective nil))))
+       ((eq event 'pass)
+	(let ((my-color (if chess-display-game
+			    (chess-game-data chess-display-game 'my-color)
+			  (chess-display-perspective nil))))
+	  (if chess-display-game
+	      (chess-game-set-data chess-display-game 'my-color
+				   (not my-color)))
+	  (chess-display-set-perspective* nil (not my-color))))
+
+       ((eq event 'orient)
+	;; Set the display's perspective to whichever color I'm playing
 	(if chess-display-game
-	    (chess-game-set-data chess-display-game 'my-color
-				 (not my-color)))
-	(chess-display-set-perspective nil (not my-color))))
+	    (chess-display-set-perspective*
+	     nil (chess-game-data chess-display-game 'my-color))))
 
-     ((memq event '(move game-over resign))
-      (chess-display-set-index nil (chess-game-index
-				    (chess-display-game nil)))))
+       ((memq event '(move game-over resign))
+	(chess-display-set-index*
+	 nil (chess-game-index (chess-display-game nil)))))
 
-    (if (eq event 'resign)
-	(message-box "%s resigns" (if (car args) "White" "Black")))
+      (if (eq event 'resign)
+	  (message-box "%s resigns" (if (car args) "White" "Black")))
 
-    (unless (eq event 'shutdown)
-      (chess-display-update nil))
-
-    (if (memq event '(pass move game-over resign))
-	(chess-display-popup nil))))
+      (unless (eq event 'shutdown)
+	(chess-display-update nil (memq event
+					'(pass move game-over resign)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -400,8 +433,8 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?.] 'chess-display-move-forward)
     (define-key map [(meta ?>)] 'chess-display-move-last)
 
-    (define-key map [(meta ?w)] 'chess-display-copy-board)
-    (define-key map [(control ?y)] 'chess-display-paste-board)
+    (define-key map [(meta ?w)] 'chess-display-kill-board)
+    (define-key map [(control ?y)] 'chess-display-yank-board)
 
     (define-key map [(control ?l)] 'chess-display-redraw)
 
@@ -445,6 +478,7 @@ See `chess-display-type' for the different kinds of displays."
 (defun chess-display-redraw ()
   "Just redraw the current display."
   (interactive)
+  (erase-buffer)
   (chess-display-update nil))
 
 (defun chess-display-mode ()
@@ -509,7 +543,7 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive "sSet from FEN string: ")
   (chess-display-set-position nil (chess-fen-to-pos fen)))
 
-(defun chess-display-copy-board (&optional arg)
+(defun chess-display-kill-board (&optional arg)
   "Send the current board configuration to the user."
   (interactive "P")
   (let ((x-select-enable-clipboard t))
@@ -519,13 +553,14 @@ Basically, it means we are playing, not editing or reviewing."
 		    (buffer-string)))
       (kill-new (chess-pos-to-fen (chess-display-position nil))))))
 
-(defun chess-display-paste-board ()
+(defun chess-display-yank-board ()
   "Send the current board configuration to the user."
   (interactive)
   (let ((x-select-enable-clipboard t)
-	(display (current-buffer)))
+	(display (current-buffer))
+	(text (current-kill 0)))
     (with-temp-buffer
-      (insert (current-kill 0))
+      (insert text)
       (goto-char (point-max))
       (while (and (bolp) (not (bobp)))
 	(delete-backward-char 1))
@@ -533,7 +568,7 @@ Basically, it means we are playing, not editing or reviewing."
       (cond
        ((search-forward "[Event" nil t)
 	(goto-char (match-beginning 0))
-	(chess-display-set-game display (chess-pgn-to-game)))
+	(chess-display-copy-game display (chess-pgn-to-game)))
        ((looking-at (concat chess-algebraic-regexp "$"))
 	(let ((move (buffer-string)))
 	  (with-current-buffer display

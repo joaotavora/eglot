@@ -60,7 +60,7 @@
 	(when (and proc (eq (process-status proc) 'open))
 	  (process-send-string proc (format "USER %s 0 * :%s\n"
 					    (user-login-name)
-					    (user-full-name)))
+					    chess-full-name))
 	  (process-send-string proc (format "NICK %s\n" chess-irc-nick))
 	  (set-process-filter proc 'chess-irc-filter)
 	  (set-process-buffer proc (current-buffer))
@@ -89,7 +89,7 @@ NOTE: This function is meant to be called from a display buffer!"
       (cdr (assq 'chess-engine-event-handler
 		 (chess-game-hooks (chess-display-game nil))))
     (setq chess-irc-opponent nick)
-    (chess-engine-send nil (format "name %s\n" (user-full-name)))))
+    (chess-engine-send nil (format "chess match %s\n" chess-full-name))))
 
 ;; This filter translates IRC syntax into basic chess-network protocol
 (defun chess-irc-filter (proc string)

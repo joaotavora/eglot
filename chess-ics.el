@@ -88,15 +88,15 @@ who is black."
     (setq parts (cdr parts))
 
     ;; move in elaborated notation
+    (setq ply (if (string= (car parts) "none")
+		  (chess-ply-create position)
+		(chess-algebraic-to-ply position (substring (car parts) 2))))
     (setq parts (cdr parts))
 
     ;; time elapsed
     (setq parts (cdr parts))
 
     ;; move in algebraic notation
-    (setq ply (if (string= (car parts) "none")
-		  (chess-ply-create position)
-		(chess-algebraic-to-ply position (car parts))))
     (setq parts (cdr parts))
 
     ;; unknown
@@ -109,21 +109,21 @@ who is black."
 (defun chess-ics-handle-move ()
   (let ((begin (match-beginning 1))
 	(end (match-end 1))
-	(info (chess-ics12-parse (match-string 2))))
-    (if (> (chess-game-index (chess-engine-game nil)) 0)
+	(info (chess-ics12-parse (match-string 2)))
+	(game (chess-engine-game nil)))
+    (assert game)
+    (if (> (chess-game-index game) 0)
 	(if (eq (chess-pos-side-to-move (chess-ply-pos (car info)))
 		(chess-pos-side-to-move (chess-engine-position nil)))
 	    (chess-engine-do-move (car info)))
-      (chess-game-set-plies (chess-engine-game nil)
-			    (list (car info)))
-      (unless (string= (cadr info) ics-handle)
-	(chess-game-run-hooks (chess-engine-game nil) 'pass)))
+      (chess-engine-set-start-position nil (chess-ply-pos (car info))
+				       (string= (cadr info) ics-handle)))
     (delete-region begin end)
     t))
 
 (defvar chess-ics-regexp-alist
   (list (cons "\\(<12> \\(.+\\)\\)" 'chess-ics-handle-move)
-	(cons "You accept the match offer from \\([^\\.]+\\)."
+	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'connect
@@ -188,6 +188,15 @@ who is black."
       (setq chess-ics-ensure-ics12 t))
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
 				   "\n")))
+
+   ((eq event 'accept)
+    (chess-engine-send nil "accept\n"))
+
+   ((eq event 'decline)
+    (chess-engine-send nil "decline\n"))
+
+   ((eq event 'resign)
+    (chess-engine-send nil "resign\n"))
 
    ((eq event 'send)
     (comint-send-string (get-buffer-process (current-buffer)) (car args)))))

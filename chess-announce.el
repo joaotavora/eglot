@@ -43,7 +43,7 @@ See `chess-display-type' for the different kinds of displays."
    ((memq event '(move game-over))
     (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
 	   (pos (chess-ply-pos ply)))
-      (unless (eq (chess-game-get-data game 'my-color)
+      (unless (eq (chess-game-data game 'my-color)
 		  (chess-pos-side-to-move pos))
 	(let* ((changes (chess-ply-changes ply))
 	       (source (car changes))

@@ -1,3 +1,5 @@
+(require 'pp)
+
 (defun update-lispdoc-tags ()
   (interactive)
   (save-excursion

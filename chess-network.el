@@ -27,7 +27,12 @@
 	(cons "fen\\s-+\\(.+\\)"
 	      (function
 	       (lambda ()
-		 (funcall chess-engine-response-handler 'setup
+		 (funcall chess-engine-response-handler 'setup-pos
+			  (match-string 1)))))
+	(cons "pgn\\s-+\\(.+\\)"
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'setup-game
 			  (match-string 1)))))
 	(cons "pass$"
 	      (function
@@ -58,19 +63,32 @@
 					(read-string "Port: "))))
       (if (eq which ?s)
 	  (message "Now waiting for your opponent to connect...")
-	(process-send-string proc (format "name %s\n" (user-full-name)))
+	(process-send-string proc (format "chess match %s\n" chess-full-name))
 	(message "You have connected; pass now or make your move."))
       proc))
 
    ((eq event 'shutdown)
     (chess-engine-send nil "quit\n"))
 
-   ((eq event 'setup)
+   ((eq event 'setup-pos)
     (chess-engine-send nil (format "fen %s\n"
-				   (chess-pos-to-fen (car args)))))
+				   (chess-pos-to-string (car args)))))
+
+   ((eq event 'setup-game)
+    (chess-engine-send nil (format "pgn %s\n"
+				   (chess-game-to-string (car args)))))
 
    ((eq event 'pass)
     (chess-engine-send nil "pass\n"))
+
+   ((eq event 'busy)
+    (chess-engine-send nil "playing\n"))
+
+   ((eq event 'accept)
+    (chess-engine-send nil (format "accept %s\n" chess-full-name)))
+
+   ((eq event 'decline)
+    (chess-engine-send nil "decline\n"))
 
    ((eq event 'resign)
     (chess-engine-send nil "resign\n"))

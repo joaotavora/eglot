@@ -14,6 +14,8 @@
 (defvar chess-illegal nil)
 (put 'chess-illegal 'error-conditions '(error))
 
+(defvar chess-game-inhibit-events nil)
+
 (defconst chess-game-default-tags
   `(("Event"	   . "Computer chess game")
     ("Round"	   . "-")
@@ -59,8 +61,9 @@ matches."
 
 (defsubst chess-game-run-hooks (game &rest args)
   "Return the tags alist associated with GAME."
-  (dolist (hook (chess-game-hooks game))
-    (apply (car hook) game (cdr hook) args)))
+  (unless chess-game-inhibit-events
+    (dolist (hook (chess-game-hooks game))
+      (apply (car hook) game (cdr hook) args))))
 
 
 (defsubst chess-game-tags (game)
@@ -101,10 +104,11 @@ matches."
   (let ((alist (chess-game-data-alist game)))
     (if (null alist)
 	(setcar (nthcdr 2 game) (list (cons key value)))
-      (push (cons key value) alist))
+      (push (cons key value) alist)
+      (setcar (nthcdr 2 game) alist))
     (chess-game-run-hooks game 'set-data key)))
 
-(defun chess-game-get-data (game key)
+(defun chess-game-data (game key)
   (let ((alist (chess-game-data-alist game)))
     (if alist
 	(cdr (assq key alist)))))
@@ -124,7 +128,7 @@ matches."
 (defsubst chess-game-set-plies (game plies)
   "Return the tags alist associated with GAME."
   (setcdr (nthcdr 2 game) (list plies))
-  (chess-game-run-hooks game 'setup (chess-ply-pos (car (last plies)))))
+  (chess-game-run-hooks game 'setup-game game))
 
 (defsubst chess-game-set-start-position (game position)
   "Return the tags alist associated with GAME."
@@ -157,6 +161,10 @@ matches."
     (if plies
 	(nconc plies (list ply))
       (chess-game-set-plies game (list ply)))))
+
+
+(defsubst chess-game-to-string (game &optional indented)
+  (chess-game-to-pgn game indented t))
 
 
 (defun chess-game-create (&optional position tags)

@@ -18,6 +18,9 @@
   :type 'file
   :group 'chess-crafty)
 
+(defvar chess-crafty-temp-files nil)
+(make-variable-buffer-local 'chess-crafty-temp-files)
+
 (defvar chess-crafty-regexp-alist
   (list (cons (concat "\\s-*\\(White\\|Black\\)\\s-*([0-9]+):\\s-+\\("
 		      chess-algebraic-regexp "\\)\\s-*$")
@@ -55,11 +58,26 @@
       proc))
 
    ((eq event 'shutdown)
-    (chess-engine-send nil "quit\n"))
+    (chess-engine-send nil "quit\n")
+    (dolist (file chess-crafty-temp-files)
+      (if (file-exists-p file)
+	  (delete-file file))))
 
-   ((eq event 'setup)
+   ((eq event 'ready)
+    (let ((game (chess-engine-game nil)))
+      (if game
+	  (chess-game-set-data game 'active t))))
+
+   ((eq event 'setup-pos)
     (chess-engine-send nil (format "setboard %s\n"
 				   (chess-pos-to-fen (car args)))))
+
+   ((eq event 'setup-game)
+    (let ((file (make-temp-file "cra")))
+      (with-temp-file file
+	(insert (chess-game-to-string (car args)) ?\n))
+      (chess-engine-send nil (format "read %s\n" file))
+      (push file chess-crafty-temp-files)))
 
    ((eq event 'pass)
     (chess-engine-send nil "go\n"))

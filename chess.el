@@ -84,7 +84,7 @@ a0 243
 (defgroup chess nil
   "An Emacs chess playing program."
   :group 'games)
-(defconst chess-version "2.0a4"
+(defconst chess-version "2.0a5"
 (defconst chess-version "2.0a7"
   "The version of the Emacs chess program.")
 
@@ -107,19 +107,25 @@ minibuffer, which works well for Emacspeak users."
   :type 'boolean
   :group 'chess)
 
+(defcustom chess-full-name (user-full-name)
+  "The full name to use when playing chess."
+  :type 'string
+  :group 'chess)
+
 (defun chess (&optional arg)
   "Start a game of chess."
   (interactive "P")
-  (let ((game (chess-game-create))	; start out as white always
-	(my-color t)
-	display engine)
+      chess-default-engine)))
+
+
+  (require chess-default-display)
+  (let* ((my-color t)			; we start out as white always
+	 (display (chess-display-create chess-default-display my-color))
 	 (game (chess-game-create)))
 
 
-    (require chess-default-display)
-    (let ((display (chess-display-create chess-default-display my-color)))
-      (chess-display-set-game display game)
-      (chess-display-set-main display))
+	(chess-display-disable-popup display))
+    (chess-display-set-game display game)
     (chess-display-set-main display)
     (let ((engine-module
 	   (if arg
@@ -127,11 +133,19 @@ minibuffer, which works well for Emacspeak users."
 			   "chess-none"))
 	     chess-default-engine)))
     (let ((engine-module (or engine chess-default-engine)))
-	(chess-engine-set-game (chess-engine-create engine-module) game)
+	(let ((engine (chess-engine-create engine-module)))
+			     engine-ctor-args)))
+	  (chess-engine-set-game* engine game)
+	  ;; for the sake of engines which are ready to play now, and
+	  ;; which don't need connect/accept negotiation (most
+	  ;; computerized engines fall into this category), we need to
+	  ;; let them know we're ready to begin
 	  (chess-engine-command engine 'ready))
 	(when chess-announce-moves
 	  (require 'chess-announce)
-	  (chess-announce-for-game game))))))
+	  (chess-announce-for-game game))))
+		  (chess-announce-for-game game)))))))
+    (chess-display-update display t)))
     (cons display engine)))
 
 ;;;###autoload

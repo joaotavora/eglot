@@ -59,14 +59,26 @@
       (if (file-exists-p file)
 	  (delete-file file))))
 
-   ((eq event 'setup)
+   ((eq event 'ready)
+    (let ((game (chess-engine-game nil)))
+      (if game
+	  (chess-game-set-data game 'active t))))
+
+   ((eq event 'setup-pos)
     (if (equal (car args) chess-starting-position)
 	(chess-engine-send nil "new\n")
       (let ((file (make-temp-file "gch")))
 	(with-temp-file file
-	  (insert (chess-pos-to-fen (car args)) ?\n))
+	  (insert (chess-pos-to-string (car args)) ?\n))
 	(chess-engine-send nil (format "epdload %s\n" file))
 	(push file chess-gnuchess-temp-files))))
+
+   ((eq event 'setup-game)
+    (let ((file (make-temp-file "gch")))
+      (with-temp-file file
+	(insert (chess-game-to-string (car args)) ?\n))
+      (chess-engine-send nil (format "pgnload %s\n" file))
+      (push file chess-gnuchess-temp-files)))
 
    ((eq event 'pass)
     (chess-engine-send nil (concat (if (chess-pos-side-to-move
