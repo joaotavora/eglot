@@ -361,6 +361,11 @@ function in all cases; this is merely a bandwidth-saver."
      ((eq event 'destroy)
       (chess-engine-detach-game engine)))))
 
+(defun chess-engine-sentinal (proc event)
+  (when (buffer-live-p (process-buffer proc))
+    (set-buffer (process-buffer proc))
+    (chess-engine-destroy nil)))
+
 (defun chess-engine-filter (proc string)
   "Filter for receiving text for an engine from an outside source."
   (let ((buf (if (processp proc)
