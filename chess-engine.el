@@ -11,11 +11,6 @@
   "Code for reading movements and other commands from an engine."
   :group 'chess)
 
-(defvar chess-engine-entire-lines nil
-  "If non-nil, `chee-engine-filter' will process output only if it is
-terminated by a final newline.")
-(make-variable-buffer-local 'chess-engine-entire-lines)
-
 (defvar chess-engine-regexp-alist nil)
 (defvar chess-engine-response-handler nil)
 (defvar chess-engine-current-marker nil)
@@ -414,7 +409,8 @@ event handler can take care of the data."
   (let ((buf (if (and proc (processp proc))
 		 (process-buffer proc)
 	       (current-buffer)))
-	last-point)
+	(inhibit-redisplay t)
+	last-point last-line-no-newline)
     (when (buffer-live-p buf)
       (with-current-buffer buf
 	(if (stringp proc)
@@ -426,17 +422,14 @@ event handler can take care of the data."
 	      (insert string)
 	      (set-marker chess-engine-current-marker (point)))
 	    (if moving (goto-char chess-engine-current-marker))))
-	(when (and (not chess-engine-working)
-		   (or (not chess-engine-entire-lines)
-		       (memq (char-before chess-engine-current-marker)
-			     '(?\n ?\r))))
+	(unless chess-engine-working
 	  (setq chess-engine-working t)
 	  (save-excursion
 	    (if chess-engine-last-pos
 		(goto-char chess-engine-last-pos)
 	      (goto-char (point-min)))
 	    (unwind-protect
-		(while (not (eobp))
+		(while (and (not (eobp)) (not last-line-no-newline))
 		  (let ((case-fold-search nil)
 			(triggers chess-engine-regexp-alist)
 			last-trigger result)
@@ -455,7 +448,9 @@ event handler can take care of the data."
 			    (setq triggers nil))
 			(setq last-trigger triggers
 			      triggers (cdr triggers)))))
-		  (forward-line))
+		  (if (= (line-end-position) (point-max))
+		      (setq last-line-no-newline t)
+		    (forward-line)))
 	      (setq chess-engine-last-pos (point)
 		    chess-engine-working nil))))))))
 
