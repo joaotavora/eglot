@@ -83,49 +83,58 @@ a0 243
 (defconst chess-version "2.0a1"
 (defconst chess-version "2.0a7"
   "The version of the Emacs chess program.")
-(defcustom chess-modules
-  (list 'chess-crafty
-	(if (display-graphic-p)
-	    'chess-images 'chess-ascii))
+
+				     'chess-images 'chess-ascii)
 				     'chess-images 'chess-ics1)
-  :type (list 'radio (apropos-internal "\\`chess-[^-]+\\'" 'functionp))
+  "Default module set to be used when starting a chess session."
   :type 'sexp
   :group 'chess)
-(defvar chess-current-session nil)
-
-(defvar chess-illegal nil)
-(put 'chess-illegal 'error-conditions '(error))
+(defcustom chess-default-engine 'chess-crafty
+(defcustom chess-default-engine 'chess-gnuchess
+  "Default engine to be used when starting a chess session."
+  :type 'sexp
   :group 'chess)
 
-(defun chess ()
+(defun chess (&optional arg)
   "Start a game of chess."
-  (interactive)
-  (setq chess-current-session (chess-session-create))
-  (chess-session-add-listener chess-current-session 'chess-global-handler)
-  (dolist (module chess-modules)
-    (require module)
-    (chess-session-add-listener chess-current-session module))
-  (chess-session-event chess-current-session 'initialize)
-  (chess-session-event chess-current-session 'setup (chess-game-create)))
+  (interactive "P")
+  (let ((session (chess-session-create))
+	(perspective t))		; start out as white always
+    ;; setup `chess-handler' to receive all events first
+    (chess-session-add-listener session 'chess-handler)
+    (chess-session-set-data session 'my-color perspective)
+    ;; unless prefix arg is given, use `chess-default-engine' to play
+    ;; against; otherwise, just create a board for play between two
+    ;; people
+    (unless arg
+      (chess-session-add-listener session chess-default-engine))
+    ;; initialize all of the modules, and setup a new game
+    (chess-session-event session 'initialize)
+    (chess-session-event session 'setup (chess-game-create))
+    ;; create a display object linked to the session, and add it to
+    ;; the event chain; it is via this object that session events will
+    ;; for the most part be generated
+    (chess-session-add-listener session 'chess-display nil
+				(chess-display-create chess-default-display
+						      perspective session))))
 
-(defun chess-global-handler (session window-config event &rest args)
+(defun chess-handler (session window-config event &rest args)
   "React to changes on the chess board in a global Emacs way."
   (cond
    ((eq event 'initialize)
-    (chess-session-set-data session 'my-color t) ; start out white
     (current-window-configuration))
+
    ((eq event 'shutdown)
     (ignore (set-window-configuration window-config)))
+
    ((eq event 'setup)
     (ignore (chess-session-set-data session 'current-game (car args))))
+
    ((eq event 'pass)
     (ignore
      (let ((color (not (chess-session-data session 'my-color))))
-       (message "You are now playing %s"
-		(if color "White" "Black"))
-       (chess-session-set-data session 'my-color
-			       (not (chess-session-data session
-							'my-color))))))))
+       (message "You are now playing %s" (if color "White" "Black"))
+       (chess-session-set-data session 'my-color (not color)))))))
 	    (aset chess-puzzle-locations 3 puzzle-engine)))))))
 
 (provide 'chess)

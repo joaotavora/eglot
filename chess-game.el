@@ -12,6 +12,9 @@
 (require 'chess-ply)
 (require 'chess-algebraic)
 
+(defvar chess-illegal nil)
+(put 'chess-illegal 'error-conditions '(error))
+
 (defconst chess-game-default-tags
   `(("Event"	   . "Computer chess game")
     ("Round"	   . "-")

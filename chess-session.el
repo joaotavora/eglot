@@ -9,11 +9,11 @@
 (defun chess-session-create ()
   (cons nil nil))
 
-(defun chess-session-add-listener (session listener &optional front)
+(defun chess-session-add-listener (session listener &optional front object)
   (if (or front (not (cdr session)))
-      (setcdr session (cons (cons listener nil)
+      (setcdr session (cons (cons listener object)
 			    (cdr session)))
-    (nconc session (list (cons listener nil)))))
+    (nconc session (list (cons listener object)))))
 
 (defun chess-session-remove-listener (session listener)
   (setcdr session (delq (assq listener (cdr session))

@@ -265,6 +265,8 @@ If only START is given, it must be in algebraic move notation."
 				   start target))))
       (cond
        ((chess-display-active-p)
+	;; make the move and then announce it
+	(chess-game-move chess-display-game ply)
 	(chess-session-event chess-display-session 'move ply))
        (chess-display-game
 	;; jww (2002-03-28): This should beget a variation, or alter
@@ -315,10 +317,14 @@ See `chess-display-type' for the different kinds of displays."
        (chess-display-set-game display (car args)))
 
       ((eq event 'highlight)
-       ;; calling `chess-display-highlight' would be recursive
+       ;; calling `chess-display-highlight' here would be recursive
        (if chess-display-highlight-function
 	   (funcall chess-display-highlight-function
 		    (car args) (cadr args))))
+
+      ((eq event 'pass)
+       (chess-display-set-perspective
+	display (not (chess-display-perspective display))))
 
       (t
        (chess-display-update display))))))
