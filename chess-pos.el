@@ -543,9 +543,7 @@ be moved, and TARGET is the index of the location to be moved to.
 Note: All of the pieces specified by CANDIDATES must be of the same
 type."
   (let ((cand candidates)
-	(test-piece (if (boundp 'test-piece)
-			test-piece	; a performance hack for above
-		      (upcase (chess-pos-piece position (car candidates)))))
+	(test-piece (upcase (chess-pos-piece position (car candidates))))
 	last-cand pos king-pos)
     (while cand
       ;; determine the resulting position
