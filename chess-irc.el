@@ -77,7 +77,7 @@
 	  (set-marker (process-mark proc) (point))
 	  (chess-message 'irc-waiting)))
       (setq chess-irc-process proc))
-    nil)
+    t)
 
    ((eq event 'match)
     (setq chess-irc-opponent (read-string (chess-string 'irc-challenge)))

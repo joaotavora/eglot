@@ -24,7 +24,7 @@
     ;;
     ;; NOTE: Be sure not to return a process, or else chess-engine
     ;; will do all the transport work!
-    )
+    t)
 
    ((eq event 'send)
     ;; Transmit the string given in `(car args)' to the outbound

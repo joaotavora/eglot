@@ -85,25 +85,26 @@
 (defconst chess-version "2.0a8"
   "The version of the Emacs chess program.")
 
-(defcustom chess-default-display (if (display-graphic-p)
-				     'chess-images 'chess-ics1)
-  "Default module set to be used when starting a chess session."
-  :type 'sexp
+(defcustom chess-default-displays
+  '((chess-images chess-ics1 chess-plain)
+    (chess-sound chess-announce))
+  "Default displays to be used when starting a chess session.
+This is a list of display modules, all of which will be invoked.  If
+any entry is itself a list, then it specifies a series of alternatives
+if the first modules were not available.
+Note: The very first display is marked the 'main' display, which will
+popup on significant events (unless `chess-display-popup' in nil);
+also, killing this main display will cause all related chess buffers
+to be killed."
+  :type '(repeat (choice symbol (repeat symbol)))
   :group 'chess)
 
-(defcustom chess-default-engine 'chess-gnuchess
-  "Default engine to be used when starting a chess session."
-  :type 'sexp
-  :group 'chess)
-
-(defcustom chess-announce-moves t
-  "If non-nil, announce when your opponent makes a move.
-This variable can also be a symbol which names a different announcing
-module to use.  This happens verbally if 'festival' is installed, or
-if you have sound files installed and a sound play (see
-chess-sound.el).  Otherwise it just prints a message in your
-minibuffer, which works well for Emacspeak users."
-  :type 'boolean
+(defcustom chess-default-engine
+  '(chess-crafty chess-gnuchess chess-phalanx)
+  "Default engine to be used when starting a chess session.
+A list indicates a series of alternatives if the first engines are not
+available."
+  :type '(choice symbol (repeat symbol))
   :group 'chess)
 
 (defcustom chess-full-name (user-full-name)
@@ -111,8 +112,27 @@ minibuffer, which works well for Emacspeak users."
   :type 'string
   :group 'chess)
 
-(chess-message-catalog 'english
-  '((no-images-fallback . "Could not find suitable chess images; using ics1 display")))
+(defun chess--create-display (module game my-color first disable-popup)
+  (if (require module nil t)
+      (let ((display (chess-display-create game module my-color first)))
+	(when display
+	  (chess-game-set-data game 'my-color my-color)
+	  (if disable-popup
+	      (chess-display-disable-popup display))
+	  (chess-display-update display t)
+	  display))))
+
+(defun chess--create-engine (module game response-handler ctor-args)
+  (if (require module nil t)
+      (let ((engine (chess-engine-create game module
+					 response-handler ctor-args)))
+	(when engine
+	  ;; for the sake of engines which are ready to play now, and
+	  ;; which don't need connect/accept negotiation (most
+	  ;; computerized engines fall into this category), we need to
+	  ;; let them know we're ready to begin
+	  (chess-engine-command engine 'ready)
+	  engine))))
 
 ;;;###autoload
 (defun chess (&optional engine disable-popup engine-response-handler
@@ -129,53 +149,48 @@ minibuffer, which works well for Emacspeak users."
 		     "none"))))
       chess-default-engine)))
 
-  (require chess-default-display)
-  (let* ((my-color t)			; we start out as white always
-	 (game (chess-game-create))
-	 (display (chess-display-create game chess-default-display
-					my-color)))
+  (let ((my-color t)			; we start out as white always
+	(game (chess-game-create))
+	(first t)
+	objects)
 
-    (when (and (eq chess-default-display 'chess-images)
-	       (with-current-buffer display
-		 (null chess-images-size)))
-      (chess-message 'no-images-fallback)
-      (chess-display-destroy display)
-      (require 'chess-ics1)
-      (setq display (chess-display-create game 'chess-ics1 my-color)))
+    (dolist (module chess-default-displays)
+      (let (display)
+	(if (symbolp module)
+	    (setq display (chess--create-display module game my-color
+						 first disable-popup))
+	  ;; this module is actually a list, which means keep trying
+	  ;; until we find one that works
+	  (while module
+	    (if (setq display (chess--create-display (car module) game
+						     my-color first
+						     disable-popup))
+		(setq module nil)
+	      (setq module (cdr module)))))
+	(if display
+	    (push display objects)))
+      (setq first nil))
 
-    (chess-game-set-data game 'my-color my-color)
-    (if disable-popup
-	(chess-display-disable-popup display))
-    (chess-display-set-main display)
+    (let ((module (or engine chess-default-engine)))
+      (if (symbolp module)
+	  (push (chess--create-engine module game
+				      engine-response-handler
+				      engine-ctor-args)
+		objects)
+	(let (engine)
+	  (while module
+	    (setq engine (chess--create-engine (car module) game
+					       engine-response-handler
+					       engine-ctor-args))
+	    (if engine
+		(progn
+		  (push engine objects)
+		  (setq module nil))
+	      (setq module (cdr module))))
+	  (unless engine
+	    (push nil objects)))))
 
-    (let ((engine-module (or engine chess-default-engine)))
-      (when (and engine-module (require engine-module nil t))
-	(let ((engine (apply 'chess-engine-create game engine-module nil
-			     engine-ctor-args)))
-	  ;; for the sake of engines which are ready to play now, and
-	  ;; which don't need connect/accept negotiation (most
-	  ;; computerized engines fall into this category), we need to
-	  ;; let them know we're ready to begin
-	  (chess-engine-command engine 'ready))
-
-	(when (and (not (eq engine-module 'chess-none))
-		   chess-announce-moves)
-	  (if (and (not (eq chess-announce-moves t))
-		   (symbolp chess-announce-moves))
-	      (let ((name (symbol-name chess-announce-moves)))
-		(require chess-announce-moves)
-		(if (funcall (intern (concat name "-available-p")))
-		    (funcall (intern (concat name "-for-game")) game)))
-	    (require 'chess-sound)
-	    (if (chess-sound-available-p)
-		(chess-sound-for-game game)
-	      (require 'chess-announce)
-	      (if (chess-announce-available-p)
-		  (chess-announce-for-game game)))))))
-
-    (chess-display-update display t)
-
-    (cons display engine)))
+    objects))
 
 (defalias 'chess-session 'chess)
 

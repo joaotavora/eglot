@@ -211,7 +211,7 @@ who is black."
 	  ;; name from the output
 	  (comint-send-string "guest\n\n"))))
 
-      nil)
+      t)
 
    ((eq event 'match)
     (setq chess-engine-pending-offer 'match)

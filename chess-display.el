@@ -79,15 +79,15 @@ makes moves, or any other changes to the underlying game."
       (chess-error 'no-such-style name))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
       (chess-display-mode read-only)
-      (funcall handler 'initialize)
-      (setq chess-display-style style
-	    chess-display-perspective perspective
-	    chess-display-event-handler handler)
-      (if main
-	  (chess-display-set-main nil))
-      (chess-display-set-game* nil game)
-      (add-hook 'kill-buffer-hook 'chess-display-quit nil t)
-      (current-buffer))))
+      (when (funcall handler 'initialize)
+	(setq chess-display-style style
+	      chess-display-perspective perspective
+	      chess-display-event-handler handler)
+	(if main
+	    (chess-display-set-main nil))
+	(chess-display-set-game* nil game)
+	(add-hook 'kill-buffer-hook 'chess-display-quit nil t)
+	(current-buffer)))))
 
 (defun chess-display-clone (display style perspective)
   (let ((new-display (chess-display-create chess-display-game
@@ -314,6 +314,8 @@ called."
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
   (with-current-buffer display
+    (apply chess-display-event-handler event args)
+
     (cond
      ((eq event 'shutdown)
       (chess-display-destroy nil))

@@ -70,6 +70,7 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 
 (defun chess-plain-handler (event &rest args)
   (cond
+   ((eq event 'initialize) t)
    ((eq event 'popup)
     (if chess-display-popup
 	(funcall chess-plain-popup-function)))

@@ -264,20 +264,21 @@
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
     (with-current-buffer (generate-new-buffer " *chess-engine*")
       (let ((proc (apply handler 'initialize handler-ctor-args)))
-	(setq chess-engine-regexp-alist (symbol-value regexp-alist)
-	      chess-engine-event-handler handler
-	      chess-engine-response-handler
-	      (or response-handler 'chess-engine-default-handler))
-	(chess-engine-set-game* nil game t)
-	(when (processp proc)
-	  (unless (memq (process-status proc) '(run open))
-	    (chess-error 'failed-engine-start))
-	  (setq chess-engine-process proc)
-	  (set-process-buffer proc (current-buffer))
-	  (set-process-filter proc 'chess-engine-filter))
-	(setq chess-engine-current-marker (point-marker)))
-      (add-hook 'kill-buffer-hook 'chess-engine-on-kill nil t)
-      (current-buffer))))
+	(when proc			;must be a process or t
+	  (setq chess-engine-regexp-alist (symbol-value regexp-alist)
+		chess-engine-event-handler handler
+		chess-engine-response-handler
+		(or response-handler 'chess-engine-default-handler))
+	  (chess-engine-set-game* nil game t)
+	  (when (processp proc)
+	    (unless (memq (process-status proc) '(run open))
+	      (chess-error 'failed-engine-start))
+	    (setq chess-engine-process proc)
+	    (set-process-buffer proc (current-buffer))
+	    (set-process-filter proc 'chess-engine-filter))
+	  (setq chess-engine-current-marker (point-marker))
+	  (add-hook 'kill-buffer-hook 'chess-engine-on-kill nil t)
+	  (current-buffer))))))
 
 (defun chess-engine-on-kill ()
   "Function called when the buffer is killed."

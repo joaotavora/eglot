@@ -42,33 +42,33 @@
   :type 'boolean
   :group 'chess-sound)
 
-(defun chess-sound-available-p ()
-  (and (file-directory-p chess-sound-directory)
-       (file-readable-p (expand-file-name "move.wav"
-					  chess-sound-directory))
-       (or (eq chess-sound-play-function 'play-sound-file)
-	   (file-executable-p chess-sound-program))))
-
-(defun chess-sound-for-game (game)
-  "Announce the opponent's moves in GAME."
-  (chess-game-add-hook game 'chess-sound-handler))
-
 (defsubst chess-sound (file)
   (funcall chess-sound-play-function
 	   (expand-file-name (concat file ".wav")
 			     chess-sound-directory)))
 
-(defun chess-sound-play (file)
+(defsubst chess-sound-play (file)
   (apply 'call-process chess-sound-program
 	 nil nil nil (append chess-sound-args (list file))))
 
-(defun chess-sound-handler (game ignore event &rest args)
+(defun chess-sound-handler (event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
-  (when (eq event 'move)
-    (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
+  (cond
+   ((eq event 'initialize)
+    (kill-buffer (current-buffer))
+    (set-buffer (generate-new-buffer " *chess-sound*"))
+    (and (file-directory-p chess-sound-directory)
+	 (file-readable-p (expand-file-name "move.wav"
+					    chess-sound-directory))
+	 (or (eq chess-sound-play-function 'play-sound-file)
+	     (file-executable-p chess-sound-program))))
+
+   ((eq event 'move)
+    (let* ((ply (chess-game-ply chess-display-game
+				(1- (chess-game-index chess-display-game))))
 	   (pos (chess-ply-pos ply)))
-      (if (eq (chess-game-data game 'my-color)
+      (if (eq (chess-game-data chess-display-game 'my-color)
 	      (chess-pos-side-to-move pos))
 	  (if chess-sound-my-moves
 	      (chess-sound "move"))
@@ -101,7 +101,7 @@ See `chess-display-type' for the different kinds of displays."
 	  (if (chess-ply-keyword ply :checkmate)
 	      (chess-sound "#_"))
 	  (if (chess-ply-keyword ply :stalemate)
-	      (chess-sound "smate")))))))
+	      (chess-sound "smate"))))))))
 
 (provide 'chess-sound)
 

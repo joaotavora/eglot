@@ -151,10 +151,18 @@ called."
     (?p "pawn"   5))
   "The names and index values of the different pieces.")
 
+(chess-message-catalog 'english
+  '((no-images-fallback . "Could not find suitable chess images; using ics1 display")))
+
 (defun chess-images-handler (event &rest args)
   (cond
    ((eq event 'initialize)
-    (chess-images-initialize))
+    (when (display-graphic-p)
+      (chess-images-initialize)
+      (if chess-images-size
+	  t
+	(chess-message 'no-images-fallback)
+	nil)))
    ((eq event 'popup)
     (if chess-display-popup
 	(funcall chess-images-popup-function)))
