@@ -135,12 +135,10 @@ who is black."
 	    (if (and (cadr info)
 		     (eq (chess-pos-side-to-move (car info))
 			 (chess-game-data game 'my-color)))
-		(let ((last-ply (last (chess-game-plies game))))
-		  (setcar last-ply
-			  (chess-algebraic-to-ply (chess-ply-pos (car last-ply))
-						  (cadr info) t))
-		  (chess-game-add-ply game (chess-ply-create (car info)))
-		  (chess-game-run-hooks game 'update)))
+		(chess-engine-do-move
+		 (chess-algebraic-to-ply
+		  (chess-ply-pos (car (last (chess-game-plies game))))
+		  (cadr info) t)))
 	  (let ((chess-game-inhibit-events t) plies)
 	    (chess-game-set-data game 'my-color (string= (nth 2 info)
 							 chess-ics-handle))

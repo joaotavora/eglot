@@ -18,6 +18,8 @@
 
 - the game should go inactive once I lose by stalemate/checkmate
 
+- when announcing abiguous pieces, name the rank/file ("e pawn")
+
 ----------------------------------------------------------------------
 
 - Read-only mode needs to be a bit more vigorous.  There's nothing
