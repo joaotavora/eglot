@@ -1,3 +1,35 @@
+2004-02-08  Mario Lang  <mlang@delysid.org>
+
+	* chess-crafty.el (chess-crafty-handler): Add search-depth and
+	search-time engine options.
+
+2004-02-06  Mario Lang  <mlang@delysid.org>
+
+	* chess-display.el (chess-display-paint-move): Handle :en-passant
+	captures (remove the captured pawn from the board).
+
+	* chess-puzzle.el (chess-puzzle): Disable autosave.
+	(chess-puzzle-show-solution): New function (bound to ? in puzzle
+	displays) for showing a solution (if one is known).  This typically
+	only works for EPD databases with either bm or pv information.
+	Displaying of annotations is not yet done.
+
+2004-02-05  Mario Lang  <mlang@delysid.org>
+
+	* chess-file.el:
+	Handle .epd and .pgn files in the chess-file module.  Achieved by
+	setting a buffer-local variable chess-file-type to either 'pgn or 'epd
+	on 'open, and use this info to dispatch correctly.
+	This change makes it possible to load .epd files with the
+	chess-puzzle function for instance.
+
+	* chess-fen.el (chess-fen-regexp): New constant.
+
+	* chess-epd.el (chess-game-to-epd): New defsubst to convert a game
+	object to an EPD string (or insert it).
+	(chess-epd-to-game): Analogous to the above.
+	(chess-epd-parse): Use `chess-fen-regexp'.
+
 2004-02-03  Mario Lang  <mlang@delysid.org>
 
 	* chess-tutorial.el (chess-tutorial): Simplify and add autoload.
