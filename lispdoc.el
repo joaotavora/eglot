@@ -14,7 +14,8 @@
 	(if (and begin end)
 	    (delete-region begin end))
 	(let* ((sym (or (intern-soft name)
-			(error "'%s' is not a function!" name)))
+			(signal 'wrong-type-argument
+				(list 'functionp name))))
 	       (data (let ((func (symbol-function sym)))
 		       (while (symbolp func)
 			 (setq func (symbol-function func)))
