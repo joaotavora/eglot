@@ -213,7 +213,7 @@ If PIECE-OR-COLOR is t for white or nil for black, any piece of that
 color will do."
   (let ((p (chess-pos-piece position index)))
     (cond
-     ((= p ? ) (= p piece-or-color))
+     ((= p ? ) (eq p piece-or-color))
      ((eq piece-or-color t) (< p ?a))
      ((eq piece-or-color nil) (> p ?a))
      (t (= p piece-or-color)))))
@@ -227,6 +227,24 @@ color will do."
       (if (chess-pos-piece-p position i piece-or-color)
 	  (push i found)))
     found))
+
+(defconst chess-pos-piece-values
+  '((?p . 1)
+    (?n . 3)
+    (?b . 3)
+    (?q . 9)
+    (?r . 5)
+    (?k . 0)))
+
+(defun chess-pos-material-value (position color)
+  "Return the aggregate material value in POSITION for COLOR."
+  (let ((pieces (chess-pos-search position color))
+	(value 0))
+    (dolist (index pieces)
+      (setq value
+	    (+ value (cdr (assq (downcase (chess-pos-piece position index))
+				chess-pos-piece-values)))))
+    value))
 
 (defun chess-pos-move (position &rest changes)
   "Move a piece on the POSITION directly, using the indices FROM and TO.

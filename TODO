@@ -37,6 +37,8 @@
 
 - Make the mode-line much more informative
 
+- Resize the chess board on a window resize event, if possible.
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs
