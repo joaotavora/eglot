@@ -411,24 +411,6 @@ or one of the symbols: `check', `checkmate', `stalemate'."
   (chess-pos-set-annotations
    position (assq-delete-all opcode (chess-pos-annotations position))))
 
-(defun chess-pos-read-epd-file (file)
-  "Reads in an EPD file and returns a list of positions."
-  (let (positions)
-    (with-temp-buffer
-      (insert-file-literally file)
-      (goto-char (point-min))
-      (while (re-search-forward "[bnrqkpBNRQKP1-8/]+ [bw] [KQkq-]+ [1-8-]"
-				nil t)
-	(let ((pos (chess-fen-to-pos (match-string 0))))
-	  (save-restriction
-	    (narrow-to-region (point) (line-end-position))
-	    (while (re-search-forward " *\\([^ ]+\\) \\([^;]+\\); *"
-							     nil t)
-	      (chess-pos-add-annotation pos (cons (intern (match-string 1))
-						  (match-string 2)))))
-	  (setq positions (cons pos positions)))))
-    positions))
-
 (defun chess-pos-preceding-ply (position)
   "Delete the given EPD OPCODE."
   (assert (vectorp position))
