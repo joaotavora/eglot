@@ -91,7 +91,11 @@
 (defsubst chess-game-set-plies (game plies)
   "Return the tags alist associated with GAME."
   (setcdr (nthcdr 1 game) (list plies))
-  (chess-game-run-hooks game 'set-plies))
+  (chess-game-run-hooks game 'setup (chess-ply-pos (car (last plies)))))
+
+(defsubst chess-game-set-start-position (game position)
+  "Return the tags alist associated with GAME."
+  (chess-game-set-plies game (list (chess-ply-create position))))
 
 (defsubst chess-game-pos (game &optional index)
   "Return the position related to GAME's INDEX position."
@@ -127,8 +131,9 @@
 Optionally use the given starting POSITION.
 TAGS is the starting set of game tags (which can always be changed
 later using the various tag-related methods)."
-  (let ((game (list nil tags (list (chess-ply-create (or position
-							 (chess-pos-create)))))))
+  (let ((game (list nil tags
+		    (list (chess-ply-create (or position
+						(chess-pos-create)))))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))
