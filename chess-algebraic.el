@@ -116,12 +116,8 @@ If LONG is non-nil, render the move into long notation."
 	   (color (chess-pos-side-to-move pos)) str
 	   (notation
 	    (if (setq str
-		      (and (= (upcase from-piece) ?K)
-			   (= from (chess-rf-to-index (if color 7 0) 4))
-			   (if (= to (chess-rf-to-index (if color 7 0) 6))
-			       "O-O"
-			     (if (= to (chess-rf-to-index (if color 7 0) 2))
-				 "O-O-O"))))
+		      (if (memq :castle changes) "O-O"
+			(if (memq :long-castle changes) "O-O-O")))
 		str
 	      (let ((candidates (chess-search-position pos to from-piece))
 		    (rank 0) (file 0)

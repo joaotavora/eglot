@@ -100,9 +100,11 @@ maneuver."
 	      ;; if so, add the rook moves
 	      (nconc changes (if kingside
 				 (list (chess-rf-to-index (if color 7 0) 7)
-				       (chess-rf-to-index (if color 7 0) 5))
+				       (chess-rf-to-index (if color 7 0) 5)
+				       :castle)
 			       (list (chess-rf-to-index (if color 7 0) 0)
-				     (chess-rf-to-index (if color 7 0) 3)))))))
+				     (chess-rf-to-index (if color 7 0) 3)
+				     :long-castle))))))
 
 	(let* ((next-pos (chess-ply-next-pos ply))
 	       (color (chess-pos-side-to-move next-pos)))
