@@ -20,8 +20,14 @@
 (defcustom chess-plain-border-chars '(?+ ?- ?+ ?| ?| ?+ ?- ?+)
   "*Characters used to draw borders."
   :group 'chess-plain
-  :type '(list character character character character
-	       character character character character))
+  :type '(list (character :tag "Upper left corner")
+	       (character :tag "Upper border")
+	       (character :tag "Upper right corner")
+	       (character :tag "Left border")
+	       (character :tag "Right border")
+	       (character :tag "Lower left corner")
+	       (character :tag "Lowwer border")
+	       (character :tag "Lower right corner")))
 
 (defcustom chess-plain-black-square-char ?.
   "*Character used to indicate black squares."
@@ -61,6 +67,11 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   :type '(choice (const 'color) (const 'square-color)))
 	 ;; fails somehow
 
+(defcustom chess-plain-spacing 0
+  "*Number of spaces between pieces."
+  :group 'chess-plain
+  :type 'integer)
+
 (defcustom chess-plain-popup-function 'chess-display-popup-in-window
   "The function used to popup a chess-plain display."
   :type 'function
@@ -91,7 +102,8 @@ PERSPECTIVE is t for white or nil for black."
 	   beg)
       (if chess-plain-draw-border
 	  (insert ?  (nth 0 chess-plain-border-chars)
-		  (make-string 8 (nth 1 chess-plain-border-chars))
+		  (make-string (+ 8 (* 7 chess-plain-spacing))
+			       (nth 1 chess-plain-border-chars))
 		  (nth 2 chess-plain-border-chars) ?\n))
       (while (if inverted (>= rank 0) (< rank 8))
 	(if chess-plain-draw-border
@@ -116,7 +128,9 @@ PERSPECTIVE is t for white or nil for black."
 			 (t pchar)))))
 	    (add-text-properties begin (point)
 				 (list 'chess-coord
-				       (chess-rf-to-index rank file))))
+				       (chess-rf-to-index rank file)))
+	    (when (if inverted (>= file 1) (< file 7))
+	      (insert (make-string chess-plain-spacing ? ))))
 	  (setq file (if inverted (1- file) (1+ file))))
 	(if chess-plain-draw-border
 	    (insert (nth 4 chess-plain-border-chars)))
@@ -125,7 +139,8 @@ PERSPECTIVE is t for white or nil for black."
 	      rank (if inverted (1- rank) (1+ rank))))
       (if chess-plain-draw-border
 	  (insert ?  (nth 5 chess-plain-border-chars)
-		  (make-string 8 (nth 6 chess-plain-border-chars))
+		  (make-string (+ 8 (* 7 chess-plain-spacing)) 
+			       (nth 6 chess-plain-border-chars))
 		  (nth 7 chess-plain-border-chars) ?\n
 		  ? ?  (if (not inverted) "abcdefgh" "hgfedcba")))
       (set-buffer-modified-p nil)
