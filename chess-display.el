@@ -222,10 +222,13 @@ also view the same game."
 
 (defun chess-display-set-index (display index)
   (chess-with-current-buffer display
-    (unless (or (not (integerp index))
-		(< index 0)
-		(> index (chess-game-index chess-module-game)))
-      (chess-game-run-hooks chess-module-game 'set-index index))))
+    (if (not (or (not (integerp index))
+		 (< index 0)
+		 (> index (chess-game-index chess-module-game))))
+	(chess-game-run-hooks chess-module-game 'set-index index)
+      (when (and (> index (chess-game-index chess-module-game))
+		 (not (chess-ply-final-p (chess-game-ply chess-module-game))))
+	(chess-game-run-hooks chess-module-game 'forward)))))
 
 (defun chess-display-set-index* (display index)
   (chess-with-current-buffer display
