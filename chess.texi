@@ -91,12 +91,13 @@ an example of how to make use of the library.
 
 @menu
 * The Chess.el library::
+* Displays::
 * Play sessions::
 * Display modules::
 * Ply sources::
 @end menu
 
-@node The Chess.el library, Play sessions, Top, Top
+@node The Chess.el library, Displays, Top, Top
 @chapter The Chess.el library
 @cindex library
 
@@ -416,7 +417,7 @@ with a chess database engine for the purpose of storing and retrieving
 games from the library, or performing library-wide analyses and
 searches.
 
-@node
+@node Displays, Play sessions, The Chess.el library, Top
 @chapter Displays
 
 The previous chapter described all the objects found in
@@ -506,7 +507,7 @@ moves.
 @defun chess-display-highlight display index &optional mode
 @end defun
 
-@node Play sessions, Display modules, The Chess.el library, Top
+@node Play sessions, Display modules, Displays, Top
 @chapter Play sessions
 
 @node Display modules, Ply sources, Play sessions, Top

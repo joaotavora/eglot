@@ -8,3 +8,11 @@
   (batch-update-autoloads))
 
 ;;; Generated autoloads follow (made by autoload.el).
+
+;;;### (autoloads (chess) "chess" "chess.el" (15535 63810))
+;;; Generated autoloads from chess.el
+
+(autoload (quote chess) "chess" "\
+Start a game of chess." t nil)
+
+;;;***

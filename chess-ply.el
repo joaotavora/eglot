@@ -68,7 +68,7 @@
 	 (chess-ply-changes ply)))
 
 (defsubst chess-ply-create (position &rest changes)
-  ;; jww (2002-04-02): if changes is a castling maneuver, then
+  ;; jww (2002-04-02): if `changes' is a castling maneuver, then
   ;; annotate and extend the ply correctly
   (cons (chess-pos-copy position) changes))
 

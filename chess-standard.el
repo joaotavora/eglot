@@ -69,7 +69,6 @@ case of the PIECE determines color.
 
 The return value is a list of candidates, which means a list of
 indices which indicate where a piece may have moved from."
-  ;; jww (2002-04-07): This function is a bit slow
   (let* ((color (if (char-valid-p piece)
 		    (< piece ?a)
 		  piece))
