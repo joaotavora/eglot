@@ -128,7 +128,7 @@
 		(setq chess-engine-opponent-name (or name "Anonymous"))
 		(let ((chess-engine-handling-event t))
 		  (chess-engine-set-position nil))
-		(chess-engine-command nil 'accept chess-full-name))
+		(chess-engine-command nil 'accept name))
 	    (chess-engine-command nil 'decline))))
       t)
 
