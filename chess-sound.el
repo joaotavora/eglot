@@ -90,6 +90,10 @@
 	    (chess-sound (format "%c_" (downcase t-piece)))
 	    (chess-sound (chess-index-to-coord target))))
 
+	  (if (chess-ply-keyword ply :promote)
+	      (chess-sound
+	       (format "%c_" (downcase
+			      (chess-ply-keyword ply :promote)))))
 	  (if (chess-ply-keyword ply :en-passant)
 	      (chess-sound "enpassant"))
 	  (if (chess-ply-keyword ply :check)

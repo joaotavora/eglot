@@ -18,6 +18,7 @@
     (checkmate	  . "checkmate")
     (stalemate	  . "stalemate")
     (en-passant	  . "on possont")
+    (promote	  . "promote to %s")
     (piece-moves  . "%s to %s")
     (piece-takes  . "%s takes %s at %s")))
 
@@ -43,6 +44,10 @@
 The first is called one start of the announcer.  The second is called
 with the string to announce each time.  The third is called to
 shutdown the announcer process, if necessary.")
+
+(defsubst chess-piece-name (char)
+  (chess-string (cdr (assq (downcase char)
+			   chess-announce-names))))
 
 (defun chess-announce-handler (game event &rest args)
   (cond
@@ -75,22 +80,22 @@ shutdown the announcer process, if necessary.")
 	    (setq text
 		  (concat which
 			  (chess-string 'piece-moves
-					(chess-string
-					 (cdr (assq (downcase s-piece)
-						    chess-announce-names)))
+					(chess-piece-name s-piece)
 					(chess-index-to-coord target)))))
 	   ((and s-piece t-piece target)
 	    (setq text
 		  (concat which
 			  (chess-string 'piece-takes
-					(chess-string
-					 (cdr (assq (downcase s-piece)
-						    chess-announce-names)))
-					(chess-string
-					 (cdr (assq (downcase t-piece)
-						    chess-announce-names)))
+					(chess-piece-name s-piece)
+					(chess-piece-name t-piece)
 					(chess-index-to-coord target))))))
 
+	  (let ((promotion (chess-ply-keyword ply :promote)))
+	    (if promotion
+		(setq text
+		      (concat text ", "
+			      (chess-string 'promote
+					    (chess-piece-name promotion))))))
 	  (if (chess-ply-keyword ply :en-passant)
 	      (setq text (concat text ", " (chess-string 'en-passant))))
 	  (if (chess-ply-keyword ply :check)
