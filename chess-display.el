@@ -469,18 +469,20 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [? ] 'chess-display-pass)
     (define-key map [??] 'describe-mode)
     (define-key map [?@] 'chess-display-remote)
+    (define-key map [?A] 'chess-display-manual-move)
     (define-key map [(control ?c) (control ?a)] 'chess-display-abort)
     (define-key map [?C] 'chess-display-duplicate)
-    (define-key map [?D] 'chess-display-duplicate)
+    (define-key map [?D] 'chess-display-decline)
     (define-key map [(control ?c) (control ?d)] 'chess-display-draw)
     (define-key map [?E] 'chess-display-edit-board)
     (define-key map [?F] 'chess-display-set-from-fen)
-    ;;(define-key map [?M] 'chess-display-manual-move)
     (define-key map [?M] 'chess-display-match)
     (define-key map [(control ?c) (control ?r)] 'chess-display-resign)
+    (define-key map [?R] 'chess-display-retract)
     (define-key map [?S] 'chess-display-shuffle)
     (define-key map [(control ?c) (control ?t)] 'chess-display-undo)
     (define-key map [?X] 'chess-display-quit)
+    (define-key map [?Y] 'chess-display-accept)
 
     (define-key map [?\{] 'chess-display-annotate)
     (define-key map [?\"] 'chess-display-chat)
@@ -757,6 +759,24 @@ Basically, it means we are playing, not editing or reviewing."
   "Request a match with any listening engine."
   (interactive)
   (chess-game-run-hooks chess-module-game 'match))
+
+(defun chess-display-accept ()
+  (interactive)
+  (if (chess-display-active-p)
+      (chess-game-run-hooks chess-module-game 'accept)
+    (ding)))
+
+(defun chess-display-decline ()
+  (interactive)
+  (if (chess-display-active-p)
+      (chess-game-run-hooks chess-module-game 'decline)
+    (ding)))
+
+(defun chess-display-retract ()
+  (interactive)
+  (if (chess-display-active-p)
+      (chess-game-run-hooks chess-module-game 'retract)
+    (ding)))
 
 (defun chess-display-resign ()
   "Resign the current game."

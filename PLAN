@@ -16,13 +16,17 @@ chess-epd
 chess-ics
 - detect draw/resign/retract, etc.
 - add support for ICS observing
-- set the "Site" tag after logging in
 
 chess-clock
 - when a clock runs down, indicate this in the modeline, and allow the
   user to call-flag in order to win on time; note: the user should be
   allowed to try anyway, in case our clock has become out-of-sync with
   the server's
+- when the clock goes under, it starts counting up!  Need a "-0".
+
+chess-images
+- in a generic emacs, with a light background, there are white lines
+  in wierd places on the chessboard
 
 The PGN chapter of the manual is not fully representative of the
 original, owing to the lack of subsubsubsection in texinfo.

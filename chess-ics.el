@@ -74,6 +74,15 @@ The format of each entry is:
 		   (funcall chess-engine-response-handler 'accept)))))
 	(cons "<12> \\(.+\\)"
 	      'chess-ics-handle-move)
+	(cons "\\S-+ accepts the takeback request\\."
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'accept))))
+	(cons "You accept the takeback request from \\S-+\\."
+	      (function
+	       (lambda ()
+		 (let ((chess-engine-pending-offer 'my-undo))
+		   (funcall chess-engine-response-handler 'accept)))))
 	(cons "Illegal move (\\([^)]+\\))\\."
 	      (function
 	       (lambda ()
@@ -162,7 +171,8 @@ who is black."
     ;; -1 I am playing, it is my opponent's move
     ;;  1 I am playing and it is my move
     ;;  0 I am observing a game being played
-    (setq parts (cdr parts))
+    (setq status (string-to-int (car parts))
+	  parts (cdr parts))
 
     ;;  initial time (in seconds) of the match
     (setq parts (cdr parts))
@@ -203,46 +213,66 @@ who is black."
     (setq parts (cdr parts))
     (setq parts (cdr parts))
 
-    (list position move white black white-time black-time)))
+    (list position move white black white-time black-time status)))
 
-;; <12> -k------ p-p----- -p------ ----n-R- ---N--p- ---P---- PPP-r--- -K---r-- W -1 0 0 0 0 1 160 GuestLKMM MiloBot 1 15 0 12 17 774 898 26 R/f8-f1 (0:00) Rf1# 0 1 0
-
-;; error in process filter: Assertion failed: (equal (car info) (chess-engine-position nil))
+(chess-message-catalog 'english
+  '((ics-server-prompt . "Connect to chess server: ")
+    (ics-connecting    . "Connecting to Internet Chess Server '%s'...")
+    (ics-connected     . "Connecting to Internet Chess Server '%s'...done")
+    (challenge-whom    . "Whom would you like challenge? ")
+    (failed-ics-parse  . "Failed to parse ICS move string (%s): %s")))
 
 (defun chess-ics-handle-move ()
   (let ((chess-engine-handling-event t)
 	(begin (match-beginning 0))
 	(end (match-end 0))
 	(info (chess-ics12-parse (match-string 1)))
-	(game (chess-engine-game nil)))
-    (if (chess-game-data game 'active)
-	(when (and (cadr info)
-		   (eq (chess-pos-side-to-move (car info))
-		       (chess-game-data game 'my-color)))
-	  (let ((ply (chess-algebraic-to-ply
-		      (chess-ply-pos (car (last (chess-game-plies game))))
-		      (cadr info) t)))
-	    (chess-game-set-data game 'white-remaining (nth 4 info))
-	    (chess-game-set-data game 'black-remaining (nth 5 info))
-	    (chess-game-move game ply)))
-      (let ((chess-game-inhibit-events t) plies)
-	(chess-game-set-data game 'my-color
-			     (string= (nth 2 info) chess-ics-handle))
-	(chess-game-set-data game 'active t)
-	(chess-game-set-tag game "Site" (car chess-ics-server))
-	(chess-game-set-start-position game (car info)))
-      (chess-game-run-hooks game 'orient))
-    (goto-char begin)
-    (delete-region begin end)
-    ;; we need to counter the `forward-line' in `chess-engine-filter'
-    (forward-line -1)
+	(game (chess-engine-game nil))
+	error)
+    (unwind-protect
+	(if (nth 1 info)
+	    ;; each move gives the _position occurring after the ply_,
+	    ;; which means that if the move says W, it is telling us
+	    ;; what our opponents move was
+	    (if (and (setq error 'comparing-colors)
+		     (eq (chess-pos-side-to-move (nth 0 info))
+			 (chess-game-data game 'my-color)))
+		(let ((ign (setq error 'converting-ply))
+		      (ply (chess-algebraic-to-ply
+			    (chess-ply-pos
+			     ;; jww (2002-04-25): change this, once I
+			     ;; allow position to refer to their
+			     ;; causal ply
+			     (car (last (chess-game-plies game))))
+			    (nth 1 info) t)))
+		  (setq error 'setting-white-remaining)
+		  (chess-game-set-data game 'white-remaining (nth 4 info))
+		  (setq error 'setting-black-remaining)
+		  (chess-game-set-data game 'black-remaining (nth 5 info))
+		  (setq error 'applying-move)
+		  (chess-game-move game ply)
+		  (setq error nil))
+	      (setq error nil))
+	  (let ((chess-game-inhibit-events t) plies)
+	    (when (or (= 1 (nth 6 info)) (= -1 (nth 6 info)))
+	      (chess-game-set-data game 'my-color (= 1 (nth 6 info)))
+	      (chess-game-set-data game 'active t))
+	    (chess-game-set-tag game "White" (nth 2 info))
+	    (chess-game-set-tag game "Black" (nth 3 info))
+	    (chess-game-set-tag game "Site" (car chess-ics-server))
+	    (setq error 'setting-start-position)
+	    (chess-game-set-start-position game (car info)))
+	  (setq error 'orienting-board)
+	  (chess-game-run-hooks game 'orient)
+	  (setq error nil))
+      (if error
+	  (chess-message 'failed-ics-parse error
+			 (buffer-substring-no-properties begin end)))
+      (goto-char begin)
+      (delete-region begin end)
+      ;; we need to counter the forward-line in chess-engine-filter
+      (forward-line -1))
     t))
-
-(chess-message-catalog 'english
-  '((ics-server-prompt . "Connect to chess server: ")
-    (ics-connecting    . "Connecting to Internet Chess Server '%s'...")
-    (ics-connected     . "Connecting to Internet Chess Server '%s'...done")
-    (challenge-whom    . "Whom would you like challenge? ")))
 
 (defun chess-ics-handler (game event &rest args)
   (unless chess-engine-handling-event

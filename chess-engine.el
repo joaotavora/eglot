@@ -213,6 +213,8 @@
 
 	     ((eq chess-engine-pending-offer 'undo)
 	      (chess-message 'opp-undo-acc chess-engine-pending-arg)
+	      (chess-game-undo game (car args)))
+	     ((eq chess-engine-pending-offer 'my-undo)
 	      (chess-game-undo game (car args))))))
 	(setq chess-engine-pending-offer nil
 	      chess-engine-pending-arg nil)
