@@ -11,6 +11,7 @@ chess-ics
 - if I resign by typing "resign", it doesn't get caught; in general, I
   need a more robust way of signalling events, so that I never get out
   of sync with the server
+- resuming adjourned games does not work at all
 
 chess-clock
 - sometimse, the clock gets shut off (while playing on ICS) for no
