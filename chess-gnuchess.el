@@ -88,8 +88,9 @@
     (unless chess-gnuchess-now-moving
       (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
 				     "\n"))
-      (if chess-gnuchess-bad-board
-	  (chess-engine-send nil "go\n"))))))
+      (when chess-gnuchess-bad-board
+	(chess-engine-send nil "go\n")
+	(setq chess-gnuchess-bad-board nil))))))
 
 (provide 'chess-gnuchess)
 
