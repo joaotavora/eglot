@@ -2,3 +2,5 @@ CVS
 ICS-interaction
 .exclude
 .cvsignore
+pieces
+sounds

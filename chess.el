@@ -1,4 +1,3 @@
-a0 243
 ;;; chess.el --- Play chess in Emacs
 
 ;; Copyright (C) 2001 John Wiegley <johnw@gnu.org>
