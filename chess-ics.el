@@ -28,10 +28,8 @@ The format of each entry is:
   :group 'chess-ics)
 
 (defvar chess-ics-handle)
-(defvar chess-ics-ensure-ics12 nil)
 
 (make-variable-buffer-local 'chess-ics-handle)
-(make-variable-buffer-local 'chess-ics-ensure-ics12)
 
 ;; ICS12 format (with artificial line breaks):
 ;;
@@ -224,23 +222,26 @@ who is black."
 
 	  (add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
 
-	  (if (nth 2 server)
-	      (progn
-		(setq chess-ics-handle (nth 2 server))
-		(comint-send-string (get-buffer-process (current-buffer))
-				    (concat chess-ics-handle "\n"))
-		(let ((pass (nth 3 server)))
-		  (when pass
-		    (if (file-readable-p pass)
-			(setq pass (with-temp-buffer
-				     (insert-file-contents file)
-				     (buffer-string))))
-		    (comint-send-string (get-buffer-process (current-buffer))
-					(concat pass "\n")))))
-	    ;; jww (2002-04-13): Have to parse out the allocated Guest
-	    ;; name from the output
-	    (comint-send-string (get-buffer-process (current-buffer))
-				"guest\n\n"))))
+	  (let ((proc (get-buffer-process (current-buffer))))
+	    (if (nth 2 server)
+		(progn
+		  (setq chess-ics-handle (nth 2 server))
+		  (comint-send-string proc (concat chess-ics-handle "\n"))
+		  (let ((pass (nth 3 server)))
+		    (when pass
+		      (if (file-readable-p pass)
+			  (setq pass (with-temp-buffer
+				       (insert-file-contents file)
+				       (buffer-string))))
+		      (comint-send-string proc (concat pass "\n")))))
+	      ;; jww (2002-04-13): Have to parse out the allocated Guest
+	      ;; name from the output
+	      (comint-send-string proc "guest\n\n"))
+
+	    ;; jww (2002-04-16): This is fragile, since it assumes the
+	    ;; login succeeded
+	    (comint-send-string proc "set style 12\n")
+	    (comint-send-string proc "set bell 0\n"))))
       t)
 
      ((eq event 'match)
@@ -248,14 +249,6 @@ who is black."
       (chess-engine-send
        nil (format "match %s\n"
 		   (read-string (chess-string 'challenge-whom)))))
-
-     ((eq event 'move)
-      (unless chess-ics-ensure-ics12
-	;; ml: we should do this at login time, upon first prompt,
-	;; and also do set bell 0 there.
-	(chess-engine-send nil "set style 12\n")
-	(setq chess-ics-ensure-ics12 t))
-      (chess-network-handler 'move (car args)))
 
      ((eq event 'send)
       (comint-send-string (get-buffer-process (current-buffer))
