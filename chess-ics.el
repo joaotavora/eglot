@@ -130,6 +130,8 @@ game number.")
 	    (setq chess-ics-handling-login nil)
 	    (chess-message 'ics-logged-in chess-ics-server chess-ics-handle)
 	    'once)))
+   (cons "\\(\\S-+\\) (\\([0-9+-]+\\)) seeking \\([1-9][0-9]*\\) \\([0-9]+\\) \\(.+\\) (\"\\([^\"]+\\)\" to respond)\\s-*$"
+	 'chess-ics-handle-seek)
    (cons "{Game \\([0-9]+\\) (\\(\\S-+\\) vs\\. \\(\\S-+\\)) Creating [^ ]+ \\([^ ]+\\).*}"
 	 (function
 	  (lambda ()
@@ -450,6 +452,54 @@ See `chess-ics-game'.")
 	  (unless error
 	    (forward-line -1))))
       t)))
+
+(defface chess-ics-seek-button '((((type pc) (class color))
+				  (:foreground "lightblue"))
+				 (t :underline t))
+  "Default face used for seek buttons."
+  :group 'chess-ics)
+
+(defvar chess-ics-seek-button-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map "\r" 'chess-ics-push-seek-button)
+    (define-key map [mouse-2] 'chess-ics-push-seek-button)
+    map)
+  "Keymap used by seek buttons.")
+
+(defun chess-ics-push-seek-button (&optional pos)
+  "Perform the action specified by a button at location POS.
+POS may be either a buffer position or a mouse-event.
+POS defaults to point, except when `push-button' is invoked
+interactively as the result of a mouse-event, in which case, the
+mouse event is used.
+If there's no button at POS, do nothing and return nil, otherwise
+return t."
+  (interactive
+   (list (if (integerp last-command-event) (point) last-command-event)))
+  (if (and (not (integerp pos)) (eventp pos))
+      ;; POS is a mouse event; switch to the proper window/buffer
+      (let ((posn (event-start pos)))
+        (with-current-buffer (window-buffer (posn-window posn))
+          (push-button (posn-point posn) t)))
+    ;; POS is just normal position
+    (let ((command (get-char-property pos 'ics-seek-command)))
+      (when (stringp command)
+	(chess-ics-send command)
+	t))))
+
+(defun chess-ics-handle-seek ()
+  (goto-char (match-beginning 0))
+  (add-text-properties
+   (match-beginning 6) (match-end 6)
+   (list 'face 'chess-ics-seek-button
+	 'mouse-face 'highlight
+	 'keymap chess-ics-seek-button-map
+	 'ics-seek-command (buffer-substring (match-beginning 6) (match-end 6))))
+  (save-excursion
+    (while (and (forward-line -1)
+		(or (looking-at "^[ \t]*$")
+		    (looking-at "^[^% \t\n\r]+%\\s-*$")))
+      (delete-region (match-beginning 0) (1+ (match-end 0))))))
 
 ;;;###autoload
 (defun chess-ics (server port &optional handle password-or-filename
