@@ -256,7 +256,8 @@
 
      ((eq event 'illegal)
       (chess-message 'opp-illegal)
-      (chess-game-undo game 1))
+      (let ((chess-engine-handling-event t))
+	(chess-game-undo game 1)))
 
      ((eq event 'call-flag)
       ;; jww (2002-04-21): what to do here?
