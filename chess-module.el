@@ -4,6 +4,8 @@
 ;;
 ;; $Revision$
 
+(require 'chess-game)
+
 (defvar chess-module-game nil)
 (defvar chess-module-event-handler nil)
 (defvar chess-module-leader nil)
