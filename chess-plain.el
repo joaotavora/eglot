@@ -53,7 +53,8 @@
     (?p . ?p))
   "*Alist of pieces and their corresponding characters."
   :group 'chess-plain
-  :type '(alist :key-type character :value-type character))
+  :type '(alist :key-type (character :tag "Internal representation")
+		:value-type (character :tag "Printed representation")))
 
 (defcustom chess-plain-upcase-indicates 'color
   "*Defines what a upcase char should indicate.
@@ -63,8 +64,7 @@ lowercase char a black piece.  Possible values: 'color (default),
 indicates a piece on a black square. (Note that you also need to
 modify `chess-plain-piece-chars' to avoid real confusion.)"
   :group 'chess-plain
-  :type '(choice (const 'color) (const 'square-color)))
-	 ;; fails somehow
+  :type '(choice (const color) (const square-color)))
 
 (defcustom chess-plain-spacing 1
   "*Number of spaces between pieces."
@@ -130,22 +130,20 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 	(if white-square
 	    chess-plain-white-square-char
 	  chess-plain-black-square-char)
-      (let* ((what chess-plain-upcase-indicates)
-	     (pchar (cdr (assq piece chess-plain-piece-chars)))
-	     (piece (cond
-		     ((eq what 'square-color)
-		      (if white-square
-			  (downcase pchar)
-			(upcase pchar)))
-		     (t pchar)))
-	     (p (char-to-string piece)))
+      (let* ((pchar (cdr (assq piece chess-plain-piece-chars)))
+	     (p (char-to-string
+		 (if (eq chess-plain-upcase-indicates 'square-color)
+		     (if white-square
+			 (downcase pchar)
+		       (upcase pchar))
+		   pchar))))
 	(add-text-properties 0 1 (list 'face (if (> piece ?a)
 						 'chess-plain-black-face
 					       'chess-plain-white-face)) p)
 	p))))
 
 (defsubst chess-plain-draw-square (pos piece index)
-  "Draw a piece image at point on an already drawn display."
+  "Draw a piece image at POS on an already drawn display."
   (save-excursion
     (goto-char pos)
     (delete-char 1)
