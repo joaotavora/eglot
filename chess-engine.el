@@ -62,6 +62,11 @@
   (let ((chess-engine-handling-event t))
     (cond
      ((eq event 'move)
+      ;; if the game index is still 0, then our opponent is white, and
+      ;; we need to pass over the move
+      (if (= (chess-game-index (chess-engine-game nil)) 0)
+	  (chess-game-run-hooks (chess-engine-game nil) 'pass))
+
       (let ((ply (chess-algebraic-to-ply (chess-engine-position nil)
 					 (car args))))
 	(if ply
