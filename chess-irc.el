@@ -81,7 +81,7 @@
    (t
     (apply 'chess-network-handler event args))))
 
-(defun chess-irc-engage (nick)
+(defun chess-irc-challenge (nick)
   "Begin playing with another chess-irc user with the given NICK.
 NOTE: This function is meant to be called from a display buffer!"
   (interactive "sYour opponent's IRC nick: ")
