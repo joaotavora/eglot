@@ -207,8 +207,7 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	(position (chess-ply-pos ply)))
     (if (chess-ply-final-p current-ply)
 	(error "Cannot add moves to a completed game"))
-    (unless (equal position (chess-ply-pos current-ply))
-      (error "Positions do not match"))
+    (assert (equal position (chess-ply-pos current-ply)))
     (chess-ply-set-changes current-ply changes)
     (chess-game-add-ply game (chess-ply-create
 			      (chess-ply-next-pos current-ply)))

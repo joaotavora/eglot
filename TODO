@@ -29,24 +29,14 @@ laptop.
 
 - undo is not working with gnuchess
 
-
 - test making an en passant capture
-
 
 - the game should go inactive once I lose by stalemate/checkmate
 
 - detect draw/resign/abort/retract, etc., from ICS and common engines
 
-
-- in chess-ply-create signal an error on invalid plies describing why
-
-- for network transports, if an illegal move is encountered, report
-  this with "illegal move: REASON"
-
-
 - incorporate the .wav files from xchat's sounds that chess-sound
   currently doesn't have
-
 
 - devise a better scheme for printing messages (use a catalog?) and
   for when engines need to ask questions

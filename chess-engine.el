@@ -57,8 +57,7 @@
 
 (defsubst chess-engine-convert-algebraic (move &optional trust-check)
   (or (chess-algebraic-to-ply (chess-engine-position nil) move trust-check)
-      (ignore
-       (message "Received invalid move string: %s" move))))
+      (chess-engine-command nil 'illegal)))
 
 (defsubst chess-engine-convert-fen (fen)
   (or (chess-fen-to-pos fen)
@@ -234,7 +233,10 @@
 
       (setq chess-engine-pending-offer nil
 	    chess-engine-pending-arg nil)
-      t))))
+      t))
+
+   ((eq event 'illegal)
+    (message "Your opponent states your last command was illegal"))))
 
 (defun chess-engine-create (game module &optional response-handler
 				 &rest handler-ctor-args)

@@ -260,9 +260,15 @@ Common modes are:
 		(point)))
 	 (highlight (copy-alist (get-text-property pos 'display))))
     (setcar (last highlight)
-	    (list (cons "light_square" chess-images-highlight-color)
-		  (cons "dark_square" chess-images-highlight-color)
-		  (cons "background" chess-images-highlight-color)))
+	    (list (cons "light_square" (if (eq mode :selected)
+					   chess-images-highlight-color
+					 mode))
+		  (cons "dark_square" (if (eq mode :selected)
+					  chess-images-highlight-color
+					mode))
+		  (cons "background" (if (eq mode :selected)
+					 chess-images-highlight-color
+				       mode))))
     (put-text-property pos (1+ pos) 'display highlight)))
 
 (defun chess-images-alter-size (test)

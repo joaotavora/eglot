@@ -142,6 +142,9 @@
    ((eq event 'retract)
     (chess-engine-send nil "retract\n"))
 
+   ((eq event 'illegal)
+    (chess-engine-send nil "illegal\n"))
+
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
     (if (chess-game-over-p chess-engine-game)

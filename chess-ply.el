@@ -232,110 +232,130 @@ maneuver."
 						    rank-adj file-adj)))
 	plies))
 
-(defun chess-legal-plies (position piece &optional file)
+(defun chess-legal-plies (position &rest keywords)
   "Return a list of all legal plies in POSITION.
-If PIECES is non-nil, it must be a list of characters representing
-pieces (with ?P or ?p for pawn).  In that case, the plies will only be
-those which involved moving such pieces."
-  (if (memq piece '(nil t))
+KEYWORDS allowed are:
+
+  :color <t or nil>
+  :piece <piece character>
+  :file <number 0 to 7> [can only be used if :piece is present]
+  :index <coordinate index>
+
+These will constrain the plies generated to those matching the above
+criteria."
+  (if (null keywords)
       (let ((plies (list t)))
-	(dolist (p '(?P ?R ?N ?B ?K ?Q))
-	  (nconc plies (chess-legal-plies position
-					  (if piece p (downcase p)))))
+	(dolist (p '(?P ?R ?N ?B ?K ?Q ?p ?r ?n ?b ?k ?q))
+	  (nconc plies (chess-legal-plies position p)))
 	(cdr plies))
-    (let* ((color (< piece ?a))
-	   (test-piece (and (char-valid-p piece)
-			    (upcase piece)))
-	   pos plies)
-      ;; since we're looking for moves of a particular piece, do a
-      ;; more focused search
-      (dolist (candidate
-	       (if file
+    (if (memq :color keywords)
+	(let ((plies (list t))
+	      (color (cadr (memq :color keywords))))
+	  (dolist (p '(?P ?R ?N ?B ?K ?Q))
+	    (nconc plies (chess-legal-plies position
+					    (if color p (downcase p)))))
+	  (cdr plies))
+      (let* ((piece (cadr (memq :piece keywords)))
+	     (color (if piece (< piece ?a)
+		      (chess-pos-side-to-move position)))
+	     (test-piece (if piece (upcase piece)
+			   (chess-pos-piece position
+					    (cadr (memq :index keywords)))))
+	     pos plies file)
+	;; since we're looking for moves of a particular piece, do a
+	;; more focused search
+	(dolist (candidate
+		 (cond
+		  ((setq pos (cadr (memq :index keywords)))
+		   (list pos))
+		  ((setq file (cadr (memq :file keywords)))
 		   (let (candidates)
 		     (dotimes (rank 8)
 		       (setq pos (chess-rf-to-index rank file))
 		       (if (chess-pos-piece-p position pos piece)
 			   (push pos candidates)))
-		     candidates)
-		 (chess-pos-search position piece)))
-	(cond
-	 ;; pawn movement, which is diagonal 1 when taking, but forward
-	 ;; 1 or 2 when moving (the most complex piece, actually)
-	 ((= test-piece ?P)
-	  (let* ((bias  (if color -1 1))
-		 (ahead (chess-incr-index candidate bias 0))
-		 (2ahead (chess-incr-index candidate (if color -2 2) 0)))
-	    (when (chess-pos-piece-p position ahead ? )
-	      (chess-ply--add bias 0)
-	      (if (and (= (if color 6 1) (chess-index-rank candidate))
-		       (chess-pos-piece-p position 2ahead ? ))
-		  (chess-ply--add (if color -2 2) 0)))
-	    (if (and (setq pos (chess-incr-index candidate bias -1))
-		     (chess-pos-piece-p position pos (not color)))
-		(chess-ply--add nil nil pos))
-	    (if (and (setq pos (chess-incr-index candidate bias 1))
-		     (chess-pos-piece-p position pos (not color)))
-		(chess-ply--add nil nil pos))))
+		     candidates))
+		  (t
+		   (chess-pos-search position piece))))
+	  (cond
+	   ;; pawn movement, which is diagonal 1 when taking, but forward
+	   ;; 1 or 2 when moving (the most complex piece, actually)
+	   ((= test-piece ?P)
+	    (let* ((bias  (if color -1 1))
+		   (ahead (chess-incr-index candidate bias 0))
+		   (2ahead (chess-incr-index candidate (if color -2 2) 0)))
+	      (when (chess-pos-piece-p position ahead ? )
+		(chess-ply--add bias 0)
+		(if (and (= (if color 6 1) (chess-index-rank candidate))
+			 (chess-pos-piece-p position 2ahead ? ))
+		    (chess-ply--add (if color -2 2) 0)))
+	      (if (and (setq pos (chess-incr-index candidate bias -1))
+		       (chess-pos-piece-p position pos (not color)))
+		  (chess-ply--add nil nil pos))
+	      (if (and (setq pos (chess-incr-index candidate bias 1))
+		       (chess-pos-piece-p position pos (not color)))
+		  (chess-ply--add nil nil pos))))
 
-	 ;; the rook, bishop and queen are the easiest; just look along
-	 ;; rank and file and/or diagonal for the nearest pieces!
-	 ((memq test-piece '(?R ?B ?Q))
-	  (dolist (dir (cond
-			((= test-piece ?R)
-			 '(        (-1 0)
-			   (0 -1)          (0 1)
-				   (1 0)))
-			((= test-piece ?B)
-			 '((-1 -1)        (-1 1)
+	   ;; the rook, bishop and queen are the easiest; just look along
+	   ;; rank and file and/or diagonal for the nearest pieces!
+	   ((memq test-piece '(?R ?B ?Q))
+	    (dolist (dir (cond
+			  ((= test-piece ?R)
+			   '(        (-1 0)
+				     (0 -1)          (0 1)
+				     (1 0)))
+			  ((= test-piece ?B)
+			   '((-1 -1)        (-1 1)
 
-			   (1 -1)         (1 1)))
-			((= test-piece ?Q)
-			 '((-1 -1) (-1 0) (-1 1)
+			     (1 -1)         (1 1)))
+			  ((= test-piece ?Q)
+			   '((-1 -1) (-1 0) (-1 1)
+			     (0 -1)         (0 1)
+			     (1 -1)  (1 0)  (1 1)))))
+	      ;; up the current file
+	      (setq pos (apply 'chess-incr-index candidate dir))
+	      ;; jww (2002-04-11): In Fischer Random castling, the rook can
+	      ;; move in wacky ways
+	      (while pos
+		(if (chess-pos-piece-p position pos ? )
+		    (progn
+		      (chess-ply--add nil nil pos)
+		      (setq pos (apply 'chess-incr-index pos dir)))
+		  (if (chess-pos-piece-p position pos (not color))
+		      (chess-ply--add nil nil pos))
+		  (setq pos nil)))))
+
+	   ;; the king is a trivial case of the queen, except when castling
+	   ((= test-piece ?K)
+	    (dolist (dir '((-1 -1) (-1 0) (-1 1)
 			   (0 -1)         (0 1)
-			   (1 -1)  (1 0)  (1 1)))))
-	    ;; up the current file
-	    (setq pos (apply 'chess-incr-index candidate dir))
-	    ;; jww (2002-04-11): In Fischer Random castling, the rook can
-	    ;; move in wacky ways
-	    (while pos
-	      (if (chess-pos-piece-p position pos ? )
-		  (progn
-		    (chess-ply--add nil nil pos)
-		    (setq pos (apply 'chess-incr-index pos dir)))
-		(if (chess-pos-piece-p position pos (not color))
-		    (chess-ply--add nil nil pos))
-		(setq pos nil)))))
+			   (1 -1)  (1 0)  (1 1)))
+	      (setq pos (apply 'chess-incr-index candidate dir))
+	      (if (and pos
+		       (or (chess-pos-piece-p position pos ? )
+			   (chess-pos-piece-p position pos (not color))))
+		  (chess-ply--add nil nil pos)))
 
-	 ;; the king is a trivial case of the queen, except when castling
-	 ((= test-piece ?K)
-	  (dolist (dir '((-1 -1) (-1 0) (-1 1)
-			 (0 -1)         (0 1)
-			 (1 -1)  (1 0)  (1 1)))
-	    (setq pos (apply 'chess-incr-index candidate dir))
-	    (if (or (chess-pos-piece-p position pos ? )
-		    (chess-pos-piece-p position pos (not color)))
-		(chess-ply--add nil nil pos)))
+	    (if (chess-pos-can-castle position (if color ?K ?k))
+		(chess-ply--add 0 2))
+	    (if (chess-pos-can-castle position (if color ?Q ?q))
+		(chess-ply--add 0 -2)))
 
-	  (if (chess-pos-can-castle position (if color ?K ?k))
-	      (chess-ply--add 0 2))
-	  (if (chess-pos-can-castle position (if color ?Q ?q))
-	      (chess-ply--add 0 -2)))
+	   ;; the knight is a zesty little piece; there may be more than
+	   ;; one, but at only one possible square in each direction
+	   ((= test-piece ?N)
+	    (dolist (dir '((-2 -1) (-2 1)
+			   (-1 -2) (-1 2)
+			   (1 -2)  (1 2)
+			   (2 -1)  (2 1)))
+	      ;; up the current file
+	      (if (and (setq pos (apply 'chess-incr-index candidate dir))
+		       (or (chess-pos-piece-p position pos ? )
+			   (chess-pos-piece-p position pos (not color))))
+		  (chess-ply--add nil nil pos))))
 
-	 ;; the knight is a zesty little piece; there may be more than
-	 ;; one, but at only one possible square in each direction
-	 ((= test-piece ?N)
-	  (dolist (dir '((-2 -1) (-2 1)
-			 (-1 -2) (-1 2)
-			 (1 -2)  (1 2)
-			 (2 -1)  (2 1)))
-	    ;; up the current file
-	    (if (and (setq pos (apply 'chess-incr-index candidate dir))
-		     (or (chess-pos-piece-p position pos ? )
-			 (chess-pos-piece-p position pos (not color))))
-		(chess-ply--add nil nil pos))))
-
-	 (t (error "Unrecognized piece identifier"))))
-      plies)))
+	   (t (error "Unrecognized piece identifier"))))
+	plies))))
 
 (provide 'chess-ply)
 

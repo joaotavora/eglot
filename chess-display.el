@@ -25,6 +25,11 @@
   :type 'boolean
   :group 'chess-ics1)
 
+(defcustom chess-display-highlight-legal nil
+  "If non-nil, highlight legal target squares when a piece is selected."
+  :type 'boolean
+  :group 'chess-ics1)
+
 ;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -138,8 +143,10 @@ makes moves, or any other changes to the underlying game."
 
 (defun chess-display-set-ply (display ply)
   (chess-with-current-buffer display
-    ;; jww (2002-04-13): NYI
-    ))
+    (setq chess-game-index 1)
+    (chess-game-set-plies chess-display-game
+			  (list ply (chess-ply-create
+				     (chess-ply-next-pos ply))))))
 
 (defun chess-display-ply (display)
   (chess-with-current-buffer display
@@ -152,8 +159,8 @@ the user able to scroll back and forth through the moves in the
 variation.  Any moves made on the board will extend/change the
 variation that was passed in."
   (chess-with-current-buffer display
-    ;; jww (2002-04-13): NYI
-    ))
+    (setq chess-game-index (or index (chess-var-index variation)))
+    (chess-game-set-plies chess-display-game variation)))
 
 (defun chess-display-variation (display)
   (chess-with-current-buffer display
@@ -250,8 +257,15 @@ that is supported by most displays, and is the default mode."
       (dolist (arg args)
 	(if (or (symbolp arg) (stringp arg))
 	    (setq mode arg)
-	  (funcall chess-display-event-handler
-		   'highlight arg mode))))))
+	  (funcall chess-display-event-handler 'highlight arg mode))))))
+
+(defun chess-display-highlight-legal (display pos)
+  "Highlight all legal move targets from POS."
+  (chess-with-current-buffer display
+    (dolist (ply (chess-legal-plies (chess-display-position nil)
+				    :index pos))
+      (chess-display-highlight nil "pale green"
+			       (chess-ply-target ply)))))
 
 (defun chess-display-popup (display)
   "Popup the given DISPLAY, so that it's visible to the user."
@@ -392,11 +406,9 @@ See `chess-display-type' for the different kinds of displays."
       (define-key map [(button2)] 'chess-display-mouse-select-piece))
      (t
       (define-key map [down-mouse-1] 'chess-display-mouse-select-piece)
-      (define-key map [mouse-1] 'chess-display-mouse-select-piece)
       (define-key map [drag-mouse-1] 'chess-display-mouse-select-piece)
 
       (define-key map [down-mouse-2] 'chess-display-mouse-select-piece)
-      (define-key map [mouse-2] 'chess-display-mouse-select-piece)
       (define-key map [drag-mouse-2] 'chess-display-mouse-select-piece)))
 
     (define-key map [menu-bar files] 'undefined)
@@ -945,6 +957,10 @@ Clicking once on a piece selects it; then click on the target location."
 					       'my-color)
 			      (chess-pos-side-to-move position))))
 		(error "It is not your turn to move"))
+	       ((and (= chess-display-index
+			(chess-game-index chess-display-game))
+		     (chess-game-over-p chess-display-game))
+		(error "This game is over"))
 	       ((eq piece ? )
 		(error "You cannot select an empty square"))
 	       ((if (chess-pos-side-to-move position)
@@ -952,7 +968,9 @@ Clicking once on a piece selects it; then click on the target location."
 		  (< piece ?a))
 		(error "You cannot move your opponent's pieces")))
 	      (setq chess-display-last-selected (list (point) coord))
-	      (chess-display-highlight nil coord 'selected)))
+	      (chess-display-highlight nil coord)
+	      (if chess-display-highlight-legal
+		  (chess-display-highlight-legal nil coord))))
 	(error
 	 (setq chess-display-last-selected nil)
 	 (chess-display-update nil)
