@@ -112,14 +112,6 @@
     (chess-display-update new-display t)
     new-display))
 
-(defun chess-display-destroy (display)
-  "Destroy a chess display object, killing all of its buffers."
-  (let ((buf (or display (current-buffer))))
-    (when (buffer-live-p buf)
-      (chess-display-event-handler (chess-display-game nil)
-				   buf 'destroy)
-      (kill-buffer buf))))
-
 (defsubst chess-display-style (display)
   (chess-with-current-buffer display
     chess-display-style))
@@ -327,6 +319,14 @@ that is supported by most displays, and is the default mode."
   "Popup the given DISPLAY, so that it's visible to the user."
   (chess-with-current-buffer display
     (setq chess-display-no-popup t)))
+
+(defun chess-display-destroy (display)
+  "Destroy a chess display object, killing all of its buffers."
+  (let ((buf (or display (current-buffer))))
+    (when (buffer-live-p buf)
+      (chess-display-event-handler (chess-display-game nil)
+				   buf 'destroy)
+      (kill-buffer buf))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

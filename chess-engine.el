@@ -81,7 +81,7 @@
 
      ((eq event 'pass)
       (if (and (chess-game-get-data (chess-engine-game nil) 'active)
-	       (= (chess-game-index game) 0))
+	       (= (chess-game-index (chess-engine-game nil)) 0))
 	  (message "Your opponent has passed the first move to you"))
       t)
 

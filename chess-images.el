@@ -280,14 +280,8 @@ Common modes are:
 	    (setq chess-images-size (car sizes)
 		  chess-images-cache nil
 		  sizes nil)
-	    (chess-images-draw)
-	    (if chess-images-separate-frame
-		(let* ((size (float (+ (* (or chess-images-border-width 0) 8)
-				       (* chess-images-size 8))))
-		       (max-char-height (ceiling (/ size (frame-char-height))))
-		       (max-char-width  (ceiling (/ size (frame-char-width)))))
-		  (set-frame-size (selected-frame) max-char-width
-				  (+ max-char-height 2)))))
+	    ;; jww (2002-04-09): need to create a new frame here!
+	    (chess-display-update nil))
 	(setq sizes (cdr sizes))))))
 
 (defun chess-images-increase-size ()
