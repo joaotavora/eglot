@@ -11,12 +11,12 @@
 (require 'chess-ply)
 
 (defsubst chess-var-plies (var)
-  "Return the tags alist associated with VAR."
+  "Return the plies of VAR."
   (assert var)
   var)
 
 (defsubst chess-var-pos (var &optional index)
-  "Return the position related to VAR's INDEX position."
+  "Return the position related to VAR's INDEX ply."
   (assert var)
   (chess-ply-pos (chess-var-ply var index)))
 
@@ -37,7 +37,7 @@ of the variation if INDEX is nil)."
   (chess-pos-side-to-move (chess-var-pos var index)))
 
 (defun chess-var-ply (var &optional index)
-  "Return the position related to VAR's INDEX position."
+  "Return VAR's INDEXth ply."
   (assert var)
   (if index
       (nth index (chess-var-plies var))
@@ -75,6 +75,16 @@ progress (nil), if it is drawn, resigned, mate, etc."
     (chess-ply-set-changes current-ply changes)
     (chess-var-add-ply var (chess-ply-create*
 			    (chess-ply-next-pos current-ply)))))
+
+(defun chess-var-to-algebraic (var &optional long)
+  "Reveal the plies of VAR by converting them to algebraic
+notation."
+  (mapconcat (lambda (ply)
+	       (chess-ply-to-algebraic ply long))
+	     (if (chess-ply-final-p (chess-var-ply var))
+		 (chess-var-plies var)
+	       (reverse (cdr (reverse (chess-var-plies var)))))
+	     " "))
 
 (provide 'chess-var)
 

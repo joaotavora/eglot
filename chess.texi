@@ -279,13 +279,15 @@ turn, as mentioned above.
 
 @c lispfun chess-var-ply
 
+@c lispfun chess-var-plies
+
+@c lispfun chess-var-to-algebraic
+
 @subsection Making a move in a variation
 
 @c lispfun chess-var-move
 
 @c lispfun chess-var-add-ply
-
-@c lispfun chess-var-plies
 
 @section Games
 
