@@ -158,7 +158,9 @@ This conveys the status of the game at the given index."
   "Return the current GAME sequence."
   (let ((index (chess-game-index game)))
     (if (> index 1)
-	(1+ (/ index 2))
+	(if (= (mod index 2) 0)
+	    (/ index 2)
+	  (1+ (/ index 2)))
       1)))
 
 (defsubst chess-game-side-to-move (game)

@@ -12,6 +12,15 @@
 
 			       Hotlist
 
+- Move chess-assert-can-move into chess-display-move
+
+- Allow an "index N" command to the network protocol, so two people
+  can review a game together
+
+- Make ( create variations in a display, and { begin an annotation
+
+- Make chess-display-create use require, not chess.el
+
 - Polish chess-input.el
 
 - Find a way that regexp-alist entries that only need to fire once are
