@@ -5,7 +5,6 @@
 
 (require 'chess-algebraic)
 (require 'chess-fen)
-(require 'chess-game)
 (require 'chess-message)
 
 (defvar chess-pgn-fill-column 60)
