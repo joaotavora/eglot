@@ -81,6 +81,17 @@
 		      (insert (chess-game-to-string (car args)) ?\n))))
 	(chess-engine-send nil (format "read %s\n" file))))
 
+     ((eq event 'set-option)
+      (cond
+       ((eq (car args) 'resign)
+	(if (cadr args)
+	    (chess-engine-send nil "resign 9\n")
+	  (chess-engine-send nil "resign -1\n")))
+       ((eq (car args) 'ponder)
+	(if (cadr args)
+	    (chess-engine-send nil "ponder on\n")
+	  (chess-engine-send nil "ponder off\n")))))
+
      (t
       (if (and (eq event 'undo)
 	       (= 1 (mod (car args) 2)))
