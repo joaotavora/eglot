@@ -66,13 +66,11 @@
 	  (chess-game-set-data game 'active t))))
 
    ((eq event 'setup-pos)
-    (if (equal (car args) chess-starting-position)
-	(chess-engine-send nil "new\n")
-      (let ((file (make-temp-file "gch")))
-	(with-temp-file file
-	  (insert (chess-pos-to-string (car args)) ?\n))
-	(chess-engine-send nil (format "epdload %s\n" file))
-	(push file chess-gnuchess-temp-files))))
+    (let ((file (make-temp-file "gch")))
+      (with-temp-file file
+	(insert (chess-pos-to-string (car args)) ?\n))
+      (chess-engine-send nil (format "epdload %s\n" file))
+      (push file chess-gnuchess-temp-files)))
 
    ((eq event 'setup-game)
     (let ((file (make-temp-file "gch")))
@@ -88,6 +86,11 @@
 				   "\n"))
     (chess-engine-send nil "go\n")
     (setq chess-gnuchess-bad-board nil))
+
+   ((memq event '(abort resign))
+    (chess-engine-send nil "new\n")
+    (and (chess-engine-game nil)
+	 (chess-engine-set-start-position nil)))
 
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))

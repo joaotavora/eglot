@@ -14,20 +14,25 @@
   "This function handles responses from the bot's computing engine."
   (let* ((game (chess-engine-game nil))
 	 (first-engine (chess-game-data game 'first-engine))
-	 (second-engine (chess-game-data game 'second-engine)))
+	 (second-engine (chess-game-data game 'second-engine))
+	 return-value)
     (cond
      ((eq event 'connect)
-      (chess-engine-command nil 'accept))
+      (chess-engine-command nil 'accept)
+      t)
 
      (t
       (let ((chess-engine-inhibit-auto-pass t))
-	(apply 'chess-engine-default-handler event args))
+	(setq return-value
+	      (apply 'chess-engine-default-handler event args)))
 
       ;; but now transfer the event to the other engine
       (apply 'chess-engine-command
 	     (if (eq (current-buffer) first-engine)
 		 second-engine
-	       first-engine) event args)))))
+	       first-engine) event args)
+
+      return-value))))
 
 (defun chess-link-connect (first-engine second-engine)
   "Connect two engines, so that they rely events back and forth."

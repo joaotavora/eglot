@@ -29,7 +29,7 @@
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'move
 		     (chess-engine-convert-algebraic (match-string 2))))))
-   (cons "Illegal move:\\s-*\\(.*\\)"
+   (cons "\\(Illegal move\\|unrecognized/illegal command\\):\\s-*\\(.*\\)"
 	 (function
 	  (lambda ()
 	    (signal 'chess-illegal (match-string 1)))))))
@@ -65,9 +65,8 @@
 	  (delete-file file))))
 
    ((eq event 'ready)
-    (let ((game (chess-engine-game nil)))
-      (if game
-	  (chess-game-set-data game 'active t))))
+    (and (chess-engine-game nil)
+	 (chess-game-set-data (chess-engine-game nil) 'active t)))
 
    ((eq event 'setup-pos)
     (chess-engine-send nil (format "setboard %s\n"
@@ -82,6 +81,11 @@
 
    ((eq event 'pass)
     (chess-engine-send nil "go\n"))
+
+   ((memq event '(abort resign))
+    (chess-engine-send nil "new\n")
+    (and (chess-engine-game nil)
+	 (chess-engine-set-start-position nil)))
 
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))

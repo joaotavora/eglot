@@ -101,11 +101,14 @@ matches."
   (nth 2 game))
 
 (defun chess-game-set-data (game key value)
-  (let ((alist (chess-game-data-alist game)))
-    (if (null alist)
-	(setcar (nthcdr 2 game) (list (cons key value)))
-      (push (cons key value) alist)
-      (setcar (nthcdr 2 game) alist))
+  (let* ((alist (chess-game-data-alist game))
+	 (cell (assq key alist)))
+    (if cell
+	(setcdr cell value)
+      (if (null alist)
+	  (setcar (nthcdr 2 game) (list (cons key value)))
+	(push (cons key value) alist)
+	(setcar (nthcdr 2 game) alist)))
     (chess-game-run-hooks game 'set-data key)))
 
 (defun chess-game-data (game key)
@@ -161,6 +164,12 @@ matches."
     (if plies
 	(nconc plies (list ply))
       (chess-game-set-plies game (list ply)))))
+
+
+(defsubst chess-game-over-p (game)
+  "Return the position related to GAME's INDEX position."
+  (let ((last-ply (car (last game 2))))
+    (and last-ply (chess-ply-final-p last-ply))))
 
 
 (defsubst chess-game-to-string (game &optional indented)

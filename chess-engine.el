@@ -128,7 +128,7 @@
 	;; accepting side
 	(unless game
 	  (setq game (chess-engine-set-game nil (chess-game-create))))
-	(chess-engine-set-start-position engine)
+	(chess-engine-set-start-position nil)
 	t))
 
      ((eq event 'setup-pos)
@@ -158,6 +158,12 @@
      ((eq event 'resign)
       (when game
 	(chess-game-resign game)
+	(chess-game-set-data game 'active nil)
+	t))
+
+     ((eq event 'abort)
+      (when game
+	(message "Your opponent has aborted the game")
 	(chess-game-set-data game 'active nil)
 	t)))))
 
@@ -311,6 +317,10 @@ function in all cases; this is merely a bandwidth-saver."
   (chess-with-current-buffer engine
     (chess-engine-command engine 'resign)))
 
+(defun chess-engine-abort (engine)
+  (chess-with-current-buffer engine
+    (chess-engine-command engine 'abort)))
+
 (defun chess-engine-send (engine string)
   "Send the given STRING to ENGINE."
   (chess-with-current-buffer engine
@@ -372,7 +382,6 @@ function in all cases; this is merely a bandwidth-saver."
 		(if chess-engine-last-pos
 		    (goto-char chess-engine-last-pos)
 		  (goto-char (point-min)))
-		(beginning-of-line)
 		(while (not (eobp))
 		  (let ((triggers chess-engine-regexp-alist))
 		    (while triggers

@@ -393,9 +393,11 @@ See `chess-display-type' for the different kinds of displays."
 
        ((eq event 'orient)
 	;; Set the display's perspective to whichever color I'm playing
-	(if chess-display-game
-	    (chess-display-set-perspective*
-	     nil (chess-game-data chess-display-game 'my-color))))
+	(when chess-display-game
+	  (chess-display-set-index*
+	   nil (chess-game-index (chess-display-game nil)))
+	  (chess-display-set-perspective*
+	   nil (chess-game-data chess-display-game 'my-color))))
 
        ((memq event '(move game-over resign))
 	(chess-display-set-index*
@@ -433,6 +435,8 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [? ] 'chess-display-pass)
     (define-key map [?S] 'chess-display-shuffle)
     (define-key map [?R] 'chess-display-resign)
+    (define-key map [?A] 'chess-display-abort)
+    (define-key map [?N] 'chess-display-abort)
 
     (define-key map [?<] 'chess-display-move-first)
     (define-key map [?,] 'chess-display-move-backward)
@@ -655,6 +659,13 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive)
   (if (chess-display-active-p)
       (chess-game-resign chess-display-game)
+    (ding)))
+
+(defun chess-display-abort ()
+  "Abort the current game."
+  (interactive)
+  (if (chess-display-active-p)
+      (chess-game-run-hooks chess-display-game 'abort)
     (ding)))
 
 (defun chess-display-list-buffers ()

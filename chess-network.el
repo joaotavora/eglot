@@ -46,7 +46,11 @@
    (cons "resign$"
 	 (function
 	  (lambda ()
-	    (funcall chess-engine-response-handler 'resign))))))
+	    (funcall chess-engine-response-handler 'resign))))
+   (cons "abort$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'abort))))))
 
 (defun chess-network-handler (event &rest args)
   "Initialize the network chess engine."
@@ -93,6 +97,9 @@
 
    ((eq event 'resign)
     (chess-engine-send nil "resign\n"))
+
+   ((eq event 'abort)
+    (chess-engine-send nil "abort\n"))
 
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))

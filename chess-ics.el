@@ -198,6 +198,9 @@ who is black."
    ((eq event 'resign)
     (chess-engine-send nil "resign\n"))
 
+   ((eq event 'abort)
+    (chess-engine-send nil "abort\n"))
+
    ((eq event 'send)
     (comint-send-string (get-buffer-process (current-buffer)) (car args)))))
 
