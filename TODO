@@ -9,6 +9,8 @@
 
 - Rewrite ics.el
 
+- Add acknowledgement to the chess-network protocol
+
 - Make use of the my-color data in chess-game.el to ensure that I only
   do what I should be doing
 

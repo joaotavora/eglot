@@ -71,7 +71,7 @@
 
    ((eq event 'shutdown)
     (ignore-errors
-      (chess-engine-send nil "game over"))
+      (chess-engine-send nil "quit"))
     (ignore-errors
       (process-send-string chess-irc-process "QUIT :Goodbye\n"))
     (ignore-errors
@@ -103,6 +103,8 @@ NOTE: This function is meant to be called from a display buffer!"
 	  (save-excursion
 	    ;; Insert the text, advancing the marker.
 	    (goto-char (process-mark proc))
+	    (while (string-match "\r" string)
+	      (setq string (replace-match "" t t string)))
 	    (insert string)
 	    (set-marker (process-mark proc) (point)))
 	  (if moving (goto-char (process-mark proc))))
