@@ -421,7 +421,8 @@ event handler can take care of the data."
 	      (insert string)
 	      (set-marker chess-engine-current-marker (point)))
 	    (if moving (goto-char chess-engine-current-marker))))
-	(unless chess-engine-working
+	(when (and (not chess-engine-working)
+		   (memq (char-before chess-engine-current-marker) '(?\n ?\r)))
 	  (setq chess-engine-working t)
 	  (save-excursion
 	    (if chess-engine-last-pos
