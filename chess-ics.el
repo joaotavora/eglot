@@ -351,8 +351,8 @@ See `chess-ics-game'.")
     (when (or (= status 2) (= status -2) (= status 0))
       (chess-game-set-data game 'my-color (chess-pos-side-to-move position)))
     ;; initial time and increment (in seconds) of the match
-    (chess-game-set-tag game
-			"TimeControl" (format "%s/%s" (pop parts) (pop parts)))
+    (chess-game-set-tag
+     game "TimeControl" (format "%s/%s" (pop parts) (pop parts)))
     ;; material values for each side
     (let ((centipawn (* 100 (- (string-to-int (pop parts))
 			       (string-to-int (pop parts))))))
@@ -386,23 +386,14 @@ See `chess-ics-game'.")
       (setq parts (cdr parts))
       (setq parts (cdr parts))
 
-      (message "Game %d: [%d,%d] %d. %s%s"
-	       (chess-game-data game 'ics-game-number)
-	       (chess-game-index game) index
-	       seq (if (chess-pos-side-to-move position) "... " "") move)
-      (unless (= seq (chess-game-seq game))
-	(message "WARNING: ics12 seq is %d, game seq is %d"
-		 seq (chess-game-seq game)))
       (unwind-protect
 	  (if move
-	      ;; each move gives the _position occurring after the ply_,
-	      ;; which means that if the move says W, it is telling us
-	      ;; what our opponents move was
 	      (if (progn (setq error 'comparing-index)
 			 (= (1- index) (chess-game-index game)))
 		  (let ((ply (progn (setq error 'converting-ply)
 				    (chess-algebraic-to-ply
 				     (chess-game-pos game) move t))))
+		    ;; each move gives the _position occurring after the ply_
 		    (if (progn (setq error 'comparing-colors)
 			       (eq (chess-pos-side-to-move position)
 				   (chess-game-data game 'my-color)))
@@ -411,17 +402,18 @@ See `chess-ics-game'.")
 		    ;; save us from generating a position we already have
 		    (chess-ply-set-keyword ply :next-pos position)
 		    (chess-pos-set-preceding-ply position ply)
+		    ;; apply the move
 		    (chess-game-move game ply)
 		    (setq error nil))
 		(if (= index (chess-game-index game))
-		    (progn (message "Redraw detected")
-			   (setq error nil))
-		  (if (and (> seq (1+ (chess-game-seq game)))
-			   (= 1 (chess-game-seq game)))
-		      (chess-ics-send
-		       (format "moves %d"
-			       (chess-game-data game 'ics-game-number))))))
-	    ;; No preceeding ply supplied, so this is a starting position
+		    (setq error nil) ; Ignore a "refresh" command
+		  (when (and (> index (1+ (chess-game-index game)))
+			     (= 1 (chess-game-seq game)))
+		    ;; we lack a complete game, try to get it via the movelist
+		    (chess-ics-send
+		     (format "moves %d"
+			     (chess-game-data game 'ics-game-number))))))
+	    ;; no preceeding ply supplied, so this is a starting position
 	    (let ((chess-game-inhibit-events t)
 		  (color (chess-pos-side-to-move position))
 		  plies)
@@ -453,6 +445,7 @@ See `chess-ics-game'.")
 
 (defun chess-ics (server port &optional handle password-or-filename
 			 helper &rest helper-args)
+  "Connect to an Internet Chess Server."
   (interactive
    (let ((args (if (= (length chess-ics-server-list) 1)
 		   (car chess-ics-server-list)
@@ -513,14 +506,14 @@ See `chess-ics-game'.")
      ;; this handler is taken from chess-common; we need to send long
      ;; algebraic notation to the ICS server, not short
      ((eq event 'move)
-      (with-current-buffer (chess-game-data game 'ics-buffer)
-	(chess-ics-send
-	 (if (chess-ply-any-keyword (car args) :castle :long-castle)
-	     (chess-ply-to-algebraic (car args))
-	   (concat (chess-index-to-coord
-		    (chess-ply-source (car args))) "-"
-		   (chess-index-to-coord
-		    (chess-ply-target (car args)))))))
+      (chess-ics-send
+       (if (chess-ply-any-keyword (car args) :castle :long-castle)
+	   (chess-ply-to-algebraic (car args))
+	 (concat (chess-index-to-coord
+		  (chess-ply-source (car args))) "-"
+		  (chess-index-to-coord
+		   (chess-ply-target (car args)))))
+       (chess-game-data game 'ics-buffer))
       (if (chess-game-over-p game)
 	  (chess-game-set-data game 'active nil)))
 
@@ -528,7 +521,7 @@ See `chess-ics-game'.")
       (chess-common-handler game 'flag-fell))
 
      ((eq event 'forward)
-      (chess-ics-send nil "forward"))
+      (chess-ics-send "forward" (chess-game-data game 'ics-buffer)))
      (t
       (apply 'chess-network-handler game event args)))))
 
