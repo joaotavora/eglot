@@ -27,17 +27,17 @@
 	      (chess-game-undo game 1))
 	    (chess-error 'cannot-take-queen)))))))
 
+;;;###autoload
 (defun chess-tutorial ()
+  "A simple chess training display."
   (interactive)
-  (let* (chess-default-modules
-	 (display (chess-create-display t)))
-    (with-current-buffer display
-      (chess-module-set-leader nil)
-      (chess-display-set-from-fen "8/3p1p/2p3p/4q/2p3p/3p1p/8/N w - -")
-      (chess-game-add-hook (chess-display-game nil) 'chess-tutorial-knight-1)
-      (setq chess-pos-always-white t)
-      (chess-display-popup nil)
-      (chess-message 'knight-1-done))))
+  (with-current-buffer (chess-create-display t)
+    (chess-module-set-leader nil)
+    (chess-display-set-from-fen "8/3p1p/2p3p/4q/2p3p/3p1p/8/N w - -")
+    (chess-game-add-hook (chess-display-game nil) 'chess-tutorial-knight-1)
+    (setq chess-pos-always-white t)
+    (chess-display-popup nil)
+    (chess-message 'knight-1-done)))
 
 (provide 'chess-tutorial)
 
