@@ -32,6 +32,8 @@
 ;;    chess-algebraic-regexp
 ;;
 
+(require 'chess-message)
+
 (defconst chess-algebraic-pieces-regexp "[RNBKQ]")
 
 (defconst chess-algebraic-regexp

@@ -7,6 +7,7 @@
 ;;
 
 (require 'chess-engine)
+(require 'chess-message)
 
 (defvar chess-common-engine-name nil)
 (defvar chess-common-temp-files nil)

@@ -3,6 +3,7 @@
 ;; Code shared by all chess displays
 ;;
 
+(require 'chess-message)
 (require 'chess-module)
 (require 'chess-var)
 (require 'chess-input)

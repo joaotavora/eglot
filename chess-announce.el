@@ -4,6 +4,7 @@
 ;;
 
 (require 'chess-game)
+(require 'chess-message)
 
 (chess-message-catalog 'english
   '((queen	  . "queen")
