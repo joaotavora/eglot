@@ -97,7 +97,7 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   :group 'chess-plain)
 
 (defcustom chess-plain-separate-frame nil
-  "If non-nil, display the chessboard in its own frame."
+  "*If non-nil, display the chessboard in its own frame."
   :type 'boolean
   :group 'chess-plain)
 
