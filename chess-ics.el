@@ -188,7 +188,6 @@ who is black."
     (chess-network-handler 'move (car args)))
 
    ((eq event 'send)
-    (message "sending string: %s" (car args))
     (comint-send-string (get-buffer-process (current-buffer))
 			(car args)))
 

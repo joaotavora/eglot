@@ -65,8 +65,14 @@
 	   ,@body)
        ,@body)))
 
-(defun chess-display-create (style perspective &optional read-only)
-  "Create a chess display, for displaying chess objects."
+(defun chess-display-create (style perspective &optional main read-only)
+  "Create a chess display, for displaying chess objects.
+The display is drawn using the given STYLE, from the PERSPECTIVE
+color's point of view.  If MAIN is non-nil, then this is a main
+display, which means it will popup on significant events, and will
+cause the underlying game object to be shutdown when it is destroyed.
+If READ-ONLY is non-nil, then the display will not allow the user to
+makes moves, or any other changes to the underlying game."
   (let* ((name (symbol-name style))
 	 (handler (intern-soft (concat name "-handler"))))
     (unless handler
@@ -77,6 +83,8 @@
       (setq chess-display-style style
 	    chess-display-perspective perspective
 	    chess-display-event-handler handler)
+      (if main
+	  (chess-display-set-main nil))
       (add-hook 'kill-buffer-hook 'chess-display-quit nil t)
       (current-buffer))))
 

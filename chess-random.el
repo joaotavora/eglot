@@ -50,11 +50,21 @@
 			(throw 'retry t))
 		  (setq first-rook i))))))
 	  (setq position (chess-pos-create)))))
+
+    ;; set the home row pieces
     (dotimes (i 8)
       (chess-pos-set-piece position (chess-rf-to-index 0 i)
 			   (aref pieces i))
       (chess-pos-set-piece position (chess-rf-to-index 7 i)
 			   (upcase (aref pieces i))))
+
+    ;; jww (2002-04-12): Until I fully support Fischer Random
+    ;; castling, I will disable it here
+    (chess-pos-set-can-castle position ?K nil)
+    (chess-pos-set-can-castle position ?Q nil)
+    (chess-pos-set-can-castle position ?k nil)
+    (chess-pos-set-can-castle position ?q nil)
+
     position))
 
 (provide 'chess-random)

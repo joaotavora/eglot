@@ -145,7 +145,9 @@
 
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				   "\n")))))
+				   "\n"))
+    (if (chess-game-over-p (chess-engine-game nil))
+	(chess-game-set-data (chess-engine-game nil) 'active nil)))))
 
 (provide 'chess-network)
 

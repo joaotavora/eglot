@@ -452,11 +452,11 @@ function in all cases; this is merely a bandwidth-saver."
 	  (if moving (goto-char chess-engine-current-marker)))
 	(unless chess-engine-working
 	  (setq chess-engine-working t)
-	  (unwind-protect
-	      (save-excursion
-		(if chess-engine-last-pos
-		    (goto-char chess-engine-last-pos)
-		  (goto-char (point-min)))
+	  (save-excursion
+	    (if chess-engine-last-pos
+		(goto-char chess-engine-last-pos)
+	      (goto-char (point-min)))
+	    (unwind-protect
 		(while (and (not (eobp))
 			    (/= (line-end-position) (point-max)))
 		  (let ((triggers chess-engine-regexp-alist))
@@ -468,8 +468,8 @@ function in all cases; this is merely a bandwidth-saver."
 			  (setq triggers nil)
 			(setq triggers (cdr triggers)))))
 		  (forward-line))
-		(setq chess-engine-last-pos (point)))
-	    (setq chess-engine-working nil)))))))
+	      (setq chess-engine-last-pos (point)
+		    chess-engine-working nil))))))))
 
 (provide 'chess-engine)
 
