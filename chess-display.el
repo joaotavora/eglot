@@ -94,7 +94,10 @@ is used to avoid reentrancy.")
     (cannot-yet-add . "Cannot insert moves into a game (yet)")))
 
 (defun chess-display-create (game style perspective)
-  "Create a chess display, for displaying chess objects."
+  "Create a chess display, for displaying chess objects.
+Where GAME is the chess game object to use, STYLE should be the display
+type to use (a symbol) and PERSPECTIVE determines the viewpoint
+of the board, if non-nil, the board is viewed from White's perspective."
   (interactive (list (if current-prefix-arg
 			 (chess-game-create (chess-fen-to-pos
 					     (read-string "FEN: ")))
