@@ -6,8 +6,6 @@ chess-ics
 - takebacks still aren't working 100%; when I submit a takeback
   request manually, and the other side accepts, my client doesn't know
   what to do with it
-- some <12> lines aren't being parsed at all; is the filter missing
-  them?
 - accept of a match request doesn't seem to be working always
 - resuming adjourned games does not work at all
 - not detecting forfeit by disconnection at the moment
