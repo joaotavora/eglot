@@ -1,16 +1,8 @@
 chess-ics
 - finish all elements of regular use as a client
 - takebacks still aren't working 100%
-- display a notice in the minibuffer when a takeback request is sent
-
-chess-network
-- the client is getting syntax errors
 
 chess-display
-- if I resign, chess-announce announces the last move my opponent
-  made!
-- there should be a way to disable popups, yet still have the initial
-  display popup in its own frame
 - when I checkmate my opponent, the display says "Black ...#"
 
 chess-engine
@@ -20,11 +12,6 @@ chess-engine
 chess-irc
 - if I move before my opponent has connected, I get a symbol assertion
   about "value"
-- if I am the one who submits the game, then the opponent's name
-  always shows as Anonymous
-
-chess-pgn
-- make the dependency on font-lock be dynamic
 
 chess-ply
 - detect games drawn by three-fold repetition

@@ -92,7 +92,7 @@
 (chess-message-catalog 'english
   '((network-starting  . "Starting network client/server...")
     (network-waiting   . "Now waiting for your opponent to connect...")
-    (network-connected ."You have connected; pass now or make your move.")))
+    (takeback-sent     . "Sent request to undo %d ply(s) to your opponent")))
 
 (defun chess-network-flatten-multiline (str)
   (while (string-match "\n" str)
@@ -103,6 +103,9 @@
   (while (string-match "\C-k" str)
     (setq str (replace-match "\n" t t str)))
   str)
+
+(defvar chess-network-kind)
+(make-variable-buffer-local 'chess-network-kind)
 
 (defun chess-network-handler (game event &rest args)
   "Initialize the network chess engine."
@@ -124,14 +127,14 @@
 		(open-network-stream "*chess-network*" (current-buffer)
 				     (read-string "Host: ")
 				     (read-string "Port: "))))
-	(if (eq which ?s)
-	    (chess-message 'network-waiting)
-	  (chess-network-handler game 'match)
-	  (chess-message 'network-connected))
+	(setq chess-network-kind (if (eq which ?s) 'server 'client))
 	t))
 
      ((eq event 'ready)			; don't set active yet
-      (chess-game-run-hooks game 'announce-autosave))
+      (chess-game-run-hooks game 'announce-autosave)
+      (if (eq chess-network-kind 'server)
+	  (chess-message 'network-waiting)
+	(chess-network-handler game 'match)))
 
      ((eq event 'setup-pos)
       (chess-engine-send nil (format "fen %s\n"
@@ -169,10 +172,14 @@
 	  (chess-engine-command nil 'retract))
       (setq chess-engine-pending-offer 'undo
 	    chess-engine-pending-arg (car args))
-      (chess-engine-send nil (format "takeback %d\n" (car args))))
+
+      (chess-engine-send nil (format "takeback %d\n" (car args)))
+      (chess-message 'takeback-sent (car args)))
 
      ((eq event 'accept)
-      (chess-engine-send nil "accept\n"))
+      (chess-engine-send nil (if (car args)
+				 (format "accept %s\n" (car args))
+			       "accept\n")))
 
      ((eq event 'decline)
       (chess-engine-send nil "decline\n"))

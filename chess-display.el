@@ -16,6 +16,8 @@
   :type 'boolean
   :group 'chess-display)
 
+(make-variable-buffer-local 'chess-display-popup)
+
 (defcustom chess-display-highlight-legal nil
   "If non-nil, highlight legal target squares when a piece is selected."
   :type 'boolean
@@ -70,7 +72,6 @@ See `mode-line-format' for syntax details."
 (defvar chess-display-side-to-move)
 (defvar chess-display-perspective)
 (defvar chess-display-event-handler nil)
-(defvar chess-display-no-popup nil)
 (defvar chess-display-edit-mode nil)
 (defvar chess-display-index-positions nil)
 
@@ -79,7 +80,6 @@ See `mode-line-format' for syntax details."
 (make-variable-buffer-local 'chess-display-side-to-move)
 (make-variable-buffer-local 'chess-display-perspective)
 (make-variable-buffer-local 'chess-display-event-handler)
-(make-variable-buffer-local 'chess-display-no-popup)
 (make-variable-buffer-local 'chess-display-edit-mode)
 (make-variable-buffer-local 'chess-display-index-positions)
 
@@ -252,7 +252,7 @@ also view the same game."
   (chess-with-current-buffer display
     (funcall chess-display-event-handler 'draw
 	     (chess-display-position nil) chess-display-perspective)
-    (if (and popup (not chess-display-no-popup)
+    (if (and popup chess-display-popup
 	     (chess-module-leader-p nil))
 	(chess-display-popup nil))))
 
@@ -368,12 +368,12 @@ that is supported by most displays, and is the default mode."
 (defun chess-display-enable-popup (display)
   "Popup the given DISPLAY, so that it's visible to the user."
   (chess-with-current-buffer display
-    (setq chess-display-no-popup nil)))
+    (setq chess-display-popup nil)))
 
 (defun chess-display-disable-popup (display)
   "Popup the given DISPLAY, so that it's visible to the user."
   (chess-with-current-buffer display
-    (setq chess-display-no-popup t)))
+    (setq chess-display-popup t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -462,8 +462,7 @@ See `chess-display-type' for the different kinds of displays."
 	    (if (eq event 'move)
 		(progn
 		  (chess-display-paint-move nil (car args))
-		  (if (and chess-display-popup
-			   (not chess-display-no-popup))
+		  (if chess-display-popup
 		      (chess-display-popup nil)))
 	      (chess-display-update nil chess-display-popup)))
 	(if (memq event chess-display-interesting-events)
@@ -984,7 +983,8 @@ to the end or beginning."
 
 (chess-message-catalog 'english
   '((editing-directly
-     . "Now editing position directly, use S when complete...")))
+     . "Now editing position directly, use S when complete...")
+    (clear-chessboard-q . "Really clear the chessboard? ")))
 
 (defun chess-display-edit-board ()
   "Setup the current board for editing."
@@ -1021,7 +1021,7 @@ to the end or beginning."
 (defun chess-display-clear-board ()
   "Setup the current board for editing."
   (interactive)
-  (when (y-or-n-p "Really clear the chessboard? ")
+  (when (y-or-n-p (chess-string 'clear-chessboard-q))
     (let ((position (chess-display-position nil)))
       (dotimes (rank 8)
 	(dotimes (file 8)

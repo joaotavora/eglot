@@ -56,7 +56,7 @@
     (opp-abort	    . "Your opponent wants to abort this game, accept? ")
     (opp-undo	    . "Your opponent wants to take back %d moves, accept? ")
     (opp-ready	    . "Your opponent, %s, is now ready to play")
-    (opp-ready-a    . "Your opponent is now ready to play")
+    (opp-ready-a    . "Your opponent is ready to play; pass or make your move")
     (opp-draw-acc   . "Your draw offer was accepted")
     (opp-abort-acc  . "Your offer to abort was accepted")
     (opp-undo-acc   . "Request to undo %d moves was accepted")
@@ -128,7 +128,7 @@
 		(setq chess-engine-opponent-name (or name "Anonymous"))
 		(let ((chess-engine-handling-event t))
 		  (chess-engine-set-position nil))
-		(chess-engine-command nil 'accept))
+		(chess-engine-command nil 'accept chess-full-name))
 	    (chess-engine-command nil 'decline))))
       t)
 
@@ -162,7 +162,6 @@
       (let ((chess-engine-handling-event t))
 	(chess-message 'opp-resigned)
 	(chess-game-end game :resign)
-	(chess-game-set-data game 'active nil)
 	t))
 
      ((eq event 'draw)
@@ -198,7 +197,8 @@
       (when chess-engine-pending-offer
 	(if (eq chess-engine-pending-offer 'match)
 	    (unless (chess-game-data game 'active)
-	      (let ((name (and (> (length (car args)) 0) (car args))))
+	      (let ((name (and (> (length (car args)) 0)
+			       (car args))))
 		(if name
 		    (chess-message 'opp-ready (car args))
 		  (chess-message 'opp-ready-a))

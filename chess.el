@@ -186,7 +186,8 @@ available."
     (when (car objects)
       (mapc 'chess-display-update objects)
       (chess-module-set-leader (car objects))
-      (chess-display-popup (car objects)))
+      (unless disable-popup
+	(chess-display-popup (car objects))))
 
     (nconc objects (chess-create-modules chess-default-modules
 					 'chess-module-create game))

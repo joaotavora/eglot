@@ -365,19 +365,15 @@ who is black."
 	(chess-game-set-tag game "White" chess-full-name)
 	(chess-game-set-tag game "Black" chess-engine-opponent-name))
 
-      (cond
-       ((chess-ply-keyword (car args) :resign)
-	(chess-engine-send nil "resign\n"))
-       (t
-	(let ((move
-	       (if (chess-ply-any-keyword (car args)
-					  :castle :long-castle)
-		   (chess-ply-to-algebraic (car args))
-		 (concat (chess-index-to-coord
-			  (car (chess-ply-changes (car args)))) "-"
-			 (chess-index-to-coord
-			  (cadr (chess-ply-changes (car args))))))))
-	  (chess-engine-send nil (concat move "\n")))))
+      (let ((move
+	     (if (chess-ply-any-keyword (car args)
+					:castle :long-castle)
+		 (chess-ply-to-algebraic (car args))
+	       (concat (chess-index-to-coord
+			(car (chess-ply-changes (car args)))) "-"
+			(chess-index-to-coord
+			 (cadr (chess-ply-changes (car args))))))))
+	(chess-engine-send nil (concat move "\n")))
 
       (if (chess-game-over-p game)
 	  (chess-game-set-data game 'active nil)))

@@ -46,8 +46,7 @@
    ((eq event 'initialize) t)
 
    ((eq event 'popup)
-    (if chess-display-popup
-	(funcall chess-ics1-popup-function)))
+    (funcall chess-ics1-popup-function))
 
    ((eq event 'draw)
     (apply 'chess-ics1-draw args))

@@ -172,8 +172,7 @@ called."
 	   (chess-message 'no-images-fallback)))))
 
    ((eq event 'popup)
-    (if chess-display-popup
-	(funcall chess-images-popup-function)))
+    (funcall chess-images-popup-function))
 
    ((eq event 'draw)
     (apply 'chess-images-draw args))

@@ -108,8 +108,7 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
    ((eq event 'initialize) t)
 
    ((eq event 'popup)
-    (if chess-display-popup
-	(funcall chess-plain-popup-function)))
+    (funcall chess-plain-popup-function))
 
    ((eq event 'draw)
     (apply 'chess-plain-draw args))

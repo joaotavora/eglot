@@ -237,9 +237,11 @@ If INDENTED is non-nil, indent the move texts."
 	  "\\(\\.\\.\\.\\|" chess-algebraic-regexp "\\)"
 	  "\\(\\s-+\\(" chess-algebraic-regexp "\\)\\)?\\)"))
 
-(font-lock-add-keywords 'chess-pgn-mode
-  (list (list "\\[\\(\\S-+\\)\\s-+\".*\"\\]" 1 'font-lock-keyword-face)
-	(cons "\\(1-0\\|0-1\\|\\*\\)$" 'chess-pgn-bold-face)))
+(if (fboundp 'font-lock-add-keywords)
+    (font-lock-add-keywords
+     'chess-pgn-mode
+     (list (list "\\[\\(\\S-+\\)\\s-+\".*\"\\]" 1 'font-lock-keyword-face)
+	   (cons "\\(1-0\\|0-1\\|\\*\\)$" 'chess-pgn-bold-face))))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.pgn\\'" . chess-pgn-mode))
