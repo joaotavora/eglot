@@ -87,10 +87,11 @@
 - Make the mode-line much more informative, with information on who is
   playing, etc.
 
-- Add CTCP (optional) support to chess-irc.el
-
 - Turn on memory gc collection messages, and see how much of a pig
   chess.el is
+
+- make sure, if Bxc6 and bxc6 are possible, and the user types "bc6",
+  that bxc6 is chosen
 
 - Make as much of chess-game/ply/pos, etc., defsubst as possible.
 

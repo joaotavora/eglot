@@ -38,12 +38,14 @@
 (defvar chess-irc-opponent)
 (defvar chess-irc-working nil)
 (defvar chess-irc-last-pos nil)
+(defvar chess-irc-use-ctcp nil)
 
 (make-variable-buffer-local 'chess-irc-process)
 (make-variable-buffer-local 'chess-irc-engine)
 (make-variable-buffer-local 'chess-irc-opponent)
 (make-variable-buffer-local 'chess-irc-working)
 (make-variable-buffer-local 'chess-irc-last-pos)
+(make-variable-buffer-local 'chess-irc-use-ctcp)
 
 (defun chess-irc-handler (event &rest args)
   "This is an example of a generic transport engine."
@@ -80,8 +82,11 @@
 
    ((eq event 'send)
     (process-send-string chess-irc-process
-			 (format "PRIVMSG %s :%s\n"
-				 chess-irc-opponent (car args))))
+			 (if chess-irc-use-ctcp
+			     (format "PRIVMSG %s :\C-aCHESS %s\C-a\n"
+				     chess-irc-opponent (car args))
+			   (format "PRIVMSG %s :%s\n"
+				   chess-irc-opponent (car args)))))
    (t
     (apply 'chess-network-handler event args))))
 
@@ -110,16 +115,20 @@
 		(while (not (eobp))
 		  (cond
 		   ((looking-at
-		     ":\\([^ \t\n!]+\\)!\\S-+ PRIVMSG \\(\\S-+\\) :\\(.+\\)")
+		     ":\\([^ \t\n!]+\\)!\\S-+ PRIVMSG \\(\\S-+\\) :\\(\C-aCHESS \\)?\\(.+\\)\C-a?\n")
 		    (let ((sender (match-string 1))
 			  (target (match-string 2))
-			  (msg (match-string 3)))
+			  (ctcp (match-string 3))
+			  (msg (match-string 4)))
 		    (with-current-buffer chess-irc-engine
 		      (when (and (string= chess-irc-nick target)
 				 (or (null chess-irc-opponent)
 				     (string= chess-irc-opponent sender)))
 			(unless chess-irc-opponent
 			  (setq chess-irc-opponent sender))
+			(if (and (not chess-irc-use-ctcp)
+				 ctcp (> (length ctcp) 0))
+			  (setq chess-irc-use-ctcp t))
 			(chess-engine-submit nil (concat msg "\n")))))))
 		  (forward-line)))
 	    (setq chess-irc-last-pos (point)
