@@ -98,23 +98,21 @@
       (setq chess-engine-opponent-name "Emacs AI")
       t)
 
-     ((eq event 'setup-pos)
-      t)
+     ((eq event 'new)
+      (chess-engine-set-position nil))
 
      ((eq event 'move)
       (when (= 1 (chess-game-index game))
 	(chess-game-set-tag game "White" chess-full-name)
-      (chess-game-set-tag game "Black" chess-engine-opponent-name))
+	(chess-game-set-tag game "Black" chess-engine-opponent-name))
       
       (if (chess-game-over-p game)
 	  (chess-game-set-data game 'active nil))
-      (let ((bm (chess-ai-best-move (chess-engine-position nil) 3)))
-	(funcall chess-engine-response-handler 'move
-		 (cadr bm))))
+      (let ((bm (chess-ai-best-move (chess-engine-position nil) 2)))
+	(funcall chess-engine-response-handler 'move (cadr bm))))
 
      (t
       (apply 'chess-common-handler game event args)))))
-
 
 (provide 'chess-ai)
 ;;; chess-ai.el ends here
