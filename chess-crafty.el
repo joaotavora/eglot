@@ -8,6 +8,8 @@
 (require 'chess-fen)
 (require 'chess-algebraic)
 
+(defvar chess-crafty-now-moving nil)
+
 (defvar chess-crafty-regexp-alist
   (list (cons
 	 (concat "\\s-*\\(White\\|Black\\)\\s-*([0-9]+):\\s-+\\("
@@ -23,7 +25,8 @@
 		(setq ply (chess-algebraic-to-ply position move))
 		(unless ply
 		  (error "Could not convert engine move: %s" move))
-		(funcall chess-engine-response-handler 'move ply))))))
+		(let ((chess-crafty-now-moving t))
+		  (funcall chess-engine-response-handler 'move ply)))))))
 	(cons "Illegal move:\\s-*\\(.*\\)"
 	      (function
 	       (lambda ()
@@ -51,18 +54,23 @@
 					"alarm off\n"
 					"ansi off\n"))
       proc))
+
    ((eq event 'shutdown)
     (chess-engine-send nil "quit\n"))
+
    ((eq event 'setup)
     (chess-engine-send nil (format "setboard %s\n"
 				   (chess-pos-to-fen (car args)))))
+
    ((eq event 'pass)
     (chess-engine-send nil "go\n"))
+
    ((eq event 'move)
-    (chess-engine-send
-     nil (concat (chess-ply-to-algebraic
-		  (car args) nil
-		  (chess-engine-search-function nil)) "\n")))))
+    (unless chess-crafty-now-moving
+      (chess-engine-send
+       nil (concat (chess-ply-to-algebraic
+		    (car args) nil
+		    (chess-engine-search-function nil)) "\n"))))))
 
 (provide 'chess-crafty)
 
