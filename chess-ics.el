@@ -81,6 +81,16 @@ The format of each entry is:
 	  (lambda ()
 	    (let ((chess-engine-pending-offer 'abort))
 	      (funcall chess-engine-response-handler 'accept)))))
+   (cons "{Game \\([0-9]+\\) (\\(\\S-+\\) vs\\. \\(\\S-+\\)) Creating [^ ]+ \\([^ ]+\\).*}"
+	 (function
+	  (lambda ()
+	    (let ((game-number (string-to-int (match-string 1)))
+		  (white (match-string-no-properties 2))
+		  (black (match-string-no-properties 3)))
+	      ;(chess-game-set-tag game "White" white)
+	      ;(chess-game-set-tag game "Black" black)
+	      ;(chess-game-set-tag game "Site" (car chess-ics-server))
+	      ))))
    (cons "<12>\\s-+\\(\\([BKNPQRbknpqr-]\\{8\\}\\s-\\)\\{8\\}[BW].+\\)"
 	 #'chess-ics-handle-ics12)
    (cons "\\S-+ would like to take back \\([0-9]+\\) half move(s)."
@@ -190,6 +200,8 @@ to run whenever the regexp matches.")
     ;;  1 I am playing and it is my move
     ;;  0 I am observing a game being played
     (setq status (string-to-int (pop parts)))
+    (cond ((= status 2)
+	   (chess-game-set-data game 'my-color (chess-pos-side-to-move position))))
 
     ;; initial time and increment (in seconds) of the match
     (setq time-control (format "%s/%s" (pop parts) (pop parts)))
@@ -227,8 +239,7 @@ to run whenever the regexp matches.")
 	(chess-pos-set-status position :check))
        ((= ?# (aref move (1- (length move))))
 	(chess-pos-set-status position :checkmate)
-	(chess-pos-set-epd position 'ce (if (chess-pos-side-to-move position)
-					    32767 -32767)))
+	(chess-pos-set-epd position 'ce 32767))
        (nil
 	;; jww (2002-04-30): what about stalemate?  do I need to
 	;; calculate this each time?
@@ -280,16 +291,17 @@ to run whenever the regexp matches.")
       (if error
 	  (chess-message 'failed-ics-parse error
 			 (buffer-substring-no-properties begin end)))
-      (goto-char begin)
-      (delete-region begin end)
-      (save-excursion
-	(while (and (forward-line -1)
-		    (or (looking-at "^[ \t]*$")
-			(looking-at "^[^% \t\n\r]+%\\s-*$")))
-	  (delete-region (match-beginning 0) (1+ (match-end 0)))))
-      ;; we need to counter the forward-line in chess-engine-filter
-      (unless error
-	(forward-line -1)))
+      (when nil
+	(goto-char begin)
+	(delete-region begin end)
+	(save-excursion
+	  (while (and (forward-line -1)
+		      (or (looking-at "^[ \t]*$")
+			  (looking-at "^[^% \t\n\r]+%\\s-*$")))
+	    (delete-region (match-beginning 0) (1+ (match-end 0)))))
+	;; we need to counter the forward-line in chess-engine-filter
+	(unless error
+	  (forward-line -1))))
     t))
 
 (defun chess-ics-handler (game event &rest args)
@@ -375,6 +387,8 @@ to run whenever the regexp matches.")
 
      ((eq event 'set-index))
 
+     ((eq event 'forward)
+      (chess-engine-send nil "forward\n"))
      (t
       (apply 'chess-network-handler game event args)))))
 
