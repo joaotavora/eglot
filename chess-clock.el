@@ -55,19 +55,24 @@
 		 (> (chess-game-index game) 0))
 	(unless chess-clock-timer
 	  (setq chess-clock-timer
-		(run-with-timer 0 1 'chess-clock-tick-tock (current-buffer))))
+		(run-with-timer 0 1 'chess-clock-tick-tock
+				(current-buffer))))
 	(let ((last-ply (car (last (chess-game-plies game) 2))))
 	  (chess-ply-set-keyword last-ply :white white)
 	  (chess-ply-set-keyword last-ply :black black))))
 
-    (if (and chess-clock-timer (chess-game-over-p game))
-      (cancel-timer chess-clock-timer)
-      (setq chess-clock-timer nil)))
+    (if (chess-game-over-p game)
+	(chess-clock-handler game 'destroy)))
 
    ((eq event 'set-data)
     (if (and (eq (car args) 'active)
 	     (not (chess-game-data game 'active)))
-	(chess-clock-handler game 'destroy)))))
+	(chess-clock-handler game 'destroy)))
+
+   ((eq event 'destroy)
+    (if chess-clock-timer
+      (cancel-timer chess-clock-timer)
+      (setq chess-clock-timer nil)))))
 
 (defvar chess-clock-tick-tocking nil)
 

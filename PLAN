@@ -14,6 +14,9 @@ chess
 - have an option which causes all completed games to be added to a
   given database
 
+chess-autosave
+- recovering from an autosave against crafty does not seem to work
+
 			 BEFORE FINAL RELEASE
 
   use more asserts throughout the code
