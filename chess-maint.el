@@ -2,6 +2,7 @@
 
 (require 'cl)
 (require 'chess)
+(require 'chess-pgn)
 
 (defun chess-generate-texinfo-file ()
   (require 'lispdoc)

@@ -57,7 +57,7 @@
     (if chess-module-leader
 	(chess-game-run-hooks chess-module-game 'destroy))))
 
-(defun chess-engine-set-game (module game &optional no-setup)
+(defun chess-module-set-game (module game &optional no-setup)
   (chess-with-current-buffer module
     (let ((chess-game-inhibit-events no-setup))
       (chess-game-copy-game chess-module-game game))))
