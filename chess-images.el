@@ -196,6 +196,7 @@ called."
 	     (max-char-width  (ceiling (/ size (frame-char-width))))
 	     (display (and (stringp chess-images-separate-frame)
 			   chess-images-separate-frame)))
+	;; create the frame whenever necessary
 	(chess-display-popup-in-frame display (+ max-char-height 2)
 				      max-char-width))
     (chess-display-popup-in-window)))

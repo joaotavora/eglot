@@ -134,7 +134,12 @@
 	  (set-process-buffer proc (current-buffer))
 	  (set-process-filter proc 'chess-engine-filter))
 	(setq chess-engine-current-marker (point-marker)))
+      (add-hook 'kill-buffer-hook 'chess-engine-on-kill nil t)
       (current-buffer))))
+
+(defun chess-engine-on-kill ()
+  "Function called when the buffer is killed."
+  (chess-engine-detach-game nil))
 
 (defun chess-engine-destroy (engine)
   (let ((buf (or engine (current-buffer))))

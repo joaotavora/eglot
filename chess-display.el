@@ -87,13 +87,19 @@
       (funcall handler 'initialize)
       (setq chess-display-event-handler handler
 	    chess-display-perspective perspective)
+      (add-hook 'kill-buffer-hook 'chess-display-on-kill nil t)
       (current-buffer))))
 
-(defsubst chess-display-destroy (display)
+(defun chess-display-on-kill ()
+  "Function called when the buffer is killed."
+  (chess-display-detach-game nil))
+
+(defun chess-display-destroy (display)
   "Destroy a chess display object, killing all of its buffers."
   (let ((buf (or display (current-buffer))))
-    (if (buffer-live-p buf)
-	(kill-buffer buf))))
+    (when (buffer-live-p buf)
+      (chess-display-detach-game display)
+      (kill-buffer buf))))
 
 (defsubst chess-display-perspective (display)
   (chess-with-current-buffer display
