@@ -35,10 +35,10 @@
 (defun chess-network-perform-move ()
   (let* ((move (match-string 1))
 	 (ply (chess-algebraic-to-ply (chess-engine-position nil) move)))
-    (unless ply
-      (error "Could not convert engine move: %s" move))
-    (let ((chess-network-now-moving t))
-      (funcall chess-engine-response-handler 'move ply))))
+    (if ply
+	(let ((chess-network-now-moving t))
+	  (funcall chess-engine-response-handler 'move ply))
+      (message "Received invalid move: %s" move))))
 
 (defun chess-network-handler (event &rest args)
   "Initialize the network chess engine."

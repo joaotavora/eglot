@@ -26,9 +26,11 @@
 (make-variable-buffer-local 'chess-engine-position)
 (make-variable-buffer-local 'chess-engine-game)
 
+(defvar chess-engine-process nil)
 (defvar chess-engine-last-pos nil)
 (defvar chess-engine-working nil)
 
+(make-variable-buffer-local 'chess-engine-process)
 (make-variable-buffer-local 'chess-engine-last-pos)
 (make-variable-buffer-local 'chess-engine-working)
 
@@ -84,6 +86,7 @@
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))
 	    (error "Failed to start chess engine process"))
+	  (setq chess-engine-process proc)
 	  (set-process-buffer proc (current-buffer))
 	  (set-process-filter proc 'chess-engine-filter))
 	(setq chess-engine-current-marker (point-marker)))
@@ -160,7 +163,7 @@
 (defun chess-engine-send (engine string)
   "Send the given STRING to ENGINE."
   (chess-with-current-buffer engine
-    (let ((proc (get-buffer-process (current-buffer))))
+    (let ((proc chess-engine-process))
       (if proc
 	  (if (memq (process-status proc) '(run open))
 	      (process-send-string proc string)
@@ -170,7 +173,7 @@
 (defun chess-engine-submit (engine string)
   "Submit the given STRING, so ENGINE sees it in its input stream."
   (chess-with-current-buffer engine
-    (let ((proc (get-buffer-process (current-buffer))))
+    (let ((proc chess-engine-process))
       (if (and (processp proc)
 	       (not (memq (process-status proc) '(run open))))
 	  (error "The engine you were using is no longer running"))
