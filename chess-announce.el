@@ -18,6 +18,7 @@
     (check	  . "check")
     (checkmate	  . "checkmate")
     (stalemate	  . "stalemate")
+    (en-passant	  . "on possont")
     (piece-moves  . "%s to %s")
     (piece-takes  . "%s takes %s at %s")))
 
@@ -91,6 +92,8 @@ shutdown the announcer process, if necessary.")
 						    chess-announce-names)))
 					(chess-index-to-coord target))))))
 
+	  (if (chess-ply-keyword ply :en-passant)
+	      (setq text (concat text ", " (chess-string 'en-passant))))
 	  (if (chess-ply-keyword ply :check)
 	      (setq text (concat text ", " (chess-string 'check))))
 	  (if (chess-ply-keyword ply :checkmate)

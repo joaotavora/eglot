@@ -513,6 +513,8 @@ This is necessary for bizzare Emacs reasons."
 				      chess-images-border-width)
 	     nil t :color-symbols
 	     (list (cons "background" chess-images-border-color))))))
+  ;; let the garbage collector know we're through here
+  (garbage-collect)
   (chess-message 'piece-images-loaded))
 
 (provide 'chess-images)

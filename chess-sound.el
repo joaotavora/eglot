@@ -91,6 +91,8 @@
 	    (chess-sound (format "%c_" (downcase t-piece)))
 	    (chess-sound (chess-index-to-coord target))))
 
+	  (if (chess-ply-keyword ply :en-passant)
+	      (chess-sound "enpassant"))
 	  (if (chess-ply-keyword ply :check)
 	      (chess-sound "+_"))
 	  (if (chess-ply-keyword ply :checkmate)

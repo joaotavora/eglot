@@ -1,3 +1,8 @@
 2002-04-15  John Wiegley  <johnw@gnu.org>
 
+	* Did some major performance work on chess-legal-plies,
+	chess-ply-create and chess-search-position (these three, together
+	with chess-pos-move, represent the majority of algorithmic work
+	done by chess.el).
+
 	* Created this file.
