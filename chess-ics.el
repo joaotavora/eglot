@@ -126,28 +126,35 @@ game number.")
 	    (chess-ics-send (concat
 			     (format "set interface emacs-chess %s\n"
 				     chess-version)
-			     "iset seekremove 1\nset style 12\nset bell 0"))
+			     "iset seekremove 1\niset startpos 1\nset style 12\nset bell 0"))
 	    (setq chess-ics-handling-login nil)
 	    (chess-message 'ics-logged-in chess-ics-server chess-ics-handle)
 	    'once)))
-   (cons "^\\([A-Za-z0-9]+\\)\\((\\*)\\|(B)\\|(CA?)\\|H\\|(T[DM]?)\\|(SR)\\|(FM)\\|(W?\\(GM\\|IM\\))\\)*\\(([0-9]+)\\| tells you\\| s-shouts\\): .+$"
+   (cons "^\\([A-Za-z0-9]+\\)\\((\\*)\\|(B)\\|(CA?)\\|(H)\\|(T[DM]?)\\|(SR)\\|(FM)\\|(W?[GI]M)\\|(U)\\|([0-9-]+)\\)*\\((\\([0-9]+\\))\\| tells you\\| s-shouts\\|\\[\\([0-9]+\\)\\] kibitzes\\): \\(.+\\)$"
 	 (function
 	  (lambda ()
 	    (let ((fill-prefix (make-string
-				(- (match-end 1) (match-beginning 1)) ? )))
+				(- (match-end 1) (match-beginning 1)) ? ))
+		  (game-num (match-string 5))
+		  (text-begin (match-beginning 6)))
 	      (goto-char (match-beginning 0))
-	      (save-excursion
-		(while (and (forward-line -1)
-			    (or (looking-at "^[ \t]*$")
-				(looking-at "^[af]ics%\\s-*$")))
-		  (delete-region (match-beginning 0) (1+ (match-end 0)))))
 	      (save-excursion
 		(while (and (forward-line 1)
 			    (looking-at "^\\\\\\s-+"))
 		  (delete-region (1- (match-beginning 0)) (match-end 0))))
+	      (when game-num
+		(chess-game-run-hooks
+		 (chess-ics-game (string-to-int game-num))
+		 'kibitz (buffer-substring text-begin (line-end-position))))
 	      (when (> (- (line-end-position) (line-beginning-position))
 		       fill-column)
-		(fill-region (point) (line-end-position)))))))
+		(save-excursion
+		 (fill-region (point) (line-end-position))))
+	      (save-excursion
+		(while (and (forward-line -1)
+			    (or (looking-at "^[ \t]*$")
+				(looking-at "^[af]ics%\\s-*$")))
+		  (delete-region (match-beginning 0) (1+ (match-end 0)))))))))
    (cons "{Game \\([0-9]+\\) (\\(\\S-+\\) vs\\. \\(\\S-+\\)) Creating [^ ]+ \\([^ ]+\\).*}"
 	 (function
 	  (lambda ()
@@ -167,8 +174,7 @@ game number.")
    (cons "Removing game \\([0-9]+\\) from observation list.$"
 	 (function
 	  (lambda ()
-	    (chess-game-run-hooks
-	     (chess-ics-game (string-to-int (match-string 1))) 'destroy))))
+	    (chess-ics-game-destroy (string-to-int (match-string 1))))))
    (cons "^Movelist for game \\([0-9]+\\):$"
 	 (function
 	  (lambda ()
@@ -282,11 +288,11 @@ See `chess-ics-game'.")
 		     (if (string= (chess-game-tag game tag) val)
 			 (setq tag-pairs (cddr tag-pairs))
 		       (if (not (string= (chess-game-tag game tag) "?"))
-			   (error "Game %d %s %s != %s"
-				  game-number tag (chess-game-tag game tag) val)
-			 ;; Update tag and proceed
-			 (chess-game-set-tag game tag val)
-			 (setq tags (cddr tags))))))
+			   (message "Game %d %s %s != %s"
+				  game-number tag (chess-game-tag game tag) val))
+		       ;; Update tag and proceed
+		       (chess-game-set-tag game tag val)
+		       (setq tags (cddr tags)))))
 		 (throw 'ics-game game)))))
 	 (setq sessions (cdr sessions)))))
    ;; if we are allowed to, create a new session for this game number
@@ -305,6 +311,37 @@ See `chess-ics-game'.")
 	  game (substring (symbol-name (car tags)) 1) (cadr tags))
 	 (setq tags (cddr tags)))
        game))))
+
+(defun chess-ics-game-destroy (game-number &rest tags)
+  (let ((sessions chess-ics-sessions)
+	last-session)
+    (while sessions
+      (if (not (buffer-live-p (caar sessions)))
+	  (message "Found dead engine session in `chess-ics-sessions'")
+	(let ((game (chess-display-game (cadar sessions)))
+	      (tag-pairs tags)
+	      (found t))
+	  (when (= game-number (chess-game-data game 'ics-game-number))
+	    (if (null tags)
+		(progn
+		  (chess-display-destroy (cadar sessions))
+		  (if last-session
+		      (setcdr last-session (cdr sessions))
+		    (setq chess-ics-sessions (cdr sessions))))
+	      (while (and tag-pairs found)
+		(assert (symbolp (car tag-pairs)))
+		(let ((tag (substring (symbol-name (car tag-pairs)) 1))
+		      (val (cadr tag-pairs)))
+		  (assert (stringp val))
+		  (if (string= (chess-game-tag game tag) val)
+		      (setq tag-pairs (cddr tag-pairs))
+		    (setq found nil))))
+	      (chess-engine-destroy (cadar sessions))
+	      (if last-session
+		  (setcdr last-session (cdr sessions))
+		(setq chess-ics-sessions (cdr sessions)))))))
+      (setq last-triggers sessions
+	    sessions (cdr sessions)))))
 
 (defun chess-ics-handle-movelist-item ()
   ;; TBD: time taken per ply
@@ -433,12 +470,16 @@ See `chess-ics-game'.")
 		    (setq error nil))
 		(if (= index (chess-game-index game))
 		    (setq error nil) ; Ignore a "refresh" command
-		  (when (and (> index (1+ (chess-game-index game)))
+		  (if (and (> index (1+ (chess-game-index game)))
 			     (= 1 (chess-game-seq game)))
 		    ;; we lack a complete game, try to get it via the movelist
-		    (chess-ics-send
-		     (format "moves %d"
-			     (chess-game-data game 'ics-game-number))))))
+		    (progn
+		      (setq error nil)
+		      (chess-ics-send
+		       (format "moves %d"
+			       (chess-game-data game 'ics-game-number))))
+		    (setq error
+			  (format "comparing-index (%d:%d)" index (chess-game-seq game))))))
 	    ;; no preceeding ply supplied, so this is a starting position
 	    (let ((chess-game-inhibit-events t)
 		  (color (chess-pos-side-to-move position))
