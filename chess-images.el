@@ -44,8 +44,9 @@
 (defcustom chess-images-directory
   (if (file-directory-p "/usr/share/games/xboard/pixmaps")
       "/usr/share/games/xboard/pixmaps"
-    (expand-file-name "pieces" (file-name-directory
-				(or load-file-name buffer-file-name))))
+    (expand-file-name "pieces/xboard"
+		      (file-name-directory
+		       (or load-file-name buffer-file-name))))
   "Directory containing the chess piece bitmap images.
 You are free to use your own chess pieces, of any size.  By default, I
 assume you have xboard installed, or can go get the pixmaps that come
@@ -162,6 +163,9 @@ that specialized squares may be used such as marble tiles, etc."
 				  (display-pixel-width)) 20)))))
 
 (defun chess-images-popup-board ()
+  (unless chess-images-size
+    (error "Cannot find any piece images; check `chess-images-directory'"))
+
   (let* ((size (float (+ (* (or chess-images-border-width 0) 8)
 			 (* chess-images-size 8))))
 	 (max-char-height (ceiling (/ size (frame-char-height))))

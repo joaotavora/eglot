@@ -35,6 +35,8 @@
   hook.  Then, if you like the result, it call be a `set' on the
   original board from the copied board.
 
+- Make the mode-line much more informative
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs

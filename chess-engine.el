@@ -65,8 +65,8 @@
     (with-current-buffer (generate-new-buffer " *chess-engine*")
       (setq chess-engine-regexp-alist (symbol-value regexp-alist)
 	    chess-engine-event-handler handler
-	    chess-engine-response-handler (or 'chess-engine-default-handler
-					      user-handler))
+	    chess-engine-response-handler (or user-handler
+					      'chess-engine-default-handler))
       (let ((proc (apply handler 'initialize args)))
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))

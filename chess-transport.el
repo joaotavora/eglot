@@ -18,7 +18,9 @@
     ;; Initialize the transport here, if necessary.  Make sure that
     ;; any housekeeping data you use is kept in buffer-local
     ;; variables.  Otherwise, multiple games played using the same
-    ;; kind of transport might collide.
+    ;; kind of transport might collide.  For example:
+    ;;
+    ;; (set (make-local-variable 'chess-transport-data) (car args))
     )
 
    ((eq event 'send)
