@@ -66,7 +66,7 @@ This regexp handles both long and short form.")
     (let ((color (chess-pos-side-to-move position))
 	  (mate (match-string 9 move))
 	  (piece (aref move 0))
-	  changes)
+	  changes long-style)
       (if (eq piece ?O)
 	  (setq changes (chess-ply-castling-changes
 			 position (= (length (match-string 1 move)) 5)))
@@ -75,7 +75,9 @@ This regexp handles both long and short form.")
 		(let ((source (match-string 4 move))
 		      (target (chess-coord-to-index (match-string 6 move))))
 		  (if (and source (= (length source) 2))
-		      (list (chess-coord-to-index source) target)
+		      (prog1
+			  (list (chess-coord-to-index source) target)
+			(setq long-style t))
 		    (if (= (length source) 0)
 			(setq source nil)
 		      (setq source (aref source 0)))
@@ -114,7 +116,8 @@ This regexp handles both long and short form.")
 	(when trust
 	  (if mate
 	      (nconc changes (list (if (equal mate "#") :checkmate :check)))))
-	(nconc changes (list :san move))
+	(unless long-style
+	  (nconc changes (list :san move)))
 
 	(apply 'chess-ply-create position trust changes)))))
 
@@ -182,7 +185,8 @@ If LONG is non-nil, render the move into long notation."
       san)
      (t
       (let ((move (chess-ply--move-text ply long)))
-	(chess-ply-set-keyword ply :san move)
+	(unless long
+	  (chess-ply-set-keyword ply :san move))
 	move)))))
 
 (provide 'chess-algebraic)

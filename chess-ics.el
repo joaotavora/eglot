@@ -353,6 +353,8 @@ who is black."
        nil (format "match %s\n"
 		   (read-string (chess-string 'challenge-whom)))))
 
+     ;; this handler is taken from chess-common; we need to send long
+     ;; algebraic notation to the ICS server, not short
      ((eq event 'move)
       (when (= 1 (chess-game-index game))
 	(chess-game-set-tag game "White" chess-full-name)
