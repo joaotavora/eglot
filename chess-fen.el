@@ -101,7 +101,7 @@ If FULL is non-nil, represent trailing spaces as well."
 	    (setq str (concat str (char-to-string p))))))
       (if (and full (> blank 0))
 	  (setq str (concat str (int-to-string blank))))
-      (setq blank 0 str (concat str "/")))
+      (if (< rank 7) (setq blank 0 str (concat str "/"))))
     (setq str (if (chess-pos-side-to-move position)
 		  (concat str " w ")
 		(concat str " b ")))
