@@ -11,29 +11,30 @@
 
 (defvar chess-transport-regexp-alist chess-network-regexp-alist)
 
-(defun chess-transport-handler (event &rest args)
+(defun chess-transport-handler (game event &rest args)
   "This is an example of a generic transport engine."
-  (cond
-   ((eq event 'initialize)
-    ;; Initialize the transport here, if necessary.  Make sure that
-    ;; any housekeeping data you use is kept in buffer-local
-    ;; variables.  Otherwise, multiple games played using the same
-    ;; kind of transport might collide.  For example:
-    ;;
-    ;; (set (make-local-variable 'chess-transport-data) (car args))
-    ;;
-    ;; NOTE: Be sure not to return a process, or else chess-engine
-    ;; will do all the transport work!
-    t)
+  (unless chess-engine-handling-event
+    (cond
+     ((eq event 'initialize)
+      ;; Initialize the transport here, if necessary.  Make sure that
+      ;; any housekeeping data you use is kept in buffer-local
+      ;; variables.  Otherwise, multiple games played using the same
+      ;; kind of transport might collide.  For example:
+      ;;
+      ;; (set (make-local-variable 'chess-transport-data) (car args))
+      ;;
+      ;; NOTE: Be sure not to return a process, or else chess-engine
+      ;; will do all the transport work!
+      t)
 
-   ((eq event 'send)
-    ;; Transmit the string given in `(car args)' to the outbound
-    ;; transport from here
-    )
+     ((eq event 'send)
+      ;; Transmit the string given in `(car args)' to the outbound
+      ;; transport from here
+      )
 
-   (t
-    ;; Pass all other events down to chess-network
-    (apply 'chess-network-handler event args))))
+     (t
+      ;; Pass all other events down to chess-network
+      (apply 'chess-network-handler event args)))))
 
 ;; Call `(chess-engine-submit engine STRING)' for text that arrives
 ;; from the inbound transport

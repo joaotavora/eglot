@@ -74,86 +74,87 @@
     (network-waiting   . "Now waiting for your opponent to connect...")
     (network-connected ."You have connected; pass now or make your move.")))
 
-(defun chess-network-handler (event &rest args)
+(defun chess-network-handler (game event &rest args)
   "Initialize the network chess engine."
-  (cond
-   ((eq event 'initialize)
-    (let ((which (read-char "Are you the c)lient or s)erver? "))
-	  proc)
-      (chess-message 'network-starting)
-      (setq proc (if (eq which ?s)
-		     (start-process "*chess-network*"
-				    (current-buffer) "/usr/bin/nc"
-				    "-l" "-p" (read-string "Port: "))
-		   (open-network-stream "*chess-network*" (current-buffer)
-					(read-string "Host: ")
-					(read-string "Port: "))))
-      (if (eq which ?s)
-	  (chess-message 'network-waiting)
-	(chess-network-handler 'match)
-	(chess-message 'network-connected))
-      proc))
+  (unless chess-engine-handling-event
+    (cond
+     ((eq event 'initialize)
+      (let ((which (read-char "Are you the c)lient or s)erver? "))
+	    proc)
+	(chess-message 'network-starting)
+	(setq proc (if (eq which ?s)
+		       (start-process "*chess-network*"
+				      (current-buffer) "/usr/bin/nc"
+				      "-l" "-p" (read-string "Port: "))
+		     (open-network-stream "*chess-network*" (current-buffer)
+					  (read-string "Host: ")
+					  (read-string "Port: "))))
+	(if (eq which ?s)
+	    (chess-message 'network-waiting)
+	  (chess-network-handler 'match)
+	  (chess-message 'network-connected))
+	t))
 
-   ((eq event 'shutdown)
-    (chess-engine-send nil "quit\n"))
+     ((eq event 'destroy)
+      (chess-engine-send nil "quit\n"))
 
-   ((eq event 'setup-pos)
-    (chess-engine-send nil (format "fen %s\n"
-				   (chess-pos-to-string (car args)))))
+     ((eq event 'setup-pos)
+      (chess-engine-send nil (format "fen %s\n"
+				     (chess-pos-to-string (car args)))))
 
-   ((eq event 'setup-game)
-    (chess-engine-send nil (format "pgn %s\n"
-				   (chess-game-to-string (car args)))))
+     ((eq event 'setup-game)
+      (chess-engine-send nil (format "pgn %s\n"
+				     (chess-game-to-string (car args)))))
 
-   ((eq event 'pass)
-    (chess-engine-send nil "pass\n"))
+     ((eq event 'pass)
+      (chess-engine-send nil "pass\n"))
 
-   ((eq event 'busy)
-    (chess-engine-send nil "playing\n"))
+     ((eq event 'busy)
+      (chess-engine-send nil "playing\n"))
 
-   ((eq event 'match)
-    (setq chess-engine-pending-offer 'match)
-    (chess-engine-send nil (format "chess match %s\n" chess-full-name)))
+     ((eq event 'match)
+      (setq chess-engine-pending-offer 'match)
+      (chess-engine-send nil (format "chess match %s\n" chess-full-name)))
 
-   ((eq event 'resign)
-    (chess-engine-send nil "resign\n")
-    (chess-game-set-data chess-engine-game 'active nil))
+     ((eq event 'resign)
+      (chess-engine-send nil "resign\n")
+      (chess-game-set-data game 'active nil))
 
-   ((eq event 'draw)
-    (if chess-engine-pending-offer
-	(chess-engine-command nil 'retract))
-    (setq chess-engine-pending-offer 'draw)
-    (chess-engine-send nil "draw\n"))
+     ((eq event 'draw)
+      (if chess-engine-pending-offer
+	  (chess-engine-command nil 'retract))
+      (setq chess-engine-pending-offer 'draw)
+      (chess-engine-send nil "draw\n"))
 
-   ((eq event 'abort)
-    (if chess-engine-pending-offer
-	(chess-engine-command nil 'retract))
-    (setq chess-engine-pending-offer 'abort)
-    (chess-engine-send nil "abort\n"))
+     ((eq event 'abort)
+      (if chess-engine-pending-offer
+	  (chess-engine-command nil 'retract))
+      (setq chess-engine-pending-offer 'abort)
+      (chess-engine-send nil "abort\n"))
 
-   ((eq event 'undo)
-    (if chess-engine-pending-offer
-	(chess-engine-command nil 'retract))
-    (setq chess-engine-pending-offer 'undo
-	  chess-engine-pending-arg (car args))
-    (chess-engine-send nil (format "takeback %d\n" (car args))))
+     ((eq event 'undo)
+      (if chess-engine-pending-offer
+	  (chess-engine-command nil 'retract))
+      (setq chess-engine-pending-offer 'undo
+	    chess-engine-pending-arg (car args))
+      (chess-engine-send nil (format "takeback %d\n" (car args))))
 
-   ((eq event 'accept)
-    (chess-engine-send nil "accept\n"))
+     ((eq event 'accept)
+      (chess-engine-send nil "accept\n"))
 
-   ((eq event 'decline)
-    (chess-engine-send nil "decline\n"))
+     ((eq event 'decline)
+      (chess-engine-send nil "decline\n"))
 
-   ((eq event 'retract)
-    (chess-engine-send nil "retract\n"))
+     ((eq event 'retract)
+      (chess-engine-send nil "retract\n"))
 
-   ((eq event 'illegal)
-    (chess-engine-send nil "illegal\n"))
+     ((eq event 'illegal)
+      (chess-engine-send nil "illegal\n"))
 
-   ((eq event 'move)
-    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
-    (if (chess-game-over-p chess-engine-game)
-	(chess-game-set-data chess-engine-game 'active nil)))))
+     ((eq event 'move)
+      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
+      (if (chess-game-over-p game)
+	  (chess-game-set-data game 'active nil))))))
 
 (provide 'chess-network)
 

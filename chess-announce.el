@@ -44,24 +44,19 @@ The first is called one start of the announcer.  The second is called
 with the string to announce each time.  The third is called to
 shutdown the announcer process, if necessary.")
 
-(defun chess-announce-handler (event &rest args)
-  "This display module presents a standard chessboard.
-See `chess-display-type' for the different kinds of displays."
+(defun chess-announce-handler (game event &rest args)
   (cond
    ((eq event 'initialize)
-    (kill-buffer (current-buffer))
-    (set-buffer (generate-new-buffer " *chess-announce*"))
     (funcall (nth 0 chess-announce-functions))
-    (current-buffer))
+    t)
 
-   ((eq event 'shutdown)
+   ((eq event 'destroy)
     (funcall (nth 2 chess-announce-functions)))
 
    ((eq event 'move)
-    (let* ((ply (chess-game-ply chess-display-game
-				(1- (chess-game-index chess-display-game))))
+    (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
 	   (pos (chess-ply-pos ply)))
-      (unless (eq (chess-game-data chess-display-game 'my-color)
+      (unless (eq (chess-game-data game 'my-color)
 		  (chess-pos-side-to-move pos))
 	(let* ((source (chess-ply-source ply))
 	       (target (chess-ply-target ply))

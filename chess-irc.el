@@ -56,47 +56,48 @@
 (make-variable-buffer-local 'chess-irc-last-pos)
 (make-variable-buffer-local 'chess-irc-use-ctcp)
 
-(defun chess-irc-handler (event &rest args)
+(defun chess-irc-handler (game event &rest args)
   "This is an example of a generic transport engine."
-  (cond
-   ((eq event 'initialize)
-    (chess-message 'irc-connecting chess-irc-server chess-irc-port)
-    (let ((engine (current-buffer)) proc)
-      (with-current-buffer (generate-new-buffer " *chess-irc*")
-	(setq chess-irc-engine engine
-	      proc (open-network-stream "*chess-irc*" (current-buffer)
-					chess-irc-server chess-irc-port))
-	(chess-message 'irc-logging-in chess-irc-nick)
-	(when (and proc (eq (process-status proc) 'open))
-	  (process-send-string proc (format "USER %s 0 * :%s\n"
-					    (user-login-name)
-					    chess-full-name))
-	  (process-send-string proc (format "NICK %s\n" chess-irc-nick))
-	  (set-process-filter proc 'chess-irc-filter)
-	  (set-process-buffer proc (current-buffer))
-	  (set-marker (process-mark proc) (point))
-	  (chess-message 'irc-waiting)))
-      (setq chess-irc-process proc))
-    t)
+  (unless chess-engine-handling-event
+    (cond
+     ((eq event 'initialize)
+      (chess-message 'irc-connecting chess-irc-server chess-irc-port)
+      (let ((engine (current-buffer)) proc)
+	(with-current-buffer (generate-new-buffer " *chess-irc*")
+	  (setq chess-irc-engine engine
+		proc (open-network-stream "*chess-irc*" (current-buffer)
+					  chess-irc-server chess-irc-port))
+	  (chess-message 'irc-logging-in chess-irc-nick)
+	  (when (and proc (eq (process-status proc) 'open))
+	    (process-send-string proc (format "USER %s 0 * :%s\n"
+					      (user-login-name)
+					      chess-full-name))
+	    (process-send-string proc (format "NICK %s\n" chess-irc-nick))
+	    (set-process-filter proc 'chess-irc-filter)
+	    (set-process-buffer proc (current-buffer))
+	    (set-marker (process-mark proc) (point))
+	    (chess-message 'irc-waiting)))
+	(setq chess-irc-process proc))
+      t)
 
-   ((eq event 'match)
-    (setq chess-irc-opponent (read-string (chess-string 'irc-challenge)))
-    (chess-network-handler 'match chess-irc-opponent))
+     ((eq event 'match)
+      (setq chess-irc-opponent (read-string (chess-string 'irc-challenge)))
+      (chess-network-handler 'match chess-irc-opponent))
 
-   ((eq event 'shutdown)
-    (chess-engine-send nil "quit")
-    (process-send-string chess-irc-process "QUIT :Goodbye\n")
-    (kill-buffer (process-buffer chess-irc-process)))
+     ((eq event 'destroy)
+      (chess-engine-send nil "quit")
+      (process-send-string chess-irc-process "QUIT :Goodbye\n")
+      (kill-buffer (process-buffer chess-irc-process)))
 
-   ((eq event 'send)
-    (process-send-string chess-irc-process
-			 (if chess-irc-use-ctcp
-			     (format "PRIVMSG %s :\C-aCHESS %s\C-a\n"
-				     chess-irc-opponent (car args))
-			   (format "PRIVMSG %s :%s\n"
-				   chess-irc-opponent (car args)))))
-   (t
-    (apply 'chess-network-handler event args))))
+     ((eq event 'send)
+      (process-send-string chess-irc-process
+			   (if chess-irc-use-ctcp
+			       (format "PRIVMSG %s :\C-aCHESS %s\C-a\n"
+				       chess-irc-opponent (car args))
+			     (format "PRIVMSG %s :%s\n"
+				     chess-irc-opponent (car args)))))
+     (t
+      (apply 'chess-network-handler event args)))))
 
 ;; This filter translates IRC syntax into basic chess-network protocol
 (defun chess-irc-filter (proc string)

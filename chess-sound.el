@@ -51,25 +51,19 @@
   (apply 'call-process chess-sound-program
 	 nil nil nil (append chess-sound-args (list file))))
 
-(defun chess-sound-handler (event &rest args)
-  "This display module presents a standard chessboard.
-See `chess-display-type' for the different kinds of displays."
+(defun chess-sound-handler (game event &rest args)
   (cond
    ((eq event 'initialize)
-    (kill-buffer (current-buffer))
-    (set-buffer (generate-new-buffer " *chess-sound*"))
     (and (file-directory-p chess-sound-directory)
 	 (file-readable-p (expand-file-name "move.wav"
 					    chess-sound-directory))
 	 (or (eq chess-sound-play-function 'play-sound-file)
-	     (file-executable-p chess-sound-program))
-	 (current-buffer)))
+	     (file-executable-p chess-sound-program))))
 
    ((eq event 'move)
-    (let* ((ply (chess-game-ply chess-display-game
-				(1- (chess-game-index chess-display-game))))
+    (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
 	   (pos (chess-ply-pos ply)))
-      (if (eq (chess-game-data chess-display-game 'my-color)
+      (if (eq (chess-game-data game 'my-color)
 	      (chess-pos-side-to-move pos))
 	  (if chess-sound-my-moves
 	      (chess-sound "move"))

@@ -152,17 +152,16 @@ called."
   "The names and index values of the different pieces.")
 
 (chess-message-catalog 'english
-  '((no-images-fallback . "Could not find suitable chess images; using ics1 display")))
+  '((no-images-fallback . "Could not find suitable chess images")))
 
 (defun chess-images-handler (event &rest args)
   (cond
    ((eq event 'initialize)
     (when (display-graphic-p)
       (chess-images-initialize)
-      (if chess-images-size
-	  (current-buffer)
-	(chess-message 'no-images-fallback)
-	nil)))
+      (or chess-images-size
+	  (ignore
+	   (chess-message 'no-images-fallback)))))
 
    ((eq event 'popup)
     (if chess-display-popup

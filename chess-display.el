@@ -320,7 +320,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?M] 'chess-display-match)
     (define-key map [(control ?c) (control ?r)] 'chess-display-resign)
     (define-key map [?S] 'chess-display-shuffle)
-    (define-key map [?U] 'chess-display-undo)
+    (define-key map [(control ?c) (control ?t)] 'chess-display-undo)
     (define-key map [?X] 'chess-display-quit)
 
     (define-key map [(control ?y)] 'chess-display-yank-board)
@@ -505,10 +505,15 @@ Basically, it means we are playing, not editing or reviewing."
 			 last-command-char)
     (chess-display-update nil)))
 
-(defalias 'chess-display-quit 'chess-module-destroy)
-
 (chess-message-catalog 'english
-  '((illegal-notation . "Illegal move notation: %s")))
+  '((illegal-notation . "Illegal move notation: %s")
+    (want-to-quit     . "Do you really want to quit? ")))
+
+(defun chess-display-quit ()
+  (interactive)
+  (if (or (not (chess-module-leader-p nil))
+	  (yes-or-no-p (chess-string 'want-to-quit)))
+      (chess-module-destroy nil)))
 
 (defun chess-display-manual-move (move)
   "Move a piece manually, using chess notation."

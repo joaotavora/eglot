@@ -132,23 +132,24 @@ who is black."
 	(begin (match-beginning 1))
 	(end (match-end 1))
 	(info (chess-ics12-parse (match-string 3))))
-    (if (and (chess-game-data chess-engine-game 'active)
-	     (> (chess-game-index chess-engine-game) 0))
+    (if (and (chess-game-data (chess-engine-game nil) 'active)
+	     (> (chess-engine-index nil) 0))
 	(when (and (cadr info)
 		   (eq (chess-pos-side-to-move (car info))
-		       (chess-game-data chess-engine-game 'my-color)))
-	  (chess-game-move chess-engine-game
+		       (chess-game-data (chess-engine-game nil) 'my-color)))
+	  (chess-game-move (chess-engine-game nil)
 			   (chess-algebraic-to-ply
 			    (chess-ply-pos
-			     (car (last (chess-game-plies chess-engine-game))))
+			     (car (last (chess-game-plies
+					 (chess-engine-game nil)))))
 			    (cadr info) t))
 	  (assert (equal (car info) (chess-engine-position nil))))
       (let ((chess-game-inhibit-events t) plies)
-	(chess-game-set-data chess-engine-game
+	(chess-game-set-data (chess-engine-game nil)
 			     'my-color (string= (nth 2 info) chess-ics-handle))
-	(chess-game-set-data chess-engine-game 'active t)
-	(chess-game-set-start-position chess-engine-game (car info)))
-      (chess-game-run-hooks chess-engine-game 'orient))
+	(chess-game-set-data (chess-engine-game nil) 'active t)
+	(chess-game-set-start-position (chess-engine-game nil) (car info)))
+      (chess-game-run-hooks (chess-engine-game nil) 'orient))
     (delete-region begin end)
     t))
 
@@ -167,70 +168,69 @@ who is black."
     (ics-connected     . "Connecting to Internet Chess Server '%s'...done")
     (challenge-whom    . "Whom would you like challenge? ")))
 
-(defun chess-ics-handler (event &rest args)
-  (cond
-   ((eq event 'initialize)
-    (kill-buffer (current-buffer))
+(defun chess-ics-handler (game event &rest args)
+  (unless chess-engine-handling-event
+    (cond
+     ((eq event 'initialize)
+      (kill-buffer (current-buffer))
+      (let ((server
+	     (if (= (length chess-ics-server-list) 1)
+		 (car chess-ics-server-list)
+	       (assoc (completing-read (chess-string 'ics-server-prompt)
+				       chess-ics-server-list
+				       nil t (caar chess-ics-server-list))
+		      chess-ics-server-list))))
 
-    (let ((server
-	   (if (= (length chess-ics-server-list) 1)
-	       (car chess-ics-server-list)
-	     (assoc (completing-read (chess-string 'ics-server-prompt)
-				     chess-ics-server-list
-				     nil t (caar chess-ics-server-list))
-		    chess-ics-server-list))))
+	(chess-message 'ics-connecting (car server))
 
-      (chess-message 'ics-connecting (car server))
+	(let ((buf (apply 'make-comint "chess-ics"
+			  (if (nth 3 server)
+			      (cons (nth 4 server) (nth 5 server))
+			    (list (cons (nth 0 server) (nth 1 server)))))))
 
-      (let ((buf (apply 'make-comint "chess-ics"
-			(if (nth 3 server)
-			    (cons (nth 4 server) (nth 5 server))
-			  (list (cons (nth 0 server) (nth 1 server)))))))
+	  (chess-message 'ics-connected (car server))
 
-	(chess-message 'ics-connected (car server))
+	  (display-buffer buf)
+	  (set-buffer buf)
 
-	(display-buffer buf)
-	(set-buffer buf)
+	  (add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
+	  (set (make-local-variable 'comint-preoutput-filter-functions)
+	       '(chess-ics-strip))
 
-	(add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
-	(set (make-local-variable 'comint-preoutput-filter-functions)
-	     '(chess-ics-strip))
-
-	(if (nth 2 server)
-	    (progn
-	      (setq chess-ics-handle (nth 2 server))
-	      (comint-send-string (concat chess-ics-handle "\n"))
-	      (let ((pass (nth 3 server)))
-		(when pass
-		  (if (file-readable-p pass)
-		      (setq pass (with-temp-buffer
-				   (insert-file-contents file)
-				   (buffer-string))))
-		  (comint-send-string (concat pass "\n")))))
-	  ;; jww (2002-04-13): Have to parse out the allocated Guest
-	  ;; name from the output
-	  (comint-send-string "guest\n\n"))))
-
+	  (if (nth 2 server)
+	      (progn
+		(setq chess-ics-handle (nth 2 server))
+		(comint-send-string (concat chess-ics-handle "\n"))
+		(let ((pass (nth 3 server)))
+		  (when pass
+		    (if (file-readable-p pass)
+			(setq pass (with-temp-buffer
+				     (insert-file-contents file)
+				     (buffer-string))))
+		    (comint-send-string (concat pass "\n")))))
+	    ;; jww (2002-04-13): Have to parse out the allocated Guest
+	    ;; name from the output
+	    (comint-send-string "guest\n\n"))))
       t)
 
-   ((eq event 'match)
-    (setq chess-engine-pending-offer 'match)
-    (chess-engine-send
-     nil (format "match %s\n"
-		 (read-string (chess-string 'challenge-whom)))))
+     ((eq event 'match)
+      (setq chess-engine-pending-offer 'match)
+      (chess-engine-send
+       nil (format "match %s\n"
+		   (read-string (chess-string 'challenge-whom)))))
 
-   ((eq event 'move)
-    (unless chess-ics-ensure-ics12
-      (chess-engine-send nil "set style 12\n")
-      (setq chess-ics-ensure-ics12 t))
-    (chess-network-handler 'move (car args)))
+     ((eq event 'move)
+      (unless chess-ics-ensure-ics12
+	(chess-engine-send nil "set style 12\n")
+	(setq chess-ics-ensure-ics12 t))
+      (chess-network-handler 'move (car args)))
 
-   ((eq event 'send)
-    (comint-send-string (get-buffer-process (current-buffer))
-			(car args)))
+     ((eq event 'send)
+      (comint-send-string (get-buffer-process (current-buffer))
+			  (car args)))
 
-   (t
-    (apply 'chess-network-handler event args))))
+     (t
+      (apply 'chess-network-handler event args)))))
 
 (defun chess-ics-filter (string)
   (save-excursion

@@ -4,16 +4,9 @@
 ;;
 ;; $Revision$
 
-(defvar chess-database-event-handler nil)
+(defvar chess-database-handler nil)
 
-(make-variable-buffer-local 'chess-database-event-handler)
-
-(defmacro chess-with-current-buffer (buffer &rest body)
-  `(let ((buf ,buffer))
-     (if buf
-	 (with-current-buffer buf
-	   ,@body)
-       ,@body)))
+(make-variable-buffer-local 'chess-database-handler)
 
 (chess-message-catalog 'english
   '((no-such-database . "There is no such chess database module '%s'")))
@@ -21,21 +14,19 @@
 (defun chess-database-open (module file)
   "Returns the opened database object, or nil."
   (let* ((name (symbol-name module))
-	 (handler (intern-soft (concat name "-handler")))
-	 buffer)
+	 (handler (intern-soft (concat name "-handler"))))
     (unless handler
       (chess-error 'no-such-database name))
     (when (setq buffer (funcall handler 'open file))
       (with-current-buffer buffer
-	(setq chess-database-event-handler handler)
+	(setq chess-database-handler handler)
 	(add-hook 'kill-buffer-hook 'chess-database-close nil t)
 	(add-hook 'after-revert-hook 'chess-database-rescan nil t)
 	(current-buffer)))))
 
 (defsubst chess-database-command (database event &rest args)
-  (chess-with-current-buffer database
-    (apply 'chess-database-event-handler nil (current-buffer)
-	   event args)))
+  (with-current-buffer database
+    (apply chess-database-handler event args)))
 
 (defun chess-database-close (&optional database)
   (let ((buf (or database (current-buffer))))
@@ -66,12 +57,6 @@
 
 (defun chess-database-query (database &rest terms)
   (chess-database-command database 'query terms))
-
-(defun chess-database-event-handler (game database event &rest args)
-  (if (eq event 'shutdown)
-      (chess-database-close database)
-    (chess-with-current-buffer database
-      (apply chess-database-event-handler event args))))
 
 (provide 'chess-database)
 

@@ -9,12 +9,6 @@
     analysis/highlight tools
     bughouse/crazyhouse
 
-- if someone says Bx in the san input, use the x to constrain; but
-  using x is totally optional
-
-- undoing a single move (my move) and moving again, causes
-  chess-algebraic to get a little screwed up
-
 - the game should go inactive once I lose by stalemate/checkmate
 
 - detect draw/resign/abort/retract, etc., from ICS and common engines

@@ -86,25 +86,28 @@
 (defconst chess-version "2.0a8"
   "The version of the Emacs chess program.")
 
-(defcustom chess-default-displays
-  '((chess-images chess-ics1 chess-plain)
-    (chess-sound chess-announce)
+(defcustom chess-default-display
+  '(chess-images chess-ics1 chess-plain)
+  "Default display to be used when starting a chess session.
+A list indicates a series of alternatives if the first display is
+not available."
+  :type '(choice symbol (repeat symbol))
+  :group 'chess)
+
+(defcustom chess-default-modules
+  '((chess-sound chess-announce)
     chess-autosave)
-  "Default displays to be used when starting a chess session.
-This is a list of display modules, all of which will be invoked.  If
-any entry is itself a list, then it specifies a series of alternatives
-if the first modules were not available.
-Note: The very first display is marked the 'main' display, which will
-popup on significant events (unless `chess-display-popup' in nil);
-also, killing this main display will cause all related chess buffers
-to be killed."
-  :type '(repeat (choice symbol (repeat symbol)))
+  "Modules to be used when starting a chess session.
+A sublist indicates a series of alternatives, if the first is not
+available.
+These can do just about anything."
+  :type '(choice symbol (repeat symbol))
   :group 'chess)
 
 (defcustom chess-default-engine
   '(chess-crafty chess-gnuchess chess-phalanx)
   "Default engine to be used when starting a chess session.
-A list indicates a series of alternatives if the first engines are not
+A list indicates a series of alternatives if the first engine is not
 available."
   :type '(choice symbol (repeat symbol))
   :group 'chess)
@@ -114,19 +117,22 @@ available."
   :type 'string
   :group 'chess)
 
-(defun chess--create-display (module game my-color first disable-popup)
+(defun chess--create-display (module game my-color disable-popup)
   (if (require module nil t)
-      (let ((display (chess-display-create game module my-color first)))
+      (let ((display (chess-display-create game module my-color)))
 	(when display
 	  (chess-game-set-data game 'my-color my-color)
 	  (if disable-popup
 	      (chess-display-disable-popup display))
-	  (chess-display-update display t)
 	  display))))
+
+(defun chess--create-module (module game)
+  (and (require module nil t)
+       (chess-module-create module game)))
 
 (defun chess--create-engine (module game response-handler ctor-args)
   (if (require module nil t)
-      (let ((engine (apply 'chess-engine-create game module
+      (let ((engine (apply 'chess-engine-create module game
 			   response-handler ctor-args)))
 	(when engine
 	  ;; for the sake of engines which are ready to play now, and
@@ -135,6 +141,23 @@ available."
 	  ;; let them know we're ready to begin
 	  (chess-engine-command engine 'ready)
 	  engine))))
+
+(defun chess-create-modules (module-list create-func &rest args)
+  (let (objects)
+    (dolist (module module-list)
+      (let (object)
+	(if (symbolp module)
+	    (if (setq object (apply create-func module args))
+		(push object objects))
+	  ;; this module is actually a list, which means keep trying
+	  ;; until we find one that works
+	  (while module
+	    (if (setq object (apply create-func (car module) args))
+		(progn
+		  (push object objects)
+		  (setq module nil))
+	      (setq module (cdr module)))))))
+    (nreverse objects)))
 
 ;;;###autoload
 (defun chess (&optional engine disable-popup engine-response-handler
@@ -151,48 +174,29 @@ available."
 		     "none"))))
       chess-default-engine)))
 
-  (let ((my-color t)			; we start out as white always
-	(game (chess-game-create))
-	(first t)
+  (let ((game (chess-game-create))
+	(my-color t)			; we start out as white always
 	objects)
 
-    (dolist (module chess-default-displays)
-      (let (display)
-	(if (symbolp module)
-	    (setq display (chess--create-display module game my-color
-						 first disable-popup))
-	  ;; this module is actually a list, which means keep trying
-	  ;; until we find one that works
-	  (while module
-	    (if (setq display (chess--create-display (car module) game
-						     my-color first
-						     disable-popup))
-		(setq module nil)
-	      (setq module (cdr module)))))
-	(if display
-	    (push display objects)))
-      (setq first nil))
+    ;; all these odd calls are so that `objects' ends up looking like:
+    ;;   (ENGINE FIRST-DISPLAY...)
 
-    (setq objects (nreverse objects))
+    (setq objects (chess-create-modules (list chess-default-display)
+					'chess--create-display
+					game my-color disable-popup))
+    (when (car objects)
+      (mapc 'chess-display-update objects)
+      (chess-module-set-leader (car objects))
+      (chess-display-popup (car objects)))
 
-    (let ((module (or engine chess-default-engine)))
-      (if (symbolp module)
-	  (push (chess--create-engine module game
-				      engine-response-handler
-				      engine-ctor-args)
-		objects)
-	(let (engine)
-	  (while module
-	    (setq engine (chess--create-engine (car module) game
-					       engine-response-handler
-					       engine-ctor-args))
-	    (if engine
-		(progn
-		  (push engine objects)
-		  (setq module nil))
-	      (setq module (cdr module))))
-	  (unless engine
-	    (push nil objects)))))
+    (nconc objects (chess-create-modules chess-default-modules
+					 'chess--create-module game))
+
+    (push (car (chess-create-modules (list (or engine chess-default-engine))
+				     'chess--create-engine game
+				     engine-response-handler
+				     engine-ctor-args))
+	  objects)
 
     objects))
 
@@ -201,6 +205,11 @@ available."
 (defun chess-create-display ()
   "Just make a display to use, letting chess.el decide the style."
   (cadr (chess-session 'chess-none)))
+
+(defun chess-create-display-object (perspective)
+  (car (chess-create-modules (list chess-default-display)
+			     'chess--create-display
+			     (chess-mage-create) perspective)))
 
 ;;;###autoload
 (defun chess-read-pgn (&optional file)
@@ -238,18 +247,17 @@ making it easy to go on to the next puzzle once you've solved one."
 (defun chess-puzzle-next ()
   "Play the next puzzle in the collection, selected randomly."
   (interactive)
-  (let* ((database (chess-game-data chess-display-game 'database))
+  (let* ((game (chess-display-game nil))
+	 (database (chess-game-data game 'database))
 	 (index (random (chess-database-count database)))
 	 (next-game (chess-database-read database index)))
     (if (null next-game)
 	(error "Error reading game at position %d" index)
       (chess-display-set-game nil next-game 0)
-      (chess-game-set-data chess-display-game 'my-color
-			   (chess-pos-side-to-move
-			    (chess-game-pos chess-display-game)))
+      (chess-game-set-data game 'my-color
+			   (chess-pos-side-to-move (chess-game-pos game)))
       (dolist (key '(database database-index database-count))
-	(chess-game-set-data chess-display-game key
-			     (chess-game-data next-game key))))))
+	(chess-game-set-data game key (chess-game-data next-game key))))))
 
 (provide 'chess)
 

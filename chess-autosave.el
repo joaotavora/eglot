@@ -19,13 +19,13 @@
   '((chess-read-autosave . "There is a chess autosave file, read it? ")
     (chess-delete-autosave . "Delete the autosave file? ")))
 
-(defun chess-autosave-handler (event &rest args)
+(defun chess-autosave-handler (game event &rest args)
   (cond
    ((eq event 'initialize)
     (if (file-readable-p chess-autosave-file)
 	(if (y-or-n-p (chess-string 'chess-read-autosave))
 	    (prog1
-		(chess-game-copy-game chess-display-game
+		(chess-game-copy-game game
 				      (chess-read-game chess-autosave-file))
 	      (delete-file chess-autosave-file))
 	  (ignore
@@ -33,13 +33,14 @@
 	       (delete-file chess-autosave-file)))))
     (kill-buffer (current-buffer))
     (set-buffer (find-file-noselect chess-autosave-file t))
-    (current-buffer))
+    t)
 
    ((eq event 'post-move)
-    (chess-autosave-write chess-display-game chess-autosave-file))
+    (chess-autosave-write game chess-autosave-file))
 
-   ((eq event 'shutdown)
-    (delete-file chess-autosave-file))))
+   ((eq event 'destroy)
+    (if (file-readable-p chess-autosave-file)
+	(delete-file chess-autosave-file)))))
 
 (defun chess-autosave-write (game file)
   "Write a chess GAME to FILE as raw Lisp."

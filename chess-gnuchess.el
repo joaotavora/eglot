@@ -38,40 +38,43 @@
 	    ;; "go" after the user's move
 	    (setq chess-gnuchess-bad-board t))))))
 
-(defun chess-gnuchess-handler (event &rest args)
-  (cond
-   ((eq event 'initialize)
-    (let ((proc (chess-common-handler 'initialize "gnuchess")))
-      (process-send-string proc "nopost\n")
-      proc))
+(defun chess-gnuchess-handler (game event &rest args)
+  (unless chess-engine-handling-event
+    (cond
+     ((eq event 'initialize)
+      (let ((proc (chess-common-handler game 'initialize "gnuchess")))
+	(when (and (processp proc)
+		   (eq (process-status proc) 'run))
+	  (process-send-string proc "nopost\n")
+	  t)))
 
-   ((eq event 'setup-pos)
-    (let ((file (chess-with-temp-file
-		    (insert (chess-pos-to-string (car args)) ?\n))))
-      (chess-engine-send nil (format "epdload %s\n" file))))
+     ((eq event 'setup-pos)
+      (let ((file (chess-with-temp-file
+		      (insert (chess-pos-to-string (car args)) ?\n))))
+	(chess-engine-send nil (format "epdload %s\n" file))))
 
-   ((eq event 'setup-game)
-    (let ((file (chess-with-temp-file
-		    (insert (chess-game-to-string (car args)) ?\n))))
-      (chess-engine-send nil (format "pgnload %s\n" file))))
+     ((eq event 'setup-game)
+      (let ((file (chess-with-temp-file
+		      (insert (chess-game-to-string (car args)) ?\n))))
+	(chess-engine-send nil (format "pgnload %s\n" file))))
 
-   ((eq event 'pass)
-    (chess-engine-send nil (concat (if (chess-pos-side-to-move
-					(chess-engine-position nil))
-				       "white" "black")
-				   "\n"))
-    (chess-engine-send nil "go\n")
-    (setq chess-gnuchess-bad-board nil))
-
-   ((eq event 'move)
-    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				   "\n"))
-    (when chess-gnuchess-bad-board
+     ((eq event 'pass)
+      (chess-engine-send nil (concat (if (chess-pos-side-to-move
+					  (chess-engine-position nil))
+					 "white" "black")
+				     "\n"))
       (chess-engine-send nil "go\n")
-      (setq chess-gnuchess-bad-board nil)))
+      (setq chess-gnuchess-bad-board nil))
 
-   (t
-    (apply 'chess-common-handler event args))))
+     ((eq event 'move)
+      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
+				     "\n"))
+      (when chess-gnuchess-bad-board
+	(chess-engine-send nil "go\n")
+	(setq chess-gnuchess-bad-board nil)))
+
+     (t
+      (apply 'chess-common-handler game event args)))))
 
 (provide 'chess-gnuchess)
 

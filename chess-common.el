@@ -28,7 +28,7 @@
     (draw-offer-declined   . "Your draw offer was declined")
     (illegal-move          . "Illegal move")))
 
-(defun chess-common-handler (event &rest args)
+(defun chess-common-handler (game event &rest args)
   "Initialize the network chess engine."
   (cond
    ((eq event 'initialize)
@@ -44,9 +44,9 @@
       proc))
 
    ((eq event 'ready)
-    (chess-game-set-data chess-engine-game 'active t))
+    (chess-game-set-data game 'active t))
 
-   ((eq event 'shutdown)
+   ((eq event 'destroy)
     (chess-engine-send nil "quit\n")
     (dolist (file chess-common-temp-files)
       (if (file-exists-p file)
@@ -74,12 +74,12 @@
 
     ;; prevent use from handling the `undo' event which this triggers
     (let ((chess-engine-handling-event t))
-      (chess-game-undo chess-engine-game (car args))))
+      (chess-game-undo game (car args))))
 
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
-    (if (chess-game-over-p chess-engine-game)
-	(chess-game-set-data chess-engine-game 'active nil)))))
+    (if (chess-game-over-p game)
+	(chess-game-set-data game 'active nil)))))
 
 (provide 'chess-common)
 

@@ -39,7 +39,7 @@
 
 (defun chess-ics1-handler (event &rest args)
   (cond
-   ((eq event 'initialize) (current-buffer))
+   ((eq event 'initialize) t)
    ((eq event 'popup)
     (if chess-display-popup
 	(funcall chess-ics1-popup-function)))

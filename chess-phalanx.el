@@ -28,15 +28,18 @@
 	  (lambda ()
 	    (error (match-string 1)))))))
 
-(defun chess-phalanx-handler (event &rest args)
-  (cond
-   ((eq event 'initialize)
-    (let ((proc (chess-common-handler 'initialize "phalanx")))
-      (process-send-string proc "nopost\n")
-      proc))
+(defun chess-phalanx-handler (game event &rest args)
+  (unless chess-engine-handling-event
+    (cond
+     ((eq event 'initialize)
+      (let ((proc (chess-common-handler game 'initialize "phalanx")))
+	(when (and (processp proc)
+		   (eq (process-status proc) 'run))
+	  (process-send-string proc "nopost\n")
+	  t)))
 
-   (t
-    (apply 'chess-common-handler event args))))
+     (t
+      (apply 'chess-common-handler game event args)))))
 
 (provide 'chess-phalanx)
 

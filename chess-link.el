@@ -13,9 +13,9 @@
 (defun chess-link-response-handler (event &rest args)
   "This function handles responses from the bot's computing engine."
   (let ((first-engine
-	 (chess-game-data chess-engine-game 'first-engine))
+	 (chess-game-data (chess-engine-game nil) 'first-engine))
 	(second-engine
-	 (chess-game-data chess-engine-game 'second-engine))
+	 (chess-game-data (chess-engine-game nil) 'second-engine))
 	return-value)
     (cond
      ((eq event 'match)
@@ -53,8 +53,7 @@ engine, and the computer the second engine."
   (require chess-default-display)
   (let* ((my-color t)			; we start out as white always
 	 (game (chess-game-create))
-	 (display (chess-display-create game chess-default-display
-					my-color)))
+	 (display (chess-create-display-object my-color)))
     (chess-game-set-data game 'my-color my-color)
     (chess-display-set-main display)
     (chess-display-disable-popup display)
@@ -62,9 +61,9 @@ engine, and the computer the second engine."
 	(when (and (require first-engine-type)
 		   (require second-engine-type))
 	  (let ((first-engine
-		 (chess-engine-create game first-engine-type))
+		 (chess-engine-create first-engine-type game))
 		(second-engine
-		 (chess-engine-create game second-engine-type)))
+		 (chess-engine-create second-engine-type game)))
 
 	    (chess-game-set-data game 'first-engine first-engine)
 	    (chess-engine-command first-engine 'ready)
