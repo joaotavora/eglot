@@ -144,7 +144,7 @@ maneuver."
 	  (unless (memq :promote changes)
 	    (if (and (= ?p (downcase (chess-pos-piece next-pos
 						      (cadr changes))))
-		     (= (if color 0 7)
+		     (= (if color 7 0)
 			(chess-index-rank (cadr changes))))
 		(let ((new-piece (completing-read
 				  "Promote pawn to queen/rook/knight/bishop? "
