@@ -2,7 +2,6 @@
 ;;
 ;; Basic module support code underlying all chess.el modules
 ;;
-;; $Revision$
 
 (require 'chess-game)
 

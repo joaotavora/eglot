@@ -2,7 +2,6 @@
 ;;
 ;; Maintain a chess game that is being played or viewed
 ;;
-;; $Revision$
 
 ;;; Commentary:
 

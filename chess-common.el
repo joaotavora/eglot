@@ -5,7 +5,6 @@
 ;;
 ;;   http://www.tim-mann.org/xboard/engine-intf.html
 ;;
-;; $Revision$
 
 (require 'chess-engine)
 

@@ -2,7 +2,6 @@
 ;;
 ;; This transport uses an IRC bot to send/receive moves.
 ;;
-;; $Revision$
 
 (require 'chess-network)
 

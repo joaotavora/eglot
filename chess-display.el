@@ -209,13 +209,6 @@ also view the same game."
 	     (chess-module-leader-p nil))
 	(chess-display-popup nil))))
 
-(defun chess-display-redraw (&optional display)
-  "Just redraw the current display."
-  (interactive)
-  (chess-with-current-buffer display
-    (erase-buffer)
-    (chess-display-update nil)))
-
 (defun chess-display-move (display ply)
   "Move a piece on DISPLAY, by applying the given PLY.
 The position of PLY must match the currently displayed position.
@@ -419,6 +412,12 @@ The key bindings available in this mode are:
 ;;
 ;; Commands used by the keyboard bindings above
 ;;
+
+(defun chess-display-redraw ()
+  "Just redraw the current display."
+  (interactive)
+  (erase-buffer)
+  (chess-display-update nil))
 
 (defsubst chess-display-active-p ()
   "Return non-nil if the displayed chessboard reflects an active game.

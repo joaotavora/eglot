@@ -30,8 +30,7 @@
 ;; buffer:
 ;;
 ;;    chess-algebraic-regexp
-
-;; $Revision$
+;;
 
 (require 'chess-ply)
 

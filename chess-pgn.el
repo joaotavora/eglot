@@ -2,7 +2,6 @@
 ;;
 ;; Convert a chess game to/from PGN notation
 ;;
-;; $Revision$
 
 (require 'chess-game)
 (require 'chess-pos)

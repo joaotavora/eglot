@@ -2,7 +2,6 @@
 ;;
 ;; Code shared by all chess displays
 ;;
-;; $Revision$
 
 (defgroup chess-message nil
   "Support for message catalogs in chess.el."

@@ -2,7 +2,6 @@
 ;;
 ;; ICS1 style display
 ;;
-;; $Revision$
 
 (require 'chess-display)
 

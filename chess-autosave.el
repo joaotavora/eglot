@@ -2,7 +2,6 @@
 ;;
 ;; A special kind of display that merely autosaves the game
 ;;
-;; $Revision$
 
 (require 'chess-game)
 

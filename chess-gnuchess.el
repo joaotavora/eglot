@@ -2,7 +2,6 @@
 ;;
 ;; Play against gnuchess!
 ;;
-;; $Revision$
 
 (require 'chess-engine)
 (require 'chess-common)

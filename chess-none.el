@@ -2,7 +2,6 @@
 ;;
 ;; A null engine, used when two humans play each on the same display.
 ;;
-;; $Revision$
 
 (require 'chess-engine)
 

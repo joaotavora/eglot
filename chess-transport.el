@@ -5,7 +5,6 @@
 ;; receive.  This could be used for transmitting chess.el protocol
 ;; over CTCP, for example.
 ;;
-;; $Revision$
 
 (require 'chess-network)
 

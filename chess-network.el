@@ -2,7 +2,6 @@
 ;;
 ;; Play against an opponent over the network
 ;;
-;; $Revision$
 
 (require 'chess-engine)
 (require 'chess-fen)

@@ -5,7 +5,6 @@
 ;; (like chess-gnuchess), this will allow you to expose a bot over the
 ;; channel.
 ;;
-;; $Revision$
 
 (require 'chess)
 (require 'chess-engine)

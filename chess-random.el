@@ -5,7 +5,6 @@
 ;; Just call `chess-fischer-random-position' to generate such a
 ;; position.
 ;;
-;; $Revision$
 
 (require 'chess-pos)
 

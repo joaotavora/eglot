@@ -2,7 +2,6 @@
 ;;
 ;; Play against crafty!
 ;;
-;; $Revision$
 
 (require 'chess-engine)
 (require 'chess-common)

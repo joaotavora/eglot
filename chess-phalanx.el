@@ -2,7 +2,6 @@
 ;;
 ;; Play against phalanx!
 ;;
-;; $Revision$
 
 (require 'chess-engine)
 (require 'chess-common)

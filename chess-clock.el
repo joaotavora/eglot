@@ -2,7 +2,6 @@
 ;;
 ;; Implements a chess clock
 ;;
-;; $Revision$
 
 (defvar chess-clock-last-time nil)
 (defvar chess-clock-timer nil)

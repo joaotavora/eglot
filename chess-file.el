@@ -4,7 +4,6 @@
 ;;
 ;; This is basically what you expect from a file ending in .pgn.
 ;;
-;; $Revision$
 
 (defvar chess-file-locations)
 

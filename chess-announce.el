@@ -2,7 +2,6 @@
 ;;
 ;; Scheme to verbally announce moves
 ;;
-;; $Revision$
 
 (require 'chess-game)
 

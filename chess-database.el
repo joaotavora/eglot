@@ -2,7 +2,6 @@
 ;;
 ;; Basic code for manipulating game databases
 ;;
-;; $Revision$
 
 (defvar chess-database-handler nil)
 

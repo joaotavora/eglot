@@ -2,7 +2,6 @@
 ;;
 ;; Plain ASCII chess display
 ;;
-;; $Revision$
 
 (require 'chess-display)
 

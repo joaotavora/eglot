@@ -37,7 +37,6 @@
 ;; It may also have the current game sequence appended, but this
 ;; relate to the game, not the position.
 ;;
-;; $Revision$
 
 (require 'chess-pos)
 

@@ -3,7 +3,6 @@
 ;; This is very similar to chess-announce, except it uses specific
 ;; .WAV files instead of text-to-speech.
 ;;
-;; $Revision$
 
 (require 'chess-game)
 

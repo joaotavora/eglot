@@ -2,7 +2,6 @@
 ;;
 ;; Manipulate variations (which are really just lists of plies)
 ;;
-;; $Revision$
 
 ;;; Commentary:
 

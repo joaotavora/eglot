@@ -2,7 +2,6 @@
 ;;
 ;; Routines for manipulating chess plies
 ;;
-;; $Revision$
 
 ;;; Commentary:
 

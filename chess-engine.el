@@ -2,7 +2,6 @@
 ;;
 ;; Obtain movements and other information from an engine
 ;;
-;; $Revision$
 
 ;;; Commentary:
 
@@ -265,7 +264,8 @@
 	    (unless (memq (process-status proc) '(run open))
 	      (chess-error 'failed-engine-start))
 	    (setq chess-engine-process proc)
-	    (set-process-filter proc 'chess-engine-filter))
+	    (unless (process-filter proc)
+	      (set-process-filter proc 'chess-engine-filter)))
 	  (setq chess-engine-current-marker (point-marker))
 	  (current-buffer))))))
 

@@ -2,7 +2,6 @@
 ;;
 ;; An engine for interacting with Internet Chess Servers
 ;;
-;; $Revision$
 
 (require 'comint)
 (require 'chess-network)

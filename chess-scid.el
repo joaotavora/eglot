@@ -5,7 +5,6 @@
 ;; The advantage is that it's much faster than PGN, and far, far more
 ;; compact.
 ;;
-;; $Revision$
 
 (defvar chess-scid-process)
 

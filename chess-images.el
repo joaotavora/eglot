@@ -2,7 +2,6 @@
 ;;
 ;; Chessboard display style using graphical images
 ;;
-;; $Revision$
 
 ;;; Commentary:
 
