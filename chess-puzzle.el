@@ -63,12 +63,12 @@ making it easy to go on to the next puzzle once you've solved one."
 	 next-game)
     (if (= index (length chess-puzzle-indices))
 	(chess-message 'end-of-puzzles)
+      ;; setup and load the next puzzle position
       (setq chess-puzzle-position (1+ chess-puzzle-position))
       (if (null (setq next-game
 		      (chess-database-read database
 					   (aref chess-puzzle-indices index))))
-	  (chess-error 'bag-game-read
-		       (aref chess-puzzle-indices index))
+	  (chess-error 'bag-game-read (aref chess-puzzle-indices index))
 	(chess-display-set-game nil next-game 0)
 	(chess-game-set-data game 'my-color
 			     (chess-pos-side-to-move (chess-game-pos game)))

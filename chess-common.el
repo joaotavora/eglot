@@ -27,7 +27,8 @@
     (starting-engine-done  . "Starting chess program '%s'...done")
     (could-not-find-engine . "Cannot find %s executable; check `%s'")
     (draw-offer-declined   . "Your draw offer was declined")
-    (illegal-move          . "Illegal move")))
+    (illegal-move          . "Illegal move")
+    (not-yet-implemented   . "This feature is not yet implemented")))
 
 (defun chess-common-handler (game event &rest args)
   "Initialize the network chess engine."
@@ -67,6 +68,9 @@
    ((eq event 'new)
     (chess-engine-send nil "new\n")
     (chess-engine-set-position nil))
+
+   ((eq event 'force)
+    (chess-error 'not-yet-implemented))
 
    ((eq event 'undo)
     (dotimes (i (car args))

@@ -1,33 +1,11 @@
-polish: chess-chat, chess-kibitz
-translate: chess-german
+chess-ics, chess-kibitz, chess-chat
+- finish all elements of regular use as a client
 
-chess
-- clean up this code; let people override the chess-default-* lists
+chess-german
+- complete translation
 
 chess-ply
-- Need to detect games drawn by three-fold repetition
-
-chess-engine
-- add a `force' event for forcing an engine to move
-
-chess-puzzle
-- after hitting chess-puzzle-next, clear out the engine so that it
-  doesn't try to respond
-
-chess-ics
-- detect draw/retract, etc.
-- allow ICS observing
-
-chess-display
-- after Rhe1 in one game, the source rook was not cleared
-
-chess-gnuchess
-- setting up game positions does not work at all, such as with
-  chess-puzzle
-
-chess-images
-- in a generic emacs, with a light background, there are white lines
-  in wierd places on the chessboard
+- detect games drawn by three-fold repetition
 
 			 BEFORE FINAL RELEASE
 

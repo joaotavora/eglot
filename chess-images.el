@@ -232,12 +232,12 @@ called."
   "Return the image used for PIECE at RANK and FILE.
 Rank and file are important because the colors of the squares on the
 chess board are light or dark depending on location."
-  (let ((white-square (% (+ file rank) 2)))
+  (let ((square-color (% (+ file rank) 2))) ; 0 is white
     (if (= piece ? )
-	(aref chess-images-cache (+ white-square 2))
+	(aref chess-images-cache (- 3 square-color))
       (aref (aref (aref chess-images-cache
 			(if (> piece ?a) 0 1))
-		  white-square)
+		  (if (= square-color 0) 1 0))
 	    (nth 2 (assq (downcase piece)
 			 chess-images-piece-names))))))
 
@@ -390,6 +390,7 @@ They are returned in ascending order, or nil for no sizes available."
   "Increase the size of the pieces on the board."
   (interactive "DUse chess pieces in: ")
   (setq chess-images-directory directory
+	chess-images-sizes (chess-images-sizes)
 	chess-images-size (chess-images-best-size)
 	chess-images-cache nil)
   (chess-images-alter-size '=))
@@ -400,8 +401,8 @@ They are returned in ascending order, or nil for no sizes available."
     (insert "static char *chessdotel[] = {\n")
     (insert "/* columns rows colors chars-per-pixel */\n")
     (insert (format "\"%d %d 2 1\",\n" (or width height) height))
-    (insert "\"  c black s void\",\n")
-    (insert "\". c white s background\",\n")
+    (insert "\"  c red s void\",\n")
+    (insert "\". c red s background\",\n")
     (insert "/* pixels */\n")
     (dotimes (i height)
       (insert ?\" (make-string (or width height) ?.) ?\" ?, ?\n))

@@ -53,9 +53,11 @@
 	(chess-engine-send nil (format "epdload %s\n" file))))
 
      ((eq event 'setup-game)
-      (let ((file (chess-with-temp-file
-		      (insert (chess-game-to-string (car args)) ?\n))))
-	(chess-engine-send nil (format "pgnload %s\n" file))))
+      (if (= 0 (chess-game-index (car args)))
+	  (chess-gnuchess-handler game 'setup-pos (chess-game-pos game 0))
+	(let ((file (chess-with-temp-file
+			(insert (chess-game-to-string (car args)) ?\n))))
+	  (chess-engine-send nil (format "pgnload %s\n" file)))))
 
      ((eq event 'pass)
       (chess-engine-send nil (concat (if (chess-pos-side-to-move

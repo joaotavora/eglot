@@ -251,8 +251,7 @@ also view the same game."
   "Update the chessboard DISPLAY.  POPUP too, if that arg is non-nil."
   (chess-with-current-buffer display
     (funcall chess-display-event-handler 'draw
-	     (chess-display-position nil)
-	     (chess-display-perspective nil))
+	     (chess-display-position nil) chess-display-perspective)
     (if (and popup (not chess-display-no-popup)
 	     (chess-module-leader-p nil))
 	(chess-display-popup nil))))
@@ -277,9 +276,15 @@ also view the same game."
 	      (aset chess-display-index-positions pos-index pos))
 	  (setq pos (next-single-property-change pos 'chess-coord)))
 	(unless (aref chess-display-index-positions 0)
-	  (aset chess-display-index-positions 0 (point-min)))
+	  (aset chess-display-index-positions 0
+		(if chess-display-perspective
+		    (point-min)
+		  (1- (point-max)))))
 	(unless (aref chess-display-index-positions 63)
-	  (aset chess-display-index-positions 63 (1- (point-max))))))
+	  (aset chess-display-index-positions 63
+		(if chess-display-perspective
+		    (1- (point-max))
+		  (point-min))))))
     (aref chess-display-index-positions index)))
 
 (defun chess-display-paint-move (display ply)
@@ -504,6 +509,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(control ?c) (control ?a)] 'chess-display-abort)
     (define-key map [?C] 'chess-display-duplicate)
     (define-key map [?D] 'chess-display-decline)
+    (define-key map [(control ?c) (control ?c)] 'chess-display-force)
     (define-key map [(control ?c) (control ?d)] 'chess-display-draw)
     (define-key map [?E] 'chess-display-edit-board)
     (define-key map [?F] 'chess-display-set-from-fen)
@@ -602,7 +608,7 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-invert ()
   "Invert the perspective of the current chess board."
   (interactive)
-  (chess-display-set-perspective nil (not (chess-display-perspective nil))))
+  (chess-display-set-perspective nil (not chess-display-perspective)))
 
 (defun chess-display-set-from-fen (fen)
   "Send the current board configuration to the user."
@@ -761,14 +767,14 @@ Basically, it means we are playing, not editing or reviewing."
   (require 'chess-images)
   (let ((chess-images-separate-frame display))
     (chess-display-clone (current-buffer) 'chess-images
-			 (chess-display-perspective nil))))
+			 chess-display-perspective)))
 
 (defun chess-display-duplicate (style)
   (interactive
    (list (concat "chess-"
 		 (read-from-minibuffer "Create new display using style: "))))
   (chess-display-clone (current-buffer) (intern-soft style)
-		       (chess-display-perspective nil)))
+		       chess-display-perspective))
 
 (defun chess-display-pass ()
   "Pass the move to your opponent.  Only valid on the first move."
@@ -814,6 +820,12 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive)
   (if (chess-display-active-p)
       (chess-game-run-hooks chess-module-game 'call-flag)
+    (ding)))
+
+(defun chess-display-force ()
+  (interactive)
+  (if (chess-display-active-p)
+      (chess-game-run-hooks chess-module-game 'force)
     (ding)))
 
 (defun chess-display-resign ()

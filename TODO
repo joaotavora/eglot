@@ -4,6 +4,15 @@ These are features scheduled for future 2.x releases.
 
 			   General Features
 
+- Add a `force' event for forcing an engine to move, and a command
+  from chess-display to send this event
+
+- If you are playing a puzzle game, and the engine is thinking, and
+  you hit space to move to the next puzzle, then when the last move is
+  finally received from the engine it causes an error.
+
+- Clean up chess.el, and let people override the chess-default-* lists
+
 - Write chess-descriptive.el, and have the code in general use
   chess-ply-to-string and chess-string-to-ply, so that users can use
   descriptive notationas an alternative to algebraic.

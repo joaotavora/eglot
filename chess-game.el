@@ -132,7 +132,8 @@ matches."
 	  (setcar (nthcdr 2 game) (list (cons key value)))
 	(push (cons key value) alist)
 	(setcar (nthcdr 2 game) alist)))
-    (chess-game-run-hooks game 'set-data key)))
+    (chess-game-run-hooks game 'set-data key)
+    value))
 
 (defun chess-game-data (game key)
   (assert game)

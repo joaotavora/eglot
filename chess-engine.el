@@ -299,7 +299,7 @@
 	    (unless (process-filter proc)
 	      (set-process-filter proc 'chess-engine-filter)))
 	  (setq chess-engine-current-marker (point-marker))
-	  (current-buffer))))))
+	  (chess-game-set-data game 'engine (current-buffer)))))))
 
 (defalias 'chess-engine-destroy 'chess-module-destroy)
 

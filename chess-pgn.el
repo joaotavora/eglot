@@ -136,12 +136,12 @@ If INDENTED is non-nil, indent the move texts."
 
 (defun chess-insert-pgn (game &optional indented)
   (let ((fen (chess-game-tag game "FEN"))
-	(first-pos (chess-ply-pos (chess-game-ply game 0))))
-    (when (and fen (not (equal fen (chess-pos-to-fen first-pos))))
+	(first-pos (chess-game-pos game 0)))
+    (when (and fen (not (string= fen (chess-pos-to-fen first-pos))))
       (chess-game-del-tag game "FEN")
       (setq fen nil))
     (if (and (not fen)
-	     (not (equal chess-starting-position first-pos)))
+	     (not (eq chess-starting-position first-pos)))
 	(chess-game-set-tag game "FEN" (chess-pos-to-fen first-pos))))
   (dolist (tag (sort (copy-alist (chess-game-tags game))
 		     (function
