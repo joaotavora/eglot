@@ -53,6 +53,30 @@ The format of each entry is:
 			       (repeat string))))
   :group 'chess-ics)
 
+(defcustom chess-ics-initial-commands
+  (list
+   (list "freechess.org"
+	 "iset defprompt 1"  ; So we can't be supprised by a user setting
+	 (format "set interface emacs-chess %s" chess-version)
+	 "iset seekremove 1" ; For real-time sought display
+	 "iset startpos 1"   ; Sends initial position before movelist
+	 "set style 12"      ; So we can parse the board "easily"
+	 "set bell 0")       ; We have our own way of announcing events
+   (list nil
+	 (format "set interface emacs-chess %s" chess-version)
+	 "set style 12"      ; So we can parse the board "easily"
+	 "set bell 0"))
+  "A list of commands to send automatically upon successful login.
+The format is (SERVER COMMANDS...) where SERVER is either the server-name
+\(see `chess-ics-server-list') or nil, which is the default to use for all
+servers which do not have a specialized entry in this list.  COMMAND is a
+string which should be sent (newline characters will be added automatically.)"
+  :group 'chess-ics
+  :type '(repeat
+	  (list :tag "Initialisation for"
+		(choice (string :tag "Server Name") (const :tag "Default" nil))
+		(repeat :inline t (string :tag "Command")))))
+
 (defvar chess-ics-server nil
   "The ICS server name of this connection.")
 (make-variable-buffer-local 'chess-ics-server)
@@ -77,6 +101,14 @@ game number.")
 (defvar chess-ics-movelist-game nil
   "If we are receiving a movelist, this variable is set to the game object.")
 (make-variable-buffer-local 'chess-ics-movelist-game)
+
+(defvar chess-ics-movelist-start-position chess-starting-position
+  "The starting position to use upon receiving of a movelist.
+It is possible to configure certain servers to automatically send a
+style12 board before sending a movelist, to allow retrieval of
+the movelist for a non-standard game (one which does not start at the
+standard position).  In those cases, this variable should be set to nil.")
+(make-variable-buffer-local 'chess-ics-movelist-start-position)
 
 (defsubst chess-ics-send (string &optional buffer)
   "Send STRING to the ICS server."
@@ -123,12 +155,19 @@ game number.")
    (cons "%\\s-*$"
 	 (function
 	  (lambda ()
-	    (chess-ics-send (concat
-			     (format "set interface emacs-chess %s\n"
-				     chess-version)
-			     "iset seekremove 1\niset startpos 1\nset style 12\nset bell 0"))
+	    (chess-ics-send
+	     (mapconcat 'identity
+			(cdr
+			 (or
+			  (assoc chess-ics-server chess-ics-initial-commands)
+			  (assoc nil chess-ics-initial-commands))) "\n"))
 	    (setq chess-ics-handling-login nil)
 	    (chess-message 'ics-logged-in chess-ics-server chess-ics-handle)
+	    'once)))
+   (cons "fics%\\s-+startpos set.$"
+	 (function
+	  (lambda ()
+	    (setq chess-ics-movelist-start-position nil)
 	    'once)))
    (cons "^\\([A-Za-z0-9]+\\)\\((\\*)\\|(B)\\|(CA?)\\|(H)\\|(T[DM]?)\\|(SR)\\|(FM)\\|(W?[GI]M)\\|(U)\\|([0-9-]+)\\)*\\((\\([0-9]+\\))\\| tells you\\| s-shouts\\|\\[\\([0-9]+\\)\\] kibitzes\\): \\(.+\\)$"
 	 (function
@@ -170,7 +209,7 @@ game number.")
 	    (chess-game-undo (chess-ics-game (string-to-int (match-string 1)))
 			     (string-to-int (match-string 2))))))
    (cons "<12>\\s-+\\(\\([BKNPQRbknpqr-]\\{8\\} \\)\\{8\\}[BW] .+\\)$"
-	 #'chess-ics-handle-ics12)
+	 #'chess-ics-handle-style12)
    (cons "Removing game \\([0-9]+\\) from observation list.$"
 	 (function
 	  (lambda ()
@@ -192,8 +231,9 @@ game number.")
 		    (chess-ics-game chess-ics-movelist-game-number
 				    :White (match-string 1)
 				    :Black (match-string 2)))
+	      (when chess-ics-movelist-start-position
 	      (chess-game-set-start-position
-	       chess-ics-movelist-game chess-starting-position))
+	       chess-ics-movelist-game chess-ics-movelist-start-position)))
 	    t)))
    ;; Movelist item
    (cons (concat "^\\s-*\\([0-9]+\\)\\.\\s-+\\(" chess-algebraic-regexp "\\)"
@@ -362,14 +402,14 @@ See `chess-ics-game'.")
 	 game (chess-algebraic-to-ply (chess-game-pos game) bmove))))
     t))
 
-;; ICS12 format (with artificial line breaks):
+;; ICS style12 format (with artificial line breaks):
 ;;
 ;; <12> rnbqkbnr pppppppp -------- -------- \
 ;;      -------- -------- PPPPPPPP RNBQKBNR W -1 1 1 1 1 0 \
 ;;      65 jwiegley GuestZYNJ 1 5 0 39 39 300 300 1 P/e2-e4 (0:00) e4 0 0 0
 
-(defun chess-ics-handle-ics12 ()
-  "Handle an ICS12 format string."
+(defun chess-ics-handle-style12 ()
+  "Handle an ICS Style12 board string."
   (let* ((chess-engine-handling-event t)
 	 (begin (match-beginning 0))
 	 (end (match-end 0))
@@ -429,7 +469,9 @@ See `chess-ics-game'.")
 		  (setq parts (cdr parts))
 		  ;; time taken to make previous move "(min:sec)".
 		  (setq parts (cdr parts))))
-	   (index (- (* seq 2) (if (chess-pos-side-to-move position) 2 1)))
+	   (index (if (eq (chess-game-data game 'black-moved-first) t)
+		      (- (* seq 2) (if (chess-pos-side-to-move position) 3 2))
+		    (- (* seq 2) (if (chess-pos-side-to-move position) 2 1))))
 	   (move (prog1 (unless (string= (car parts) "none")
 			  (case (aref (car parts) (1- (length (car parts))))
 			    (?+ (chess-pos-set-status position :check))
@@ -479,7 +521,7 @@ See `chess-ics-game'.")
 		       (format "moves %d"
 			       (chess-game-data game 'ics-game-number))))
 		    (setq error
-			  (format "comparing-index (%d:%d)" index (chess-game-seq game))))))
+			  (format "comparing-index (%d:%d)" index (chess-game-index game))))))
 	    ;; no preceeding ply supplied, so this is a starting position
 	    (let ((chess-game-inhibit-events t)
 		  (color (chess-pos-side-to-move position))
@@ -490,7 +532,8 @@ See `chess-ics-game'.")
 						      (not color)))
 		(chess-game-set-data game 'active t))
 	      (setq error 'setting-start-position)
-	      (chess-game-set-start-position game position))
+	      (chess-game-set-start-position game position)
+	      (unless color (chess-game-set-data game 'black-moved-first t)))
 	    (setq error 'orienting-board)
 	    (chess-game-run-hooks game 'orient)
 	    (setq error nil))
@@ -642,7 +685,7 @@ descending order.")
 
 (defun chess-ics-seeking (string)
   (if (not (string-match
-	    "^[\n\r]+\\(\\S-+\\) (\\([0-9+ -]+\\)) seeking \\([a-z]\\S-+ \\)?\\([0-9]+\\) \\([0-9]+\\) \\(\\(un\\)?rated\\) \\([^(]*\\)(\"\\([^\"]+\\)\" to respond)\\s-*[\n\r]+[af]ics% $"
+	    "^[\n\r]+\\(\\S-+\\) (\\([0-9+ -]+\\)) seeking \\([a-z]\\S-+ \\)?\\([0-9]+\\) \\([0-9]+\\) \\(\\(un\\)?rated\\) \\([^(]*\\)(\"\\([^\"]+\\)\" to respond)\\s-*[\n\r]+\\([0-2][0-9]:[0-6][0-9]_\\)?[af]ics% $"
 	    string))
       string
     (let* ((name (match-string 1 string))
@@ -658,7 +701,7 @@ descending order.")
 	   (ics-buffer (current-buffer)))
       (setq id (concat id (make-string (- 3 (length id)) ? )))
       (setq name (concat name (make-string (- 20 (length name)) ? )))
-      (setq variant (concat variant (make-string (- 20 (length variant)) ? )))
+      (setq variant (concat variant (make-string (- 25 (length variant)) ? )))
       (with-current-buffer
 	  (or (get-buffer chess-ics-sought-buffer-name)
 	      (with-current-buffer (get-buffer-create
@@ -686,7 +729,7 @@ descending order.")
       "")))
 
 (defun chess-ics-ads-removed (string)
-  (if (not (string-match "^[\n\r]+Ads removed: \\([0-9 ]+\\)\\s-*[\n\r]+[af]ics% $"
+  (if (not (string-match "^[\n\r]+Ads removed: \\([0-9 ]+\\)\\s-*[\n\r]+\\([0-2][0-9]:[0-6][0-9]_\\)?[af]ics% $"
 			 string))
       string
     (let ((ids (split-string (match-string 1 string) " +"))
