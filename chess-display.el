@@ -80,14 +80,14 @@
 	   ,@body)
        ,@body)))
 
-(defun chess-display-create (style perspective)
+(defun chess-display-create (style perspective &optional read-only)
   "Create a chess display, for displaying chess objects."
   (let* ((name (symbol-name style))
 	 (handler (intern-soft (concat name "-handler"))))
     (unless handler
       (error "There is no such chessboard display style '%s'" name))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
-      (chess-display-mode)
+      (chess-display-mode read-only)
       (funcall handler 'initialize)
       (setq chess-display-style style
 	    chess-display-perspective perspective
@@ -368,55 +368,55 @@ that is supported by most displays, and is the default mode."
 ;; Event handler
 ;;
 
-(defcustom chess-display-momentous-events
-  '(orient setup-game pass move game-over resign)
-  "Events that will cause the 'main' display to popup."
+(defcustom chess-display-interesting-events nil
+  "Events which will cause a display refresh."
   :type '(repeat symbol)
   :group 'chess-display)
 
-(defcustom chess-display-boring-events
-  '(set-data set-tags set-tag draw abort undo)
-  "Events which will not even cause a refresh of the display."
+(defcustom chess-display-momentous-events
+  '(orient setup-game pass move game-over resign)
+  "Events that will refresh, and cause 'main' displays to popup.
+These are displays for which `chess-display-set-main' has been
+called."
   :type '(repeat symbol)
   :group 'chess-display)
 
 (defun chess-display-event-handler (game display event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
-  (unless (memq event chess-display-boring-events)
-    (with-current-buffer display
-      (cond
-       ((eq event 'shutdown)
-	(chess-display-destroy nil))
+  (with-current-buffer display
+    (cond
+     ((eq event 'shutdown)
+      (chess-display-destroy nil))
 
-       ((eq event 'destroy)
-	(chess-display-detach-game nil))
+     ((eq event 'destroy)
+      (chess-display-detach-game nil))
 
-       ((eq event 'pass)
-	(let ((my-color (chess-game-data game 'my-color)))
-	  (chess-game-set-data game 'my-color (not my-color))
-	  (chess-display-set-perspective* nil (not my-color))))
+     ((eq event 'pass)
+      (let ((my-color (chess-game-data game 'my-color)))
+	(chess-game-set-data game 'my-color (not my-color))
+	(chess-display-set-perspective* nil (not my-color))))
 
-       ((eq event 'orient)
-	;; Set the display's perspective to whichever color I'm
-	;; playing; also set the index just to be sure
-	(chess-display-set-index* nil (chess-game-index game))
-	(chess-display-set-perspective*
-	 nil (chess-game-data game 'my-color))))
+     ((eq event 'orient)
+      ;; Set the display's perspective to whichever color I'm
+      ;; playing; also set the index just to be sure
+      (chess-display-set-index* nil (chess-game-index game))
+      (chess-display-set-perspective*
+       nil (chess-game-data game 'my-color))))
 
-      (if (memq event '(orient setup-game move game-over resign))
-	  (chess-display-set-index* nil (chess-game-index game)))
+    (if (memq event '(orient setup-game move game-over resign))
+	(chess-display-set-index* nil (chess-game-index game)))
 
-      (unless (eq event 'shutdown)
-	(chess-display-update
-	 nil (memq event chess-display-momentous-events))))))
+    (let ((momentous (memq event chess-display-momentous-events)))
+      (if (or momentous (memq event chess-display-interesting-events))
+	  (chess-display-update nil momentous)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; chess-display-mode
 ;;
 
-(defvar chess-display-mode-map
+(defvar chess-display-safe-map
   (let ((map (make-keymap)))
     (suppress-keymap map)
     (set-keymap-parent map nil)
@@ -424,23 +424,10 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(control ?i)] 'chess-display-invert)
     (define-key map [tab] 'chess-display-invert)
 
-    (define-key map [? ] 'chess-display-pass)
     (define-key map [??] 'describe-mode)
-    (define-key map [?@] 'chess-display-remote)
-    (define-key map [?A] 'chess-display-abort)
     (define-key map [?B] 'chess-display-list-buffers)
-    (define-key map [?C] 'chess-display-duplicate)
-    (define-key map [?D] 'chess-display-draw)
-    (define-key map [?E] 'chess-display-edit-board)
-    (define-key map [?F] 'chess-display-set-from-fen)
+    ;;(define-key map [?C] 'chess-display-duplicate)
     (define-key map [?I] 'chess-display-invert)
-    ;;(define-key map [?M] 'chess-display-manual-move)
-    (define-key map [?M] 'chess-display-match)
-    (define-key map [?N] 'chess-display-abort)
-    (define-key map [?R] 'chess-display-resign)
-    (define-key map [?S] 'chess-display-shuffle)
-    (define-key map [?U] 'chess-display-undo)
-    (define-key map [?X] 'chess-display-quit)
 
     (define-key map [?<] 'chess-display-move-first)
     (define-key map [?,] 'chess-display-move-backward)
@@ -450,9 +437,34 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(meta ?>)] 'chess-display-move-last)
 
     (define-key map [(meta ?w)] 'chess-display-kill-board)
-    (define-key map [(control ?y)] 'chess-display-yank-board)
 
     (define-key map [(control ?l)] 'chess-display-redraw)
+
+    map)
+  "The mode map used in read-only display buffers.")
+
+(defvar chess-display-mode-map
+  (let ((map (make-keymap)))
+    (suppress-keymap map)
+    (set-keymap-parent map chess-display-safe-map)
+
+    (define-key map [? ] 'chess-display-pass)
+    (define-key map [??] 'describe-mode)
+    (define-key map [?@] 'chess-display-remote)
+    (define-key map [?A] 'chess-display-abort)
+    (define-key map [?C] 'chess-display-duplicate)
+    (define-key map [?D] 'chess-display-draw)
+    (define-key map [?E] 'chess-display-edit-board)
+    (define-key map [?F] 'chess-display-set-from-fen)
+    ;;(define-key map [?M] 'chess-display-manual-move)
+    (define-key map [?M] 'chess-display-match)
+    (define-key map [?N] 'chess-display-abort)
+    (define-key map [?R] 'chess-display-resign)
+    (define-key map [?S] 'chess-display-shuffle)
+    (define-key map [?U] 'chess-display-undo)
+    (define-key map [?X] 'chess-display-quit)
+
+    (define-key map [(control ?y)] 'chess-display-yank-board)
 
     (dolist (key '(?a ?b ?c ?d ?e ?f ?g ?h
 		      ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8
@@ -497,13 +509,16 @@ See `chess-display-type' for the different kinds of displays."
   (erase-buffer)
   (chess-display-update nil))
 
-(defun chess-display-mode ()
+(defun chess-display-mode (&optional read-only)
   "A mode for displaying and interacting with a chessboard.
+If READ-ONLY is non-nil, then no modifications are allowed.
 The key bindings available in this mode are:
 \\{chess-display-mode-map}"
   (interactive)
   (setq major-mode 'chess-display-mode mode-name "Chessboard")
-  (use-local-map chess-display-mode-map)
+  (if read-only
+      (use-local-map chess-display-safe-map)
+    (use-local-map chess-display-mode-map))
   (buffer-disable-undo)
   (setq buffer-auto-save-file-name nil
 	mode-line-format 'chess-display-mode-line))

@@ -18,7 +18,8 @@
 (autoload 'festival-kill-process "festival")
 
 (defvar chess-announce-functions
-  (if (executable-find "festival")
+  (if (and (executable-find "festival")
+	   (not (featurep 'emacspeak)))
       (if (fboundp 'festival-say-string)
 	  '(festival-start-process festival-say-string festival-kill-process)
 	'(ignore chess-announce-festival ignore))
@@ -45,9 +46,8 @@ See `chess-display-type' for the different kinds of displays."
 	   (pos (chess-ply-pos ply)))
       (unless (eq (chess-game-data game 'my-color)
 		  (chess-pos-side-to-move pos))
-	(let* ((changes (chess-ply-changes ply))
-	       (source (car changes))
-	       (target (cadr changes))
+	(let* ((source (chess-ply-source ply))
+	       (target (chess-ply-target ply))
 	       (s-piece (chess-pos-piece pos source))
 	       (t-piece (chess-pos-piece pos target))
 	       text)
