@@ -77,43 +77,57 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
 	-32767
       (if (eq status :stalemate)
 	  0
-	(let (white-pawns black-pawns)
+	(let (white-queens black-queens white-rooks black-rooks
+	      white-bishops black-bishops white-knights black-knights
+	      white-pawns black-pawns)
 	  (dotimes (i 64)
 	    (let ((piece (aref position i)))
 	      (unless (= piece ? )
 		(cond
 		 ((= piece ?P) (push i white-pawns) (incf v chess-ai-pawn-value))
 		 ((= piece ?p) (push i black-pawns) (decf v chess-ai-pawn-value))
-		 ((= piece ?Q) (incf v chess-ai-queen-value))
-		 ((= piece ?q) (decf v chess-ai-queen-value))
-		 ((= piece ?R) (incf v chess-ai-rook-value))
-		 ((= piece ?r) (decf v chess-ai-rook-value))
-		 ((= piece ?B) (incf v chess-ai-bishop-value))
-		 ((= piece ?b) (decf v chess-ai-bishop-value))
-		 ((= piece ?N) (incf v chess-ai-knight-value))
-		 ((= piece ?n) (decf v chess-ai-knight-value))))))
+		 ((= piece ?Q) (push i white-queens) (incf v chess-ai-queen-value))
+		 ((= piece ?q) (push i black-queens) (decf v chess-ai-queen-value))
+		 ((= piece ?R) (push i white-rooks) (incf v chess-ai-rook-value))
+		 ((= piece ?r) (push i black-rooks) (decf v chess-ai-rook-value))
+		 ((= piece ?B) (push i white-bishops) (incf v chess-ai-bishop-value))
+		 ((= piece ?b) (push i black-bishops) (decf v chess-ai-bishop-value))
+		 ((= piece ?N) (push i white-knights) (incf v chess-ai-knight-value))
+		 ((= piece ?n) (push i black-knights) (decf v chess-ai-knight-value))))))
 	  ;; Reward passed Pawns
-	  (unless white-pawns
+	  (when white-pawns
 	    (setq v (+ (* (length
 			   (chess-pos-passed-pawns position t white-pawns))
 			  chess-ai-passed-pawn))))
-	  (unless black-pawns
+	  (when black-pawns
 	    (setq v (- v
 		       (* (length
 			   (chess-pos-passed-pawns position nil black-pawns))
 			  chess-ai-passed-pawn))))
 	  ;; Mobility
-	  (setq v (+ v
-		     (- (length (append (chess-legal-plies position :piece ?Q)
-					(chess-legal-plies position :piece ?R)
-					(chess-legal-plies position :piece ?B)
-					(chess-legal-plies position :piece ?N))
-				)
-			(length (append (chess-legal-plies position :piece ?q)
-					(chess-legal-plies position :piece ?r)
-					(chess-legal-plies position :piece ?b)
-					(chess-legal-plies position :piece ?n))
-				))))
+	  (setq
+	   v
+	   (+
+	    v
+	    (-
+	     (length
+	      (append (when white-queens
+			(chess-legal-plies position :piece ?Q :candidates white-queens))
+		      (when white-rooks
+			(chess-legal-plies position :piece ?R :candidates white-rooks))
+		      (when white-bishops
+			(chess-legal-plies position :piece ?B :candidates white-bishops))
+		      (when white-knights
+			(chess-legal-plies position :piece ?N :candidates white-knights))))
+	     (length
+	      (append (when black-queens
+			(chess-legal-plies position :piece ?q :candidates black-queens))
+		      (when black-rooks
+			(chess-legal-plies position :piece ?r :candidates black-rooks))
+		      (when black-bishops
+			(chess-legal-plies position :piece ?b :candidates black-bishops))
+		      (when black-knights
+			(chess-legal-plies position :piece ?n :candidates black-knights)))))))
 	  (if (chess-pos-side-to-move position)
 	      v
 	    (- v)))))))
