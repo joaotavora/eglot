@@ -50,7 +50,7 @@ related to the resulting process.")
 		 (chess-algebraic-to-ply
 		  (chess-game-pos chess-process-game) move)))))
 	 1 2)
-	'(".*Illegal move:\\s-*\\(.*\\)"
+	'(".*illegal move:\\s-*\\(.*\\)"
 	  (signal 'chess-illegal (match-string 1)))
 	'(".+?\015" (replace-match "")))
   "A list of regexps and the commands that they trigger.
