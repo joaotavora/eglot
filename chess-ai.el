@@ -19,16 +19,20 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
-;;; Commentary:
-
-;; BUGS: Opponent moves are not displayed on the board!  But they are announced
-;; and shown in the mode-line, strange!
-
 ;;; Code:
 
 (require 'chess-common)
 (require 'chess-pos)
 (require 'chess-ply)
+
+(defgroup chess-ai ()
+  "A simple chess engine written in elisp."
+  :group 'chess)
+
+(defcustom chess-ai-depth 2
+  "*The depth used to prune the search tree."
+  :group 'chess-ai
+  :type 'integer)
 
 (defvar chess-pawn-value 100)
 (defvar chess-knight-value 300)
@@ -38,6 +42,7 @@
 (defvar chess-king-value 10000)
 
 (defun chess-eval-static (position)
+  "Find the static score for POSITION."
   (assert (vectorp position))
   (let ((v 0)
 	(status (chess-pos-status position)))
@@ -62,6 +67,9 @@
 	     ((= piece ?n) (decf v chess-knight-value)))))))))
 
 (defun chess-ai-eval (position depth alpha beta &optional line)
+  "Evaluate POSITION using a simple AlphaBeta search algorithm using at most
+DEPTH plies."
+  ;; TBD: We do far too much consing
   (if (= depth 0)
       (cons (chess-eval-static position) line)
     (let ((plies (chess-legal-plies
@@ -82,19 +90,23 @@
 	ret))))
 
 (defun chess-ai-best-move (position depth &optional func)
+  "Find the best move for POSITION using `chess-ai-eval' with DEPTH.
+Returns (VALUE . LIST-OF-PLIES) where
+ VALUE is the evaluated score of the move and
+ LIST-OF-PLIES is the list of plies which were actually found."
   (let ((res (chess-ai-eval position  depth -100000 100000)))
     (cons (car res)
 	  (if (functionp func)
 	      (mapcar func (nreverse (cdr res)))
 	    (nreverse (cdr res))))))
 
+;; TBD: It is somewhat strange that we need to define this variable.
 (defvar chess-ai-regexp-alist nil)
 
 (defun chess-ai-handler (game event &rest args)
   (unless chess-engine-handling-event
     (cond
      ((eq event 'initialize)
-      (setq chess-engine-process t)
       (setq chess-engine-opponent-name "Emacs AI")
       t)
 
@@ -105,11 +117,15 @@
       (when (= 1 (chess-game-index game))
 	(chess-game-set-tag game "White" chess-full-name)
 	(chess-game-set-tag game "Black" chess-engine-opponent-name))
-      
-      (if (chess-game-over-p game)
-	  (chess-game-set-data game 'active nil))
-      (let ((bm (chess-ai-best-move (chess-engine-position nil) 2)))
-	(funcall chess-engine-response-handler 'move (cadr bm))))
+      (when (chess-game-over-p game)
+	(chess-game-set-data game 'active nil)))
+
+     ((eq event 'post-move)
+      (unless (chess-game-over-p game)
+	(let (chess-display-handling-event)
+	  (funcall chess-engine-response-handler
+		   'move (cadr (chess-ai-best-move (chess-engine-position nil)
+						   chess-ai-depth))))))
 
      (t
       (apply 'chess-common-handler game event args)))))
