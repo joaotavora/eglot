@@ -17,22 +17,20 @@
   chess-coord needs to be applied to a larger area, and also the way
   highlight locations are found needs to be recalculated.
 
-- The highlighting code is broken for a different reason.  I'm
-  thinking about changing all of the highlighting functions to USE
-  properties in order to find out where the highlighting region should
-  begin.
+- Change all of the highlighting functions to use properties to find
+  out where the highlighting region should begin.
 
 - Move keyboard shortcutting and mouse selection into their own
   modules
 
-- the game should go inactive once I lose by stalemate/checkmate
+----------------------------------------------------------------------
 
-- when a clock runs down, indicate this in the modeline, and all the
+- The game should go inactive once I lose by stalemate/checkmate
+
+- When a clock runs down, indicate this in the modeline, and all the
   user to call-flag in order to win on time
 
-- parse out the time strings from ICS
-
-- detect draw/resign/abort/retract, etc., from ICS and common engines
+- Detect draw/resign/abort/retract, etc., from ICS and common engines
 
 - in chess-engine-filter and chess-ics-filter, if an error is
   encountered, skip that line so the same error isn't triggered again
