@@ -85,6 +85,26 @@
     ("knight" . ?n)
     ("bishop" . ?b)))
 
+(defun chess-ply-create-castle (position &optional long)
+  "Create a castling ply; this function supports Fischer Random castling."
+  (let* ((color (chess-pos-side-to-move position))
+	 (king (chess-pos-search position (if color ?K ?k)))
+	 (king-target (chess-rf-to-index rank (if long 2 6)))
+	 (king-file (chess-index-file king))
+	 (file (if long 0 7))
+	 rook)
+    (while (funcall (if long '< '>) file king-file)
+      (let ((index (chess-rf-to-index (if color 7 0) file)))
+	(if (chess-pos-piece-p position index (if color ?R ?r))
+	    (setq rook index file king-file)
+	  (setq file (funcall (if long '1+ '1-) file)))))
+    (if (and rook
+	     (chess-search-position position king-target (if color ?K ?k)))
+	(cons (chess-pos-copy position)
+	      (list king king-target rook
+		    (chess-rf-to-index rank (if long 3 5))
+		    (if long :long-castle :castle))))))
+
 (defun chess-ply-create (position &rest changes)
   "Create a ply from the given POSITION by applying the suppiled CHANGES.
 This function will guarantee the resulting ply is legal, and will also
@@ -125,49 +145,46 @@ maneuver."
 	  ;; a result of the changes?  NOTE: engines, whom we should
 	  ;; trust, may already have determine if check/checkmate
 	  ;; applies.
-	  (unless (or (memq :check changes)
-		      (memq :checkmate changes))
-	    (let ((can-move (catch 'can-move
-			      (dotimes (rank 8)
-				(dotimes (file 8)
-				  (let* ((to (chess-rf-to-index rank file))
-					 (piece (chess-pos-piece next-pos to)))
-				    (when (or (eq piece ? )
-					      (if color
-						  (> piece ?a)
-						(< piece ?a)))
-				      (if (chess-search-position next-pos
-								 to color)
-					  (throw 'can-move t)))))))))
-	      (if (chess-search-position next-pos
-					 (car (chess-pos-search
-					       next-pos (if color ?K ?k)))
-					 (not color))
-		  ;; yes, well is in he in checkmate?
-		  (if can-move
-		      (nconc changes (list :check))
-		    (nconc changes (list :checkmate)))
-		;; no, but is he in stalemate?
-		(unless can-move
-		  (nconc changes (list :stalemate))))))
+	  (let ((can-move (catch 'can-move
+			    (dotimes (rank 8)
+			      (dotimes (file 8)
+				(let* ((to (chess-rf-to-index rank file))
+				       (piece (chess-pos-piece next-pos to)))
+				  (when (or (eq piece ? )
+					    (if color
+						(> piece ?a)
+					      (< piece ?a)))
+				    (if (chess-search-position next-pos
+							       to color)
+					(throw 'can-move t)))))))))
+	    (if (chess-search-position next-pos
+				       (car (chess-pos-search
+					     next-pos (if color ?K ?k)))
+				       (not color))
+		;; yes, well is in he in checkmate?
+		(if can-move
+		    (nconc changes (list :check))
+		  (nconc changes (list :checkmate)))
+	      ;; no, but is he in stalemate?
+	      (unless can-move
+		(nconc changes (list :stalemate)))))
 
 	  ;; is this a pawn move to the ultimate rank?  if so, and we
 	  ;; haven't already been told, ask for the piece to promote
 	  ;; it to; NOTE: 'color' has the inverse meaning at this
 	  ;; point...
-	  (unless (memq :promote changes)
-	    (if (and (= ?p (downcase (chess-pos-piece next-pos
-						      (cadr changes))))
-		     (= (if color 7 0)
-			(chess-index-rank (cadr changes))))
-		(let ((new-piece (completing-read
-				  "Promote pawn to queen/rook/knight/bishop? "
-				  chess-piece-name-table nil t "queen")))
-		  (setq new-piece
-			(cdr (assoc new-piece chess-piece-name-table)))
-		  (unless color
-		    (setq new-piece (upcase new-piece)))
-		  (nconc changes (list :promote new-piece))))))
+	  (if (and (= ?p (downcase (chess-pos-piece next-pos
+						    (cadr changes))))
+		   (= (if color 7 0)
+		      (chess-index-rank (cadr changes))))
+	      (let ((new-piece (completing-read
+				"Promote pawn to queen/rook/knight/bishop? "
+				chess-piece-name-table nil t "queen")))
+		(setq new-piece
+		      (cdr (assoc new-piece chess-piece-name-table)))
+		(unless color
+		  (setq new-piece (upcase new-piece)))
+		(nconc changes (list :promote new-piece)))))
 
 	;; return the annotated ply
 	ply))))
