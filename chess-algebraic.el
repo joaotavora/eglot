@@ -152,7 +152,8 @@ If LONG is non-nil, render the move into long notation."
 		 (chess-index-to-coord to)
 		 (let ((promote (memq :promote changes)))
 		   (if promote
-		       (concat "=" (char-to-string (cadr promote))))))))))
+		       (concat "=" (char-to-string
+				    (upcase (cadr promote)))))))))))
       (concat notation
 	      (if (memq :check changes) "+"
 		(if (memq :checkmate changes) "#"))))))

@@ -140,7 +140,8 @@ maneuver."
 
 	  ;; is this a pawn move to the ultimate rank?  if so, and we
 	  ;; haven't already been told, ask for the piece to promote
-	  ;; it to
+	  ;; it to; NOTE: 'color' has the inverse meaning at this
+	  ;; point...
 	  (unless (memq :promote changes)
 	    (if (and (= ?p (downcase (chess-pos-piece next-pos
 						      (cadr changes))))
@@ -151,8 +152,8 @@ maneuver."
 				  chess-piece-name-table nil t "queen")))
 		  (setq new-piece
 			(cdr (assoc new-piece chess-piece-name-table)))
-		  (if color
-		      (setq new-piece (upcase new-piece)))
+		  (unless color
+		    (setq new-piece (upcase new-piece)))
 		  (nconc changes (list :promote new-piece))))))
 
 	;; return the annotated ply

@@ -254,7 +254,7 @@ trying to move a blank square."
 
     ;; if a king or rook moves, no more castling; also, if a pawn
     ;; jumps ahead two, mark it en-passantable
-    (let ((piece (downcase (chess-pos-piece position (car changes)))))
+    (let ((piece (downcase (chess-pos-piece position (cadr changes)))))
       (cond
        ((and (= piece ?k)
 	     (equal (car changes)
@@ -281,7 +281,7 @@ trying to move a blank square."
     (chess-pos-set-side-to-move position (not color))
 
     ;; promote the piece if we were meant to
-    (let ((new-piece (cadr (assq :promote changes))))
+    (let ((new-piece (cadr (memq :promote changes))))
       (if new-piece
 	  (chess-pos-set-piece position (cadr changes) new-piece)))
 
