@@ -30,6 +30,8 @@
 - Find a way that regexp-alist entries that only need to fire once are
   only scanned once.
 
+- Extend elp.el to do any kind of memory profiling
+
 ----------------------------------------------------------------------
 
 - Need to implement the "50 moves after irreversible" draw rule

@@ -139,7 +139,9 @@ Also, EPD evaluation numbers/strings can be set here."
 
 (defsubst chess-pos-set-status (position &rest values)
   "Set whether the side to move is in a special state."
-  (aset position 69 values))
+  (if (equal '(nil) value)
+      (aset position 69 nil)
+    (aset position 69 values)))
 
 (defsubst chess-pos-side-to-move (position)
   "Return the color whose move it is in POSITION."
@@ -321,6 +323,7 @@ trying to move a blank square."
 				 (downcase new-piece)))))
 
     ;; did we leave the position in check, mate or stalemate?
+    (chess-pos-set-status position nil))
     (cond
      ((memq :check changes)
       (chess-pos-set-status position :check))
