@@ -119,6 +119,8 @@ Chess puzzles are most often provided as a set of positions.
 @defvar chess-starting-position
 @end defvar
 
+@c lispfun chess-fischer-random-position
+
 @subsection Position coordinates
 
 First of all, a coordinate system of octal indices is

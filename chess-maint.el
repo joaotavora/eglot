@@ -23,6 +23,7 @@
     (require 'chess-pgn)
     (require 'chess-ply)
     (require 'chess-pos)
+    (require 'chess-random)
     (require 'chess-var)
     (require 'chess)
     (texinfo-insert-node-lines (point-min) (point-max) t)

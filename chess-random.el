@@ -26,6 +26,7 @@
 
 ;;;###autoload
 (defun chess-fischer-random-position ()
+  "Generate a Fischer Random style position."
   (let (pieces position)
     (while (null position)
       (setq pieces (chess-shuffle-vector pieces-vector))
