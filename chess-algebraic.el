@@ -40,8 +40,9 @@
 (defconst chess-algebraic-regexp
   (format (concat "\\("
 		    "O-O\\(-O\\)?\\|"
-		      "\\(%s?\\(\\([a-h]\\|[1-8]\\)?\\|[a-h][1-8]\\)\\)?"
-		    "\\([x-]\\)?"
+		    "\\(%s?\\)"
+		    "\\([a-h]?[1-8]?\\)"
+		    "\\([x-]?\\)"
 		    "\\([a-h][1-8]\\)"
 		    "\\(=\\(%s\\)\\)?"
 		  "\\)"
@@ -51,13 +52,16 @@
   "A regular expression that matches all possible algebraic moves.
 This regexp handles both long and short form.")
 
+(defconst chess-algebraic-regexp-entire
+  (concat chess-algebraic-regexp "$"))
+
 (defun chess-algebraic-to-ply (position move)
   "Convert the algebraic notation MOVE for POSITION to a ply."
-  (unless (string-match chess-algebraic-regexp move)
+  (unless (string-match chess-algebraic-regexp-entire move)
     (error "Cannot parse non-algebraic move notation: %s" move))
   (let* ((color (chess-pos-side-to-move position))
-	 (mate (match-string 10 move))
-	 (promotion (match-string 9 move))
+	 (mate (match-string 9 move))
+	 (promotion (match-string 8 move))
 	 (piece (aref move 0))
 	 (changes
 	  (if (eq piece ?O)
@@ -66,7 +70,7 @@ This regexp handles both long and short form.")
 		(list (chess-rf-to-index rank 4)
 		      (chess-rf-to-index rank (if long 2 6))))
 	    (let ((source (match-string 4 move))
-		  (target (chess-coord-to-index (match-string 7 move))))
+		  (target (chess-coord-to-index (match-string 6 move))))
 	      (if (and source (= (length source) 2))
 		  (list (chess-coord-to-index source) target)
 		(if (= (length source) 0)
