@@ -16,7 +16,10 @@
   :group 'chess-engine)
 
 (defcustom chess-ics-server-list
-  '(("freechess.org" 5000))
+  '(("freechess.org" 5000)
+    ("chess.unix-ag.uni-kl.de" 5000)
+    ("chess.mds.mdh.se" 5000)
+    ("chessclub.com" 5000))
   "A list of servers to connect to.
 The format of each entry is:
 
@@ -34,15 +37,17 @@ The format of each entry is:
 			       (repeat string))))
   :group 'chess-ics)
 
-(defvar chess-ics-server)
-(defvar chess-ics-handle)
-(defvar chess-ics-password)
-(defvar chess-ics-prompt)
-
+(defvar chess-ics-server nil
+  "The `chess-ics-server-list' entry used for this connection.")
 (make-variable-buffer-local 'chess-ics-server)
+
+(defvar chess-ics-handle nil
+  "The ICS handle of this connection.")
 (make-variable-buffer-local 'chess-ics-handle)
+
+(defvar chess-ics-password nil
+  "Password to use to identify to the server.")
 (make-variable-buffer-local 'chess-ics-password)
-(make-variable-buffer-local 'chess-ics-prompt)
 
 (defvar chess-ics-regexp-alist
   (list
@@ -61,10 +66,10 @@ The format of each entry is:
 	  (lambda ()
 	    (chess-engine-send nil "set style 12\nset bell 0\n")
 	    'once)))
-   (cons "Logging you in as \"\\([^\"]+\\)\""
+   (cons "\\(Logging you in as\\|Your name for this session will be\\) \"\\([^\"]+\\)\""
 	 (function
 	  (lambda ()
-	    (setq chess-ics-handle (match-string 1))
+	    (setq chess-ics-handle (match-string 2))
 	    'once)))
    (cons "Press return to enter the server as"
 	 (function
@@ -76,10 +81,8 @@ The format of each entry is:
 	  (lambda ()
 	    (let ((chess-engine-pending-offer 'abort))
 	      (funcall chess-engine-response-handler 'accept)))))
-   (cons (concat "<12>\\s-+\\("
-		 (mapconcat 'identity (make-list 8 "[BKNPQRbknpqr-]\\{8\\}")
-			    " ")
-		 " [BW].+\\)") 'chess-ics-handle-ics12)
+   (cons "<12>\\s-+\\(\\([BKNPQRbknpqr-]\\{8\\}\\s-\\)\\{8\\}[BW].+\\)"
+	 #'chess-ics-handle-ics12)
    (cons "\\S-+ would like to take back \\([0-9]+\\) half move(s)."
 	 (function
 	  (lambda ()
@@ -136,7 +139,7 @@ to run whenever the regexp matches.")
 	(parts (split-string (match-string 1) " "))
 	(position (chess-pos-create t))
 	(game (chess-engine-game nil))
-	white black move status error)
+	white black move status time-control error)
 
     (assert (= (length parts) 32))
 
@@ -188,11 +191,8 @@ to run whenever the regexp matches.")
     ;;  0 I am observing a game being played
     (setq status (string-to-int (pop parts)))
 
-    ;; initial time (in seconds) of the match
-    (setq parts (cdr parts))
-
-    ;; increment (in seconds) of the match
-    (setq parts (cdr parts))
+    ;; initial time and increment (in seconds) of the match
+    (setq time-control (format "%s/%s" (pop parts) (pop parts)))
 
     ;; material values for each side
     (let ((centipawn (* 100 (- (string-to-int (pop parts))
@@ -221,7 +221,7 @@ to run whenever the regexp matches.")
     (setq parts (cdr parts))
 
     ;; checkmate, etc., is stated in the SAN text
-    (when (> (length move) 0)
+    (when move
       (cond
        ((= ?+ (aref move (1- (length move))))
 	(chess-pos-set-status position :check))
@@ -271,6 +271,7 @@ to run whenever the regexp matches.")
 	    (chess-game-set-tag game "White" white)
 	    (chess-game-set-tag game "Black" black)
 	    (chess-game-set-tag game "Site" (car chess-ics-server))
+	    (chess-game-set-tag game "TimeControl" time-control)
 	    (setq error 'setting-start-position)
 	    (chess-game-set-start-position game position))
 	  (setq error 'orienting-board)
