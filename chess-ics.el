@@ -66,6 +66,9 @@ who is black."
 
     ;; -1 if the previous move was NOT a double pawn push, otherwise the chess 
     ;; board file  (numbered 0--7 for a--h) in which the double push was made
+    (let ((index (string-to-number (car parts))))
+      (when (> index 0)
+	(chess-pos-set-en-passant position index)))
     (setq parts (cdr parts))
 
     ;; can White still castle short? (0=no, 1=yes)
@@ -144,6 +147,7 @@ who is black."
     ;; flip field for board orientation: 1 = Black at bottom, 0 = White at
     ;; bottom.
     (setq parts (cdr parts))
+
     (setq parts (cdr parts))
     (setq parts (cdr parts))
 
