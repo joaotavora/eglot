@@ -107,8 +107,8 @@ a0 243
      (chess-display-create chess-default-display t) game)
     (let ((engine-module
 	   (if arg
-	       (intern (or (read-string "Engine module to play against: ")
-			   "chess-none"))
+	       (intern-soft (or (read-string "Engine module to play against: ")
+				"chess-none"))
 	     chess-default-engine)))
       (when engine-module
 	(require engine-module)
