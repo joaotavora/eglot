@@ -83,7 +83,7 @@
   "An Emacs chess playing program."
   :group 'games)
 
-(defconst chess-version "2.0a8"
+(defconst chess-version "2.0a9"
   "The version of the Emacs chess program.")
 
 (defcustom chess-default-display
@@ -101,7 +101,7 @@ not available."
 A sublist indicates a series of alternatives, if the first is not
 available.
 These can do just about anything."
-  :type '(choice symbol (repeat symbol))
+  :type '(repeat (choice symbol (repeat symbol)))
   :group 'chess)
 
 (defcustom chess-default-engine

@@ -58,7 +58,9 @@ CAT=$(shell echo $(VERSION) | perl -ne 'print $$1 if /[-0-9]+([ab])[0-9]+/;')
 SUB=$(shell echo $(VERSION) | perl -ne 'print $$1 if /[-0-9]+[ab]([0-9]+)/;')
 NEXT=$(shell expr $(SUB) + 1)
 
-update: dist fullclean
+update: dist
 	cvs tag chess-$(TAG)
 	perl -i -pe 's/(chess-version.*)"([0-9.]+)[ab][0-9]+"/$$1"$$2$(CAT)$(NEXT)"/;' chess.el
 	cvs commit -m "bumped minor rev" chess.el
+	make fullclean
+	sitecopy

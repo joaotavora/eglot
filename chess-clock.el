@@ -35,9 +35,9 @@
   (cond
    ((eq event 'initialize)
     (unless (chess-game-data game 'white-remaining)
-      (chess-game-set-data game 'white-remaining (float (car args))))
+      (chess-game-set-data game 'white-remaining (float (or (car args) 0))))
     (unless (chess-game-data game 'black-remaining)
-      (chess-game-set-data game 'black-remaining (float (car args))))
+      (chess-game-set-data game 'black-remaining (float (or (car args) 0))))
     (setq chess-clock-timer
 	  (run-with-timer 0 1 'chess-clock-tick-tock (current-buffer)))
     t)

@@ -63,8 +63,8 @@
 					 'black-remaining)))
 	     (if (and white black)
 		 (format "   W %02d:%02d B %02d:%02d"
-			 (/ (floor white) 60) (% (floor white) 60)
-			 (/ (floor black) 60) (% (floor black) 60))))))
+			 (/ (floor white) 60) (% (abs (floor white)) 60)
+			 (/ (floor black) 60) (% (abs (floor black)) 60))))))
   "The format of a chess display's modeline.
 See `mode-line-format' for syntax details."
   :type 'sexp

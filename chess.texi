@@ -368,15 +368,13 @@ object.
 
 @c lispfun chess-display-create
 
-@c lispfun chess-display-destroy
+@c lispfun/c chess-display-destroy
 
 @chapter Chessboard displays
 
 @c lispfun chess-display-active-p
 
 @c lispfun chess-display-clear-board
-
-@c lispfun chess-display-detach-game
 
 @c lispfun chess-display-game
 
@@ -428,7 +426,7 @@ object.
 
 @c lispfun chess-engine-option
 
-@c lispfun chess-engine-destroy
+@c lispfun/c chess-engine-destroy
 
 @c lispfun chess-engine-set-position
 
@@ -443,8 +441,6 @@ object.
 @c lispfun chess-engine-move
 
 @c lispfun chess-engine-command
-
-@c lispfun chess-engine-detach-game
 
 @c lispfun chess-engine-send
 
