@@ -9,6 +9,8 @@
 (require 'chess-algebraic)
 (require 'chess-fen)
 
+(defvar chess-pgn-fill-column 60)
+
 (defun chess-pgn-read-plies (game position &optional top-level)
   (let ((plies (list t)) prevpos done)
     (while (not (or done (eobp)))
@@ -71,7 +73,7 @@
 (defun chess-pgn-insert-annotations (game index ply)
   (dolist (ann (chess-pos-annotations (chess-ply-pos ply)))
     (if (stringp ann)
-	(insert (format " {%s}" ann))
+	(insert "\n{" ann "}")
       (assert (listp ann))
       (chess-pgn-insert-plies game index ann))))
 
@@ -81,6 +83,8 @@
   (while plies
     (unless for-black
       (when (chess-ply-changes (car plies))
+	(if (> (current-column) chess-pgn-fill-column)
+	    (insert ?\n))
 	(insert (format "%d. %s" index (chess-ply-to-algebraic (car plies))))
 	(unless no-annotations
 	  (chess-pgn-insert-annotations game index (car plies))))
@@ -88,6 +92,8 @@
     (when plies
       (when (chess-ply-changes (car plies))
 	(when for-black
+	  (if (> (current-column) chess-pgn-fill-column)
+	      (insert ?\n))
 	  (insert (format "%d. ..." index))
 	  (setq for-black nil))
 	(insert (format " %s" (chess-ply-to-algebraic (car plies))))
@@ -113,8 +119,7 @@ If INDENTED is non-nil, indent the move texts."
   (insert ?\n)
   (let ((begin (point)))
     (chess-pgn-insert-plies game 1 (chess-game-plies game))
-    (insert (or (chess-game-tag game "Result") "*") ?\n)
-    (fill-region begin (point))))
+    (insert (or (chess-game-tag game "Result") "*") ?\n)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
