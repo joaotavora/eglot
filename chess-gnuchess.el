@@ -41,10 +41,11 @@
     (cond
      ((eq event 'initialize)
       (let ((proc (chess-common-handler game 'initialize "gnuchess")))
-	(when (and (processp proc)
+	(when (and proc (processp proc)
 		   (eq (process-status proc) 'run))
 	  (process-send-string proc "nopost\n")
-	  (setq chess-engine-opponent-name "GnuChess")
+	  (setq chess-engine-process proc
+		chess-engine-opponent-name "GnuChess")
 	  t)))
 
      ((eq event 'setup-pos)

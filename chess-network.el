@@ -127,7 +127,8 @@
 		(open-network-stream "*chess-network*" (current-buffer)
 				     (read-string "Host: ")
 				     (read-string "Port: "))))
-	(setq chess-network-kind (if (eq which ?s) 'server 'client))
+	(setq chess-engine-process proc
+	      chess-network-kind (if (eq which ?s) 'server 'client))
 	t))
 
      ((eq event 'ready)			; don't set active yet

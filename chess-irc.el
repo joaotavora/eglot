@@ -67,7 +67,8 @@
 		proc (open-network-stream "*chess-irc*" (current-buffer)
 					  chess-irc-server chess-irc-port))
 	  (chess-message 'irc-logging-in chess-irc-nick)
-	  (when (and proc (eq (process-status proc) 'open))
+	  (when (and proc (processp proc)
+		     (eq (process-status proc) 'open))
 	    (process-send-string proc (format "USER %s 0 * :%s\n"
 					      (user-login-name)
 					      chess-full-name))
@@ -96,7 +97,7 @@
 			     (format "PRIVMSG %s :%s\n"
 				     chess-irc-opponent (car args)))))
      (t
-      (apply 'chess-network-handler event args)))))
+      (apply 'chess-network-handler game event args)))))
 
 ;; This filter translates IRC syntax into basic chess-network protocol
 (defun chess-irc-filter (proc string)

@@ -46,8 +46,9 @@
 	;; jww (2002-04-25): cat is not bidirectional, so I need
 	;; something like "nc" that can talk with characters devices
 	;; at 9600 8N1.
-	(start-process "*chess-ucb*" (current-buffer)
-		       (executable-find "cat") chess-ucb-device)
+	(setq chess-engine-process
+	      (start-process "*chess-ucb*" (current-buffer)
+			     (executable-find "cat") chess-ucb-device))
 	t))
 
      ((memq event 'orient)

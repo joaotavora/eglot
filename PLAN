@@ -1,19 +1,24 @@
 chess-ics
-- finish all elements of regular use as a client
-- takebacks still aren't working 100%
+- takebacks still aren't working 100%; when I submit a takeback
+  request manually, and the other side accepts, my client doesn't know
+  what to do with it
+- some <12> lines aren't being parsed at all; is the filter missing
+  them?
 - accept of a match request doesn't seem to be working
-- the "playing" command does not exist in ICS
 
 chess-display
 - when I checkmate my opponent, the display says "Black ...#"
 - on the first position, "White" has no white background
+
+chess-images
+- if chess-display-popup is nil, and I resize the board, it merely
+  deletes the frame and never shows it again
 
 chess-engine
 - if I say "y" to accepting something from my opponent (new game,
   takeback, etc), I get left with an hourglass cursor
 
 chess-irc
-- gives a Lisp error when I try to start it
 - if I move before my opponent has connected, I get a symbol assertion
   about "value"
 

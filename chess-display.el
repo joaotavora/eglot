@@ -705,7 +705,6 @@ Basically, it means we are playing, not editing or reviewing."
 
 (defun chess-display-search-again ()
   (interactive)
-  (debug)
   (chess-display-search nil t))
 
 (defun chess-display-search-key ()

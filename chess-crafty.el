@@ -50,7 +50,7 @@
     (cond
      ((eq event 'initialize)
       (let ((proc (chess-common-handler game 'initialize "crafty")))
-	(when (and (processp proc)
+	(when (and proc (processp proc)
 		   (eq (process-status proc) 'run))
 	  (process-send-string proc (concat "display nogeneral\n"
 					    "display nochanges\n"
@@ -64,7 +64,8 @@
 					    "display novariation\n"
 					    "alarm off\n"
 					    "ansi off\n"))
-	  (setq chess-engine-opponent-name "Crafty")
+	  (setq chess-engine-process proc
+		chess-engine-opponent-name "Crafty")
 	  t)))
 
      ((eq event 'setup-pos)

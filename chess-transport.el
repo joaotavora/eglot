@@ -33,7 +33,7 @@
 
      (t
       ;; Pass all other events down to chess-network
-      (apply 'chess-network-handler event args)))))
+      (apply 'chess-network-handler game event args)))))
 
 ;; Call `(chess-engine-submit engine STRING)' for text that arrives
 ;; from the inbound transport

@@ -265,9 +265,11 @@
 
      ((eq event 'call-flag)
       (let ((remaining
-	     (chess-game-data game (if (chess-game-data game 'my-color)
-				       'white-remaining
-				     'black-remaining))))
+	     (if (car args)
+		 -1
+	       (chess-game-data game (if (chess-game-data game 'my-color)
+					 'white-remaining
+				       'black-remaining)))))
 	(when (< remaining 0)
 	  (chess-message 'opp-call-flag)
 	  (chess-game-run-hooks game 'flag-fell))))
@@ -297,11 +299,10 @@
 		(intern (concat (symbol-name module) "-regexp-alist"))))
 	      chess-engine-response-handler
 	      (or response-handler 'chess-engine-default-handler))
-	(let ((proc (get-buffer-process (current-buffer))))
-	  (when (processp proc)
+	(let ((proc chess-engine-process))
+	  (when (and proc (processp proc))
 	    (unless (memq (process-status proc) '(run open))
 	      (chess-error 'failed-engine-start))
-	    (setq chess-engine-process proc)
 	    (unless (process-filter proc)
 	      (set-process-filter proc 'chess-engine-filter)))
 	  (setq chess-engine-current-marker (point-marker))
@@ -375,7 +376,7 @@
   "Submit the given STRING, so ENGINE sees it in its input stream."
   (chess-with-current-buffer engine
     (let ((proc chess-engine-process))
-      (when (and (processp proc)
+      (when (and proc (processp proc)
 		 (not (memq (process-status proc) '(run open))))
 	(chess-message 'engine-not-running)
 	(chess-engine-command nil 'destroy))
@@ -393,7 +394,7 @@
 
 (defun chess-engine-filter (proc &optional string)
   "Filter for receiving text for an engine from an outside source."
-  (let ((buf (if (processp proc)
+  (let ((buf (if (and proc (processp proc))
 		 (process-buffer proc)
 	       (current-buffer)))
 	last-point)

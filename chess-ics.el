@@ -20,7 +20,8 @@ The format of each entry is:
   (SERVER PORT [HANDLE] [PASSWORD-OR-FILENAME] [HELPER] [HELPER ARGS...])"
   :type '(repeat (list (string :tag "Server")
 		       (integer :tag "Port")
-		       (string :tag "Handle")
+		       (choice (const :tag "Login as guest" nil)
+			       (string :tag "Handle"))
 		       (choice (const :tag "No password or ask" nil)
 			       (string :tag "Password")
 			       (file :tag "Filename"))
@@ -72,8 +73,7 @@ The format of each entry is:
 	       (lambda ()
 		 (let ((chess-engine-pending-offer 'abort))
 		   (funcall chess-engine-response-handler 'accept)))))
-	(cons "<12> \\(.+\\)"
-	      'chess-ics-handle-move)
+	(cons "<12>\\s-+\\(.+\\)" 'chess-ics-handle-move)
 	(cons "\\S-+ would like to take back \\([0-9]+\\) half move(s)."
 	      (function
 	       (lambda ()
@@ -92,7 +92,8 @@ The format of each entry is:
 	      (function
 	       (lambda ()
 		 (if (string= (match-string 1) chess-engine-opponent-name)
-		     (funcall chess-engine-response-handler 'flag-fell)))))
+		     (funcall chess-engine-response-handler 'flag-fell)
+		   (funcall chess-engine-response-handler 'call-flag t)))))
 	(cons "Illegal move (\\([^)]+\\))\\."
 	      (function
 	       (lambda ()
@@ -323,21 +324,22 @@ who is black."
 
 	(chess-message 'ics-connecting (nth 0 server))
 
-	(let ((buf (apply 'make-comint "chess-ics"
-			  (if (nth 4 server)
-			      (cons (nth 4 server) (nth 5 server))
-			    (list (cons (nth 0 server) (nth 1 server)))))))
+	(let ((buf (if (nth 4 server)
+		       (apply 'make-comint "chess-ics"
+			      (nth 4 server) nil (nth 5 server))
+		     (apply 'make-comint "chess-ics"
+			    (cons (nth 0 server) (nth 1 server))))))
 
 	  (chess-message 'ics-connected (nth 0 server))
 
 	  (display-buffer buf)
 	  (set-buffer buf)
 
-	  (add-hook 'comint-output-filter-functions 'chess-engine-filter t t)
-
 	  (setq chess-ics-server server
 		comint-prompt-regexp "^[^%\n]*% *"
 		comint-scroll-show-maximum-output t)
+
+	  (add-hook 'comint-output-filter-functions 'chess-engine-filter t t)
 
 	  (if (null (nth 2 server))
 	      (setq chess-ics-handle "guest")
@@ -351,6 +353,11 @@ who is black."
 			  (buffer-string))
 		      pass))))))
       t)
+
+     ((eq event 'ready)
+      (chess-game-run-hooks game 'announce-autosave))
+
+     ((eq event 'busy))			; ICS will inform them
 
      ((eq event 'match)
       (setq chess-engine-pending-offer 'match)
