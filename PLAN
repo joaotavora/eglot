@@ -11,6 +11,7 @@ chess-display
   made!
 - there should be a way to disable popups, yet still have the initial
   display popup in its own frame
+- when I checkmate my opponent, the display says "Black ...#"
 
 chess-engine
 - if I say "y" to accepting something from my opponent (new game,
@@ -21,6 +22,9 @@ chess-irc
   about "value"
 - if I am the one who submits the game, then the opponent's name
   always shows as Anonymous
+
+chess-pgn
+- make the dependency on font-lock be dynamic
 
 chess-ply
 - detect games drawn by three-fold repetition
