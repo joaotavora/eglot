@@ -18,8 +18,11 @@
   :group 'chess-gnuchess)
 
 (defvar chess-gnuchess-now-moving nil)
+
 (defvar chess-gnuchess-temp-files nil)
+(defvar chess-gnuchess-bad-board nil)
 (make-variable-buffer-local 'chess-gnuchess-temp-files)
+(make-variable-buffer-local 'chess-gnuchess-bad-board)
 
 (defvar chess-gnuchess-regexp-alist
   (list (cons (concat "My move is : \\(" chess-algebraic-regexp "\\)")
@@ -35,7 +38,14 @@
 	(cons "Illegal move:"
 	      (function
 	       (lambda ()
-		 (signal 'chess-illegal "Illegal move"))))))
+		 (signal 'chess-illegal "Illegal move"))))
+	(cons "Board is wrong!"
+	      (function
+	       (lambda ()
+		 ;; gnuchess didn't like the given position, which
+		 ;; means it won't play against it unless we send a
+		 ;; "go" after the user's move
+		 (setq chess-gnuchess-bad-board t))))))
 
 (defun chess-gnuchess-handler (event &rest args)
   (cond
@@ -71,12 +81,15 @@
 					(chess-engine-position nil))
 				       "white" "black")
 				   "\n"))
-    (chess-engine-send nil "go\n"))
+    (chess-engine-send nil "go\n")
+    (setq chess-gnuchess-bad-board nil))
 
    ((eq event 'move)
     (unless chess-gnuchess-now-moving
       (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				     "\n"))))))
+				     "\n"))
+      (if chess-gnuchess-bad-board
+	  (chess-engine-send nil "go\n"))))))
 
 (provide 'chess-gnuchess)
 
