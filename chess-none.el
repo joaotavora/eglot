@@ -5,6 +5,8 @@
 
 (require 'chess-engine)
 
+(defvar chess-none-regexp-alist nil)
+
 (defun chess-none-handler (game event &rest args)
   "An empty chess engine, used for fielding key events.
 This is only useful when two humans are playing each other, in which
