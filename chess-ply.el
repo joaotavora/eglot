@@ -167,7 +167,7 @@
   (list position))
 
 (defun chess-ply-create (position &optional valid-p &rest changes)
-  "Create a ply from the given POSITION by applying the suppiled CHANGES.
+  "Create a ply from the given POSITION by applying the supplied CHANGES.
 This function will guarantee the resulting ply is legal, and will also
 annotate the ply with :check or other modifiers as necessary.  It will
 also extend castling, and will prompt for a promotion piece.
