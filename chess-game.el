@@ -144,8 +144,7 @@ matches."
 (defun chess-game-status (game &optional index)
   "Return a symbol, such as :checkmate, :resign, etc.
 This conveys the status of the game at the given index."
-  (or (car (chess-pos-status
-	    (chess-game-pos chess-module-game index)))
+  (or (chess-pos-status (chess-game-pos chess-module-game index))
       (let ((final (chess-ply-final-p
 		    (chess-game-ply chess-module-game index))))
 	(and (memq final '(:resign :draw :perpetual :repetition))
@@ -239,20 +238,18 @@ progress (nil), if it is drawn, resigned, mate, etc."
     (chess-ply-set-changes current-ply changes)
     (chess-game-add-ply game (chess-ply-create*
 			      (chess-ply-next-pos current-ply) t))
-    (cond
-     ((chess-ply-any-keyword ply :draw :perpetual :repetition :stalemate)
-      (chess-game-set-tag game "Result" "1/2-1/2")
-      (chess-game-run-hooks game 'game-drawn))
-
-     ((chess-ply-any-keyword ply :resign :checkmate)
-      (let ((color (chess-game-side-to-move game)))
-	(chess-game-set-tag game "Result" (if color "0-1" "1-0"))
-	(if (chess-ply-keyword ply :resign)
-	    (chess-game-run-hooks game 'resign color)
-	  (chess-game-run-hooks game 'move current-ply))))
-
-     (t
-      (chess-game-run-hooks game 'move current-ply)))
+    (if (> (length changes) 2)
+	(if (chess-ply-any-keyword ply :resign :checkmate)
+	    (let ((color (chess-game-side-to-move game)))
+	      (chess-game-set-tag game "Result" (if color "0-1" "1-0"))
+	      (if (chess-ply-keyword ply :resign)
+		  (chess-game-run-hooks game 'resign color)
+		(chess-game-run-hooks game 'move current-ply)))
+	  (when (chess-ply-any-keyword ply :draw :perpetual :repetition
+				       :stalemate)
+	    (chess-game-set-tag game "Result" "1/2-1/2")
+	    (chess-game-run-hooks game 'drawn)))
+      (chess-game-run-hooks game 'move current-ply))
     (chess-game-run-hooks game 'post-move)))
 
 (defsubst chess-game-end (game keyword)

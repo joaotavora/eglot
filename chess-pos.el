@@ -97,16 +97,28 @@
    t
    ;; list of annotations for this position.  Textual annotations are
    ;; simply that, while lists represent interesting variations.
-   nil]
+   nil
+   ;; where are the kings?
+   60 4]
   "Starting position of a chess position.")
 
 (defsubst chess-pos-piece (position index)
   "Return the piece on POSITION at INDEX."
   (aref position index))
 
+(defsubst chess-pos-king-pos (position color)
+  (aref position (if color 72 73)))
+
+(defsubst chess-pos-set-king-pos (position color index)
+  (aset position (if color 72 73) index))
+
 (defsubst chess-pos-set-piece (position index piece)
   "Set the piece on POSITION at INDEX to PIECE."
-  (aset position index piece))
+  (aset position index piece)
+  (if (= piece ?K)
+      (chess-pos-set-king-pos position t index)
+    (if (= piece ?k)
+	(chess-pos-set-king-pos position nil index))))
 
 (defsubst chess-pos-can-castle (position side)
   "Return whether the king can castle on SIDE.
@@ -137,11 +149,9 @@ occurs first if they occur at all.
 Also, EPD evaluation numbers/strings can be set here."
   (aref position 69))
 
-(defsubst chess-pos-set-status (position &rest values)
+(defsubst chess-pos-set-status (position values)
   "Set whether the side to move is in a special state."
-  (if (equal '(nil) value)
-      (aset position 69 nil)
-    (aset position 69 values)))
+  (aset position 69 values))
 
 (defsubst chess-pos-side-to-move (position)
   "Return the color whose move it is in POSITION."
@@ -155,6 +165,10 @@ Also, EPD evaluation numbers/strings can be set here."
   "Return the list of annotations for this position."
   (aref position 71))
 
+(defsubst chess-pos-set-annotations (position annotations)
+  "Return the list of annotations for this position."
+  (aset position 71 annotations))
+
 (defun chess-pos-add-annotation (position annotation)
   "Add an annotation for this position."
   (let ((ann (chess-pos-annotations position)))
@@ -166,14 +180,12 @@ Also, EPD evaluation numbers/strings can be set here."
   "Create a new chess position, set at the starting position.
 If BLANK is non-nil, all of the squares will be empty.
 The current side-to-move always starts as white."
-  (let ((copy (make-vector 72 nil)) elem)
-    (dotimes (i 71)
-      (setq elem (aref position i))
-      (aset copy i
-	    (cond
-	     ((listp elem) (copy-alist elem))
-	     ((vectorp elem) (vconcat elem))
-	     (t elem))))
+  (let ((copy (vconcat position)) i)
+    (setq i (chess-pos-annotations position))
+    (if i (chess-pos-set-annotations copy (copy-alist i)))
+    (setq i (chess-pos-status position))
+    (if (and (not (eq i nil)) (listp i))
+	(chess-pos-set-status copy (copy-alist i)))
     copy))
 
 (defun chess-pos-create (&optional blank)
@@ -182,7 +194,7 @@ If BLANK is non-nil, all of the squares will be empty.
 The current side-to-move is always white."
   (if blank
       (vconcat (make-vector 64 ? )
-	       [nil nil nil nil nil nil t nil])
+	       [nil nil nil nil nil nil t nil nil nil])
     (chess-pos-copy chess-starting-position)))
 
 (defsubst chess-rf-to-index (rank file)
@@ -210,6 +222,11 @@ The current side-to-move is always white."
 	     (>= newfile 0) (< newfile 8))
 	(chess-rf-to-index newrank newfile))))
 
+(defsubst chess-incr-index* (index rank-move file-move)
+  "Create a new INDEX from an old one, by adding rank-move and file-move."
+  (chess-rf-to-index (+ (chess-index-rank index) rank-move)
+		     (+ (chess-index-file index) file-move)))
+
 (defsubst chess-pos-piece-p (position index piece-or-color)
   "Return non-nil if at POSITION/INDEX there is the given PIECE-OR-COLOR.
 If PIECE-OR-COLOR is t for white or nil for black, any piece of that
@@ -225,11 +242,17 @@ color will do."
   "Look on POSITION anywhere for PIECE-OR-COLOR, returning all coordinates.
 If PIECE-OR-COLOR is t for white or nil for black, any piece of that
 color will do."
-  (let (found)
-    (dotimes (i 64)
-      (if (chess-pos-piece-p position i piece-or-color)
-	  (push i found)))
-    found))
+  (cond
+   ((eq piece-or-color ?K)
+    (list (chess-pos-king-pos position t)))
+   ((eq piece-or-color ?k)
+    (list (chess-pos-king-pos position nil)))
+   (t
+    (let (found)
+      (dotimes (i 64)
+	(if (chess-pos-piece-p position i piece-or-color)
+	    (push i found)))
+      found))))
 
 (defsubst chess-pos-to-string (position &optional full)
   (chess-pos-to-fen position full))
@@ -323,7 +346,7 @@ trying to move a blank square."
 				 (downcase new-piece)))))
 
     ;; did we leave the position in check, mate or stalemate?
-    (chess-pos-set-status position nil))
+    (chess-pos-set-status position nil)
     (cond
      ((memq :check changes)
       (chess-pos-set-status position :check))
@@ -341,6 +364,7 @@ trying to move a blank square."
 (eval-when-compile
   (defvar candidates)
   (defvar check-only))
+
 (defsubst chess--add-candidate (candidate)
   (if check-only
       (throw 'in-check t)
