@@ -51,6 +51,10 @@ chess-irc
 chess-ply
 - detect games drawn by three-fold repetition
 
+chess-pos
+- if I checkmate someone, the last position does not have its status
+  set to :checkmate
+
 chess-german
 - complete translation
 

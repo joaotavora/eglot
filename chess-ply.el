@@ -259,8 +259,10 @@ maneuver."
 
 (defsubst chess-ply-final-p (ply)
   "Return non-nil if this is the last ply of a game/variation."
-  (chess-ply-any-keyword ply :drawn :perpetual :repetition :stalemate
-			 :flag-fell :resign :checkmate :aborted))
+  (or (chess-ply-any-keyword ply :drawn :perpetual :repetition
+			     :flag-fell :resign :aborted)
+      (chess-ply-any-keyword (chess-pos-preceding-ply
+			      (chess-ply-pos ply)) :stalemate :checkmate)))
 
 (eval-when-compile
   (defvar position)

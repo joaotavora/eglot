@@ -179,10 +179,7 @@ matches."
 This conveys the status of the game at the given index."
   (assert game)
   (or (chess-pos-status (chess-game-pos game index))
-      (let ((final (chess-ply-final-p (chess-game-ply game index))))
-	(and (memq final '(:aborted :resign :drawn :perpetual :repetition
-				    :flag-fell))
-	     final))))
+      (chess-ply-final-p (chess-game-ply game index))))
 
 (defsubst chess-game-index (game)
   "Return the GAME's current position index."
