@@ -190,6 +190,10 @@ who is black."
 		   (chess-engine-send nil "set style 12\n")
 		   (chess-engine-send nil "set bell 0\n")
 		   (setq chess-ics-logged-in t)))))
+	(cons "Logging you in as \"\\([^\"]+\\)\""
+	      (function
+	       (lambda ()
+		 (setq chess-ics-handle (match-string 1)))))
 	(cons "\\(\\(\n*fics%\n*\\)?<12> \\(.+\\)\\)\n"
 	      'chess-ics-handle-move)
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
@@ -243,8 +247,6 @@ who is black."
 				       (insert-file-contents file)
 				       (buffer-string))))
 		      (comint-send-string proc (concat pass "\n")))))
-	      ;; jww (2002-04-13): Have to parse out the allocated Guest
-	      ;; name from the output
 	      (comint-send-string proc "guest\n\n")))))
       t)
 
