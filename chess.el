@@ -96,6 +96,7 @@ not available."
   '((chess-sound chess-announce)
     chess-autosave
     chess-clock
+    chess-opening
     ;;chess-kibitz   jww (2002-04-30): not fully supported yet
     ;;chess-chat
     )
@@ -107,7 +108,7 @@ These can do just about anything."
   :group 'chess)
 
 (defcustom chess-default-engine
-  '(chess-crafty chess-gnuchess chess-phalanx)
+  '(chess-crafty chess-gnuchess chess-phalanx chess-ai)
   "Default engine to be used when starting a chess session.
 A list indicates a series of alternatives if the first engine is not
 available."
@@ -195,12 +196,13 @@ If an element of MODULE-LIST is a sublist, treat it as alternatives."
 					 'chess-module-create game))
 
     (push (unless (eq engine 'none)
-	    (car (condition-case nil
+	    (car ;(condition-case nil
 		     (chess-create-modules (list (or engine chess-default-engine))
 					   'chess--create-engine game
 					   engine-response-handler
 					   engine-ctor-args)
-		   (error nil))))
+		   ;(error nil))
+		     ))
 	  objects)
 
     (unless (car objects)
