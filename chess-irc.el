@@ -46,7 +46,7 @@
     (message "Connecting to IRC server '%s:%d'..."
 	     chess-irc-host chess-irc-port)
     (let ((engine (current-buffer)) proc)
-      (with-current-buffer (generate-new-buffer "*chess-irc*")
+      (with-current-buffer (generate-new-buffer " *chess-irc*")
 	(setq chess-irc-engine engine
 	      proc (open-network-stream "*chess-irc*" (current-buffer)
 					chess-irc-host chess-irc-port))
@@ -75,6 +75,16 @@
 				 chess-irc-opponent (car args))))
    (t
     (apply 'chess-network-handler event args))))
+
+(defun chess-irc-engage (nick)
+  "Begin playing with another chess-irc user with the given NICK.
+NOTE: This function is meant to be called from a display buffer!"
+  (interactive "sYour opponent's IRC nick: ")
+  (with-current-buffer
+      (cdr (assq 'chess-engine-event-handler
+		 (chess-game-hooks (chess-display-game nil))))
+    (setq chess-irc-opponent nick)
+    (chess-engine-send engine (format "name %s\n" (user-full-name)))))
 
 ;; This filter translates IRC syntax into basic chess-network protocol
 (defun chess-irc-filter (proc string)
