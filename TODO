@@ -13,6 +13,9 @@
   chess-coord needs to be applied to a larger area, and also the way
   highlight locations are found needs to be recalculated.
 
+- Move keyboard shortcutting and mouse selection into their own
+  modules
+
 - the game should go inactive once I lose by stalemate/checkmate
 
 - when a clock runs down, indicate this in the modeline, and all the
@@ -30,7 +33,10 @@
 
 - Add support for adjournments; also, implement this is such a way
   that an e-mail or postal game is basically a game that's adjourned
-  after every move
+  after every move; use BBDB if available
+
+- Allow databases to return a game moniker, which can be used to
+  reference that game again
 
 - There needs to be much more robustness; it's too easy to get the
   game into an unplayable state right now

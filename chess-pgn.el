@@ -38,8 +38,8 @@
 	  (goto-char (match-end 0))
 	  (chess-game-set-tag game "Result" (match-string-no-properties 0))
 	  (unless (eq t (car (last plies)))
-	    (nconc plies (list (chess-ply-create
-				(chess-ply-next-pos (car (last plies)))))))
+	    (nconc plies (list (chess-ply-create*
+				(chess-ply-next-pos (car (last plies))) t))))
 	  (throw 'done t))
 
 	 ((looking-at "{")
@@ -61,8 +61,8 @@
 	  (throw 'done t))
 
 	 (t
-	  (nconc plies (list (chess-ply-create
-			      (chess-ply-next-pos (car (last plies))))))
+	  (nconc plies (list (chess-ply-create*
+			      (chess-ply-next-pos (car (last plies))) t)))
 	  (throw 'done t)))
 	(skip-chars-forward " \t\n")))
     (cdr plies)))
@@ -92,9 +92,9 @@
 			    (chess-fen-to-pos fen)
 			  (chess-pos-copy chess-starting-position)) t)
 		  ;; set the starting position to the FEN string
-		  (list (chess-ply-create (if fen
-					      (chess-fen-to-pos fen)
-					    chess-starting-position))))))
+		  (list (chess-ply-create* (if fen
+					       (chess-fen-to-pos fen)
+					     chess-starting-position) fen)))))
       game)))
 
 (defun chess-pgn-insert-annotations (game index ply)

@@ -124,8 +124,8 @@ See `mode-line-format' for syntax details."
   (chess-with-current-buffer display
     (chess-display-set-index* nil 1)
     (chess-game-set-plies chess-module-game
-			  (list ply (chess-ply-create
-				     (chess-ply-next-pos ply))))))
+			  (list ply (chess-ply-create*
+				     (chess-ply-next-pos ply) t)))))
 
 (defun chess-display-ply (display)
   (chess-with-current-buffer display
@@ -920,7 +920,7 @@ Clicking once on a piece selects it; then click on the target location."
 				     (and (> t-piece ?a)
 					  (> s-piece ?a))))
 			    (throw 'message (chess-string 'cannot-mount)))
-			(unless (setq ply (chess-ply-create position
+			(unless (setq ply (chess-ply-create position nil
 							    (cadr last-sel)
 							    coord))
 			  (throw 'message (chess-string 'move-not-legal)))

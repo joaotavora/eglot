@@ -48,7 +48,8 @@ Optionally use the given starting POSITION.
 SEARCH-FUNC specifies the function used to test the legality of moves.
 TAGS is the starting set of var tags (which can always be changed
 later using the various tag-related methods)."
-  (list (chess-ply-create (or position (chess-pos-create)))))
+  (list (chess-ply-create* (or position (chess-pos-create))
+			   (null position))))
 
 (defun chess-var-move (var ply)
   "Make a move in the current VAR, from FROM to TO.
@@ -62,8 +63,8 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	(chess-error 'add-to-completed))
     (assert (equal position (chess-ply-pos current-ply)))
     (chess-ply-set-changes current-ply changes)
-    (chess-var-add-ply var (chess-ply-create
-			    (chess-ply-next-pos current-ply)))))
+    (chess-var-add-ply var (chess-ply-create*
+			    (chess-ply-next-pos current-ply) t))))
 
 (provide 'chess-var)
 

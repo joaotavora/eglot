@@ -335,7 +335,15 @@ trying to move a blank square."
 (chess-message-catalog 'english
   '((piece-unrecognized . "Unrecognized piece identifier")))
 
-(defun chess-search-position (position target piece)
+(eval-when-compile
+  (defvar candidates)
+  (defvar check-only))
+(defsubst chess--add-candidate (candidate)
+  (if check-only
+      (throw 'in-check t)
+    (push candidate candidates)))
+
+(defun chess-search-position (position target piece &optional check-only)
   "Look on POSITION from TARGET for a PIECE that can move there.
 This routine looks along legal paths of movement for PIECE.  It
 differs from `chess-pos-search', which is a more basic function that
@@ -359,12 +367,12 @@ indices which indicate where a piece may have moved from."
      ;; from any piece movement.  This is useful for testing whether a
      ;; king is in check, for example.
      ((memq piece '(t nil))
-      (setq candidates (list t))
-      (dolist (p '(?P ?R ?N ?B ?K ?Q))
-	(nconc candidates
-	       (chess-search-position position target
-				      (if piece p (downcase p)))))
-      (setq candidates (cdr candidates)))
+      (dolist (p (if check-only
+		     '(?P ?R ?N ?B ?Q)
+		   '(?P ?R ?N ?B ?Q ?K)))
+	(mapc 'chess--add-candidate
+	      (chess-search-position position target
+				     (if piece p (downcase p))))))
 
      ;; skip erroneous space requests
      ((= test-piece ? ))
@@ -388,30 +396,26 @@ indices which indicate where a piece may have moved from."
 			      (chess-pos-piece-p position pos
 						 (if color ?P ?p)))))
 	      (if color (> p ?a) (< p ?a)))
-	    (let ((cands (list t)))
+	    (progn
 	      (setq pos (chess-incr-index target (- bias) -1))
 	      (if (and pos (chess-pos-piece-p position pos piece))
-		  (nconc cands (list pos)))
+		  (chess--add-candidate pos))
 	      (setq pos (chess-incr-index target (- bias) 1))
 	      (if (and pos (chess-pos-piece-p position pos piece))
-		  (nconc cands (list pos)))
-	      (if candidates
-		  (nconc candidates (cdr cands))
-		(setq candidates (cdr cands))))
+		  (chess--add-candidate pos)))
 	  (if (setq pos (chess-incr-index target (- bias) 0))
 	      (if (chess-pos-piece-p position pos piece)
-		  (setq candidates (list pos))
+		  (chess--add-candidate pos)
 		(when (and (chess-pos-piece-p position pos ? )
 			   (= (if color 4 3)
 			      (chess-index-rank target)))
 		  (setq pos (chess-incr-index pos (- bias) 0))
 		  (if (and pos (chess-pos-piece-p position pos piece))
-		      (setq candidates (list pos)))))))))
+		      (chess--add-candidate pos))))))))
 
      ;; the rook, bishop and queen are the easiest; just look along
      ;; rank and file and/or diagonal for the nearest pieces!
      ((memq test-piece '(?R ?B ?Q))
-      (setq candidates (list t))
       (dolist (dir (cond
 		    ((= test-piece ?R)
 		     '(        (-1 0)
@@ -432,12 +436,11 @@ indices which indicate where a piece may have moved from."
 	(while pos
 	  (if (chess-pos-piece-p position pos piece)
 	      (progn
-		(nconc candidates (list pos))
+		(chess--add-candidate pos)
 		(setq pos nil))
 	    (if (not (chess-pos-piece-p position pos ? ))
 		(setq pos nil)
-	      (setq pos (apply 'chess-incr-index pos dir))))))
-      (setq candidates (cdr candidates)))
+	      (setq pos (apply 'chess-incr-index pos dir)))))))
 
      ;; the king is a trivial case of the queen, except when castling
      ((= test-piece ?K)
@@ -448,7 +451,9 @@ indices which indicate where a piece may have moved from."
 	  ;; up the current file
 	  (setq pos (apply 'chess-incr-index target (car dirs)))
 	  (if (and pos (chess-pos-piece-p position pos piece))
-	      (setq candidates (list pos) dirs nil)
+	      (progn
+		(chess--add-candidate pos)
+		(setq dirs nil))
 	    (setq dirs (cdr dirs)))))
 
       (let ((rank (if color 7 0)))
@@ -474,12 +479,11 @@ indices which indicate where a piece may have moved from."
 		    (setq legal nil)
 		  (setq file (funcall (if long '1+ '1-) file))))
 	      (if legal
-		  (setq candidates (list (chess-rf-to-index rank 4))))))))
+		  (chess--add-candidate (chess-rf-to-index rank 4)))))))
 
      ;; the knight is a zesty little piece; there may be more than
      ;; one, but at only one possible square in each direction
      ((= test-piece ?N)
-      (setq candidates (list t))
       (dolist (dir '((-2 -1) (-2 1)
 		     (-1 -2) (-1 2)
 		      (1 -2)  (1 2)
@@ -487,8 +491,7 @@ indices which indicate where a piece may have moved from."
 	;; up the current file
 	(if (and (setq pos (apply 'chess-incr-index target dir))
 		 (chess-pos-piece-p position pos piece))
-	    (nconc candidates (list pos))))
-      (setq candidates (cdr candidates)))
+	    (chess--add-candidate pos))))
 
      (t (chess-error 'piece-unrecognized)))
 
@@ -496,27 +499,46 @@ indices which indicate where a piece may have moved from."
     ;; leave the king in check; castling through check has already
     ;; been eliminated.
     (if (char-valid-p piece)
-	(let ((cand candidates) last-cand pos king-pos)
-	  (while cand
-	    ;; determine the resulting position
-	    (setq pos (chess-pos-move (chess-pos-copy position)
-				      (car cand) target))
-	    ;; find the king (only once if the king isn't moving)
-	    (if (or (null king-pos)
-		    (eq (downcase piece) ?k))
-		(setq king-pos (chess-pos-search pos (if color ?K ?k))))
-	    ;; can anybody from the opposite side reach him?  if so,
-	    ;; drop the candidate
-	    (if (or (null king-pos)
-		    (chess-search-position pos (car king-pos) (not color)))
-		(if last-cand
-		    (setcdr last-cand (cdr cand))
-		  (setq candidates (cdr candidates)))
-	      (setq last-cand cand))
-	    (setq cand (cdr cand)))))
+	(setq candidates
+	      (apply 'chess-pos-legal-moves
+		     position color target candidates)))
 
     ;; return the final list of candidate moves
     candidates))
+
+(defun chess-pos-legal-moves (position color target &rest candidates)
+  "Test if TARGET can legally be reached by any of CANDIDATES.
+Return the list of candidates that can reach it.
+
+CANDIDATES is a list of position indices which indicate the piece to
+be moved, and TARGET is the index of the location to be moved to.
+
+Note: All of the pieces specified by CANDIDATES must be of the same
+type."
+  (let ((cand candidates)
+	(test-piece (if (boundp 'test-piece)
+			test-piece	; a performance hack for above
+		      (upcase (chess-pos-piece position (car candidates)))))
+	last-cand pos king-pos)
+    (while cand
+      ;; determine the resulting position
+      (setq pos (chess-pos-move (chess-pos-copy position)
+				(car cand) target))
+      ;; find the king (only once if the king isn't moving)
+      (if (or (null king-pos)
+	      (= test-piece ?K))
+	  (setq king-pos (chess-pos-search pos (if color ?K ?k))))
+      ;; can anybody from the opposite side reach him?  if so,
+      ;; drop the candidate
+      (if (catch 'in-check
+	    (chess-search-position pos (car king-pos) (not color) t))
+	  (if last-cand
+	      (setcdr last-cand (cdr cand))
+	    (setq candidates (cdr candidates)))
+	(setq last-cand cand))
+      (setq cand (cdr cand)))
+    candidates))
+
 
 (provide 'chess-pos)
 

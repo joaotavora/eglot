@@ -113,12 +113,10 @@ This regexp handles both long and short form.")
 	  (if promotion
 	      (nconc changes (list :promote (aref promotion 0))))))
 
-      (when trust
-	(if mate
-	    (nconc changes (list (if (equal mate "#") :checkmate :check))))
-	(nconc changes (list :valid)))
+      (if (and trust mate)
+	  (nconc changes (list (if (equal mate "#") :checkmate :check))))
 
-      (or ply (apply 'chess-ply-create position changes)))))
+      (or ply (apply 'chess-ply-create position trust changes)))))
 
 (defun chess-ply-to-algebraic (ply &optional long)
   "Convert the given PLY to algebraic notation.

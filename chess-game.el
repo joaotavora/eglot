@@ -136,7 +136,7 @@ matches."
 
 (defsubst chess-game-set-start-position (game position)
   "Return the tags alist associated with GAME."
-  (chess-game-set-plies game (list (chess-ply-create position))))
+  (chess-game-set-plies game (list (chess-ply-create* position))))
 
 (defsubst chess-game-pos (game &optional index)
   "Return the position related to GAME's INDEX position."
@@ -207,8 +207,9 @@ Optionally use the given starting POSITION.
 TAGS is the starting set of game tags (which can always be changed
 later using the various tag-related methods)."
   (let ((game (list nil tags nil
-		    (list (chess-ply-create (or position
-						(chess-pos-create)))))))
+		    (list (chess-ply-create* (or position
+						 (chess-pos-create))
+					     (null position))))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))
@@ -227,8 +228,8 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	(chess-error 'add-to-completed))
     (assert (equal position (chess-ply-pos current-ply)))
     (chess-ply-set-changes current-ply changes)
-    (chess-game-add-ply game (chess-ply-create
-			      (chess-ply-next-pos current-ply)))
+    (chess-game-add-ply game (chess-ply-create*
+			      (chess-ply-next-pos current-ply) t))
     (cond
      ((chess-ply-any-keyword ply :draw :perpetual :repetition :stalemate)
       (chess-game-set-tag game "Result" "1/2-1/2")
