@@ -470,8 +470,13 @@ See `chess-display-type' for the different kinds of displays."
       (define-key map [(button1)] 'chess-display-mouse-select-piece)
       (define-key map [(button2)] 'chess-display-mouse-select-piece))
      (t
+      (define-key map [down-mouse-1] 'chess-display-mouse-select-piece)
       (define-key map [mouse-1] 'chess-display-mouse-select-piece)
-      (define-key map [mouse-2] 'chess-display-mouse-select-piece)))
+      (define-key map [drag-mouse-1] 'chess-display-mouse-select-piece)
+
+      (define-key map [down-mouse-2] 'chess-display-mouse-select-piece)
+      (define-key map [mouse-2] 'chess-display-mouse-select-piece)
+      (define-key map [drag-mouse-2] 'chess-display-mouse-select-piece)))
 
     (define-key map [menu-bar files] 'undefined)
     (define-key map [menu-bar edit] 'undefined)
@@ -892,12 +897,12 @@ to the end or beginning."
 (make-variable-buffer-local 'chess-legal-moves-pos)
 (make-variable-buffer-local 'chess-legal-moves)
 
-(defun chess-keyboard-test-move (move)
+(defun chess-keyboard-test-move (move-ply)
   "Return the given MOVE if it matches the user's current input."
-  (let ((i 0) (x 0)
-	(l (length move))
-	(xl (length chess-move-string))
-	(match t))
+  (let* ((move (cdr move-ply)) (i 0) (x 0)
+	 (l (length move))
+	 (xl (length chess-move-string))
+	 (match t))
     (unless (or (and (equal (downcase chess-move-string) "ok")
 		     (equal move "O-O"))
 		(and (equal (downcase chess-move-string) "oq")
@@ -912,52 +917,91 @@ to the end or beginning."
 			       (downcase move-char)))
 	      (setq match nil i l)
 	    (setq i (1+ i) x (1+ x))))))
-    (if match move)))
+    (if match
+	move-ply)))
 
 (defsubst chess-keyboard-display-moves (&optional move-list)
   (if (> (length chess-move-string) 0)
       (message "[%s] %s" chess-move-string
-	       (mapconcat 'identity
+	       (mapconcat 'cdr
 			  (or move-list
 			      (delq nil (mapcar 'chess-keyboard-test-move
-						chess-legal-moves))) " "))))
+						(cdr chess-legal-moves))))
+			  " "))))
 
 (defun chess-keyboard-shortcut-delete ()
   (interactive)
   (when (and chess-move-string
 	     (stringp chess-move-string)
-	     (> (length chess-move-string) 1))
+	     (> (length chess-move-string) 0))
     (setq chess-move-string
 	  (substring chess-move-string 0 (1- (length chess-move-string))))
     (chess-keyboard-display-moves)))
 
 (defun chess-keyboard-shortcut (&optional display-only)
   (interactive)
-  (unless (memq last-command '(chess-keyboard-shortcut
-			       chess-keyboard-shortcut-delete))
-    (setq chess-move-string nil))
-  (unless display-only
-    (setq chess-move-string
-	  (concat chess-move-string (char-to-string last-command-char))))
-  (let ((position (chess-display-position nil)))
+  (let* ((position (chess-display-position nil))
+	 (color (chess-pos-side-to-move position)))
+    (if (and (chess-display-active-p)
+	     ;; `active' means we're playing against an engine
+	     (chess-game-data chess-display-game 'active)
+	     (not (eq (chess-game-data chess-display-game 'my-color)
+		      (chess-pos-side-to-move position))))
+	(error "It is not your turn to move"))
+    (unless (memq last-command '(chess-keyboard-shortcut
+				 chess-keyboard-shortcut-delete))
+      (setq chess-move-string nil))
+    (unless display-only
+      (setq chess-move-string
+	    (concat chess-move-string (char-to-string last-command-char))))
     (unless (and chess-legal-moves
-		 (eq position chess-legal-moves-pos))
+		 (eq position chess-legal-moves-pos)
+		 (or (> (length chess-move-string) 1)
+		     (eq (car chess-legal-moves) last-command-char)))
       (setq chess-legal-moves-pos position
 	    chess-legal-moves
-	    (sort (mapcar 'chess-ply-to-algebraic (chess-legal-plies position))
-		  'string-lessp)))
-    (let ((moves (delq nil (mapcar 'chess-keyboard-test-move
-				   chess-legal-moves))))
-      (cond
-       ((= (length moves) 1)
-	(chess-display-manual-move (car moves))
-	(setq chess-move-string nil
-	      chess-legal-moves nil
-	      chess-legal-moves-pos nil))
-       ((null moves)
-	(chess-keyboard-shortcut-delete))
-       (t
-	(chess-keyboard-display-moves moves))))))
+	    (cons last-command-char
+		  (sort (mapcar
+			 (function
+			  (lambda (ply)
+			    (cons ply (chess-ply-to-algebraic ply))))
+			 (if (eq last-command-char ?b)
+			     (append (chess-legal-plies position
+							(if color ?P ?p) 1)
+				     (chess-legal-plies position
+							(if color ?B ?b)))
+			   (if (and (>= last-command-char ?a)
+				    (<= last-command-char ?h))
+			       (chess-legal-plies position (if color ?P ?p)
+						  (- last-command-char ?a))
+			     (chess-legal-plies
+			      position
+			      (if color
+				  (upcase last-command-char)
+				(downcase last-command-char))))))
+			(function
+			 (lambda (left right)
+			   (string-lessp (cdr left) (cdr right)))))))))
+  (let ((moves (delq nil (mapcar 'chess-keyboard-test-move
+				 (cdr chess-legal-moves)))))
+    (cond
+     ((or (= (length moves) 1)
+	  ;; if there is an exact match except for case, it must be an
+	  ;; abiguity between a bishop and a b-pawn move.  In this
+	  ;; case, always take the b-pawn move; to select the bishop
+	  ;; move, use B to begin the keyboard shortcut
+	  (and (= (length moves) 2)
+	       (string= (downcase (cdr (car moves)))
+			(downcase (cdr (cadr moves))))
+	       (setq moves (cdr moves))))
+      (chess-display-move nil (caar moves))
+      (setq chess-move-string nil
+	    chess-legal-moves nil
+	    chess-legal-moves-pos nil))
+     ((null moves)
+      (chess-keyboard-shortcut-delete))
+     (t
+      (chess-keyboard-display-moves moves)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -997,8 +1041,7 @@ Clicking once on a piece selects it; then click on the target location."
 	    (let ((piece (chess-pos-piece position coord)))
 	      (cond
 	       ((and (chess-display-active-p)
-		     ;; `active' means we're playing somebody via an
-		     ;; engine
+		     ;; `active' means we're playing an engine
 		     (chess-game-data chess-display-game 'active)
 		     (not (eq (chess-game-data chess-display-game
 					       'my-color)
@@ -1020,13 +1063,17 @@ Clicking once on a piece selects it; then click on the target location."
 (defun chess-display-mouse-select-piece (event)
   "Select the piece the user clicked on."
   (interactive "e")
-  (cond ((fboundp 'event-window)	; XEmacs
-	 (set-buffer (window-buffer (event-window event)))
-	 (and (event-point event) (goto-char (event-point event))))
-	((fboundp 'posn-window)		; Emacs
-	 (set-buffer (window-buffer (posn-window (event-start event))))
-	 (goto-char (posn-point (event-start event)))))
-  (chess-display-select-piece))
+  (if (fboundp 'event-window)		; XEmacs
+      (progn
+	(set-buffer (window-buffer (event-window event)))
+	(and (event-point event) (goto-char (event-point event))))
+    (if (equal (event-start event) (event-end event))
+	(progn
+	  (set-buffer (window-buffer (posn-window (event-start event))))
+	  (goto-char (posn-point (event-start event)))
+	  (chess-display-select-piece))
+      (goto-char (posn-point (event-end event)))
+      (chess-display-select-piece))))
 
 (provide 'chess-display)
 
