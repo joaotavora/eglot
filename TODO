@@ -19,6 +19,11 @@ These are features scheduled for future 2.x releases.
 - Find a way to display pieces on Windows platforms, or at least
   document how to build XPM support into Emacs for Windows
 
+- Add a way to include the chess-ucb module in the list of default
+  modules created via M-x chess.  Right now there is no facility for
+  having two engines associated with a single game (and chess-link
+  is not what we want in this case).
+
 ----------------------------------------------------------------------
 
 			      ICS Client
