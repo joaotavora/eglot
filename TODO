@@ -20,6 +20,9 @@
 
 - when announcing abiguous pieces, name the rank/file ("e pawn")
 
+- there needs to be much more robustness; it's too easy to get the
+  game into an unplayable state right now
+
 ----------------------------------------------------------------------
 
 - Read-only mode needs to be a bit more vigorous.  There's nothing
@@ -40,7 +43,7 @@
   chess games back and forth.  Add code for special MIME handling of
   this type in Gnus.
 
-- Clean/rewrite ics.el
+- Copy some of ics.el's nicer functionality into chess-ics.el
 
 - Add support for ICS observing
 

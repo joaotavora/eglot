@@ -46,7 +46,7 @@
 
 (defun chess-sound-for-game (game)
   "Announce the opponent's moves in GAME."
-  (chess-game-add-hook game 'chess-sound-event-handler))
+  (chess-game-add-hook game 'chess-sound-handler))
 
 (defun chess-sound (ch)
   (let ((file
@@ -61,9 +61,10 @@
 	     (expand-file-name file chess-sound-directory))))
 
 (defun chess-sound-play (file)
-  (apply 'call-process chess-sound-program nil nil nil chess-sound-args))
+  (apply 'call-process chess-sound-program
+	 nil nil nil (append chess-sound-args (list file))))
 
-(defun chess-sound-event-handler (game ignore event &rest args)
+(defun chess-sound-handler (game ignore event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
   (cond
