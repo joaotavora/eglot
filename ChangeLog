@@ -1,5 +1,12 @@
 2002-04-16  John Wiegley  <johnw@gnu.org>
 
+	* chess-clock.el (chess-clock-handler): Use
+	`chess-ply-set-keyword', to avoid double-adding keywords.
+
+	* chess-ply.el (chess-ply-set-keyword): Added a new function for
+	setting a ply's keyword, with an optional value (must be non-nil
+	for setting with a value to occur).
+
 	* chess-ics.el (chess-ics-handle-move): Record the white and black
 	remaining time as returned from the server.
 

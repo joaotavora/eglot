@@ -25,6 +25,8 @@
 - Move keyboard shortcutting and mouse selection into their own
   modules
 
+- Use chess-ply-set-keyword wherever keywords are being set now.
+
 ----------------------------------------------------------------------
 
 - The game should go inactive once I lose by stalemate/checkmate
