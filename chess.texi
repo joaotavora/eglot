@@ -20,7 +20,7 @@
 @c Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 
 @c %**start of header
-@setfilename chess
+@setfilename chess.info
 @settitle Chess.el
 @c %**end of header
 
@@ -75,6 +75,7 @@ any later version published by the Free Software Foundation.
 @c ================================================================
 
 @ifinfo
+@node Top, The Chess.el library, (dir), (dir)
 @top Chess.el
 
 Chess.el is an Emacs chess environment, designed in a modular fashion to
@@ -88,11 +89,269 @@ modules which make it useful as a client.  These modules also serve as
 an example of how to make use of the library.
 @end ifinfo
 
-@chapter What is Chess.el?
-@cindex what is chess.el?
-@cindex chess.el, what it is
+@menu
+* The Chess.el library::        
+* Play sessions::               
+* Display modules::             
+* Ply sources::                 
+@end menu
 
+@node The Chess.el library, Play sessions, Top, Top
+@chapter The Chess.el library
+@cindex library
 
+@menu
+* Positions::                   
+* Plies::                       
+* Variations::                  
+* Games::                       
+@end menu
+
+@node Positions, Plies, The Chess.el library, The Chess.el library
+@section Positions
+
+@menu
+* Creating positions::          
+* Position coordinates::        
+* Manipulating pieces::         
+* Position details::            
+* Annotations::                 
+* FEN notation::                
+@end menu
+
+@node Creating positions, Position coordinates, Positions, Positions
+@subsection Creating positions
+
+@defun chess-pos-create &optional blank
+@end defun
+
+@defun chess-pos-copy position
+@end defun
+
+@defvar chess-starting-position
+@end defvar
+
+@node Position coordinates, Manipulating pieces, Creating positions, Positions
+@subsection Position coordinates
+
+@defun chess-index-rank index
+@end defun
+
+@defun chess-index-file index
+@end defun
+
+@defun chess-rf-to-index rank file
+@end defun
+
+@defun chess-coord-to-index coord
+@end defun
+
+@defun chess-index-to-coord index
+@end defun
+
+@defun chess-add-index index rank-move file-move
+@end defun
+
+@node Manipulating pieces, Position details, Position coordinates, Positions
+@subsection Manipulating pieces
+
+@defun chess-pos-piece position index
+@end defun
+
+@defun chess-pos-piece-p position index piece-or-color
+@end defun
+
+@defun chess-pos-set-piece position index piece
+@end defun
+
+@defun chess-pos-search position piece-or-color
+@end defun
+
+@node Position details, Annotations, Manipulating pieces, Positions
+@subsection Position details
+
+@defun chess-pos-can-castle position side
+@end defun
+
+@defun chess-pos-set-can-castle position side value
+@end defun
+
+@defun chess-pos-en-passant position
+@end defun
+
+@defun chess-pos-set-en-passant position index
+@end defun
+
+@defun chess-pos-status position
+@end defun
+
+@defun chess-pos-set-status position status
+@end defun
+
+@defun chess-pos-side-to-move position
+@end defun
+
+@defun chess-pos-set-side-to-move position color
+@end defun
+
+@node Annotations, FEN notation, Position details, Positions
+@subsection Annotations
+
+@defun chess-pos-annotation position
+@end defun
+
+@defun chess-pos-add-annotation position annotation
+@end defun
+
+@node FEN notation,  , Annotations, Positions
+@subsection FEN notation
+
+@defun chess-fen-to-pos fen-string
+@end defun
+
+@defun chess-pos-to-fen position &optional full
+@end defun
+
+@node Plies, Variations, Positions, The Chess.el library
+@section Plies
+
+@menu
+* Creating plies::              
+* Ply details::                 
+* The "next" position::         
+* Algebraic notation::          
+@end menu
+
+@node Creating plies, Ply details, Plies, Plies
+@subsection Creating plies
+
+@defun chess-ply-create position &rest changes
+@end defun
+
+@defun chess-legal-plies position color
+@end defun
+
+@node Ply details, The "next" position, Creating plies, Plies
+@subsection Ply details
+
+@defun chess-ply-pos ply
+@end defun
+
+@defun chess-ply-set-pos ply position
+@end defun
+
+@defun chess-ply-changes ply
+@end defun
+
+@defun chess-ply-set-changes ply changes
+@end defun
+
+@node The "next" position, Algebraic notation, Ply details, Plies
+@subsection The "next" position
+
+@defun chess-ply-next-pos ply
+@end defun
+
+@node Algebraic notation,  , The "next" position, Plies
+@subsection Algebraic notation
+
+@defun chess-ply-to-algebraic ply &optional long
+@end defun
+
+@defun chess-algebraic-to-ply position move
+@end defun
+
+@defvar chess-algebraic-regexp
+@end defvar
+
+@node Variations, Games, Plies, The Chess.el library
+@section Variations
+
+@node Games,  , Variations, The Chess.el library
+@section Games
+
+@menu
+* Creating games::              
+* Game tags::                   
+* Game positions::              
+* Game plies::                  
+@end menu
+
+@node Creating games, Game tags, Games, Games
+@subsection Creating games
+
+@defun chess-game-create &optional tags position
+@end defun
+
+@node Game tags, Game positions, Creating games, Games
+@subsection Game tags
+
+@defun chess-game-tags game
+@end defun
+
+@defun chess-game-set-tags game tags
+@end defun
+
+@defun chess-game-tag game tag
+@end defun
+
+@defun chess-game-set-tag game tag value
+@end defun
+
+@defun chess-game-del-tag game tag
+@end defun
+
+@node Game positions, Game plies, Game tags, Games
+@subsection Game positions
+
+@defun chess-game-pos game &optional index
+@end defun
+
+@defun chess-game-index game
+@end defun
+
+@defun chess-game-seq game
+@end defun
+
+@node Game plies,  , Game positions, Games
+@subsection Game plies
+
+@defun chess-game-ply game &optional index
+@end defun
+
+@subsection Making a move
+
+@defun chess-game-move game ply
+@end defun
+
+@subsection PGN notation
+
+@defun chess-pgn-to-game
+@end defun
+
+@defun chess-game-to-pgn game &optional indented
+@end defun
+
+@defun chess-pgn-insert-plies index plies &optional for-black indented no-ann
+@end defun
+
+@subsubsection PGN mode
+
+@node Play sessions, Display modules, The Chess.el library, Top
+@chapter Play sessions
+
+@node Display modules, Ply sources, Play sessions, Top
+@chapter Display modules
+
+@node Ply sources,  , Display modules, Top
+@chapter Ply sources
+
+@menu
+* Chess engines::               
+@end menu
+
+@node Chess engines,  , Ply sources, Ply sources
+@section Chess engines
 
 @unnumbered Concept Index
 
