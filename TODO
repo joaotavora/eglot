@@ -4,6 +4,17 @@ These are features scheduled for future 2.x releases.
 
 			   General Features
 
+- Enable the chat module, and base its interface on what TNT does
+
+- Merge chess-announce and chess-sound, and use style modules on top
+  of the underlying module
+
+- Create a generic chess-output interface, for outputting games to a
+  particular format (PGN, HTML, LaTeX, etc)
+
+- Display in the modeline which game in the database we're in, and
+  what the positional evaluation is
+
 - Add a `force' event for forcing an engine to move, and a command
   from chess-display to send this event
 
@@ -97,6 +108,10 @@ These are features scheduled for future 2.x releases.
 ----------------------------------------------------------------------
 
 			  Analysis features
+
+- Add slots to each position for keeping track of positional
+  evaluation (these values can be automatically determined when
+  parsing ICS12)
 
 - Add an engine function for obtaining an evaluation of the current
   position.  Then, allow M-x chess to startup a non-game oriented
