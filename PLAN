@@ -9,6 +9,12 @@ chess-network
 chess-display
 - if I resign, chess-announce announces the last move my opponent
   made!
+- there should be a way to disable popups, yet still have the initial
+  display popup in its own frame
+
+chess-irc
+- if I move before my opponent has connected, I get a symbol assertion
+  about "value"
 
 chess-ply
 - detect games drawn by three-fold repetition
