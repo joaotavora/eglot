@@ -211,15 +211,16 @@ who is black."
     (setq parts (cdr parts))
 
     ;; checkmate, etc., is stated in the SAN text
-    (cond
-     ((= ?+ (aref move (1- (length move))))
-      (chess-pos-set-status position :check))
-     ((= ?# (aref move (1- (length move))))
-      (chess-pos-set-status position :checkmate))
-     (nil
-      ;; jww (2002-04-30): what about stalemate?  do I need to
-      ;; calculate this each time?
-      (chess-pos-set-status position :stalemate)))
+    (when (> (length move) 0)
+      (cond
+       ((= ?+ (aref move (1- (length move))))
+	(chess-pos-set-status position :check))
+       ((= ?# (aref move (1- (length move))))
+	(chess-pos-set-status position :checkmate))
+       (nil
+	;; jww (2002-04-30): what about stalemate?  do I need to
+	;; calculate this each time?
+	(chess-pos-set-status position :stalemate))))
 
     ;; flip field for board orientation: 1 = Black at bottom, 0 =
     ;; White at bottom.
