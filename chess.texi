@@ -313,6 +313,9 @@ an example of how to make use of the library.
 @defun chess-game-seq game
 @end defun
 
+@defun chess-game-side-to-move game
+@end defun
+
 @node Game plies,  , Game positions, Games
 @subsection Game plies
 

@@ -110,7 +110,7 @@ progress (nil), if it is drawn, resigned, mate, etc."
      ((or (memq ':resign changes)
 	  (memq ':checkmate changes))
       (chess-game-set-tag game "Result"
-			  (if (chess-pos-side-to-move (chess-game-pos game))
+			  (if (chess-game-side-to-move game)
 			      "0-1" "1-0")))
      (t (nconc (cdr game)
 	       (list (chess-ply-create
