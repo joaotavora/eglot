@@ -367,7 +367,10 @@
     (let ((proc chess-engine-process))
       (if proc
 	  (if (memq (process-status proc) '(run open))
-	      (process-send-string proc string)
+	      (progn
+                (goto-char (point-max))
+		(insert-before-markers string)
+		(process-send-string proc string))
 	    (chess-message 'engine-not-running)
 	    (chess-engine-command nil 'destroy))
 	(chess-engine-command nil 'send string)))))
