@@ -1,21 +1,31 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; A game database that stores PGN format games in a single file.
+;; A game database that stores PGN format games or EPD format positions in
+;; a single file.
 ;;
-;; This is basically what you expect from a file ending in .pgn.
+;; This is basically what you expect from a file ending in .pgn or .epd.
 ;;
 
-(defvar chess-file-locations)
-
+(defvar chess-file-locations nil
+  "A list of starting positions of individual records of this collection.")
 (make-variable-buffer-local 'chess-file-locations)
 
-(defvar chess-file-type nil)
+(defvar chess-file-type nil
+  "The file format type of this database instance (a symbol).
+See `chess-file-types' for details.")
 (make-variable-buffer-local 'chess-file-type)
 
 (defvar chess-file-types
   `((pgn "^\\[Event " chess-pgn-to-game chess-game-to-pgn (?\n ?\n))
     (epd ,(concat chess-fen-regexp "\\(\\s-+.+\\);\\s-*$")
-	 chess-epd-to-game chess-game-to-epd (?\n)))))
+	 chess-epd-to-game chess-game-to-epd (?\n)))
+  "Alist of different file types.
+Entries have the form (TYPE BEGIN-REGEXP TO-GAME FROM-GAME SEPARATOR)
+where TYPE is a symbol (usually either 'pgn or 'epd),
+BEGIN-REGEXP is the regexp to use for matching the beginning of new records,
+TO-GAME and FROM-GAME are functions to use for reading and writing a game
+object from/into the buffer and SEPARATOR is a list of characters to insert
+inbetween of individual records.")
 
 (defun chess-file-handler (event &rest args)
   (cond
