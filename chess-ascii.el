@@ -80,6 +80,10 @@ PERSPECTIVE is t for white or nil for black."
 
 ;; Plain display
 
+(defgroup chess-plain nil
+  "A minimal, customizable ASCII display."
+  :group 'chess-ascii)
+
 (defcustom chess-plain-draw-border nil
   "*Non-nil if a border should be drawn (using `chess-plain-border-chars')."
   :group 'chess-plain
