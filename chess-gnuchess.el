@@ -44,7 +44,7 @@
 	(when (and (processp proc)
 		   (eq (process-status proc) 'run))
 	  (process-send-string proc "nopost\n")
-	  (setq chess-engine-opponent-name "Crafty")
+	  (setq chess-engine-opponent-name "GnuChess")
 	  t)))
 
      ((eq event 'setup-pos)
@@ -68,8 +68,7 @@
       (setq chess-gnuchess-bad-board nil))
 
      ((eq event 'move)
-      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				     "\n"))
+      (chess-common-handler game 'move (car args))
       (when chess-gnuchess-bad-board
 	(chess-engine-send nil "go\n")
 	(setq chess-gnuchess-bad-board nil)))

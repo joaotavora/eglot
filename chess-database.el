@@ -57,7 +57,7 @@
     (when (buffer-live-p buf)
       (with-current-buffer buf
 	(remove-hook 'kill-buffer-hook 'chess-database-close t))
-      (chess-database-command buf 'save)
+      (chess-database-save buf)
       (chess-database-command buf 'close)
       (kill-buffer buf))))
 
