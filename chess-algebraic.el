@@ -66,7 +66,7 @@ This regexp handles both long and short form.")
     (let ((color (chess-pos-side-to-move position))
 	  (mate (match-string 9 move))
 	  (piece (aref move 0))
-	  changes ply)
+	  changes)
       (if (eq piece ?O)
 	  (setq changes (chess-ply-castling-changes
 			 position (= (length (match-string 1 move)) 5)))
@@ -110,13 +110,13 @@ This regexp handles both long and short form.")
 	  (if promotion
 	      (nconc changes (list :promote (aref promotion 0))))))
 
-      (when trust
-	(if mate
-	    (nconc changes (list (if (equal mate "#") :checkmate :check))))
-	(nconc changes (list :san move)))
+      (when changes
+	(when trust
+	  (if mate
+	      (nconc changes (list (if (equal mate "#") :checkmate :check)))))
+	(nconc changes (list :san move))
 
-      (assert changes)
-      (or ply (apply 'chess-ply-create position trust changes)))))
+	(apply 'chess-ply-create position trust changes)))))
 
 (defsubst chess-ply--move-text (ply long)
   (or (and (chess-ply-keyword ply :castle) "O-O")
