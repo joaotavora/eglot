@@ -14,6 +14,9 @@ chess-display
 - there is no way to call flag right now
 - invert the mode line to show the side on move?
 
+chess-engine
+- add a `force' event for forcing an engine to move
+
 chess-ics
 - detect draw/retract, etc.
 - add support for ICS observing
