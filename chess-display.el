@@ -83,7 +83,10 @@ See `mode-line-format' for syntax details."
 (make-variable-buffer-local 'chess-display-edit-mode)
 (make-variable-buffer-local 'chess-display-index-positions)
 
-(defvar chess-display-handling-event nil)
+(defvar chess-display-handling-event nil
+  "If non-nil, chess-display is aleady handling the event.  This variable
+is used to avoid reentrancy.")
+
 (defvar chess-display-style)
 
 (chess-message-catalog 'english
@@ -92,10 +95,25 @@ See `mode-line-format' for syntax details."
 
 (defun chess-display-create (game style perspective)
   "Create a chess display, for displaying chess objects."
+  (interactive (list (if current-prefix-arg
+			 (chess-game-create (chess-fen-to-pos
+					     (read-string "FEN: ")))
+		       (chess-game-create))
+                     (intern-soft
+                      (concat "chess-" (completing-read "Display style: "
+							'(("ics1")
+							  ("images")
+							  ("plain")))))
+                     (y-or-n-p "View from White's perspective? ")))
   (if (require style nil t)
-      (let ((chess-display-style style))
-	(chess-module-create 'chess-display game "*Chessboard*"
-			     perspective))))
+      (let* ((chess-display-style style)
+	     (display (chess-module-create 'chess-display game "*Chessboard*"
+			     perspective)))
+	(if (interactive-p)
+	    (progn
+	      (chess-display-update display)
+	      (chess-display-popup display))
+	  display))))
 
 (defalias 'chess-display-destroy 'chess-module-destroy)
 
@@ -743,6 +761,7 @@ Basically, it means we are playing, not editing or reviewing."
     (want-to-quit     . "Do you really want to quit? ")))
 
 (defun chess-display-quit ()
+  "Quit the game associated with the current display."
   (interactive)
   (if (or (not (chess-module-leader-p nil))
 	  (yes-or-no-p (chess-string 'want-to-quit)))
