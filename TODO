@@ -1,11 +1,18 @@
 * 2.0
 
-Keyboard shortcuts:
-  Right now "nf, nf", causes an error.
-  Castling is not supported.
-  Capital letters not supported.
+** Keyboard shortcuts
 
-Long castling is signaled as an illegal move from chess-standard.
+*** Right now "nf, nf", causes an error
+*** Castling is not supported
+*** Capital letters not supported
+
+** Long castling is signaled as an illegal move from chess-standard
+
+** Support pre-defined sessions, like `crafty'
+
+Or, allow the user to choose the rules modules with C-u M-x eshell,
+and the core engine module all the time.  So M-x eshell would prompt
+for the engine module, defaulting to crafty.
 
 * Other
 
