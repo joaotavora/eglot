@@ -46,7 +46,7 @@ The list is comprised of: the ply the string represents, who is white,
 who is black."
   (let ((parts (split-string string " "))
 	(position (chess-pos-create t))
-	white black move)
+	white black white-time black-time move)
 
     (assert (= (length parts) 32))
 
@@ -126,10 +126,10 @@ who is black."
     (setq parts (cdr parts))
     (setq parts (cdr parts))
 
-    ;;  White's remaining time
+    ;;  White's and Black's remaining time
+    (setq white-time (string-to-number (car parts)))
     (setq parts (cdr parts))
-
-    ;; Black's remaining time
+    (setq black-time (string-to-number (car parts)))
     (setq parts (cdr parts))
 
     ;; the number of the move about to be made (standard chess
@@ -154,7 +154,7 @@ who is black."
     (setq parts (cdr parts))
     (setq parts (cdr parts))
 
-    (list position move white black)))
+    (list position move white black white-time black-time)))
 
 (defun chess-ics-handle-move ()
   (let ((chess-engine-handling-event t)
@@ -166,12 +166,13 @@ who is black."
 	(when (and (cadr info)
 		   (eq (chess-pos-side-to-move (car info))
 		       (chess-game-data (chess-engine-game nil) 'my-color)))
-	  (chess-game-move (chess-engine-game nil)
-			   (chess-algebraic-to-ply
-			    (chess-ply-pos
-			     (car (last (chess-game-plies
-					 (chess-engine-game nil)))))
-			    (cadr info) t))
+	  (let* ((game (chess-engine-game nil))
+		 (ply (chess-algebraic-to-ply
+		       (chess-ply-pos (car (last (chess-game-plies game))))
+		       (cadr info) t)))
+	    (chess-game-set-data game 'white-remaining (nth 4 info))
+	    (chess-game-set-data game 'black-remaining (nth 5 info))
+	    (chess-game-move game ply))
 	  (assert (equal (car info) (chess-engine-position nil))))
       (let ((chess-game-inhibit-events t) plies)
 	(chess-game-set-data (chess-engine-game nil)
