@@ -10,14 +10,15 @@
 
 ----------------------------------------------------------------------
 
-- Make sure chess-pos-move does full validation.
-
 - Have chess-algebraic-to-ply use chess-ply-create, since I can't
-  trust :check and :checkmate anyway.
+  trust :check and :checkmate anyway.  Or, break chess-ply-create into
+  multiple functions that get reused by chess-algebraic.
 
 - Make sure that when chess-algebraic-to-ply is used, and then
   chess-pos-move is used, that I don't redo all the checks.  There
   should be a way of "blessing" a ply.
+
+- Make sure chess-pos-move does full validation.
 
 - In M-x chess, if chess-images is being used, ensure that
   chess-images-directory is valid, otherwise fall back on chess-ics1.
@@ -25,21 +26,23 @@
 - Only use "chess-engine-game" in chess-engine.el.  All other modules
   should call "(chess-engine-game nil)".
 
-- Add CTCP (optional) support to chess-irc.el
-
 - In chess-fen-to-pos, syntax check incoming FEN strings
-
-- Make the mode-line much more informative, with information on who is
-  playing, etc.
 
 - Add the capacity to abort/resign when there is no engine
 
-- Clean/rewrite ics.el
+- Detect draw/resign/abort/retract, etc., from ICS and common engines
 
 - Make use of the my-color data in chess-game.el to ensure that I only
   do what I should be doing
 
 ----------------------------------------------------------------------
+
+- Clean/rewrite ics.el
+
+- Make the mode-line much more informative, with information on who is
+  playing, etc.
+
+- Add CTCP (optional) support to chess-irc.el
 
 - Turn on memory gc collection messages, and see how much of a pig
   chess.el is
