@@ -1,10 +1,590 @@
+2004-01-28  Mario Lang  <mlang@lexx>
+
+	* chess-ply.el 1.45
+	(chess-ply-castling-changes): When doing a long castle, only check if
+	the king can move to the d or c file without being in check.  According
+	to the crafty-list, it is legal to do a long castle if some opponent
+	piece is attacking the b file.
+
+	* chess-ics.el 1.82
+	(chess-ics-matcher-alist): Send "set interface emacs-chess VERSION"
+	on init.
+
+	* chess.el 1.67:
+	Temporarily disable the condition-case in the main startup function,
+	some strange engine errors are caught and hard to debug with this,
+	also add chess-opening and chess-ai to the default modules.
+
+	* chess-pos.el 1.46
+	(chess-search-position): Document arguments CHECK-ONLY and NO-CASTLING.
+
+	* chess-engine.el 1.99:
+	(chess-engine-create),
+	(chess-engine-command): Docstrings.
+	(chess-engine-filter): bind case-fold-search to nil.
+
+	* chess-display.el 1.119
+	(chess-display-create): More docs.
+
+	* chess-var.el 1.10: docfixes
+
+	* chess.texi 1.22: Proofread fixes.
+
+2004-01-27  Mario Lang  <mlang@lexx>
+
+	* chess-fen.el 1.13: Commentary synced with reality of FEN standard.
+
+	* README 1.4: chess-ai is a submodule of chess-common.
+
+	* chess-ply.el 1.44: docfix.
+
+	* chess-gnuchess.el 1.35
+	(chess-gnuchess-path): Add *, since this is a user-option.
+
+	* chess-opening.el 1.3: uncomment the remaining failure cases,
+	chess-algebraic handles those now.
+
+	* chess-opening.el 1.2:	We now have the individual moves in the source
+	file, and get the final position at compile time.
+
+	* chess-tutorial.el 1.4: We can use `chess-display-set-from-fen' here.
+
+	* chess-maint.el 1.8, chess.texi 1.21: Add in minimal docs for FEN
+	notation, algebraic notation, and ICS.
+
+2004-01-26  Mario Lang  <mlang@lexx>
+
+	* chess-pos.el 1.45
+	(chess-pos-move): Fix  a bug in castling removal when the Rook
+	is moved, now compare chess-pos-can-castle and the source square of
+	the moving piece to figure out if we need to remove castling
+	priviledges.
+
+	* chess-pos.el 1.44
+	(chess-pos-legal-candidates): remove the opponent pawn if we are
+	capturing en passant.
+	this fixes a bug where chess-legal-plies does not find an en passant
+	move if the pawn to be captured is giving check.
+
+	* chess-database.el 1.12, chess-file.el 1.7, chess-scid.el 1.7:
+	new function chess-database-filename, also support it in scid and
+	file DBs.
+
+2004-01-25  John Wiegley  <jwiegley@lexx>
+
+	* chess-algebraic.el 1.35, chess-pos.el 1.43
+	(chess-search-position): Added an argument so that if we are
+	searching for the source of an algebraic move, and it is not a castle,
+	then do not check castle moves.
+
+2004-01-23  Mario Lang  <mlang@lexx>
+
+	* chess-database.el 1.11
+	(chess-database-query): use `apply'.
+
+	* chess-scid.el 1.6
+	(chess-scid-handler): Support query tree-search.
+
+	* chess-engine.el 1.98:	Don't barf on unbound
+	chess-module-regexp-alist, and add some docstrings.
+
+	* chess-game.el 1.59: Docstring fixes + a redo of chess-game-seq.
+
+	* chess-pgn.el 1.40: Fixes to make chess-scid read parsing work.
+
+2004-01-21  Mario Lang  <mlang@lexx>
+
+	* chess-opening.el 1.1:	Opening classification module based on the
+	scid.eco file from scid 3.5.
+
+2004-01-20  Mario Lang  <mlang@lexx>
+
+	* chess-fen.el 1.12: FEN notation actually specifies that field
+	four (en passant) should denote the target square of the immenent
+	capture, not the square of the piece about to be taken.
+
+	* chess-ics.el 1.81: Catch manually typed "resign" and fix a bug
+	where only one game could be played for each session.
+
+	* chess-fen.el 1.11
+	(chess-pos-to-fen): Don't emit a trailing / on rank 8.
+
+2004-01-19  Mario Lang  <mlang@lexx>
+
+	* chess-ics.el 1.80: tidying
+
+	* chess-epd.el 1.6: minor change.
+
+	* chess-ics.el 1.79: Rewrite this module such that it does not act
+	as an engine, rather it invokes chess-sessions as needed.  You need
+	to use M-x chess-ics RET instead of C-u M-x chess RET ics RET now.
+	(chess-ics-handle-ics12): Rewrite such that it can handle the "refresh"
+	command, and moves entered manually in the ICS buffer.
+
+2004-01-16  Mario Lang  <mlang@lexx>
+
+	* chess-ai.el 1.5:
+	We no longer need to dedvar chess-ai-regexp-alist with
+	a nil value.
+
+	* chess-engine.el 1.97 (chess-engine-create): Use `insern-soft'
+	instead of `intern' to copy the engine-regexp-alist.
+
+2004-01-15  John Wiegley  <jwiegley@lexx>
+
+	* chess.texi 1.20: Adding description of the module system.
+
+2004-01-14  Mario Lang  <mlang@lexx>
+
+	* chess-sjeng.el 1.2: Elisp header + homepage link.
+
+	* chess-sjeng.el 1.1: Module for the sjeng engine (promotion still
+	doesn't work.)
+
+	* chess-algebraic.el 1.34
+	(chess-algebraic-to-ply): `let'-bind case-fold-search nil. This fixes
+	a bug where b8c6 is parsed to c7-c6.
+
+2004-01-13  Mario Lang  <mlang@lexx>
+
+	* chess-ics.el 1.78: Initial skeleton for Game Creating messages.
+	Support relation-type -2 (Examining game).
+	Handle the 'forward event.
+	(Now you can use the "examine" command on FICS, and simply
+	 type '.' in the ChessBoard display to forward through the game.)
+
+	* chess-display.el 1.118
+	(chess-display-set-index): If INDEX is greater than chess-game-index,
+	and the last ply is not final, we emit a 'forward chess-module-game
+	event to give ics a chance to issue "forward\n". This makes
+	'.' work as expected in examined games.
+
+2004-01-12  Mario Lang  <mlang@lexx>
+
+	* wac.epd 1.1:
+	Win At Chess, 300 positions with best move information.
+	pv (predicted variation) information computed using crafty 19.8 on
+	a dual xeon 2.6GHZ system using 40 minutes time for each position.
+	This can be used to stress test the core library.
+
+	* chess-ics.el 1.77
+	(chess-ics-server-list): Added some more servers.
+	(chess-ics-regexp-alist): Make guest login on chessclub.com work.
+	(chess-ics-handle-ics12): Retrieve TimeControl info from
+	the ics12 board and set TimeControl game tag when initial board is
+	seen.
+
+	* wcsac.epd 1.1:
+	Winning Chess Sacrifices And Cobinations
+	pv information calculated using crafty 19.8 with about 30 minutes
+	time per position.
+
+2004-01-11  Mario Lang  <mlang@lexx>
+
+	* chess-ics.el 1.76: Set EPD opcode ce from material-value and
+	checkmate info.
+
+	* chess-ics.el 1.75: Merge chess-ics-parse-ics12 and
+	chess-ics-handle-move into a new function chess-ics-handle-ics12,
+	which is a lot easier to read now.
+	Also make the <12> regexp a bit more strict to avoid false positives.
+
+	* chess-clock.el 1.10
+	(chess-clock-tick-tock): Do not decrease time if
+	(chess-game-status chess-module-game) is non-nil.
+
+	* chess-ics.el 1.74: Fixed messed up parens.
+
+	* chess-ics.el 1.73
+	(chess-ics-handler): Read the password before opening the connection.
+	This corrects a race where the password can be unknown when the
+	prompt appears because the user hasn't finished typing yet...
+	(chess-ics12-parse): Use `pop' to make stuff simpler and use `mapc'
+	to get castling info.
+	Indent chess-ics-regexp-alist differently.
+
+	* chess-engine.el 1.96
+	(chess-engine-default-handler): When 'match is accepted, we were
+	calling (chess-engine-command nil 'accept chess-full-name)
+	which doesn't make much sense, and breaks chess-ics game accepting.
+	Change it to `name', to pass the opponent name for whom we are
+	accepting a match request.
+
+	* chess-display.el 1.117: On GNU Emacs 21.3, :eval in mode-line-data
+	seems only to work if it directly appears in mode-line-format.
+	chess-display indirectly referenced chess-display-mode-line-format
+	by setting mode-line-format to that symbol.  If we set
+	mode-line-format to the value of chess-display-mode-line-format,
+	the mode-line comes to life again!
+
+2004-01-10  Mario Lang  <mlang@lexx>
+
+	* chess-game.el 1.58: Fix a bug in `chess-game-seq' (at least I
+	think it is supposed to work like it does now).
+
+	* chess-crafty.el 1.31: Support for xboards analyze mode.
+	(chess-engine-command crafty 'analyze t) enables analyze mode and
+	eventually sets chess-crafty-analyzing-p to t.
+	When new predicted variations arrive, corresponding epd opcodes
+	are set for (chess-engine-position nil): acd, ce, pv (acn is not set because
+	it is likely that it overflows the emacs integer bounds, and I am not
+	yet sure what to do about this.)
+	(chess-engine-command crafty 'analyze nil) turns analyze mode off again.
+
+	* chess-plain.el 1.19: A change to the faces and a fix for
+	chess-plain-spacing > 0 and file naming, all from kanaldrache, thanks.
+
+	* chess-crafty.el 1.30:	Use Crafty's xboard protocol layer for
+	communication: Since recent >19.x crafty, there is something strange
+	going on with display nogeneral.  Another bug which appears sometimes
+	is that	crafty (in its own mode of displaying stuff) echos the oponent
+	move (our move) which raises an error (obviously).
+	xboard mode is really a lot easier to parse, and I even managed
+	to keep the 'evaluate event without any problems.
+
+2004-01-09  Mario Lang  <mlang@lexx>
+
+	* chess-epd.el 1.5: speed up chess-epd-read-file by using `nconc'.
+
+	* chess-epd.el 1.4: Support (convert) opcodes sm and sv.
+
+	* chess-gnuchess.el 1.34: Use `zerop'.
+
+	* chess-epd.el 1.3: (require 'chess-var)
+
+	* chess-epd.el 1.2: Use `chess-var-to-algebraic'.
+
+	* chess-var.el 1.9, chess.texi 1.19: New function
+	`chess-var-to-algebraic'.
+
+2004-01-07  Mario Lang  <mlang@lexx>
+
+	* chess-epd.el 1.1: new file, implements opcodes am, bm, ce, pm and pv.
+
+	* chess-pos.el 1.42: Remove chess-pos-read-epd-file.
+
+	* chess-display.el 1.116: Make chess-display-create interactive, and
+	document chess-display-quit.
+
+	* chess-maint.el 1.7, chess-random.el 1.5, chess.texi 1.18: Add
+	`chess-fischer-random-position' into the Creating Positions Manual
+	Section.
+
+2004-01-06  Mario Lang  <mlang@lexx>
+
+	* chess.texi 1.17: skels for chess-database.
+
+	* chess-ai.el 1.4: Require cl and add `message' calls.
+
+	* chess-ply.el 1.43: Some docstrings.
+
+	* chess.texi 1.16: Add @c lispfun for chess-ply-source and
+	chess-ply-target.
+
+	* chess-var.el 1.8: Add &optional index to `chess-var-side-to-move'
+	(sync with chess-game-side-to-move) and document it, mirroring
+	chess-game-side-to-move docstring.
+
+	* chess-game.el 1.57: Document 'chess-game-side-to-move'.
+
+	* chess-ai.el 1.3: It mostly works now, only remaining problem is
+	that the players move is only displayed after the engine found a reply.
+
+2004-01-05  Mario Lang  <mlang@lexx>
+
+	* chess-display.el 1.115: Checkdoc attempt, some very simple
+	(I hope correct) docstrings added.
+
+	* PLAN 1.51: next-pos has correct status now.
+
+	* chess.texi 1.15: add three paragraphs from chess-pos.el commentary
+
+2004-01-04  Mario Lang  <mlang@lexx>
+
+	* chess-ai.el 1.1: First version of a alpha-beta puring search AI.
+
+	* chess-ply.el 1.42: Set status of next-pos according to changes of
+	ply.
+
+	* PLAN 1.50: Crafty is fixed again.
+
+2004-01-03  Mario Lang  <mlang@lexx>
+
+	* chess-pos.el 1.41:
+	New function chess-pos-read-epd-file, which parses an epd file into a
+	list of positions.
+
+2004-01-02  Mario Lang  <mlang@lexx>
+
+	* chess-crafty.el 1.29:	Display nogeneral seems to no longer display
+	computer moves on newer crafties.  At least removing display nogeneral
+	makes crafty work again.
+
+2004-01-01  Mario Lang  <mlang@lexx>
+
+	* PLAN 1.49: Crafty is broken.
+
+	* chess-gnuchess.el 1.33: Explicitly look for gnuchess in /usr/games.
+
+2003-01-24  John Wiegley  <jwiegley@lexx>
+
+	* lispdoc.el 1.4: Use a more specific signal rather than `error'.
+
+	* chess-network.el 1.37: Add missing string-to-int form.
+
+	* chess-engine.el 1.93:	Add status code to check for open server
+	sockets.
+
+2003-01-08  Mario Lang  <mlang@lexx>
+
+	* chess-plain.el 1.17
+	(chess-plain-piece-text): Simplyfied a bit
+	(chess-plain-draw-square): Doc fix.
+
+	* chess.el 1.66
+	(chess-create-modules): Add docstring.
+
+	* chess.el 1.65: Catch the module-not-found error.
+
+2003-01-07  Mario Lang  <mlang@lexx>
+
+	* chess-german.el 1.8: Translate some strings.
+
+2002-09-05  John Wiegley  <jwiegley@lexx>
+
+	* chess-sound.el 1.14: Check chess-sound-program before using it.
+
+	* chess-display.el 1.114: Avoided binding issue.
+
+2002-06-20  John Wiegley  <jwiegley@lexx>
+
+	* chess-ics.el 1.70: Fix for when opponent calls flag.
+
+2002-06-14  John Wiegley  <jwiegley@lexx>
+
+	* chess.el 1.64: Bumped minor rev.
+
+	* PLAN 1.35, chess-crafty.el 1.28, chess-display.el 1.112,
+	chess-engine.el 1.92, chess-gnuchess.el 1.32, chess-ics.el 1.68,
+	chess-irc.el 1.22, chess-network.el 1.36, chess-phalanx.el 1.11,
+	chess-transport.el 1.14, chess-ucb.el 1.4: Various small bug fixes.
+
+2002-06-08  John Wiegley  <jwiegley@lexx>
+
+	* chess-display.el 1.111: Make illegal chess moves (on a chess
+	display) a message instead of an error.
+
+2002-05-16  John Wiegley  <jwiegley@lexx>
+
+	* chess-pgn.el 1.39: Removed dependency on cl's `position' function.
+
+	* PLAN 1.31, chess-common.el 1.20, chess-display.el 1.109,
+	chess-engine.el 1.91, chess-game.el 1.55, chess-german.el 1.7,
+	chess-ics.el 1.67, chess-ics1.el 1.16, chess-images.el 1.34,
+	chess-network.el 1.35, chess-pgn.el 1.38, chess-plain.el 1.16, 
+	chess-ply.el 1.40, chess.el 1.63: Miscellaneous fixes.
+
+2002-05-01  John Wiegley  <jwiegley@lexx>
+
+	* chess.el 1.62: bumped minor rev.
+
+	* PLAN 1.25, chess-common.el 1.19, chess-engine.el 1.90,
+	chess-ics.el 1.66, chess-network.el 1.33: Added code for forfeiting
+	on time.
+
+	* chess.el 1.61: Bumped minor rev.
+
+	* chess-scid.el 1.5, chess-database.el 1.10, chess-gnuchess.el 1.31:
+	Fixes.
+
+	* chess-sound.el 1.13, chess-announce.el 1.20: Announce pawn promotions
+
+	* chess-autosave.el 1.11: Allow autosaving of completed games to
+	databases.
+
+	* PLAN 1.20, chess-autosave.el 1.9, chess-common.el 1.18:
+	Autosaving is now much more efficient, and correct; still have to get
+	it correct for chess-network, though.
+
+	* chess-display.el 1.107: Fixed bug in popup logic.
+
+	* chess-ics.el 1.58: Use `chess-engine-convert-algebraic'.
+
+	* chess-ics.el 1.57: Disable autosaving during login, and determine
+	check/checkmate from the ics12 move text.
+
+	* chess-pos.el 1.39: Added a small comment.
+
+	* chess-game.el 1.53: Tiny code rearrangement.
+
+	* chess-algebraic.el 1.32: Tiny code rearrangement.  If
+	`chess-ply-castling-changes' fails, no ply create will be attempted.
+
+	* chess-autosave.el 1.7: Sped up autosaving by a huge amount; also,
+	allow auto-saving to be disabled (it's not necessary when playing on
+	ICS, for example).
+
+2002-04-30  John Wiegley  <jwiegley@lexx>
+
+	* chess.el 1.59: bumped minor rev.
+
+	* chess-maint.el 1.6, chess-message.el 1.3: removed dependencies on cl.
+
+	* chess-common.el 1.17, chess-display.el 1.106, chess-engine.el 1.87, 
+	chess-game.el 1.52, chess-gnuchess.el 1.30, chess-images.el 1.33, 
+	chess-pgn.el 1.37, chess-puzzle.el 1.4, PLAN 1.16, TODO 1.102:
+	Bug fixes.
+
+2002-04-29  Mario Lang  <mlang@lexx>
+
+	* chess-german.el 1.5: Some translations.
+
+2002-04-26  John Wiegley  <jwiegley@lexx>
+
+	* PLAN 1.11, chess-algebraic.el 1.30, chess-display.el 1.104,
+	chess-game.el 1.50, chess-ics.el 1.55, chess-ply.el 1.38,
+	chess-pos.el 1.36: Bug fixes.
+
+	* chess-clock.el 1.7, chess-display.el 1.103, chess-engine.el 1.84, 
+	  chess-game.el 1.49, chess-ics.el 1.54: Fixes.
+
+2002-04-25  John Wiegley  <jwiegley@lexx>
+
+	* chess.el 1.58: bumped minor rev.
+
+	* chess-clock.el 1.6, chess-engine.el 1.82, chess-ics.el 1.50: fixes
+	to the ICS client
+
+	* chess-pos.el 1.35: fix.
+
+	* EPD.txt 1.2, PGN.txt 1.2: Whitespace fixes.
+
+2002-04-24  John Wiegley  <jwiegley@lexx>
+
+	* chess-ics.el 1.42: fixes, and use the new filtering code in
+	chess-engine
+
+	* chess-engine.el 1.79: filter improvements.
+
+	* chess-common.el 1.13: deactive a game when it is drawn.
+
+	* chess-crafty.el 1.26: added support for a 'resign' option
+
+	* chess-pos.el 1.32: added support for setting EPD codes
+
+	* chess-puzzle.el 1.2: set the engine option so that crafty doesn't
+	resign
+
+	* chess.texi 1.14: minor doc changes.
+
+2002-04-22  John Wiegley  <jwiegley@lexx>
+
+	* chess.el 1.57: bumped minor rev.
+
+	* chess-database.el 1.8, chess-display.el 1.96, chess-link.el 1.14, 
+	  chess-pgn.el 1.36, chess-tutorial.el 1.2, chess.el 1.56: bug fixes.
+
+	* PLAN 1.2, TODO 1.98, chess-algebraic.el 1.29, chess-autosave.el 1.6, 
+	  chess-common.el 1.12, chess-database.el 1.7, chess-display.el 1.95, 
+	  chess-engine.el 1.78, chess-fen.el 1.7, chess-game.el 1.48,
+	  chess-ics1.el 1.15, chess-images.el 1.32, chess-link.el 1.13,
+	  chess-network.el 1.30, chess-pgn.el 1.35, chess-plain.el 1.15,
+	  chess-ply.el 1.37, chess-pos.el 1.31, chess-puzzle.el 1.1,
+	  chess-random.el 1.4, chess-tutorial.el 1.1, chess.el 1.55: Bug fixes
+	and reducing the TODO list.
+
+2002-04-19  John Wiegley  <jwiegley@lexx>
+
+	* chess.el 1.54: bumped minor rev
+
+	* TODO 1.95, chess-chat.el 1.1, chess-clock.el 1.5,
+	chess-common.el 1.10, chess-crafty.el 1.25, chess-display.el 1.94,
+	chess-engine.el 1.77, chess-fen.el 1.6, chess-game.el 1.47,
+	chess-gnuchess.el 1.29, chess-ics.el 1.41, chess-images.el 1.31,
+	chess-input.el 1.3, chess-kibitz.el 1.1, chess-network.el 1.29,
+	chess-pgn.el 1.34, chess-phalanx.el 1.10, chess-ply.el 1.36,
+	chess-pos.el 1.30, chess.el 1.53: Fixes and other work.
+
+2002-04-18  John Wiegley  <jwiegley@lexx>
+
+	* chess-pgn.el 1.32, chess-pos.el 1.29, chess.el 1.52,
+	chess-autosave.el 1.5: whitespace fix.
+
+	* chess-algebraic.el 1.28, chess-common.el 1.9, chess-crafty.el 1.24, 
+	  chess-display.el 1.93, chess-engine.el 1.76, chess-game.el 1.45,
+	chess-gnuchess.el 1.28, chess-ics.el 1.40, chess-input.el 1.2,
+	chess-module.el 1.7, chess-network.el 1.28, chess-pgn.el 1.31,
+	chess-phalanx.el 1.9, chess-plain.el 1.14, chess-ply.el 1.35,
+	  chess-pos.el 1.28, chess-var.el 1.6, chess.el 1.51: Many efficiency
+	improvements and bug fixes.
+
+	* COPYING 1.1, Makefile 1.12, README 1.1, TODO 1.87:
+	simple docs changes
+
+2002-04-17  Mario Lang  <mlang@lexx>
+
+	* chess-ics.el 1.39: correct en-passent parsing.
+
+2002-04-17  John Wiegley  <johnw@lexx>
+
+	* TODO 1.86, chess-algebraic.el 1.27, chess-display.el 1.92,
+	chess-game.el 1.44, chess-german.el 1.2, chess-ics1.el 1.14,
+	chess-images.el 1.30, chess-input.el 1.1, chess-pgn.el 1.30,
+	chess-plain.el 1.13, chess-ply.el 1.34, chess-pos.el 1.27: More
+	general bug fixing, efficiency improvements, etc.
+
+	* chess.el 1.50: bumped minor rev
+
+	* chess.el 1.49: bumped minor rev
+
+	* chess-display.el 1.90: Paint moves before they are applied.
+	Otherwise, there could be a slowdown in transmitting the move to the
+	other listening modules.
+
+	* chess-display.el 1.89: Further speed tweaks.
+
+2002-04-16  John Wiegley  <johnw@lexx>
+
+	* chess-plain.el 1.12, TODO 1.84, chess-display.el 1.88,
+	chess-ics1.el 1.13, chess-images.el 1.29: Lots of painting
+	improvements for displays, to improve efficiency.
+
+	* chess-game.el 1.43, chess-pos.el 1.23: More efficiency improvements.
+
+	* chess-display.el 1.87:
+	Don't popup the display if it's not necessary to do so.
+
+	* chess-display.el 1.86, chess-images.el 1.28: whitespace changes
+
+	* TODO 1.81, chess-pos.el 1.22: Fixed pos status not being updated.
+
+	* TODO 1.80, chess-display.el 1.85, chess-game.el 1.42,
+	chess-pos.el 1.21: Report checkmate in the modeline correctly.
+
+	* chess.el 1.48: bug fix
+
+	* chess-display.el 1.83 (chess-display-handler): Set the side-to-move
+	text to a reasonable default.
+
+	* chess-ics.el 1.36 (chess-ics-regexp-alist): Added a handler to
+	capture the guest id when logging in anonymously.
+
+	* chess-ics.el 1.34 (chess-ics12-parse): Was relying on a variable
+	that wasn't set!
+
+	* chess-ics.el 1.33: Only send startup commands after login has
+	succeeded.
+
+	* chess-ics.el 1.32: Send the "set style 12" command immediately,
+	rather than after the first move.
+
 2002-04-16  John Wiegley  <johnw@gnu.org>
 
 	* chess-pgn.el (chess-pgn-mode): Only make bold the result text,
 	not every move.
 
-	* chess-clock.el (chess-clock-handler): Use
-	`chess-ply-set-keyword', to avoid double-adding keywords.
+	* chess-clock.el (chess-clock-handler): Use `chess-ply-set-keyword',
+	to avoid double-adding keywords.
 
 	* chess-ply.el (chess-ply-set-keyword): Added a new function for
 	setting a ply's keyword, with an optional value (must be non-nil
