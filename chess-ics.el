@@ -28,8 +28,10 @@ The format of each entry is:
   :group 'chess-ics)
 
 (defvar chess-ics-handle)
+(defvar chess-ics-logged-in nil)
 
 (make-variable-buffer-local 'chess-ics-handle)
+(make-variable-buffer-local 'chess-ics-logged-in)
 
 ;; ICS12 format (with artificial line breaks):
 ;;
@@ -181,7 +183,14 @@ who is black."
     t))
 
 (defvar chess-ics-regexp-alist
-  (list (cons "\\(\\(\n*fics%\n*\\)?<12> \\(.+\\)\\)\n"
+  (list (cons "fics%"
+	      (function
+	       (lambda ()
+		 (unless chess-ics-logged-in
+		   (chess-engine-send nil "set style 12\n")
+		   (chess-engine-send nil "set bell 0\n")
+		   (setq chess-ics-logged-in t)))))
+	(cons "\\(\\(\n*fics%\n*\\)?<12> \\(.+\\)\\)\n"
 	      'chess-ics-handle-move)
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function
@@ -236,12 +245,7 @@ who is black."
 		      (comint-send-string proc (concat pass "\n")))))
 	      ;; jww (2002-04-13): Have to parse out the allocated Guest
 	      ;; name from the output
-	      (comint-send-string proc "guest\n\n"))
-
-	    ;; jww (2002-04-16): This is fragile, since it assumes the
-	    ;; login succeeded
-	    (comint-send-string proc "set style 12\n")
-	    (comint-send-string proc "set bell 0\n"))))
+	      (comint-send-string proc "guest\n\n")))))
       t)
 
      ((eq event 'match)
