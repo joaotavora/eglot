@@ -42,7 +42,7 @@ The format of each entry is:
 (make-variable-buffer-local 'chess-ics-prompt)
 
 (defvar chess-ics-regexp-alist
-  (list (cons "\\(ogin\\|name\\):"
+  (list (cons "\\(^login\\|name\\):"
 	      (function
 	       (lambda ()
 		 (chess-engine-send nil (concat chess-ics-handle "\n"))
