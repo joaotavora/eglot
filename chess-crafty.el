@@ -52,7 +52,7 @@
       (let ((proc (chess-common-handler game 'initialize "crafty")))
 	(when (and proc (processp proc)
 		   (eq (process-status proc) 'run))
-	  (process-send-string proc (concat "display nogeneral\n"
+	  (process-send-string proc (concat ;"display nogeneral\n"
 					    "display nochanges\n"
 					    "display noextstats\n"
 					    "display nohashstats\n"
