@@ -118,7 +118,9 @@
 		 (format "Do you wish to play a chess game against %s? "
 			 (car args))
 	       (format "Do you wish to play a chess game against an anonymous opponent? ")))
-	    (chess-engine-command nil 'accept)
+	    (progn
+	      (chess-game-set-data game 'active t)
+	      (chess-engine-command nil 'accept))
 	  (chess-engine-command nil 'decline)))
       t)
 
