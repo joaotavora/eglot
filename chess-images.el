@@ -145,21 +145,17 @@ jww (2001-06-23): This is still not fully implemented."
   "This display module presents a standard chessboard using images."
   (if (not (eq event 'initialize))
       (apply 'chess-display session buffer event args)
-    (with-current-buffer
-	(chess-display session buffer event
-		       'chess-images-draw 'chess-images-highlight)
+    (chess-display session buffer event 'chess-images)))
 
-      (let ((map (current-local-map)))
-	(define-key map [?^] 'chess-images-increase-size)
-	(define-key map [?V] 'chess-images-decrease-size)
-	(define-key map [?D] 'chess-images-set-directory))
+(defun chess-images-initialize ()
+  (let ((map (current-local-map)))
+    (define-key map [?^] 'chess-images-increase-size)
+    (define-key map [?V] 'chess-images-decrease-size)
+    (define-key map [?D] 'chess-images-set-directory))
 
-      (setq chess-images-size
-	    (chess-images-best-size (- (display-pixel-height) 20)
-				    (- (display-pixel-width) 20))
-	    chess-images-cache nil)
-
-      (current-buffer))))
+  (setq chess-images-cache nil
+	chess-images-size (chess-images-best-size (- (display-pixel-height) 20)
+						  (- (display-pixel-width) 20))))
 
 (defun chess-images-popup-board ()
   (let* ((size (float (+ (* (or chess-images-border-width 0) 8)
@@ -181,11 +177,11 @@ jww (2001-06-23): This is still not fully implemented."
 			      max-char-height))))
 
 (defun chess-images-draw ()
-  "Draw the given chess BOARD."
+  "Draw the current chess display position."
   (if (null (get-buffer-window (current-buffer) t))
       (chess-images-popup-board))
   (let* ((inhibit-redisplay t)
-	 (board chess-display-position)
+	 (board (chess-display-position nil))
 	 (inverted (null chess-display-perspective))
 	 (rank (if inverted 7 0))
 	 (file (if inverted 7 0))

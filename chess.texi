@@ -426,16 +426,42 @@ functions given so far.  In order to present them in a meaningful
 fashion to a human reader, it is necessary to create and use a display
 object.
 
-@defun chess-display-create style perspective
+@defun chess-display-create style perspective &optional session search-func
+Create a display, using the given @var{style}.  The initial
+@var{perspective}---non-nil for white, nil for black---determines the
+orientation, which can be inverted by the user afterward.
+
+If @var{session} is given, the display is linked to that
+@var{session}, and any moves made on the board that pertain to the
+current game's final position, will be transmitted to the
+@var{session}.  If there is no @var{session}, then moves are made
+directly to the game itself.  Thus, use @var{session} when you want to
+play, and don't when you want to review/edit games.
+
+@var{search-func} can be a function which is used to search out legal
+chess moves when editing position, plies and variations.  Since game
+object already know the search function to use for that game, this
+argument is ignored when a game object is being manipulated.  The
+default value is @code{chess-standard-search-position}.
+
+The return value is a display object, which must be passed to all of
+the other functions in the section.  It is the buffer containing the
+chessboard.
 @end defun
 
 @defun chess-display-destroy display
+Destroy the given @var{display} object, freeing all memory used by it.
 @end defun
 
 @defun chess-display-set-perspective display perspective
+Change the perspective on @var{display} to @var{perspective}, which
+must be non-nil for a board from white's perspective, and nil for a
+board from black's perspective.
 @end defun
 
 @defun chess-display-search-function display
+Return the search function being used by the @var{display} to validate
+moves.
 @end defun
 
 @defun chess-display-search-position display position target piece

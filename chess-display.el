@@ -47,6 +47,7 @@
 ;; User interface
 ;;
 
+(defvar chess-display-session)
 (defvar chess-display-game)
 (defvar chess-display-search-function)
 (defvar chess-display-variation)
@@ -58,6 +59,7 @@
 (defvar chess-display-highlight-function nil)
 (defvar chess-display-mode-line "")
 
+(make-variable-buffer-local 'chess-display-session)
 (make-variable-buffer-local 'chess-display-game)
 (make-variable-buffer-local 'chess-display-search-function)
 (make-variable-buffer-local 'chess-display-variation)
@@ -70,28 +72,37 @@
 (make-variable-buffer-local 'chess-display-mode-line)
 
 (defmacro chess-with-current-buffer (buffer &rest body)
-  `(if buffer
-       (with-current-buffer buffer
-	 ,@body)
-     ,@body))
+  `(let ((buf ,buffer))
+     (if buf
+	 (with-current-buffer buf
+	   ,@body)
+       ,@body)))
 
-(defun chess-display-create (style perspective &optional search-func)
+(defun chess-display-create (style perspective &optional session search-func)
   "Create a chess display, for displaying chess objects."
   (let ((draw (intern-soft (concat (symbol-name style) "-draw")))
-	(highlight (intern-soft (concat (symbol-name style) "-highlight"))))
+	(highlight (intern-soft (concat (symbol-name style) "-highlight")))
+	(initialize (intern-soft (concat (symbol-name style) "-initialize"))))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
       (setq cursor-type nil
+	    chess-display-session session
 	    chess-display-draw-function draw
 	    chess-display-highlight-function highlight
 	    chess-display-perspective perspective
 	    chess-display-search-function search-func)
       (chess-display-mode)
+      (funcall initialize)
+      (if session
+	  (let ((game (chess-session-data session 'current-game)))
+	    (if game
+		(chess-display-set-game nil game))))
       (current-buffer))))
 
 (defsubst chess-display-destroy (display)
   "Destroy a chess display object, killing all of its buffers."
-    (if (buffer-live-p display)
-	(kill-buffer display)))
+  (let ((buf (or display (current-buffer))))
+    (if (buffer-live-p buf)
+	(kill-buffer buf))))
 
 (defsubst chess-display-perspective (display)
   (chess-with-current-buffer display
@@ -236,9 +247,7 @@ change that position object, the display can be updated by calling
 `chess-display-update'."
   (chess-with-current-buffer display
     (if chess-display-draw-function
-	(funcall chess-display-draw-function
-		 (chess-display-position nil)
-		 chess-display-perspective))
+	(funcall chess-display-draw-function))
     (chess-display-set-modeline)))
 
 (defun chess-display-move (display start &optional target)
@@ -256,7 +265,7 @@ If only START is given, it must be in algebraic move notation."
 				   start target))))
       (cond
        ((chess-display-active-p)
-	(chess-session-event chess-current-session 'move ply))
+	(chess-session-event chess-display-session 'move ply))
        (chess-display-game
 	;; jww (2002-03-28): This should beget a variation, or alter
 	;; the game, just as SCID allows
@@ -279,11 +288,11 @@ are displaying with doesn't support that mode.  `selected' is a mode
 that is supported by most displays, and is the default mode."
   (chess-with-current-buffer display
     (if (chess-display-active-p)
-	(chess-session-event chess-current-session 'highlight
+	(chess-session-event chess-display-session 'highlight
 			     index (or mode 'selected))
       (if chess-display-highlight-function
 	  (funcall chess-display-highlight-function index
-		   (or mode 'selected)))))
+		   (or mode 'selected))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -408,7 +417,7 @@ The game must be part of an active session (i.e., not just reviewing a
 game object), and the board must represent the current position in
 that game (i.e., not editing the position, or reviewing an earlier
 position within the game)."
-  (and chess-current-session
+  (and chess-display-session
        chess-display-game
        (= (chess-display index nil)
 	  (chess-game-index chess-display-game))
@@ -453,7 +462,7 @@ position within the game)."
   "Quit the current game."
   (interactive)
   (if (chess-display-active-p)
-      (chess-session-event chess-current-session 'shutdown)
+      (chess-session-event chess-display-session 'shutdown)
     (chess-display-destroy nil)))
 
 (defun chess-display-manual-move (move)
@@ -537,8 +546,8 @@ to the end or beginning."
 (defun chess-display-send-board ()
   "Send the current board configuration to the user."
   (interactive)
-  (if chess-current-session
-      (chess-session-event chess-current-session 'setup
+  (if chess-display-session
+      (chess-session-event chess-display-session 'setup
 			   (chess-game-create (chess-display-position nil))))
   (setq cursor-type nil
 	chess-display-edit-mode nil))
@@ -665,7 +674,7 @@ Clicking once on a piece selects it; then click on the target location."
 	  (let ((last-sel chess-display-last-selected))
 	    ;; if they select the same square again, just deselect it
 	    (if (/= (point) (car last-sel))
-		(chess-display-move (cadr last-sel) coord)
+		(chess-display-move nil (cadr last-sel) coord)
 	      ;; put the board back to rights
 	      (chess-display-update nil))
 	    (setq chess-display-last-selected nil))
