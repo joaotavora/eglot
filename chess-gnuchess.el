@@ -9,6 +9,8 @@
 (require 'chess-algebraic)
 
 (defvar chess-gnuchess-now-moving nil)
+(defvar chess-gnuchess-temp-files nil)
+(make-variable-buffer-local 'chess-gnuchess-temp-files)
 
 (defvar chess-gnuchess-regexp-alist
   (list (cons (concat "My move is : \\(" chess-algebraic-regexp "\\)")
@@ -38,13 +40,18 @@
       proc))
 
    ((eq event 'shutdown)
-    (chess-engine-send nil "quit\n"))
+    (chess-engine-send nil "quit\n")
+    (dolist (file chess-gnuchess-temp-files)
+      (if (file-exists-p file)
+	  (ignore-errors
+	    (delete-file file)))))
 
    ((eq event 'setup)
     (let ((file (make-temp-file "gch")))
       (with-temp-file file
 	(insert (chess-pos-to-fen (car args)) ?\n))
-      (chess-engine-send nil (format "epdload %s\n" file))))
+      (chess-engine-send nil (format "epdload %s\n" file))
+      (push file chess-gnuchess-temp-files)))
 
    ((eq event 'pass)
     (chess-engine-send nil "go\n"))
