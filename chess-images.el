@@ -140,13 +140,6 @@ jww (2001-06-23): This is still not fully implemented."
 
 (defvar chess-images-size nil)
 
-;;;###autoload
-(defun chess-images (session buffer event &rest args)
-  "This display module presents a standard chessboard using images."
-  (if (not (eq event 'initialize))
-      (apply 'chess-display session buffer event args)
-    (chess-display session buffer event 'chess-images)))
-
 (defun chess-images-initialize ()
   (let ((map (current-local-map)))
     (define-key map [?^] 'chess-images-increase-size)
