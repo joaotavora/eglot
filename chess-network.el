@@ -126,7 +126,8 @@
 	  (chess-message 'network-connected))
 	t))
 
-     ((eq event 'ready))		; don't set active yet
+     ((eq event 'ready)			; don't set active yet
+      (chess-game-run-hooks game 'announce-autosave))
 
      ((eq event 'setup-pos)
       (chess-engine-send nil (format "fen %s\n"

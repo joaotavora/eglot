@@ -15,9 +15,10 @@
   :group 'chess-autosave)
 
 (chess-message-catalog 'english
-  '((chess-read-autosave   . "There is a chess autosave file, read it? ")
-    (chess-delete-autosave . "Delete the autosave file? ")
-    (chess-disable-autosave . "Disable autosaving for this game? ")))
+  '((chess-read-autosave    . "There is a chess autosave file, read it? ")
+    (chess-delete-autosave  . "Delete the autosave file? ")
+    (chess-disable-autosave . "Disable autosaving for this game? ")
+    (autosave-available     . "There is an autosave file; type ~ after connecting to read it")))
 
 (defun chess-autosave-handler (game event &rest args)
   (cond
@@ -38,6 +39,10 @@
 	      (erase-buffer)
 	    (if (y-or-n-p (chess-string 'chess-disable-autosave))
 		(chess-autosave-handler game 'disable-autosave))))))
+
+   ((eq event 'announce-autosave)
+    (if (file-readable-p chess-autosave-file)
+	(chess-message 'autosave-available)))
 
    ((eq event 'disable-autosave)
     (chess-autosave-handler game 'destroy)

@@ -527,6 +527,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?\{] 'chess-display-annotate)
     (define-key map [?\"] 'chess-display-chat)
     (define-key map [?\'] 'chess-display-chat)
+    (define-key map [?\~] 'chess-display-check-autosave)
 
     (define-key map [(control ?r)] 'chess-display-search-backward)
     (define-key map [(control ?s)] 'chess-display-search-forward)
@@ -828,6 +829,12 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive)
   (if (chess-display-active-p)
       (chess-game-run-hooks chess-module-game 'force)
+    (ding)))
+
+(defun chess-display-check-autosave ()
+  (interactive)
+  (if (chess-display-active-p)
+      (chess-game-run-hooks chess-module-game 'check-autosave)
     (ding)))
 
 (defun chess-display-resign ()
