@@ -527,13 +527,12 @@ indices which indicate where a piece may have moved from."
     ;; been eliminated.
     (if (and candidates (char-valid-p piece))
 	(setq candidates
-	      (apply 'chess-pos-legal-moves
-		     position color target candidates)))
+	      (chess-pos-legal-moves position color target candidates)))
 
     ;; return the final list of candidate moves
     candidates))
 
-(defun chess-pos-legal-moves (position color target &rest candidates)
+(defun chess-pos-legal-moves (position color target candidates)
   "Test if TARGET can legally be reached by any of CANDIDATES.
 Return the list of candidates that can reach it.
 

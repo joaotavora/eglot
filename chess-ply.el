@@ -248,7 +248,8 @@ maneuver."
   (let ((target (or pos (chess-incr-index candidate rank-adj file-adj))))
     (if (and (or (not specific-target)
 		 (= target specific-target))
-	     (chess-pos-legal-moves position color target candidate))
+	     (chess-pos-legal-moves position color target
+				    (list candidate)))
 	(if chess-ply-throw-if-any
 	    (throw 'any-found t)
 	  (let ((ply (chess-ply-create position t candidate target)))
