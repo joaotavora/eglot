@@ -315,6 +315,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?I] 'chess-display-invert)
     (define-key map [?X] 'chess-display-quit)
     (define-key map [?M] 'chess-display-manual-move)
+    (define-key map [?@] 'chess-display-remote)
 
     (define-key map [?<] 'chess-display-move-first)
     (define-key map [?,] 'chess-display-move-backward)
@@ -458,6 +459,14 @@ Basically, it means we are playing, not editing or reviewing."
       (error "Illegal move notation: %s" move))
     (chess-display-move nil ply)))
 
+(defun chess-display-remote (display)
+  (interactive "sDisplay this game on X server: ")
+  (require 'chess-images)
+  (let ((chess-images-separate-frame display))
+    ;; jww (2002-04-08): also set-position, set-ply, etc.
+    (chess-display-set-game (chess-display-create 'chess-images t)
+			    (chess-display-game nil))))
+
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
 Direction may be - or +, to move forward or back, or t or nil to jump
@@ -557,7 +566,7 @@ to the end or beginning."
 ;; Allow for quick entry of algebraic moves via keyboard
 ;;
 
-(defvar chess-move-string nil)
+(defvar chess-move-string "")
 (defvar chess-legal-moves-pos nil)
 (defvar chess-legal-moves nil)
 
@@ -594,10 +603,11 @@ to the end or beginning."
 
 (defun chess-keyboard-shortcut-delete ()
   (interactive)
-  (setq chess-move-string
-	(substring chess-move-string 0
-		   (1- (length chess-move-string))))
-  (chess-keyboard-display-moves))
+  (when chess-move-string
+    (setq chess-move-string
+	  (substring chess-move-string 0
+		     (1- (length chess-move-string))))
+    (chess-keyboard-display-moves)))
 
 (defun chess-keyboard-shortcut (&optional display-only)
   (interactive)

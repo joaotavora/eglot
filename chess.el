@@ -110,9 +110,9 @@ a0 243
 	       (intern (or (read-string "Engine module to play against: ")
 			   "chess-none"))
 	     chess-default-engine)))
-      (when engine-module
-	(require engine-module)
-	(chess-engine-set-game (chess-engine-create engine-module) game)))))
+      (if (and engine-module
+	       (require engine-module nil t))
+	  (chess-engine-set-game (chess-engine-create engine-module) game)))))
     (cons display engine)))
 
 ;;;###autoload

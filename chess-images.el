@@ -25,6 +25,12 @@
   :group 'chess-display)
 
 (defvar chess-images-cache nil)
+(defvar chess-images-size nil)
+(defvar chess-images-sizes nil)
+
+(make-variable-buffer-local 'chess-images-cache)
+(make-variable-buffer-local 'chess-images-size)
+(make-variable-buffer-local 'chess-images-sizes)
 
 (defun chess-images-clear-image-cache (sym value)
   (set sym value)
@@ -137,19 +143,18 @@ that specialized squares may be used such as marble tiles, etc."
     (?p "pawn"   5))
   "The names and index values of the different pieces.")
 
-(defvar chess-images-size nil)
-
 (defun chess-images-initialize ()
   (let ((map (current-local-map)))
     (define-key map [?^] 'chess-images-increase-size)
     (define-key map [?V] 'chess-images-decrease-size)
     (define-key map [?D] 'chess-images-set-directory))
-
-  (setq cursor-type nil
-	chess-images-cache nil
-	chess-images-size
-	(chess-images-best-size (- (display-pixel-height) 20)
-				(- (display-pixel-width) 20))))
+  (let ((display (and (stringp chess-images-separate-frame)
+		      chess-images-separate-frame)))
+    (setq cursor-type nil
+	  chess-images-cache nil
+	  chess-images-size
+	  (chess-images-best-size (- (display-pixel-height display) 20)
+				  (- (display-pixel-width display) 20)))))
 
 (defun chess-images-popup-board ()
   (let* ((size (float (+ (* (or chess-images-border-width 0) 8)
@@ -160,11 +165,12 @@ that specialized squares may be used such as marble tiles, etc."
     (if chess-images-separate-frame
 	;; make room for the possible title bar and other
 	;; decorations
-	(progn
-	  (select-frame
-	   (make-frame (list (cons 'name "*Chessboard*")
-			     (cons 'height (+ max-char-height 2))
-			     (cons 'width max-char-width))))
+	(let ((params (list (cons 'name "*Chessboard*")
+			    (cons 'height (+ max-char-height 2))
+			    (cons 'width max-char-width))))
+	  (if (stringp chess-images-separate-frame)
+	      (push (cons 'display chess-images-separate-frame) params))
+	  (select-frame (make-frame params))
 	  (set-window-dedicated-p (selected-window) t))
       (pop-to-buffer (current-buffer))
       (set-window-text-height (get-buffer-window (current-buffer))
@@ -244,8 +250,6 @@ Common modes are:
 		  (cons "background" chess-images-highlight-color)))
     (put-text-property pos (1+ pos) 'display highlight)))
 
-(defvar chess-images-sizes nil)
-
 (defun chess-images-alter-size (test)
   (let ((sizes chess-images-sizes))
     (if (eq test '<)
@@ -262,8 +266,7 @@ Common modes are:
 				       (* chess-images-size 8))))
 		       (max-char-height (ceiling (/ size (frame-char-height))))
 		       (max-char-width  (ceiling (/ size (frame-char-width)))))
-		  (set-frame-size (selected-frame)
-				  max-char-width
+		  (set-frame-size (selected-frame) max-char-width
 				  (+ max-char-height 2)))))
 	(setq sizes (cdr sizes))))))
 
