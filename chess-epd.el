@@ -21,7 +21,18 @@
 
 
 ;;; Commentary:
-;; 
+
+;; EPD is "Extended Position Description".  It is a standard for describing
+;; chess positions along with an extended set of structured attribute
+;; values using the ASCII character set.  It is intended for data and
+;; command interchange among chessplaying programs.  It is also intended
+;; for the representation of portable opening library repositories and for
+;; problem test suites.
+
+;; A single EPD record uses one text line of variable length composed of
+;; four data fields followed by zero or more operations.  A text file
+;; composed exclusively of EPD data records should have a file name with
+;; the suffix ".epd".
 
 ;;; Code:
 
@@ -70,13 +81,13 @@ and advance point after the correctly parsed position."
 
 (defun chess-epd-read-file (file)
   "Return a list of positions contained in FILE."
-  (let (positions pos)
+  (let ((positions (list t)) pos)
     (with-temp-buffer
       (insert-file-literally file)
       (goto-char (point-min))
       (while (setq pos (chess-epd-parse))
-	(setq positions (cons pos positions))))
-    positions))
+	(nconc positions (list pos))))
+    (cdr positions)))
 
 (defun chess-epd-parse ()
   (when (re-search-forward
