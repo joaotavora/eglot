@@ -77,6 +77,7 @@ PERSPECTIVE is t for white or nil for black."
     (set-buffer-modified-p nil)
     (goto-char pos)))
 
+;; jww (2002-03-28): this no longer takes a `pos' arg!
 (defun chess-ics1-highlight (pos index &optional mode)
   (if (null (get-buffer-window (current-buffer) t))
       (pop-to-buffer (current-buffer)))
@@ -117,6 +118,7 @@ PERSPECTIVE is t for white or nil for black."
       (set-buffer-modified-p nil)
       (goto-char pos))))
 
+;; jww (2002-03-28): this no longer takes a `pos' arg!
 (defun chess-plain-highlight (pos index &optional mode)
   (if (null (get-buffer-window (current-buffer) t))
       (pop-to-buffer (current-buffer)))
