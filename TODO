@@ -47,8 +47,7 @@
 - Turn on memory gc collection messages, and see how much of a pig
   chess.el is
 
-- Profile!  Make as much of chess-game/ply/pos, etc., defsubst as
-  possible.
+- Make as much of chess-game/ply/pos, etc., defsubst as possible.
 
 - Create a series of generic functions and predicates, so that users
   can say (chess-position OBJECT) or (chess-move OBJECT), without
@@ -143,3 +142,7 @@
   making a move.  This requires copying chessboard-current-board to
   chessboard-draft-board.  If the user right-clicks without selecting
   a piece, it will reset to chessboard-current-board and redraw.
+
+			 BEFORE FINAL RELEASE
+
+profile, mem profile, doc, lint, checkdoc
