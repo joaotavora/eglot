@@ -18,7 +18,10 @@
        ((looking-at chess-algebraic-regexp)
 	(goto-char (match-end 0))
 	(setq prevpos position)
-	(let ((ply (chess-game-algebraic-to-ply game (match-string 0))))
+	(let* ((move (match-string 0))
+	       (ply (chess-game-algebraic-to-ply game (match-string 0))))
+	  (unless ply
+	    (error "Error reading move: %s" move))
 	  (setq position (chess-ply-next-pos ply))
 	  (nconc plies (list ply))))
        ((and top-level
@@ -138,9 +141,7 @@ If INDENTED is non-nil, indent the move texts."
 ;;       (setq move (buffer-substring-no-properties (point) end)
 ;;	    coords (chess-algebraic-to-ply chess-display-position move))
 ;;       ;; it will just get reinserted again
-;;       (delete-region (point) end))
-;;     (chess-session-event chess-current-session 'move
-;;			 (chess-algebraic-to-ply chess-display-position))))
+;;       (delete-region (point) end)))
 ;;
 ;; (defun chess-pgn-insert-move (move &optional color sequence)
 ;;   "Insert an algebraic move description into a PGN buffer.

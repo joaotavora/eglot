@@ -8,7 +8,7 @@
 
 ;;; Code:
 
-(defun chess-display-position (&optional position)
+(defun chess-debug-position (&optional position)
   "This is a debugging function, and not meant from general use."
   (interactive)
   (let ((pos (or position (chess-engine-position nil))))

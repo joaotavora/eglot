@@ -6,7 +6,6 @@
 
 ;;; Commentary:
 
-(require 'chess-session)
 (require 'chess-game)
 
 (defgroup chess-engine nil
@@ -16,7 +15,6 @@
 (defvar chess-engine-regexp-alist nil)
 (defvar chess-engine-event-handler nil)
 (defvar chess-engine-response-handler nil)
-(defvar chess-engine-session nil)
 (defvar chess-engine-position nil)
 (defvar chess-engine-game nil)
 (defvar chess-engine-search-function nil)
@@ -24,7 +22,6 @@
 (make-variable-buffer-local 'chess-engine-regexp-alist)
 (make-variable-buffer-local 'chess-engine-event-handler)
 (make-variable-buffer-local 'chess-engine-response-handler)
-(make-variable-buffer-local 'chess-engine-session)
 (make-variable-buffer-local 'chess-engine-position)
 (make-variable-buffer-local 'chess-engine-game)
 (make-variable-buffer-local 'chess-engine-search-function)
@@ -51,26 +48,22 @@
 
 (defun chess-engine-do-move (ply)
   (cond
-   ((and chess-engine-session
-	 chess-engine-game)
-    (chess-session-event chess-engine-session event ply))
    (chess-engine-game
     (chess-game-move chess-engine-game ply))
-   (t
-    (apply 'chess-pos-move ply))))
+   (chess-engine-position
+    (setq chess-engine-position (chess-ply-next-pos ply)))))
 
 (defun chess-engine-default-handler (event &rest args)
   (cond
    ((eq event 'move)
     (chess-engine-do-move (car args)))))
 
-(defun chess-engine-create (module &optional user-handler session search-func)
+(defun chess-engine-create (module &optional user-handler search-func)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
     (with-current-buffer (generate-new-buffer " *chess-engine*")
-      (setq chess-engine-session session
-	    chess-engine-regexp-alist (symbol-value regexp-alist)
+      (setq chess-engine-regexp-alist (symbol-value regexp-alist)
 	    chess-engine-event-handler handler
 	    chess-engine-response-handler (or 'chess-engine-default-handler
 					      user-handler))
@@ -79,11 +72,6 @@
 	  (error "Failed to start chess engine process"))
 	(set-process-buffer proc (current-buffer))
 	(set-process-filter proc 'chess-engine-filter))
-      (if session
-	  (let ((game (chess-session-data session 'current-game)))
-	    (if game
-		(chess-engine-set-game nil game)))
-	(chess-engine-set-game nil (chess-game-create nil search-func)))
       (current-buffer))))
 
 (defun chess-engine-destroy (engine)
@@ -97,18 +85,21 @@
 
 (defun chess-engine-search-function (engine)
   (chess-with-current-buffer engine
-    chess-engine-search-function))
-
-(defun chess-engine-set-search-function (engine search-func)
-  (chess-with-current-buffer engine
     (if chess-engine-game
 	(chess-game-search-function chess-engine-game)
       (or chess-engine-search-function
 	  'chess-standard-search-position))))
 
-(defun chess-engine-session (engine)
+(defun chess-engine-set-search-function (engine search-func)
   (chess-with-current-buffer engine
-    chess-engine-session))
+    (if chess-engine-game
+	(error "Engine is currently linked to a game")
+      (setq chess-engine-search-function search-func))))
+
+(defsubst chess-engine-search-position (engine position target piece)
+  (chess-with-current-buffer engine
+    (funcall (chess-engine-search-function nil)
+	     position target piece)))
 
 (defun chess-engine-set-option (engine option value)
   (chess-with-current-buffer engine
@@ -120,6 +111,8 @@
 
 (defun chess-engine-set-position (engine position)
   (chess-with-current-buffer engine
+    (if chess-engine-game
+	(chess-engine-detach-game nil))
     (setq chess-engine-game nil
 	  chess-engine-position position)
     (chess-engine-command nil 'setup position)))
@@ -132,9 +125,18 @@
 
 (defun chess-engine-set-game (engine game)
   (chess-with-current-buffer engine
+    (if chess-engine-game
+	(chess-engine-detach-game nil))
     (setq chess-engine-game game
 	  chess-engine-position nil)
+    (chess-game-add-hook game 'chess-engine-event-handler engine)
     (chess-engine-command nil 'setup (chess-game-pos game))))
+
+(defun chess-engine-detach-game (engine)
+  (chess-with-current-buffer engine
+    (if chess-engine-game
+	(chess-game-remove-hook chess-engine-game
+				'chess-engine-event-handler))))
 
 (defun chess-engine-game (engine)
   (chess-with-current-buffer engine
@@ -160,26 +162,23 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Module method
+;; Primary event handler
 ;;
 
-;;;###autoload
-(defun chess-engine (session engine event &rest args)
+(defun chess-engine-event-handler (game engine event &rest args)
   "Handle any commands being sent to this instance of this module."
-  (if (eq event 'initialize)
-      (chess-engine-create (car args)
-			   'chess-engine-session-callback session)
-    (with-current-buffer engine
-      (unless (apply chess-engine-event-handler event args)
-	(cond
-	 ((eq event 'shutdown)
-	  (chess-engine-destroy engine))
+  (with-current-buffer engine
+    (assert (eq game (chess-engine-game nil)))
+    (apply chess-engine-event-handler event args)
+    (cond
+     ((eq event 'shutdown)
+      (chess-engine-destroy engine))
 
-	 ((eq event 'setup)
-	  (chess-engine-set-game engine (car args)))
+     ((eq event 'setup)
+      (chess-engine-set-game engine (car args)))
 
-	 ((eq event 'pass)
-	  (chess-engine-pass engine)))))))
+     ((eq event 'pass)
+      (chess-engine-pass engine)))))
 
 (defun chess-engine-filter (proc string)
   "Process filter for receiving text from a chess process."

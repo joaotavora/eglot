@@ -73,7 +73,6 @@ a0 243
 ;; interface commands available in each of those buffer types.
 
 ;;; Code:
-(require 'chess-session)
 
 (require 'chess-game)
 (require 'chess-display)
@@ -82,7 +81,7 @@ a0 243
 (defgroup chess nil
   "An Emacs chess playing program."
   :group 'games)
-(defconst chess-version "2.0a1"
+(defconst chess-version "2.0a2"
 (defconst chess-version "2.0a7"
   "The version of the Emacs chess program.")
 
@@ -100,50 +99,14 @@ a0 243
 (defun chess (&optional arg)
   "Start a game of chess."
   (interactive "P")
-  (let ((session (chess-session-create))
-	(perspective t))		; start out as white always
-    ;; setup `chess-handler' to receive all events first
-    (chess-session-add-listener session 'chess-handler)
-    (chess-session-set-data session 'my-color perspective)
-    ;; initialize all of the modules, and setup a new game
-    (chess-session-event session 'initialize)
-    (chess-session-event session 'setup (chess-game-create))
-    ;; create a display object linked to the session, and add it to
-    ;; the event chain; it is via this object that session events will
-    ;; for the most part be generated
-    (require chess-default-display)
-    (chess-session-add-listener session 'chess-display nil
-				(chess-display-create chess-default-display
-						      perspective session))
-    ;; unless prefix arg is given, use `chess-default-engine' to play
-    ;; against; otherwise, just create a board for play between two
-    ;; people
-    (unless arg
-      (require chess-default-engine)
-      (chess-session-add-listener session 'chess-engine nil
-				  (chess-engine-create chess-default-engine
-						       nil session)))))
-
-(defun chess-handler (session window-config event &rest args)
-  "React to changes on the chess board in a global Emacs way."
-  (if (eq event 'initialize)
-      (current-window-configuration)
-    (ignore
-     (cond
-      ((eq event 'shutdown)
-       (set-window-configuration window-config))
-
-      ((eq event 'setup)
-       (chess-session-set-data session 'current-game (car args)))
-
-      ((eq event 'pass)
-       (let ((color (not (chess-session-data session 'my-color))))
-	 (message "You are now playing %s" (if color "White" "Black"))
-	 (chess-session-set-data session 'my-color (not color))))
-
-      ((eq event 'move)
-       (chess-game-move (chess-session-data session 'current-game)
-			(car args)))))))
+  (require chess-default-display)
+  (require chess-default-engine)
+  (let ((game (chess-game-create))	; start out as white always
+	display engine)
+    (chess-display-set-game
+     (chess-display-create chess-default-display t) game)
+    (chess-engine-set-game
+     (chess-engine-create chess-default-engine) game)))
 	    (aset chess-puzzle-locations 3 puzzle-engine)))))))
 
 (provide 'chess)

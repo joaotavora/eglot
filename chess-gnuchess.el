@@ -8,13 +8,19 @@
 (require 'chess-fen)
 (require 'chess-algebraic)
 
+(defvar chess-gnuchess-now-moving nil)
+
 (defvar chess-gnuchess-regexp-alist
   (list (cons (concat "My move is : \\(" chess-algebraic-regexp "\\)")
 	      (function
 	       (lambda ()
-		 (funcall chess-engine-response-handler 'move
-			  (chess-algebraic-to-ply (chess-engine-position nil)
-						  (match-string 1))))))
+		 (let* ((move (match-string 1))
+			(ply (chess-algebraic-to-ply
+			      (chess-engine-position nil) move)))
+		   (unless ply
+		     (error "Could not convert engine move: %s" move))
+		   (let ((chess-gnuchess-now-moving t))
+		     (funcall chess-engine-response-handler 'move ply))))))
 	(cons "Illegal move:"
 	      (function
 	       (lambda ()
@@ -29,18 +35,23 @@
 				(executable-find "gnuchess")))
       (message "Starting chess program 'gnuchess'...done")
       proc))
+
    ((eq event 'shutdown)
     (chess-engine-send nil "quit\n"))
+
    ((eq event 'setup)
     (chess-engine-send nil (format "setboard %s\n"
 				   (chess-pos-to-fen (car args)))))
+
    ((eq event 'pass)
     (chess-engine-send nil "go\n"))
+
    ((eq event 'move)
-    (chess-engine-send
-     nil (concat (chess-ply-to-algebraic
-		  (car args) nil
-		  (chess-engine-search-function nil)) "\n")))))
+    (unless chess-gnuchess-now-moving
+      (chess-engine-send nil (concat (chess-ply-to-algebraic
+				      (car args) nil
+				      (chess-engine-search-function nil))
+				     "\n"))))))
 
 (provide 'chess-gnuchess)
 

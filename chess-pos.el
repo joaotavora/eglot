@@ -239,13 +239,13 @@ trying to move a blank square."
 	(if (= piece ? )
 	    (error "Attempted piece move from blank square %s" from))
 	(chess-pos-set-piece position from ? )
-	(chess-pos-set-piece position to piece)
-	;; once a piece is moved, en passant is no longer available
-	(chess-pos-set-en-passant position nil)
-	;; toggle the side whose move it is
-	(chess-pos-set-side-to-move
-	 position (not (chess-pos-side-to-move position)))))
+	(chess-pos-set-piece position to piece)))
     (setq changes (cddr changes)))
+  ;; once a piece is moved, en passant is no longer available
+  (chess-pos-set-en-passant position nil)
+  ;; toggle the side whose move it is
+  (chess-pos-set-side-to-move position
+			      (not (chess-pos-side-to-move position)))
   position)
 
 (provide 'chess-pos)

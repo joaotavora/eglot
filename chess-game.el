@@ -25,21 +25,33 @@
     ("Result"	   . "*")
     ("TimeControl" . "-")))
 
-(defsubst chess-game-tags (game)
+(defsubst chess-game-hooks (game)
   "Return the tags alist associated with GAME."
   (car game))
 
-(defsubst chess-game-set-tags (game tags)
+(defsubst chess-game-set-hooks (game hooks)
   "Return the tags alist associated with GAME."
-  (setcar game tags))
+  (setcar game hooks))
 
-(defsubst chess-game-plies (game)
+(defun chess-game-add-hook (game function &optional data prepend)
   "Return the tags alist associated with GAME."
-  (cddr game))
+  (let ((hooks (chess-game-hooks game)))
+    (if (null hooks)
+	(chess-game-set-hooks game (list (cons function data)))
+      (if prepend
+	  (chess-game-set-hooks game (cons (cons function data) hooks))
+	(nconc hooks (list (cons function data)))))))
 
-(defsubst chess-game-set-plies (game plies)
+(defsubst chess-game-remove-hook (game function)
   "Return the tags alist associated with GAME."
-  (setcdr (cdr game) plies))
+  (chess-game-set-hooks game (assq-delete-all function
+					      (chess-game-hooks game))))
+
+(defsubst chess-game-run-hooks (game &rest args)
+  "Return the tags alist associated with GAME."
+  (dolist (hook (chess-game-hooks game))
+    (apply (car hook) game (cdr hook) args)))
+
 
 (defsubst chess-game-search-function (game)
   "Return the tags alist associated with GAME."
@@ -47,7 +59,18 @@
 
 (defsubst chess-game-set-search-function (game func)
   "Return the tags alist associated with GAME."
-  (setcar (cdr game) func))
+  (setcar (cdr game) func)
+  (chess-game-run-hooks game 'rule-change))
+
+
+(defsubst chess-game-tags (game)
+  "Return the tags alist associated with GAME."
+  (nth 2 game))
+
+(defsubst chess-game-set-tags (game tags)
+  "Return the tags alist associated with GAME."
+  (setcar (nthcdr 2 game) tags)
+  (chess-game-run-hooks game 'set-tags))
 
 (defsubst chess-game-tag (game tag)
   "Return the value for TAG in GAME."
@@ -58,16 +81,27 @@
   "Set a TAG for GAME to VALUE."
   (let ((tags (chess-game-tags game)))
     (if (null tags)
-	(setcar game (list (cons tag value)))
+	(chess-game-set-tags game (list (cons tag value)))
       (let ((entry (assoc tag tags)))
 	(if entry
 	    (setcdr entry value)
-	  (nconc (car game)
-		 (list (cons tag value))))))))
+	  (nconc tags (list (cons tag value)))))))
+  (chess-game-run-hooks game 'set-tag tag))
 
-(defun chess-game-del-tag (game tag)
+(defsubst chess-game-del-tag (game tag)
   "Set a TAG for GAME to VALUE."
-  (setcar game (assq-delete-all tag (chess-game-tags game))))
+  (chess-game-set-tags game (assq-delete-all tag (chess-game-tags game)))
+  (chess-game-run-hooks game 'delete-tag tag))
+
+
+(defsubst chess-game-plies (game)
+  "Return the tags alist associated with GAME."
+  (nth 3 game))
+
+(defsubst chess-game-set-plies (game plies)
+  "Return the tags alist associated with GAME."
+  (setcdr (nthcdr 2 game) plies)
+  (chess-game-run-hooks game 'set-plies))
 
 (defsubst chess-game-index (game)
   "Return the GAME's current position index."
@@ -97,6 +131,7 @@
   "Return the position related to GAME's INDEX position."
   (car (chess-game-ply game index)))
 
+
 (defun chess-game-create (&optional position search-func tags)
   "Create a new chess game object.
 Optionally use the given starting POSITION (which is recorded using
@@ -104,17 +139,16 @@ the game's FEN tag).
 SEARCH-FUNC specifies the function used to test the legality of moves.
 TAGS is the starting set of game tags (which can always be changed
 later using the various tag-related methods)."
-  (let ((game (list tags
-		    (or search-func 'chess-standard-search-position))))
+  (let ((game
+	 (list nil
+	       (or search-func 'chess-standard-search-position)
+	       tags
+	       (list (chess-ply-create (or position
+					   (chess-pos-create)))))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))
 	(chess-game-set-tag game (car tag) (cdr tag))))
-    (chess-game-add-ply game (chess-ply-create
-			      (or position
-				  (chess-pos-create))))
-    (if position
-	(chess-game-set-tag game "FEN" (chess-pos-to-fen position)))
     game))
 
 (defun chess-game-move (game ply)
@@ -144,7 +178,8 @@ progress (nil), if it is drawn, resigned, mate, etc."
 					    "0-1" "1-0")))
      (t
       (chess-game-add-ply game (chess-ply-create
-				(chess-ply-next-pos current-ply)))))))
+				(chess-ply-next-pos current-ply)))
+      (chess-game-run-hooks game 'move current-ply)))))
 
 ;; A few convenience functions
 

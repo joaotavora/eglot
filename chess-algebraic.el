@@ -62,6 +62,8 @@ This regexp handles both long and short form.")
 	  (if (eq piece ?O)
 	      (let ((rank (if color 7 0))
 		    (long (= (length (match-string 1 move)) 5)))
+		;; jww (2002-04-07): This should be moderated by
+		;; chess-standard!!
 		(list (chess-rf-to-index rank 4)
 		      (chess-rf-to-index rank (if long 2 6))
 		      (chess-rf-to-index rank (if long 0 7))
@@ -104,8 +106,8 @@ This regexp handles both long and short form.")
 	       (list (if (equal mate "#")
 			 ':checkmate
 		       ':check))))
-    (assert changes)
-    (apply 'chess-ply-create position changes)))
+    (and changes
+	 (apply 'chess-ply-create position changes))))
 
 (defun chess-ply-to-algebraic (ply &optional long search-func)
   "Convert the given PLY to algebraic notation.

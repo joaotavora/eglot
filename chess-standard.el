@@ -73,6 +73,8 @@ indices which indicate where a piece may have moved from."
 			(< piece ?a)) -1 1))
 	 (c (= bias -1))
 	 p pos candidates)
+    ;; jww (2002-04-07): Don't return candidates that leave the king
+    ;; in check.
     (cond
      ;; if the piece is `t', it means to find the candidates resulting
      ;; from any piece movement.  This is useful for testing whether a

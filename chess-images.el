@@ -67,8 +67,7 @@ light_piece."
   "The name of the file used for background squares.
 This file is optional.  If there is no file available by this name, a
 solid color square will be created and used.  This option exists so
-that specialized squares may be used such as marble tiles, etc.
-jww (2001-06-23): This is still not fully implemented."
+that specialized squares may be used such as marble tiles, etc."
   :type 'file
   :set 'chess-images-clear-image-cache
   :group 'chess-images)

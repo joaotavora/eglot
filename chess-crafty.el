@@ -14,13 +14,16 @@
 		 chess-algebraic-regexp "\\)\\s-*$")
 	 (function
 	  (lambda ()
-	    (let ((position (chess-engine-position nil)))
-	      (if (string= (if (chess-pos-side-to-move position)
-			       "White" "Black")
-			   (match-string 1))
-		  (funcall chess-engine-response-handler 'move
-			   (chess-algebraic-to-ply position
-						   (match-string 2))))))))
+	    (let ((position (chess-engine-position nil))
+		  (move (match-string 2))
+		  ply)
+	      (when (string= (if (chess-pos-side-to-move position)
+				 "White" "Black")
+			     (match-string 1))
+		(setq ply (chess-algebraic-to-ply position move))
+		(unless ply
+		  (error "Could not convert engine move: %s" move))
+		(funcall chess-engine-response-handler 'move ply))))))
 	(cons "Illegal move:\\s-*\\(.*\\)"
 	      (function
 	       (lambda ()
