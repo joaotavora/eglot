@@ -1,6 +1,9 @@
 polish: chess-chat, chess-kibitz
 translate: chess-german
 
+chess-pos
+- Allow NAG codes to be associated with a position
+
 chess-ics
 - detect draw/resign/abort/retract, etc.
 - add support for ICS observing
