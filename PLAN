@@ -12,9 +12,17 @@ chess-ics
   need a more robust way of signalling events, so that I never get out
   of sync with the server
 
+chess-clock
+- sometimse, the clock gets shut off (while playing on ICS) for no
+  reason that I can determine
+
 chess-display
 - sometimes the final event of a game doesn't change the modeline,
   like CHECKMATE, or FLAG FELL
+- if I win a game, it still reports CHECKMATE incorrect; if I'm white,
+  it does so on the last ply (per display)
+- when my opponent took with en passant, it didn't paint the taken
+  pawn square as blank
 
 chess-input
 - In the following game, it wouldn't let me type "rh" to move Rh5,
