@@ -287,7 +287,7 @@
 (defun chess-engine-destroy (engine)
   (let ((buf (or engine (current-buffer))))
     (when (buffer-live-p buf)
-      (chess-engine-command engine 'destroy)
+      (chess-engine-command buf 'destroy)
       (with-current-buffer buf
 	(remove-hook 'kill-buffer-hook 'chess-engine-on-kill t))
       (kill-buffer buf))))
