@@ -251,7 +251,9 @@ that is supported by most displays, and is the default mode."
 (defun chess-display-popup (display)
   "Popup the given DISPLAY, so that it's visible to the user."
   (chess-with-current-buffer display
-    (funcall chess-display-event-handler 'popup)))
+    (unless (eq (get-buffer-window (current-buffer))
+		(selected-window))
+      (funcall chess-display-event-handler 'popup))))
 
 (defun chess-display-enable-popup (display)
   "Popup the given DISPLAY, so that it's visible to the user."
