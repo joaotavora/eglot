@@ -371,6 +371,34 @@ with a chess database engine for the purpose of storing and retrieving
 games from the library, or performing library-wide analyses and
 searches.
 
+@subsection Opening Databases
+
+@defvar chess-database-modules
+List of database modules to try when `chess-database-open' is called.
+@end defvar
+
+@c lispfun chess-database-open
+
+@subsection Querying Databases
+
+@c lispfun chess-database-count
+
+@c lispfun chess-database-read
+
+@c lispfun chess-database-query
+
+@subsection Modifying Databases
+
+@c lispfun chess-database-write
+
+@c lispfun chess-database-replace
+
+@subsection Finalising Databases
+
+@c lispfun chess-database-save
+
+@c lispfun chess-database-close
+
 @chapter Displays
 
 The previous chapter described all the objects found in
