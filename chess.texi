@@ -403,6 +403,123 @@ List of database modules to try when `chess-database-open' is called.
 
 @c lispfun chess-database-close
 
+@chapter Modules
+
+Positions, plies and variations are typically accessed in reference to
+a game object, which has a main variation containing the plies and
+positions that represent the number of moves made within that game up
+to the final position.
+
+Another thing that the game object does is to manage events that occur
+within that game.  If a move is made from the final position, for
+example, it will cause a new ply to be created, adding it to the end
+of the main variation.  Then, a `move' event is triggered within the
+game and passed to any chess modules which are currently associated
+with that game.  The concept of modules allows far more complex
+aspects of chess playing to be dealt with, while allowing the library
+itself to still operate solely in terms of the game object.
+
+For example, although the plies of a game object contain all the
+information the computer needs to follow the game, a user needs much
+more.  He wants to see the pieces move.  To support this, a display
+module (see next chapter) can be created, and linked to the game.  The
+first effect of this association will be to create a chess board
+display and show the game's final position on it.  Now whenever plies
+are added to the game, the chess board will be updated to show the
+effect of that move on the board.  The display module realizes that a
+move has been made by receiving the `move' event which is passed to
+all modules associated with the game object.
+
+There may be any number of modules associated with a chess game, and
+they may do anything you like.  Basically, for a module call
+chess-sample, a function must exist called `chess-sample-handler'.
+This takes two or more arguments: a game object, the event symbol, and
+whatever other arguments were passed along with the event symbol.
+
+When an event is triggered on a game object (and this may happen as a
+byproduct of manipulating the game, or events may be manually
+generated), every associated module, in order, is called with that
+event and whatever arguments were passed along with the event.  The
+game object is passed also, so that the module knows which game this
+event has occurred in reference to.
+
+Once called, the module can do whatever it likes.  Some events expect
+certain values to be returned, to indicate success or failure in
+processing the event.  There are many different events, each depicting
+something specific that might happen in the context of playing or
+manipulating a chess game.  Some events relate only to the chess game
+itself, some are triggered by the various chess engines that might be
+associated with that game.  Modules may even trigger events in
+response to event.  The game itself remains unaware of events, except
+for the fact that it will pass them along to every module associated
+with that game.
+
+This is how displays get updated, for example, because once a 'move'
+event is triggered, each display knows that it must now look at the
+new final position and update its display.  It may even trigger new
+events special to displays, to cause a refresh to happen after update
+calculations have been performed, for example.  All such details are
+left to the module, and the game does not interfere with such
+intra-module messaging.
+
+Looked at as an object-oriented design, these are typical polymorphic
+events.  Certain generic situations frequently occur, such as moves,
+which trigger events so that everyone concerned with the game can be
+updated as to the move that occurred.  This way, no one need to
+actively query the game to find out if something new has happened.
+The game will notify every listening module by sending an event.
+
+The core library, which consists of code to manipulate games, does not
+define any modules.  The rest of the chess.el library is strictly a
+set of module implementations, of various types.  Display modules
+react to moves, and may modify the game based on user input; engine
+modules react to moves by notifying the engine of the move; network
+client modules react to moves by sending the move text over the
+network.  Engine and network modules may also trigger new events when
+the engine or network player has decided on their move, and this move
+is then applied to the game object.
+
+At the moment, no negotiation is done to determine which module may
+modify the game object.  All modules have equal privilege.  This means
+it is the programmer's duty not to associate conflicting modules with
+a single game object.  If two artificial intelligence engines were
+linked, for example, they would quickly start stepping on each other's
+toes.  But it perfectly fine to have one artificial intelligence
+engine, and another passive engine whose only purpose is to relay the
+moves to a networked observer on another computer.  The possibilities
+are endless.
+
+Modules are very easy to write, although engines and displays are
+rather different from each other in their principles.  There is a base
+engine, and a base display, which receive the same events as any other
+module.  But then there are derived engines and derived displays which
+trigger a whole family of events specific to those module types.  If
+you suspect a bug in your module, put a breakpoint in your handler
+function, and wait for the offending event to come through.  Then you
+can watch what your module does in response to that event.  If it
+leaves the game object alone, it should be easy to locate the problem,
+since it will always be within the module itself.  But if your module
+also modifies the game object in response to certain events, you may
+induce a feedback loop that is much more difficult to sort out.  Test
+often and keep in mind that *many* events might end up coming through
+as a result of the game changes your module makes!
+
+That, in essence, is how the module system works.  From the game
+object's perspective, it is a very simple mechanism, much like a
+function ring or a hook.  The hook is called at certain points, so
+that any listener can react to changes in the game.  But from each
+module's perspective, it is a rich way to allow inter-operation
+between both passive and reactive modules, all of them acting together
+to enrich the context of play involving the central game object.
+
+The only other rule to be mentioned is that each module instance
+should be associated with only one game object at a time, although a
+game object may have unlimited modules of any type linked to it.
+Otherwise, trying to update a chess board based on input from two
+different games would get impossible to sort out.  Better to create a
+new board for every game---the way ordinary humans would do it in the
+real world.
+
 @chapter Displays
 
 The previous chapter described all the objects found in
