@@ -1,23 +1,9 @@
-TEST: chess-chat, chess-kibitz, chess-scid, chess-irc (CTCP)
-TRANSLATE: chess-german
-
-chess-pos
-- break chess-legal-plies into two parts, one of which would be the
-  inverse of chess-search-position, and would live in chess-pos.el
-
-chess-engine
-- the game should go inactive once I lose by stalemate/checkmate
-- detect draw/resign/abort/retract, etc., from ICS and common engines
-- find a way that regexp-alist entries that only need to fire once are
-  only scanned once.
-- in chess-engine-filter and chess-ics-filter, if an error is
-  encountered, skip that line so the same error isn't triggered again
-- implement engine options; then, in chess-puzzle set the option that
-  tells the engine not to resign.
+polish: chess-chat, chess-kibitz
+translate: chess-german
 
 chess-ics
+- detect draw/resign/abort/retract, etc.
 - add support for ICS observing
-- make sure that helpers are allowed in the ics-server-alist
 
 chess-clock
 - when a clock runs down, indicate this in the modeline, and allow the
@@ -25,12 +11,15 @@ chess-clock
   allowed to try anyway, in case our clock has become out-of-sync with
   the server's
 
+The PGN chapter of the manual is not fully representative of the
+original, owing to the lack of subsubsubsection in texinfo.
+
 			 BEFORE FINAL RELEASE
 
   use more asserts throughout the code
   break my dependency on cl
 * profile
 * mem profile
+  elint
   docstring/texi
   checkdoc
-  elint
