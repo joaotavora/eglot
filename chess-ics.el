@@ -70,7 +70,7 @@ who is black."
       (when (> index 0)
 	(chess-pos-set-en-passant
 	 position (chess-rf-to-index
-		   (if (chess-pos-side-to-move position) 4 3) index))))
+		   (if (chess-pos-side-to-move position) 3 4) index))))
     (setq parts (cdr parts))
 
     ;; can White still castle short? (0=no, 1=yes)
