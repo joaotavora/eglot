@@ -71,6 +71,7 @@
 	  (let ((game (chess-engine-game nil)))
 	    (when (and game (chess-game-get-data game 'my-color)
 		       (= (chess-game-index game) 0))
+	      (message "Your opponent played the first move, you are now black")
 	      (chess-game-run-hooks game 'pass)
 	      ;; if no one else flipped my-color, we'll do it
 	      (if (chess-game-get-data game 'my-color)

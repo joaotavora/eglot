@@ -73,7 +73,7 @@ This regexp handles both long and short form.")
 		  (setq source (aref source 0)))
 		(let (candidates which)
 		  (unless (< piece ?a)
-		    (setq piece ?P))
+		    (setq source piece piece ?P))
 		  ;; we must use our knowledge of how pieces can
 		  ;; move, to determine which piece is meant by the
 		  ;; piece indicator
