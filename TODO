@@ -69,6 +69,39 @@ These are features scheduled for future 2.x releases.
 
 ----------------------------------------------------------------------
 
+			       PGN Mode
+
+Maybe pgn-mode could just allow normal editing, and bind some keys
+to do special things. e.g., the mouse binding could work as normal,
+SPC could update the display. So if you do
+
+1 e4 SPC
+you get the move displayed. Some binding could do redisplay anyway, e.g. C-l?
+Then, one could enter variations or such simply with ( or { and
+the display would update automatically.
+e.g., you do 
+( 15.e5 SPC Nf3 SPC )
+and you'd get three display updates, on e5 SPC, you get that
+ply, then the second one, and on ) you get the position before the 
+variation. Move point into the variation again, and hit C-l and you
+get the pos where point is on.
+
+There should be a forward-ply and backward-ply, maybe something like
+M-f / M-b, and C-u M-f for two plies forward?
+
+Very nice would be a pcomplete-based completion fascility, so
+simply hit TAB at any point, and you get the right completion.
+Example:
+
+[Event ...]
+
+TAB 1.TAB ...
+
+On first tab, the move number is inserted. On second, you get
+all possible moves in that position.
+
+----------------------------------------------------------------------
+
 			    Chess by Mail
 
 - Add support for adjournments; also, implement this is such a way

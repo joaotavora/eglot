@@ -12,6 +12,7 @@ chess-ics
   need a more robust way of signalling events, so that I never get out
   of sync with the server
 - resuming adjourned games does not work at all
+- not detecting forfeit by disconnection at the moment
 
 chess-clock
 - sometimse, the clock gets shut off (while playing on ICS) for no
