@@ -7,6 +7,8 @@
 ;;; Commentary:
 
 (require 'chess-game)
+(require 'chess-algebraic)
+(require 'chess-fen)
 
 (defgroup chess-engine nil
   "Code for reading movements and other commands from an engine."
@@ -77,7 +79,7 @@
 
      ((eq event 'resign)
       (if chess-engine-game
-	  (chess-engine-resign chess-engine-game)))
+	  (chess-game-resign chess-engine-game)))
 
      ((eq event 'setup)
       (chess-game-set-start-position (chess-engine-game nil)

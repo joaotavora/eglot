@@ -92,7 +92,7 @@ NOTE: This function is meant to be called from a display buffer!"
       (cdr (assq 'chess-engine-event-handler
 		 (chess-game-hooks (chess-display-game nil))))
     (setq chess-irc-opponent nick)
-    (chess-engine-send engine (format "name %s\n" (user-full-name)))))
+    (chess-engine-send nil (format "name %s\n" (user-full-name)))))
 
 ;; This filter translates IRC syntax into basic chess-network protocol
 (defun chess-irc-filter (proc string)

@@ -485,6 +485,7 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-shuffle ()
   "Generate a shuffled opening position."
   (interactive)
+  (require 'chess-random)
   (if (and (chess-display-active-p)
 	   (= 0 (chess-display-index nil)))
       (chess-game-set-start-position chess-display-game

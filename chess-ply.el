@@ -70,10 +70,10 @@
     found))
 
 (defsubst chess-ply-source (ply)
-  (car (chess-ply-changes)))
+  (car (chess-ply-changes ply)))
 
 (defsubst chess-ply-target (ply)
-  (cadr (chess-ply-changes)))
+  (cadr (chess-ply-changes ply)))
 
 (defsubst chess-ply-next-pos (ply)
   (apply 'chess-pos-move (chess-pos-copy (chess-ply-pos ply))

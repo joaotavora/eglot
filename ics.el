@@ -2,7 +2,7 @@
 ;;
 ;; Author: Mark Oakden <mark.oakden@camembert.freeserve.co.uk>
 ;;
-;; (ICC,FICS,BICS,EICS:Sheridan) 
+;; (ICC,FICS,BICS,EICS:Sheridan)
 ;;
 ;;;;;;;;;;;;;;
 ;;
@@ -44,27 +44,27 @@
 ;;		      (setq ics-send-handle t)
 ;;                    ;; I like the buttons even if they are buggy
 ;;                    (setq ics-add-buttons t)
-;;		      ;; I like abbrevs 
+;;		      ;; I like abbrevs
 ;;		      (setq ics-use-abbrev-mode t)
 ;;		      ;; my emacs windows are light coloured backgrounds
 ;;		      (setq ics-background-mode 'light)
 ;;		      ;; reset the aliases list to use timestamp/timeseal
 ;;		      ;;   where possible
-;;		      (setq ics-servers-alist 
+;;		      (setq ics-servers-alist
 ;;			    '(("i" "ICC" "192.231.221.16" "5000"
 ;;			       "timestamp") ; chess.lm.com
 ;;			      ("f" "A-FICS" "164.58.253.10" "5000"
 ;;			       "timeseal") ; ics.onenet.net
-;;			      ("e" "E-FICS" "130.225.18.157" "5000" 
+;;			      ("e" "E-FICS" "130.225.18.157" "5000"
 ;;			       "telnet") ; krypton.daimi.aau.dk
-;;			      ("d" "D-FICS" "193.78.33.69" "5000" 
+;;			      ("d" "D-FICS" "193.78.33.69" "5000"
 ;;			       "telnet") ; dds.hacktic.nl
-;;			      ("b" "B-FICS" "137.205.192.12" "5000" 
+;;			      ("b" "B-FICS" "137.205.192.12" "5000"
 ;;			       "telnet") ; holly.csv.warwick.ac.uk
 ;;			      ("g" "G-FICS" "131.246.89.3" "5000"
 ;;			       "telnet") ; chess.unix-ag.uni-kl.de
 ;;			      ("m" "M-FICS" "132.76.80.77" "5000"
-;;			       "telnet") ; wisdom.weizmann.ac.il 
+;;			       "telnet") ; wisdom.weizmann.ac.il
 ;;			      )))))
 ;;
 ;; I have used IP addrs in my hook since timeseal does not seem
@@ -106,7 +106,7 @@
 ;; * better kibitz default colour for dark backgrounds (LightSeaGreen)
 ;;   (can anybody tell I now use dark backgrounds in my emacs???)
 ;; * fixed type in ics-shout-face (turquiose1 -> turquoise1)
-;; * fixed handle matching regexp in ics-button-alist to know that 
+;; * fixed handle matching regexp in ics-button-alist to know that
 ;;   "-" is now allowed in names.
 ;; * fixed sundry button regexps to know that titles in brackets exist
 ;; * rehashed the highlighting/buttonising code to remove
@@ -120,39 +120,39 @@
 ;; ics.el v0.3.6 alpha
 ;;
 ;; changes since 0.3.5:
-;; * added a line into ics-watch-for-login-and-send-handle to remove it 
-;;   from comint-output-filter-functions once it has run,  to avoid 
+;; * added a line into ics-watch-for-login-and-send-handle to remove it
+;;   from comint-output-filter-functions once it has run,  to avoid
 ;;   endless loop when an invalid handle is entered.
 ;; * removed all the ics-wakeup stuff.  It got broken between my
 ;;   prerelease version of 0.3.5 and the released version.  This has
 ;;   been replaced by a more general ics-auto-command feature, along
-;;   with a boolean variable ics-idle-p to determine if user is idle. 
+;;   with a boolean variable ics-idle-p to determine if user is idle.
 ;;   A sample ics-auto-command-alist shows how to use these to simulate
-;;   the broken 0.3.5 ics-wakeup feature,  along with another 
+;;   the broken 0.3.5 ics-wakeup feature,  along with another
 ;;   auto-command (auto greet people on notify list)
 ;;
 ;; changes since 0.3.4:
-;; * added timeout variable to ics-wakeup function.  Wakeup will now 
+;; * added timeout variable to ics-wakeup function.  Wakeup will now
 ;;   only produce alarm beeps if the elapsed time since the last beeps
-;;   is greater than the user settable timeout period 
+;;   is greater than the user settable timeout period
 ;;   ics-wakeup-alarm-timeout
 ;; * added some messages to let user know what ics.el is doing
 ;;   e.g. Waiting for login prompt ... etc...
 ;; * ics-send-password and ics-password added.
-;; * added wakeup function.  If ics-wakeup is t then any ics output 
+;; * added wakeup function.  If ics-wakeup is t then any ics output
 ;;   matching ics-wakeup-regexp will cause emacs to (ding t)
 ;;   ics-wakeup-number-of-beeps times,  separated by
-;;   ics-wakeup-beep-interval. 
+;;   ics-wakeup-beep-interval.
 ;; * Changed (ding) in ics-output-filter-function to (ding t) to
 ;;   prevent it from terminating keyboard macros.
-;; * wrapped long regexp strings over multiple lines.  Must be careful not 
+;; * wrapped long regexp strings over multiple lines.  Must be careful not
 ;;   to reformat these sections of code!
 ;;
 ;; changes since 0.3.3:
 ;; * CHANGED variable ics-handle to ics-default-handle.  ics-handle is
 ;;   now used internally.
-;; * added variable ics-wait-for-login-prompt. If this is t (default) and 
-;;   ics-send-handle is t, ics.el will wait for the login prompt to appear 
+;; * added variable ics-wait-for-login-prompt. If this is t (default) and
+;;   ics-send-handle is t, ics.el will wait for the login prompt to appear
 ;;   before sending handle.
 ;; * added button to observe gnotify notification games.
 ;; * added button on "Type next/more" messages.
@@ -178,14 +178,14 @@
 ;; * tweaked regexps
 ;; * moved the variables that most need user customisation nearer the
 ;;   top of the file so users might see them if browsing the head of the
-;;   file. 
+;;   file.
 ;;
 ;; changes since 0.3.1:
 ;; * minor tweakings of regexps to work better across different ics servers
-;; * new startup screen. 
+;; * new startup screen.
 ;; * examine button for history list entries
 ;; * new hooks ics-pre-connect-hook ics-post-connect-hook and ics-mode-hook
-;; 
+;;
 ;;
 ;;
 ;;
@@ -208,7 +208,7 @@ handle if ics-send-handle is t?
 non-nil means wait for login prompt.")
 
 (defvar ics-send-password nil
-  "*If t send ics-password just after sending handle.  Will only send 
+  "*If t send ics-password just after sending handle.  Will only send
 password if ics-send-handle is t")
 
 (defvar ics-password "barf"
@@ -258,28 +258,28 @@ This can be set in your .emacs file,  in ics-startup-hooks add e.g.
   \(setq ics-abbrev-file \"/foo/bar/.ics_abbreviations\"\)
 To switch on abbrev-mode this session in ics buffer use \"M-x abbrev-mode\".
 If you wish to have abbrev mode set and your abbreviations file read
-automatically when you enter ics-mode, add the line 
+automatically when you enter ics-mode, add the line
   \(setq ics-use-abbrev-mode t\)
 to your ics-startup-hook in .emacs file.
 
 See \"C-h f abbrev-mode\" for more about abbreviation mode.
 
-*Note: since write-abbrev-file saves ALL mode abbrev tables along with the 
+*Note: since write-abbrev-file saves ALL mode abbrev tables along with the
 global abbrev table,  it is probably better not to use a separate file for
 ics-mode abbrev. saving.  Perhaps best to use a common abbrev file e.g.
-.abbrev_defs for ALL your favourite abbrevs, and restrict ics abbrevs to the 
-ics-mode-table,  that way, other buffers in different modes in the same 
-emacs session as your ics buffer will still get your favourite abbrevs for 
+.abbrev_defs for ALL your favourite abbrevs, and restrict ics abbrevs to the
+ics-mode-table,  that way, other buffers in different modes in the same
+emacs session as your ics buffer will still get your favourite abbrevs for
 those modes set up.")
 
 (defvar ics-mode-map '())
 
 (defvar ics-startup-hook '()
   "*Hook for customising ICS mode.
-You should set sensible values for ics-default-handle and ics-handle-regexp 
+You should set sensible values for ics-default-handle and ics-handle-regexp
 in this hook in your .emacs file.
 e.g. mine might read:-
-\(add-hook 'ics-startup-hook 
+\(add-hook 'ics-startup-hook
       \(function \(lambda \(\)
 		  \(setq ics-default-handle \"Sheridan\"\)
 		  \(setq ics-handle-regexp \"[Ss]heridan\"\)\)\)\)")
@@ -301,18 +301,18 @@ e.g. mine might read:-
 			     "telnet") ; chess.lm.com
 			    ("f" "A-FICS" "164.58.253.10" "5000"
 			     "telnet") ; ics.onenet.net
-			    ("e" "E-FICS" "130.225.18.157" "5000" 
+			    ("e" "E-FICS" "130.225.18.157" "5000"
 			     "telnet") ; krypton.daimi.aau.dk
-			    ("d" "D-FICS" "193.78.33.69" "5000" 
+			    ("d" "D-FICS" "193.78.33.69" "5000"
 			     "telnet") ; dds.hacktic.nl
-			    ("b" "B-FICS" "137.205.192.12" "5000" 
+			    ("b" "B-FICS" "137.205.192.12" "5000"
 			     "telnet") ; holly.csv.warwick.ac.uk
 			    ("g" "G-FICS" "131.246.89.3" "5000"
 			     "telnet") ; chess.unix-ag.uni-kl.de
 			    ("m" "M-FICS" "132.76.80.77" "5000"
 			     "telnet") ; wisdom.weizmann.ac.il
 			    )
-  "* Alist of server information. Each entry in the list has the form 
+  "* Alist of server information. Each entry in the list has the form
 
 \(ABBREV SHORTNAME ADDRESS PORT CONNECTMETHOD\)
 
@@ -361,7 +361,7 @@ ics-interface-args to an appropriate value for your interface.")
 			     ics-port "-telnet" "-telnetProgram"
 			     ics-connect-method "-size" "medium")
   "* List of arguments to be supplied to the interface program to
-connect to an ics server.  
+connect to an ics server.
 
 The variables ics-address, ics-port, and ics-connect-method may be
 used in this list.  These variables will be initialised from
@@ -377,9 +377,9 @@ ICC/FICS, you should have
 
 \(setq ics-interface \"xboard\"\)
 \(setq ics-interface-args '\(list \"-ics\" \"-icshost\" ics-address
-                             \"-icsport\" ics-port \"-telnet\" 
-                             \"-telnetProgram\" ics-connect-method 
-                             \"-size\" \"medium\"\)
+			     \"-icsport\" ics-port \"-telnet\"
+			     \"-telnetProgram\" ics-connect-method
+			     \"-size\" \"medium\"\)
 
 in your ics-startup-hook, and make sure that the CONNECT-METHOD
 entries in ics-servers-alist correspond to the names of your
@@ -432,8 +432,8 @@ before another bell will be sounded.")
 				   "tell with an alarm signal.  "
 				   "[This tell was generated "
 				   "automatically]")
-  "command to be sent to ICS when ics-wakeup is called , after 
-passing through 
+  "command to be sent to ICS when ics-wakeup is called , after
+passing through
   \(format ics-wakeup-command trigger-name\)")
 
 (defvar ics-wakeup-number-of-beeps 3
@@ -460,21 +460,21 @@ passing through
   "* If t then highlight tells, says etc.")
 
 (defvar ics-background-mode 'light
-  "* Type of background that you use with Emacs... either 'light or 'dark") 
+  "* Type of background that you use with Emacs... either 'light or 'dark")
 
-(defvar ics-highlight-items 
-  '("continuation-line" "game-request" "game-notification" "pinform" 
-    "notification" "kibitz" "s-shout" "channel" "shout" "emote" "tell" 
-    "stored-here" "stored-not-here" "adjudicate-notification" 
-    "sought-lightning" "sought-suicide" "sought-blitz" "sought-standard" 
+(defvar ics-highlight-items
+  '("continuation-line" "game-request" "game-notification" "pinform"
+    "notification" "kibitz" "s-shout" "channel" "shout" "emote" "tell"
+    "stored-here" "stored-not-here" "adjudicate-notification"
+    "sought-lightning" "sought-suicide" "sought-blitz" "sought-standard"
     "handle")
   "*List of types of item to highlight.  The ics-highlight-alist
 variable is initialised according to the value of this variable,
-which has the form of a list of strings. 
+which has the form of a list of strings.
 
 e.g.
 
-'\(\"continuation-line\" \"game-request\" \"game-notification\" \"pinform\" 
+'\(\"continuation-line\" \"game-request\" \"game-notification\" \"pinform\"
    \"notification\" \"kibitz\" \"s-shout\" \"channel\" \"shout\"
    \"emote\" \"tell\" \"handle\"\)
 
@@ -520,14 +520,14 @@ not exist,  or are incorrectly formed,  ics.el will bomb.")
 			 ("turquoise1" nil nil nil t nil)
 			 italic))
 
-(defvar ics-stored-here-regexp 
+(defvar ics-stored-here-regexp
   '(" *\\([0-9]+: [BW] \\([a-zA-Z]+[-a-zA-Z0-9]*\\) +Y \\[.+\\]\\) .*$" 0)
   "Regexp to match stored list entries for players who are here")
 (defvar ics-stored-here-face '(("forest green" nil nil nil nil nil)
 			      ("green" nil nil nil nil nil)
 			      italic))
-  
-(defvar ics-stored-not-here-regexp 
+
+(defvar ics-stored-not-here-regexp
   '(" *\\([0-9]+: [BW] \\([a-zA-Z]+[-a-zA-Z0-9]*\\) +N \\[.+\\]\\) .*$" 0)
   "Regexp to match stored list entries for players who are here")
 (defvar ics-stored-not-here-face '(("firebrick" nil nil nil nil nil)
@@ -592,16 +592,16 @@ not exist,  or are incorrectly formed,  ics.el will bomb.")
 			   ("turquoise1" nil nil t t nil)
 			   bold-italic))
 
-(defvar ics-game-request-regexp 
+(defvar ics-game-request-regexp
   '("^Challenge: .*$\\|^Ignoring\\(\\[\\|[ ](\\).*$\\|Issuing: .*$" 0)
-  "Regexp to match game requests \(it is perhaps useful to have this 
-also match game requests that are ignored due to e.g. not being open, 
+  "Regexp to match game requests \(it is perhaps useful to have this
+also match game requests that are ignored due to e.g. not being open,
 or formula clashes etc.\)")
 (defvar ics-game-request-face '(("black" "tan" nil t nil nil)
 				("white" "navy" nil t nil nil)
 				modeline))
 
-(defvar ics-game-notification-regexp 
+(defvar ics-game-notification-regexp
   '("^Game notification:.*$\\|^{Game .*}.*$" 0)
   "Regexp to match ICS game notification messages.")
 (defvar ics-game-notification-face '(("forest green" nil nil nil nil nil)
@@ -625,20 +625,20 @@ or formula clashes etc.\)")
 			 ("turquoise1" nil nil nil t nil)
 			 italic))
 
-(defvar ics-pinform-regexp 
+(defvar ics-pinform-regexp
   '("^\\[[a-zA-Z0-9]+ +\\((.+)\\)? *has \\(dis\\)?connected.\\]$" 0))
 (defvar ics-pinform-face '(("royal blue" nil nil nil nil nil)
 			   ("orange" nil nil nil nil nil)
 			   default))
 
-(defvar ics-notification-regexp 
+(defvar ics-notification-regexp
   '("^Notification: [^ ]+ has \\(arrived\\|departed\\).$\\|\
 ^Present company includes.*$\\|^Your arrival was noted by: .*$" 0))
 (defvar ics-notification-face '(("ForestGreen" nil nil t nil nil)
 				("ForestGreen" nil nil t nil nil)
 				bold))
 
-(defvar ics-adjudicate-notification-regexp 
+(defvar ics-adjudicate-notification-regexp
   '("^You have [0-9]+ adjourned games." 0 )
   "Regexp to match initial storegames notifaction")
 (defvar ics-adjudicate-notification-face '(("ForestGreen" nil nil nil nil nil)
@@ -651,7 +651,7 @@ or formula clashes etc.\)")
 				     default))
 ;;;;
 
-(defvar ics-highlight-alist nil 
+(defvar ics-highlight-alist nil
   "Alist of regexps and highlighting info.  Don't set this variable up
 yourself unless you know what you are doing.  It is initialised
 automatically from ics-highlight-items, ics-X-regexp and ics-X-face
@@ -666,7 +666,7 @@ ics-X-regexp and ics-X-face variables.")
 ;; by Lars Magne Ingebrigtson)
 ;;
 ;; button functions have been slightly rewritten,  since we have many
-;; buttons. 
+;; buttons.
 
 (defvar ics-add-buttons nil
   "* If t then add buttons to ics buffer.")
@@ -730,7 +730,7 @@ e.g. \"match %s\"")
 (defvar ics-button-match-offer 'ics-send-command
   "*Function to call on accept/decline buttons in match offers.")
 
-(defvar ics-button-alist 
+(defvar ics-button-alist
   (list
    ;; who button... highlight just the player name...
    (list
@@ -739,25 +739,25 @@ e.g. \"match %s\"")
      "\\([a-zA-Z]+[-a-zA-Z0-9]*\\)")
     3 t 'ics-button-wholist 3)
    ;; pinform button
-   (list 
+   (list
     "^\\[\\([a-zA-Z0-9]+\\) +\\((.+)\\)? *has \\(dis\\)?connected.\\]$" 1 t
     ics-button-pinform 1)
    ;; ginform button
    (list
-    (concat 
+    (concat
      "^{Game \\([0-9]+\\) (\\([a-zA-Z0-9]+ vs. [a-zA-Z0-9]+\\))"
      " \\(Creating\\|Continuing\\).*$")
     2 t ics-button-ginform 1)
    ;; ICC gnotify button (FICS gnotify has same format as ginform so
-   ;; is already handled by above regexp 
+   ;; is already handled by above regexp
    (list
-    (concat 
+    (concat
      "^Game notification: \\(\\([^ \t\n]+\\) (.+) vs\\. "
      "\\([^ \t\n]+\\) (.+)\\).*$")
     1 t 'ics-button-ginform 2)
    ;; shouts should have a finger button...
    (list
-    "^\\([^ \t\n(]+\\)\\(([^)]+)\\)* \\(c-\\|s-\\)?shouts: .*$" 
+    "^\\([^ \t\n(]+\\)\\(([^)]+)\\)* \\(c-\\|s-\\)?shouts: .*$"
     1 t 'ics-finger 1)
    ;; emotes too...
    (list
@@ -765,7 +765,7 @@ e.g. \"match %s\"")
    ;; accept and decline buttons in match offers (are these too loose??)
    ;; ICC version...
    (list
-    "\"\\(\\(accept \\|decline \\)[a-zA-Z][a-zA-Z0-9]+\\)\"" 1 t 
+    "\"\\(\\(accept \\|decline \\)[a-zA-Z][a-zA-Z0-9]+\\)\"" 1 t
     'ics-button-match-offer 1)
    ;; FICS version (works with fics 1.2.23)
    (list
@@ -818,7 +818,7 @@ e.g. \"match %s\"")
     "^Type \\[\\(next\\)\\] to see next page\\."
     1 t 'ics-send-command 1)
    (list
-    "^\\[Type \"\\(more\\)\" to see more\\.\\]" 
+    "^\\[Type \"\\(more\\)\" to see more\\.\\]"
     1 t 'ics-send-command 1)
    ;; This is how URLs _should_ be embedded in text...
    (list
@@ -843,7 +843,7 @@ Each entry has the form (REGEXP BUTTON FORM CALLBACK PAR...), where
 REGEXP: is the string matching text around the button,
 BUTTON: is the number of the regexp grouping actually matching the button,
 FORM: is a lisp expression which must eval to true for the button to
-be added, 
+be added,
 CALLBACK: is the function to call when the user push this button, and each
 PAR: is a number of a regexp grouping whose text will be passed to CALLBACK.
 
@@ -855,10 +855,10 @@ variable it the real callback function.")
 ;;
 ;; variable to keep track of ics handle in use. NOT A USER VARIABLE!!
 (defvar ics-handle "BarfieIsCool"
-  "this variable is NOT the place to set your default handle. this is used 
+  "this variable is NOT the place to set your default handle. this is used
 internally in the watch for login prompt.")
 ;;
-;; 
+;;
 
 ;;; Function definitions
 
@@ -887,7 +887,7 @@ internally in the watch for login prompt.")
   "Function to query user for ics server to use and either connect to
 that server in a new buffer, or in an existing buffer for that server,
 or switch to any existing buffer running the ics conenction to that
-server." 
+server."
   (or ics-inhibit-startup-screen
       (progn
 	(switch-to-buffer (get-buffer-create "*ICS Connect*"))
@@ -896,13 +896,13 @@ server."
 	;; many thanks to Alefith for permission to use his ASCII
 	;; knight and rook pictures here!
 	(insert (format "
-      ^^__                                                          _  _  _ 
+      ^^__                                                          _  _  _
      /  - \\_                       Emacs-ICS                       | || || |
    <|    __<                                                       |_______|
    <|    \\           A text window manager for ICS sessions.       \\__ ___ /
-   <|     \\                                                         |___|_| 
-   <|______\\               (C) 1995-1999 Mark Oakden                |_|___| 
-    _|____|_                                                        |___|_| 
+   <|     \\                                                         |___|_|
+   <|______\\               (C) 1995-1999 Mark Oakden                |_|___|
+    _|____|_                                                        |___|_|
    (________)  Issued with NO WARRANTY under the terms of the GNU  (_______)
    /________\\  public licence [C-h C-c to see a copy of the GPL]   /_______\\
 
@@ -930,7 +930,7 @@ Aliases defined:
   ;;
   ;; now prompt for address, handle and start the process
   ;;
-  (let* ((address-or-alias (read-from-minibuffer 
+  (let* ((address-or-alias (read-from-minibuffer
 			    "ICS Server address or alias: "))
 	 (server-info-list (cdr (assoc address-or-alias
 				       ics-servers-alist)))
@@ -943,19 +943,19 @@ Aliases defined:
 	 (ics-port (or (car (nthcdr 2 server-info-list))
 		   (read-from-minibuffer "ICS port: " ics-default-port)))
 	 (interface ics-interface)
-	 (handle (read-from-minibuffer "ICS Handle: " 
+	 (handle (read-from-minibuffer "ICS Handle: "
 					   ics-default-handle))
 	 (proc (concat server-name ":" handle))
 	 (buffer (concat "*" proc "*")))
-    (setq ics-handle handle)            ; save value of 
+    (setq ics-handle handle)            ; save value of
 					; handle in a global variable
     (or ics-inhibit-startup-screen
 	(kill-buffer "*ICS Connect*"))
     (if (not (comint-check-proc buffer))
-	(progn 
+	(progn
 	  (run-hooks 'ics-pre-connect-hook)
-	  (set-buffer  
-	   (apply 'make-comint proc interface nil 
+	  (set-buffer
+	   (apply 'make-comint proc interface nil
 		  (eval ics-interface-args)))
 	  (run-hooks 'ics-post-connect-hook)
 	  (ics-mode)))
@@ -964,27 +964,27 @@ Aliases defined:
 	 (ics-current-time))
     (set (make-variable-buffer-local 'ics-idle-p) nil)
     (set (make-variable-buffer-local 'ics-interface-variable-set) nil)
-    (set (make-variable-buffer-local 'ics-wakeup-last-alarm-time) 
+    (set (make-variable-buffer-local 'ics-wakeup-last-alarm-time)
 	 (ics-current-time))
     (set (make-variable-buffer-local 'ics-last-highlight-end) nil)
     (set (make-variable-buffer-local 'ics-last-add-buttons-end) nil)
     (if (and ics-send-handle (not ics-wait-for-login-prompt))
 	(progn
 	  (message "Sending ICS handle...")
-	  (comint-simple-send (get-buffer-process (current-buffer)) 
+	  (comint-simple-send (get-buffer-process (current-buffer))
 			      ics-handle)
 	  (message "Sending ICS handle... done.")
 	  (if ics-send-password
 	      (message "Sending password...")
-	      (comint-simple-send (get-buffer-process (current-buffer)) 
+	      (comint-simple-send (get-buffer-process (current-buffer))
 				  ics-password)
 	      (message "Sending password...done"))))))
 
 (defun ics-mode ()
   "Major mode for communication with ICS.
 
-Uses comint-mode and so shares some functionality and key bindings with 
-that.  Useful commands include M-p and M-n to recall previous and next 
+Uses comint-mode and so shares some functionality and key bindings with
+that.  Useful commands include M-p and M-n to recall previous and next
 commands in the history ring.
 Customisation: Entry to this mode runs hooks on 'ics-startup-hook' and
 'comint-mode-hook' (in that order)."
@@ -1003,7 +1003,7 @@ Customisation: Entry to this mode runs hooks on 'ics-startup-hook' and
   ;; some nice settings (should these be default here or left for the
   ;; user to set for himself in a hook?)
   ;;
-  ;(setq comint-scroll-to-bottom-on-input t) 
+  ;(setq comint-scroll-to-bottom-on-input t)
   ;(setq comint-scroll-show-maximum-output t)
   ;;
   ;; if ics-highlight is non-nil, add highlight function into
@@ -1080,7 +1080,7 @@ Also performs ics-auto-command duties,  if ics-do-auto-commands is t"
 	       (looking-at ics-prompt-regexp)))
 	(ics-update-interface-variable))
     ;; reset idle flag
-    (setq ics-idle-p (< ics-idle-time (ics-time-since 
+    (setq ics-idle-p (< ics-idle-time (ics-time-since
 				       ics-last-command-time)))
     ;; and process the user defined automatic commands
     (if ics-do-auto-commands
@@ -1098,7 +1098,7 @@ Also performs ics-auto-command duties,  if ics-do-auto-commands is t"
 	      ;;
 	      (if (and (eval condition)
 		       (string-match regexp string))
-		  (progn 
+		  (progn
 		    (setq alist nil)
 		    (let ((data (match-string level string)))
 		      (cond ((stringp command)
@@ -1109,7 +1109,7 @@ Also performs ics-auto-command duties,  if ics-do-auto-commands is t"
 				  (fboundp (symbol-value command)))
 			     (funcall (symbol-value command) data))
 			    (t
-			     (message 
+			     (message
 			      "ICS Autocommand must be a string or\
  function"))))))))))))
 
@@ -1172,25 +1172,25 @@ entries along with the condition ics-idle-p to simulate the (broken)
 		      (nth 1 facelist))
 		     (t                 ;if all else fails assume 'light
 		      (car facelist)))
-	  ics-highlight-alist (cons (append 
+	  ics-highlight-alist (cons (append
 				     re (list (if (facep face)
 						  face
-						(apply 'ics-face-lookup 
-						       face)))) 
+						(apply 'ics-face-lookup
+						       face))))
 				    ics-highlight-alist))))
-	  
+
 (defun ics-highlight-buffer ()
-  "Highlight the whole ICS buffer. Useful for highlighting ics session 
+  "Highlight the whole ICS buffer. Useful for highlighting ics session
 log files for easier reading.."
   (interactive)
-  (save-excursion 
+  (save-excursion
     (ics-highlight-region (point-min) (point-max))))
 ;;
 (defun ics-highlight-last-output (&optional string)
-  "Highlight the last piece of ics output"  
+  "Highlight the last piece of ics output"
   ;; as a first approximation, use the end of the last highlighting
   ;; for the start of this batch and the process mark in the current
-  ;; buffer for the end.  If ics-last-highlight-end is nil then 
+  ;; buffer for the end.  If ics-last-highlight-end is nil then
   ;; we haven't highlighted anything yet so use point-min
   (let ((start (if (null ics-last-highlight-end)
 		   (point-min)
@@ -1211,7 +1211,7 @@ log files for easier reading.."
 
 (defun ics-highlight-region (start end)
   "Highlights between start and end"
-  ;; 
+  ;;
   ;; first check if setup has been run yet and run it if not...
   ;;
   (if (null ics-highlight-alist)
@@ -1224,7 +1224,7 @@ log files for easier reading.."
 	(save-excursion
 	  (goto-char start)
 	  (while (re-search-forward re end t)
-	    (put-text-property (match-beginning level) 
+	    (put-text-property (match-beginning level)
 			       (match-end level) 'face theface))))
       (setq alist (cdr alist))))
     (setq ics-last-highlight-end end))
@@ -1263,14 +1263,14 @@ log files for easier reading.."
 (defun ics-add-buttons-to-buffer ()
   "Adds buttons to the whole ICS buffer. "
   (interactive)
-  (save-excursion 
+  (save-excursion
     (ics-add-buttons-to-region (point-min) (point-max))))
 
 (defun ics-add-buttons-to-region (regstart regend)
   "Find external references in region regstart to regend and make them into
 buttons.
 
-External references are things like who list entries and URLs, as 
+External references are things like who list entries and URLs, as
 specified by `ics-button-alist'."
   (if (eq ics-button-last ics-button-alist)
       ()
@@ -1300,7 +1300,7 @@ specified by `ics-button-alist'."
 				  (set-marker (make-marker)
 					      from))))))))))
 
-    
+
 (defun ics-add-button (from to fun &optional data)
   "Create a button between FROM and TO with callback FUN and data DATA."
   (and ics-button-face
@@ -1332,7 +1332,7 @@ call it with the value of the `ics-data' text property."
   (interactive "e")
   (set-buffer (window-buffer (posn-window (event-start event))))
   (let* ((pos (posn-point (event-start event)))
-         (data (get-text-property pos 'ics-data))
+	 (data (get-text-property pos 'ics-data))
 	 (fun (get-text-property pos 'ics-callback)))
     (if fun (funcall fun data)
       (mouse-yank-at-click event nil))))
@@ -1345,7 +1345,7 @@ call it with the value of the `ics-data' text property."
     (let* ((entry (ics-button-entry))
 	   (inhibit-point-motion-hooks t)
 	   (fun (nth 3 entry))
-	   (args (mapcar (lambda (group) 
+	   (args (mapcar (lambda (group)
 			   (let ((string (buffer-substring
 					  (match-beginning group)
 					  (match-end group))))
@@ -1376,42 +1376,42 @@ call it with the value of the `ics-data' text property."
 (defun ics-play (index)
   "issue a play command to play a game in the seek list"
   (interactive "sWhich index? ")
-  (comint-simple-send (get-buffer-process (current-buffer)) 
+  (comint-simple-send (get-buffer-process (current-buffer))
 		      (format ics-play-command index)))
 
 (defun ics-finger (player)
   "Function to finger a player."
   (interactive "sFinger who? ")
-  (comint-simple-send (get-buffer-process (current-buffer)) 
+  (comint-simple-send (get-buffer-process (current-buffer))
 		      (format ics-finger-command player)))
 
 (defun ics-observe (game)
   "Function to observe a game."
   (interactive "sWhich game? ")
-  (comint-simple-send (get-buffer-process (current-buffer)) 
+  (comint-simple-send (get-buffer-process (current-buffer))
 		      (format ics-observe-command game)))
 
 (defun ics-examine-from-historylist (game)
   "Function to examine a game from history list"
   (save-excursion
-    (or (re-search-backward 
-	 "\\(Recent games of\\|History for\\) \\([a-zA-Z0-9]+\\):" 
+    (or (re-search-backward
+	 "\\(Recent games of\\|History for\\) \\([a-zA-Z0-9]+\\):"
 			(point-min) t)
 	(error "Couldn't identify player"))
     (let ((player (buffer-substring (match-beginning 2) (match-end 2))))
-      (comint-simple-send (get-buffer-process (current-buffer)) 
+      (comint-simple-send (get-buffer-process (current-buffer))
 			  (format "examine %s %s" player game)))))
 
 (defun ics-match (player)
   "Function to challenge a player."
   (interactive "sMatch arguments: ")
-  (comint-simple-send (get-buffer-process (current-buffer)) 
+  (comint-simple-send (get-buffer-process (current-buffer))
 		      (format ics-match-command player)))
 
 (defun ics-stored (dummy)
   "Function to send the command stored to the server"
   (interactive)
-  (comint-simple-send (get-buffer-process (current-buffer)) 
+  (comint-simple-send (get-buffer-process (current-buffer))
 		      "stored"))
 
 (defun ics-who ()
@@ -1422,7 +1422,7 @@ call it with the value of the `ics-data' text property."
 (defun ics-players ()
   "Function to get players listing."
   (interactive)
-  (comint-simple-send (get-buffer-process (current-buffer)) 
+  (comint-simple-send (get-buffer-process (current-buffer))
 		      ics-players-command))
 
 ;;; URL netscape functions.. from gnus 5.0 source
@@ -1432,9 +1432,9 @@ call it with the value of the `ics-data' text property."
   (let ((process (start-process (concat "netscape " url)
 				nil
 				"netscape"
-				"-remote" 
+				"-remote"
 				(concat "openUrl(" url ")'"))))
-    (set-process-sentinel process 
+    (set-process-sentinel process
 			  (` (lambda (process change)
 			       (or (eq (process-exit-status process) 0)
 				   (ics-netscape-start-url (, url))))))))
@@ -1445,7 +1445,7 @@ call it with the value of the `ics-data' text property."
 
 
 ;;;;;;;;
-;; 
+;;
 ;; some "utility" functions...
 ;;
 (defun ics-watch-for-login-and-send-handle (string)
@@ -1455,16 +1455,16 @@ call it with the value of the `ics-data' text property."
 	;; remove the hook ... this function has to be "onetrip" since
 	;; otherwise,  entering an invalid handle results in a loop,
 	;; with ics.el sending the handle repeatedly.
-	(remove-hook 'comint-output-filter-functions 
+	(remove-hook 'comint-output-filter-functions
 		     'ics-watch-for-login-and-send-handle t)
 	(message "Sending ICS handle...")
-	(comint-simple-send (get-buffer-process (current-buffer)) 
+	(comint-simple-send (get-buffer-process (current-buffer))
 			    ics-handle)
 	(message "Sending ICS handle... done.")
 	(if ics-send-password
 	    (progn
 	      (message "Sending ICS password...")
-	      (comint-simple-send (get-buffer-process (current-buffer)) 
+	      (comint-simple-send (get-buffer-process (current-buffer))
 				  ics-password)
 	      (message "Sending ICS password... done.")))
 )))
@@ -1495,7 +1495,7 @@ call it with the value of the `ics-data' text property."
   "string to pre-pend to Zippy-isms")
 
 (defun ics-insert-zippyism ()
-  "inserts a zippy-ism sans any embedded newlines into the current 
+  "inserts a zippy-ism sans any embedded newlines into the current
 buffer, with zippyism-start-string prepended"
   (interactive)
   (save-excursion
@@ -1514,7 +1514,7 @@ buffer, with zippyism-start-string prepended"
     (defun match-string (level &optional string)
       "compatibility funstion for 19.28... returns string matched
 at level NUM by last regexp match.
- 
+
 (match-string NUM &optional STRING)
 
 Return string of text matched by last search.
@@ -1533,8 +1533,8 @@ STRING should be given if the last search was by `string-match' on STRING."
     (defun facep (x)
       "Return t if X is a face name or an internal face vector."
       (and (or (and (fboundp 'internal-facep) (internal-facep x))
-	       (and 
-		(symbolp x) 
+	       (and
+		(symbolp x)
 		(assq x (and (boundp 'global-face-data) global-face-data))))
 	   t)))
 
