@@ -105,7 +105,9 @@ shutdown the announcer process, if necessary.")
 	  (if (chess-ply-keyword ply :stalemate)
 	      (setq text (concat text ", " (chess-string 'stalemate))))
 
-	  (funcall (nth 1 chess-announce-functions) text)))))))
+	  (funcall (nth 1 chess-announce-functions) text)))))
+   ((eq event 'kibitz)
+    (funcall (nth 1 chess-announce-functions) (car args)))))
 
 (defun chess-announce-festival (text)
   "Announce the given text using festival.
