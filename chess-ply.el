@@ -51,10 +51,12 @@
   :group 'chess)
 
 (defsubst chess-ply-pos (ply)
+  "Returns the base position associated with PLY."
   (assert (listp ply))
   (car ply))
 
 (defsubst chess-ply-set-pos (ply position)
+  "Set the base position of PLY."
   (assert (listp ply))
   (assert (vectorp position))
   (setcar ply position))
@@ -98,12 +100,14 @@
     value))
 
 (defsubst chess-ply-source (ply)
+  "Returns the source square index value of PLY."
   (assert (listp ply))
   (let ((changes (chess-ply-changes ply)))
     (and (listp changes) (not (symbolp (car changes)))
 	 (car changes))))
 
 (defsubst chess-ply-target (ply)
+  "Returns the target square index value of PLY."
   (assert (listp ply))
   (let ((changes (chess-ply-changes ply)))
     (and (listp changes) (not (symbolp (car changes)))
