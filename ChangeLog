@@ -1,4 +1,57 @@
+2004-03-01  Mario Lang  <mlang@delysid.org>
+
+	* chess-ply.el 1.46
+	(chess-legal-plies): Add :candidates keyword to avoid calls to
+	chess-search-position if the caller already knows the piece indices
+
+	* chess-ai.el 1.8:
+	(chess-eval-static): Try to reward passed pawns and piece mobility
+	using the new :candidates keyword to chess-legal-plies.
+
+	* chess-maint.el 1.11: put byte-compiling-files-p back in for now.
+
+	* chess-ics.el 1.96: better icc datagram support
+
+2004-02-29  Mario Lang  <mlang@delysid.org>
+
+	* chess-ics.el 1.95: Fix kibitzes on icc.
+
+	* chess-ics.el 1.94: Enhance ICC support:
+	Make "backs up" message work.
+	Rudimentary level2 datagram support through
+	chess-ics-icc-preoutput-filter.
+	New variable chess-ics-icc-datagrams to define which datagrams should
+	be requested upon login.
+	New variable chess-ics-server-type which defaults to FICS, and gets set
+	to ICC when we encounter an ICC server.
+	Handle DG_KIBITZ by translating them to the FICS representation.
+	Handle movelist request through DG_POSITION_BEGIN2 and DG_PASTMOVE.
+
+2004-02-25  Mario Lang  <mlang@delysid.org>
+
+	* chess-phalanx.el 1.15: Add elisp header and homepage link.
+
+	* chess-phalanx.el 1.14:
+	Phalanx has no "resign" commands, so only set game-data active to nil
+	for now.
+
+2004-02-24  Mario Lang  <mlang@delysid.org>
+
+	* chess-ics.el 1.93: more stability improvements.
+
 2004-02-22  Mario Lang  <mlang@delysid.org>
+
+	* chess-ai.el 1.7
+	(chess-eval-static): Primitive mobility handling, makes play a lot
+	more aggressive :)
+
+	* chess-ai.el 1.6: reward passed pawns, and make the code a bit faster
+
+	* chess-ics.el 1.92 (chess-ics-ads-removed):
+	We need to be a lot more careful when deleteing stuff on a
+	preoutput-filter-function.  Fixed this, which also
+	fixes all the remaining cases of missed boards.  LectureBot
+	ran through three Lectures without any bug, which seems good!
 
 	* chess-ics.el: Require 'rx when compiling.
 	(chess-ics-style12-regexp): New constant regexp which matches
