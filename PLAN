@@ -1,21 +1,20 @@
 polish: chess-chat, chess-kibitz
 translate: chess-german
 
-chess-display
-- chess-display-match is not a valid command
-
-chess-pos
-- Allow NAG codes to be associated with a position
-
 chess-ply
-- chess-ply-create is allowing positions that leave the king in check
+- Add :nag, :rav, :ann and :next-pos keywords to a ply
+- When creating the next position, set the annotations to point to the
+  keywords of the ply that led to that position; in fact, just point
+  to the creating ply!
+- Thus there will be a mirror set of chess-pos-has-keyword, etc.,
+  functions
 
 chess-epd
 - based on chess-fen, this will also be a database module for
   accessing positions within an EPD file
 
 chess-ics
-- detect draw/resign/abort/retract, etc.
+- detect draw/resign/retract, etc.
 - add support for ICS observing
 - set the "Site" tag after logging in
 

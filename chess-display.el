@@ -754,7 +754,8 @@ Basically, it means we are playing, not editing or reviewing."
     (ding)))
 
 (defun chess-display-match ()
-  "Resign the current game."
+  "Request a match with any listening engine."
+  (interactive)
   (chess-game-run-hooks chess-module-game 'match))
 
 (defun chess-display-resign ()
