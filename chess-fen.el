@@ -5,7 +5,7 @@
 ;; FEN notation encodes a chess position using a simple string.  The
 ;; format is:
 ;;
-;;   POSITION SIDE FLAGS
+;;   POSITION SIDE CASTLING EN-PASSANT
 ;;
 ;; The POSITION gives all eight ranks, by specifying a letter for each
 ;; piece on the position, and a number for any intervening spaces.
@@ -21,10 +21,9 @@
 ;;
 ;; The SIDE is w or b, to indicate whose move it is.
 ;;
-;; The FLAGS can contain K, Q, k or q, to signify whether the white or
-;; black king can still castle on the king or queen side.  You can
-;; also have coordinates, such as e3, a6, to specify the target sqaure
-;; of an en passant capture.
+;; CASTLING can contain K, Q, k or q, to signify whether the white or
+;; black king can still castle on the king or queen side.  EN-PASSANT
+;; signifies the target sqaure of an en passant capture, such as "e3" or "a6".
 ;;
 ;; The starting chess position always looks like this:
 ;;
