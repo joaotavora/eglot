@@ -13,6 +13,10 @@ chess-ics
   of sync with the server
 - resuming adjourned games does not work at all
 - not detecting forfeit by disconnection at the moment
+- `X' in a board buffer closes the ICS session, that shouldn't happen, a game
+  is independent from the server connection.
+- autologin does not work, hitting RET once in the *chess-ics* buffer
+  usually makes it happen.
 
 chess-clock
 - sometimse, the clock gets shut off (while playing on ICS) for no
