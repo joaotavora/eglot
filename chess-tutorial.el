@@ -33,9 +33,7 @@
 	 (display (chess-create-display t)))
     (with-current-buffer display
       (chess-module-set-leader nil)
-      (chess-game-set-start-position
-       (chess-display-game nil)
-       (chess-fen-to-pos "8/3p1p/2p3p/4q/2p3p/3p1p/8/N w - -"))
+      (chess-display-set-from-fen "8/3p1p/2p3p/4q/2p3p/3p1p/8/N w - -")
       (chess-game-add-hook (chess-display-game nil) 'chess-tutorial-knight-1)
       (setq chess-pos-always-white t)
       (chess-display-popup nil)
