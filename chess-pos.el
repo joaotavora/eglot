@@ -356,6 +356,8 @@ indices which indicate where a piece may have moved from."
 	(if (and
 	     (null candidates)
 	     (or (and (equal target (chess-rf-to-index rank 6))
+		      (= (chess-pos-piece position (chess-rf-to-index rank 4))
+			 (if color ?K ?k))
 		      (chess-pos-can-castle position (if color ?K ?k))
 		      (setq pos (chess-rf-to-index rank 5))
 		      (chess-pos-piece-p position pos ? )
@@ -364,6 +366,8 @@ indices which indicate where a piece may have moved from."
 		      (chess-pos-piece-p position pos ? )
 		      (not (chess-search-position position pos (not color))))
 		 (and (equal target (chess-rf-to-index rank 2))
+		      (= (chess-pos-piece position (chess-rf-to-index rank 4))
+			 (if color ?K ?k))
 		      (chess-pos-can-castle position (if color ?Q ?q))
 		      (setq pos (chess-rf-to-index rank 1))
 		      (chess-pos-piece-p position pos ? )

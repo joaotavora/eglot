@@ -34,6 +34,7 @@
       (setq proc (start-process "chess-process" (current-buffer)
 				(executable-find "gnuchess")))
       (message "Starting chess program 'gnuchess'...done")
+      (process-send-string proc "nopost\n")
       proc))
 
    ((eq event 'shutdown)
@@ -48,7 +49,8 @@
 
    ((eq event 'move)
     (unless chess-gnuchess-now-moving
-      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))))))
+      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
+				     "\n"))))))
 
 (provide 'chess-gnuchess)
 

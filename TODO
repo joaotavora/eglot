@@ -1,8 +1,10 @@
-- Port image display code to XEmacs
-
 - Allow the user to retract a move when playing against an engine.
 
+- Once a king or rook is moving, removed castling rights!
+
 ----------------------------------------------------------------------
+
+- Port image display code to XEmacs
 
 - Tie-in to ics.el, by adding "Internet opponent" to the opponents
   list.

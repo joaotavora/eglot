@@ -67,7 +67,8 @@
 
    ((eq event 'move)
     (unless chess-crafty-now-moving
-      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))))))
+      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
+				     "\n"))))))
 
 (provide 'chess-crafty)
 
