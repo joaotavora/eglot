@@ -1,5 +1,7 @@
 chess-ics
 - finish all elements of regular use as a client
+- takebacks still aren't working 100%
+- display a notice in the minibuffer when a takeback request is sent
 
 chess-ply
 - detect games drawn by three-fold repetition

@@ -83,6 +83,11 @@
     (let ((chess-engine-handling-event t))
       (chess-game-undo game (car args))))
 
+   ((eq event 'flag-fell)
+    (chess-game-set-data game 'active nil)
+    (let ((chess-game-inhibit-events t))
+      (chess-game-end game :flag-fell)))
+
    ((eq event 'move)
     (when (= 1 (chess-game-index game))
       (chess-game-set-tag game "White" chess-full-name)

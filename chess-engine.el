@@ -68,6 +68,7 @@
     (opp-undo-ret   . "Your opponent has retracted their request to undo %d moves")
     (opp-illegal    . "Your opponent states your last command was illegal")
     (opp-call-flag  . "Your flag fell, and your opponent has called time")
+    (opp-flag-fell  . "Your opponent has forfeited the game on time")
     (failed-start   . "Failed to start chess engine process")))
 
 (defsubst chess-engine-convert-algebraic (move &optional trust-check)
@@ -269,8 +270,12 @@
 				     'black-remaining))))
 	(when (< remaining 0)
 	  (chess-message 'opp-call-flag)
-	  (chess-game-end game :flag-fell)
-	  (chess-game-set-data game 'active nil))))
+	  (chess-game-run-hooks game 'flag-fell))))
+
+     ((eq event 'flag-fell)
+      (chess-message 'opp-flag-fell)
+      (chess-game-end game :flag-fell)
+      (chess-game-set-data game 'active nil))
 
      ((eq event 'kibitz)
       (let ((chess-engine-handling-event t))

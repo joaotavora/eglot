@@ -74,6 +74,10 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'call-flag))))
+   (cons "forfeit$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'flag-fell))))
    (cons "kibitz\\s-+\\(.+\\)$"
 	 (function
 	  (lambda ()
@@ -194,6 +198,10 @@
 
      ((eq event 'set-index)
       (chess-engine-send nil (format "index %d\n" (car args))))
+
+     ((eq event 'flag-fell)
+      (chess-engine-send nil "forfeit\n")
+      (chess-common-handler game 'flag-fell))
 
      (t
       (apply 'chess-common-handler game event args)))))

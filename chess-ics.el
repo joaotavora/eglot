@@ -88,6 +88,11 @@ The format of each entry is:
 	       (lambda ()
 		 (if (string= (match-string 1) chess-engine-opponent-name)
 		     (funcall chess-engine-response-handler 'resign)))))
+	(cons "\\(\\S-+\\) forfeits on time}"
+	      (function
+	       (lambda ()
+		 (if (string= (match-string 1) chess-engine-opponent-name)
+		     (funcall chess-engine-response-handler 'flag-fell)))))
 	(cons "Illegal move (\\([^)]+\\))\\."
 	      (function
 	       (lambda ()
