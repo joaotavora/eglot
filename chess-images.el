@@ -172,7 +172,7 @@ called."
   (let ((map (current-local-map)))
     (define-key map [?^] 'chess-images-increase-size)
     (define-key map [?V] 'chess-images-decrease-size)
-    (define-key map [?D] 'chess-images-set-directory))
+    (define-key map [?P] 'chess-images-set-directory))
 
   (let ((display (and (stringp chess-images-separate-frame)
 		      chess-images-separate-frame)))

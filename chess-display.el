@@ -100,11 +100,9 @@
     (with-current-buffer display
       (cond
        (chess-display-game
-	(chess-display-set-game new-display chess-display-game)
-	(chess-display-set-index new-display chess-display-index))
+	(chess-display-set-game new-display chess-display-game))
        (chess-display-variation
-	(chess-display-set-variation new-display chess-display-variation)
-	(chess-display-set-index new-display chess-display-index))
+	(chess-display-set-variation new-display chess-display-variation))
        (chess-display-ply
 	(chess-display-set-ply new-display chess-display-ply))
        (chess-display-position
@@ -319,8 +317,8 @@ If only START is given, it must be in algebraic move notation."
 	(error "What to do here??  NYI")))
      (chess-display-variation
       (chess-var-move chess-display-variation ply)
-      (chess-display-set-index*
-       nil (chess-var-index chess-display-variation)))
+      (chess-display-set-index* nil (chess-var-index
+				     chess-display-variation)))
      (chess-display-ply
       (setq chess-display-ply ply))
      (chess-display-position		; an ordinary position
@@ -370,6 +368,12 @@ that is supported by most displays, and is the default mode."
 ;; Event handler
 ;;
 
+(defcustom chess-display-momentous-events
+  '(orient setup-game pass move game-over resign)
+  "Events that will cause the 'main' display to popup."
+  :type '(repeat symbol)
+  :group 'chess-display)
+
 (defun chess-display-event-handler (game display event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
@@ -383,32 +387,23 @@ See `chess-display-type' for the different kinds of displays."
 	(chess-display-detach-game nil))
 
        ((eq event 'pass)
-	(let ((my-color (if chess-display-game
-			    (chess-game-data chess-display-game 'my-color)
-			  (chess-display-perspective nil))))
-	  (if chess-display-game
-	      (chess-game-set-data chess-display-game 'my-color
-				   (not my-color)))
+	(let ((my-color (chess-game-data game 'my-color)))
+	  (chess-game-set-data game 'my-color (not my-color))
 	  (chess-display-set-perspective* nil (not my-color))))
 
        ((eq event 'orient)
-	;; Set the display's perspective to whichever color I'm playing
-	(when chess-display-game
-	  (chess-display-set-index*
-	   nil (chess-game-index (chess-display-game nil)))
-	  (chess-display-set-perspective*
-	   nil (chess-game-data chess-display-game 'my-color))))
+	;; Set the display's perspective to whichever color I'm
+	;; playing; also set the index just to be sure
+	(chess-display-set-index* nil (chess-game-index game))
+	(chess-display-set-perspective*
+	 nil (chess-game-data game 'my-color))))
 
-       ((memq event '(move game-over resign))
-	(chess-display-set-index*
-	 nil (chess-game-index (chess-display-game nil)))))
-
-      (if (eq event 'resign)
-	  (message-box "%s resigns" (if (car args) "White" "Black")))
+      (if (memq event '(orient setup-game move game-over resign))
+	  (chess-display-set-index* nil (chess-game-index game)))
 
       (unless (eq event 'shutdown)
-	(chess-display-update nil (memq event
-					'(pass move game-over resign)))))))
+	(chess-display-update
+	 nil (memq event chess-display-momentous-events))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -423,21 +418,22 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(control ?i)] 'chess-display-invert)
     (define-key map [tab] 'chess-display-invert)
 
+    (define-key map [? ] 'chess-display-pass)
     (define-key map [??] 'describe-mode)
+    (define-key map [?@] 'chess-display-remote)
+    (define-key map [?A] 'chess-display-abort)
     (define-key map [?B] 'chess-display-list-buffers)
     (define-key map [?C] 'chess-display-duplicate)
+    (define-key map [?D] 'chess-display-draw)
     (define-key map [?E] 'chess-display-edit-board)
     (define-key map [?F] 'chess-display-set-from-fen)
     (define-key map [?I] 'chess-display-invert)
-    (define-key map [?X] 'chess-display-quit)
     (define-key map [?M] 'chess-display-manual-move)
-    (define-key map [?@] 'chess-display-remote)
-    (define-key map [? ] 'chess-display-pass)
-    (define-key map [?S] 'chess-display-shuffle)
-    (define-key map [?R] 'chess-display-resign)
-    (define-key map [?A] 'chess-display-abort)
     (define-key map [?N] 'chess-display-abort)
+    (define-key map [?R] 'chess-display-resign)
+    (define-key map [?S] 'chess-display-shuffle)
     (define-key map [?U] 'chess-display-undo)
+    (define-key map [?X] 'chess-display-quit)
 
     (define-key map [?<] 'chess-display-move-first)
     (define-key map [?,] 'chess-display-move-backward)
@@ -544,6 +540,7 @@ Basically, it means we are playing, not editing or reviewing."
   (and chess-display-game
        (= (chess-display-index nil)
 	  (chess-game-index chess-display-game))
+       (not (chess-game-over-p chess-display-game))
        (not chess-display-edit-mode)))
 
 (defun chess-display-invert ()
@@ -656,10 +653,12 @@ Basically, it means we are playing, not editing or reviewing."
     (ding)))
 
 (defun chess-display-resign ()
-  "Generate a shuffled opening position."
+  "Resign the current game."
   (interactive)
   (if (chess-display-active-p)
-      (chess-game-resign chess-display-game)
+      (progn
+	(chess-game-resign (chess-display-game nil))
+	(chess-game-run-hooks chess-display-game 'resign))
     (ding)))
 
 (defun chess-display-abort ()
@@ -669,21 +668,31 @@ Basically, it means we are playing, not editing or reviewing."
       (chess-game-run-hooks chess-display-game 'abort)
     (ding)))
 
+(defun chess-display-draw ()
+  "Offer to draw the current game."
+  (interactive)
+  (if (chess-display-active-p)
+      (progn
+	(message "You offer a draw")
+	(chess-game-run-hooks chess-display-game 'draw))
+    (ding)))
+
 (defun chess-display-undo (count)
   "Abort the current game."
   (interactive "P")
   (if (chess-display-active-p)
-      ;; we can't call `chess-game-undo' directly, because not all
-      ;; engines will accept it right away!  So we just signal the
-      ;; desire to undo
-      (chess-game-run-hooks
-       chess-display-game 'undo
-       (if count
-	   (prefix-numeric-value count)
-	 (if (eq (chess-pos-side-to-move
-		  (chess-display-position nil))
-		 (chess-game-data chess-display-game 'my-color))
-	     2 1)))
+      (progn
+	;; we can't call `chess-game-undo' directly, because not all
+	;; engines will accept it right away!  So we just signal the
+	;; desire to undo
+	(setq count
+	      (if count
+		  (prefix-numeric-value count)
+		(if (eq (chess-pos-side-to-move
+			 (chess-display-position nil))
+			(chess-game-data chess-display-game 'my-color))
+		    2 1)))
+	(chess-game-run-hooks chess-display-game 'undo count))
     (ding)))
 
 (defun chess-display-list-buffers ()

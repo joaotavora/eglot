@@ -131,7 +131,7 @@ matches."
 (defsubst chess-game-set-plies (game plies)
   "Return the tags alist associated with GAME."
   (setcdr (nthcdr 2 game) (list plies))
-  (chess-game-run-hooks game 'setup-game game))
+  (chess-game-run-hooks game 'setup-game))
 
 (defsubst chess-game-set-start-position (game position)
   "Return the tags alist associated with GAME."
@@ -168,10 +168,10 @@ matches."
 (defun chess-game-undo (game count)
   "Undo the last COUNT plies of GAME."
   (if (> count (chess-game-index game))
-      (error "Cannot undo %d plies from a game with only %d plies"
-	     count (chess-game-index game))
+      (error "Cannot undo further")
     (chess-game-set-plies game (nbutlast (chess-game-plies game) count))
-    (chess-game-run-hooks game 'undo count)))
+    ;;(chess-game-run-hooks game 'undo count)
+    ))
 
 
 (defsubst chess-game-over-p (game)

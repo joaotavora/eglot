@@ -92,6 +92,9 @@
     (and (chess-engine-game nil)
 	 (chess-engine-set-start-position nil)))
 
+   ((eq event 'draw)
+    (chess-engine-default-handler 'decline-draw))
+
    ((eq event 'undo)
     (when (chess-engine-game nil)
       (dotimes (i (car args))
