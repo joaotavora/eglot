@@ -1,8 +1,11 @@
 * 2.0
 
-Write chess-game-to-pgn and chess-pgn-to-game.
+Keyboard shortcuts:
+  Right now "nf, nf", causes an error.
+  Castling is not supported.
+  Capital letters not supported.
 
-Get keyboard shortcuts working, right now "nf, nf", causes an error.
+Long castling is signaled as an illegal move from chess-standard.
 
 * Other
 

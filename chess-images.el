@@ -127,11 +127,6 @@ jww (2001-06-23): This is still not fully implemented."
   :set 'chess-images-clear-image-cache
   :group 'chess-images)
 
-(defun chess-images (game)
-  "A chessboard display that uses graphical images."
-  (chess-display game 'chess-images-handler
-		 ))
-
 ;;; Code:
 
 (defconst chess-images-piece-names
@@ -202,8 +197,7 @@ jww (2001-06-23): This is still not fully implemented."
       (goto-char (point-min)))
     (while (if inverted (>= rank 0) (< rank 8))
       (while (if inverted (>= file 0) (< file 8))
-	(let* ((piece (chess-pos-piece board
-				       (chess-rf-to-index rank file)))
+	(let* ((piece (chess-pos-piece board (chess-rf-to-index rank file)))
 	       (image
 		(if (= piece ? )
 		    (aref chess-images-cache
@@ -418,8 +412,6 @@ This is necessary for bizzare Emacs reasons."
 			    chess-images-light-color))
 	 (piece-colors (list chess-images-black-color
 			     chess-images-white-color))
-	 (c 0) (b 0)
-	 (pieces chess-images-piece-names)
 	 blank name image-data)
     (dotimes (c 2)
       (dotimes (b 2)
@@ -427,24 +419,21 @@ This is necessary for bizzare Emacs reasons."
 	  (let ((file (expand-file-name
 		       (format "%s-%s.%s" (nth c colors) (nth 1 piece)
 			       chess-images-extension)
-		       chess-images-directory))
-		image)
-	    (cond
-	     ((file-readable-p file)
-	      (aset (aref (aref chess-images-cache c) b)
-		    (nth 2 piece)
-		    (chess-images-create-image file b c)))
-	     ;; try loading an xboard format file
-	     (t
+		       chess-images-directory)))
+	    (if (file-readable-p file)
+		(aset (aref (aref chess-images-cache c) b)
+		      (nth 2 piece)
+		      (chess-images-create-image file b c))
+	      ;; try loading an xboard format file
 	      (setq file (expand-file-name
-			  (format "%c%c%c%d.%s" (caar pieces)
+			  (format "%c%c%c%d.%s" (car piece)
 				  (if (= c 0) ?d ?l)
 				  (if (= b 0) ?d ?l) chess-images-size
 				  chess-images-extension)
 			  chess-images-directory))
 	      (aset (aref (aref chess-images-cache c) b)
 		    (nth 2 piece)
-		    (chess-images-create-image file b c))))))))
+		    (chess-images-create-image file b c)))))))
     (cond
      ((file-readable-p
        (setq blank (expand-file-name

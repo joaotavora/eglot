@@ -6,8 +6,9 @@
 
 (require 'chess-game)
 (require 'chess-algebraic)
+(require 'chess-fen)
 
-(defun chess-pgn-read-plies (position &optional top-level)
+(defun chess-pgn-read-plies (game position &optional top-level)
   (let ((plies (list t)) prevpos done)
     (while (not (or done (eobp)))
       (cond
@@ -34,8 +35,8 @@
        ((looking-at "(")
 	(forward-char)
 	(skip-chars-forward " \t\n")
-	(chess-pos-add-annotation prevpos (chess-pgn-read-plies
-					   (chess-pos-copy prevpos))))
+	(chess-pos-add-annotation
+	 prevpos (chess-pgn-read-plies game (chess-pos-copy prevpos))))
        ((and (not top-level)
 	     (looking-at ")"))
 	(forward-char)
@@ -57,12 +58,12 @@
       (let ((fen (chess-game-tag game "FEN")))
 	(chess-game-set-plies
 	 game (chess-pgn-read-plies
-	       (if fen
-		   (chess-fen-to-position fen)
-		 (chess-pos-copy chess-starting-position)) t)))
+	       game (if fen
+			(chess-fen-to-pos fen)
+		      (chess-pos-copy chess-starting-position)) t)))
       game)))
 
-(defun chess-pgn-insert-annotations (ply)
+(defun chess-pgn-insert-annotations (index ply)
   (dolist (ann (chess-pos-annotations (chess-ply-pos ply)))
     (if (stringp ann)
 	(insert (format " {%s}" ann))
@@ -75,14 +76,14 @@
     (unless for-black
       (insert (format "%d. %s" index
 		      (chess-ply-to-algebraic (car plies))))
-      (chess-pgn-insert-annotations (car plies)) 
+      (chess-pgn-insert-annotations index (car plies))
       (setq plies (cdr plies) index (1+ index)))
     (when plies
       (when for-black
 	(insert (format "%d. ..." index))
 	(setq for-black nil))
       (insert (format " %s" (chess-ply-to-algebraic (car plies))))
-      (chess-pgn-insert-annotations (car plies)) 
+      (chess-pgn-insert-annotations index (car plies))
       (setq plies (cdr plies)))
     (if plies
 	(insert ? ))))

@@ -15,21 +15,33 @@
   :type 'string
   :group 'chess-crafty)
 
-;;;###autoload
-(defun chess-crafty (game)
-  (chess-process game 'chess-crafty-handler nil
-		 (if (file-name-absolute-p chess-crafty-command)
-		     chess-crafty-command
-		   (executable-find chess-crafty-command))))
-
 ;;; Code:
 
-(defun chess-crafty-handler (game buffer command &rest args)
-  (unless (apply 'chess-process-handler game buffer command args)
-    (ignore
-     (if (eq command 'initialize)
-	 (process-send-string (get-buffer-process buffer)
-			      "alarm off\nansi off\n")))))
+;;;###autoload
+(defun chess-crafty (session buffer event &rest args)
+  (if (not (eq event 'initialize))
+      (apply 'chess-process session buffer event args)
+    (with-current-buffer
+	(chess-process session buffer event
+		       chess-process-triggers
+		       (if (file-name-absolute-p chess-crafty-command)
+			   chess-crafty-command
+			 (executable-find chess-crafty-command)))
+      (process-send-string
+       (get-buffer-process (current-buffer))
+       (concat "display nogeneral\n"
+	       "display nochanges\n"
+	       "display noextstats\n"
+	       "display nohashstats\n"
+	       "display nomoves\n"
+	       "display nonodes\n"
+	       "display noply1\n"
+	       "display nostats\n"
+	       "display notime\n"
+	       "display novariation\n"
+	       "alarm off\n"
+	       "ansi off\n"))
+      (current-buffer))))
 
 (provide 'chess-crafty)
 

@@ -10,9 +10,9 @@
 ;; coordinate transformations applied to one position in order to
 ;; arrive at the following position.  It is also informally called "a
 ;; move".
-;; 
+;;
 ;; A ply is represented in Lisp using a cons cell of the form:
-;; 
+;;
 ;;   (BASE-POSITION .
 ;;    (FROM-COORD1 TO-COORD1 [FROM-COORD2 TO-COORD2] [KEYWORDS]))
 ;;
@@ -28,7 +28,7 @@
 ;;   :checkmate
 ;;   :draw              ; a draw was offered and accepted
 ;;   :draw-offered      ; a draw was offered but not accepted
-;; 
+;;
 ;; A ply may be represented in ASCII by printing the FEN string of the
 ;; base position, and then printing the positional transformation in
 ;; algebraic notation.  Since the starting position is usually known,
@@ -36,7 +36,7 @@
 ;; by moving the chess piece(s) involved.  It may be rendered verbally
 ;; by voicing which piece is to move, where it will move to, and what
 ;; will happen a result of the move (piece capture, check, etc).
-;; 
+;;
 ;; Plies may be sent over network connections, postal mail, e-mail,
 ;; etc., so long as the current position is maintained at both sides.
 ;; Transmitting the base position's FEN string along with the ply
@@ -82,7 +82,7 @@
 		      (< piece ?a)))
 	    (dolist (candidate (funcall (car chess-modules)
 					nil nil 'search position to t))
-	      (push (chess-ply-create position (list candidate to))
+	      (push (chess-ply-create position candidate to)
 		    plies))))))
     plies))
 

@@ -167,7 +167,7 @@ The current side-to-move is always white."
 	    (cond
 	     ((listp elem) (copy-alist elem))
 	     ((vectorp elem) (vconcat elem))
-	     (t elem)))) 
+	     (t elem))))
     copy))
 
 (defun chess-pos-create (&optional blank)

@@ -34,16 +34,17 @@
 ;; $Revision$
 
 (require 'chess-pos)
+(require 'chess-ply)
 
 (defconst chess-algebraic-pieces-regexp "[RNBKQ]")
 
 (defconst chess-algebraic-regexp
   (format (concat "\\("
-		  "O-O\\(-O\\)?\\|"
-		    "\\(%s\\(\\([a-h]\\|[1-8]\\)?\\|[a-h][1-8]\\)\\)?"
-		  "\\([x-]\\)?"
-		  "\\([a-h][1-8]\\)"
-		  "\\(=\\(%s\\)\\)?"
+		    "O-O\\(-O\\)?\\|"
+		      "\\(%s?\\(\\([a-h]\\|[1-8]\\)?\\|[a-h][1-8]\\)\\)?"
+		    "\\([x-]\\)?"
+		    "\\([a-h][1-8]\\)"
+		    "\\(=\\(%s\\)\\)?"
 		  "\\)"
 		  "\\([#+]\\)?")
 	  chess-algebraic-pieces-regexp
@@ -54,8 +55,9 @@ This regexp handles both long and short form.")
 (defun chess-algebraic-to-ply (position move)
   "Convert the algebraic notation MOVE for POSITION to a ply."
   (when (string-match chess-algebraic-regexp move)
-    (let* ((piece (aref move 0))
+    (let* ((color (chess-pos-side-to-move position))
 	   (mate (match-string 10 move))
+	   (piece (aref move 0))
 	   (changes
 	    (if (eq piece ?O)
 		(let ((rank (if color 7 0))
@@ -68,8 +70,7 @@ This regexp handles both long and short form.")
 		    (target (chess-coord-to-index (match-string 7 move))))
 		(if (and source (= (length source) 2))
 		    (list (chess-coord-to-index source) target)
-		  (let ((color (chess-pos-side-to-move position))
-			candidates which)
+		  (let (candidates which)
 		    (unless (< piece ?a)
 		      (setq piece ?P))
 		    ;; we must use our knowledge of how pieces can

@@ -6,6 +6,7 @@
 
 ;;; Commentary:
 
+(require 'chess-session)
 (require 'chess-game)
 (require 'chess-algebraic)
 
@@ -22,8 +23,18 @@ It could be a Lisp function, which will be called to establish
 whatever type of connection it wishes, so long as it returns a buffer
 related to the resulting process.")
 
+(make-variable-buffer-local 'chess-process-command-or-host)
+
 (defvar chess-process-arguments nil
   "If `chess-process-where' is a string or Lisp function, pass these args.")
+(defvar chess-process-game)
+(defvar chess-process-last-pos)
+(defvar chess-process-working nil)
+
+(make-variable-buffer-local 'chess-process-arguments)
+(make-variable-buffer-local 'chess-process-game)
+(make-variable-buffer-local 'chess-process-last-pos)
+(make-variable-buffer-local 'chess-process-working)
 
 (defvar chess-process-triggers
   (list (list
@@ -34,7 +45,11 @@ related to the resulting process.")
 	    (if (if (chess-game-side-to-move chess-process-game)
 		    (string= (downcase color) "white")
 		  (string= (downcase color) "black"))
-		(chess-game-move chess-process-game move nil)))) 1 2)
+		(chess-session-event
+		 chess-current-session 'move
+		 (chess-algebraic-to-ply
+		  (chess-game-pos chess-process-game) move)))))
+	 1 2)
 	'(".*Illegal move:\\s-*\\(.*\\)"
 	  (signal 'chess-illegal (match-string 1)))
 	'(".+?\015" (replace-match "")))
@@ -47,79 +62,65 @@ Where the ARG*-GROUP entries specify which parenthesis groups in the
 regexp demarcate those arguments.  Anything more complicated than this
 must be handled by modules that derive from this module.")
 
-(make-variable-buffer-local 'chess-process-command-or-host)
-(make-variable-buffer-local 'chess-process-arguments)
 (make-variable-buffer-local 'chess-process-triggers)
-
-(defun chess-process (game handler triggers command-or-host &rest args)
-  "This function should only be called by specific chess engine modules."
-  (let ((buf (generate-new-buffer " *chess-process*")))
-    (with-current-buffer buf
-      (setq chess-process-command-or-host command-or-host)
-      (if args (setq chess-process-arguments command-or-host))
-      (if triggers (setq chess-process-triggers triggers)))
-    `(lambda (game command &rest args)
-       (apply ,(or (list 'quote handler)
-		   'chess-process-handler) game ,buf command args))))
 
 ;;; Code:
 
-(defvar chess-process-game)
-(defvar chess-process-last-pos)
-(defvar chess-process-working nil)
-
-(make-variable-buffer-local 'chess-process-game)
-(make-variable-buffer-local 'chess-process-last-pos)
-(make-variable-buffer-local 'chess-process-working)
-
-(defun chess-process-handler (game buffer command &rest args)
+(defun chess-process (session buffer event &rest args)
   "Handle any commands being sent to this instance of this module."
-  (ignore
-   (if (eq command 'shutdown)
-       (when (buffer-live-p buffer)
-	 (condition-case err
-	     (process-send-string (get-buffer-process buffer) "quit\n")
-	   (error nil))
-	 (kill-buffer buffer))
+  (cond
+   ((eq event 'initialize)
+    (let ((buf (generate-new-buffer " *chess-process*")))
+      (with-current-buffer buf
+	(setq chess-process-triggers (nth 0 args)
+	      chess-process-command-or-host (nth 1 args)
+	      chess-process-arguments (nthcdr 2 args))
+	(let ((proc
+	       (if (stringp chess-process-command-or-host)
+		   (prog2
+		       (message "Starting chess program '%s'..."
+				chess-process-command-or-host)
+		       (apply 'start-process "chess-process"
+			      (current-buffer)
+			      chess-process-command-or-host
+			      chess-process-arguments)
+		     (message "Starting chess program '%s'...done"
+			      chess-process-command-or-host))
+		 (prog2
+		     (message "Connecting to host %s:%d..."
+			      (car chess-process-command-or-host)
+			      (cdr chess-process-command-or-host))
+		     (open-network-stream
+		      "chess-process" (current-buffer)
+		      (car chess-process-command-or-host)
+		      (cdr chess-process-command-or-host))
+		   (message "Connecting to host %s:%d...done"
+			    (car chess-process-command-or-host)
+			    (cdr chess-process-command-or-host))))))
+	  (unless (and proc (memq (process-status proc) '(run open)))
+	    (error "Failed to start chess process"))
+	  (set-process-filter proc 'chess-process-filter))
+	buf)))
+   ((eq event 'shutdown)
+    (when (buffer-live-p buffer)
+      (ignore-errors
+	(process-send-string (get-buffer-process buffer) "quit\n"))
+      (kill-buffer buffer)))
+   (t
+    (ignore
      (with-current-buffer buffer
        (let (cmdstr)
 	 (cond
-	  ((eq command 'initialize)
-	   (setq chess-process-game game
-		 chess-process-last-pos (point-min))
-	   (let ((proc
-		  (if (stringp chess-process-command-or-host)
-		      (prog2
-			  (message "Starting chess program '%s'..."
-				   chess-process-command-or-host)
-			  (apply 'start-process "chess-process"
-				 (current-buffer)
-				 chess-process-command-or-host
-				 chess-process-arguments)
-			(message "Starting chess program '%s'...done"
-				 chess-process-command-or-host))
-		    (prog2
-			(message "Connecting to host %s:%d..."
-				 (car chess-process-command-or-host)
-				 (cdr chess-process-command-or-host))
-			(open-network-stream
-			 "chess-process" (current-buffer)
-			 (car chess-process-command-or-host)
-			 (cdr chess-process-command-or-host))
-		      (message "Connecting to host %s:%d...done"
-			       (car chess-process-command-or-host)
-			       (cdr chess-process-command-or-host))))))
-	     (unless (and proc (memq (process-status proc) '(run open)))
-	       (error "Failed to start chess process"))
-	     (set-process-filter proc 'chess-process-filter)))
-	  ((eq command 'pass)
-	   (setq cmdstr "go\n"))
-	  ((eq command 'move)
-	   (setq cmdstr (concat (chess-board-last-move
-				 (chess-game-board game)) "\n"))))
+	  ((eq event 'setup)
+	   (setq chess-process-game (car args)
+		 chess-process-last-pos (point-min)))
+	  ((eq event 'move)
+	   (setq cmdstr (concat (chess-ply-to-algebraic (car args)) "\n")))
+	  ((eq event 'pass)
+	   (setq cmdstr "go\n")))
 	 (if (and cmdstr (not chess-process-working))
 	     (process-send-string (get-buffer-process (current-buffer))
-				  cmdstr)))))))
+				  cmdstr))))))))
 
 (defun chess-process-filter (proc string)
   "Process filter for receiving text from a chess process."
@@ -153,8 +154,8 @@ must be handled by modules that derive from this module.")
 			       ((functionp command)
 				(apply command args))
 			       ((symbolp command)
-				(chess-game-send-event chess-process-game
-						       command args))
+				(chess-session-event chess-current-session
+						     command args))
 			       (t (eval command)))))
 			  (setq triggers (cdr triggers))))
 		    (chess-illegal (error-message-string err)))

@@ -16,9 +16,9 @@
   :group 'chess-gnuchess)
 
 ;;;###autoload
-(defun chess-gnuchess (game)
+(defun chess-gnuchess (session process event &rest args)
   (chess-process
-   game nil
+   session process event
    (list (list (concat "My move is : \\(" chess-algebraic-regexp "\\)")
 	       (function
 		(lambda (move)

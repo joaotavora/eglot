@@ -23,6 +23,11 @@
 
 ;; $Revision$
 
+(require 'chess-session)
+(require 'chess-pos)
+(require 'chess-ply)
+(require 'chess-game)
+
 (defgroup chess-standard nil
   "The rules of standard chess."
   :group 'chess)
@@ -138,12 +143,12 @@ indices which indicate where a piece may have moved from."
 			       (1 0)))
 		    ((= (upcase piece) ?B)
 		     '((-1 -1)        (-1 1)
-			
+
 		       (1 -1)         (1 1)))
 		    ((= (upcase piece) ?Q)
 		     '((-1 -1) (-1 0) (-1 1)
-		        (0 -1)         (0 1)
-		        (1 -1)  (1 0)  (1 1)))))
+			(0 -1)         (0 1)
+			(1 -1)  (1 0)  (1 1)))))
 	;; up the current file
 	(setq pos (apply 'chess-add-index target dir))
 	(while pos

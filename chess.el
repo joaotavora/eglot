@@ -74,6 +74,7 @@ a0 243
 
 ;;; Code:
 (require 'chess-session)
+
 (require 'chess-pgn)
 
 (defgroup chess nil
@@ -83,8 +84,7 @@ a0 243
 (defconst chess-version "2.0a7"
   "The version of the Emacs chess program.")
 (defcustom chess-modules
-  (list 'chess-standard
-	;'chess-crafty
+  (list 'chess-standard 'chess-crafty
 	(if (display-graphic-p)
 	    'chess-images 'chess-ics1))
   "Default module set to be used when starting a chess session.
@@ -96,6 +96,9 @@ entry."
   :group 'chess)
 (defvar chess-current-session nil)
 
+(defvar chess-illegal nil)
+(put 'chess-illegal 'error-conditions '(error))
+  :group 'chess)
 
 (defun chess ()
   "Start a game of chess."
@@ -103,6 +106,7 @@ entry."
   (setq chess-current-session (chess-session-create))
   (chess-session-add-listener chess-current-session 'chess-global-handler)
   (dolist (module chess-modules)
+    (require module)
     (chess-session-add-listener chess-current-session module))
   (chess-session-event chess-current-session 'initialize)
   (chess-session-event chess-current-session 'setup (chess-game-create)))
@@ -122,7 +126,9 @@ entry."
      (let ((color (not (chess-session-data session 'my-color))))
        (message "You are now playing %s"
 		(if color "White" "Black"))
-       (chess-session-set-data session 'my-color (not chess-my-color)))))))
+       (chess-session-set-data session 'my-color
+			       (not (chess-session-data session
+							'my-color))))))))
 	    (aset chess-puzzle-locations 3 puzzle-engine)))))))
 
 (provide 'chess)
