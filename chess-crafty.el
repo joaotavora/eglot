@@ -78,7 +78,8 @@
 				     (chess-var-pos var)
 				     (match-string-no-properties 0))))
 			   (unless ply
-			     (error "unable to read move '%s'" move))
+			     (error "unable to read move '%s'"
+				    (match-string-no-properties 0)))
 			   (chess-var-move var ply))))
 		       (skip-chars-forward " "))
 		     var))))))))
@@ -145,10 +146,10 @@
 	  (chess-engine-send nil "easy\n")))
        ((eq (car args) 'search-depth)
 	(assert (and (integerp (cadr args)) (>= (cadr args) 0)))
-	(chess-engine-send nil (format "sd %d\n") (cadr args)))
+	(chess-engine-send nil (format "sd %d\n" (cadr args))))
        ((eq (car args) 'search-time)
 	(assert (and (integerp (cadr args)) (> (cadr args) 0)))
-	(chess-engine-send nil (format "st %d\n") (cadr args)))))
+	(chess-engine-send nil (format "st %d\n" (cadr args))))))
 
      (t
       (if (and (eq event 'undo)
