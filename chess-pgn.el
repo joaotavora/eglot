@@ -134,6 +134,16 @@ If INDENTED is non-nil, indent the move texts."
 	(buffer-string))
     (chess-insert-pgn game indented)))
 
+(defun chess-member-index (tag)
+  (let ((index 0)
+	(tags chess-pgn-tag-order))
+    (while tags
+      (if (equal tag (car tags))
+	  (setq tags nil)
+	(setq index (1+ index)
+	      tags (cdr tags))))
+    index))
+
 (defun chess-insert-pgn (game &optional indented)
   (let ((fen (chess-game-tag game "FEN"))
 	(first-pos (chess-game-pos game 0)))
@@ -147,10 +157,8 @@ If INDENTED is non-nil, indent the move texts."
 		     (function
 		      (lambda (left right)
 			(setq left (car left) right (car right))
-			(let ((l-idx (position left chess-pgn-tag-order
-					       :test 'equal))
-			      (r-idx (position right chess-pgn-tag-order
-					       :test 'equal)))
+			(let ((l-idx (chess-member-index left))
+			      (r-idx (chess-member-index right)))
 			  (cond
 			   ((and l-idx (not r-idx)) t)
 			   ((and (not l-idx) r-idx) nil)
