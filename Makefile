@@ -17,6 +17,8 @@ chess-auto.el: chess-auto.in $(SOURCE)
 		-f generate-autoloads \
 		$(shell pwd)/chess-auto.el .
 
+chess-opening.elc: chess-pos.elc chess-ply.elc
+
 %.elc: %.el
 	$(EMACS) --no-init-file --no-site-file -batch \
 		-l $(shell pwd)/chess-maint \
@@ -32,7 +34,10 @@ chess.info: chess-final.texi
 
 info: chess.info
 
-chess.dvi: chess-final.texi
+chess.ps: chess-final.dvi
+	dvips -o $@ $<
+
+chess-final.dvi: chess-final.texi
 	$(ENVADD) $(TEXI2DVI) chess-final.texi
 
 clean:
@@ -44,20 +49,21 @@ fullclean: clean
 
 VERSION=$(shell perl -ne 'print $$1 if /chess-version.*"([^"]+)"/;' chess.el)
 
-dist: fullclean all clean
-	-rm *~ .*~
-	cp -ar . /var/tmp/chess-$(VERSION)
-	tar cvjfXC /var/tmp/chess-$(VERSION).tar.bz2 \
-		.exclude /var/tmp chess-$(VERSION)
-	rm -fr /var/tmp/chess-$(VERSION)
-	mv /var/tmp/chess-$(VERSION).tar.bz2 \
-		$(HOME)/public_html/Emacs/packages
+dist: fullclean all chess.ps
+	rm -f *~ .*~ chess.dvi chess-final.* game.* log.*
+	rm -f *.aux *.cp *.cps *.fn *.fns *.ky *.log *.pg *.toc *.tp *.vr
+	cp -ar . /tmp/chess-$(VERSION)
+	tar cvjfXC /tmp/chess-$(VERSION).tar.bz2 \
+		.exclude /tmp chess-$(VERSION)
+	rm -fr /tmp/chess-$(VERSION)
+	mv /tmp/chess-$(VERSION).tar.bz2 \
+		$(HOME)//emacs/lisp
 
 TAG=$(shell echo $(VERSION) | sed 's/\./-/g')
 CAT=$(shell echo $(VERSION) | perl -ne 'print $$1 if /[-0-9]+([ab])[0-9]+/;')
 SUB=$(shell echo $(VERSION) | perl -ne 'print $$1 if /[-0-9]+[ab]([0-9]+)/;')
 NEXT=$(shell expr $(SUB) + 1)
-PKG = $(HOME)/public_html/Emacs/packages/chess-$(VERSION).tar.bz2
+PKG = $(HOME)/emacs/lisp/chess-$(VERSION).tar.bz2
 
 update: dist
 	cvs tag chess-$(TAG)
@@ -65,4 +71,4 @@ update: dist
 	cvs commit -m "bumped minor rev" chess.el
 	make fullclean
 	lftp -e "cd /incoming; put $(PKG); quit" upload.sourceforge.net
-	sitecopy -ua
+#	sitecopy -ua
