@@ -222,6 +222,18 @@ If INDENTED is non-nil, indent the move texts."
      (push "application/x-chess-pgn" mm-inlined-types)
      (push "application/x-chess-pgn" mm-automatic-display)))
 
+(defun chess-pgn-index ()
+  "Return the move index associated with point."
+  (save-excursion
+    (if (re-search-backward chess-pgn-move-regexp nil t)
+	(let* ((index (string-to-int (match-string 2)))
+	       (first-move (match-string 3))
+	       (second-move (match-string 14))
+	       (ply (1+ (* 2 (1- index)))))
+	  (if (and second-move (> (length second-move) 0))
+	      (setq ply (1+ ply)))
+	  ply))))
+
 (defun chess-pgn-show-position ()
   (interactive)
   ;; load a database to represent this file if not already up
@@ -250,29 +262,24 @@ If INDENTED is non-nil, indent the move texts."
 
   ;; now find what position we're at in the game
   (save-excursion
-    (when (and chess-pgn-current-game
-	       (re-search-backward chess-pgn-move-regexp nil t))
-      (let* ((index (string-to-int (match-string 2)))
-	     (first-move (match-string 3))
-	     (second-move (match-string 14))
-	     (ply (1+ (* 2 (1- index)))))
-	(if (and second-move (> (length second-move) 0))
-	    (setq ply (1+ ply)))
+    (when chess-pgn-current-game
+      (let ((index (chess-pgn-index)))
 	(if (or (and (or (null chess-pgn-display)
 			 (not (buffer-live-p chess-pgn-display)))
-		     (setq chess-pgn-display (chess-create-display)))
+		     (let ((chess-game-inhibit-events t))
+		       (setq chess-pgn-display (chess-create-display))))
 		(/= (chess-game-data chess-pgn-current-game 'database-index)
 		    (chess-game-data (chess-display-game chess-pgn-display)
 				     'database-index)))
 	    (progn
 	      (chess-display-disable-popup chess-pgn-display)
 	      (chess-display-set-game chess-pgn-display
-				      chess-pgn-current-game ply)
+				      chess-pgn-current-game index)
 	      (chess-game-set-tag (chess-display-game chess-pgn-display)
 				  'database-index
 				  (chess-game-data chess-pgn-current-game
 						   'database-index)))
-	  (chess-display-set-index chess-pgn-display ply))))))
+	  (chess-display-set-index chess-pgn-display index))))))
 
 (defun chess-pgn-mouse-show-position (event)
   (interactive "e")

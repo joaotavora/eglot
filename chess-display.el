@@ -82,7 +82,8 @@ makes moves, or any other changes to the underlying game."
       (setq buffer (current-buffer))
       (chess-display-mode read-only)
       (if (null (setq buffer (funcall handler 'initialize)))
-	  (kill-buffer buffer)
+	  (ignore
+	   (kill-buffer buffer))
 	(add-hook 'kill-buffer-hook 'chess-display-quit nil t)
 	(setq chess-display-style style
 	      chess-display-perspective perspective
@@ -193,10 +194,11 @@ This is the function to call to cause a display to view a game.  It
 will also update all of the listening engines and other displays to
 also view the same game."
   (chess-with-current-buffer display
-    (setq chess-display-index (or index (chess-game-index game)))
     (chess-game-set-tags chess-display-game (chess-game-tags game))
     ;; this call triggers `setup-game' for us
-    (chess-game-set-plies chess-display-game (chess-game-plies game))))
+    (let ((chess-game-inhibit-events t))
+      (chess-game-set-plies chess-display-game (chess-game-plies game)))
+    (chess-display-set-index nil (or index (chess-game-index game)))))
 
 (defun chess-display-detach-game (display)
   "Set the display game.

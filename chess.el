@@ -124,8 +124,8 @@ available."
 
 (defun chess--create-engine (module game response-handler ctor-args)
   (if (require module nil t)
-      (let ((engine (chess-engine-create game module
-					 response-handler ctor-args)))
+      (let ((engine (apply 'chess-engine-create game module
+			   response-handler ctor-args)))
 	(when engine
 	  ;; for the sake of engines which are ready to play now, and
 	  ;; which don't need connect/accept negotiation (most
