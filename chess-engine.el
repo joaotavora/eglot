@@ -166,7 +166,7 @@
 	      (let ((chess-engine-handling-event t))
 		(chess-game-end game :draw)
 		(chess-game-set-data game 'active nil))
-	      (chess-engine-command nil 'accept)))
+	      (chess-engine-command nil 'accept))
 	  (chess-engine-command nil 'decline))
 	t))
 
@@ -258,7 +258,7 @@
 
 	(setq chess-engine-pending-offer nil
 	      chess-engine-pending-arg nil)
-	t))))
+	t)))))
 
 (defun chess-engine-create (module &optional response-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
