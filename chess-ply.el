@@ -45,7 +45,6 @@
 ;;; Code:
 
 (require 'chess-pos)
-(require 'chess-standard)
 
 (defgroup chess-ply nil
   "Routines for manipulating chess plies."
@@ -63,41 +62,100 @@
 (defsubst chess-ply-set-changes (ply changes)
   (setcdr ply changes))
 
-(defun chess-ply-next-pos (ply)
+(defsubst chess-ply-next-pos (ply)
   (apply 'chess-pos-move (chess-pos-copy (chess-ply-pos ply))
 	 (chess-ply-changes ply)))
 
-(defsubst chess-ply-create (position &rest changes)
-  ;; jww (2002-04-02): if `changes' is a castling maneuver, then
-  ;; annotate and extend the ply correctly
-  (cons (chess-pos-copy position) changes))
+(defun chess-ply-create (position &rest changes)
+  "Create a ply from the given POSITION by applying the suppiled CHANGES.
+This function will guarantee the resulting ply is legal, and will also
+annotate the ply with :check or other modifiers as necessary.  It will
+also extend castling, and will prompt for a promotion piece.
+
+Note: Do not pass in the rook move if CHANGES represents a castling
+maneuver."
+  (let ((ply (cons (chess-pos-copy position) changes)))
+    (if (null changes)
+	ply
+      ;; validate that `changes' can be legally applied to the given
+      ;; position
+      (when (member (car changes)
+		    (chess-search-position position (cadr changes)
+					   (chess-pos-piece position
+							    (car changes))))
+	;; is this a castling maneuver?
+	(let ((color (chess-pos-side-to-move position)))
+	  (when (and (eq (if color ?K ?k)
+			 (chess-pos-piece position (car changes)))
+		     (> (abs (- (chess-index-file (cadr changes))
+				(chess-index-file (car changes)))) 1))
+	    (let ((kingside (> (chess-index-file (cadr changes))
+			       (chess-index-file (car changes)))))
+	      ;; if so, add the rook moves
+	      (nconc changes (if kingside
+				 (list (chess-rf-to-index (if color 7 0) 7)
+				       (chess-rf-to-index (if color 7 0) 5))
+			       (list (chess-rf-to-index (if color 7 0) 0)
+				     (chess-rf-to-index (if color 7 0) 3)))))))
+
+	;; is the opponent's king in check/mate or stalemate now, as a
+	;; result of the changes?  NOTE: engines, whom we should
+	;; trust, may already have determine if check/checkmate
+	;; applies.
+	(unless (or (memq :check changes)
+		    (memq :checkmate changes))
+	  (let* ((next-pos (chess-ply-next-pos ply))
+		 (color (chess-pos-side-to-move next-pos))
+		 (can-move (catch 'can-move
+			     (dotimes (rank 8)
+			       (dotimes (file 8)
+				 (let* ((to (chess-rf-to-index rank file))
+					(piece (chess-pos-piece next-pos to)))
+				   (when (or (eq piece ? )
+					     (if color
+						 (> piece ?a)
+					       (< piece ?a)))
+				     (if (chess-search-position next-pos
+								to color)
+					 (throw 'can-move t)))))))))
+	    (if (chess-search-position next-pos
+				       (car (chess-pos-search
+					     next-pos (if color ?K ?k)))
+				       (not color))
+		;; yes, well is in he in checkmate?
+		(if can-move
+		    (nconc changes (list :check))
+		  (nconc changes (list :checkmate)))
+	      ;; no, but is he in stalemate?
+	      (unless can-move
+		(nconc changes (list :stalemate))))))
+
+	;; return the annotated ply
+	ply))))
 
 (defun chess-ply-final-p (ply)
   "Return non-nil if this is the last ply of a game/variation."
   (let ((changes (chess-ply-changes ply)))
-    (or (memq ':draw changes)
-	(memq ':perpetual changes)
-	(memq ':repetition changes)
-	(memq ':stalemate changes)
-	(memq ':resign changes)
-	(memq ':checkmate changes))))
+    (or (memq :draw changes)
+	(memq :perpetual changes)
+	(memq :repetition changes)
+	(memq :stalemate changes)
+	(memq :resign changes)
+	(memq :checkmate changes))))
 
-(defun chess-legal-plies (position &optional search-func)
+(defun chess-legal-plies (position)
   "Return a list of all legal plies in POSITION."
-  (let (plies)
+  (let ((color (chess-pos-side-to-move position)) plies)
     (dotimes (rank 8)
       (dotimes (file 8)
 	(let* ((to (chess-rf-to-index rank file))
 	       (piece (chess-pos-piece position to)))
 	  (when (or (eq piece ? )
-		    (if (chess-pos-side-to-move position)
+		    (if color
 			(> piece ?a)
 		      (< piece ?a)))
-	    (dolist (candidate (funcall (or search-func
-					    'chess-standard-search-position)
-					position to t))
-	      (push (chess-ply-create position candidate to)
-		    plies))))))
+	    (dolist (candidate (chess-search-position position to color))
+	      (push (chess-ply-create position candidate to) plies))))))
     plies))
 
 (provide 'chess-ply)

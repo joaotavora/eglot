@@ -1,11 +1,6 @@
-
 - Port image display code to XEmacs
 
 - Allow the user to retract a move when playing against an engine.
-
-- Long castling is signaled as an illegal move from chess-standard
-
-- Capital letters not supported in keyboard shortcut entry
 
 ----------------------------------------------------------------------
 

@@ -22,14 +22,21 @@ chess-auto.el: chess-auto.in $(SOURCE)
 		-l $(shell pwd)/chess-maint \
 		-f batch-byte-compile $<
 
-chess.info: chess.texi
-	$(MAKEINFO) chess.texi
+chess-final.texi: chess.texi $(SOURCE)
+	$(EMACS) --no-init-file --no-site-file -batch \
+		-l $(shell pwd)/chess-maint \
+		-f chess-generate-texinfo-file
 
-chess.dvi: chess.texi
-	$(ENVADD) $(TEXI2DVI) chess.texi
+chess.info: chess-final.texi
+	$(MAKEINFO) chess-final.texi
+
+info: chess.info
+
+chess.dvi: chess-final.texi
+	$(ENVADD) $(TEXI2DVI) chess-final.texi
 
 clean:
-	rm -f $(TARGET) *~ chess.dvi chess.info
+	rm -f $(TARGET) *~ chess.dvi chess.info chess-final.*
 	rm -f *.aux *.cp *.cps *.fn *.fns *.ky *.log *.pg *.toc *.tp *.vr
 
 fullclean: clean

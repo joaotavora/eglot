@@ -53,23 +53,13 @@
     (apply (car hook) game (cdr hook) args)))
 
 
-(defsubst chess-game-search-function (game)
+(defsubst chess-game-tags (game)
   "Return the tags alist associated with GAME."
   (cadr game))
 
-(defsubst chess-game-set-search-function (game func)
-  "Return the tags alist associated with GAME."
-  (setcar (cdr game) func)
-  (chess-game-run-hooks game 'rule-change))
-
-
-(defsubst chess-game-tags (game)
-  "Return the tags alist associated with GAME."
-  (nth 2 game))
-
 (defsubst chess-game-set-tags (game tags)
   "Return the tags alist associated with GAME."
-  (setcar (nthcdr 2 game) tags)
+  (setcar (cdr game) tags)
   (chess-game-run-hooks game 'set-tags))
 
 (defsubst chess-game-tag (game tag)
@@ -96,12 +86,18 @@
 
 (defsubst chess-game-plies (game)
   "Return the tags alist associated with GAME."
-  (nth 3 game))
+  (nth 2 game))
+
+(defalias 'chess-game-main-var 'chess-game-plies)
 
 (defsubst chess-game-set-plies (game plies)
   "Return the tags alist associated with GAME."
-  (setcdr (nthcdr 2 game) plies)
+  (setcdr (nthcdr 1 game) plies)
   (chess-game-run-hooks game 'set-plies))
+
+(defsubst chess-game-pos (game &optional index)
+  "Return the position related to GAME's INDEX position."
+  (chess-ply-pos (chess-game-ply game index)))
 
 (defsubst chess-game-index (game)
   "Return the GAME's current position index."
@@ -127,24 +123,14 @@
 	(nconc plies (list ply))
       (chess-game-set-plies game (list ply)))))
 
-(defsubst chess-game-pos (game &optional index)
-  "Return the position related to GAME's INDEX position."
-  (chess-ply-pos (chess-game-ply game index)))
 
-
-(defun chess-game-create (&optional position search-func tags)
+(defun chess-game-create (&optional position tags)
   "Create a new chess game object.
-Optionally use the given starting POSITION (which is recorded using
-the game's FEN tag).
-SEARCH-FUNC specifies the function used to test the legality of moves.
+Optionally use the given starting POSITION.
 TAGS is the starting set of game tags (which can always be changed
 later using the various tag-related methods)."
-  (let ((game
-	 (list nil
-	       (or search-func 'chess-standard-search-position)
-	       tags
-	       (list (chess-ply-create (or position
-					   (chess-pos-create)))))))
+  (let ((game (list nil tags (list (chess-ply-create (or position
+							 (chess-pos-create)))))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))
@@ -161,44 +147,29 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	(position (chess-ply-pos ply)))
     (unless (equal position (chess-ply-pos current-ply))
       (error "Positions do not match"))
-    (unless (funcall (chess-game-search-function game)
-		     position (cadr (chess-ply-changes ply))
-		     (chess-pos-piece position (car (chess-ply-changes ply))))
+    (unless (chess-search-position
+	     position (cadr (chess-ply-changes ply))
+	     (chess-pos-piece position (car (chess-ply-changes ply))))
       (signal 'chess-illegal "Illegal move"))
     (chess-ply-set-changes current-ply changes)
     (chess-game-add-ply game (chess-ply-create
 			      (chess-ply-next-pos current-ply)))
     (cond
-     ((or (memq ':draw changes)
-	  (memq ':perpetual changes)
-	  (memq ':repetition changes)
-	  (memq ':stalemate changes))
+     ((or (memq :draw changes)
+	  (memq :perpetual changes)
+	  (memq :repetition changes)
+	  (memq :stalemate changes))
       (chess-game-set-tag game "Result" "1/2-1/2")
       (chess-game-run-hooks game 'game-over))
 
-     ((or (memq ':resign changes)
-	  (memq ':checkmate changes))
+     ((or (memq :resign changes)
+	  (memq :checkmate changes))
       (chess-game-set-tag game "Result" (if (chess-game-side-to-move game)
 					    "0-1" "1-0"))
       (chess-game-run-hooks game 'game-over))
 
      (t
       (chess-game-run-hooks game 'move current-ply)))))
-
-;; A few convenience functions
-
-(defsubst chess-game-legal-plies (game)
-  "Return all legal plies from GAME's current position."
-  (chess-legal-plies (chess-game-pos game)
-		     (chess-game-search-function game)))
-
-(defsubst chess-game-algebraic-to-ply (game move)
-  (chess-algebraic-to-ply (chess-game-pos game) move
-			  (chess-game-search-function game)))
-
-(defsubst chess-game-ply-to-algebraic (game &optional ply long)
-  (chess-ply-to-algebraic (or ply (chess-game-ply game)) long
-			  (chess-game-search-function game)))
 
 (provide 'chess-game)
 

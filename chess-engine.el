@@ -17,14 +17,12 @@
 (defvar chess-engine-response-handler nil)
 (defvar chess-engine-position nil)
 (defvar chess-engine-game nil)
-(defvar chess-engine-search-function nil)
 
 (make-variable-buffer-local 'chess-engine-regexp-alist)
 (make-variable-buffer-local 'chess-engine-event-handler)
 (make-variable-buffer-local 'chess-engine-response-handler)
 (make-variable-buffer-local 'chess-engine-position)
 (make-variable-buffer-local 'chess-engine-game)
-(make-variable-buffer-local 'chess-engine-search-function)
 
 (defvar chess-engine-last-pos nil)
 (defvar chess-engine-working nil)
@@ -58,7 +56,7 @@
    ((eq event 'move)
     (chess-engine-do-move (car args)))))
 
-(defun chess-engine-create (module &optional user-handler search-func)
+(defun chess-engine-create (module &optional user-handler)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
@@ -83,23 +81,9 @@
   (chess-with-current-buffer engine
     (apply chess-engine-event-handler event args)))
 
-(defun chess-engine-search-function (engine)
-  (chess-with-current-buffer engine
-    (if chess-engine-game
-	(chess-game-search-function chess-engine-game)
-      (or chess-engine-search-function
-	  'chess-standard-search-position))))
-
-(defun chess-engine-set-search-function (engine search-func)
-  (chess-with-current-buffer engine
-    (if chess-engine-game
-	(error "Engine is currently linked to a game")
-      (setq chess-engine-search-function search-func))))
-
-(defsubst chess-engine-search-position (engine position target piece)
-  (chess-with-current-buffer engine
-    (funcall (chess-engine-search-function nil)
-	     position target piece)))
+;; 'ponder
+;; 'search-depth
+;; 'wall-clock
 
 (defun chess-engine-set-option (engine option value)
   (chess-with-current-buffer engine
@@ -152,7 +136,7 @@
     (chess-engine-do-move ply)
     (chess-engine-command engine 'move ply)))
 
-(defun chess-engine-pass (engine ply)
+(defun chess-engine-pass (engine)
   (chess-with-current-buffer engine
     (chess-engine-command engine 'pass)))
 

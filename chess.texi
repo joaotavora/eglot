@@ -75,44 +75,25 @@ any later version published by the Free Software Foundation.
 @c ================================================================
 
 @ifinfo
-@node Top, The Chess.el library, (dir), (dir)
+@node Top, Chess.el, (dir), (dir)
 @top Chess.el
 
-Chess.el is an Emacs chess environment, designed in a modular fashion to
-be used either as a library for writing chess-related programs, or as a
-plain client for playing chess, analyzing variations, or browsing
-historical games.
+Chess.el is an Emacs chess client and library, designed to be used for
+writing chess-related programs, or for playing games of chess against
+various chess engines, including Internet servers.  The library can be
+used for analyzing variations, browsing historical games, or a
+multitude of other purposes.
 
 The purpose of this manual is to help you understand how Chess.el is
-structured for use as a library, and also how to use the optional
-modules which make it useful as a client.  These modules also serve as
-an example of how to make use of the library.
+structured for use as a library, and also how to use it as a client.
 @end ifinfo
 
-@menu
-* The Chess.el library::
-* Displays::
-* Play sessions::
-* Display modules::
-* Ply sources::
-@end menu
-
-@node The Chess.el library, Displays, Top, Top
 @chapter The Chess.el library
 @cindex library
 
-@menu
-* Positions::
-* Plies::
-* Variations::
-* Games::
-* Collections::
-@end menu
-
-@node Positions, Plies, The Chess.el library, The Chess.el library
 @section Positions
 
-A chess @dfn{position} is a given layout of pieces on the chess board,
+A chess @dfn{position} is a given layout of pieces on a chess board,
 reflecting also which side is next to move, and what privileges are
 currently available to each side (castling short or long, en passant
 capture, etc).
@@ -129,109 +110,73 @@ notation.
 
 Chess puzzles are most often provided as a set of positions.
 
-@menu
-* Creating positions::
-* Position coordinates::
-* Manipulating pieces::
-* Position details::
-* Annotations::
-* FEN notation::
-@end menu
-
-@node Creating positions, Position coordinates, Positions, Positions
 @subsection Creating positions
 
-@defun chess-pos-create &optional blank
-@end defun
+@c lispfun chess-pos-create
 
-@defun chess-pos-copy position
-@end defun
+@c lispfun chess-pos-copy
 
 @defvar chess-starting-position
 @end defvar
 
-@node Position coordinates, Manipulating pieces, Creating positions, Positions
 @subsection Position coordinates
 
-@defun chess-index-rank index
-@end defun
+@c lispfun chess-index-rank
 
-@defun chess-index-file index
-@end defun
+@c lispfun chess-index-file
 
-@defun chess-rf-to-index rank file
-@end defun
+@c lispfun chess-rf-to-index
 
-@defun chess-coord-to-index coord
-@end defun
+@c lispfun chess-coord-to-index
 
-@defun chess-index-to-coord index
-@end defun
+@c lispfun chess-index-to-coord
 
-@defun chess-add-index index rank-move file-move
-@end defun
+@c lispfun chess-add-index
 
-@node Manipulating pieces, Position details, Position coordinates, Positions
-@subsection Manipulating pieces
-
-@defun chess-pos-piece position index
-@end defun
-
-@defun chess-pos-piece-p position index piece-or-color
-@end defun
-
-@defun chess-pos-set-piece position index piece
-@end defun
-
-@defun chess-pos-search position piece-or-color
-@end defun
-
-@node Position details, Annotations, Manipulating pieces, Positions
 @subsection Position details
 
-@defun chess-pos-can-castle position side
-@end defun
+@c lispfun chess-pos-piece
 
-@defun chess-pos-set-can-castle position side value
-@end defun
+@c lispfun chess-pos-piece-p
 
-@defun chess-pos-en-passant position
-@end defun
+@c lispfun chess-pos-set-piece
 
-@defun chess-pos-set-en-passant position index
-@end defun
+@c lispfun chess-pos-search
 
-@defun chess-pos-status position
-@end defun
+@c lispfun chess-search-position
 
-@defun chess-pos-set-status position status
-@end defun
+@c lispfun chess-pos-can-castle
 
-@defun chess-pos-side-to-move position
-@end defun
+@c lispfun chess-pos-set-can-castle
 
-@defun chess-pos-set-side-to-move position color
-@end defun
+@c lispfun chess-pos-en-passant
 
-@node Annotations, FEN notation, Position details, Positions
+@c lispfun chess-pos-set-en-passant
+
+@c lispfun chess-pos-status
+
+@c lispfun chess-pos-set-status
+
+@c lispfun chess-pos-side-to-move
+
+@c lispfun chess-pos-set-side-to-move
+
+@c lispfun chess-pos-move
+
+Missing documentation for 'chess-pos-move'
+
 @subsection Annotations
 
-@defun chess-pos-annotation position
-@end defun
+@c lispfun chess-pos-annotations
 
-@defun chess-pos-add-annotation position annotation
-@end defun
+@c lispfun chess-pos-add-annotation
 
-@node FEN notation,  , Annotations, Positions
 @subsection FEN notation
 
-@defun chess-fen-to-pos fen-string
-@end defun
+@c lispfun chess-fen-to-pos
 
-@defun chess-pos-to-fen position &optional full
-@end defun
+@c lispfun chess-pos-to-fen
 
-@node Plies, Variations, Positions, The Chess.el library
 @section Plies
 
 A @dfn{ply} is the differential between two positions.  Or, it is the
@@ -251,56 +196,37 @@ so long as the current position is maintained at both sides.
 Transmitting the base position's FEN string along with the ply offers a
 form of confirmation during the course of a game.
 
-@menu
-* Creating plies::
-* Ply details::
-* The "next" position::
-* Algebraic notation::
-@end menu
-
-@node Creating plies, Ply details, Plies, Plies
 @subsection Creating plies
 
-@defun chess-ply-create position &rest changes
-@end defun
+@c lispfun chess-ply-create
 
-@defun chess-legal-plies position color
-@end defun
+@c lispfun chess-legal-plies
 
-@node Ply details, The "next" position, Creating plies, Plies
 @subsection Ply details
 
-@defun chess-ply-pos ply
-@end defun
+@c lispfun chess-ply-pos
 
-@defun chess-ply-set-pos ply position
-@end defun
+@c lispfun chess-ply-set-pos
 
-@defun chess-ply-changes ply
-@end defun
+@c lispfun chess-ply-changes
 
-@defun chess-ply-set-changes ply changes
-@end defun
+@c lispfun chess-ply-set-changes
 
-@node The "next" position, Algebraic notation, Ply details, Plies
 @subsection The "next" position
 
-@defun chess-ply-next-pos ply
-@end defun
+@c lispfun chess-ply-next-pos
 
-@node Algebraic notation,  , The "next" position, Plies
+@c lispfun chess-ply-final-p
+
 @subsection Algebraic notation
 
-@defun chess-ply-to-algebraic ply &optional long
-@end defun
+@c lispfun chess-ply-to-algebraic
 
-@defun chess-algebraic-to-ply position move
-@end defun
+@c lispfun chess-algebraic-to-ply
 
 @defvar chess-algebraic-regexp
 @end defvar
 
-@node Variations, Games, Plies, The Chess.el library
 @section Variations
 
 A @dfn{variation} is a sequence of plies that occur after some starting
@@ -319,7 +245,32 @@ allowing the user to navigate each of the subsequent positions in turn.
 They may be represented verbally by announcing each of the plies in
 turn, as mentioned above.
 
-@node Games, Collections, Variations, The Chess.el library
+@subsection Creating variations
+
+@c lispfun chess-var-create
+
+@subsection Variation positions
+
+@c lispfun chess-var-pos
+
+@c lispfun chess-var-index
+
+@c lispfun chess-var-seq
+
+@c lispfun chess-var-side-to-move
+
+@subsection Varation plies
+
+@c lispfun chess-var-ply
+
+@subsection Making a move in a variation
+
+@c lispfun chess-var-move
+
+@c lispfun chess-var-add-ply
+
+@c lispfun chess-var-plies
+
 @section Games
 
 A @dfn{game} includes its main variation, incidental information about
@@ -333,77 +284,66 @@ A game may be represented in ASCII using standard PGN notation.
 Representing them graphically or verbally is similar to what is done
 for variations.
 
-@menu
-* Creating games::
-* Game tags::
-* Game positions::
-* Game plies::
-@end menu
+@c lispfun chess-game-add-hook
 
-@node Creating games, Game tags, Games, Games
+@c lispfun chess-game-add-ply
+
+@c lispfun chess-game-hooks
+
+@c lispfun chess-game-plies
+
+@c lispfun chess-game-remove-hook
+
+@c lispfun chess-game-run-hooks
+
+@c lispfun chess-game-set-hooks
+
+@c lispfun chess-game-set-plies
+
 @subsection Creating games
 
-@defun chess-game-create &optional tags position
-@end defun
+@c lispfun chess-game-create
 
-@node Game tags, Game positions, Creating games, Games
 @subsection Game tags
 
-@defun chess-game-tags game
-@end defun
+@c lispfun chess-game-tags
 
-@defun chess-game-set-tags game tags
-@end defun
+@c lispfun chess-game-set-tags
 
-@defun chess-game-tag game tag
-@end defun
+@c lispfun chess-game-tag
 
-@defun chess-game-set-tag game tag value
-@end defun
+@c lispfun chess-game-set-tag
 
-@defun chess-game-del-tag game tag
-@end defun
+@c lispfun chess-game-del-tag
 
-@node Game positions, Game plies, Game tags, Games
 @subsection Game positions
 
-@defun chess-game-pos game &optional index
-@end defun
+@c lispfun chess-game-pos
 
-@defun chess-game-index game
-@end defun
+@c lispfun chess-game-index
 
-@defun chess-game-seq game
-@end defun
+@c lispfun chess-game-seq
 
-@defun chess-game-side-to-move game
-@end defun
+@c lispfun chess-game-side-to-move
 
-@node Game plies,  , Game positions, Games
 @subsection Game plies
 
-@defun chess-game-ply game &optional index
-@end defun
+@c lispfun chess-game-ply
 
 @subsection Making a move
 
-@defun chess-game-move game ply
-@end defun
+@c lispfun chess-game-move
 
 @subsection PGN notation
 
-@defun chess-pgn-to-game
-@end defun
+@c lispfun chess-pgn-to-game
 
-@defun chess-game-to-pgn game &optional indented
-@end defun
+@c lispfun chess-game-to-pgn
 
-@defun chess-pgn-insert-plies index plies &optional for-black indented no-ann
-@end defun
+@c lispfun chess-pgn-insert-plies
 
 @subsubsection PGN mode
 
-@node Collections,  , Games, The Chess.el library
 @section Collections
 
 A @dfn{collection} is a set of games archived for later perusal.  A set
@@ -417,7 +357,6 @@ with a chess database engine for the purpose of storing and retrieving
 games from the library, or performing library-wide analyses and
 searches.
 
-@node Displays, Play sessions, The Chess.el library, Top
 @chapter Displays
 
 The previous chapter described all the objects found in
@@ -427,138 +366,89 @@ functions given so far.  In order to present them in a meaningful
 fashion to a human reader, it is necessary to create and use a display
 object.
 
-@defun chess-display-create style perspective &optional session search-func
-Create a display, using the given @var{style}.  The initial
-@var{perspective}---non-nil for white, nil for black---determines the
-orientation, which can be inverted by the user afterward.
+@c lispfun chess-display-create
 
-If @var{session} is given, the display is linked to that
-@var{session}, and any moves made on the board that pertain to the
-current game's final position, will be transmitted to the
-@var{session}.  If there is no @var{session}, then moves are made
-directly to the game itself.  Thus, use @var{session} when you want to
-play, and don't when you want to review/edit games.
+@c lispfun chess-display-destroy
 
-@var{search-func} can be a function which is used to search out legal
-chess moves when editing position, plies and variations.  Since game
-object already know the search function to use for that game, this
-argument is ignored when a game object is being manipulated.  The
-default value is @code{chess-standard-search-position}.
+@chapter Chessboard displays
 
-The return value is a display object, which must be passed to all of
-the other functions in the section.  It is the buffer containing the
-chessboard.
-@end defun
+@c lispfun chess-display-active-p
 
-@defun chess-display-destroy display
-Destroy the given @var{display} object, freeing all memory used by it.
-@end defun
+@c lispfun chess-display-clear-board
 
-@defun chess-display-set-perspective display perspective
-Change the perspective on @var{display} to @var{perspective}, which
-must be non-nil for a board from white's perspective, and nil for a
-board from black's perspective.
-@end defun
+@c lispfun chess-display-detach-game
 
-@defun chess-display-search-function display
-Return the search function being used by the @var{display} to validate
-moves.
-@end defun
+@c lispfun chess-display-game
 
-@defun chess-display-search-position display position target piece
-@end defun
+@c lispfun chess-display-highlight
 
-@defun chess-display-set-position display position &optional search-func
-@end defun
+@c lispfun chess-display-index
 
-@defun chess-display-position display
-@end defun
+@c lispfun chess-display-invert
 
-@defun chess-display-set-ply display ply &optional search-func
-@end defun
+@c lispfun chess-display-move
 
-@defun chess-display-ply display
-@end defun
+@c lispfun chess-display-move-backward
 
-@defun chess-display-set-variation display plies &optional index search-func
-@end defun
+@c lispfun chess-display-move-first
 
-@defun chess-display-variation display
-@end defun
+@c lispfun chess-display-move-forward
 
-@defun chess-display-set-game display game &optional index
-@end defun
+@c lispfun chess-display-move-last
 
-@defun chess-display-game display
-@end defun
+@c lispfun chess-display-perspective
 
-@defun chess-display-set-index display index
-@end defun
+@c lispfun chess-display-ply
 
-@defun chess-display-index display
-@end defun
+@c lispfun chess-display-position
 
-@defun chess-display-update display
-@end defun
+@c lispfun chess-display-quit
 
-@defun chess-display-move display start &optional target
-@end defun
+@c lispfun chess-display-set-game
 
-@defun chess-display-highlight display index &optional mode
-@end defun
+@c lispfun chess-display-set-index
 
-@node Play sessions, Display modules, Displays, Top
-@chapter Play sessions
+@c lispfun chess-display-set-perspective
 
-@node Display modules, Ply sources, Play sessions, Top
-@chapter Display modules
+@c lispfun chess-display-set-ply
 
-@node Ply sources,  , Display modules, Top
-@chapter Ply sources
+@c lispfun chess-display-set-position
 
-@menu
-* Chess engines::
-@end menu
+@c lispfun chess-display-set-variation
 
-@node Chess engines,  , Ply sources, Ply sources
-@section Engines
+@c lispfun chess-display-update
 
-@defun chess-engine-create style callback &optional session
-@end defun
+@c lispfun chess-display-variation
 
-@defun chess-engine-set-option engine option value
-@end defun
+@chapter Engines
 
-@defun chess-engine-option engine option
-@end defun
+@c lispfun chess-engine-create
 
-@c  'ponder
-@c  'search-depth
-@c  'wall-clock
+@c lispfun chess-engine-set-option
 
-@defun chess-engine-destroy engine
-@end defun
+@c lispfun chess-engine-option
 
-@defun chess-engine-set-position engine position  ; uses 'edit' command
-@end defun
+@c lispfun chess-engine-destroy
 
-@defun chess-engine-position engine
-@end defun
+@c lispfun chess-engine-set-position
 
-@defun chess-engine-set-game engine game
-@end defun
+@c lispfun chess-engine-position
 
-@defun chess-engine-game engine
-@end defun
+@c lispfun chess-engine-set-game
 
-@defun chess-engine-index engine
-@end defun
+@c lispfun chess-engine-game
 
-@defun chess-engine-move engine ply
-@end defun
+@c lispfun chess-engine-index
 
-@defun chess-engine-command engine string
-@end defun
+@c lispfun chess-engine-move
+
+@c lispfun chess-engine-command
+
+@c lispfun chess-engine-detach-game
+
+@c lispfun chess-engine-pass
+
+@c lispfun chess-engine-send
 
 @unnumbered Concept Index
 

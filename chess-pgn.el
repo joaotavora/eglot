@@ -19,7 +19,8 @@
 	(goto-char (match-end 0))
 	(setq prevpos position)
 	(let* ((move (match-string 0))
-	       (ply (chess-game-algebraic-to-ply game (match-string 0))))
+	       (ply (chess-algebraic-to-ply (chess-game-pos game)
+					    (match-string 0))))
 	  (unless ply
 	    (error "Error reading move: %s" move))
 	  (setq position (chess-ply-next-pos ply))
@@ -80,8 +81,7 @@
   (while plies
     (unless for-black
       (when (chess-ply-changes (car plies))
-	(insert (format "%d. %s" index
-			(chess-game-ply-to-algebraic game (car plies))))
+	(insert (format "%d. %s" index (chess-ply-to-algebraic (car plies))))
 	(unless no-annotations
 	  (chess-pgn-insert-annotations game index (car plies))))
       (setq plies (cdr plies) index (1+ index)))
@@ -90,7 +90,7 @@
 	(when for-black
 	  (insert (format "%d. ..." index))
 	  (setq for-black nil))
-	(insert (format " %s" (chess-game-ply-to-algebraic game (car plies))))
+	(insert (format " %s" (chess-ply-to-algebraic (car plies))))
 	(unless no-annotations
 	  (chess-pgn-insert-annotations game index (car plies))))
       (setq plies (cdr plies)))

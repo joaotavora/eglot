@@ -48,10 +48,7 @@
 
    ((eq event 'move)
     (unless chess-gnuchess-now-moving
-      (chess-engine-send nil (concat (chess-ply-to-algebraic
-				      (car args) nil
-				      (chess-engine-search-function nil))
-				     "\n"))))))
+      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))))))
 
 (provide 'chess-gnuchess)
 
