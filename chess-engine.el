@@ -118,11 +118,8 @@
 			 (car args))
 	       (format "Do you wish to play a chess game against an anonymous opponent? ")))
 	    (chess-engine-command nil 'accept)
-	  (chess-engine-send nil 'decline)))
+	  (chess-engine-command nil 'decline)))
       t)
-
-     ((eq event 'accept)
-)
 
      ((eq event 'setup-pos)
       (when (car args)
