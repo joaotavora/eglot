@@ -121,9 +121,11 @@ and advance point after the correctly parsed position."
 			((or (eq opcode 'pv) (eq opcode 'sv)) ; predicted/supplied variation
 			 (let ((var (chess-var-create pos)))
 			   (mapc (lambda (ply)
-				   (chess-var-move var
-						   (chess-ply-from-string
-						    (chess-var-pos var) ply)))
+				   (let ((changes (chess-ply-from-string
+						   (chess-var-pos var) ply)))
+				     (if changes
+					 (chess-var-move var changes)
+				       (error "Unable to convert ply '%s'" ply))))
 				 (split-string val " "))
 			   var))
 			(t val))))
