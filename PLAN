@@ -1,3 +1,6 @@
+chess-autosave
+- this module currently isn't working at all!
+
 chess-ics
 - takebacks still aren't working 100%; when I submit a takeback
   request manually, and the other side accepts, my client doesn't know
