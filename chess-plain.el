@@ -139,7 +139,7 @@ PERSPECTIVE is t for white or nil for black."
 	      rank (if inverted (1- rank) (1+ rank))))
       (if chess-plain-draw-border
 	  (insert ?  (nth 5 chess-plain-border-chars)
-		  (make-string (+ 8 (* 7 chess-plain-spacing)) 
+		  (make-string (+ 8 (* 7 chess-plain-spacing))
 			       (nth 6 chess-plain-border-chars))
 		  (nth 7 chess-plain-border-chars) ?\n
 		  ? ?  (if (not inverted) "abcdefgh" "hgfedcba")))
