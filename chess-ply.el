@@ -250,10 +250,13 @@ maneuver."
 		  ;; now, as a result of the changes?
 		  (if (chess-legal-plies next-pos :any :color next-color)
 		      (if in-check
-			  (nconc changes (list :check)))
-		    (nconc changes (list (if in-check
-					     :checkmate
-					   :stalemate))))))))
+			  (nconc changes (list (chess-pos-set-status
+						next-pos :check))))
+		    (nconc changes (list (chess-pos-set-status
+					  next-pos
+					  (if in-check
+					      :checkmate
+					    :stalemate)))))))))
 	;; return the annotated ply
 	ply))))
 
