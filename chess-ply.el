@@ -68,7 +68,9 @@
 	 (chess-ply-changes ply)))
 
 (defsubst chess-ply-create (position &rest changes)
-  (cons position changes))
+  ;; jww (2002-04-02): if changes is a castling maneuver, then
+  ;; annotate and extend the ply correctly
+  (cons (chess-pos-copy position) changes))
 
 (defun chess-legal-plies (position &optional search-func)
   "Return a list of all legal plies in POSITION."

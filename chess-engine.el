@@ -49,24 +49,28 @@
 	   ,@body)
        ,@body)))
 
+(defun chess-engine-do-move (ply)
+  (cond
+   ((and chess-engine-session
+	 chess-engine-game)
+    (chess-session-event chess-engine-session event ply))
+   (chess-engine-game
+    (chess-game-move chess-engine-game ply))
+   (t
+    (apply 'chess-pos-move ply))))
+
 (defun chess-engine-default-handler (event &rest args)
   (cond
    ((eq event 'move)
-    (cond
-     ((chess-engine-session nil)
-      (apply 'chess-session-event (chess-engine-session nil) event args))
-     ((chess-engine-game nil)
-      (chess-game-move (chess-engine-game nil) (car args)))
-     (t
-      (apply 'chess-pos-move (chess-ply-pos (car args))
-	     (chess-ply-changes (car args))))))))
+    (chess-engine-do-move (car args)))))
 
 (defun chess-engine-create (module &optional user-handler session search-func)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
     (with-current-buffer (generate-new-buffer " *chess-engine*")
-      (setq chess-engine-regexp-alist (symbol-value regexp-alist)
+      (setq chess-engine-session session
+	    chess-engine-regexp-alist (symbol-value regexp-alist)
 	    chess-engine-event-handler handler
 	    chess-engine-response-handler (or 'chess-engine-default-handler
 					      user-handler))
@@ -75,11 +79,15 @@
 	  (error "Failed to start chess engine process"))
 	(set-process-buffer proc (current-buffer))
 	(set-process-filter proc 'chess-engine-filter))
-      (chess-engine-set-game nil (chess-game-create nil search-func))
+      (if session
+	  (let ((game (chess-session-data session 'current-game)))
+	    (if game
+		(chess-engine-set-game nil game)))
+	(chess-engine-set-game nil (chess-game-create nil search-func)))
       (current-buffer))))
 
 (defun chess-engine-destroy (engine)
-  (let ((buf (or display (current-buffer))))
+  (let ((buf (or engine (current-buffer))))
     (if (buffer-live-p buf)
 	(kill-buffer buf))))
 
@@ -139,11 +147,7 @@
 
 (defun chess-engine-move (engine ply)
   (chess-with-current-buffer engine
-    (cond
-     (chess-engine-game
-      (chess-game-move chess-engine-game ply))
-     (chess-engine-position
-      (apply 'chess-pos-move ply)))
+    (chess-engine-do-move ply)
     (chess-engine-command engine 'move ply)))
 
 (defun chess-engine-pass (engine ply)
@@ -160,20 +164,22 @@
 ;;
 
 ;;;###autoload
-(defun chess-engine (session buffer event &rest args)
+(defun chess-engine (session engine event &rest args)
   "Handle any commands being sent to this instance of this module."
   (if (eq event 'initialize)
-      (chess-engine-create (car args) 'chess-engine-session-callback session)
-    (ignore
-     (cond
-      ((eq event 'shutdown)
-       (chess-engine-destroy engine))
+      (chess-engine-create (car args)
+			   'chess-engine-session-callback session)
+    (with-current-buffer engine
+      (unless (apply chess-engine-event-handler event args)
+	(cond
+	 ((eq event 'shutdown)
+	  (chess-engine-destroy engine))
 
-      ((eq event 'setup)
-       (chess-engine-set-game engine (car args)))
+	 ((eq event 'setup)
+	  (chess-engine-set-game engine (car args)))
 
-      ((eq event 'pass)
-       (chess-engine-pass engine))))))
+	 ((eq event 'pass)
+	  (chess-engine-pass engine)))))))
 
 (defun chess-engine-filter (proc string)
   "Process filter for receiving text from a chess process."

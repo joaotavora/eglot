@@ -53,53 +53,54 @@ This regexp handles both long and short form.")
 
 (defun chess-algebraic-to-ply (position move &optional search-func)
   "Convert the algebraic notation MOVE for POSITION to a ply."
-  (when (string-match chess-algebraic-regexp move)
-    (let* ((color (chess-pos-side-to-move position))
-	   (mate (match-string 10 move))
-	   (piece (aref move 0))
-	   (changes
-	    (if (eq piece ?O)
-		(let ((rank (if color 7 0))
-		      (long (= (length (match-string 1 move)) 5)))
-		  (list (chess-rf-to-index rank 4)
-			(chess-rf-to-index rank (if long 2 6))
-			(chess-rf-to-index rank (if long 0 7))
-			(chess-rf-to-index rank (if long 3 5))))
-	      (let ((source (match-string 4 move))
-		    (target (chess-coord-to-index (match-string 7 move))))
-		(if (and source (= (length source) 2))
-		    (list (chess-coord-to-index source) target)
-		  (let (candidates which)
-		    (unless (< piece ?a)
-		      (setq piece ?P))
-		    ;; we must use our knowledge of how pieces can
-		    ;; move, to determine which piece is meant by the
-		    ;; piece indicator
-		    (when (setq candidates
-				(funcall (or search-func
-					     'chess-standard-search-position)
-					 position target (if color piece
-							   (downcase piece))))
-		      (if (= (length candidates) 1)
-			  (list (car candidates) target)
-			(if (null source)
-			    (error "Clarify piece to move by rank or file")
-			  (while candidates
-			    (if (if (>= source ?a)
-				    (eq (cdar candidates) (- source ?a))
-				  (eq (caar candidates) (- 7 (- source ?1))))
-				(setq which (car candidates) candidates nil)
-			      (setq candidates (cdr candidates))))
-			  (if (null which)
-			      (error "Could not determine which piece to use")
-			    (list which target)))))))))))
-      (if mate
-	  (nconc changes
-		 (list (if (equal mate "#")
-			   ':checkmate
-			 ':check))))
-      (assert changes)
-      (apply 'chess-ply-create position changes))))
+  (unless (string-match chess-algebraic-regexp move)
+    (error "Cannot parse non-algebraic move notation: %s" move))
+  (let* ((color (chess-pos-side-to-move position))
+	 (mate (match-string 10 move))
+	 (piece (aref move 0))
+	 (changes
+	  (if (eq piece ?O)
+	      (let ((rank (if color 7 0))
+		    (long (= (length (match-string 1 move)) 5)))
+		(list (chess-rf-to-index rank 4)
+		      (chess-rf-to-index rank (if long 2 6))
+		      (chess-rf-to-index rank (if long 0 7))
+		      (chess-rf-to-index rank (if long 3 5))))
+	    (let ((source (match-string 4 move))
+		  (target (chess-coord-to-index (match-string 7 move))))
+	      (if (and source (= (length source) 2))
+		  (list (chess-coord-to-index source) target)
+		(let (candidates which)
+		  (unless (< piece ?a)
+		    (setq piece ?P))
+		  ;; we must use our knowledge of how pieces can
+		  ;; move, to determine which piece is meant by the
+		  ;; piece indicator
+		  (when (setq candidates
+			      (funcall (or search-func
+					   'chess-standard-search-position)
+				       position target (if color piece
+							 (downcase piece))))
+		    (if (= (length candidates) 1)
+			(list (car candidates) target)
+		      (if (null source)
+			  (error "Clarify piece to move by rank or file")
+			(while candidates
+			  (if (if (>= source ?a)
+				  (eq (cdar candidates) (- source ?a))
+				(eq (caar candidates) (- 7 (- source ?1))))
+			      (setq which (car candidates) candidates nil)
+			    (setq candidates (cdr candidates))))
+			(if (null which)
+			    (error "Could not determine which piece to use")
+			  (list which target)))))))))))
+    (if mate
+	(nconc changes
+	       (list (if (equal mate "#")
+			 ':checkmate
+		       ':check))))
+    (assert changes)
+    (apply 'chess-ply-create position changes)))
 
 (defun chess-ply-to-algebraic (ply &optional long search-func)
   "Convert the given PLY to algebraic notation.

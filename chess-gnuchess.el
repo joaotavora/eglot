@@ -13,7 +13,7 @@
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'move
-			  (chess-algebraic-to-ply position
+			  (chess-algebraic-to-ply (chess-engine-position nil)
 						  (match-string 1))))))
 	(cons "Illegal move:"
 	      (function

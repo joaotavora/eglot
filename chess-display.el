@@ -259,39 +259,30 @@ change that position object, the display can be updated by calling
 	(funcall chess-display-draw-function))
     (chess-display-set-modeline)))
 
-(defun chess-display-move (display start &optional target)
-  "Move a piece on DISPLAY from START to TARGET.
+(defun chess-display-move (display ply)
+  "Move a piece on DISPLAY, by applying the given PLY.
+The position of PLY must match the currently displayed position.
 If only START is given, it must be in algebraic move notation."
   (chess-with-current-buffer display
-    ;; jww (2002-03-28): how is this going to handle castling?  There
-    ;; needs to be a way to "flesh" out a move using the standard
-    ;; search function.
-    (let ((ply (if (null target)
-		   (chess-algebraic-to-ply
-		    (chess-display-position nil) start
-		    (chess-display-search-function nil))
-		 (chess-ply-create (chess-display-position nil)
-				   start target))))
-      (cond
-       ((chess-display-active-p)
-	;; make the move and then announce it
-	(chess-game-move chess-display-game ply)
-	(chess-session-event chess-display-session 'move ply))
-       (chess-display-game
-	;; jww (2002-03-28): This should beget a variation within the
-	;; game, or alter the game, just as SCID allows
-	(unless (= (chess-display-index nil)
-		   (chess-game-index chess-display-game))
-	  (error "Cannot move partway in game (index %d != game index %d)"
-		 (chess-display-index nil)
-		 (chess-game-index chess-display-game)))
-	(chess-game-move chess-display-game ply))
-       (chess-display-variation
-	(nconc chess-display-variation (list ply)))
-       (chess-display-ply
-	(setq chess-display-ply ply))
-       (t				; an ordinary position
-	(setq chess-display-position (chess-ply-next-pos ply)))))
+    (cond
+     ((chess-display-active-p)
+      (chess-session-event chess-display-session 'move ply))
+     (chess-display-game
+      ;; jww (2002-03-28): This should beget a variation within the
+      ;; game, or alter the game, just as SCID allows
+      (if (= (chess-display-index nil)
+	     (chess-game-index chess-display-game))
+	  (setq chess-display-index
+		(1+ (chess-game-index chess-display-game))))
+      (chess-game-move chess-display-game ply))
+     (chess-display-variation
+      ;; jww (2002-04-02): what if we're in the middle?
+      (nconc chess-display-variation (list ply))
+      (setq chess-display-index (1- (length chess-display-variation))))
+     (chess-display-ply
+      (setq chess-display-ply ply))
+     (t					; an ordinary position
+      (setq chess-display-position (chess-ply-next-pos ply))))
     (chess-display-update nil)))
 
 (defun chess-display-highlight (display index &optional mode)
@@ -336,6 +327,11 @@ See `chess-display-type' for the different kinds of displays."
       ((eq event 'pass)
        (chess-display-set-perspective
 	display (not (chess-display-perspective display))))
+
+      ((eq event 'move)
+       (chess-display-set-index
+	display (chess-game-index (chess-display-game display)))
+       (chess-display-update display))
 
       (t
        (chess-display-update display))))))
@@ -412,7 +408,7 @@ The key bindings available in this mode are:
   (let ((ply (chess-display-ply nil))
 	(color (chess-pos-side-to-move (chess-display-position nil)))
 	(index (chess-display-index nil)))
-    (if (and index (= index 1))
+    (if (and index (= index 0))
 	(setq chess-display-mode-line
 	      (format "   %s   START" (if color "White" "BLACK")))
       (setq chess-display-mode-line
@@ -425,7 +421,7 @@ The key bindings available in this mode are:
 	     (if ply
 		 (concat ". " (if color "... ")
 			 (chess-ply-to-algebraic
-			  ply (chess-display-search-function nil)))))))))
+			  ply nil (chess-display-search-function nil)))))))))
 
 (defsubst chess-display-active-p ()
   "Return non-nil if the displayed chessboard reflects an active game.
@@ -490,7 +486,9 @@ position within the game)."
 		  (if (chess-pos-side-to-move (chess-display-position nil))
 		      "White" "Black")
 		  (1+ (/ (or (chess-display-index nil) 0) 2))))))
-  (chess-display-move nil move))
+  (chess-display-move nil (chess-algebraic-to-ply
+			   (chess-display-position nil) move
+			   (chess-display-search-function nil))))
 
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
@@ -649,7 +647,9 @@ to the end or beginning."
       (setq moves (delq nil moves))
       (cond
        ((= (length moves) 1)
-	(chess-display-move nil (car moves))
+	(chess-display-move nil (chess-algebraic-to-ply
+				 (chess-display-position nil) (car moves)
+				 (chess-display-search-function nil)))
 	(setq chess-move-string nil
 	      chess-legal-moves nil
 	      chess-legal-moves-pos nil))
@@ -691,7 +691,9 @@ Clicking once on a piece selects it; then click on the target location."
 	  (let ((last-sel chess-display-last-selected))
 	    ;; if they select the same square again, just deselect it
 	    (if (/= (point) (car last-sel))
-		(chess-display-move nil (cadr last-sel) coord)
+		(chess-display-move
+		 nil (chess-ply-create (chess-display-position nil)
+				       (cadr last-sel) coord))
 	      ;; put the board back to rights
 	      (chess-display-update nil))
 	    (setq chess-display-last-selected nil))

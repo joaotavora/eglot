@@ -126,25 +126,24 @@ a0 243
 
 (defun chess-handler (session window-config event &rest args)
   "React to changes on the chess board in a global Emacs way."
-  (cond
-   ((eq event 'initialize)
-    (current-window-configuration))
-
-   ((eq event 'shutdown)
-    (ignore (set-window-configuration window-config)))
-
-   ((eq event 'setup)
-    (ignore (chess-session-set-data session 'current-game (car args))))
-
-   ((eq event 'pass)
+  (if (eq event 'initialize)
+      (current-window-configuration)
     (ignore
-     (let ((color (not (chess-session-data session 'my-color))))
-       (message "You are now playing %s" (if color "White" "Black"))
-       (chess-session-set-data session 'my-color (not color)))))
+     (cond
+      ((eq event 'shutdown)
+       (set-window-configuration window-config))
 
-   ((eq event 'move)
-    (chess-game-move (chess-session-data session 'current-game)
-		     (car args)))))
+      ((eq event 'setup)
+       (chess-session-set-data session 'current-game (car args)))
+
+      ((eq event 'pass)
+       (let ((color (not (chess-session-data session 'my-color))))
+	 (message "You are now playing %s" (if color "White" "Black"))
+	 (chess-session-set-data session 'my-color (not color))))
+
+      ((eq event 'move)
+       (chess-game-move (chess-session-data session 'current-game)
+			(car args)))))))
 	    (aset chess-puzzle-locations 3 puzzle-engine)))))))
 
 (provide 'chess)

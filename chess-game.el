@@ -111,8 +111,7 @@ later using the various tag-related methods)."
       (unless (chess-game-tag game (car tag))
 	(chess-game-set-tag game (car tag) (cdr tag))))
     (chess-game-add-ply game (chess-ply-create
-			      (or (and position
-				       (chess-pos-copy position))
+			      (or position
 				  (chess-pos-create))))
     (if position
 	(chess-game-set-tag game "FEN" (chess-pos-to-fen position)))
