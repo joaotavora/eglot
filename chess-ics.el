@@ -194,18 +194,21 @@ game number.")
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'accept))))
-   (cons "{Game \\([0-9]+\\) (\\(\\S-+\\) vs\\. \\(\\S-+\\)) \\(\\S-+\\) resigns}"
-	 (function
-	  (lambda ()
-	    (when (not (string= (match-string 4) chess-ics-handle))
-	      (with-current-buffer (chess-game-data
-				    (chess-ics-game
-				     (string-to-int (match-string 1))
-				     :White (match-string 2)
-				     :Black (match-string 3))
-				    'engine)
-		(funcall chess-engine-response-handler 'resign)))
-	    t)))
+   (cons ;; resign announcement
+    "{Game \\([0-9]+\\) (\\(\\S-+\\) vs\\. \\(\\S-+\\)) \\(\\S-+\\) resigns}"
+    (function
+     (lambda ()
+       (let ((chess-engine-handling-event t)
+	     (opponent-p (not (string= chess-ics-handle (match-string 4))))
+	     (game (chess-ics-game (string-to-int (match-string 1))
+				   :White (match-string 2)
+				   :Black (match-string 3))))
+	 (with-current-buffer (chess-game-data game 'engine)
+	   (if opponent-p
+	       (funcall chess-engine-response-handler 'resign)
+	     (unless (chess-game-status game)
+	       (chess-game-end game :resign))))
+	 t))))
    (cons "\\(\\S-+\\) forfeits on time}"
 	 (function
 	  (lambda ()
@@ -240,30 +243,31 @@ See `chess-ics-game'.")
   (or
    ;; First try to find a game which matches the constraints in TAGS
    (catch 'ics-game
-     (mapc
-      (lambda (session)
-	(if (not (buffer-live-p (car session)))
-	    (message "Found dead engine session in `chess-ics-sessions'")
-	  (let ((game (chess-engine-game (car session)))
-		(tag-pairs tags))
-	    (when (= game-number (chess-game-data game 'ics-game-number))
-	      (if (or (null tags) (eq (car tags) t))
-		  (throw 'ics-game game)
-		(while tag-pairs
-		  (assert (symbolp (car tag-pairs)))
-		  (let ((tag (substring (symbol-name (car tag-pairs)) 1))
-			(val (cadr tag-pairs)))
-		    (assert (stringp val))
-		    (if (string= (chess-game-tag game tag) val)
-			(setq tag-pairs (cddr tag-pairs))
-		      (if (not (string= (chess-game-tag game tag) "?"))
-			  (error "Game %d %s %s != %s"
-				 game-number tag (chess-game-tag game tag) val)
-			;; Update tag and proceed
-			(chess-game-set-tag game tag val)
-			(setq tags (cddr tags))))))
-		(throw 'ics-game game)))))) chess-ics-sessions))
-   ;; No matching game was found, create a new one unless TAGS is t
+     (let ((sessions chess-ics-sessions))
+       (while sessions
+	 (if (not (buffer-live-p (caar sessions)))
+	     (message "Found dead engine session in `chess-ics-sessions'")
+	   (let ((game (chess-engine-game (caar sessions)))
+		 (tag-pairs tags))
+	     (when (= game-number (chess-game-data game 'ics-game-number))
+	       (if (or (null tags) (eq (car tags) t))
+		   (throw 'ics-game game)
+		 (while tag-pairs
+		   (assert (symbolp (car tag-pairs)))
+		   (let ((tag (substring (symbol-name (car tag-pairs)) 1))
+			 (val (cadr tag-pairs)))
+		     (assert (stringp val))
+		     (if (string= (chess-game-tag game tag) val)
+			 (setq tag-pairs (cddr tag-pairs))
+		       (if (not (string= (chess-game-tag game tag) "?"))
+			   (error "Game %d %s %s != %s"
+				  game-number tag (chess-game-tag game tag) val)
+			 ;; Update tag and proceed
+			 (chess-game-set-tag game tag val)
+			 (setq tags (cddr tags))))))
+		 (throw 'ics-game game)))))
+	 (setq sessions (cdr sessions)))))
+   ;; if we are allowed to, create a new session for this game number
    (unless (eq (car tags) t)
      (push (let (chess-engine-handling-event)
 	     (chess-session 'chess-ics))
