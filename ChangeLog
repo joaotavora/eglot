@@ -2,6 +2,8 @@
 
 	* chess-ics.el: Only send startup commands after login has succeeded.
 	(chess-ics12-parse): Was relying on a variable that wasn't set!
+	(chess-ics-regexp-alist): Added a handler to capture the guest id
+	when logging in anonymously.
 
 	* chess-ics.el: Send the "set style 12" command immediately,
 	rather than after the first move.
