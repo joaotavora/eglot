@@ -229,9 +229,10 @@ If INDENTED is non-nil, indent the move texts."
 
 (font-lock-add-keywords 'chess-pgn-mode
   (list (list "\\[\\(\\S-+\\)\\s-+\".*\"\\]" 1 'font-lock-keyword-face)
-	(cons chess-pgn-move-regexp
-	      'chess-pgn-bold-face)
-	(cons "\\(1-0\\|0-1\\|\\*\\)$" 'font-lock-warning-face)))
+	;; jww (2002-04-16): this is a bit heavy
+	;;(cons chess-pgn-move-regexp
+	;;      'chess-pgn-bold-face)
+	(cons "\\(1-0\\|0-1\\|\\*\\)$" 'chess-pgn-bold-face)))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.pgn\\'" . chess-pgn-mode))
