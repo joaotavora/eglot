@@ -436,10 +436,7 @@ See `chess-display-type' for the different kinds of displays."
   "The mode map used in read-only display buffers.")
 
 (defvar chess-display-mode-map
-  (let ((map (make-keymap)))
-    (suppress-keymap map)
-    (set-keymap-parent map chess-display-safe-map)
-
+  (let ((map (copy-keymap chess-display-safe-map)))
     (define-key map [? ] 'chess-display-pass)
     (define-key map [??] 'describe-mode)
     (define-key map [?@] 'chess-display-remote)
