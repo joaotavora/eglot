@@ -101,7 +101,7 @@ not available."
 A sublist indicates a series of alternatives, if the first is not
 available.
 These can do just about anything."
-  :type '(repeat (choice symbol (repeat symbol)))
+  :type '(choice symbol (repeat symbol))
   :group 'chess)
 
 (defcustom chess-default-engine
