@@ -67,8 +67,7 @@
 (defun chess-sound-handler (game ignore event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
-  (cond
-   ((eq event 'move)
+  (when (eq event 'move)
     (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
 	   (pos (chess-ply-pos ply)))
       (if (eq (chess-game-data game 'my-color)
@@ -97,8 +96,7 @@ See `chess-display-type' for the different kinds of displays."
 	  (if (chess-ply-has-keyword :checkmate)
 	      (chess-sound ?#))
 	  (if (chess-ply-has-keyword :stalemate)
-	      (chess-sound "smate")))))
-    nil)))
+	      (chess-sound "smate")))))))
 
 (provide 'chess-sound)
 

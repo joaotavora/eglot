@@ -138,8 +138,7 @@ who is black."
 	   (chess-algebraic-to-ply
 	    (chess-ply-pos (car (last (chess-game-plies game))))
 	    (cadr info) t))
-	  (assert (equal (chess-engine-position nil)
-			 (car info))))
+	  (assert (equal (car info) (chess-engine-position nil))))
       (let ((chess-game-inhibit-events t) plies)
 	(chess-game-set-data game 'my-color (string= (nth 2 info)
 						     chess-ics-handle))

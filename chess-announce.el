@@ -34,9 +34,9 @@ shutdown the announcer process, if necessary.")
 (defun chess-announce-for-game (game)
   "Announce the opponent's moves in GAME."
   (funcall (nth 0 chess-announce-functions))
-  (chess-game-add-hook game 'chess-announce-event-handler))
+  (chess-game-add-hook game 'chess-announce-handler))
 
-(defun chess-announce-event-handler (game ignore event &rest args)
+(defun chess-announce-handler (game ignore event &rest args)
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
   (cond
