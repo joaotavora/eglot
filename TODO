@@ -14,6 +14,8 @@
 - Resize ascii windows after popup, so that the whole board is
   minimally visible
 
+- Need a way to resign, request a draw, etc.
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs

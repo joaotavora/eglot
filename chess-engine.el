@@ -143,7 +143,10 @@
 
 (defun chess-engine-send (engine string)
   (chess-with-current-buffer engine
-    (process-send-string (get-buffer-process (current-buffer)) string)))
+    (let ((proc (get-buffer-process (current-buffer))))
+      (if (and proc (memq (process-status proc) '(run open)))
+	  (process-send-string proc string)
+	(error "The engine you are using is no longer running")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

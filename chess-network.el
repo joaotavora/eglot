@@ -31,7 +31,11 @@
 		 (let* ((position (chess-fen-to-pos (match-string 1)))
 			(ply (chess-ply-create position)))
 		   (chess-game-set-plies (chess-engine-game nil)
-					 (list ply))))))))
+					 (list ply))))))
+	(cons "QUIT"
+	      (function
+	       (lambda ()
+		 (message "Your opponent has quit playing"))))))
 
 (defun chess-network-perform-move ()
   (let ((position (chess-engine-position nil))
