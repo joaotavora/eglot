@@ -231,7 +231,8 @@ modeline."
 	  chess-display-index (chess-game-index game)
 	  chess-display-ply nil
 	  chess-display-position nil)
-    (chess-game-add-hook game 'chess-display-event-handler display)
+    (if game
+	(chess-game-add-hook game 'chess-display-event-handler display))
     (chess-display-update nil t)))
 
 (defun chess-display-copy-game (display game)
@@ -360,6 +361,8 @@ that is supported by most displays, and is the default mode."
     (when (buffer-live-p buf)
       (chess-display-event-handler (chess-display-game nil)
 				   buf 'destroy)
+      (with-current-buffer buf
+	(remove-hook 'kill-buffer-hook 'chess-display-quit t))
       (kill-buffer buf))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -594,7 +597,6 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-quit ()
   "Quit the current game."
   (interactive)
-  (remove-hook 'kill-buffer-hook 'chess-display-quit t)
   (if (and chess-display-main-p
 	   chess-display-game)
       (chess-game-run-hooks chess-display-game 'shutdown)
@@ -622,8 +624,11 @@ Basically, it means we are playing, not editing or reviewing."
 
 (defun chess-display-duplicate (style)
   (interactive
-   (list (read-from-minibuffer "Create new display using style: "
-			       (symbol-name (chess-display-style nil)))))
+   (list (concat "chess-"
+		 (read-from-minibuffer
+		  "Create new display using style: "
+		  (substring (symbol-name (chess-display-style nil))
+			     0 (length "chess-"))))))
   (chess-display-clone (current-buffer) (intern-soft style)
 		       (chess-display-perspective nil)))
 

@@ -23,22 +23,23 @@
 (make-variable-buffer-local 'chess-gnuchess-bad-board)
 
 (defvar chess-gnuchess-regexp-alist
-  (list (cons (concat "My move is : \\(" chess-algebraic-regexp "\\)")
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'move
-			  (match-string 1)))))
-	(cons "Illegal move:"
-	      (function
-	       (lambda ()
-		 (signal 'chess-illegal "Illegal move"))))
-	(cons "Board is wrong!"
-	      (function
-	       (lambda ()
-		 ;; gnuchess didn't like the given position, which
-		 ;; means it won't play against it unless we send a
-		 ;; "go" after the user's move
-		 (setq chess-gnuchess-bad-board t))))))
+  (list
+   (cons (concat "My move is : \\(" chess-algebraic-regexp "\\)")
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'move
+		     (chess-engine-convert-algebraic (match-string 1))))))
+   (cons "Illegal move:"
+	 (function
+	  (lambda ()
+	    (signal 'chess-illegal "Illegal move"))))
+   (cons "Board is wrong!"
+	 (function
+	  (lambda ()
+	    ;; gnuchess didn't like the given position, which
+	    ;; means it won't play against it unless we send a
+	    ;; "go" after the user's move
+	    (setq chess-gnuchess-bad-board t))))))
 
 (defun chess-gnuchess-handler (event &rest args)
   (cond

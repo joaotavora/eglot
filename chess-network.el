@@ -9,43 +9,44 @@
 (require 'chess-algebraic)
 
 (defvar chess-network-regexp-alist
-  (list (cons (concat chess-algebraic-regexp "$")
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'move
-			  (match-string 0)))))
-	(cons "chess match\\(\\s-+\\(.+\\)\\)?$"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'connect
-			  (match-string 2)))))
-	(cons "accept\\(\\s-+\\(.+\\)\\)?$"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'accept
-			  (match-string 2)))))
-	(cons "fen\\s-+\\(.+\\)"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'setup-pos
-			  (match-string 1)))))
-	(cons "pgn\\s-+\\(.+\\)"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'setup-game
-			  (match-string 1)))))
-	(cons "pass$"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'pass))))
-	(cons "quit$"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'quit))))
-	(cons "resign$"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'resign))))))
+  (list
+   (cons (concat chess-algebraic-regexp "$")
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'move
+		     (chess-engine-convert-algebraic (match-string 0))))))
+   (cons "chess match\\(\\s-+\\(.+\\)\\)?$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'connect
+		     (match-string 2)))))
+   (cons "accept\\(\\s-+\\(.+\\)\\)?$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'accept
+		     (match-string 2)))))
+   (cons "fen\\s-+\\(.+\\)"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'setup-pos
+		     (chess-engine-convert-fen (match-string 1))))))
+   (cons "pgn\\s-+\\(.+\\)"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'setup-game
+		     (chess-engine-convert-pgn (match-string 1))))))
+   (cons "pass$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'pass))))
+   (cons "quit$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'quit))))
+   (cons "resign$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'resign))))))
 
 (defun chess-network-handler (event &rest args)
   "Initialize the network chess engine."

@@ -31,11 +31,13 @@
 (defvar chess-engine-process nil)
 (defvar chess-engine-last-pos nil)
 (defvar chess-engine-working nil)
-(defvar chess-engine-handling-event nil)
 
 (make-variable-buffer-local 'chess-engine-process)
 (make-variable-buffer-local 'chess-engine-last-pos)
 (make-variable-buffer-local 'chess-engine-working)
+
+(defvar chess-engine-handling-event nil)
+(defvar chess-engine-inhibit-auto-pass nil)
 
 ;;; Code:
 
@@ -58,41 +60,42 @@
    (chess-engine-position
     (setq chess-engine-position (chess-ply-next-pos ply)))))
 
+(defsubst chess-engine-convert-algebraic (move)
+  (or (chess-algebraic-to-ply (chess-engine-position nil)
+			      move)
+      (message "Received invalid move string: %s" move)))
+
+(defsubst chess-engine-convert-fen (fen)
+  (or (chess-fen-to-pos fen)
+      (message "Received invalid FEN string: %s" fen)))
+
+(defsubst chess-engine-convert-pgn (pgn)
+  (or (chess-pgn-to-game pgn)
+      (message "Received invalid PGN text")))
+
 (defun chess-engine-default-handler (event &rest args)
   (let ((chess-engine-handling-event t)
-	(game (chess-engine-game nil))
-	(position (chess-engine-position nil)))
+	(game (chess-engine-game nil)))
     (cond
      ((eq event 'move)
       (if (null game)
-	  (if position
-	      (let ((ply
-		     (if (stringp (car args))
-			 (or (chess-algebraic-to-ply position (car args))
-			     (message "Received invalid move from engine: %s"
-				      (car args)))
-		       (car args))))
-		(if ply
-		    (setq chess-engine-position (chess-ply-next-pos ply)))
-		t))
+	  (when (car args)
+	    (setq chess-engine-position (chess-ply-next-pos (car args)))
+	    t)
 	(if (chess-game-data game 'active)
-	    (let ((ply
-		   (if (stringp (car args))
-		       (or (chess-algebraic-to-ply position (car args))
-			   (message "Received invalid move from engine: %s"
-				    (car args)))
-		     (car args))))
-	      (when ply
-		;; if the game index is still 0, then our opponent
-		;; is white, and we need to pass over the move
-		(when (and game (chess-game-data game 'my-color)
-			   (= (chess-game-index game) 0))
-		  (message "Your opponent played the first move, you are now black")
-		  (chess-game-run-hooks game 'pass)
-		  ;; if no one else flipped my-color, we'll do it
-		  (if (chess-game-data game 'my-color)
-		      (chess-game-set-data game 'my-color nil)))
-		(chess-engine-do-move ply))
+	    (when (car args)
+	      ;; if the game index is still 0, then our opponent
+	      ;; is white, and we need to pass over the move
+	      (when (and game
+			 (not chess-engine-inhibit-auto-pass)
+			 (chess-game-data game 'my-color)
+			 (= (chess-game-index game) 0))
+		(message "Your opponent played the first move, you are now black")
+		(chess-game-run-hooks game 'pass)
+		;; if no one else flipped my-color, we'll do it
+		(if (chess-game-data game 'my-color)
+		    (chess-game-set-data game 'my-color nil)))
+	      (chess-engine-do-move (car args))
 	      t))))
 
      ((eq event 'pass)
@@ -127,28 +130,22 @@
 	t))
 
      ((eq event 'setup-pos)
-      (let ((position (if (stringp (car args))
-			  (chess-fen-to-pos (car args))
-			(car args))))
-	(when position
-	  (chess-engine-set-start-position nil position t)
-	  t)))
+      (when (car args)
+	(chess-engine-set-start-position nil (car args) t)
+	t))
 
      ((eq event 'setup-game)
-      (let ((new-game (if (stringp (car args))
-			  (chess-pgn-to-game (car args))
-			(car args))))
-	(when new-game
-	  (if (null game)
-	      (chess-engine-set-game nil new-game)
-	    (let ((chess-game-inhibit-events t))
-	      (chess-engine-copy-game nil new-game)
-	      (chess-game-set-data game 'active t)
-	      (if (string= chess-full-name (chess-game-tag game "White"))
-		  (chess-game-set-data game 'my-color t)
-		(chess-game-set-data game 'my-color nil)))
-	    (chess-game-run-hooks game 'orient))
-	  t)))
+      (when (car args)
+	(if (null game)
+	    (chess-engine-set-game nil (car args))
+	  (let ((chess-game-inhibit-events t))
+	    (chess-engine-copy-game nil (car args))
+	    (chess-game-set-data game 'active t)
+	    (if (string= chess-full-name (chess-game-tag game "White"))
+		(chess-game-set-data game 'my-color t)
+	      (chess-game-set-data game 'my-color nil)))
+	  (chess-game-run-hooks game 'orient))
+	t))
 
      ((eq event 'quit)
       (message "Your opponent has quit playing")
@@ -162,23 +159,7 @@
 	(chess-game-set-data game 'active nil)
 	t)))))
 
-(defun chess-engine-set-start-position (engine &optional position my-color)
-  (chess-with-current-buffer engine
-    (let ((game (chess-engine-game nil)))
-      (if (null game)
-	  (chess-engine-set-position nil (or position
-					     chess-starting-position))
-	(let ((chess-game-inhibit-events t))
-	  (if position
-	      (progn
-		(chess-game-set-start-position game position)
-		(chess-game-set-data game 'my-color my-color))
-	    (chess-game-set-start-position game chess-starting-position)
-	    (chess-game-set-data game 'my-color t))
-	  (chess-game-set-data game 'active t))
-	(chess-game-run-hooks game 'orient)))))
-
-(defun chess-engine-create (module &optional user-handler &rest args)
+(defun chess-engine-create (module &optional response-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
@@ -187,7 +168,7 @@
 	(setq chess-engine-regexp-alist (symbol-value regexp-alist)
 	      chess-engine-event-handler handler
 	      chess-engine-response-handler
-	      (or user-handler 'chess-engine-default-handler))
+	      (or response-handler 'chess-engine-default-handler))
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))
 	    (error "Failed to start chess engine process"))
@@ -206,7 +187,8 @@
   (let ((buf (or engine (current-buffer))))
     (when (buffer-live-p buf)
       (chess-engine-command engine 'destroy)
-      (remove-hook 'kill-buffer-hook 'chess-engine-on-kill t)
+      (with-current-buffer buf
+	(remove-hook 'kill-buffer-hook 'chess-engine-on-kill t))
       (kill-buffer buf))))
 
 (defun chess-engine-command (engine event &rest args)
@@ -226,6 +208,15 @@
   (chess-with-current-buffer engine
     ))
 
+(defun chess-engine-set-response-handler (engine &optional response-handler)
+  (chess-with-current-buffer engine
+    (setq chess-engine-response-handler
+	  (or response-handler 'chess-engine-default-handler))))
+
+(defun chess-engine-response-handler (engine)
+  (chess-with-current-buffer engine
+    chess-engine-response-handler))
+
 (defun chess-engine-set-position (engine position)
   (chess-with-current-buffer engine
     (if chess-engine-game
@@ -240,15 +231,32 @@
 	     (chess-game-pos chess-engine-game))
 	chess-engine-position)))
 
+(defun chess-engine-set-start-position (engine &optional position my-color)
+  (chess-with-current-buffer engine
+    (let ((game (chess-engine-game nil)))
+      (if (null game)
+	  (chess-engine-set-position nil (or position
+					     chess-starting-position))
+	(let ((chess-game-inhibit-events t))
+	  (if position
+	      (progn
+		(chess-game-set-start-position game position)
+		(chess-game-set-data game 'my-color my-color))
+	    (chess-game-set-start-position game chess-starting-position)
+	    (chess-game-set-data game 'my-color t))
+	  (chess-game-set-data game 'active t))
+	(chess-game-run-hooks game 'orient)))))
+
 (defun chess-engine-set-game (engine game &optional no-setup)
   (chess-with-current-buffer engine
     (if chess-engine-game
 	(chess-engine-detach-game nil))
     (setq chess-engine-game game
 	  chess-engine-position nil)
-    (chess-game-add-hook game 'chess-engine-event-handler engine)
-    (unless no-setup
-      (chess-engine-command nil 'setup-game game))))
+    (when game
+      (chess-game-add-hook game 'chess-engine-event-handler engine)
+      (unless no-setup
+	(chess-engine-command nil 'setup-game game)))))
 
 (defsubst chess-engine-set-game* (engine game)
   "This function is a special variant of `chess-engine-set-game'.
@@ -296,6 +304,10 @@ function in all cases; this is merely a bandwidth-saver."
 (defun chess-engine-pass (engine)
   (chess-with-current-buffer engine
     (chess-engine-command engine 'pass)))
+
+(defun chess-engine-resign (engine)
+  (chess-with-current-buffer engine
+    (chess-engine-command engine 'resign)))
 
 (defun chess-engine-send (engine string)
   "Send the given STRING to ENGINE."

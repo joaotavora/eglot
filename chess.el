@@ -129,8 +129,10 @@ minibuffer, which works well for Emacspeak users."
     (chess-display-set-main display)
     (let ((engine-module
 	   (if arg
-	       (intern (or (read-string "Engine module to play against: ")
-			   "chess-none"))
+	       (intern
+		(or (concat "chess-"
+			    (read-string "Engine module to play against: "))
+		    "chess-none"))
 	     chess-default-engine)))
     (let ((engine-module (or engine chess-default-engine)))
 	(let ((engine (chess-engine-create engine-module)))

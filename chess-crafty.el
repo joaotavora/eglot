@@ -22,16 +22,17 @@
 (make-variable-buffer-local 'chess-crafty-temp-files)
 
 (defvar chess-crafty-regexp-alist
-  (list (cons (concat "\\s-*\\(White\\|Black\\)\\s-*([0-9]+):\\s-+\\("
-		      chess-algebraic-regexp "\\)\\s-*$")
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'move
-			  (match-string 0)))))
-	(cons "Illegal move:\\s-*\\(.*\\)"
-	      (function
-	       (lambda ()
-		 (signal 'chess-illegal (match-string 1)))))))
+  (list
+   (cons (concat "\\(White\\|Black\\)\\s-*([0-9]+):\\s-+\\("
+		 chess-algebraic-regexp "\\)\\s-*$")
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'move
+		     (chess-engine-convert-algebraic (match-string 2))))))
+   (cons "Illegal move:\\s-*\\(.*\\)"
+	 (function
+	  (lambda ()
+	    (signal 'chess-illegal (match-string 1)))))))
 
 (defun chess-crafty-handler (event &rest args)
   (cond
