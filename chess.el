@@ -7,10 +7,10 @@
 ;; Version: 2.0
 ;; Keywords: games
 ;; Author: John Wiegley <johnw@gnu.org>
-;; Maintainer: John Wiegley <johnw@gnu.org>
+;; Maintainer: Mario Lang <mlang@delysid.org>
 ;; Description: Play chess in Emacs
-;; URL: http://www.gci-net.com/~johnw/Emacs/packages/chess.tar.gz
-;; Compatibility: Emacs20, Emacs21, XEmacs21
+;; URL: http://emacs-chess.sourceforge.net/
+;; Compatibility: Emacs21
 
 ;; This file is not part of GNU Emacs.
 
