@@ -187,7 +187,7 @@ also view the same game."
 	       ((eq status :checkmate) (chess-string 'mode-checkmate))
 	       ((eq status :stalemate) (chess-string 'mode-stalemate))
 	       (t
-		(if (chess-game-side-to-move chess-module-game)
+		(if (chess-pos-side-to-move (chess-display-position nil))
 		    (chess-string 'mode-white)
 		  (chess-string 'mode-black)))))))))
 
@@ -217,6 +217,28 @@ also view the same game."
   (chess-with-current-buffer display
     (erase-buffer)
     (chess-display-update nil)))
+
+(defvar chess-display-index-positions nil)
+
+(make-variable-buffer-local 'chess-display-index-positions)
+
+(defun chess-display-index-pos (display index)
+  (chess-with-current-buffer display
+    (unless chess-display-index-positions
+      (setq chess-display-index-positions (make-vector 64 nil))
+      (let ((pos (next-single-property-change (point-min) 'chess-coord))
+	    pos-index)
+	(while pos
+	  (if (setq pos-index (get-text-property pos 'chess-coord))
+	      (aset chess-display-index-positions pos-index pos))
+	  (setq pos (next-single-property-change pos 'chess-coord)))
+	(unless (aref chess-display-index-positions 0)
+	  (aset chess-display-index-positions 0 (point-min)))))
+    (aref chess-display-index-positions index)))
+
+(defsubst chess-display-goto-index (index)
+  (chess-with-current-buffer display
+    (goto-char (chess-display-index-pos nil index))))
 
 (defun chess-display-paint-move (display ply)
   (chess-with-current-buffer display
@@ -1003,20 +1025,6 @@ Clicking once on a piece selects it; then click on the target location."
 	  (chess-display-select-piece))
       (goto-char (posn-point (event-end event)))
       (chess-display-select-piece))))
-
-(defun chess-display-index-pos (display index)
-  (chess-with-current-buffer display
-    (let ((pos (next-single-property-change (point-min) 'chess-coord))
-	  pos-index)
-      (while (and pos (or (null (setq pos-index
-				      (get-text-property pos 'chess-coord)))
-			  (/= index pos-index)))
-	(setq pos (next-single-property-change pos 'chess-coord)))
-      pos)))
-
-(defsubst chess-display-goto-index (index)
-  (chess-with-current-buffer display
-    (goto-char (chess-display-index-pos nil index))))
 
 (provide 'chess-display)
 
