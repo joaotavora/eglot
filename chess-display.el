@@ -174,7 +174,7 @@ The key bindings available in this mode are:
 
 (defun chess-display-set-modeline ()
   "Set the modeline to reflect the current game position."
-  (let ((color (chess-index-side-to-move chess-display-game-index))
+  (let ((color (chess-pos-side-to-move chess-display-position))
 	(index chess-display-game-index))
     (if (= index 1)
 	(setq chess-display-mode-line
@@ -283,7 +283,7 @@ This means that no editing is being done."
 		      "White" "Black")
 		  (1+ (/ chess-display-game-index 2))))))
   (chess-session-event chess-current-session 'move
-		       (chess-algebraic-to-ply chess-display-position)))
+		       (chess-algebraic-to-ply chess-display-position move)))
 
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
@@ -377,8 +377,8 @@ to the end or beginning."
     (cond
      ((= (length moves) 1)
       (chess-session-event chess-current-session 'move
-			   (chess-algebraic-to-ply
-			    chess-display-position (car moves)))
+			   (chess-algebraic-to-ply chess-display-position
+						   (car moves)))
       (setq chess-move-string nil
 	    chess-legal-moves nil
 	    chess-legal-moves-pos nil))
