@@ -166,6 +166,9 @@ matches."
 (defsubst chess-game-to-string (game &optional indented)
   (chess-game-to-pgn game indented t))
 
+(defsubst chess-game-from-string (pgn)
+  (chess-pgn-to-game pgn))
+
 
 (defun chess-game-create (&optional position tags)
   "Create a new chess game object.

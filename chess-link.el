@@ -50,6 +50,8 @@ engine, and the computer the second engine."
 	 (game (chess-game-create)))
     (chess-game-set-data game 'my-color my-color)
     (chess-display-set-game display game)
+    (chess-display-set-main display)
+    (chess-display-disable-popup display)
     (condition-case err
 	(when (and (require first-engine-type)
 		   (require second-engine-type))
