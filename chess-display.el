@@ -208,11 +208,11 @@ also view the same game."
 (defun chess-display-clock-string ()
   (let ((white (chess-game-data chess-module-game 'white-remaining))
 	(black (chess-game-data chess-module-game 'black-remaining)))
-    (if (not (and white black))
-	(let ((last-ply (chess-game-ply chess-module-game
-					(1- chess-display-index))))
-	  (setq white (chess-ply-keyword last-ply :white)
-		black (chess-ply-keyword last-ply :black))))
+    (unless (and white black)
+      (let ((last-ply (chess-game-ply chess-module-game
+				      (1- chess-display-index))))
+	(setq white (chess-ply-keyword last-ply :white)
+	      black (chess-ply-keyword last-ply :black))))
     (if (and white black)
 	(format "W %s%02d:%02d B %s%02d:%02d   "
 		(if (and (< white 0) (= 0 (floor white))) "-" "")
@@ -609,7 +609,7 @@ The key bindings available in this mode are:
   (use-local-map chess-display-mode-map)
   (buffer-disable-undo)
   (setq buffer-auto-save-file-name nil
-	mode-line-format 'chess-display-mode-line-format)
+	mode-line-format chess-display-mode-line-format)
   (setq chess-input-position-function
 	(function
 	 (lambda ()
