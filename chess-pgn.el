@@ -38,7 +38,7 @@
 	  (chess-game-set-tag game "Result" (match-string-no-properties 0))
 	  (unless (eq t (car (last plies)))
 	    (nconc plies (list (chess-ply-create*
-				(chess-ply-next-pos (car (last plies))) t))))
+				(chess-ply-next-pos (car (last plies)))))))
 	  (throw 'done t))
 
 	 ((looking-at "{")
@@ -52,7 +52,7 @@
 	  (forward-char)
 	  (skip-chars-forward " \t\n")
 	  (chess-pos-add-annotation
-	   prevpos (chess-pgn-read-plies game (chess-pos-copy prevpos))))
+	   prevpos (chess-pgn-read-plies game prevpos)))
 
 	 ((and (not top-level)
 	       (looking-at ")"))
@@ -61,7 +61,7 @@
 
 	 (t
 	  (nconc plies (list (chess-ply-create*
-			      (chess-ply-next-pos (car (last plies))) t)))
+			      (chess-ply-next-pos (car (last plies))))))
 	  (throw 'done t)))
 	(skip-chars-forward " \t\n")))
     (cdr plies)))
@@ -84,16 +84,14 @@
 	(chess-game-set-tag game (match-string-no-properties 1)
 			    (read (match-string-no-properties 2)))
 	(goto-char (match-end 0)))
-      (let ((fen (chess-game-tag game "FEN")))
+      (let* ((fen (chess-game-tag game "FEN"))
+	     (position (if fen
+			   (chess-fen-to-pos fen)
+			 chess-starting-position)))
 	(chess-game-set-plies
-	 game (or (chess-pgn-read-plies
-		   game (if fen
-			    (chess-fen-to-pos fen)
-			  (chess-pos-copy chess-starting-position)) t)
+	 game (or (chess-pgn-read-plies game position t)
 		  ;; set the starting position to the FEN string
-		  (list (chess-ply-create* (if fen
-					       (chess-fen-to-pos fen)
-					     chess-starting-position) fen)))))
+		  (list (chess-ply-create* position)))))
       game)))
 
 (defun chess-pgn-insert-annotations (game index ply)

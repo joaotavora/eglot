@@ -68,7 +68,7 @@
   (let* ((position (chess-display-position nil))
 	 (color (chess-pos-side-to-move position))
 	 char)
-    (chess-display-assert-can-move position)
+    (chess-assert-can-move position)
     (unless (memq last-command '(chess-keyboard-shortcut
 				 chess-keyboard-shortcut-delete))
       (setq chess-move-string nil))

@@ -61,6 +61,7 @@
 					    "display novariation\n"
 					    "alarm off\n"
 					    "ansi off\n"))
+	  (setq chess-engine-opponent-name "Crafty")
 	  t)))
 
      ((eq event 'setup-pos)

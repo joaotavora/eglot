@@ -76,6 +76,7 @@
 (require 'chess-game)
 (require 'chess-display)
 (require 'chess-engine)
+(require 'chess-random)
 (require 'chess-database)
 (require 'chess-file)
 
@@ -118,29 +119,24 @@ available."
   :group 'chess)
 
 (defun chess--create-display (module game my-color disable-popup)
-  (if (require module nil t)
-      (let ((display (chess-display-create game module my-color)))
-	(when display
-	  (chess-game-set-data game 'my-color my-color)
-	  (if disable-popup
-	      (chess-display-disable-popup display))
-	  display))))
-
-(defun chess--create-module (module game)
-  (and (require module nil t)
-       (chess-module-create module game)))
+  (when (require module nil t)
+    (let ((display (chess-display-create game module my-color)))
+      (when display
+	(chess-game-set-data game 'my-color my-color)
+	(if disable-popup
+	    (chess-display-disable-popup display))
+	display))))
 
 (defun chess--create-engine (module game response-handler ctor-args)
-  (if (require module nil t)
-      (let ((engine (apply 'chess-engine-create module game
-			   response-handler ctor-args)))
-	(when engine
-	  ;; for the sake of engines which are ready to play now, and
-	  ;; which don't need connect/accept negotiation (most
-	  ;; computerized engines fall into this category), we need to
-	  ;; let them know we're ready to begin
-	  (chess-engine-command engine 'ready)
-	  engine))))
+  (let ((engine (apply 'chess-engine-create module game
+		       response-handler ctor-args)))
+    (when engine
+      ;; for the sake of engines which are ready to play now, and
+      ;; which don't need connect/accept negotiation (most
+      ;; computerized engines fall into this category), we need to
+      ;; let them know we're ready to begin
+      (chess-engine-command engine 'ready)
+      engine)))
 
 (defun chess-create-modules (module-list create-func &rest args)
   (let (objects)
@@ -158,6 +154,9 @@ available."
 		  (setq module nil))
 	      (setq module (cdr module)))))))
     (nreverse objects)))
+
+(chess-message-catalog 'english
+  '((no-engines-found . "Could not find any chess engines to play against; install gnuchess!")))
 
 ;;;###autoload
 (defun chess (&optional engine disable-popup engine-response-handler
@@ -190,13 +189,16 @@ available."
       (chess-display-popup (car objects)))
 
     (nconc objects (chess-create-modules chess-default-modules
-					 'chess--create-module game))
+					 'chess-module-create game))
 
     (push (car (chess-create-modules (list (or engine chess-default-engine))
 				     'chess--create-engine game
 				     engine-response-handler
 				     engine-ctor-args))
 	  objects)
+
+    (unless (car objects)
+      (chess-message 'no-engines-found))
 
     objects))
 
@@ -225,13 +227,17 @@ available."
       (setq display (chess-create-display))
       (chess-display-set-game display game))))
 
+(defvar chess-puzzle-indices nil)
+(defvar chess-puzzle-position nil)
+(make-variable-buffer-local 'chess-puzzle-indices)
+(make-variable-buffer-local 'chess-puzzle-position)
+
 ;;;###autoload
 (defun chess-puzzle (file &optional index)
   "Pick a random puzzle from FILE, and solve it against the default engine.
 The spacebar in the display buffer is bound to `chess-puzzle-next',
 making it easy to go on to the next puzzle once you've solved one."
   (interactive "fRead chess puzzles from: ")
-  (random t)
   (let* ((database (chess-database-open 'chess-file file))
 	 (objects (and database (chess-session)))
 	 (display (cadr objects)))
@@ -242,22 +248,39 @@ making it easy to go on to the next puzzle once you've solved one."
 			     'chess-database-event-handler database)
 	(chess-game-set-data (chess-display-game nil) 'database database)
 	(define-key (current-local-map) [? ] 'chess-puzzle-next)
+	(let ((count (chess-database-count database)))
+	  (setq chess-puzzle-indices (make-vector count nil))
+	  (dotimes (i count)
+	    (aset chess-puzzle-indices i i))
+	  (random t)
+	  (shuffle-vector chess-puzzle-indices)
+	  (setq chess-puzzle-position 0))
 	(chess-puzzle-next)))))
+
+(chess-message-catalog 'english
+  '((bad-game-read . "Error reading game at position %d")
+    (end-of-puzzles . "There are no more puzzles in this collection")))
 
 (defun chess-puzzle-next ()
   "Play the next puzzle in the collection, selected randomly."
   (interactive)
   (let* ((game (chess-display-game nil))
 	 (database (chess-game-data game 'database))
-	 (index (random (chess-database-count database)))
-	 (next-game (chess-database-read database index)))
-    (if (null next-game)
-	(error "Error reading game at position %d" index)
-      (chess-display-set-game nil next-game 0)
-      (chess-game-set-data game 'my-color
-			   (chess-pos-side-to-move (chess-game-pos game)))
-      (dolist (key '(database database-index database-count))
-	(chess-game-set-data game key (chess-game-data next-game key))))))
+	 (index chess-puzzle-position)
+	 next-game)
+    (if (= index (length chess-puzzle-indices))
+	(chess-message 'end-of-puzzles)
+      (setq chess-puzzle-position (1+ chess-puzzle-position))
+      (if (null (setq next-game
+		      (chess-database-read database
+					   (aref chess-puzzle-indices index))))
+	  (chess-error 'bag-game-read
+		       (aref chess-puzzle-indices index))
+	(chess-display-set-game nil next-game 0)
+	(chess-game-set-data game 'my-color
+			     (chess-pos-side-to-move (chess-game-pos game)))
+	(dolist (key '(database database-index database-count))
+	  (chess-game-set-data game key (chess-game-data next-game key)))))))
 
 (provide 'chess)
 

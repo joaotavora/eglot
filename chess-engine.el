@@ -19,12 +19,14 @@
 (defvar chess-engine-current-marker nil)
 (defvar chess-engine-pending-offer nil)
 (defvar chess-engine-pending-arg nil)
+(defvar chess-engine-opponent-name nil)
 
 (make-variable-buffer-local 'chess-engine-regexp-alist)
 (make-variable-buffer-local 'chess-engine-response-handler)
 (make-variable-buffer-local 'chess-engine-current-marker)
 (make-variable-buffer-local 'chess-engine-pending-offer)
 (make-variable-buffer-local 'chess-engine-pending-arg)
+(make-variable-buffer-local 'chess-engine-opponent-name)
 
 (defvar chess-engine-process nil)
 (defvar chess-engine-last-pos nil)
@@ -97,6 +99,8 @@
 	      (when (and (not chess-engine-inhibit-auto-pass)
 			 (chess-game-data game 'my-color)
 			 (= (chess-game-index game) 0))
+		(chess-game-set-tag game "White" chess-engine-opponent-name)
+		(chess-game-set-tag game "Black" chess-full-name)
 		(chess-message 'now-black)
 		(chess-game-run-hooks game 'pass)
 		;; if no one else flipped my-color, we'll do it
@@ -115,15 +119,16 @@
      ((eq event 'match)
       (if (chess-game-data game 'active)
 	  (chess-engine-command nil 'busy)
-	(if (y-or-n-p
-	     (if (and (car args) (> (length (car args)) 0))
-		 (chess-string 'want-to-play (car args))
-	       (chess-string 'want-to-play-a)))
-	    (progn
-	      (let ((chess-engine-handling-event t))
-		(chess-engine-set-position nil))
-	      (chess-engine-command nil 'accept))
-	  (chess-engine-command nil 'decline)))
+	(let ((name (and (> (length (car args)) 0) (car args))))
+	  (if (y-or-n-p (if name
+			    (chess-string 'want-to-play (car args))
+			  (chess-string 'want-to-play-a)))
+	      (progn
+		(setq chess-engine-opponent-name (or name "Anonymous"))
+		(let ((chess-engine-handling-event t))
+		  (chess-engine-set-position nil))
+		(chess-engine-command nil 'accept))
+	    (chess-engine-command nil 'decline))))
       t)
 
      ((eq event 'setup-pos)
@@ -191,11 +196,13 @@
       (when chess-engine-pending-offer
 	(if (eq chess-engine-pending-offer 'match)
 	    (unless (chess-game-data game 'active)
-	      (if (and (car args) (> (length (car args)) 0))
-		  (chess-message 'opp-ready (car args))
-		(chess-message 'opp-ready-a))
-	      (let ((chess-engine-handling-event t))
-		(chess-engine-set-position nil)))
+	      (let ((name (and (> (length (car args)) 0) (car args))))
+		(if name
+		    (chess-message 'opp-ready (car args))
+		  (chess-message 'opp-ready-a))
+		(setq chess-engine-opponent-name (or name "Anonymous"))
+		(let ((chess-engine-handling-event t))
+		  (chess-engine-set-position nil))))
 	  (let ((chess-engine-handling-event t))
 	    (cond
 	     ((eq chess-engine-pending-offer 'draw)

@@ -236,6 +236,9 @@ who is black."
 
 	  (add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
 
+	  (setq comint-prompt-regexp "^[^%\n]*% *"
+		comint-scroll-show-maximum-output t)
+
 	  (let ((proc (get-buffer-process (current-buffer))))
 	    (if (nth 2 server)
 		(progn

@@ -122,16 +122,16 @@
 				     :target king-target))
 	(list king king-target rook
 	      (chess-rf-to-index (if color 7 0) (if long 3 5))
-	      (if long :long-castle :castle)))))
+	      (if long :long-castle :castle))
+      (assert (not "Could not determine castling manuever")))))
 
 (chess-message-catalog 'english
   '((pawn-promote-query . "Promote pawn to queen/rook/knight/bishop? ")))
 
 (defvar chess-ply-checking-mate nil)
 
-(defsubst chess-ply-create* (position &optional direct)
-  (list (if direct position
-	  (chess-pos-copy position))))
+(defsubst chess-ply-create* (position)
+  (list position))
 
 (defun chess-ply-create (position &optional valid-p &rest changes)
   "Create a ply from the given POSITION by applying the suppiled CHANGES.
@@ -141,7 +141,7 @@ also extend castling, and will prompt for a promotion piece.
 
 Note: Do not pass in the rook move if CHANGES represents a castling
 maneuver."
-  (let* ((ply (cons (chess-pos-copy position) changes))
+  (let* ((ply (cons position changes))
 	 (color (chess-pos-side-to-move position))
 	 piece)
     (if (or (null changes) (symbolp (car changes)))
@@ -200,6 +200,7 @@ maneuver."
 		      (memq :checkmate changes)
 		      (memq :stalemate changes))
 	    (let* ((chess-ply-checking-mate t)
+		   ;; jww (2002-04-17): this is a memory waste?
 		   (next-pos (chess-ply-next-pos ply))
 		   (next-color (not color))
 		   (king (chess-pos-king-index next-pos next-color))
@@ -265,7 +266,10 @@ KEYWORDS allowed are:
   :target <specific target index>
 
 These will constrain the plies generated to those matching the above
-criteria."
+criteria.
+
+NOTE: All of the returned plies will reference the same copy of the
+position object passed in."
   (cond
    ((null keywords)
     (let ((plies (list t)))

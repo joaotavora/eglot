@@ -131,8 +131,8 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 		     (t pchar)))
 	     (p (char-to-string piece)))
 	(add-text-properties 0 1 (list 'face (if (> piece ?a)
-						 'chess-ics1-black-face
-					       'chess-ics1-white-face)) p)
+						 'chess-plain-black-face
+					       'chess-plain-white-face)) p)
 	p))))
 
 (defsubst chess-plain-draw-square (pos piece index)

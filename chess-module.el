@@ -26,9 +26,9 @@
 (defun chess-module-create (derived game &optional buffer-name
 				    &rest ctor-args)
   (let* ((name (symbol-name derived))
-	 (handler (intern-soft (concat name "-handler")))
-	 buffer)
-    (unless handler
+	 handler buffer)
+    (unless (and (require derived nil t)
+		 (setq handler (intern-soft (concat name "-handler"))))
       (chess-error 'no-such-module name))
     (with-current-buffer (generate-new-buffer (or buffer-name
 						  (format " *%s*" name)))

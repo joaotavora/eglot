@@ -158,8 +158,8 @@ This conveys the status of the game at the given index."
   "Return the current GAME sequence."
   (let ((index (chess-game-index game)))
     (if (> index 1)
-	(/ index 2)
-      (1+ (/ index 2)))))
+	(1+ (/ index 2))
+      1)))
 
 (defsubst chess-game-side-to-move (game)
   (chess-pos-side-to-move (chess-game-pos game)))
@@ -216,8 +216,7 @@ TAGS is the starting set of game tags (which can always be changed
 later using the various tag-related methods)."
   (let ((game (list nil tags nil
 		    (list (chess-ply-create* (or position
-						 (chess-pos-create))
-					     (null position))))))
+						 chess-starting-position))))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))
@@ -236,10 +235,13 @@ progress (nil), if it is drawn, resigned, mate, etc."
     (if (chess-ply-final-p current-ply)
 	(chess-error 'add-to-completed))
 
-    (assert (equal position (chess-ply-pos current-ply)))
+    (assert current-ply)
+    (assert (and position (eq position (chess-ply-pos current-ply))))
+    (assert changes)
+
     (chess-ply-set-changes current-ply changes)
     (chess-game-add-ply game (chess-ply-create*
-			      (chess-ply-next-pos current-ply) t))
+			      (chess-ply-next-pos current-ply)))
 
     (let ((long (> (length changes) 2)))
       (cond

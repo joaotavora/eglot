@@ -45,6 +45,7 @@
 	(when (and (processp proc)
 		   (eq (process-status proc) 'run))
 	  (process-send-string proc "nopost\n")
+	  (setq chess-engine-opponent-name "Crafty")
 	  t)))
 
      ((eq event 'setup-pos)

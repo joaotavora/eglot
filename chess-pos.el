@@ -77,6 +77,9 @@
   "Routines for manipulating chess positions."
   :group 'chess)
 
+(defvar chess-pos-white-always-on-move nil)
+(make-variable-buffer-local 'chess-pos-white-always-on-move)
+
 (defconst chess-starting-position
   [;; the eight ranks and files of the chess position
    ?r ?n ?b ?q ?k ?b ?n ?r
@@ -107,7 +110,9 @@
   (aref position index))
 
 (defsubst chess-pos-king-index (position color)
-  (aref position (if color 72 73)))
+  (or (aref position (if color 72 73))
+      (aset position (if color 72 73)
+	    (chess-pos-search position (if color ?K ?k)))))
 
 (defsubst chess-pos-set-king-pos (position color index)
   (aset position (if color 72 73) index))
@@ -124,15 +129,15 @@
   "Return whether the king can castle on SIDE.
 SIDE must be either ?q or ?k (case determines color)."
   (aref position (+ 65 (if (< side ?a)
-			(if (= side ?K) 0 1)
-		      (if (= side ?k) 2 3)))))
+			   (if (= side ?K) 0 1)
+			 (if (= side ?k) 2 3)))))
 
 (defsubst chess-pos-set-can-castle (position side value)
   "Set whether the king can castle on SIDE.
 SIDE must be either ?q or ?k (case determines color)."
   (aset position (+ 65 (if (< side ?a)
-			(if (= side ?K) 0 1)
-		      (if (= side ?k) 2 3))) value))
+			   (if (= side ?K) 0 1)
+			 (if (= side ?k) 2 3))) value))
 
 (defsubst chess-pos-en-passant (position)
   "Return index of pawn that can be captured en passant, or nil."
@@ -316,12 +321,12 @@ trying to move a blank square."
 
 	 ((= piece ?r)
 	  (let ((king (chess-pos-king-index position color)))
-	    (if (and (chess-pos-can-castle position (if color ?K ?k))
+	    (if (and (chess-pos-can-castle position (if color ?Q ?q))
 		     (< (chess-index-file (car changes)) king))
-		(chess-pos-set-can-castle position (if color ?K ?k) nil)
-	      (if (and (chess-pos-can-castle position (if color ?Q ?q))
+		(chess-pos-set-can-castle position (if color ?Q ?q) nil)
+	      (if (and (chess-pos-can-castle position (if color ?K ?k))
 		       (> (chess-index-file (car changes)) king))
-		  (chess-pos-set-can-castle position (if color ?Q ?q) nil)))))
+		  (chess-pos-set-can-castle position (if color ?K ?k) nil)))))
 
 	 ((and (= piece ?p)
 	       (> (abs (- (chess-index-rank (cadr changes))
@@ -329,7 +334,8 @@ trying to move a blank square."
 	  (chess-pos-set-en-passant position (cadr changes))))))
 
     ;; toggle the side whose move it is
-    (chess-pos-set-side-to-move position (not color))
+    (unless chess-pos-white-always-on-move
+      (chess-pos-set-side-to-move position (not color)))
 
     ;; promote the piece if we were meant to
     (let ((new-piece (cadr (memq :promote changes))))
@@ -535,28 +541,27 @@ Note: All of the pieces specified by CANDIDATES must be of the same
 type."
   (let ((cand candidates)
 	(piece (chess-pos-piece position (car candidates)))
-	(pos (chess-pos-copy position))
 	last-cand king-pos)
     (while cand
       ;; determine the resulting position
-      (chess-pos-set-piece pos (car cand) ? )
-      (chess-pos-set-piece pos target piece)
+      (chess-pos-set-piece position (car cand) ? )
+      (chess-pos-set-piece position target piece)
       ;; find the king (only once if the king isn't moving)
       (if (or (null king-pos)
 	      (memq piece '(?K ?k)))
-	  (setq king-pos (chess-pos-king-index pos color)))
+	  (setq king-pos (chess-pos-king-index position color)))
       ;; can anybody from the opposite side reach him?  if so,
       ;; drop the candidate
       (if (catch 'in-check
-	    (chess-search-position pos king-pos (not color) t))
+	    (chess-search-position position king-pos (not color) t))
 	  (if last-cand
 	      (setcdr last-cand (cdr cand))
 	    (setq candidates (cdr candidates)))
 	(setq last-cand cand))
       ;; return the position to its original state
-      (when (cdr cand)
-	(chess-pos-set-piece pos target ? )
-	(chess-pos-set-piece pos (car cand) piece))
+      (chess-pos-set-piece position target ? )
+      (chess-pos-set-piece position (car cand) piece)
+      ;; try the next candidate
       (setq cand (cdr cand)))
     candidates))
 

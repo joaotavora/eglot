@@ -7,7 +7,6 @@
 (require 'chess-var)
 (require 'chess-algebraic)
 (require 'chess-fen)
-(require 'chess-mouse)
 (require 'chess-input)
 
 (defgroup chess-display nil
@@ -35,14 +34,20 @@
 
 (defcustom chess-display-mode-line-format
   '("   " chess-display-side-to-move "   "
-    chess-display-move-text
+    chess-display-move-text "   "
     (:eval
      (let ((white (chess-game-data chess-module-game 'white-remaining))
 	   (black (chess-game-data chess-module-game 'black-remaining)))
        (if (and white black)
-	   (format "   W %02d:%02d B %02d:%02d"
+	   (format "W %02d:%02d B %02d:%02d   "
 		   (/ (floor white) 60) (% (abs (floor white)) 60)
-		   (/ (floor black) 60) (% (abs (floor black)) 60))))))
+		   (/ (floor black) 60) (% (abs (floor black)) 60)))))
+    "(" (:eval (chess-game-tag chess-module-game "White")) "-"
+    (:eval (chess-game-tag chess-module-game "Black")) ", "
+    (:eval (chess-game-tag chess-module-game "Site"))
+    (:eval (let ((date (chess-game-tag chess-module-game "Date")))
+	     (and (string-match "\\`\\([0-9]\\{4\\}\\)" date)
+		  (concat " " (match-string 1 date))))) ")")
   "The format of a chess display's modeline.
 See `mode-line-format' for syntax details."
   :type 'sexp
@@ -128,7 +133,7 @@ See `mode-line-format' for syntax details."
     (chess-display-set-index* nil 1)
     (chess-game-set-plies chess-module-game
 			  (list ply (chess-ply-create*
-				     (chess-ply-next-pos ply) t)))))
+				     (chess-ply-next-pos ply))))))
 
 (defun chess-display-ply (display)
   (chess-with-current-buffer display
@@ -176,8 +181,10 @@ also view the same game."
 	    (if (= index 0)
 		(chess-string 'mode-start)
 	      (concat (int-to-string (if (> index 1)
-					 (/ index 2)
-				       (1+ (/ index 2))))
+					 (if (= (mod index 2) 0)
+					     (/ index 2)
+					   (1+ (/ index 2)))
+				       1))
 		      ". " (and (= 0 (mod index 2)) "... ")
 		      (chess-ply-to-algebraic
 		       (chess-game-ply chess-module-game (1- index)))))
@@ -265,6 +272,9 @@ If only START is given, it must be in algebraic move notation."
     ;; game, or alter the game, just as SCID allows
     (if (= chess-display-index (chess-game-index chess-module-game))
 	(let ((chess-display-handling-event t))
+	  (if (= chess-display-index 0)
+	      (chess-game-set-tag chess-module-game "White"
+				  chess-full-name))
 	  (chess-display-paint-move nil ply)
 	  (chess-game-move chess-module-game ply))
       (error "What to do here??  NYI"))))
@@ -452,6 +462,8 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [(control ?c) (control ?t)] 'chess-display-undo)
     (define-key map [?X] 'chess-display-quit)
 
+    (define-key map [(control ?r)] 'chess-display-search-backward)
+    (define-key map [(control ?s)] 'chess-display-search-forward)
     (define-key map [(control ?y)] 'chess-display-yank-board)
 
     (dolist (key '(?a ?b ?c ?d ?e ?f ?g ?h
@@ -563,6 +575,88 @@ Basically, it means we are playing, not editing or reviewing."
        (t
 	(with-current-buffer display
 	  (chess-display-set-from-fen (buffer-string))))))))
+
+(defvar chess-display-search-map
+  (let ((map (copy-keymap minibuffer-local-map)))
+    (dolist (key '(?a ?b ?c ?d ?e ?f ?g ?h
+		      ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8
+		      ?r ?n ?b ?q ?k
+		      ?R ?N ?B ?Q ?K
+		      ?o ?O ?x))
+      (define-key map (vector key) 'chess-display-search-key))
+    (define-key map [backspace] 'chess-display-search-delete)
+    (define-key map [delete] 'chess-display-search-delete)
+    (define-key map [(control ?h)] 'chess-display-search-delete)
+    (define-key map [(control ?r)] 'chess-display-search-again)
+    (define-key map [(control ?s)] 'chess-display-search-again)
+    map))
+
+(defvar chess-display-search-direction nil)
+(defvar chess-current-display nil)
+(defvar chess-display-previous-index nil)
+
+(make-variable-buffer-local 'chess-display-previous-index)
+
+(chess-message-catalog 'english
+  '((san-not-found . "Could not find a matching move")))
+
+(defun chess-display-search (&optional reset again)
+  (interactive)
+  (let ((str (concat "\\`" (minibuffer-contents)))
+	limit index)
+    (with-current-buffer chess-current-display
+      (setq index (if reset
+		      chess-display-previous-index
+		    chess-display-index))
+      (if again
+	  (setq index (if chess-display-search-direction
+			  (1+ index)
+			(- index 2))))
+      (catch 'found
+	(while (if chess-display-search-direction
+		   (< index (or limit
+				(setq limit
+				      (chess-game-index chess-module-game))))
+		 (>= index 0))
+	  (let* ((ply (chess-game-ply chess-module-game index))
+		 (san (chess-ply-keyword ply :san))
+		 (case-fold-search t))
+	    (when (and san (string-match str san))
+	      (chess-display-set-index nil (1+ index))
+	      (throw 'found t)))
+	  (setq index (funcall (if chess-display-search-direction '1+ '1-)
+			       index)))
+	(chess-error 'san-not-found)))))
+
+(defun chess-display-search-again ()
+  (interactive)
+  (debug)
+  (chess-display-search nil t))
+
+(defun chess-display-search-key ()
+  (interactive)
+  (call-interactively 'self-insert-command)
+  (chess-display-search))
+
+(defun chess-display-search-delete ()
+  (interactive)
+  (call-interactively 'delete-backward-char)
+  (chess-display-search t))
+
+(defun chess-display-search-backward (&optional direction)
+  (interactive)
+  (setq chess-display-previous-index chess-display-index)
+  (condition-case err
+      (let ((chess-display-search-direction direction)
+	    (chess-current-display (current-buffer)))
+	(read-from-minibuffer "Find algebraic move: " nil
+			      chess-display-search-map))
+    (quit
+     (chess-display-set-index nil chess-display-previous-index))))
+
+(defun chess-display-search-forward ()
+  (interactive)
+  (chess-display-search-backward t))
 
 (defun chess-display-set-piece ()
   "Set the piece under point to command character, or space for clear."
@@ -842,7 +936,7 @@ Clicking once on a piece selects it; then click on the target location."
 			  (throw 'message (chess-string 'move-not-legal)))
 			(chess-display-move nil ply (car last-sel) (point))))
 		    (setq chess-display-last-selected nil))
-		(chess-display-assert-can-move position)
+		(chess-assert-can-move position)
 		(let ((piece (chess-pos-piece position coord)))
 		  (cond
 		   ((eq piece ? )
