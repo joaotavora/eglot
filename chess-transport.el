@@ -9,7 +9,7 @@
 
 (require 'chess-network)
 
-(defalias 'chess-network-regexp-alist 'chess-transport-regexp-alist)
+(defvar chess-transport-regexp-alist chess-network-regexp-alist)
 
 (defun chess-transport-handler (event &rest args)
   "This is an example of a generic transport engine."
