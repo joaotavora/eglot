@@ -5,6 +5,7 @@
   clocks
   analysis/highlight tools
   bughouse/crazyhouse
+  display/database tie-in
 
 - undoing a single move (my move) and moving again, causes
   chess-algebraic to get a little screwed up
@@ -30,16 +31,12 @@
 
 - Use more asserts throughout the code
 
-- Read-only mode needs to be a bit more vigorous.  There's nothing
+- Read-only mode needs to be more vigorous.  There's nothing
   preventing the user from using M-x commands.
 
-- Add an engine function for obtaining an evaluation of the current
-  position.  Then, allow M-x chess to startup a non-game oriented
-  engine, solely for the purpose of submitting position evaluations,
-  and displaying the result in the modeline.  (Also, look at crafty's
-  kibitzing feature).
+- Complete chess-pgn-mode's automatic entry
 
-- Complete chess-pgn-mode
+- Make any game-modifying commands in a display use C-c C-?
 
 - Use MIME attachments (application/x-chess-pgn) for sending e-mail
   chess games back and forth.
@@ -80,56 +77,34 @@
 - Implement engine options; then, in chess-puzzle set the option that
   tells the engine not to resign.
 
-- Add a display command for writing out the currently displayed game
-  to a file.  It will use PGN for games, and FEN for positions.
-
 - Remote displays are horribly insecure.
-
-- When editing the board in display mode (or doing speculative moves),
-  doing them on a copy of the board with no hook except the display
-  hook.  Then, if you like the result, it call be a `set' on the
-  original board from the copied board.
 
 - Resize the chess board on a window resize event, if possible.
 
 - Add chess-game-strip-annotations, for removing all annotations from
   a game object
 
-- Add a module for chatting between opponents
-
 - Let the user specify a default size for the chess-images display
-
-- Need to check for chess engine resignations
-
-- Need a chess-clock.el module, especially for playing on ICS
 
 - Port image display code to XEmacs
 
-- Support chess by mail, with direct tie-ins to Gnus/RMAIL.
+			  Training features
 
 - Allow the opponent to give hints.
-
-- Add a command that will load a saved game, continue it, and then
-  enter a move for whichever color is next to play.  This would make
-  it trivial to add chess drivers to AIM, IRC, etc.  The mere command
-  "!chess johnw37 Nf3" would mean: load the chess game johnw37, and
-  make my move as Nf3.  It would also make chess by e-mail a snap to
-  implement.
-
-- Add an analyze command that will indicate which pieces are defended,
-  how well, which are attacked, which moves would increase
-  defense/attack/both, etc.  Basically, everything that can be known
-  about the current board, and one move ahead (on both sides).
 
 - Add a warning mode that will use the results of an analysis to warn
   the user (and ask for confirmation) before doing something that
   might lead to an inferior position.
 
-- Create chess-player.el, which creates persistent objects that
-  encapsulate information about any player: where he is, his name, his
-  opponent type, etc.  This would maintain a log of games against that
-  player, their current chess rating, etc.  Then, M-x chess would ask
-  you for a player, not an opponent.
+- Add a chess tutor program, to teach people how to play chess
+
+			  Analysis features
+
+- Add an engine function for obtaining an evaluation of the current
+  position.  Then, allow M-x chess to startup a non-game oriented
+  engine, solely for the purpose of submitting position evaluations,
+  and displaying the result in the modeline.  (Also, look at crafty's
+  kibitzing feature).
 
 - Add a Map command, that will colorize the squares depending on
   whether they are reachable by either side.  Green if reachable by
@@ -139,14 +114,18 @@
   requires the ability to pass a color to the chessboard highlighting
   routine.
 
-- If a person selects a piece with the mouse, then uses right-click to
-  designate a target square, display the resulting board without
-  making a move.  This requires copying chessboard-current-board to
-  chessboard-draft-board.  If the user right-clicks without selecting
-  a piece, it will reset to chessboard-current-board and redraw.
-
 - Using gnuplot-mode, allow evaluation trends to be plotted
+
+- Add an analyze command that will indicate which pieces are defended,
+  how well, which are attacked, which moves would increase
+  defense/attack/both, etc.  Basically, everything that can be known
+  about the current board, and one move ahead (on both sides).
 
 			 BEFORE FINAL RELEASE
 
-profile, mem profile, doc, lint, checkdoc
+  profile
+  mem profile
+  docstring
+  texi
+  elint
+  checkdoc

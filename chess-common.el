@@ -77,8 +77,9 @@
       (chess-game-undo chess-engine-game (car args))))
 
    ((eq event 'move)
-    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
-				   "\n")))))
+    (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
+    (if (chess-game-over-p chess-engine-game)
+	(chess-game-set-data chess-engine-game 'active nil)))))
 
 (provide 'chess-common)
 

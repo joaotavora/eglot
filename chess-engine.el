@@ -113,6 +113,8 @@
 	      (if (chess-game-data chess-engine-game 'my-color)
 		  (chess-game-set-data chess-engine-game 'my-color nil)))
 	    (chess-game-move chess-engine-game (car args))
+	    (if (chess-game-over-p chess-engine-game)
+		(chess-game-set-data chess-engine-game 'active nil))
 	    t))))
 
    ((eq event 'pass)
