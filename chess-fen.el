@@ -37,6 +37,9 @@
 ;; relate to the game, not the position.
 ;;
 
+(defconst chess-fen-regexp
+  "^\\([bnrqkpBNRQKP1-8]*/?\\)+ [bw] \\(-\\|[KQkq]+\\) \\(-\\|[1-8]\\)")
+
 (defun chess-fen-to-pos (fen)
   "Convert a FEN-like notation string to a chess position."
   (assert (stringp fen))
