@@ -51,9 +51,10 @@
    ((eq event 'move)
     (when (> (chess-game-index game) 0)
       (let ((last-ply (car (last (chess-game-plies game) 2))))
-	(nconc last-ply
-	       (list :white (chess-game-data game 'white-remaining)
-		     :black (chess-game-data game 'black-remaining))))))
+	(chess-ply-set-keyword last-ply :white
+			       (chess-game-data game 'white-remaining))
+	(chess-ply-set-keyword last-ply :black
+			       (chess-game-data game 'black-remaining)))))
 
    ((eq event 'destroy)
     (cancel-timer chess-clock-timer))))
