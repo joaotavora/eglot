@@ -98,10 +98,11 @@ a0 243
   "Default engine to be used when starting a chess session."
   :type 'sexp
   :group 'chess)
-(defcustom chess-announce-moves (and (executable-find "festival") t)
-  "If non-nil, announce your opponent's moves verbally.
-This requires the utility 'festival' to be installed.  If it is
-installed, this variable will default to true."
+(defcustom chess-announce-moves t
+(defcustom chess-announce-moves t
+This happens verbally if 'festival' is installed, otherwise it just
+prints a message in your minibuffer, which works well for Emacspeak
+users."
 minibuffer, which works well for Emacspeak users."
   :type 'boolean
   :group 'chess)
@@ -110,25 +111,26 @@ minibuffer, which works well for Emacspeak users."
   "Start a game of chess."
   (interactive "P")
   (let ((game (chess-game-create))	; start out as white always
+	(my-color t)
 	display engine)
 	 (game (chess-game-create)))
-    (chess-game-set-data game 'my-color t)
+
 
     (require chess-default-display)
     (chess-display-set-game
-     (chess-display-create chess-default-display t) game)
+     (chess-display-create chess-default-display my-color) game)
     (chess-display-set-main display)
     (let ((engine-module
 	   (if arg
 	       (intern (or (read-string "Engine module to play against: ")
 			   "chess-none"))
 	     chess-default-engine)))
-      (when (and engine-module
-		 (require engine-module nil t))
+    (let ((engine-module (or engine chess-default-engine)))
 	(chess-engine-set-game (chess-engine-create engine-module) game)
+	  (chess-engine-command engine 'ready))
 	(when chess-announce-moves
 	  (require 'chess-announce)
-	  (chess-announce-for-game game t))))))
+	  (chess-announce-for-game game))))))
     (cons display engine)))
 
 ;;;###autoload

@@ -21,6 +21,9 @@
     ;; kind of transport might collide.  For example:
     ;;
     ;; (set (make-local-variable 'chess-transport-data) (car args))
+    ;;
+    ;; NOTE: Be sure not to return a process, or else chess-engine
+    ;; will do all the transport work!
     )
 
    ((eq event 'send)

@@ -14,20 +14,25 @@
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'move
 			  (match-string 0)))))
-	(cons "pass$"
-	      (function
-	       (lambda ()
-		 (funcall chess-engine-response-handler 'pass))))
-	(cons "name\\s-+\\(.+\\)"
+	(cons "chess match\\(\\s-+\\(.+\\)\\)?$"
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'connect
-			  (match-string 1)))))
+			  (match-string 2)))))
+	(cons "accept\\(\\s-+\\(.+\\)\\)?$"
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'accept
+			  (match-string 2)))))
 	(cons "fen\\s-+\\(.+\\)"
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'setup
 			  (match-string 1)))))
+	(cons "pass$"
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'pass))))
 	(cons "quit$"
 	      (function
 	       (lambda ()

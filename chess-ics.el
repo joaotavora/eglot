@@ -118,7 +118,8 @@ who is black."
 			    (list (car info)))
       (unless (string= (cadr info) ics-handle)
 	(chess-game-run-hooks (chess-engine-game nil) 'pass)))
-    (delete-region begin end)))
+    (delete-region begin end)
+    t))
 
 (defvar chess-ics-regexp-alist
   (list (cons "\\(<12> \\(.+\\)\\)" 'chess-ics-handle-move)
@@ -203,10 +204,9 @@ who is black."
 	(while triggers
 	  ;; this could be accelerated by joining together the
 	  ;; regexps
-	  (if (looking-at (concat "[^\n\r]*" (caar triggers)))
-	      (progn
-		(funcall (cdar triggers))
-		(setq triggers nil))
+	  (if (and (looking-at (concat "[^\n\r]*" (caar triggers)))
+		   (funcall (cdar triggers)))
+	      (setq triggers nil)
 	    (setq triggers (cdr triggers)))))
       (forward-line))
     (setq chess-engine-last-pos (point))))

@@ -290,10 +290,12 @@ See `chess-display-type' for the different kinds of displays."
 
      ((eq event 'pass)
       (let ((my-color (if chess-display-game
-			  (chess-game-get-data chess-display-game 'my-color)
+			  (chess-game-get-data chess-display-game
+					       'my-color)
 			(chess-display-perspective nil))))
 	(if chess-display-game
-	    (chess-game-set-data chess-display-game 'my-color (not my-color)))
+	    (chess-game-set-data chess-display-game 'my-color
+				 (not my-color)))
 	(chess-display-set-perspective nil (not my-color))))
 
      ((memq event '(move game-over resign))

@@ -76,13 +76,35 @@
 	      ;; if no one else flipped my-color, we'll do it
 	      (if (chess-game-get-data game 'my-color)
 		  (chess-game-set-data game 'my-color nil))))
-	  (chess-engine-do-move ply))))
+	  (chess-engine-do-move ply)))
+      t)
 
      ((eq event 'pass)
-      (message "Your opponent has passed the first move to you"))
+      (if (and (chess-game-get-data (chess-engine-game nil) 'active)
+	       (= (chess-game-index game) 0))
+	  (message "Your opponent has passed the first move to you"))
+      t)
 
      ((eq event 'connect)
-      (message "Your opponent, %s, is now ready to play" (car args)))
+      (unless (chess-game-get-data (chess-engine-game nil) 'active)
+	(if (y-or-n-p
+	     (if (and (car args) (> (length (car args)) 0))
+		 (format "Do you wish to play a chess game against %s? "
+			 (car args))
+	       (format "Do you wish to play a chess game against an anonymous opponent? ")))
+	    (progn
+	      (chess-game-set-data (chess-engine-game nil) 'active t)
+	      (chess-engine-send nil (format "accept %s" (user-full-name))))
+	  (chess-engine-send nil "decline"))
+	t))
+
+     ((eq event 'accept)
+      (unless (chess-game-get-data (chess-engine-game nil) 'active)
+	(if (and (car args) (> (length (car args)) 0))
+	    (message "Your opponent, %s, is now ready to play" (car args))
+	  (message "Your opponent is now ready to play"))
+	(chess-game-set-data (chess-engine-game nil) 'active t)
+	t))
 
      ((eq event 'quit)
       (message "Your opponent has quit playing"))
@@ -245,10 +267,9 @@
 		    (while triggers
 		      ;; this could be accelerated by joining
 		      ;; together the regexps
-		      (if (looking-at (caar triggers))
-			  (progn
-			    (funcall (cdar triggers))
-			    (setq triggers nil))
+		      (if (and (looking-at (caar triggers))
+			       (funcall (cdar triggers)))
+			  (setq triggers nil)
 			(setq triggers (cdr triggers)))))
 		  (forward-line)))
 	    (setq chess-engine-last-pos (point)
