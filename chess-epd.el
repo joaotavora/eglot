@@ -3,7 +3,6 @@
 ;; Copyright (C) 2004  Free Software Foundation, Inc.
 
 ;; Author: Mario Lang <mlang@delysid.org>
-;; Keywords: 
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -39,10 +38,7 @@
       (format "%S %d;" opcode value))
      ((eq opcode 'pv)
       (format "%S %s;"
-	      opcode (mapconcat #'chess-ply-to-string
-				(reverse (cdr
-					  (reverse (chess-var-plies value))))
-				" ")))
+	      opcode (chess-var-to-algebraic value)))
      (t
       (format "%S%s;" opcode (if (eq value t) "" (format " %s" value)))))))
 
