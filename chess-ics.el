@@ -511,7 +511,7 @@ See `chess-ics-game'.")
 		    (chess-game-move game ply)
 		    (setq error nil))
 		(if (= index (chess-game-index game))
-		    (setq error nil) ; Ignore a "refresh" command
+		    (setq error 'refresh) ; Ignore a "refresh" command
 		  (if (and (> index (1+ (chess-game-index game)))
 			     (= 1 (chess-game-seq game)))
 		    ;; we lack a complete game, try to get it via the movelist
@@ -533,7 +533,7 @@ See `chess-ics-game'.")
 		(chess-game-set-data game 'active t))
 	      (setq error 'setting-start-position)
 	      (chess-game-set-start-position game position)
-	      (unless color (chess-game-set-data game 'black-moved-first t)))
+	      (chess-game-set-data game 'black-moved-first (not color)))
 	    (setq error 'orienting-board)
 	    (chess-game-run-hooks game 'orient)
 	    (setq error nil))
