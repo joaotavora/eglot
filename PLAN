@@ -17,6 +17,11 @@ chess
 chess-autosave
 - recovering from an autosave against crafty does not seem to work
 
+chess-network
+- how to correctly handle autosaved games, since it's not appropriate
+  to ask at initialize time for this module, or chess-irc!  And yet,
+  we don't want to entirely disable autosaves either.
+
 			 BEFORE FINAL RELEASE
 
   use more asserts throughout the code

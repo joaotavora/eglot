@@ -22,29 +22,33 @@
 (defun chess-autosave-handler (game event &rest args)
   (cond
    ((eq event 'initialize)
-    (let ((result t))
-      (if (file-readable-p chess-autosave-file)
-	  (if (y-or-n-p (chess-string 'chess-read-autosave))
-	      (progn
-		(chess-autosave-read game chess-autosave-file)
-		(delete-file chess-autosave-file))
-	    (if (y-or-n-p (chess-string 'chess-delete-autosave))
-		(delete-file chess-autosave-file)
-	      (if (y-or-n-p (chess-string 'chess-disable-autosave))
-		  (setq result nil)))))
-      (kill-buffer (current-buffer))
-      (set-buffer (find-file-noselect chess-autosave-file t))
-      result))
+    (kill-buffer (current-buffer))
+    (set-buffer (find-file-noselect chess-autosave-file t))
+    (buffer-disable-undo)
+    (setq buffer-auto-save-file-name nil)
+    t)
 
-   ((eq event 'post-move)
-    (chess-autosave-write game chess-autosave-file))
+   ((eq event 'check-autosave)
+    (if (file-readable-p chess-autosave-file)
+	(if (y-or-n-p (chess-string 'chess-read-autosave))
+	    (progn
+	      (chess-autosave-read game chess-autosave-file)
+	      (erase-buffer))
+	  (if (y-or-n-p (chess-string 'chess-delete-autosave))
+	      (erase-buffer)
+	    (if (y-or-n-p (chess-string 'chess-disable-autosave))
+		(chess-autosave-handler game 'disable-autosave))))))
 
    ((eq event 'disable-autosave)
     (chess-autosave-handler game 'destroy)
     (chess-module-destroy (current-buffer)))
 
+   ((eq event 'post-move)
+    (chess-autosave-write game chess-autosave-file))
+
    ((eq event 'destroy)
-    (if (file-readable-p chess-autosave-file)
+    (set-buffer-modified-p nil)
+    (if (file-exists-p chess-autosave-file)
 	(delete-file chess-autosave-file)))))
 
 (defun chess-prin1-ply (ply)
@@ -68,45 +72,42 @@
 
 (defun chess-autosave-write (game file)
   "Write a chess GAME to FILE as raw Lisp."
-  (with-current-buffer (find-file-noselect file t)
-    (let ((index (chess-game-index game)))
-      (if (or (= 1 index) (eobp))
-	  (progn
-	    (erase-buffer)
-	    (prin1 (chess-game-tags game)
-		   (current-buffer))
-	    (insert "\n(\n;;## ply 0\n"))
-	(goto-char (point-max))
-	(re-search-backward "^;;## ply")
-	(forward-line)
-	(delete-region (point) (point-max)))
-      (chess-prin1-ply (chess-game-ply game (1- index)))
-      (insert (format "\n;;## ply %d\n" index))
-      (chess-prin1-ply (chess-game-ply game))
-      (insert ")\n")
-      (basic-save-buffer)
-      (message nil))))
+  (let ((index (chess-game-index game)))
+    (if (or (= 1 index) (and (bobp) (eobp)))
+	(progn
+	  (erase-buffer)
+	  (prin1 (chess-game-tags game)
+		 (current-buffer))
+	  (insert "\n(\n;;## ply 0\n"))
+      (goto-char (point-max))
+      (re-search-backward "^;;## ply")
+      (forward-line)
+      (delete-region (point) (point-max)))
+    (chess-prin1-ply (chess-game-ply game (1- index)))
+    (insert (format "\n;;## ply %d\n" index))
+    (chess-prin1-ply (chess-game-ply game))
+    (insert ")\n")
+    (basic-save-buffer)
+    (message nil)))
 
 (defun chess-autosave-read (game file)
   "Read a chess game as raw Lisp from FILE."
-  (with-current-buffer (find-file-noselect file t)
-    (goto-char (point-min))
-    (chess-game-set-tags game (read (current-buffer)))
+  (goto-char (point-min))
+  (chess-game-set-tags game (read (current-buffer)))
+  (let* ((plies (read (current-buffer)))
+	 (game-plies plies)
+	 prev-ply)
+    (while plies
+      (if prev-ply
+	  (chess-pos-set-preceding-ply (chess-ply-pos (car plies))
+				       prev-ply))
+      (if (cdr plies)
+	  (chess-ply-set-keyword (car plies) :next-pos
+				 (chess-ply-pos (cadr plies))))
+      (setq prev-ply (car plies)
+	    plies (cdr plies)))
 
-    (let* ((plies (read (current-buffer)))
-	   (game-plies plies)
-	   prev-ply)
-      (while plies
-	(if prev-ply
-	    (chess-pos-set-preceding-ply (chess-ply-pos (car plies))
-					 prev-ply))
-	(if (cdr plies)
-	    (chess-ply-set-keyword (car plies) :next-pos
-				   (chess-ply-pos (cadr plies))))
-	(setq prev-ply (car plies)
-	      plies (cdr plies)))
-
-      (chess-game-set-plies game game-plies))))
+    (chess-game-set-plies game game-plies)))
 
 (provide 'chess-autosave)
 

@@ -46,7 +46,8 @@
       proc))
 
    ((eq event 'ready)
-    (chess-game-set-data game 'active t))
+    (chess-game-set-data game 'active t)
+    (chess-game-run-hooks game 'check-autosave))
 
    ((eq event 'destroy)
     (let ((proc (get-buffer-process (current-buffer))))
