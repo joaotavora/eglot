@@ -24,6 +24,7 @@
 (eval-when-compile (require 'cl))
 
 (require 'comint)
+(require 'chess)
 (require 'chess-network)
 (require 'chess-pos)
 
@@ -122,7 +123,10 @@ game number.")
    (cons "%\\s-*$"
 	 (function
 	  (lambda ()
-	    (chess-ics-send "set style 12\nset bell 0")
+	    (chess-ics-send (concat
+			     (format "set interface emacs-chess %s\n"
+				     chess-version)
+			     "set style 12\nset bell 0"))
 	    (setq chess-ics-handling-login nil)
 	    (chess-message 'ics-logged-in chess-ics-server chess-ics-handle)
 	    'once)))
@@ -447,6 +451,7 @@ See `chess-ics-game'.")
 	    (forward-line -1))))
       t)))
 
+;;;###autoload
 (defun chess-ics (server port &optional handle password-or-filename
 			 helper &rest helper-args)
   "Connect to an Internet Chess Server."
