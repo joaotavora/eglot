@@ -455,25 +455,20 @@ See `chess-ics-game'.")
 			   (unless (= (aref rank f) ?-)
 			     (chess-pos-set-piece
 			      pos (chess-rf-to-index r f) (aref rank f))))))
-		     (chess-pos-set-side-to-move
-		      pos (string= (match-string 9) "W"))
+		     (chess-pos-set-side-to-move pos (string= (match-string 9) "W"))
 		     (let ((file (string-to-int (match-string 10))))
 		       (when (>= file 0)
 			 (chess-pos-set-en-passant
 			  pos (chess-rf-to-index
 			       (if (chess-pos-side-to-move pos) 3 4) file))))
-		     (if (string= (match-string 11) "1")
-			 (chess-pos-set-can-castle pos ?K t))
-		     (if (string= (match-string 12) "1")
-			 (chess-pos-set-can-castle pos ?Q t))
-		     (if (string= (match-string 13) "1")
-			 (chess-pos-set-can-castle pos ?k t))
-		     (if (string= (match-string 14) "1")
-			 (chess-pos-set-can-castle pos ?q t))
-		     pos))
-	 (game (save-match-data (chess-ics-game (string-to-int (match-string 16))
-			       :White (match-string 17)
-			       :Black (match-string 18))))
+		     (mapc (lambda (info)
+			     (if (string= (match-string (cdr info)) "1")
+				 (chess-pos-set-can-castle pos (car info) t)))
+			   '((?K . 11) (?Q . 12) (?k . 13) (?q . 14))) pos))
+	 (game (save-match-data
+		 (chess-ics-game (string-to-int (match-string 16))
+				 :White (match-string 17)
+				 :Black (match-string 18))))
 	 (status
 	  ;; my relation to this game:
 	  ;; -3 isolated position, such as for "ref 3" or the "sposition"
@@ -556,11 +551,9 @@ See `chess-ics-game'.")
 	    (setq error 'orienting-board)
 	    (chess-game-run-hooks game 'orient)
 	    (setq error nil))
+	(goto-char begin)
 	(if error
-	    (progn
-	      (goto-char begin)
-	      (insert (chess-string 'failed-ics-parse error)))
-	  (goto-char begin)
+	    (insert (chess-string 'failed-ics-parse error))
 	  (delete-region begin end)
 	  (save-excursion
 	    (while (and (forward-line -1)
@@ -713,7 +706,7 @@ descending order.")
 
 (defun chess-ics-seeking (string)
   (if (not (string-match
-	    "^[\n\r]+\\(\\S-+\\) (\\([0-9+ -]+\\)) seeking \\([a-z]\\S-+ \\)?\\([0-9]+\\) \\([0-9]+\\) \\(\\(un\\)?rated\\) \\([^(]*\\)(\"\\([^\"]+\\)\" to respond)\\s-*[\n\r]+\\([0-2][0-9]:[0-6][0-9]_\\)?[af]ics% $"
+	    "\\`[\n\r]+\\(\\S-+\\) (\\([0-9+ -]+\\)) seeking \\([a-z]\\S-+ \\)?\\([0-9]+\\) \\([0-9]+\\) \\(\\(un\\)?rated\\) \\([^(]*\\)(\"\\([^\"]+\\)\" to respond)\\s-*[\n\r]+\\([0-2][0-9]:[0-6][0-9]_\\)?[af]ics% \\'"
 	    string))
       string
     (let* ((name (match-string 1 string))
@@ -757,22 +750,28 @@ descending order.")
       "")))
 
 (defun chess-ics-ads-removed (string)
-  (if (not (string-match "^[\n\r]+Ads removed: \\([0-9 ]+\\)\\s-*[\n\r]+\\([0-2][0-9]:[0-6][0-9]_\\)?[af]ics% $"
-			 string))
-      string
-    (let ((ids (split-string (match-string 1 string) " +"))
-	  (buf (get-buffer chess-ics-sought-buffer-name)))
-      (when (buffer-live-p buf)
-	(with-current-buffer buf
-	  (let ((here (point)))
-	    (while ids
-	      (goto-char (point-min))
-	      (when (re-search-forward (concat "^" (car ids) " ") nil t)
-		(delete-region (line-beginning-position)
-			       (1+ (line-end-position))))
-	      (setq ids (cdr ids)))
-	    (goto-char here))))
-      "")))
+  "Look for Seek ad removal announcements in the output stream.
+This function should be put on `comint-preoutput-filter-functions'."
+  (let (ids)
+    (while (string-match "[\n\r]+Ads removed: \\([0-9 ]+\\)\\s-*[\n\r]+\\([0-2][0-9]:[0-6][0-9]_\\)?[af]ics% $"
+			 string)
+      (setq ids (append (save-match-data
+			  (split-string (match-string 1 string) " +")) ids))
+      (setq string (concat (substring string 0 (match-beginning 0))
+			   (substring string (match-end 0)))))
+    (when ids
+      (let ((buf (get-buffer chess-ics-sought-buffer-name)))
+	(when (buffer-live-p buf)
+	  (with-current-buffer buf
+	    (let ((here (point)))
+	      (while ids
+		(goto-char (point-min))
+		(when (re-search-forward (concat "^" (car ids) " ") nil t)
+		  (delete-region (line-beginning-position)
+				 (1+ (line-end-position))))
+		(setq ids (cdr ids)))
+	      (goto-char here)))))))
+  string)
 
 ;;;###autoload
 (defun chess-ics (server port &optional handle password-or-filename
