@@ -114,7 +114,9 @@ This regexp handles both long and short form.")
 (defun chess-ply-to-algebraic (ply &optional long)
   "Convert the given PLY to algebraic notation.
 If LONG is non-nil, render the move into long notation."
-  (if (null (car (chess-ply-changes ply)))
+  (if (let ((first (car (chess-ply-changes ply))))
+	(or (null first)
+	    (symbolp first)))
       ""
     (let* ((pos (chess-ply-pos ply))
 	   (changes (chess-ply-changes ply))

@@ -278,28 +278,29 @@ trying to move a blank square."
 
     ;; if a king or rook moves, no more castling; also, if a pawn
     ;; jumps ahead two, mark it en-passantable
-    (let ((piece (downcase (chess-pos-piece position (cadr changes)))))
-      (cond
-       ((and (= piece ?k)
-	     (equal (car changes)
-		    (chess-rf-to-index (if color 7 0) 4)))
-	(chess-pos-set-can-castle position (if color ?K ?k) nil)
-	(chess-pos-set-can-castle position (if color ?Q ?q) nil))
+    (unless (symbolp (car changes))
+      (let ((piece (downcase (chess-pos-piece position (cadr changes)))))
+	(cond
+	 ((and (= piece ?k)
+	       (equal (car changes)
+		      (chess-rf-to-index (if color 7 0) 4)))
+	  (chess-pos-set-can-castle position (if color ?K ?k) nil)
+	  (chess-pos-set-can-castle position (if color ?Q ?q) nil))
 
-       ((and (= piece ?r)
-	     (equal (car changes)
-		    (chess-rf-to-index (if color 7 0) 0)))
-	(chess-pos-set-can-castle position (if color ?Q ?q) nil))
+	 ((and (= piece ?r)
+	       (equal (car changes)
+		      (chess-rf-to-index (if color 7 0) 0)))
+	  (chess-pos-set-can-castle position (if color ?Q ?q) nil))
 
-       ((and (= piece ?r)
-	     (equal (car changes)
-		    (chess-rf-to-index (if color 7 0) 7)))
-	(chess-pos-set-can-castle position (if color ?K ?k) nil))
+	 ((and (= piece ?r)
+	       (equal (car changes)
+		      (chess-rf-to-index (if color 7 0) 7)))
+	  (chess-pos-set-can-castle position (if color ?K ?k) nil))
 
-       ((and (= piece ?p)
-	     (> (abs (- (chess-index-rank (cadr changes))
-			(chess-index-rank (car changes)))) 1))
-	(chess-pos-set-en-passant position (cadr changes)))))
+	 ((and (= piece ?p)
+	       (> (abs (- (chess-index-rank (cadr changes))
+			  (chess-index-rank (car changes)))) 1))
+	  (chess-pos-set-en-passant position (cadr changes))))))
 
     ;; toggle the side whose move it is
     (chess-pos-set-side-to-move position (not color))
