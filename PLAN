@@ -7,6 +7,7 @@ chess-pos
 chess-ics
 - detect draw/resign/abort/retract, etc.
 - add support for ICS observing
+- set the "Site" tag after logging in
 
 chess-clock
 - when a clock runs down, indicate this in the modeline, and allow the
