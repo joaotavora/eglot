@@ -430,6 +430,7 @@ This is necessary for bizzare Emacs reasons."
 (defun chess-images-init-cache ()
   "Initialize the display image cache."
   (chess-message 'piece-images-loading)
+
   ;; Make a vector of two vectors of 6-item vectors: each piece of
   ;; each color on each color square; and lastly two slots for the
   ;; blank squares
@@ -439,6 +440,7 @@ This is necessary for bizzare Emacs reasons."
 		(vector (make-vector 6 nil)
 			(make-vector 6 nil))
 		nil nil nil nil))
+
   (let* ((colors '("black" "white"))
 	 (backgrounds (list chess-images-dark-color
 			    chess-images-light-color))
@@ -472,31 +474,26 @@ This is necessary for bizzare Emacs reasons."
 		    (format "%s.%s" chess-images-background-image
 			    chess-images-extension)
 		    chess-images-directory)))
-      (aset chess-images-cache 2
-	    (chess-images-create-image blank 0))
-      (aset chess-images-cache 3
-	    (chess-images-create-image blank 1)))
+      (aset chess-images-cache 2 (chess-images-create-image blank 0))
+      (aset chess-images-cache 3 (chess-images-create-image blank 1)))
      ;; try loading an xboard format file
      ((file-readable-p
        (setq name (format "dsq%d.%s" chess-images-size
 			  chess-images-extension)
 	     blank (expand-file-name name chess-images-directory)))
-      (aset chess-images-cache 2
-	    (chess-images-create-image blank 0))
+      (aset chess-images-cache 2 (chess-images-create-image blank 0))
       (aset name 0 ?l)
       (setq blank (expand-file-name name chess-images-directory))
-      (aset chess-images-cache 3
-	    (chess-images-create-image blank 1)))
+      (aset chess-images-cache 3 (chess-images-create-image blank 1)))
      ;; if all else fails, create one
      (t
       (setq image-data
 	    (cond
 	     ((string= chess-images-extension "xpm")
 	      (chess-images-create-xpm chess-images-size))))
-      (aset chess-images-cache 2
-	    (chess-images-create-image image-data 0))
-      (aset chess-images-cache 3
-	    (chess-images-create-image image-data 1))))
+      (aset chess-images-cache 2 (chess-images-create-image image-data 0))
+      (aset chess-images-cache 3 (chess-images-create-image image-data 1))))
+
     (when chess-images-border-width
       (aset chess-images-cache 4
 	    (create-image
@@ -512,6 +509,7 @@ This is necessary for bizzare Emacs reasons."
 				      chess-images-border-width)
 	     nil t :color-symbols
 	     (list (cons "background" chess-images-border-color))))))
+
   ;; let the garbage collector know we're through here
   (garbage-collect)
   (chess-message 'piece-images-loaded))

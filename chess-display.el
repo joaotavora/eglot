@@ -917,7 +917,8 @@ Clicking once on a piece selects it; then click on the target location."
 			(chess-display-update nil)
 		      (let ((s-piece (chess-pos-piece position
 						      (cadr last-sel)))
-			    (t-piece (chess-pos-piece position coord)) ply)
+			    (t-piece (chess-pos-piece position coord))
+			    ply)
 			(if (and (/= t-piece ? )
 				 (or (and (< t-piece ?a)
 					  (< s-piece ?a))
