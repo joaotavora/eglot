@@ -12,9 +12,15 @@ chess-display
 - there should be a way to disable popups, yet still have the initial
   display popup in its own frame
 
+chess-engine
+- if I say "y" to accepting something from my opponent (new game,
+  takeback, etc), I get left with an hourglass cursor
+
 chess-irc
 - if I move before my opponent has connected, I get a symbol assertion
   about "value"
+- if I am the one who submits the game, then the opponent's name
+  always shows as Anonymous
 
 chess-ply
 - detect games drawn by three-fold repetition
