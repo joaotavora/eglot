@@ -45,6 +45,7 @@ making it easy to go on to the next puzzle once you've solved one."
 	    (chess-game-add-hook (chess-display-game nil)
 				 'chess-puzzle-handler display))
 	(define-key (current-local-map) [? ] 'chess-puzzle-next)
+	(define-key (current-local-map) [??] 'chess-puzzle-show-solution)
 	(let ((count (chess-database-count database)))
 	  (setq chess-puzzle-indices (make-vector count nil))
 	  (dotimes (i count)
@@ -52,6 +53,7 @@ making it easy to go on to the next puzzle once you've solved one."
 	  (random t)
 	  (chess-shuffle-vector chess-puzzle-indices)
 	  (setq chess-puzzle-position 0))
+	(chess-game-run-hooks (chess-display-game display) 'disable-autosave)
 	(chess-puzzle-next)))))
 
 (defun chess-puzzle-next ()
@@ -68,15 +70,30 @@ making it easy to go on to the next puzzle once you've solved one."
       (if (null (setq next-game
 		      (chess-database-read database
 					   (aref chess-puzzle-indices index))))
-	  (chess-error 'bag-game-read (aref chess-puzzle-indices index))
+	  (chess-error 'bad-game-read (aref chess-puzzle-indices index))
 	(chess-display-set-game nil next-game 0)
-	(chess-game-set-data game 'my-color
-			     (chess-pos-side-to-move (chess-game-pos game)))
+	(chess-game-set-data game 'my-color (chess-game-side-to-move game 0))
 	(dolist (key '(database database-index database-count))
 	  (chess-game-set-data game key (chess-game-data next-game key)))
 	(let ((chess-display-handling-event nil))
 	  (chess-game-run-hooks game 'orient))))))
 
+(defun chess-puzzle-show-solution ()
+  (interactive)
+  (let ((game (chess-display-game nil)))
+    (when game
+      (let ((bm (chess-pos-epd (chess-game-pos game 0) 'bm))
+	    (pv (chess-pos-epd (chess-game-pos game 0) 'pv)))
+	(when (or bm pv)
+	  (message "Best move %s %s%s"
+		   (if (zerop (chess-game-index game)) "is" "would have been")
+		   (chess-ply-to-string (car bm))
+		   (if pv
+		       (concat ", predicted variation "
+			       (chess-var-to-algebraic pv))
+		     "")))))))
+
+    
 (defun chess-puzzle-handler (game display event &rest args)
   (if (and (eq event 'move)
 	   (chess-game-over-p game))
