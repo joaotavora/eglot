@@ -653,8 +653,7 @@ Basically, it means we are playing, not editing or reviewing."
 (defun chess-display-pass ()
   "Pass the move to your opponent.  Only valid on the first move."
   (interactive)
-  (if (and (chess-display-active-p)
-	   (= 0 (chess-display-index nil)))
+  (if (chess-display-active-p)
       (chess-game-run-hooks chess-display-game 'pass)
     (ding)))
 
