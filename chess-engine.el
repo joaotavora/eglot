@@ -178,7 +178,7 @@
 	  (chess-game-set-data game 'active t))
 	(chess-game-run-hooks game 'orient)))))
 
-(defun chess-engine-create (module &optional response-handler &rest args)
+(defun chess-engine-create (module &optional user-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
@@ -187,7 +187,7 @@
 	(setq chess-engine-regexp-alist (symbol-value regexp-alist)
 	      chess-engine-event-handler handler
 	      chess-engine-response-handler
-	      (or response-handler 'chess-engine-default-handler))
+	      (or user-handler 'chess-engine-default-handler))
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))
 	    (error "Failed to start chess engine process"))
