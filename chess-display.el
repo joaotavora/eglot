@@ -98,6 +98,7 @@
   "Destroy a chess display object, killing all of its buffers."
   (let ((buf (or display (current-buffer))))
     (when (buffer-live-p buf)
+      (funcall chess-display-event-handler 'destroy)
       (chess-display-detach-game display)
       (kill-buffer buf))))
 

@@ -143,8 +143,9 @@
 
 (defun chess-engine-destroy (engine)
   (let ((buf (or engine (current-buffer))))
-    (if (buffer-live-p buf)
-	(kill-buffer buf))))
+    (when (buffer-live-p buf)
+      (chess-engine-command engine 'destroy)
+      (kill-buffer buf))))
 
 (defun chess-engine-command (engine event &rest args)
   (chess-with-current-buffer engine
