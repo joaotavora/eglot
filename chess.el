@@ -193,10 +193,12 @@ available."
 					 'chess-module-create game))
 
     (push (unless (eq engine 'none)
-	    (car (chess-create-modules (list (or engine chess-default-engine))
-				       'chess--create-engine game
-				       engine-response-handler
-				       engine-ctor-args)))
+	    (car (condition-case nil
+		     (chess-create-modules (list (or engine chess-default-engine))
+					   'chess--create-engine game
+					   engine-response-handler
+					   engine-ctor-args)
+		   (error nil))))
 	  objects)
 
     (unless (car objects)
