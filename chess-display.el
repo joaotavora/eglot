@@ -355,6 +355,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [tab] 'chess-display-invert)
 
     (define-key map [??] 'describe-mode)
+    (define-key map [?B] 'chess-display-list-buffers)
     (define-key map [?C] 'chess-display-clear-board)
     (define-key map [?E] 'chess-display-edit-board)
     (define-key map [?F] 'chess-display-set-from-fen)
@@ -558,6 +559,28 @@ Basically, it means we are playing, not editing or reviewing."
   (if (chess-display-active-p)
       (chess-game-resign chess-display-game)
     (ding)))
+
+(defun chess-display-list-buffers ()
+  "List all buffers related to this display's current game."
+  (interactive)
+  (when chess-display-game
+    (let ((buffer-list-func (symbol-function 'buffer-list)))
+      (unwind-protect
+	  (let ((chess-game chess-display-game)
+		(lb-command (lookup-key ctl-x-map [(control ?b)]))
+		(ibuffer-maybe-show-regexps nil))
+	    (fset 'buffer-list
+		  (function
+		   (lambda ()
+		     (delq nil
+			   (mapcar (function
+				    (lambda (cell)
+				      (and (bufferp (cdr cell))
+					   (buffer-live-p (cdr cell))
+					   (cdr cell))))
+				   (chess-game-hooks chess-game))))))
+	    (call-interactively lb-command))
+	(fset 'buffer-list buffer-list-func)))))
 
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.
