@@ -3,6 +3,10 @@ chess-ics
 - takebacks still aren't working 100%
 - display a notice in the minibuffer when a takeback request is sent
 
+chess-display
+- if I resign, chess-announce announces the last move my opponent
+  made!
+
 chess-ply
 - detect games drawn by three-fold repetition
 
