@@ -2,7 +2,8 @@
 			       Hotlist
 
 - After I resign (against crafty, for example), the mode-line does not
-  look as it should
+  look as it should; the board is not reset, which causes C-l to fail
+  because chess-display-index is now bogus
 
 - Follow what `edit-env' does, in order to make chess-query.el
 
