@@ -81,9 +81,6 @@ chess-german
 chess-gnuchess
 - triggers a Lisp error when I resign
 
-chess-phalanx
-- moves from the engine aren't parsed after a pause
-
 general
 - add an 'install' target to the Makefile
 - use more asserts throughout the code
