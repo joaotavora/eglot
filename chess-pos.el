@@ -556,7 +556,7 @@ This string should have been created by `chess-pos-to-string'."
   '((move-from-blank . "Attempted piece move from blank square %s")))
 
 (defun chess-pos-move (position &rest changes)
-  "Move a piece on the POSITION directly, using the indices FROM and TO.
+  "Move a piece on the POSITION directly, using the indices in CHANGES.
 This function does not check any rules, it only makes sure you are not
 trying to move a blank square."
   (assert (vectorp position))
@@ -579,7 +579,6 @@ trying to move a blank square."
 
   ;; now fix up the resulting position
   (let ((color (chess-pos-side-to-move position)))
-
     ;; if the move was en-passant, remove the captured pawn
     (if (memq :en-passant changes)
 	(chess-pos-set-piece position
@@ -599,13 +598,13 @@ trying to move a blank square."
 	  (chess-pos-set-can-castle position (if color ?Q ?q) nil))
 
 	 ((= piece ?r)
-	  (let ((king (chess-pos-king-index position color)))
-	    (if (and (chess-pos-can-castle position (if color ?Q ?q))
-		     (< (chess-index-file (car changes)) king))
-		(chess-pos-set-can-castle position (if color ?Q ?q) nil)
-	      (if (and (chess-pos-can-castle position (if color ?K ?k))
-		       (> (chess-index-file (car changes)) king))
-		  (chess-pos-set-can-castle position (if color ?K ?k) nil)))))
+	  (if (and (chess-pos-can-castle position (if color ?Q ?q))
+		   (= (car changes) (chess-pos-can-castle position (if color ?Q ?q))))
+	      (chess-pos-set-can-castle position (if color ?Q ?q) nil)
+	    (if (and (chess-pos-can-castle position (if color ?K ?k))
+		     (= (car changes) (chess-pos-can-castle position
+							    (if color ?K ?k))))
+		(chess-pos-set-can-castle position (if color ?K ?k) nil))))
 
 	 ((and (= piece ?p)
 	       (> (abs (- (chess-index-rank (cadr changes))
