@@ -98,7 +98,7 @@ also reflecting which side is next to move, and what privileges are
 currently available to each side (castling short or long, en passant
 capture, etc).
 
-A position may be represented in ASCII using FEN notation, or
+A position may be represented in ASCII using FEN (or EPD) notation, or
 graphically by displaying a chess board.  It is rather inconvenient to
 render them verbally.
 
@@ -226,6 +226,20 @@ And in "full" mode (where all spaces are accounted for):
 @c lispfun chess-fen-to-pos
 
 @c lispfun chess-pos-to-fen
+
+@subsection EPD notation
+
+Extended Position Description is an extension of the FEN notation to
+allow to supply additional information in a simple and standardized
+way.  In addition to a FEN notation psotion description, EPD allows
+for an optional list of opcode/value pairs.  There is a standard
+set of opcodes with well defined meanings to choose from.
+
+@c lispfun chess-epd-to-pos
+
+@c lispfun chess-pos-to-epd
+
+@c lispfun chess-epd-read-file
 
 @section Plies
 
@@ -478,9 +492,14 @@ database base-class:
 @subsubsection chess-file
 
 This module does not use an external chess database program
-to store and retrieve games.  It uses the PGN format parsing
-routines provided in `chess-pgn.el' to implement Collections
-for ordinary PGN files.
+to store and retrieve games.  It uses the PGN of EPD format parsing
+routines provided in `chess-pgn.el' and `chess-epd.el' to implement Collections
+for ordinary PGN and EPD files.
+
+EPD file collections are represented as a collection of games originating
+at the given position.  One might argue that conceptually, they represent
+a collection of positions, but it is more convenient to merge all
+collections into one uniform concept.
 
 @subsubsection chess-scid
 
@@ -604,7 +623,7 @@ different games would get impossible to sort out.  Better to create a
 new board for every game---the way ordinary humans would do it in the
 real world.
 
-@chapter Displays
+@chapter Chessboard displays
 
 The previous chapter described all the objects found in
 chess---positions, plies, variations, games and collections.  However,
@@ -613,11 +632,11 @@ functions given so far.  In order to present them in a meaningful
 fashion to a human reader, it is necessary to create and use a display
 object.
 
+@section Generic display manipulation functions
+
 @c lispfun chess-display-create
 
 @c lispfun chess-display-destroy
-
-@chapter Chessboard displays
 
 @c lispfun chess-display-active-p
 
@@ -665,6 +684,56 @@ object.
 
 @c lispfun chess-display-variation
 
+@section Plain ASCII diagram displays
+
+The simplest display style available is chess-plain, a very customisable
+ASCII board diagram display.
+
+@defvar chess-plain-separate-frame
+If non-nil, display the chessboard in its own frame.
+@end defvar
+
+@defvar chess-plain-draw-border
+Non-nil if a border should be drawn (using `chess-plain-border-chars').
+@end defvar
+
+@defvar chess-plain-border-chars
+A list of Characters used to draw borders.
+@end defvar
+
+@defvar chess-plain-black-square-char
+Character used to indicate empty black squares.
+@end defvar
+
+@defvar chess-plain-white-square-char
+Character used to indicate black white squares.
+@end defvar
+
+@defvar chess-plain-piece-chars
+Alist of pieces and their corresponding characters.
+@end defvar
+
+@defvar chess-plain-upcase-indicates
+Defines what a upcase char should indicate.
+The default is 'color, meaning a upcase char is a white piece, a
+lowercase char a black piece.  Possible values: 'color (default),
+'square-color.  If set to 'square-color, a uppercase character
+indicates a piece on a black square. (Note that you also need to
+modify `chess-plain-piece-chars' to avoid real confusion.)
+@end defvar
+
+@defvar chess-plain-spacing
+Number of spaces between files.
+@end defvar
+
+@section ICS1 style ASCII displays
+
+@defvar chess-ics1-separate-frame
+If non-nil, display the chessboard in its own frame.
+@end defvar
+
+@section Graphical displays
+
 @chapter Engines
 
 @c lispfun chess-engine-create
@@ -695,9 +764,9 @@ Based on the services provided above, there is also a speical mode
 for communication with Internet Chess Servers.
 
 ON an Internet Chess Server you can seek to play against other
-human or computer players, observe other games being player of examined,
-play tournaments, be part of a group game, or do various other interesting
-chess related things.
+human or computer players, observe other games being player or examined,
+play tournaments, chat with fellow chess players, participate in a team game,
+or do various other interesting chess related things.
 
 A default set of well known servers is defined in the following variable:
 
@@ -720,6 +789,19 @@ After you connected to a server, one of the first things you will
 want to do is find an oponent for a new game.  You can use the
 ICS command "seek" to announce your availability for a chess game
 to interested people.
+
+@section The sought game display
+
+There is a special mode for displaying games sought by other users
+on an Internet Chess Server.  Provided you didn't turn off seek ads
+manually (for instance by setting the seek variable to 0 (off) on the
+ICS server by issueing "set seek 0"), the first seek advertisment
+automatically pops up a new window which is in `chess-ics-sought-mode'.
+
+@c lispfun chess-ics-sought-mode
+
+In this buffer, use mouse-2 or @kbd{RET} on a line to accept that
+particular game and play it.
 
 @unnumbered Concept Index
 
