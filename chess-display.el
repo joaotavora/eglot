@@ -462,8 +462,10 @@ See `chess-display-type' for the different kinds of displays."
 	    (if (eq event 'move)
 		(progn
 		  (chess-display-paint-move nil (car args))
-		  (chess-display-popup nil))
-	      (chess-display-update nil t)))
+		  (if (and chess-display-popup
+			   (not chess-display-no-popup))
+		      (chess-display-popup nil)))
+	      (chess-display-update nil chess-display-popup)))
 	(if (memq event chess-display-interesting-events)
 	    (chess-display-update nil))))))
 
