@@ -1,5 +1,6 @@
 chess-autosave
 - this module currently isn't working at all!
+- doesn't support undoing of moves
 
 chess-ics
 - takebacks still aren't working 100%; when I submit a takeback
