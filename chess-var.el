@@ -30,9 +30,11 @@
   (assert var)
   (1+ (/ (chess-var-index var) 2)))
 
-(defsubst chess-var-side-to-move (var)
+(defsubst chess-var-side-to-move (var &optional index)
+  "Return the color whose move it is in VAR at INDEX (or at the last position
+of the variation if INDEX is nil)."
   (assert var)
-  (chess-pos-side-to-move (chess-var-pos var)))
+  (chess-pos-side-to-move (chess-var-pos var index)))
 
 (defun chess-var-ply (var &optional index)
   "Return the position related to VAR's INDEX position."
