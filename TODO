@@ -1,3 +1,12 @@
+- Feature work remaining:
+
+  annotations
+  chatting
+  clocks
+  bughouse/crazyhouse
+  analysis/highlight tools
+  scid interaction
+
 - Allow the user to request a move retraction (ala takeback)
 
 - In edit mode, mouse-2 and mouse-3 should provide a drop-down list of

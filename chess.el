@@ -84,7 +84,7 @@ a0 243
 (defgroup chess nil
   "An Emacs chess playing program."
   :group 'games)
-(defconst chess-version "2.0a3"
+(defconst chess-version "2.0a4"
 (defconst chess-version "2.0a7"
   "The version of the Emacs chess program.")
 

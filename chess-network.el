@@ -9,12 +9,12 @@
 (require 'chess-algebraic)
 
 (defvar chess-network-regexp-alist
-  (list (cons chess-algebraic-regexp
+  (list (cons (concat chess-algebraic-regexp "$")
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'move
 			  (match-string 0)))))
-	(cons "pass"
+	(cons "pass$"
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'pass))))
@@ -28,11 +28,11 @@
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'setup
 			  (match-string 1)))))
-	(cons "quit"
+	(cons "quit$"
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'quit))))
-	(cons "resign"
+	(cons "resign$"
 	      (function
 	       (lambda ()
 		 (funcall chess-engine-response-handler 'resign))))))
