@@ -1,13 +1,17 @@
 - Feature work remaining:
 
   2.0
-    clocks
     annotations
     chatting
   2.x
     display/database tie-in
     analysis/highlight tools
     bughouse/crazyhouse
+
+- Make the drawing/highlighting code just touch single squares, rather
+  than redrawing the whole board each time (fast though this is,
+  touching single squares is all that's necessary, and it would be
+  even faster)
 
 - Fix highlighting in chess-plain when chess-plain-spacing is set.
   chess-coord needs to be applied to a larger area, and also the way
