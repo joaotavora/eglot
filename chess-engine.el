@@ -206,7 +206,7 @@
       (when game
 	(if (y-or-n-p "Your opponent offers a draw, accept? ")
 	    (progn
-	      (chess-game-draw game (car args))
+	      (chess-game-draw game)
 	      (chess-engine-command nil 'accept-draw)
 	      (chess-game-set-data game 'active nil))
 	  (chess-engine-command nil 'decline-draw))
@@ -215,7 +215,7 @@
      ((eq event 'accept-draw)
       (when game
 	(message "Your draw offer was accepted")
-	(chess-game-draw game (car args))
+	(chess-game-draw game)
 	(chess-game-set-data game 'active nil)
 	t))
 
@@ -246,7 +246,7 @@
 
 (defun chess-engine-on-kill ()
   "Function called when the buffer is killed."
-  (chess-engine-command (current-buffer) 'shutdown))
+  (chess-engine-command nil 'shutdown))
 
 (defun chess-engine-destroy (engine)
   (let ((buf (or engine (current-buffer))))
