@@ -15,19 +15,19 @@
   "This is an example of a generic transport engine."
   (cond
    ((eq event 'initialize)
-    ;; Initialize your transport here, if necessary.  Make sure that
+    ;; Initialize the transport here, if necessary.  Make sure that
     ;; any housekeeping data you use is kept in buffer-local
     ;; variables.  Otherwise, multiple games played using the same
     ;; kind of transport might collide.
     )
 
    ((eq event 'send)
-    ;; Transmit the string given in (car args) to your outbound
+    ;; Transmit the string given in `(car args)' to the outbound
     ;; transport from here
     )))
 
-;; Call (chess-engine-submit engine STRING) for text that arrives from
-;; your inbound transport
+;; Call `(chess-engine-submit engine STRING)' for text that arrives
+;; from the inbound transport
 
 (provide 'chess-transport)
 
