@@ -11,6 +11,7 @@ chess-engine
   takeback, etc), I get left with an hourglass cursor
 
 chess-irc
+- gives a Lisp error when I try to start it
 - if I move before my opponent has connected, I get a symbol assertion
   about "value"
 
