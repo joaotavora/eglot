@@ -98,6 +98,11 @@ a0 243
   "Default engine to be used when starting a chess session."
   :type 'sexp
   :group 'chess)
+(defcustom chess-announce-moves (and (executable-find "festival") t)
+  "If non-nil, announce your opponent's moves verbally."
+minibuffer, which works well for Emacspeak users."
+  :type 'boolean
+  :group 'chess)
 
 (defun chess (&optional arg)
   "Start a game of chess."
@@ -112,9 +117,11 @@ a0 243
 	       (intern (or (read-string "Engine module to play against: ")
 			   "chess-none"))
 	     chess-default-engine)))
-      (if (and engine-module
-	       (require engine-module nil t))
-	  (chess-engine-set-game (chess-engine-create engine-module) game)))))
+      (when (and engine-module
+		 (require engine-module nil t))
+	(chess-engine-set-game (chess-engine-create engine-module) game)
+	(if chess-announce-moves
+	    (chess-announce-for-game game t))))))
     (cons display engine)))
 
 ;;;###autoload
