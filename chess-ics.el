@@ -188,9 +188,9 @@ who is black."
 	      (function
 	       (lambda ()
 		 (unless chess-ics-logged-in
+		   (setq chess-ics-logged-in t)
 		   (chess-engine-send nil "set style 12\n")
-		   (chess-engine-send nil "set bell 0\n")
-		   (setq chess-ics-logged-in t)))))
+		   (chess-engine-send nil "set bell 0\n")))))
 	(cons "Logging you in as \"\\([^\"]+\\)\""
 	      (function
 	       (lambda ()

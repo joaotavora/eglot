@@ -1,5 +1,8 @@
 2002-04-16  John Wiegley  <johnw@gnu.org>
 
+	* chess-pgn.el (chess-pgn-mode): Only make bold the result text,
+	not every move.
+
 	* chess-clock.el (chess-clock-handler): Use
 	`chess-ply-set-keyword', to avoid double-adding keywords.
 
