@@ -13,20 +13,28 @@
   "Common code used by chess displays."
   :group 'chess)
 
-(defcustom chess-display-separate-frame (display-multi-frame-p)
-  "If non-nil, chessboard display use their own frame."
-  :type 'boolean
-  :group 'chess-images)
-
 (defcustom chess-display-popup t
   "If non-nil, popup displays whenever a significant event occurs."
   :type 'boolean
-  :group 'chess-ics1)
+  :group 'chess-display)
 
 (defcustom chess-display-highlight-legal nil
   "If non-nil, highlight legal target squares when a piece is selected."
   :type 'boolean
-  :group 'chess-ics1)
+  :group 'chess-display)
+
+(defcustom chess-display-mode-line-format "   %C   %N. %M"
+  "The format of a chess display's modeline.
+Special characters include:
+
+    %C  The color to move, White or Black; if the game is finished,
+	this will instead be the completion string
+    %N  Current game sequence
+    %M  Current algebraic move text (prefixed by ... when White)
+    %E  Current position evaluation, if engine supports it
+	(negative numbers favor black) [NOT WORKING YET]"
+  :type 'string
+  :group 'chess-display)
 
 ;;; Code:
 
@@ -236,7 +244,6 @@ modeline."
     (funcall chess-display-event-handler 'draw
 	     (chess-display-position nil)
 	     (chess-display-perspective nil))
-    (chess-display-set-modeline)
     (if (and popup (not chess-display-no-popup)
 	     (chess-display-main-p nil))
 	(chess-display-popup nil))))
@@ -327,6 +334,9 @@ See `chess-display-type' for the different kinds of displays."
 
      ((eq event 'destroy)
       (chess-display-detach-game nil))
+
+     ((eq event 'post-move)
+      (chess-display-update-modeline))
 
      ((eq event 'pass)
       (let ((my-color (chess-game-data game 'my-color)))
@@ -459,36 +469,54 @@ The key bindings available in this mode are:
     (mode-stalemate . "STALEMATE")
     (mode-drawn     . "DRAWMN")))
 
-(defun chess-display-set-modeline ()
+(defun chess-display-update-modeline ()
   "Set the modeline to reflect the current game position."
-  (let ((color (chess-pos-side-to-move (chess-display-position nil)))
-	(index chess-display-index))
-    (if (= index 0)
-	(setq chess-display-mode-line
-	      (format "   %s   %s" (if color (chess-string 'mode-white)
-				     (chess-string 'mode-black))
-		      (chess-string 'mode-start)))
-      (let ((ply (chess-game-ply chess-display-game (1- index))))
-	(setq chess-display-mode-line
-	      (concat
-	       "   "
-	       (let ((final (chess-ply-final-p ply)))
-		 (cond
-		  ((eq final :checkmate) (chess-string 'mode-checkmate))
-		  ((eq final :resign)    (chess-string 'mode-resigned))
-		  ((eq final :stalemate) (chess-string 'mode-stalemate))
-		  ((eq final :draw)      (chess-string 'mode-drawn))
-		  (t
-		   (if color (chess-string 'mode-white)
-		     (chess-string 'mode-black)))))
-	       (if index
-		   (concat "   " (int-to-string
-				  (if (> index 1)
-				      (/ index 2) (1+ (/ index 2))))))
-	       (if ply
-		   (concat ". " (if color "... ")
-			   (or (chess-ply-to-algebraic ply)
-			       "???")))))))))
+  (let* ((mode-line (concat chess-display-mode-line-format))
+	 (color (chess-pos-side-to-move (chess-display-position nil)))
+	 (index chess-display-index)
+	 (ply (chess-game-ply chess-display-game (1- index)))
+	 (case-fold-search nil))
+    (while (string-match "%\\([A-Za-z0-9]\\|([^)]+)\\)" mode-line)
+      (let ((code (match-string-no-properties 1 mode-line)))
+	(if (= ?\( (aref code 0))
+	    (setq code (eval code))
+	  (cond
+	   ((string= code "C")
+	    (setq code
+		  (let ((final (chess-ply-final-p ply)))
+		    (cond
+		     ((eq final :checkmate) (chess-string 'mode-checkmate))
+		     ((eq final :resign)    (chess-string 'mode-resigned))
+		     ((eq final :stalemate) (chess-string 'mode-stalemate))
+		     ((eq final :draw)      (chess-string 'mode-drawn))
+		     (t
+		      (if color (chess-string 'mode-white)
+			(chess-string 'mode-black)))))))
+
+	   ((string= code "N")
+	    (if (= index 0)
+		"START"
+	      (setq code (int-to-string
+			  (chess-game-seq chess-display-game)))))
+
+	   ((string= code "M")
+	    (setq code (concat (if color "... ")
+			       (or (chess-ply-to-algebraic ply) "???"))))
+
+	   ((string= code "E")
+	    ;; jww (2002-04-14): This code is encountering some nasty
+	    ;; race conditions
+	    (let ((evaluation (save-match-data
+				(chess-game-run-hooks chess-display-game
+						      'evaluate))))
+	      (setq code (if evaluation
+			     (concat "(" (number-to-string evaluation) ")")
+			   "(thinking)"))))
+
+	   (t
+	    (setq code ""))))
+	(setq mode-line (replace-match code t t mode-line))))
+    (setq chess-display-mode-line mode-line)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -499,7 +527,8 @@ The key bindings available in this mode are:
   "Just redraw the current display."
   (interactive)
   (erase-buffer)
-  (chess-display-update nil))
+  (chess-display-update nil)
+  (chess-display-update-modeline))
 
 (defsubst chess-display-active-p ()
   "Return non-nil if the displayed chessboard reflects an active game.

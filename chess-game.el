@@ -59,8 +59,9 @@ matches."
 (defsubst chess-game-run-hooks (game &rest args)
   "Return the tags alist associated with GAME."
   (unless chess-game-inhibit-events
-    (dolist (hook (chess-game-hooks game))
-      (apply (car hook) game (cdr hook) args))))
+    (let (result)
+      (dolist (hook (chess-game-hooks game) result)
+	(setq result (apply (car hook) game (cdr hook) args))))))
 
 
 (defsubst chess-game-tags (game)
@@ -142,9 +143,12 @@ matches."
   "Return the GAME's current position index."
   (1- (length (chess-game-plies game))))
 
-(defsubst chess-game-seq (game)
+(defun chess-game-seq (game)
   "Return the current GAME sequence."
-  (1+ (/ (chess-game-index game) 2)))
+  (let ((index (chess-game-index game)))
+    (if (> index 1)
+	(/ index 2)
+      (1+ (/ index 2)))))
 
 (defsubst chess-game-side-to-move (game)
   (chess-pos-side-to-move (chess-game-pos game)))
@@ -230,7 +234,8 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	  (chess-game-run-hooks game 'move current-ply))))
 
      (t
-      (chess-game-run-hooks game 'move current-ply)))))
+      (chess-game-run-hooks game 'move current-ply)
+      (chess-game-run-hooks game 'post-move)))))
 
 (defsubst chess-game-end (game keyword)
   "End the current game, by resignation, draw, etc."

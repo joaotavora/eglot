@@ -1,28 +1,10 @@
-delYsid: I knew there had to be a way.  The old keyboard shortcutting
-code (which uses chess-legal-plies) was just to slow.  On modern
-machines you wouldn't notice it, but on my 300 MHz laptop in battery
-saving mode, even with byte-compiled files, I spent 1/4 of my time
-looking at the hourglass cursor.  So I kept cleaning the algorithm,
-dropping the number of calls to chess-search-position (the biggest and
-slowest function in chess.el) from 5400 calls down to 4300 calls.  But
-still it was too slow.  Then I thought about it long and hard, and
-realized chess-legal-plies was going about its whole job backwards.  I
-found a way to optimize it that resulted in dropping the number of
-calls to chess-search-position down to 797!!  That's 5000 fewer calls.
-The new code is so fast I that when it's byte-compiled, I never see an
-hourglass cursor, rarely even when un-byte-compiled in my slowest
-configuration!
-
 - Feature work remaining:
 
   annotations
   chatting
   clocks
-  bughouse/crazyhouse
   analysis/highlight tools
-  database interaction (chess-file.el, chess-scid.el)
-
-----------------------------------------------------------------------
+  bughouse/crazyhouse
 
 - undoing a single move (my move) and moving again, causes
   chess-algebraic to get a little screwed up
@@ -36,8 +18,6 @@ configuration!
 
 - SPACE to pass, then try to move (against an engine) fails saying
   it's not our turn to move
-
-----------------------------------------------------------------------
 
 - Add support for adjournments; also, implement this is such a way
   that an e-mail or postal game is basically a game that's adjourned

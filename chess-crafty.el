@@ -17,6 +17,10 @@
   :type 'file
   :group 'chess-crafty)
 
+(defvar chess-crafty-evaluation nil)
+
+(make-variable-buffer-local 'chess-crafty-evaluation)
+
 (defvar chess-crafty-regexp-alist
   (list
    (cons (concat "\\(White\\|Black\\)\\s-*([0-9]+):\\s-+\\("
@@ -25,6 +29,11 @@
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'move
 		     (chess-engine-convert-algebraic (match-string 2) t)))))
+   (cons "total evaluation\\.+\\s-+\\([-+0-9.]+\\)"
+	 (function
+	  (lambda ()
+	    (setq chess-crafty-evaluation
+		  (string-to-number (match-string 1))))))
    (cons "\\(Illegal move\\|unrecognized/illegal command\\):\\s-*\\(.*\\)"
 	 (function
 	  (lambda ()
@@ -51,6 +60,15 @@
    ((eq event 'setup-pos)
     (chess-engine-send nil (format "setboard %s\n"
 				   (chess-pos-to-string (car args)))))
+
+   ((eq event 'evaluate)
+    (setq chess-crafty-evaluation nil)
+    (chess-engine-send nil "display general\nscore\ndisplay nogeneral\n")
+    (let ((limit 50))
+      (while (and (null chess-crafty-evaluation)
+		  (> (setq limit (1- limit)) 0))
+	(sit-for 0 100 t))
+      chess-crafty-evaluation))
 
    ((eq event 'setup-game)
     (let ((file (chess-with-temp-file

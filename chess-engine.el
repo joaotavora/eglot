@@ -144,14 +144,14 @@
    ((eq event 'setup-game)
     (when (car args)
       ;; we don't want the `setup-game' event coming back to us
-      (let ((chess-engine-handling-event t))
-	(let ((chess-game-inhibit-events t))
-	  (chess-engine-set-game nil (car args))
-	  (chess-game-set-data chess-engine-game 'active t)
-	  (if (string= chess-full-name
-		       (chess-game-tag chess-engine-game "White"))
-	      (chess-game-set-data chess-engine-game 'my-color t)
-	    (chess-game-set-data chess-engine-game 'my-color nil))))
+      (let ((chess-engine-handling-event t)
+	    (chess-game-inhibit-events t))
+	(chess-engine-set-game nil (car args))
+	(chess-game-set-data chess-engine-game 'active t)
+	(if (string= chess-full-name
+		     (chess-game-tag chess-engine-game "White"))
+	    (chess-game-set-data chess-engine-game 'my-color t)
+	  (chess-game-set-data chess-engine-game 'my-color nil)))
       t))
 
    ((eq event 'quit)
@@ -406,15 +406,16 @@
 (defun chess-engine-event-handler (game engine event &rest args)
   "Handle any commands being sent to this instance of this module."
   (unless chess-engine-handling-event
-    (chess-with-current-buffer engine
-      (apply chess-engine-event-handler event args))
+    (let (result)
+      (chess-with-current-buffer engine
+	(setq result (apply chess-engine-event-handler event args)))
+      (cond
+       ((eq event 'shutdown)
+	(chess-engine-destroy engine))
 
-    (cond
-     ((eq event 'shutdown)
-      (chess-engine-destroy engine))
-
-     ((eq event 'destroy)
-      (chess-engine-detach-game engine)))))
+       ((eq event 'destroy)
+	(chess-engine-detach-game engine)))
+      result)))
 
 (defun chess-engine-sentinal (proc event)
   (when (buffer-live-p (process-buffer proc))
