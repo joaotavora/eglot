@@ -189,10 +189,10 @@ who is black."
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
 				   "\n")))
 
-   ((eq event 'accept)
+   ((memq event '(accept-connect accept-undo accept-draw accept-abort))
     (chess-engine-send nil "accept\n"))
 
-   ((eq event 'decline)
+   ((memq event '(decline-connect decline-undo decline-draw decline-abort))
     (chess-engine-send nil "decline\n"))
 
    ((eq event 'resign)
@@ -200,6 +200,9 @@ who is black."
 
    ((eq event 'abort)
     (chess-engine-send nil "abort\n"))
+
+   ((eq event 'undo)
+    (chess-engine-send nil (format "takeback %d\n" (car args))))
 
    ((eq event 'send)
     (comint-send-string (get-buffer-process (current-buffer)) (car args)))))

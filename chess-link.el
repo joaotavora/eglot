@@ -18,7 +18,7 @@
 	 return-value)
     (cond
      ((eq event 'connect)
-      (chess-engine-command nil 'accept)
+      (chess-engine-command nil 'accept-connect)
       t)
 
      (t

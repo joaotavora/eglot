@@ -165,6 +165,14 @@ matches."
 	(nconc plies (list ply))
       (chess-game-set-plies game (list ply)))))
 
+(defun chess-game-undo (game count)
+  "Undo the last COUNT plies of GAME."
+  (if (> count (chess-game-index game))
+      (error "Cannot undo %d plies from a game with only %d plies"
+	     count (chess-game-index game))
+    (chess-game-set-plies game (nbutlast (chess-game-plies game) count))
+    (chess-game-run-hooks game 'undo count)))
+
 
 (defsubst chess-game-over-p (game)
   "Return the position related to GAME's INDEX position."
@@ -205,7 +213,7 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	(error "Cannot add moves to a completed game"))
     (unless (equal position (chess-ply-pos current-ply))
       (error "Positions do not match"))
-    (unless (or (chess-ply-has-keyword ply :resign)
+    (unless (or (chess-ply-has-keyword ply :resign :draw)
 		(chess-search-position
 		 position (cadr (chess-ply-changes ply))
 		 (chess-pos-piece position (car (chess-ply-changes ply)))))
@@ -231,6 +239,10 @@ progress (nil), if it is drawn, resigned, mate, etc."
 (defsubst chess-game-resign (game)
   "Resign the current game."
   (chess-game-move game (list (chess-game-pos game) :resign)))
+
+(defsubst chess-game-draw (game)
+  "Draw the current game."
+  (chess-game-move game (list (chess-game-pos game) :draw)))
 
 (provide 'chess-game)
 

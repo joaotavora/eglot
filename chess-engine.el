@@ -113,11 +113,11 @@
 		 (format "Do you wish to play a chess game against %s? "
 			 (car args))
 	       (format "Do you wish to play a chess game against an anonymous opponent? ")))
-	    (chess-engine-command nil 'accept)
+	    (chess-engine-command nil 'accept-connect)
 	  (chess-engine-send nil 'decline)))
       t)
 
-     ((eq event 'accept)
+     ((eq event 'accept-connect)
       (unless (and game (chess-game-data game 'active))
 	(if (and (car args) (> (length (car args)) 0))
 	    (message "Your opponent, %s, is now ready to play" (car args))
@@ -163,8 +163,65 @@
 
      ((eq event 'abort)
       (when game
-	(message "Your opponent has aborted the game")
+	(if (y-or-n-p "Your opponent wants to abort this game, accept? ")
+	    (progn
+	      (chess-game-set-data game 'active nil)
+	      (chess-engine-command nil 'accept-abort))
+	  (chess-engine-command nil 'decline-abort))
+	t))
+
+     ((eq event 'accept-abort)
+      (when game
+	(message "Your offer to abort was accepted")
 	(chess-game-set-data game 'active nil)
+	t))
+
+     ((eq event 'decline-abort)
+      (when game
+	(message "Your offer to abort was declined")
+	t))
+
+     ((eq event 'undo)
+      (when game
+	(if (y-or-n-p (format "Your opponent wants to take back %d moves, accept? "
+			      (car args)))
+	    (progn
+	      (chess-game-undo game (car args))
+	      (chess-engine-command nil 'accept-undo))
+	  (chess-engine-command nil 'decline-undo))
+	t))
+
+     ((eq event 'accept-undo)
+      (when game
+	(message "Undo of %d moves accepted" (car args))
+	(chess-game-undo game (car args))
+	t))
+
+     ((eq event 'decline-undo)
+      (when game
+	(message "Undo of %d moves declined" (car args))
+	t))
+
+     ((eq event 'draw)
+      (when game
+	(if (y-or-n-p "Your opponent offers a draw, accept? ")
+	    (progn
+	      (chess-game-draw game (car args))
+	      (chess-engine-command nil 'accept-draw)
+	      (chess-game-set-data game 'active nil))
+	  (chess-engine-command nil 'decline-draw))
+	t))
+
+     ((eq event 'accept-draw)
+      (when game
+	(message "Your draw offer was accepted")
+	(chess-game-draw game (car args))
+	(chess-game-set-data game 'active nil)
+	t))
+
+     ((eq event 'decline-draw)
+      (when game
+	(message "Your draw offer was declined")
 	t)))))
 
 (defun chess-engine-create (module &optional response-handler &rest args)
@@ -189,7 +246,7 @@
 
 (defun chess-engine-on-kill ()
   "Function called when the buffer is killed."
-  (chess-engine-command (current-buffer) 'shutdown))
+  (chess-engine-command nil 'shutdown))
 
 (defun chess-engine-destroy (engine)
   (let ((buf (or engine (current-buffer))))
@@ -320,6 +377,10 @@ function in all cases; this is merely a bandwidth-saver."
 (defun chess-engine-abort (engine)
   (chess-with-current-buffer engine
     (chess-engine-command engine 'abort)))
+
+(defun chess-engine-undo (engine count)
+  (chess-with-current-buffer engine
+    (chess-engine-command engine 'undo count)))
 
 (defun chess-engine-send (engine string)
   "Send the given STRING to ENGINE."
