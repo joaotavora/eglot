@@ -139,6 +139,8 @@ available."
       engine)))
 
 (defun chess-create-modules (module-list create-func &rest args)
+  "Create modules from MODULE-LIST with CREATE-FUNC and ARGS.
+If an element of MODULE-LIST is a sublist, treat it as alternatives."
   (let (objects)
     (dolist (module module-list)
       (let (object)
