@@ -77,7 +77,8 @@
       (message "Your opponent has passed the first move to you"))
 
      ((eq event 'connect)
-      (message "Your opponent, %s, is now ready to play" (car args)))
+      (message "Your opponent, %s, is now ready to play" (car args))
+      (chess-engine-send nil "name %s\n" (user-full-name)))
 
      ((eq event 'quit)
       (message "Your opponent has quit playing"))
