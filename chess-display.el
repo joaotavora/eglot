@@ -316,6 +316,7 @@ See `chess-display-type' for the different kinds of displays."
     (define-key map [?X] 'chess-display-quit)
     (define-key map [?M] 'chess-display-manual-move)
     (define-key map [?@] 'chess-display-remote)
+    (define-key map [? ] 'chess-display-pass)
 
     (define-key map [?<] 'chess-display-move-first)
     (define-key map [?,] 'chess-display-move-backward)
@@ -466,6 +467,13 @@ Basically, it means we are playing, not editing or reviewing."
     ;; jww (2002-04-08): also set-position, set-ply, etc.
     (chess-display-set-game (chess-display-create 'chess-images t)
 			    (chess-display-game nil))))
+
+(defun chess-display-pass ()
+  "Pass the move to your opponent.  Only valid on the first move."
+  (interactive)
+  (when (and (chess-display-active-p)
+	     (= 0 (chess-display-index nil)))
+    (chess-game-run-hooks chess-display-game 'pass)))
 
 (defun chess-display-set-current (dir)
   "Change the currently displayed board.

@@ -56,7 +56,21 @@
 (defun chess-engine-default-handler (event &rest args)
   (cond
    ((eq event 'move)
-    (chess-engine-do-move (car args)))))
+    (chess-engine-do-move (car args)))
+
+   ((eq event 'pass)
+    (message "Your opponent has passed the first move to you"))
+
+   ((eq event 'connect)
+    (message "Your opponent, %s, is now ready to play" (car args)))
+
+   ((eq event 'quit)
+    (message "Your opponent has quit playing"))
+
+   ((eq event 'setup)
+    (let* ((position (chess-fen-to-pos (car args)))
+	   (ply (chess-ply-create position)))
+      (chess-game-set-plies (chess-engine-game nil) (list ply))))))
 
 (defun chess-engine-create (module &optional user-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
@@ -178,10 +192,7 @@
       (chess-engine-destroy engine))
 
      ((eq event 'setup)
-      (chess-engine-set-game engine (car args)))
-
-     ((eq event 'pass)
-      (chess-engine-pass engine)))))
+      (chess-engine-set-game engine (car args))))))
 
 (defun chess-engine-filter (proc string)
   "Filter for receiving text for an engine from an outside source."

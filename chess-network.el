@@ -16,7 +16,7 @@
 	(cons "pass"
 	      (function
 	       (lambda ()
-		 (message "Your opponent has passed the move to you"))))
+		 (funcall chess-engine-response-handler 'pass))))
 	(cons "name\\s-+\\(.+\\)"
 	      (function
 	       (lambda ()
@@ -25,14 +25,12 @@
 	(cons "fen\\s-+\\(.+\\)"
 	      (function
 	       (lambda ()
-		 (let* ((position (chess-fen-to-pos (match-string 1)))
-			(ply (chess-ply-create position)))
-		   (chess-game-set-plies (chess-engine-game nil)
-					 (list ply))))))
+		 (funcall chess-engine-response-handler 'setup
+			  (match-string 1)))))
 	(cons "quit"
 	      (function
 	       (lambda ()
-		 (message "Your opponent has quit playing"))))))
+		 (funcall chess-engine-response-handler 'quit))))))
 
 (defun chess-network-perform-move ()
   (let* ((move (match-string 1))
