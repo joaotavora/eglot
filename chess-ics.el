@@ -210,6 +210,17 @@ who is black."
 		 (car parts)))
     (setq parts (cdr parts))
 
+    ;; checkmate, etc., is stated in the SAN text
+    (cond
+     ((= ?+ (aref move (1- (length move))))
+      (chess-pos-set-status position :check))
+     ((= ?# (aref move (1- (length move))))
+      (chess-pos-set-status position :checkmate))
+     (nil
+      ;; jww (2002-04-30): what about stalemate?  do I need to
+      ;; calculate this each time?
+      (chess-pos-set-status position :stalemate)))
+
     ;; flip field for board orientation: 1 = Black at bottom, 0 =
     ;; White at bottom.
     (setq parts (cdr parts))
@@ -295,6 +306,7 @@ who is black."
     (cond
      ((eq event 'initialize)
       (kill-buffer (current-buffer))
+      (chess-game-run-hooks game 'disable-autosave)
       (let ((server
 	     (if (= (length chess-ics-server-list) 1)
 		 (car chess-ics-server-list)
