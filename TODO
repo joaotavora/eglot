@@ -1,11 +1,13 @@
 - Feature work remaining:
 
-  annotations
-  chatting
-  clocks
-  analysis/highlight tools
-  bughouse/crazyhouse
-  display/database tie-in
+  2.0
+    annotations
+    chatting
+    clocks
+  2.x
+    display/database tie-in
+    analysis/highlight tools
+    bughouse/crazyhouse
 
 - undoing a single move (my move) and moving again, causes
   chess-algebraic to get a little screwed up
@@ -47,18 +49,6 @@
 
 - Make the mode-line much more informative, with information on who is
   playing, etc.
-
-- Turn on memory gc collection messages, and see how much of a pig
-  chess.el is
-
-- Make as much of chess-game/ply/pos, etc., defsubst as possible.
-
-- Create a series of generic functions and predicates, so that users
-  can say (chess-position OBJECT) or (chess-move OBJECT), without
-  needing to know the type of OBJECT.
-
-- Change chess-display-set-... to chess-display-set, and make it use
-  the new generic functions.
 
 - Use server-side sockets in chess-network, if Emacs supports it
 

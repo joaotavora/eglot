@@ -206,8 +206,8 @@ If INDENTED is non-nil, indent the move texts."
   (let ((map (current-local-map)))
     (define-key map [??] 'describe-mode)
     (define-key map [?T] 'text-mode)
-    (define-key map [return] 'chess-pgn-show-position)
-    (define-key map [mouse-1] 'chess-pgn-mouse-show-position)
+    (define-key map [(control ?c) (control ?c)] 'chess-pgn-show-position)
+    (define-key map [mouse-2] 'chess-pgn-mouse-show-position)
     (define-key map [(control ?m)] 'chess-pgn-move)
 
     (when (require 'pcomplete nil t)
