@@ -244,7 +244,7 @@ also view the same game."
 					   (/ index 2)
 					 (1+ (/ index 2)))
 				     1))
-		    ". " (and (= 0 (mod index 2)) "... ")
+		    "." (and (= 0 (mod index 2)) "..")
 		    (chess-ply-to-algebraic
 		     (chess-game-ply chess-module-game (1- index)))))
 	  chess-display-side-to-move
