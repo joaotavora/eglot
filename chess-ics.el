@@ -107,7 +107,7 @@ The list is comprised of: the ply the string represents, who is white,
 who is black."
   (let ((parts (split-string string " "))
 	(position (chess-pos-create t))
-	white black white-time black-time move)
+	white black white-time black-time move status)
 
     (assert (= (length parts) 32))
 
@@ -245,18 +245,22 @@ who is black."
 			     ;; causal ply
 			     (car (last (chess-game-plies game))))
 			    (nth 1 info) t)))
-		  (setq error 'setting-white-remaining)
 		  (chess-game-set-data game 'white-remaining (nth 4 info))
-		  (setq error 'setting-black-remaining)
 		  (chess-game-set-data game 'black-remaining (nth 5 info))
 		  (setq error 'applying-move)
 		  (chess-game-move game ply)
 		  (setq error nil))
 	      (setq error nil))
-	  (let ((chess-game-inhibit-events t) plies)
+	  (let ((chess-game-inhibit-events t)
+		(color (chess-pos-side-to-move (nth 0 info)))
+		plies)
 	    (when (or (= 1 (nth 6 info)) (= -1 (nth 6 info)))
-	      (chess-game-set-data game 'my-color (= 1 (nth 6 info)))
-	      (chess-game-set-data game 'active t))
+	      (chess-game-set-data game 'my-color (if (= 1 (nth 6 info))
+						      color
+						    (not color)))
+	      (chess-game-set-data game 'active t)
+	      (chess-game-set-data game 'white-remaining (nth 4 info))
+	      (chess-game-set-data game 'black-remaining (nth 5 info)))
 	    (chess-game-set-tag game "White" (nth 2 info))
 	    (chess-game-set-tag game "Black" (nth 3 info))
 	    (chess-game-set-tag game "Site" (car chess-ics-server))

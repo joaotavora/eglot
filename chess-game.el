@@ -203,7 +203,7 @@ This conveys the status of the game at the given index."
 
 (defsubst chess-game-over-p (game)
   "Return the position related to GAME's INDEX position."
-  (let ((last-ply (car (last game 2))))
+  (let ((last-ply (car (last (nth 3 game) 2))))
     (and last-ply (chess-ply-final-p last-ply))))
 
 

@@ -87,26 +87,28 @@
   (let ((game (chess-engine-game nil)))
     (cond
      ((eq event 'move)
-      (if (chess-game-data game 'active)
-	  ;; we don't want the `move' event coming back to us
-	  (let ((chess-engine-handling-event t))
-	    (when (car args)
-	      ;; if the game index is still 0, then our opponent
-	      ;; is white, and we need to pass over the move
-	      (when (and (not chess-engine-inhibit-auto-pass)
-			 (chess-game-data game 'my-color)
-			 (= (chess-game-index game) 0))
-		(chess-game-set-tag game "White" chess-engine-opponent-name)
-		(chess-game-set-tag game "Black" chess-full-name)
-		(chess-message 'now-black)
-		(chess-game-run-hooks game 'pass)
-		;; if no one else flipped my-color, we'll do it
-		(if (chess-game-data game 'my-color)
-		    (chess-game-set-data game 'my-color nil)))
-	      (chess-game-move game (car args))
-	      (if (chess-game-over-p game)
-		  (chess-game-set-data game 'active nil))
-	      t))))
+      (let ((chess-engine-handling-event t))
+	(when (and (car args)
+		   (chess-game-data game 'active))
+
+	  ;; if the game index is still 0, then our opponent
+	  ;; is white, and we need to pass over the move
+	  (when (and (not chess-engine-inhibit-auto-pass)
+		     (chess-game-data game 'my-color)
+		     (= (chess-game-index game) 0))
+	    (chess-game-set-tag game "White" chess-engine-opponent-name)
+	    (chess-game-set-tag game "Black" chess-full-name)
+	    (chess-message 'now-black)
+	    (chess-game-run-hooks game 'pass)
+	    ;; if no one else flipped my-color, we'll do it
+	    (if (chess-game-data game 'my-color)
+		(chess-game-set-data game 'my-color nil)))
+
+	  (chess-game-move game (car args))
+
+	  (if (chess-game-over-p game)
+	      (chess-game-set-data game 'active nil))
+	  t)))
 
      ((eq event 'pass)
       (when (chess-game-data game 'active)

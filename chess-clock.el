@@ -50,14 +50,15 @@
    ((eq event 'move)
     (let ((white (chess-game-data game 'white-remaining))
 	  (black (chess-game-data game 'black-remaining)))
-      (when (and white black (> (chess-game-index game) 0))
-	(setq chess-clock-timer
-	      (run-with-timer 0 1 'chess-clock-tick-tock (current-buffer)))
+      (when (and white black
+		 (chess-game-data game 'active)
+		 (> (chess-game-index game) 0))
+	(unless chess-clock-timer
+	  (setq chess-clock-timer
+		(run-with-timer 0 1 'chess-clock-tick-tock (current-buffer))))
 	(let ((last-ply (car (last (chess-game-plies game) 2))))
 	  (chess-ply-set-keyword last-ply :white white)
-	  (chess-ply-set-keyword last-ply :black black))))
-    (if (chess-game-over-p game)
-	(chess-clock-handler game 'destroy)))
+	  (chess-ply-set-keyword last-ply :black black)))))
 
    ((eq event 'set-data)
     (if (and (eq (car args) 'active)
@@ -67,7 +68,7 @@
    ((memq event '(destroy resign drawn))
     (when chess-clock-timer
       (cancel-timer chess-clock-timer)
-      (setq chess-clock-timer)))))
+      (setq chess-clock-timer nil)))))
 
 (defvar chess-clock-tick-tocking nil)
 
@@ -75,7 +76,9 @@
   (unless chess-clock-tick-tocking
     (let ((chess-clock-tick-tocking t))
       (with-current-buffer module
-	(let ((last-time chess-clock-last-time) counter)
+	(let ((last-time chess-clock-last-time)
+	      (chess-game-inhibit-events t)
+	      counter)
 	  (setq chess-clock-last-time (current-time))
 	  (when (> (chess-game-index chess-module-game) 0)
 	    (if (chess-pos-side-to-move (chess-game-pos chess-module-game))

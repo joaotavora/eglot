@@ -175,8 +175,7 @@ also view the same game."
 (defun chess-display-clock-string ()
   (let ((white (chess-game-data chess-module-game 'white-remaining))
 	(black (chess-game-data chess-module-game 'black-remaining)))
-    (if (and (not (and white black))
-	     (> chess-display-index 0))
+    (if (not (and white black))
 	(let ((last-ply (chess-game-ply chess-module-game
 					(1- chess-display-index))))
 	  (setq white (chess-ply-keyword last-ply :white)
@@ -271,9 +270,16 @@ also view the same game."
 		(to (cadr ch)))
 	    (funcall chess-display-event-handler 'draw-square
 		     (chess-display-index-pos nil from) ?  from)
-	    (funcall chess-display-event-handler 'draw-square
-		     (chess-display-index-pos nil to)
-		     (chess-pos-piece position from) to))
+	    (let ((new-piece (chess-ply-keyword ply :promote)))
+	      (if new-piece
+		  (funcall chess-display-event-handler 'draw-square
+			   (chess-display-index-pos nil to)
+			   (if (chess-pos-side-to-move position)
+			       new-piece
+			     (downcase new-piece)) to)
+		(funcall chess-display-event-handler 'draw-square
+			 (chess-display-index-pos nil to)
+			 (chess-pos-piece position from) to))))
 	  (setq ch (cddr ch)))))))
 
 (chess-message-catalog 'english
