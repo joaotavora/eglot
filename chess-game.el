@@ -288,15 +288,15 @@ progress (nil), if it is drawn, resigned, mate, etc."
   (assert game)
   (assert (listp ply))
   (let ((current-ply (chess-game-ply game))
-	(changes (chess-ply-changes ply))
-	(position (chess-ply-pos ply)))
-
-    (if (chess-ply-final-p current-ply)
-	(chess-error 'add-to-completed))
+	(position (chess-ply-pos ply))
+	(changes (chess-ply-changes ply)))
 
     (assert current-ply)
     (assert (and position (eq position (chess-ply-pos current-ply))))
     (assert changes)
+
+    (if (chess-ply-final-p current-ply)
+	(chess-error 'add-to-completed))
 
     (chess-ply-set-changes current-ply changes)
     (unless (chess-ply-any-keyword ply :drawn :perpetual :repetition
