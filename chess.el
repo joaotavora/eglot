@@ -82,7 +82,7 @@ a0 243
 (defgroup chess nil
   "An Emacs chess playing program."
   :group 'games)
-(defconst chess-version "2.0a2"
+(defconst chess-version "2.0a3"
 (defconst chess-version "2.0a7"
   "The version of the Emacs chess program.")
 
@@ -107,8 +107,8 @@ a0 243
      (chess-display-create chess-default-display t) game)
     (let ((engine-module
 	   (if arg
-	       (intern-soft (or (read-string "Engine module to play against: ")
-				"chess-none"))
+	       (intern (or (read-string "Engine module to play against: ")
+			   "chess-none"))
 	     chess-default-engine)))
       (when engine-module
 	(require engine-module)

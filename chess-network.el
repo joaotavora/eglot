@@ -11,43 +11,38 @@
 (defvar chess-network-now-moving nil)
 
 (defvar chess-network-regexp-alist
-  (list (cons (concat "<move color=\"\\(black\\|white\\)\">"
-		      chess-algebraic-regexp "</move>")
+  (list (cons chess-algebraic-regexp
 	      'chess-network-perform-move)
-	(cons "<pass/>"
+	(cons "pass"
 	      (function
 	       (lambda ()
 		 (message "Your opponent has passed the move to you"))))
-	(cons "<connect name=\"\\(.*\\)\"/>"
+	(cons "name\\s-+\\(.+\\)"
 	      (function
 	       (lambda ()
 		 ;; jww (2002-04-07): Set the appropriate Black or
 		 ;; White tag at this point
 		 (message "Your opponent, %s, has connected"
 			  (match-string 1)))))
-	(cons "<setup fen=\"\\(.*\\)\"/>"
+	(cons "fen\\s-+\\(.+\\)"
 	      (function
 	       (lambda ()
 		 (let* ((position (chess-fen-to-pos (match-string 1)))
 			(ply (chess-ply-create position)))
 		   (chess-game-set-plies (chess-engine-game nil)
 					 (list ply))))))
-	(cons "<quit/>"
+	(cons "quit"
 	      (function
 	       (lambda ()
 		 (message "Your opponent has quit playing"))))))
 
 (defun chess-network-perform-move ()
-  (let ((position (chess-engine-position nil))
-	(move (match-string 2)) ply)
-    (when (string= (if (chess-pos-side-to-move position)
-		       "white" "black")
-		   (match-string 1))
-      (setq ply (chess-algebraic-to-ply position move))
-      (unless ply
-	(error "Could not convert engine move: %s" move))
-      (let ((chess-network-now-moving t))
-	(funcall chess-engine-response-handler 'move ply)))))
+  (let ((move (match-string 1))
+	(ply (chess-algebraic-to-ply (chess-engine-position nil) move)))
+    (unless ply
+      (error "Could not convert engine move: %s" move))
+    (let ((chess-network-now-moving t))
+      (funcall chess-engine-response-handler 'move ply))))
 
 (defun chess-network-handler (event &rest args)
   "Initialize the network chess engine."
@@ -65,31 +60,25 @@
 					(read-string "Port: "))))
       (if (eq which ?s)
 	  (message "Now waiting for your opponent to connect...")
-	(process-send-string proc (format "CONNECT %s\n" (user-full-name)))
+	(process-send-string proc (format "name %s\n" (user-full-name)))
 	(message "You have connected; pass now or make your move."))
       proc))
 
    ((eq event 'shutdown)
     (ignore-errors
-     (chess-engine-send nil "<quit/>\n")))
+      (chess-engine-send nil "quit\n")))
 
    ((eq event 'setup)
-    (chess-engine-send nil (format "<setup fen=\"%s\">\n"
+    (chess-engine-send nil (format "fen %s\n"
 				   (chess-pos-to-fen (car args)))))
 
    ((eq event 'pass)
-    (chess-engine-send nil "<pass/>\n"))
+    (chess-engine-send nil "pass\n"))
 
    ((eq event 'move)
     (unless chess-network-now-moving
-      (chess-engine-send
-       nil (concat "<move color=\""
-		   (if (chess-pos-side-to-move (chess-ply-pos (car args)))
-		       "white"
-		     "black")
-		   "\">"
-		   (chess-ply-to-algebraic (car args))
-		   "</move>\n"))))))
+      (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))
+				     "\n"))))))
 
 (provide 'chess-network)
 
