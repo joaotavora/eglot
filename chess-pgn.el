@@ -227,6 +227,8 @@ PGN text."
 ;;;###autoload
 (define-derived-mode chess-pgn-mode text-mode "PGN"
   "A mode for editing chess PGN files."
+  (make-variable-buffer-local 'comment-start)
+  (make-variable-buffer-local 'comment-end)
   (setq comment-start "{"
 	comment-end "}")
 
