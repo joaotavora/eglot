@@ -131,13 +131,14 @@ who is black."
     (assert game)
     (if (and (chess-game-data game 'active)
 	     (> (chess-game-index game) 0))
-	(if (and (cadr info)
-		 (eq (chess-pos-side-to-move (car info))
-		     (chess-game-data game 'my-color)))
-	    (chess-engine-do-move
-	     (chess-algebraic-to-ply
-	      (chess-ply-pos (car (last (chess-game-plies game))))
-	      (cadr info) t)))
+	(when (and (cadr info)
+		   (eq (chess-pos-side-to-move (car info))
+		       (chess-game-data game 'my-color)))
+	  (chess-engine-do-move
+	   (chess-algebraic-to-ply
+	    (chess-ply-pos (car (last (chess-game-plies game))))
+	    (cadr info) t))
+	  (assert (equal (car info) (chess-engine-position nil))))
       (let ((chess-game-inhibit-events t) plies)
 	(chess-game-set-data game 'my-color (string= (nth 2 info)
 						     chess-ics-handle))
@@ -199,18 +200,19 @@ who is black."
     (if chess-engine-last-pos
 	(goto-char chess-engine-last-pos)
       (goto-char (point-min)))
-    (while (and (not (eobp))
-		(/= (line-end-position) (point-max)))
-      (let ((triggers chess-ics-regexp-alist))
-	(while triggers
-	  ;; this could be accelerated by joining
-	  ;; together the regexps
-	  (if (and (looking-at (concat "[^\n\r]*" (caar triggers)))
-		   (funcall (cdar triggers)))
-	      (setq triggers nil)
-	    (setq triggers (cdr triggers)))))
-      (forward-line))
-    (setq chess-engine-last-pos (point))))
+    (unwind-protect
+	(while (and (not (eobp))
+		    (/= (line-end-position) (point-max)))
+	  (let ((triggers chess-ics-regexp-alist))
+	    (while triggers
+	      ;; this could be accelerated by joining
+	      ;; together the regexps
+	      (if (and (looking-at (concat "[^\n\r]*" (caar triggers)))
+		       (funcall (cdar triggers)))
+		  (setq triggers nil)
+		(setq triggers (cdr triggers)))))
+	  (forward-line))
+      (setq chess-engine-last-pos (point)))))
 
 (defun chess-ics-strip (string)
   (while (string-match "[\r\a]" string)
