@@ -109,7 +109,7 @@ This variable automatically becomes buffer-local when changed.")
    60 4
    ;; a pointer to the ply which led to this position
    nil]
-  "Starting position of a chess position.")
+  "Starting position of a regular chess game.")
 
 (chess-message-catalog 'english
   '((chess-nag-1   . "good move [traditional \"!\"]")
@@ -692,7 +692,7 @@ indices which indicate where a piece may have moved from."
      ;; 1 or 2 when moving (the most complex piece, actually)
      ((= test-piece ?P)
       (let ((p (chess-pos-piece position target)))
-	(if (if (= p ? )
+  	(if (if (= p ? )
 		;; check for en passant
 		(and (= (chess-index-rank target) (if color 2 5))
 		     ;; make this fail if no en-passant is possible
@@ -752,12 +752,12 @@ indices which indicate where a piece may have moved from."
 	;; test whether the rook can move to the target by castling
 	(if (and (= test-piece ?R) (not no-castling))
 	    (let (rook)
-	      (if (and (equal target (chess-rf-to-index (if color 7 0) 5))
+	      (if (and (= target (if color ?\075 ?\005))
 		       (setq rook (chess-pos-can-castle position
 							(if color ?K ?k)))
 		       (chess-ply-castling-changes position))
 		  (chess--add-candidate rook)
-		(if (and (equal target (chess-rf-to-index (if color 7 0) 3))
+		(if (and (= target (if color ?\073 ?\003))
 			 (setq rook (chess-pos-can-castle position
 							  (if color ?Q ?q)))
 			 (chess-ply-castling-changes position t))
@@ -822,7 +822,8 @@ be moved, and TARGET is the index of the location to be moved to.
 Note: All of the pieces specified by CANDIDATES must be of the same
 type.  Also, it is the callers responsibility to ensure that the piece
 can legally reach the square in question.  This function merely
-assures that the resulting position is valid."
+assures that the resulting position is valid (the move does not leave the king
+in check)."
   (assert (vectorp position))
   (assert (memq color '(nil t)))
   (assert (and (>= target 0) (< target 64)))
@@ -830,7 +831,7 @@ assures that the resulting position is valid."
   (assert (> (length candidates) 0))
   (let ((cand candidates)
 	(piece (chess-pos-piece position (car candidates)))
-	other-piece last-cand king-pos)
+	other-piece en-passant-square last-cand king-pos)
     (while cand
       (unwind-protect
 	  (progn
@@ -838,6 +839,16 @@ assures that the resulting position is valid."
 	    (chess-pos-set-piece position (car cand) ? )
 	    (setq other-piece (chess-pos-piece position target))
 	    (chess-pos-set-piece position target piece)
+	    (when (and (= piece (if color ?P ?p))
+		       (chess-pos-en-passant position)
+		       (= (chess-pos-en-passant position)
+			  (chess-incr-index target (if color 1 -1) 0)))
+	      (chess-pos-set-piece position
+				   (setq en-passant-square
+					 (chess-incr-index target
+							   (if color 1 -1)
+							   0))
+				   ? ))
 	    ;; find the king (only once if the king isn't moving)
 	    (if (or (null king-pos)
 		    (memq piece '(?K ?k)))
@@ -854,7 +865,9 @@ assures that the resulting position is valid."
 	      (setq last-cand cand)))
 	;; return the position to its original state
 	(chess-pos-set-piece position target other-piece)
-	(chess-pos-set-piece position (car cand) piece))
+	(chess-pos-set-piece position (car cand) piece)
+	(when en-passant-square
+	  (chess-pos-set-piece position en-passant-square (if color ?p ?P))))
       ;; try the next candidate
       (setq cand (cdr cand)))
     candidates))
