@@ -107,8 +107,7 @@
 (defun chess-ply-create-castle (position &optional long king-index)
   "Create castling changes; this function supports Fischer Random castling."
   (let* ((color (chess-pos-side-to-move position))
-	 (king (or king-index
-		   (car (chess-pos-search position (if color ?K ?k)))))
+	 (king (or king-index (chess-pos-king-index position color)))
 	 (king-target (chess-rf-to-index (if color 7 0)
 					 (if long 2 6)))
 	 (king-file (chess-index-file king))
@@ -203,9 +202,10 @@ maneuver."
 	    (let* ((chess-ply-checking-mate t)
 		   (next-pos (chess-ply-next-pos ply))
 		   (next-color (not color))
-		   (king (car (chess-pos-search next-pos
-						(if next-color ?K ?k))))
-		   in-check)
+		   (king (chess-pos-king-index next-pos next-color))
+		   (in-check (catch 'in-check
+			       (chess-search-position next-pos king
+						      (not next-color) t))))
 	      ;; first, see if the moves leaves the king in check.
 	      ;; This is tested by seeing if any of the opponent's
 	      ;; pieces can reach the king in the position that will
@@ -213,10 +213,7 @@ maneuver."
 	      ;; will then test for checkmate by seeing if any of his
 	      ;; subjects can move or not.  That test will also
 	      ;; confirm stalemate for us.
-	      (if (or (setq in-check
-			    (catch 'in-check
-			      (chess-search-position next-pos king
-						     (not next-color) t)))
+	      (if (or in-check
 		      (null (chess-legal-plies next-pos :any :index king)))
 		  ;; is the opponent's king in check/mate or stalemate
 		  ;; now, as a result of the changes?
@@ -245,7 +242,7 @@ maneuver."
 
 (defsubst chess-ply--add (rank-adj file-adj &optional pos)
   "This is totally a shortcut."
-  (let ((target (or pos (chess-incr-index candidate rank-adj file-adj))))
+  (let ((target (or pos (chess-incr-index* candidate rank-adj file-adj))))
     (if (and (or (not specific-target)
 		 (= target specific-target))
 	     (chess-pos-legal-moves position color target
@@ -320,10 +317,10 @@ criteria."
 		 (ahead (chess-incr-index candidate bias 0))
 		 (2ahead (chess-incr-index candidate (if color -2 2) 0)))
 	    (when (chess-pos-piece-p position ahead ? )
-	      (chess-ply--add bias 0)
+	      (chess-ply--add bias 0 ahead)
 	      (if (and (= (if color 6 1) (chess-index-rank candidate))
-		       (chess-pos-piece-p position 2ahead ? ))
-		  (chess-ply--add (if color -2 2) 0)))
+		       2ahead (chess-pos-piece-p position 2ahead ? ))
+		  (chess-ply--add (if color -2 2) 0 2ahead)))
 	    (when (setq pos (chess-incr-index candidate bias -1))
 	      (if (chess-pos-piece-p position pos (not color))
 		  (chess-ply--add nil nil pos))
@@ -374,9 +371,8 @@ criteria."
 			 (0 -1)         (0 1)
 			 (1 -1)  (1 0)  (1 1)))
 	    (setq pos (apply 'chess-incr-index candidate dir))
-	    (if (and pos
-		     (or (chess-pos-piece-p position pos ? )
-			 (chess-pos-piece-p position pos (not color))))
+	    (if (and pos (or (chess-pos-piece-p position pos ? )
+			     (chess-pos-piece-p position pos (not color))))
 		(chess-ply--add nil nil pos)))
 
 	  (if (chess-pos-can-castle position (if color ?K ?k))

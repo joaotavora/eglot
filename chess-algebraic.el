@@ -148,8 +148,7 @@ If LONG is non-nil, render the move into long notation."
 		 ((= rank 1)
 		  (setq differentiator (+ (- 7 from-rank) ?1)))
 		 (t (chess-error 'could-not-diff)))
-		(nconc (chess-ply-changes ply)
-		       (list :which differentiator)))))
+		(chess-ply-set-keyword ply :which differentiator))))
 	  (concat
 	   (unless (= (upcase from-piece) ?P)
 	     (char-to-string (upcase from-piece)))

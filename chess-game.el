@@ -232,24 +232,30 @@ progress (nil), if it is drawn, resigned, mate, etc."
   (let ((current-ply (chess-game-ply game))
 	(changes (chess-ply-changes ply))
 	(position (chess-ply-pos ply)))
+
     (if (chess-ply-final-p current-ply)
 	(chess-error 'add-to-completed))
+
     (assert (equal position (chess-ply-pos current-ply)))
     (chess-ply-set-changes current-ply changes)
     (chess-game-add-ply game (chess-ply-create*
 			      (chess-ply-next-pos current-ply) t))
-    (if (> (length changes) 2)
-	(if (chess-ply-any-keyword ply :resign :checkmate)
-	    (let ((color (chess-game-side-to-move game)))
-	      (chess-game-set-tag game "Result" (if color "0-1" "1-0"))
-	      (if (chess-ply-keyword ply :resign)
-		  (chess-game-run-hooks game 'resign color)
-		(chess-game-run-hooks game 'move current-ply)))
-	  (when (chess-ply-any-keyword ply :draw :perpetual :repetition
-				       :stalemate)
-	    (chess-game-set-tag game "Result" "1/2-1/2")
-	    (chess-game-run-hooks game 'drawn)))
-      (chess-game-run-hooks game 'move current-ply))
+
+    (let ((long (> (length changes) 2)))
+      (cond
+       ((and long (chess-ply-any-keyword ply :resign :checkmate))
+	(let ((color (chess-game-side-to-move game)))
+	  (chess-game-set-tag game "Result" (if color "0-1" "1-0"))
+	  (if (chess-ply-keyword ply :resign)
+	      (chess-game-run-hooks game 'resign color)
+	    (chess-game-run-hooks game 'move current-ply))))
+       ((and long (chess-ply-any-keyword ply :draw :perpetual :repetition
+					 :stalemate))
+	(chess-game-set-tag game "Result" "1/2-1/2")
+	(chess-game-run-hooks game 'drawn))
+       (t
+	(chess-game-run-hooks game 'move current-ply))))
+
     (chess-game-run-hooks game 'post-move)))
 
 (defsubst chess-game-end (game keyword)

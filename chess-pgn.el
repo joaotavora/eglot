@@ -26,7 +26,7 @@
 	  (goto-char (match-end 0))
 	  (setq prevpos position)
 	  (let* ((move (match-string 0))
-		 (ply (chess-algebraic-to-ply position (match-string 0))))
+		 (ply (chess-algebraic-to-ply position move)))
 	    (unless ply
 	      (chess-error 'pgn-read-error move))
 	    (setq position (chess-ply-next-pos ply))

@@ -66,10 +66,30 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   :type '(choice (const 'color) (const 'square-color)))
 	 ;; fails somehow
 
-(defcustom chess-plain-spacing 0
+(defcustom chess-plain-spacing 1
   "*Number of spaces between pieces."
   :group 'chess-plain
   :type 'integer)
+
+(defface chess-plain-black-face
+  '((((class color) (background light)) (:foreground "Green"))
+    (((class color) (background dark)) (:foreground "Green"))
+    (t (:bold t)))
+  "*The face used for black pieces on the ASCII display."
+  :group 'chess-plain)
+
+(defface chess-plain-white-face
+  '((((class color) (background light)) (:foreground "Yellow"))
+    (((class color) (background dark)) (:foreground "Yellow"))
+    (t (:bold t)))
+  "*The face used for white pieces on the ASCII display."
+  :group 'chess-plain)
+
+(defface chess-plain-highlight-face
+  '((((class color) (background light)) (:background "#add8e6"))
+    (((class color) (background dark)) (:background "#add8e6")))
+  "Face to use for highlighting pieces that have been selected."
+  :group 'chess-plain)
 
 (defcustom chess-plain-popup-function 'chess-display-popup-in-window
   "The function used to popup a chess-plain display."
@@ -101,14 +121,19 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 	(if white-square
 	    chess-plain-white-square-char
 	  chess-plain-black-square-char)
-      (let ((what chess-plain-upcase-indicates)
-	    (pchar (cdr (assq piece chess-plain-piece-chars))))
-	(cond
-	 ((eq what 'square-color)
-	  (if white-square
-	      (downcase pchar)
-	    (upcase pchar)))
-	 (t pchar))))))
+      (let* ((what chess-plain-upcase-indicates)
+	     (pchar (cdr (assq piece chess-plain-piece-chars)))
+	     (piece (cond
+		     ((eq what 'square-color)
+		      (if white-square
+			  (downcase pchar)
+			(upcase pchar)))
+		     (t pchar)))
+	     (p (char-to-string piece)))
+	(add-text-properties 0 1 (list 'face (if (> piece ?a)
+						 'chess-ics1-black-face
+					       'chess-ics1-white-face)) p)
+	p))))
 
 (defsubst chess-plain-draw-square (pos piece index)
   "Draw a piece image at point on an already drawn display."
@@ -126,8 +151,7 @@ PERSPECTIVE is t for white or nil for black."
     (erase-buffer)
     (let* ((inverted (not perspective))
 	   (rank (if inverted 7 0))
-	   (file (if inverted 7 0))
-	   beg)
+	   (file (if inverted 7 0)) beg)
       (if chess-plain-draw-border
 	  (insert ?  (nth 0 chess-plain-border-chars)
 		  (make-string (+ 8 (* 7 chess-plain-spacing))

@@ -415,11 +415,10 @@ This is necessary for bizzare Emacs reasons."
 			 `(("background"   . ,chess-images-dark-color)
 			   ("background"   . ,chess-images-light-color))))))
     (if foreground
-	(nconc
-	 syms
-	 (list (nth foreground
-		    `(("dark_piece"   . ,chess-images-black-color)
-		      ("light_piece"  . ,chess-images-white-color))))))
+	(nconc syms
+	       (list (nth foreground
+			  `(("dark_piece"   . ,chess-images-black-color)
+			    ("light_piece"  . ,chess-images-white-color))))))
     (if chess-images-border-width
 	(create-image
 	 (chess-images-hack-xpm file chess-images-border-width

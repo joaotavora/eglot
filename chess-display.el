@@ -7,6 +7,8 @@
 (require 'chess-var)
 (require 'chess-algebraic)
 (require 'chess-fen)
+(require 'chess-mouse)
+(require 'chess-input)
 
 (defgroup chess-display nil
   "Common code used by chess displays."
@@ -29,7 +31,7 @@
     (mode-checkmate . "CHECKMATE")
     (mode-resigned  . "RESIGNED")
     (mode-stalemate . "STALEMATE")
-    (mode-drawn     . "DRAWMN")))
+    (mode-drawn     . "DRAWN")))
 
 (defcustom chess-display-mode-line-format
   '("   " chess-display-side-to-move "   "
@@ -215,8 +217,10 @@ also view the same game."
   "Just redraw the current display."
   (interactive)
   (chess-with-current-buffer display
-    (erase-buffer)
-    (chess-display-update nil)))
+    (let ((here (point)))
+      (erase-buffer)
+      (chess-display-update nil)
+      (goto-char here))))
 
 (defvar chess-display-index-positions nil)
 
@@ -265,6 +269,18 @@ If only START is given, it must be in algebraic move notation."
 	  (chess-game-move chess-module-game ply))
       (error "What to do here??  NYI"))))
 
+(defun chess-assert-can-move (position)
+  (if (and (chess-display-active-p)
+	   ;; `active' means we're playing against an engine
+	   (chess-game-data chess-module-game 'active)
+	   (not (eq (chess-game-data chess-module-game 'my-color)
+		    (chess-pos-side-to-move position))))
+      (chess-error 'not-your-move)
+    (if (and (= chess-display-index
+		(chess-game-index chess-module-game))
+	     (chess-game-over-p chess-module-game))
+	(chess-error 'game-is-over))))
+
 (defun chess-display-highlight (display &rest args)
   "Highlight the square at INDEX on the current position.
 The given highlighting MODE is used, or the default if the style you
@@ -301,6 +317,31 @@ that is supported by most displays, and is the default mode."
   "Popup the given DISPLAY, so that it's visible to the user."
   (chess-with-current-buffer display
     (setq chess-display-no-popup t)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Default window and frame popup functions
+;;
+
+(defun chess-display-popup-in-window ()
+  "Popup the given DISPLAY, so that it's visible to the user."
+  (unless (get-buffer-window (current-buffer))
+    (fit-window-to-buffer (display-buffer (current-buffer)))))
+
+(defun chess-display-popup-in-frame (height width &optional display)
+  "Popup the given DISPLAY, so that it's visible to the user."
+  (let ((window (get-buffer-window (current-buffer) t)))
+    (if window
+	(let ((frame (window-frame window)))
+	  (unless (eq frame (selected-frame))
+	    (raise-frame frame)))
+      (let ((params (list (cons 'name "*Chessboard*")
+			  (cons 'height height)
+			  (cons 'width width))))
+	(if display
+	    (push (cons 'display display) params))
+	(select-frame (make-frame params))
+	(set-window-dedicated-p (selected-window) t)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -463,7 +504,8 @@ The key bindings available in this mode are:
   (use-local-map chess-display-mode-map)
   (buffer-disable-undo)
   (setq buffer-auto-save-file-name nil
-	mode-line-format 'chess-display-mode-line-format))
+	mode-line-format 'chess-display-mode-line-format)
+  (setq chess-input-move-function 'chess-display-move))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -750,184 +792,6 @@ to the end or beginning."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Default window and frame popup functions
-;;
-
-(defun chess-display-popup-in-window ()
-  "Popup the given DISPLAY, so that it's visible to the user."
-  (unless (get-buffer-window (current-buffer))
-    (fit-window-to-buffer (display-buffer (current-buffer)))))
-
-(defun chess-display-popup-in-frame (height width &optional display)
-  "Popup the given DISPLAY, so that it's visible to the user."
-  (let ((window (get-buffer-window (current-buffer) t)))
-    (if window
-	(let ((frame (window-frame window)))
-	  (unless (eq frame (selected-frame))
-	    (raise-frame frame)))
-      (let ((params (list (cons 'name "*Chessboard*")
-			  (cons 'height height)
-			  (cons 'width width))))
-	(if display
-	    (push (cons 'display display) params))
-	(select-frame (make-frame params))
-	(set-window-dedicated-p (selected-window) t)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Maintain a face cache for given color strings
-;;
-
-(defvar chess-display-face-cache '((t . t)))
-
-(defun chess-display-get-face (color)
-  (or (cdr (assoc color chess-display-face-cache))
-      (let ((face (make-face 'chess-display-highlight)))
-	(set-face-attribute face nil :background color)
-	(add-to-list 'chess-display-face-cache (cons color face))
-	face)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Keyboard entry of algebraic notation, using shortcutting
-;;
-;; This scheme was adapted from the way SCID
-;; (http://scid.sourceforge.net), by Shane Hudson, behaves.  It's the
-;; only way to move your pieces around!
-;;
-
-(defvar chess-move-string "")
-(defvar chess-legal-moves-pos nil)
-(defvar chess-legal-moves nil)
-
-(make-variable-buffer-local 'chess-move-string)
-(make-variable-buffer-local 'chess-legal-moves-pos)
-(make-variable-buffer-local 'chess-legal-moves)
-
-(chess-message-catalog 'english
-  '((not-your-move . "It is not your turn to move")
-    (game-is-over  . "This game is over")))
-
-(defun chess-display-assert-can-move (position)
-  (if (and (chess-display-active-p)
-	   ;; `active' means we're playing against an engine
-	   (chess-game-data chess-module-game 'active)
-	   (not (eq (chess-game-data chess-module-game 'my-color)
-		    (chess-pos-side-to-move position))))
-      (chess-error 'not-your-move)
-    (if (and (= chess-display-index
-		(chess-game-index chess-module-game))
-	     (chess-game-over-p chess-module-game))
-	(chess-error 'game-is-over))))
-
-(defun chess-keyboard-test-move (move-ply)
-  "Return the given MOVE if it matches the user's current input."
-  (let* ((move (cdr move-ply))
-	 (i 0) (x 0) (l (length move))
-	 (xl (length chess-move-string))
-	 (match t))
-    (unless (or (and (equal (downcase chess-move-string) "ok")
-		     (string-match "\\`O-O[+#]\\'" move))
-		(and (equal (downcase chess-move-string) "oq")
-		     (string-match "\\`O-O-O[+#]\\'" move)))
-      (while (and (< i l) (< x xl))
-	(let ((move-char (aref move i))
-	      (entry-char (aref chess-move-string x)))
-	  (if (and (= move-char ?x)
-		   (/= entry-char ?x))
-	      (setq i (1+ i))
-	    (if (/= entry-char (if (< entry-char ?a)
-				   move-char
-				 (downcase move-char)))
-		(setq match nil i l)
-	      (setq i (1+ i) x (1+ x)))))))
-    (if match
-	move-ply)))
-
-(defsubst chess-keyboard-display-moves (&optional move-list)
-  (if (> (length chess-move-string) 0)
-      (message "[%s] %s" chess-move-string
-	       (mapconcat 'cdr
-			  (or move-list
-			      (delq nil (mapcar 'chess-keyboard-test-move
-						(cdr chess-legal-moves))))
-			  " "))))
-
-(defun chess-keyboard-shortcut-delete ()
-  (interactive)
-  (when (and chess-move-string
-	     (stringp chess-move-string)
-	     (> (length chess-move-string) 0))
-    (setq chess-move-string
-	  (substring chess-move-string 0 (1- (length chess-move-string))))
-    (chess-keyboard-display-moves)))
-
-(defun chess-keyboard-shortcut (&optional display-only)
-  (interactive)
-  (let* ((position (chess-display-position nil))
-	 (color (chess-pos-side-to-move position))
-	 char)
-    (chess-display-assert-can-move position)
-    (unless (memq last-command '(chess-keyboard-shortcut
-				 chess-keyboard-shortcut-delete))
-      (setq chess-move-string nil))
-    (unless display-only
-      (setq chess-move-string
-	    (concat chess-move-string (char-to-string last-command-char))))
-    (unless (and chess-legal-moves
-		 (eq position chess-legal-moves-pos)
-		 (or (> (length chess-move-string) 1)
-		     (eq (car chess-legal-moves) last-command-char)))
-      (setq char (if (eq (downcase last-command-char) ?o) ?k
-		   last-command-char)
-	    chess-legal-moves-pos position
-	    chess-legal-moves
-	    (cons char
-		  (sort
-		   (mapcar
-		    (function
-		     (lambda (ply)
-		       (cons ply (chess-ply-to-algebraic ply))))
-		    (if (eq char ?b)
-			(append (chess-legal-plies
-				 position :piece (if color ?P ?p) :file 1)
-				(chess-legal-plies
-				 position :piece (if color ?B ?b)))
-		      (if (and (>= char ?a)
-			       (<= char ?h))
-			  (chess-legal-plies position
-					     :piece (if color ?P ?p)
-					     :file (- char ?a))
-			(chess-legal-plies position
-					   :piece (if color
-						      (upcase char)
-						    (downcase char))))))
-		   (function
-		    (lambda (left right)
-		      (string-lessp (cdr left) (cdr right)))))))))
-  (let ((moves (delq nil (mapcar 'chess-keyboard-test-move
-				 (cdr chess-legal-moves)))))
-    (cond
-     ((or (= (length moves) 1)
-	  ;; if there is an exact match except for case, it must be an
-	  ;; abiguity between a bishop and a b-pawn move.  In this
-	  ;; case, always take the b-pawn move; to select the bishop
-	  ;; move, use B to begin the keyboard shortcut
-	  (and (= (length moves) 2)
-	       (string= (downcase (cdr (car moves)))
-			(downcase (cdr (cadr moves))))
-	       (setq moves (cdr moves))))
-      (chess-display-move nil (caar moves))
-      (setq chess-move-string nil
-	    chess-legal-moves nil
-	    chess-legal-moves-pos nil))
-     ((null moves)
-      (chess-keyboard-shortcut-delete))
-     (t
-      (chess-keyboard-display-moves moves)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;; Mousing around on the chess-display
 ;;
 
@@ -1018,6 +882,20 @@ Clicking once on a piece selects it; then click on the target location."
 	  (chess-display-select-piece))
       (goto-char (posn-point (event-end event)))
       (chess-display-select-piece))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Maintain a face cache for given color strings
+;;
+
+(defvar chess-display-face-cache '((t . t)))
+
+(defun chess-display-get-face (color)
+  (or (cdr (assoc color chess-display-face-cache))
+      (let ((face (make-face 'chess-display-highlight)))
+	(set-face-attribute face nil :background color)
+	(add-to-list 'chess-display-face-cache (cons color face))
+	face)))
 
 (provide 'chess-display)
 

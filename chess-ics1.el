@@ -63,10 +63,10 @@
 (defsubst chess-ics1-draw-square (pos piece index)
   "Draw a piece image at point on an already drawn display."
   (save-excursion
-    (goto-char pos)
-    (forward-char)
-    (delete-char 1)
-    (insert (chess-ics1-piece-text piece))))
+    (let ((inhibit-redisplay t))
+      (goto-char pos)
+      (delete-char 3)
+      (insert ?  (chess-ics1-piece-text piece) ? ))))
 
 (defun chess-ics1-draw (position perspective)
   "Draw the given POSITION from PERSPECTIVE's point of view.
@@ -76,8 +76,7 @@ PERSPECTIVE is t for white or nil for black."
     (erase-buffer)
     (let* ((inverted (not perspective))
 	   (rank (if inverted 7 0))
-	   (file (if inverted 7 0))
-	   beg)
+	   (file (if inverted 7 0)) beg)
       (insert "\n      +---+---+---+---+---+---+---+---+\n")
       (while (if inverted (>= rank 0) (< rank 8))
 	(if (/= rank (if inverted 7 0))

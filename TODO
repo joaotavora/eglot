@@ -1,35 +1,51 @@
-- Feature work remaining:
 
-  2.0
-    annotations
-    chatting
-  2.x
-    display/database tie-in
-    analysis/highlight tools
-    bughouse/crazyhouse
+			Feature work remaining
+
+  2.0  annotations
+       chatting
+
+  2.x  display/database tie-in
+       analysis/highlight tools
+       bughouse/crazyhouse
 
 ----------------------------------------------------------------------
 
-- Make use of the new chess-incr-index*, which does no checks
+			       Hotlist
 
-- Fix highlighting in chess-plain when chess-plain-spacing is set.
-  chess-coord needs to be applied to a larger area, and also the way
-  highlight locations are found needs to be recalculated.
+- Make the mode-line much more informative, with information on who is
+  playing, etc.
 
-- Move keyboard shortcutting and mouse selection into their own
-  modules
+- Add an "mlang" user, and "chess" group to my laptop.
 
-- Use chess-ply-set-keyword wherever keywords are being set now.
+- Polish chess-input.el
 
 - Find a way that regexp-alist entries that only need to fire once are
   only scanned once.
 
-- Extend elp.el to do any kind of memory profiling
+- Make any game-modifying commands in a display use C-c C-?
 
-- Queue up input that comes in from an engine, then process the queue
-  -- instead of using chess-engine-last-pos
+- Copy some of ics.el's nicer functionality into chess-ics.el
+
+- Complete the ICS12 parser, based on Mario's comments
+
+- Add support for ICS observing
+
+- Use server-side sockets in chess-network, if Emacs supports it
+
+- Allow ASCII displays to use a separate frame
+
+- Still need to test many areas: position editing
+
+- Add chess-game-strip-annotations, for removing all annotations from
+  a game object
+
+- Let the user specify a default size for the chess-images display
+
+- Resize the chess board on a window resize event, if possible.
 
 ----------------------------------------------------------------------
+
+			      To-do List
 
 - Need to implement the "50 moves after irreversible" draw rule
 
@@ -43,7 +59,7 @@
 - in chess-engine-filter and chess-ics-filter, if an error is
   encountered, skip that line so the same error isn't triggered again
 
-- SPACE to pass, then try to move (against an engine) fails saying
+- SPACE to pass, then try to move (against an engine) fails saying:
   it's not our turn to move
 
 - Add support for adjournments; also, implement this is such a way
@@ -63,46 +79,23 @@
 - Read-only mode needs to be more vigorous.  There's nothing
   preventing the user from using M-x commands.
 
-- Complete chess-pgn-mode's automatic entry
-
-- Make any game-modifying commands in a display use C-c C-?
+- Complete chess-pgn-mode's automatic entry, using chess-input, and
+  making space/return perform the move
 
 - Use MIME attachments (application/x-chess-pgn) for sending e-mail
   chess games back and forth.
-
-- Copy some of ics.el's nicer functionality into chess-ics.el
-
-- Complete the ICS12 parser, based on Mario's comments
-
-- Add support for ICS observing
-
-- Make the mode-line much more informative, with information on who is
-  playing, etc.
-
-- Use server-side sockets in chess-network, if Emacs supports it
-
-- Allow ASCII displays to use a separate frame
 
 - In edit mode, mouse-2 and mouse-3 should provide a drop-down list of
   pieces the square can be set to.  Cursor movement is really not the
   best for chess-images.  I still need to figure out how best to
   handle cursor-type with that display.
 
-- Still need to test many areas: position editing
-
 - Implement engine options; then, in chess-puzzle set the option that
   tells the engine not to resign.
 
 - Remote displays are horribly insecure.
 
-- Resize the chess board on a window resize event, if possible.
-
-- Add chess-game-strip-annotations, for removing all annotations from
-  a game object
-
-- Let the user specify a default size for the chess-images display
-
-- Port image display code to XEmacs
+----------------------------------------------------------------------
 
 			  Training features
 
@@ -113,6 +106,8 @@
   might lead to an inferior position.
 
 - Add a chess tutor program, to teach people how to play chess
+
+----------------------------------------------------------------------
 
 			  Analysis features
 
@@ -137,8 +132,11 @@
   defense/attack/both, etc.  Basically, everything that can be known
   about the current board, and one move ahead (on both sides).
 
+----------------------------------------------------------------------
+
 			 BEFORE FINAL RELEASE
 
+  port the code to XEmacs
   profile
   mem profile
   docstring
