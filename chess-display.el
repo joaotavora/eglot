@@ -292,9 +292,9 @@ that is supported by most displays, and is the default mode."
   "Destroy a chess display object, killing all of its buffers."
   (let ((buf (or display (current-buffer))))
     (when (buffer-live-p buf)
-      (chess-display-event-handler chess-display-game buf 'destroy)
       (with-current-buffer buf
 	(remove-hook 'kill-buffer-hook 'chess-display-quit t))
+      (chess-display-event-handler chess-display-game buf 'destroy)
       (kill-buffer buf))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

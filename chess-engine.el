@@ -291,9 +291,9 @@
 (defun chess-engine-destroy (engine)
   (let ((buf (or engine (current-buffer))))
     (when (buffer-live-p buf)
-      (chess-engine-command buf 'destroy)
       (with-current-buffer buf
 	(remove-hook 'kill-buffer-hook 'chess-engine-on-kill t))
+      (chess-engine-command buf 'destroy)
       (kill-buffer buf))))
 
 (defun chess-engine-command (engine event &rest args)

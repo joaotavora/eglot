@@ -251,14 +251,15 @@ criteria."
   (if (null keywords)
       (let ((plies (list t)))
 	(dolist (p '(?P ?R ?N ?B ?K ?Q ?p ?r ?n ?b ?k ?q))
-	  (nconc plies (chess-legal-plies position p)))
+	  (nconc plies (chess-legal-plies position :piece p)))
 	(cdr plies))
     (if (memq :color keywords)
 	(let ((plies (list t))
 	      (color (cadr (memq :color keywords))))
 	  (dolist (p '(?P ?R ?N ?B ?K ?Q))
 	    (nconc plies (chess-legal-plies position
-					    (if color p (downcase p)))))
+					    :piece (if color p
+						     (downcase p)))))
 	  (cdr plies))
       (let* ((piece (cadr (memq :piece keywords)))
 	     (color (if piece (< piece ?a)

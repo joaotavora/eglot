@@ -17,44 +17,53 @@
 
 (defun chess-pgn-read-plies (game position &optional top-level)
   (let ((plies (list t)) prevpos done)
-    (while (not (or done (eobp)))
-      (cond
-       ((looking-at "[1-9][0-9]*\\.[. ]*")
-	(goto-char (match-end 0)))
-       ((looking-at chess-algebraic-regexp)
-	(goto-char (match-end 0))
-	(setq prevpos position)
-	(let* ((move (match-string 0))
-	       (ply (chess-algebraic-to-ply position (match-string 0))))
-	  (unless ply
-	    (chess-error 'pgn-read-error move))
-	  (setq position (chess-ply-next-pos ply))
-	  (nconc plies (list ply))))
-       ((and top-level
-	     (looking-at "\\(\\*\\|1-0\\|0-1\\|1/2-1/2\\)"))
-	(goto-char (match-end 0))
-	(chess-game-set-tag game "Result" (match-string-no-properties 0))
-	(nconc plies (list (chess-ply-create
-			    (chess-ply-next-pos (car (last plies))))))
-	(setq done t))
-       ((looking-at "{")
-	(forward-char)
-	(let ((begin (point)))
-	  (search-forward "}")
+    (catch 'done
+      (while (not (or done (eobp)))
+	(cond
+	 ((looking-at "[1-9][0-9]*\\.[. ]*")
+	  (goto-char (match-end 0)))
+
+	 ((looking-at chess-algebraic-regexp)
+	  (goto-char (match-end 0))
+	  (setq prevpos position)
+	  (let* ((move (match-string 0))
+		 (ply (chess-algebraic-to-ply position (match-string 0))))
+	    (unless ply
+	      (chess-error 'pgn-read-error move))
+	    (setq position (chess-ply-next-pos ply))
+	    (nconc plies (list ply))))
+
+	 ((and top-level
+	       (looking-at "\\(\\*\\|1-0\\|0-1\\|1/2-1/2\\)"))
+	  (goto-char (match-end 0))
+	  (chess-game-set-tag game "Result" (match-string-no-properties 0))
+	  (nconc plies (list (chess-ply-create
+			      (chess-ply-next-pos (car (last plies))))))
+	  (setq done t))
+
+	 ((looking-at "{")
 	  (forward-char)
-	  (chess-pos-add-annotation prevpos (buffer-substring-no-properties
-					     begin (- (point) 2)))))
-       ((looking-at "(")
-	(forward-char)
-	(skip-chars-forward " \t\n")
-	(chess-pos-add-annotation
-	 prevpos (chess-pgn-read-plies game (chess-pos-copy prevpos))))
-       ((and (not top-level)
-	     (looking-at ")"))
-	(forward-char)
-	(setq done t))
-       (t (chess-error 'pgn-parse-error)))
-      (skip-chars-forward " \t\n"))
+	  (let ((begin (point)))
+	    (search-forward "}")
+	    (forward-char)
+	    (chess-pos-add-annotation prevpos (buffer-substring-no-properties
+					       begin (- (point) 2)))))
+	 ((looking-at "(")
+	  (forward-char)
+	  (skip-chars-forward " \t\n")
+	  (chess-pos-add-annotation
+	   prevpos (chess-pgn-read-plies game (chess-pos-copy prevpos))))
+
+	 ((and (not top-level)
+	       (looking-at ")"))
+	  (forward-char)
+	  (setq done t))
+
+	 (t
+	  (nconc plies (list (chess-ply-create
+			      (chess-ply-next-pos (car (last plies))))))
+	  (throw 'done t)))
+	(skip-chars-forward " \t\n")))
     (cdr plies)))
 
 (defun chess-pgn-to-game (&optional string)
@@ -62,10 +71,10 @@
   (if string
       (with-temp-buffer
 	(insert string)
-	(chess-parse-pgn))
-    (chess-parse-pgn)))
+	(chess-pgn-parse))
+    (chess-pgn-parse)))
 
-(defun chess-parse-pgn ()
+(defun chess-pgn-parse ()
   (when (or (looking-at "\\[")
 	    (and (search-forward "[" nil t)
 		 (goto-char (match-beginning 0))))
@@ -173,27 +182,41 @@ If INDENTED is non-nil, indent the move texts."
 (defvar chess-pgn-database)
 (defvar chess-pgn-display)
 (defvar chess-pgn-current-game)
+(defvar chess-pgn-current-index)
 
 (make-variable-buffer-local 'chess-pgn-database)
 (make-variable-buffer-local 'chess-pgn-display)
 (make-variable-buffer-local 'chess-pgn-current-game)
+(make-variable-buffer-local 'chess-pgn-current-index)
 
 ;;;###autoload
 (define-derived-mode chess-pgn-mode text-mode "PGN"
   "A mode for editing chess PGN files."
   (setq comment-start "{"
 	comment-end "}")
+
   (modify-syntax-entry ?\{ "<")
   (modify-syntax-entry ?\} ">")
   (modify-syntax-entry ?\" "\"")
+
   (if (fboundp 'font-lock-mode)
       (font-lock-mode 1))
+
   (let ((map (current-local-map)))
     (define-key map [??] 'describe-mode)
     (define-key map [?T] 'text-mode)
     (define-key map [return] 'chess-pgn-show-position)
     (define-key map [mouse-1] 'chess-pgn-mouse-show-position)
-    (define-key map [(control ?m)] 'chess-pgn-move)))
+    (define-key map [(control ?m)] 'chess-pgn-move)
+
+    (when (require 'pcomplete nil t)
+      (set (make-variable-buffer-local 'pcomplete-default-completion-function)
+	   'chess-pgn-completions)
+      (set (make-variable-buffer-local 'pcomplete-command-completion-function)
+	   'chess-pgn-completions)
+      (set (make-variable-buffer-local 'pcomplete-parse-arguments-function)
+	   'chess-pgn-current-word)
+      (define-key map [tab] 'chess-pgn-complete-move))))
 
 (defalias 'pgn-mode 'chess-pgn-mode)
 
@@ -222,6 +245,31 @@ If INDENTED is non-nil, indent the move texts."
      (push "application/x-chess-pgn" mm-inlined-types)
      (push "application/x-chess-pgn" mm-automatic-display)))
 
+(defun chess-pgn-completions ()
+  "Return a list of possible completions for the current move."
+  (let ((position (chess-game-pos chess-pgn-current-game
+				  chess-pgn-current-index)))
+    (while (pcomplete-here
+	    (mapcar 'chess-ply-to-algebraic
+		    (chess-legal-plies position :color
+				       (chess-pos-side-to-move position)))))))
+
+(defun chess-pgn-current-word ()
+  (let ((here (point)))
+    (if (setq chess-pgn-current-index (chess-pgn-index))
+	(save-restriction
+	  (narrow-to-region (match-beginning 3) here)
+	  (pcomplete-parse-buffer-arguments)))))
+
+(defun chess-pgn-complete-move ()
+  (interactive)
+  (save-restriction
+    (narrow-to-region (point-min) (point))
+    (chess-pgn-read-game))
+  (if (eq last-command 'chess-pgn-complete-move)
+      (setq last-command 'pcomplete))
+  (call-interactively 'pcomplete))
+
 (defun chess-pgn-index ()
   "Return the move index associated with point."
   (save-excursion
@@ -230,12 +278,11 @@ If INDENTED is non-nil, indent the move texts."
 	       (first-move (match-string 3))
 	       (second-move (match-string 14))
 	       (ply (1+ (* 2 (1- index)))))
-	  (if (and second-move (> (length second-move) 0))
+	  (if second-move
 	      (setq ply (1+ ply)))
 	  ply))))
 
-(defun chess-pgn-show-position ()
-  (interactive)
+(defun chess-pgn-read-game ()
   ;; load a database to represent this file if not already up
   (unless chess-pgn-database
     (setq chess-pgn-database
@@ -258,8 +305,10 @@ If INDENTED is non-nil, indent the move texts."
 		(/= index (chess-game-data chess-pgn-current-game
 					   'database-index)))
 	(setq chess-pgn-current-game
-	      (chess-database-read chess-pgn-database index)))))
+	      (chess-database-read chess-pgn-database index))))))
 
+(defun chess-pgn-create-display ()
+  "Return the move index associated with point."
   ;; now find what position we're at in the game
   (save-excursion
     (when chess-pgn-current-game
@@ -280,6 +329,11 @@ If INDENTED is non-nil, indent the move texts."
 				  (chess-game-data chess-pgn-current-game
 						   'database-index)))
 	  (chess-display-set-index chess-pgn-display index))))))
+
+(defun chess-pgn-show-position ()
+  (interactive)
+  (chess-pgn-read-game)
+  (chess-pgn-create-display))
 
 (defun chess-pgn-mouse-show-position (event)
   (interactive "e")

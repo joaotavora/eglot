@@ -37,13 +37,13 @@
     (apply 'chess-database-event-handler nil (current-buffer)
 	   event args)))
 
-(defun chess-database-close (database)
+(defun chess-database-close (&optional database)
   (let ((buf (or database (current-buffer))))
     (when (buffer-live-p buf)
+      (with-current-buffer buf
+	(remove-hook 'kill-buffer-hook 'chess-database-close t))
       (chess-database-command buf 'save)
       (chess-database-command buf 'close)
-      (with-current-buffer buf
-	(remove-hook 'kill-buffer-hook 'chess-database-quit t))
       (kill-buffer buf))))
 
 (defun chess-database-save (database)
