@@ -64,10 +64,11 @@
 	(goto-char (match-end 0)))
       (let ((fen (chess-game-tag game "FEN")))
 	(chess-game-set-plies
-	 game (chess-pgn-read-plies
-	       game (if fen
-			(chess-fen-to-pos fen)
-		      (chess-pos-copy chess-starting-position)) t)))
+	 game (or (chess-pgn-read-plies
+		   game (if fen
+			    (chess-fen-to-pos fen)
+			  (chess-pos-copy chess-starting-position)) t)
+		  (list (chess-ply-create (chess-fen-to-pos fen))))))
       game)))
 
 (defun chess-pgn-insert-annotations (game index ply)

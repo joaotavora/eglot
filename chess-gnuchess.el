@@ -41,8 +41,10 @@
     (chess-engine-send nil "quit\n"))
 
    ((eq event 'setup)
-    (chess-engine-send nil (format "setboard %s\n"
-				   (chess-pos-to-fen (car args)))))
+    (let ((file (make-temp-file "gch")))
+      (with-temp-file file
+	(insert (chess-pos-to-fen (car args)) ?\n))
+      (chess-engine-send nil (format "epdload %s\n" file))))
 
    ((eq event 'pass)
     (chess-engine-send nil "go\n"))

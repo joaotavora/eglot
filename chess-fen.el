@@ -84,7 +84,7 @@ If FULL is non-nil, represent trailing spaces as well."
 	  (if (= p ? )
 	      (setq blank (1+ blank))
 	    (if (> blank 0)
-		(setq blank 0 str (concat str (int-to-string blank))))
+		(setq str (concat str (int-to-string blank)) blank 0))
 	    (setq str (concat str (char-to-string p))))))
       (if (and full (> blank 0))
 	  (setq str (concat str (int-to-string blank))))

@@ -76,6 +76,7 @@ a0 243
 
 (require 'chess-game)
 (require 'chess-display)
+(require 'chess-engine)
 (require 'chess-pgn)
 
 (defgroup chess nil
@@ -99,14 +100,79 @@ a0 243
 (defun chess (&optional arg)
   "Start a game of chess."
   (interactive "P")
-  (require chess-default-display)
-  (require chess-default-engine)
   (let ((game (chess-game-create))	; start out as white always
 	display engine)
+    (require chess-default-display)
     (chess-display-set-game
      (chess-display-create chess-default-display t) game)
-    (chess-engine-set-game
-     (chess-engine-create chess-default-engine) game)))
+    (let ((engine-module
+	   (if arg
+	       (intern-soft (read-string "Engine module to play against: "))
+	     chess-default-engine)))
+      (require engine-module)
+      (chess-engine-set-game (chess-engine-create engine-module) game))))
+    (cons display engine)))
+
+;;;###autoload
+(defun chess-read-pgn (&optional file)
+  "Read and display a PGN game after point."
+  (interactive "P")
+  (if (or file (not (search-forward "[Event" nil t)))
+      (setq file (read-file-name "Read a PGN game from file: ")))
+  (if file
+      (find-file file))
+  (let ((game (chess-pgn-to-game)))
+    (when game
+      (require chess-default-display)
+      (chess-display-set-game
+       (chess-display-create chess-default-display
+			     (chess-game-side-to-move game)) game))))
+
+(defvar chess-puzzle-locations nil)
+
+(defun chess-puzzle-next ()
+  "Play the next puzzle in the collection, selected randomly."
+  (interactive)
+  (if chess-puzzle-locations
+      (chess-puzzle (aref chess-puzzle-locations 0))))
+
+;;;###autoload
+(defun chess-puzzle (file)
+  "Pick a random puzzle from FILE, and solve it against the default engine.
+The spacebar in the display buffer is bound to `chess-puzzle-next',
+making it easy to go on to the next puzzle once you've solved one."
+  (interactive "fRead chess puzzles from: ")
+  (save-excursion
+    (with-current-buffer (find-file-noselect file)
+      (when (or (null chess-puzzle-locations)
+		(not (equal file (aref chess-puzzle-locations 0))))
+	(let (locations)
+	  (goto-char (point-min))
+	  (while (search-forward "[Event" nil t)
+	    (push (point) locations))
+	  (setq chess-puzzle-locations (vector file locations nil nil)))
+	(random t))
+      (goto-char (nth (random (length (aref chess-puzzle-locations 1)))
+		      (aref chess-puzzle-locations 1)))
+      (let ((game (chess-pgn-to-game)))
+	(when game
+	  (require chess-default-display)
+	  (let ((puzzle-display
+		 (or (and (buffer-live-p (aref chess-puzzle-locations 2))
+			  (aref chess-puzzle-locations 2))
+		     (chess-display-create chess-default-display
+					   (chess-game-side-to-move game)))))
+	    (chess-display-set-game puzzle-display game)
+	    (aset chess-puzzle-locations 2 puzzle-display)
+	    ;; setup spacebar as a convenient way to jump to the next puzzle
+	    (with-current-buffer puzzle-display
+	      (define-key (current-local-map) [? ] 'chess-puzzle-next)))
+	  (require chess-default-engine)
+	  (let ((puzzle-engine
+		 (or (and (buffer-live-p (aref chess-puzzle-locations 3))
+			  (aref chess-puzzle-locations 3))
+		     (chess-engine-create chess-default-engine))))
+	    (chess-engine-set-game puzzle-engine game)
 	    (aset chess-puzzle-locations 3 puzzle-engine)))))))
 
 (provide 'chess)

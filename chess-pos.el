@@ -177,7 +177,7 @@ If BLANK is non-nil, all of the squares will be empty.
 The current side-to-move is always white."
   (if blank
       (vconcat (make-vector 64 ? )
-	       [nil t t t t nil t nil])
+	       [nil nil nil nil nil nil t nil])
     (chess-pos-copy chess-starting-position)))
 
 (defsubst chess-rf-to-index (rank file)
