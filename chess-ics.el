@@ -364,8 +364,15 @@ who is black."
        ((chess-ply-keyword (car args) :resign)
 	(chess-engine-send nil "resign\n"))
        (t
-	(chess-engine-send nil (concat (chess-ply-to-algebraic (car args) t)
-				       "\n"))))
+	(let ((move
+	       (if (chess-ply-any-keyword (car args)
+					  :castle :long-castle)
+		   (chess-ply-to-algebraic (car args))
+		 (concat (chess-index-to-coord
+			  (car (chess-ply-changes (car args)))) "-"
+			 (chess-index-to-coord
+			  (cadr (chess-ply-changes (car args))))))))
+	  (chess-engine-send nil (concat move "\n")))))
 
       (if (chess-game-over-p game)
 	  (chess-game-set-data game 'active nil)))
