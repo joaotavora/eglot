@@ -10,7 +10,7 @@
 
 (defgroup chess-plain nil
   "A minimal, customizable ASCII display."
-  :group 'chess-ascii)
+  :group 'chess-display)
 
 (defcustom chess-plain-draw-border nil
   "*Non-nil if a border should be drawn (using `chess-plain-border-chars')."
@@ -61,16 +61,35 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   :type '(choice (const 'color) (const 'square-color)))
 	 ;; fails somehow
 
-(defun chess-plain-draw ()
+(defcustom chess-plain-popup t
+  "If non-nil, popup the chessboard display whenever the opponent moves."
+  :type 'boolean
+  :group 'chess-plain)
+
+(defcustom chess-plain-popup-function 'chess-display-popup-in-window
+  "The function used to popup a chess-plain display."
+  :type 'function
+  :group 'chess-plain)
+
+;;; Code:
+
+(defun chess-plain-handler (event &rest args)
+  (cond
+   ((eq event 'popup)
+    (if chess-plain-popup
+	(funcall chess-plain-popup-function)))
+   ((eq event 'draw)
+    (apply 'chess-plain-draw args))
+   ((eq event 'highlight)
+    (apply 'chess-plain-highlight args))))
+
+(defun chess-plain-draw (position perspective)
   "Draw the given POSITION from PERSPECTIVE's point of view.
 PERSPECTIVE is t for white or nil for black."
-  (if (null (get-buffer-window (current-buffer) t))
-      (pop-to-buffer (current-buffer)))
   (let ((inhibit-redisplay t)
 	(pos (point)))
     (erase-buffer)
-    (let* ((position (chess-display-position nil))
-	   (inverted (not (chess-display-perspective nil)))
+    (let* ((inverted (not perspective))
 	   (rank (if inverted 7 0))
 	   (file (if inverted 7 0))
 	   beg)
@@ -117,8 +136,6 @@ PERSPECTIVE is t for white or nil for black."
       (goto-char pos))))
 
 (defun chess-plain-highlight (index &optional mode)
-  (if (null (get-buffer-window (current-buffer) t))
-      (pop-to-buffer (current-buffer)))
   (let ((inverted (not (chess-display-perspective nil))))
     (save-excursion
       (beginning-of-line)

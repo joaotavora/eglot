@@ -6,26 +6,39 @@
 
 (require 'chess-display)
 
+(defgroup chess-ics1 nil
+  "The ICS1 style ASCII display."
+  :group 'chess-display)
+
+(defcustom chess-ics1-popup t
+  "If non-nil, popup the chessboard display whenever the opponent moves."
+  :type 'boolean
+  :group 'chess-ics1)
+
+(defcustom chess-ics1-popup-function 'chess-display-popup-in-window
+  "The function used to popup a chess-ics1 display."
+  :type 'function
+  :group 'chess-ics1)
+
 ;;; Code:
 
-(defun chess-debug-position (&optional position)
-  "This is a debugging function, and not meant from general use."
-  (interactive)
-  (let ((pos (or position (chess-engine-position nil))))
-    (with-current-buffer (get-buffer-create "*scratch*")
-      (chess-ics1-draw pos))))
+(defun chess-ics1-handler (event &rest args)
+  (cond
+   ((eq event 'popup)
+    (if chess-ics1-popup
+	(funcall chess-ics1-popup-function)))
+   ((eq event 'draw)
+    (apply 'chess-ics1-draw args))
+   ((eq event 'highlight)
+    (apply 'chess-ics1-highlight args))))
 
-(defun chess-ics1-draw (&optional disppos)
+(defun chess-ics1-draw (position perspective)
   "Draw the given POSITION from PERSPECTIVE's point of view.
 PERSPECTIVE is t for white or nil for black."
-  (if (null (get-buffer-window (current-buffer) t))
-      (pop-to-buffer (current-buffer)))
   (let ((inhibit-redisplay t)
 	(pos (point)))
     (erase-buffer)
-    (let* ((position (or disppos (chess-display-position nil)))
-	   (inverted (and (null disppos)
-			  (not (chess-display-perspective nil))))
+    (let* ((inverted (not perspective))
 	   (rank (if inverted 7 0))
 	   (file (if inverted 7 0))
 	   beg)
@@ -59,8 +72,8 @@ PERSPECTIVE is t for white or nil for black."
 	      rank (if inverted (1- rank) (1+ rank))))
       (insert "      +---+---+---+---+---+---+---+---+\n")
       (if inverted
-	  (insert "        h   g   f   e   d   c   b   a\n")
-	(insert "        a   b   c   d   e   f   g   h\n")))
+	  (insert "        h   g   f   e   d   c   b   a\n\n")
+	(insert "        a   b   c   d   e   f   g   h\n\n")))
     (set-buffer-modified-p nil)
     (goto-char pos)))
 
@@ -79,6 +92,13 @@ PERSPECTIVE is t for white or nil for black."
       (setq beg (point))
       (skip-chars-forward "^|")
       (put-text-property beg (point) 'face 'chess-display-highlight-face))))
+
+(defun chess-debug-position (&optional position)
+  "This is a debugging function, and not meant from general use."
+  (interactive)
+  (let ((pos (or position (chess-engine-position nil))))
+    (with-current-buffer (get-buffer-create "*scratch*")
+      (chess-ics1-draw pos t))))
 
 (provide 'chess-ics1)
 

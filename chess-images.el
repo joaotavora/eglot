@@ -44,8 +44,9 @@
 (defcustom chess-images-directory
   (if (file-directory-p "/usr/share/games/xboard/pixmaps")
       "/usr/share/games/xboard/pixmaps"
-    (expand-file-name "pieces" (file-name-directory
-				(or load-file-name buffer-file-name))))
+    (expand-file-name "pieces/xboard"
+		      (file-name-directory
+		       (or load-file-name buffer-file-name))))
   "Directory containing the chess piece bitmap images.
 You are free to use your own chess pieces, of any size.  By default, I
 assume you have xboard installed, or can go get the pixmaps that come
@@ -132,7 +133,31 @@ that specialized squares may be used such as marble tiles, etc."
   :set 'chess-images-clear-image-cache
   :group 'chess-images)
 
+(defcustom chess-images-popup t
+  "If non-nil, popup the chessboard display whenever the opponent moves."
+  :type 'boolean
+  :group 'chess-images)
+
+(defcustom chess-images-popup-function 'chess-images-popup
+  "The function used to popup a chess-images display.
+The current-buffer is set to the display buffer when this function is
+called."
+  :type 'function
+  :group 'chess-images)
+
 ;;; Code:
+
+(defun chess-images-handler (event &rest args)
+  (cond
+   ((eq event 'initialize)
+    (chess-images-initialize))
+   ((eq event 'popup)
+    (if chess-images-popup
+	(funcall chess-images-popup-function)))
+   ((eq event 'draw)
+    (apply 'chess-images-draw args))
+   ((eq event 'highlight)
+    (apply 'chess-images-highlight args))))
 
 (defconst chess-images-piece-names
   '((?r "rook"   0)
@@ -161,36 +186,24 @@ that specialized squares may be used such as marble tiles, etc."
 				    (x-display-pixel-width display)
 				  (display-pixel-width)) 20)))))
 
-(defun chess-images-popup-board ()
+(defun chess-images-popup ()
   (unless chess-images-size
     (error "Cannot find any piece images; check `chess-images-directory'"))
+  (if chess-images-separate-frame
+      (let* ((size (float (+ (* (or chess-images-border-width 0) 8)
+			     (* chess-images-size 8))))
+	     (max-char-height (ceiling (/ size (frame-char-height))))
+	     (max-char-width  (ceiling (/ size (frame-char-width))))
+	     (display (and (stringp chess-images-separate-frame)
+			   chess-images-separate-frame)))
+	(chess-display-popup-in-frame display (+ max-char-height 2)
+				      max-char-width))
+    (chess-display-popup-in-window)))
 
-  (let* ((size (float (+ (* (or chess-images-border-width 0) 8)
-			 (* chess-images-size 8))))
-	 (max-char-height (ceiling (/ size (frame-char-height))))
-	 (max-char-width  (ceiling (/ size (frame-char-width)))))
-
-    (if chess-images-separate-frame
-	;; make room for the possible title bar and other
-	;; decorations
-	(let ((params (list (cons 'name "*Chessboard*")
-			    (cons 'height (+ max-char-height 2))
-			    (cons 'width max-char-width))))
-	  (if (stringp chess-images-separate-frame)
-	      (push (cons 'display chess-images-separate-frame) params))
-	  (select-frame (make-frame params))
-	  (set-window-dedicated-p (selected-window) t))
-      (pop-to-buffer (current-buffer))
-      (set-window-text-height (get-buffer-window (current-buffer))
-			      max-char-height))))
-
-(defun chess-images-draw ()
+(defun chess-images-draw (position perspective)
   "Draw the current chess display position."
-  (if (null (get-buffer-window (current-buffer) t))
-      (chess-images-popup-board))
   (let* ((inhibit-redisplay t)
-	 (board (chess-display-position nil))
-	 (inverted (not (chess-display-perspective nil)))
+	 (inverted (not perspective))
 	 (rank (if inverted 7 0))
 	 (file (if inverted 7 0))
 	 (pos (point)) new beg)
@@ -201,7 +214,7 @@ that specialized squares may be used such as marble tiles, etc."
       (goto-char (point-min)))
     (while (if inverted (>= rank 0) (< rank 8))
       (while (if inverted (>= file 0) (< file 8))
-	(let* ((piece (chess-pos-piece board (chess-rf-to-index rank file)))
+	(let* ((piece (chess-pos-piece position (chess-rf-to-index rank file)))
 	       (image
 		(if (= piece ? )
 		    (aref chess-images-cache
@@ -237,12 +250,10 @@ that specialized squares may be used such as marble tiles, etc."
     (goto-char pos)))
 
 (defun chess-images-highlight (index &optional mode)
-  "Highlight the piece on BOARD at INDEX, using the given MODE.
+  "Highlight the piece on the board at INDEX, using the given MODE.
 Common modes are:
   `selected'    show that the piece has been selected for movement.
   `unselected'  show that the piece has been unselected."
-  (if (null (get-buffer-window (current-buffer) t))
-      (chess-images-popup-board))
   (let* ((inverted (not (chess-display-perspective nil)))
 	 (pos (save-excursion
 		(goto-char (point-min))

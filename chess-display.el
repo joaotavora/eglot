@@ -53,8 +53,8 @@
 (defvar chess-display-ply)
 (defvar chess-display-position)
 (defvar chess-display-perspective)
-(defvar chess-display-draw-function nil)
-(defvar chess-display-highlight-function nil)
+(defvar chess-display-event-handler nil)
+(defvar chess-display-no-popup nil)
 (defvar chess-display-edit-mode nil)
 (defvar chess-display-mode-line "")
 
@@ -64,8 +64,8 @@
 (make-variable-buffer-local 'chess-display-ply)
 (make-variable-buffer-local 'chess-display-position)
 (make-variable-buffer-local 'chess-display-perspective)
-(make-variable-buffer-local 'chess-display-draw-function)
-(make-variable-buffer-local 'chess-display-highlight-function)
+(make-variable-buffer-local 'chess-display-event-handler)
+(make-variable-buffer-local 'chess-display-no-popup)
 (make-variable-buffer-local 'chess-display-edit-mode)
 (make-variable-buffer-local 'chess-display-mode-line)
 
@@ -79,18 +79,14 @@
 (defun chess-display-create (style perspective)
   "Create a chess display, for displaying chess objects."
   (let* ((name (symbol-name style))
-	 (draw (intern-soft (concat name "-draw")))
-	 (highlight (intern-soft (concat name "-highlight")))
-	 (initialize (intern-soft (concat name "-initialize"))))
-    (unless draw
-      (error "There is no known chessboard display style '%s'" name))
+	 (handler (intern-soft (concat name "-handler"))))
+    (unless handler
+      (error "There is no such chessboard display style '%s'" name))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
-      (setq chess-display-draw-function draw
-	    chess-display-highlight-function highlight
-	    chess-display-perspective perspective)
       (chess-display-mode)
-      (if initialize
-	  (funcall initialize))
+      (funcall handler 'initialize)
+      (setq chess-display-event-handler handler
+	    chess-display-perspective perspective)
       (current-buffer))))
 
 (defsubst chess-display-destroy (display)
@@ -125,7 +121,7 @@ that was passed in."
 	  chess-display-index nil
 	  chess-display-ply nil
 	  chess-display-position position)
-    (chess-display-update nil)))
+    (chess-display-update nil t)))
 
 (defun chess-display-position (display)
   "Return the position currently viewed."
@@ -151,7 +147,7 @@ the modeline."
 	  chess-display-index nil
 	  chess-display-ply ply
 	  chess-display-position nil)
-    (chess-display-update display)))
+    (chess-display-update display t)))
 
 (defun chess-display-ply (display)
   (chess-with-current-buffer display
@@ -175,7 +171,7 @@ variation that was passed in."
 	  chess-display-index (or index 0)
 	  chess-display-ply nil
 	  chess-display-position nil)
-    (chess-display-update nil)))
+    (chess-display-update nil t)))
 
 (defun chess-display-variation (display)
   (chess-with-current-buffer display
@@ -197,7 +193,7 @@ modeline."
 	  chess-display-ply nil
 	  chess-display-position nil)
     (chess-game-add-hook game 'chess-display-event-handler display)
-    (chess-display-update nil)))
+    (chess-display-update nil t)))
 
 (defun chess-display-detach-game (display)
   "Set the display game.
@@ -229,15 +225,15 @@ modeline."
   (chess-with-current-buffer display
     chess-display-index))
 
-(defun chess-display-update (display)
-  "This should be called if any object passed in has been changed.
-That is, if you call `chess-display-set-position', and then later
-change that position object, the display can be updated by calling
-`chess-display-update'."
+(defun chess-display-update (display &optional popup)
+  "Update the chessboard DISPLAY.  POPUP too, if that arg is non-nil."
   (chess-with-current-buffer display
-    (if chess-display-draw-function
-	(funcall chess-display-draw-function))
-    (chess-display-set-modeline)))
+    (funcall chess-display-event-handler 'draw
+	     (chess-display-position nil)
+	     (chess-display-perspective nil))
+    (chess-display-set-modeline)
+    (if popup
+	(chess-display-popup nil))))
 
 (defun chess-display-move (display ply)
   "Move a piece on DISPLAY, by applying the given PLY.
@@ -267,12 +263,28 @@ The given highlighting MODE is used, or the default if the style you
 are displaying with doesn't support that mode.  `selected' is a mode
 that is supported by most displays, and is the default mode."
   (chess-with-current-buffer display
-    (if chess-display-highlight-function
-	(let ((mode :selected))
-	  (dolist (arg args)
-	    (if (symbolp arg)
-		(setq mode arg)
-	      (funcall chess-display-highlight-function arg mode)))))))
+    (let ((mode :selected))
+      (dolist (arg args)
+	(if (symbolp arg)
+	    (setq mode arg)
+	  (funcall chess-display-event-handler
+		   'highlight arg mode))))))
+
+(defun chess-display-popup (display)
+  "Popup the given DISPLAY, so that it's visible to the user."
+  (chess-with-current-buffer display
+    (unless chess-display-no-popup
+      (funcall chess-display-event-handler 'popup))))
+
+(defun chess-display-enable-popup (display)
+  "Popup the given DISPLAY, so that it's visible to the user."
+  (chess-with-current-buffer display
+    (setq chess-display-no-popup nil)))
+
+(defun chess-display-disable-popup (display)
+  "Popup the given DISPLAY, so that it's visible to the user."
+  (chess-with-current-buffer display
+    (setq chess-display-no-popup t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -301,11 +313,15 @@ See `chess-display-type' for the different kinds of displays."
      ((memq event '(move game-over resign))
       (chess-display-set-index nil (chess-game-index
 				    (chess-display-game nil)))))
+
     (if (eq event 'resign)
 	(message-box "%s resigns" (if (car args) "White" "Black")))
 
     (unless (eq event 'shutdown)
-      (chess-display-update nil))))
+      (chess-display-update nil))
+
+    (if (memq event '(pass move game-over resign))
+	(chess-display-popup nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -359,8 +375,26 @@ See `chess-display-type' for the different kinds of displays."
      (t
       (define-key map [mouse-1] 'chess-display-mouse-select-piece)
       (define-key map [mouse-2] 'chess-display-mouse-select-piece)))
+
+    (define-key map [menu-bar files] 'undefined)
+    (define-key map [menu-bar edit] 'undefined)
+    (define-key map [menu-bar options] 'undefined)
+    (define-key map [menu-bar buffer] 'undefined)
+    (define-key map [menu-bar tools] 'undefined)
+    (define-key map [menu-bar help-menu] 'undefined)
+
     map)
   "The mode map used in a chessboard display buffer.")
+
+(defvar chess-display-move-menu nil)
+(unless chess-display-move-menu
+  (easy-menu-define
+    chess-display-move-menu chess-display-mode-map ""
+    '("History"
+      ["First" chess-display-move-first t]
+      ["Previous" chess-display-move-backward t]
+      ["Next" chess-display-move-forward t]
+      ["Last" chess-display-move-last t])))
 
 (defun chess-display-redraw ()
   "Just redraw the current display."
@@ -694,6 +728,31 @@ to the end or beginning."
 	(set-face-attribute face nil :background color)
 	(add-to-list 'chess-display-face-cache (cons color face))
 	face)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Default window and frame popup functions
+;;
+
+(defun chess-display-popup-in-window ()
+  "Popup the given DISPLAY, so that it's visible to the user."
+  (unless (get-buffer-window (current-buffer))
+    (fit-window-to-buffer (display-buffer (current-buffer)))))
+
+(defun chess-display-popup-in-frame (display height width)
+  "Popup the given DISPLAY, so that it's visible to the user."
+  (let ((window (get-buffer-window (current-buffer) t)))
+    (if window
+	(let ((frame (window-frame window)))
+	  (unless (eq frame (selected-frame))
+	    (select-frame-set-input-focus frame)))
+      (let ((params (list (cons 'name "*Chessboard*")
+			  (cons 'height height)
+			  (cons 'width width))))
+	(if display
+	    (push (cons 'display display) params))
+	(select-frame (make-frame params))
+	(set-window-dedicated-p (selected-window) t)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
