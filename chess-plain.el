@@ -70,7 +70,7 @@ PERSPECTIVE is t for white or nil for black."
 	(pos (point)))
     (erase-buffer)
     (let* ((position (chess-display-position nil))
-	   (inverted (null (chess-display-perspective nil)))
+	   (inverted (not (chess-display-perspective nil)))
 	   (rank (if inverted 7 0))
 	   (file (if inverted 7 0))
 	   beg)
@@ -119,16 +119,22 @@ PERSPECTIVE is t for white or nil for black."
 (defun chess-plain-highlight (index &optional mode)
   (if (null (get-buffer-window (current-buffer) t))
       (pop-to-buffer (current-buffer)))
-  (save-excursion
-    (beginning-of-line)
-    (goto-line (if chess-plain-draw-border
-		   (+ 2 (chess-index-rank index))
-		 (1+ (chess-index-rank index))))
-    (forward-char (if chess-plain-draw-border
-		      (1+ (chess-index-file index))
-		    (chess-index-file index)))
-    (put-text-property (point) (1+ (point)) 'face
-		       'chess-display-highlight-face)))
+  (let ((inverted (not (chess-display-perspective nil))))
+    (save-excursion
+      (beginning-of-line)
+      (let ((rank (chess-index-rank index))
+	    (file (chess-index-file index)))
+	(if inverted
+	    (setq rank (- 7 rank)
+		  file (- 7 file)))
+	(goto-line (if chess-plain-draw-border
+		       (+ 2 rank)
+		     (1+ rank)))
+	(forward-char (if chess-plain-draw-border
+			  (1+ file)
+			file)))
+      (put-text-property (point) (1+ (point)) 'face
+			 'chess-display-highlight-face))))
 
 (provide 'chess-plain)
 

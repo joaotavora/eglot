@@ -16,6 +16,9 @@
 
 - Need a way to resign, request a draw, etc.
 
+- Implement engine options; then, in chess-puzzle set the option that
+  tells the engine not to resign.
+
 ----------------------------------------------------------------------
 
 - Port image display code to XEmacs

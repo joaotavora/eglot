@@ -106,6 +106,7 @@
 (defun chess-display-set-perspective (display perspective)
   (chess-with-current-buffer display
     (setq chess-display-perspective perspective)
+    (erase-buffer)			; force a complete redraw
     (chess-display-update nil)))
 
 

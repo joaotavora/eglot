@@ -176,7 +176,7 @@ that specialized squares may be used such as marble tiles, etc."
       (chess-images-popup-board))
   (let* ((inhibit-redisplay t)
 	 (board (chess-display-position nil))
-	 (inverted (null chess-display-perspective))
+	 (inverted (not (chess-display-perspective nil)))
 	 (rank (if inverted 7 0))
 	 (file (if inverted 7 0))
 	 (pos (point)) new beg)
@@ -229,10 +229,13 @@ Common modes are:
   `unselected'  show that the piece has been unselected."
   (if (null (get-buffer-window (current-buffer) t))
       (chess-images-popup-board))
-  (let* ((pos (save-excursion
+  (let* ((inverted (not (chess-display-perspective nil)))
+	 (pos (save-excursion
 		(goto-char (point-min))
-		(goto-line (1+ (chess-index-rank index)))
-		(forward-char (* 2 (chess-index-file index)))
+		(let ((rank (chess-index-rank index))
+		      (file (chess-index-file index)))
+		  (goto-line (1+ (if inverted (- 7 rank) rank)))
+		  (forward-char (* 2 (if inverted (- 7 file) file))))
 		(point)))
 	 (highlight (copy-alist (get-text-property pos 'display))))
     (setcar (last highlight)
