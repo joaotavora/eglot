@@ -111,7 +111,9 @@
     (chess-engine-send nil (format "chess match %s\n" chess-full-name)))
 
    ((eq event 'resign)
-    (chess-engine-send nil "resign\n"))
+    (chess-engine-send nil "resign\n")
+    (and (chess-engine-game nil)
+	 (chess-game-set-data (chess-engine-game nil) 'active nil)))
 
    ((eq event 'draw)
     (if chess-engine-pending-offer

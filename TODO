@@ -10,12 +10,13 @@
 
 ----------------------------------------------------------------------
 
-- Detect draw/resign/abort/retract, etc., from ICS and common engines
-
-- Make use of the my-color and active data in chess-game.el to ensure
-  that I only do what I should be doing
+- detect draw/resign/abort/retract, etc., from ICS and common engines
 
 - Why doesn't S-b produce [B] in the keyboard shortcutting?
+
+- chess-sound announcements are broken
+
+- the game should go inactive once I lose by stalemate/checkmate
 
 ----------------------------------------------------------------------
 

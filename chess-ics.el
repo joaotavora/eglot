@@ -11,6 +11,21 @@
   "Engine for interacting with Internet Chess Servers."
   :group 'chess-engine)
 
+(defcustom chess-ics-server "freechess.org"
+  "The default ICS server to connect to."
+  :type 'string
+  :group 'chess-ics)
+
+(defcustom chess-ics-port 5000
+  "The port to use when connecting to `chess-ics-server'."
+  :type 'integer
+  :group 'chess-ics)
+
+(defcustom chess-ics-handle "jwiegley"
+  "The default handle used when logging into `chess-ics-server'."
+  :type 'string
+  :group 'chess-ics)
+
 (defvar chess-ics-ensure-ics12 nil)
 (make-variable-buffer-local 'chess-ics-ensure-ics12)
 
@@ -29,7 +44,7 @@ who is black."
 	(position (chess-pos-create t))
 	white black ply)
 
-    (assert (= (length parts) 31))
+    (assert (= (length parts) 32))
 
     ;; first, handle the layout of the position
     (dotimes (i 8)
@@ -90,15 +105,14 @@ who is black."
     (setq parts (cdr parts))
 
     ;; move in elaborated notation
-    (setq ply (if (string= (car parts) "none")
-		  (chess-ply-create position)
-		(chess-algebraic-to-ply position (substring (car parts) 2))))
     (setq parts (cdr parts))
 
     ;; time elapsed
     (setq parts (cdr parts))
 
     ;; move in algebraic notation
+    (setq move (unless (string= (car parts) "none")
+		 (car parts)))
     (setq parts (cdr parts))
 
     ;; unknown
@@ -106,25 +120,39 @@ who is black."
     (setq parts (cdr parts))
     (setq parts (cdr parts))
 
-    (list ply white black)))
+    (list position move white black)))
 
 (defun chess-ics-handle-move ()
-  (let ((begin (match-beginning 1))
+  (let ((chess-engine-handling-event t)
+	(begin (match-beginning 1))
 	(end (match-end 1))
-	(info (chess-ics12-parse (match-string 2)))
+	(info (chess-ics12-parse (match-string 3)))
 	(game (chess-engine-game nil)))
     (assert game)
-    (if (> (chess-game-index game) 0)
-	(if (eq (chess-pos-side-to-move (chess-ply-pos (car info)))
-		(chess-pos-side-to-move (chess-engine-position nil)))
-	    (chess-engine-do-move (car info)))
-      (chess-engine-set-start-position nil (chess-ply-pos (car info))
-				       (string= (cadr info) ics-handle)))
-    (delete-region begin end)
+    (unwind-protect
+	(if (and (chess-game-data game 'active)
+		 (> (chess-game-index game) 0))
+	    (if (and (cadr info)
+		     (eq (chess-pos-side-to-move (car info))
+			 (chess-game-data game 'my-color)))
+		(let ((last-ply (last (chess-game-plies game))))
+		  (setcar last-ply
+			  (chess-algebraic-to-ply (chess-ply-pos (car last-ply))
+						  (cadr info) t))
+		  (chess-game-add-ply game (chess-ply-create (car info)))
+		  (chess-game-run-hooks game 'update)))
+	  (let ((chess-game-inhibit-events t) plies)
+	    (chess-game-set-data game 'my-color (string= (nth 2 info)
+							 chess-ics-handle))
+	    (chess-game-set-data game 'active t)
+	    (chess-game-set-start-position game (car info)))
+	  (chess-game-run-hooks game 'orient))
+      (delete-region begin end))
     t))
 
 (defvar chess-ics-regexp-alist
-  (list (cons "\\(<12> \\(.+\\)\\)" 'chess-ics-handle-move)
+  (list (cons "\\(\\(\n*fics%\n*\\)?<12> \\(.+\\)\\)\n"
+	      'chess-ics-handle-move)
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function
 	       (lambda ()
@@ -134,50 +162,20 @@ who is black."
 (defun chess-ics-handler (event &rest args)
   (cond
    ((eq event 'initialize)
-    (let* ((old-buffer (current-buffer))
-	   (address-or-alias (read-from-minibuffer
-			      "ICS Server address or alias: "))
-	   (server-info-list (cdr (assoc address-or-alias
-					 ics-servers-alist)))
-	   (ics-address (or (car (cdr server-info-list))
-			    address-or-alias))
-	   (ics-connect-method (or (car (nthcdr 3 server-info-list))
-				   ics-default-connect-method))
-	   (server-name (or (car server-info-list)
-			    address-or-alias))
-	   (ics-port (or (car (nthcdr 2 server-info-list))
-			 (read-from-minibuffer "ICS port: "
-					       ics-default-port)))
-	   (handle (read-from-minibuffer "ICS Handle: "
-					 ics-default-handle))
-	   (proc (concat server-name ":" handle))
-	   (buffer (concat "*" proc "*")))
+    (kill-buffer (current-buffer))
+    (message "Connecting to Internet Chess Server '%s'..." chess-ics-server)
 
-      (setq ics-handle handle)
+    (let ((buf (make-comint "chess-ics"
+			    (cons chess-ics-server chess-ics-port))))
+      (message "Connecting to Internet Chess Server '%s'...done"
+	       chess-ics-server)
 
-      (if (comint-check-proc buffer)
-	  (set-buffer buffer)
-	(run-hooks 'ics-pre-connect-hook)
-	(set-buffer (make-comint proc (cons ics-address ics-port)))
-	(run-hooks 'ics-post-connect-hook)
-	(ics-mode))
-
-      (set (make-variable-buffer-local 'ics-last-command-time)
-	   (ics-current-time))
-      (set (make-variable-buffer-local 'ics-idle-p) nil)
-      (set (make-variable-buffer-local 'ics-interface-variable-set) nil)
-      (set (make-variable-buffer-local 'ics-wakeup-last-alarm-time)
-	   (ics-current-time))
-      (set (make-variable-buffer-local 'ics-last-highlight-end) nil)
-      (set (make-variable-buffer-local 'ics-last-add-buttons-end) nil)
+      (display-buffer buf)
+      (set-buffer buf)
 
       (add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
       (set (make-local-variable 'comint-preoutput-filter-functions)
-	   '(chess-ics-strip-cr))
-
-      (display-buffer buffer)
-      (kill-buffer old-buffer)
-
+	   '(chess-ics-strip))
       nil))
 
    ((eq event 'match)
@@ -187,12 +185,12 @@ who is black."
 
    ((eq event 'move)
     (unless chess-ics-ensure-ics12
-      (comint-send-string (get-buffer-process (current-buffer))
-			  "set style 12\n")
+      (chess-engine-send nil "set style 12\n")
       (setq chess-ics-ensure-ics12 t))
     (chess-network-handler 'move (car args)))
 
    ((eq event 'send)
+    (message "sending string: %s" (car args))
     (comint-send-string (get-buffer-process (current-buffer))
 			(car args)))
 
@@ -204,12 +202,12 @@ who is black."
     (if chess-engine-last-pos
 	(goto-char chess-engine-last-pos)
       (goto-char (point-min)))
-    (beginning-of-line)
-    (while (not (eobp))
+    (while (and (not (eobp))
+		(/= (line-end-position) (point-max)))
       (let ((triggers chess-ics-regexp-alist))
 	(while triggers
-	  ;; this could be accelerated by joining together the
-	  ;; regexps
+	  ;; this could be accelerated by joining
+	  ;; together the regexps
 	  (if (and (looking-at (concat "[^\n\r]*" (caar triggers)))
 		   (funcall (cdar triggers)))
 	      (setq triggers nil)
@@ -217,8 +215,8 @@ who is black."
       (forward-line))
     (setq chess-engine-last-pos (point))))
 
-(defun chess-ics-strip-cr (string)
-  (while (string-match "\r" string)
+(defun chess-ics-strip (string)
+  (while (string-match "[\r\a]" string)
     (setq string (replace-match "" t t string)))
   string)
 

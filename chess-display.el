@@ -359,7 +359,7 @@ that is supported by most displays, and is the default mode."
   :group 'chess-display)
 
 (defcustom chess-display-momentous-events
-  '(orient setup-game pass move game-over resign)
+  '(orient update setup-game pass move resign)
   "Events that will refresh, and cause 'main' displays to popup.
 These are displays for which `chess-display-set-main' has been
 called."
@@ -384,12 +384,11 @@ See `chess-display-type' for the different kinds of displays."
 
      ((eq event 'orient)
       ;; Set the display's perspective to whichever color I'm
-      ;; playing; also set the index just to be sure
-      (chess-display-set-index* nil (chess-game-index game))
+      ;; playing
       (chess-display-set-perspective*
        nil (chess-game-data game 'my-color))))
 
-    (if (memq event '(orient setup-game move game-over resign))
+    (if (memq event '(orient update setup-game move resign))
 	(chess-display-set-index* nil (chess-game-index game)))
 
     (let ((momentous (memq event chess-display-momentous-events)))
@@ -527,14 +526,10 @@ The key bindings available in this mode are:
 		   "   "
 		   (let ((final (chess-ply-final-p ply)))
 		     (cond
-		      ((eq final :checkmate)
-		       "CHECKMATE")
-		      ((eq final :resign)
-		       "RESIGNED")
-		      ((eq final :stalemate)
-		       "STALEMATE")
-		      ((eq final :draw)
-		       "DRAWN")
+		      ((eq final :checkmate) "CHECKMATE")
+		      ((eq final :resign)    "RESIGNED")
+		      ((eq final :stalemate) "STALEMATE")
+		      ((eq final :draw)      "DRAWN")
 		      (t
 		       (if color "White" "Black"))))
 		   (if index
@@ -980,7 +975,7 @@ Clicking once on a piece selects it; then click on the target location."
 	      (let ((last-sel chess-display-last-selected))
 		;; if they select the same square again, just deselect it
 		(if (= (point) (car last-sel))
-		    (throw 'invalid t)
+		    (error "")
 		  (let ((s-piece (chess-pos-piece position (cadr last-sel)))
 			(t-piece (chess-pos-piece position coord)) ply)
 		    (if (and (/= t-piece ? )

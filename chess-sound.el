@@ -67,7 +67,7 @@
   "This display module presents a standard chessboard.
 See `chess-display-type' for the different kinds of displays."
   (cond
-   ((memq event '(move game-over))
+   ((eq event 'move)
     (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
 	   (pos (chess-ply-pos ply)))
       (if (eq (chess-game-data game 'my-color)

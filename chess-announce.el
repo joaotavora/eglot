@@ -43,7 +43,7 @@ See `chess-display-type' for the different kinds of displays."
    ((eq event 'shutdown)
     (funcall (nth 2 chess-announce-functions)))
 
-   ((memq event '(move game-over))
+   ((eq event 'move)
     (let* ((ply (chess-game-ply game (1- (chess-game-index game))))
 	   (pos (chess-ply-pos ply)))
       (unless (eq (chess-game-data game 'my-color)

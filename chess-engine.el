@@ -420,10 +420,10 @@ function in all cases; this is merely a bandwidth-saver."
 (defun chess-engine-event-handler (game engine event &rest args)
   "Handle any commands being sent to this instance of this module."
   (unless chess-engine-handling-event
-    (if (buffer-live-p engine)
-	(with-current-buffer engine
-	  (assert (eq game (chess-engine-game nil)))
-	  (apply chess-engine-event-handler event args)))
+    (chess-with-current-buffer engine
+      (assert (eq game (chess-engine-game nil)))
+      (apply chess-engine-event-handler event args))
+
     (cond
      ((eq event 'shutdown)
       (chess-engine-destroy engine))

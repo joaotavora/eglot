@@ -82,25 +82,28 @@ This regexp handles both long and short form.")
 		      ;; we must use our knowledge of how pieces can
 		      ;; move, to determine which piece is meant by the
 		      ;; piece indicator
-		      (when (setq candidates
-				  (chess-search-position position target
-							 (if color piece
-							   (downcase piece))))
-			(if (= (length candidates) 1)
-			    (list (car candidates) target)
-			  (if (null source)
-			      (error "Clarify piece to move by rank or file")
-			    (while candidates
-			      (if (if (>= source ?a)
-				      (eq (chess-index-file (car candidates))
-					  (- source ?a))
-				    (eq (chess-index-rank (car candidates))
-					(- 7 (- source ?1))))
-				  (setq which (car candidates) candidates nil)
-				(setq candidates (cdr candidates))))
-			    (if (null which)
-				(error "Could not determine which piece to use")
-			      (list which target)))))))))
+		      (if (setq candidates
+				(chess-search-position position target
+						       (if color piece
+							 (downcase piece))))
+			  (if (= (length candidates) 1)
+			      (list (car candidates) target)
+			    (if (null source)
+				(error "Clarify piece to move by rank or file")
+			      (while candidates
+				(if (if (>= source ?a)
+					(eq (chess-index-file (car candidates))
+					    (- source ?a))
+				      (eq (chess-index-rank (car candidates))
+					  (- 7 (- source ?1))))
+				    (setq which (car candidates)
+					  candidates nil)
+				  (setq candidates (cdr candidates))))
+			      (if (null which)
+				  (error "Could not determine which piece to use")
+				(list which target))))
+			(error "There are no candidate moves for '%s'"
+			       move))))))
 	  (if promotion
 	      (nconc changes (list :promote (aref promotion 0))))))
 
@@ -155,7 +158,7 @@ If LONG is non-nil, render the move into long notation."
 	   (if (/= ?  (chess-pos-piece pos to))
 	       "x" (if long "-"))
 	   (chess-index-to-coord to)
-	   (let ((promote (chess-ply-has-keyword ply :promote)))
+	   (let ((promote (memq :promote (chess-ply-changes ply))))
 	     (if promote
 		 (concat "=" (char-to-string
 			      (upcase (cadr promote))))))

@@ -128,7 +128,7 @@ matches."
 (defsubst chess-game-set-plies (game plies)
   "Return the tags alist associated with GAME."
   (setcdr (nthcdr 2 game) (list plies))
-  (chess-game-run-hooks game 'setup-game))
+  (chess-game-run-hooks game 'setup-game game))
 
 (defsubst chess-game-set-start-position (game position)
   "Return the tags alist associated with GAME."
@@ -160,15 +160,14 @@ matches."
   (let ((plies (chess-game-plies game)))
     (if plies
 	(nconc plies (list ply))
-      (chess-game-set-plies game (list ply)))))
+      (let ((chess-game-inhibit-events t))
+	(chess-game-set-plies game (list ply))))))
 
 (defun chess-game-undo (game count)
   "Undo the last COUNT plies of GAME."
   (if (> count (chess-game-index game))
       (error "Cannot undo further")
-    (chess-game-set-plies game (nbutlast (chess-game-plies game) count))
-    ;;(chess-game-run-hooks game 'undo count)
-    ))
+    (chess-game-set-plies game (nbutlast (chess-game-plies game) count))))
 
 
 (defsubst chess-game-over-p (game)
@@ -223,7 +222,7 @@ progress (nil), if it is drawn, resigned, mate, etc."
 	(chess-game-set-tag game "Result" (if color "0-1" "1-0"))
 	(if (chess-ply-has-keyword ply :resign)
 	    (chess-game-run-hooks game 'resign color)
-	  (chess-game-run-hooks game 'game-over))))
+	  (chess-game-run-hooks game 'move current-ply))))
 
      (t
       (chess-game-run-hooks game 'move current-ply)))))
