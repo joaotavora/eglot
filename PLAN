@@ -7,6 +7,13 @@ chess-display
 chess-pos
 - Allow NAG codes to be associated with a position
 
+chess-ply
+- chess-ply-create is allowing positions that leave the king in check
+
+chess-epd
+- based on chess-fen, this will also be a database module for
+  accessing positions within an EPD file
+
 chess-ics
 - detect draw/resign/abort/retract, etc.
 - add support for ICS observing
