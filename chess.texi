@@ -222,6 +222,10 @@ form of confirmation during the course of a game.
 
 @c lispfun chess-ply-set-changes
 
+@c lispfun chess-ply-source
+
+@c lispfun chess-ply-target
+
 @subsection The "next" position
 
 @c lispfun chess-ply-next-pos
