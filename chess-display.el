@@ -81,7 +81,7 @@ makes moves, or any other changes to the underlying game."
     (with-current-buffer (generate-new-buffer "*Chessboard*")
       (setq buffer (current-buffer))
       (chess-display-mode read-only)
-      (when (funcall handler 'initialize)
+      (when (setq buffer (funcall handler 'initialize))
 	(add-hook 'kill-buffer-hook 'chess-display-quit nil t)
 	(setq chess-display-style style
 	      chess-display-perspective perspective

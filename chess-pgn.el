@@ -167,6 +167,10 @@ If INDENTED is non-nil, indent the move texts."
 ;; chess-pgn-mode for editing and browsing PGN files.
 ;;
 
+(defvar chess-pgn-database)
+
+(make-variable-buffer-local 'chess-pgn-database)
+
 ;;;###autoload
 (define-derived-mode chess-pgn-mode text-mode "PGN"
   "A mode for editing chess PGN files."
@@ -178,7 +182,8 @@ If INDENTED is non-nil, indent the move texts."
   (let ((map (current-local-map)))
     (define-key map [??] 'describe-mode)
     (define-key map [?T] 'text-mode)
-    (define-key map [return] 'chess-pgn-move)
+    (define-key map [return] 'chess-pgn-show-position)
+    (define-key map [mouse-1] 'chess-pgn-mouse-show-position)
     (define-key map [(control ?m)] 'chess-pgn-move)))
 
 (defalias 'pgn-mode 'chess-pgn-mode)
@@ -206,6 +211,24 @@ If INDENTED is non-nil, indent the move texts."
 	   mm-inline-media-tests)
      (push "application/x-chess-pgn" mm-inlined-types)
      (push "application/x-chess-pgn" mm-automatic-display)))
+
+(defun chess-pgn-show-position ()
+  (interactive)
+  (unless chess-pgn-database
+    (save-excursion
+      (when (re-search-backward "\\[Event \"\\([^\"]+\\)\"\\]" nil t)
+	))))
+
+(defun chess-pgn-mouse-show-position (event)
+  (interactive "e")
+  (if (fboundp 'event-window)		; XEmacs
+      (progn
+	(set-buffer (window-buffer (event-window event)))
+	(and (event-point event) (goto-char (event-point event))))
+    (progn
+      (set-buffer (window-buffer (posn-window (event-start event))))
+      (goto-char (posn-point (event-start event)))))
+  (chess-pgn-show-position))
 
 (defun chess-pgn-move ()
   "Make a move from a PGN buffer."

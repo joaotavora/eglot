@@ -52,7 +52,7 @@ See `chess-display-type' for the different kinds of displays."
     (kill-buffer (current-buffer))
     (set-buffer (generate-new-buffer " *chess-announce*"))
     (funcall (nth 0 chess-announce-functions))
-    t)
+    (current-buffer))
 
    ((eq event 'shutdown)
     (funcall (nth 2 chess-announce-functions)))

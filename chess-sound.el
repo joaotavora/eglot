@@ -62,7 +62,8 @@ See `chess-display-type' for the different kinds of displays."
 	 (file-readable-p (expand-file-name "move.wav"
 					    chess-sound-directory))
 	 (or (eq chess-sound-play-function 'play-sound-file)
-	     (file-executable-p chess-sound-program))))
+	     (file-executable-p chess-sound-program))
+	 (current-buffer)))
 
    ((eq event 'move)
     (let* ((ply (chess-game-ply chess-display-game

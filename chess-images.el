@@ -160,14 +160,17 @@ called."
     (when (display-graphic-p)
       (chess-images-initialize)
       (if chess-images-size
-	  t
+	  (current-buffer)
 	(chess-message 'no-images-fallback)
 	nil)))
+
    ((eq event 'popup)
     (if chess-display-popup
 	(funcall chess-images-popup-function)))
+
    ((eq event 'draw)
     (apply 'chess-images-draw args))
+
    ((eq event 'highlight)
     (apply 'chess-images-highlight args))))
 
