@@ -353,6 +353,21 @@ who is black."
        nil (format "match %s\n"
 		   (read-string (chess-string 'challenge-whom)))))
 
+     ((eq event 'move)
+      (when (= 1 (chess-game-index game))
+	(chess-game-set-tag game "White" chess-full-name)
+	(chess-game-set-tag game "Black" chess-engine-opponent-name))
+
+      (cond
+       ((chess-ply-keyword (car args) :resign)
+	(chess-engine-send nil "resign\n"))
+       (t
+	(chess-engine-send nil (concat (chess-ply-to-algebraic (car args) t)
+				       "\n"))))
+
+      (if (chess-game-over-p game)
+	  (chess-game-set-data game 'active nil)))
+
      ((eq event 'send)
       (comint-send-string (get-buffer-process (current-buffer))
 			  (car args)))
