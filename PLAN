@@ -1,34 +1,36 @@
-chess-algebraic
-chess-announce   99%
-chess-autosave   90%  [what about multiple simultaneous games?]
-chess-clock
-chess-common
-chess-crafty
-chess-database
-chess-display
-chess-engine
-chess-fen
-chess-file
-chess-game
-chess-gnuchess
-chess-ics
-chess-ics1
-chess-images
-chess-irc
-chess-link
-chess-maint
-chess-message
-chess-module
-chess-network
-chess-none
-chess-pgn
-chess-phalanx
-chess-plain
-chess-ply
+TEST: chess-chat, chess-kibitz, chess-scid, chess-irc (CTCP)
+TRANSLATE: chess-german
+
 chess-pos
-chess-random
-chess-scid
-chess-sound
-chess-transport
-chess-var
-chess
+- break chess-legal-plies into two parts, one of which would be the
+  inverse of chess-search-position, and would live in chess-pos.el
+
+chess-engine
+- the game should go inactive once I lose by stalemate/checkmate
+- detect draw/resign/abort/retract, etc., from ICS and common engines
+- find a way that regexp-alist entries that only need to fire once are
+  only scanned once.
+- in chess-engine-filter and chess-ics-filter, if an error is
+  encountered, skip that line so the same error isn't triggered again
+- implement engine options; then, in chess-puzzle set the option that
+  tells the engine not to resign.
+
+chess-ics
+- add support for ICS observing
+- make sure that helpers are allowed in the ics-server-alist
+
+chess-clock
+- when a clock runs down, indicate this in the modeline, and allow the
+  user to call-flag in order to win on time; note: the user should be
+  allowed to try anyway, in case our clock has become out-of-sync with
+  the server's
+
+			 BEFORE FINAL RELEASE
+
+  use more asserts throughout the code
+  break my dependency on cl
+* profile
+* mem profile
+  docstring/texi
+  checkdoc
+  elint

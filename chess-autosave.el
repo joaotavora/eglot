@@ -16,23 +16,26 @@
 
 (chess-message-catalog 'english
   '((chess-read-autosave   . "There is a chess autosave file, read it? ")
-    (chess-delete-autosave . "Delete the autosave file? ")))
+    (chess-delete-autosave . "Delete the autosave file? ")
+    (chess-disable-autosave . "Disable autosaving for this game? ")))
 
 (defun chess-autosave-handler (game event &rest args)
   (cond
    ((eq event 'initialize)
-    (if (file-readable-p chess-autosave-file)
-	(if (y-or-n-p (chess-string 'chess-read-autosave))
-	    (prog1
-		(chess-game-copy-game
-		 game (chess-autosave-read chess-autosave-file))
-	      (delete-file chess-autosave-file))
-	  (ignore
-	   (if (y-or-n-p (chess-string 'chess-delete-autosave))
-	       (delete-file chess-autosave-file)))))
-    (kill-buffer (current-buffer))
-    (set-buffer (find-file-noselect chess-autosave-file t))
-    t)
+    (let ((result t))
+      (if (file-readable-p chess-autosave-file)
+	  (if (y-or-n-p (chess-string 'chess-read-autosave))
+	      (progn
+		(chess-game-copy-game game (chess-autosave-read
+					    chess-autosave-file))
+		(delete-file chess-autosave-file))
+	    (if (y-or-n-p (chess-string 'chess-delete-autosave))
+		(delete-file chess-autosave-file)
+	      (if (y-or-n-p (chess-string 'chess-disable-autosave))
+		  (setq result nil)))))
+      (kill-buffer (current-buffer))
+      (set-buffer (find-file-noselect chess-autosave-file t))
+      result))
 
    ((eq event 'post-move)
     (chess-autosave-write game chess-autosave-file))

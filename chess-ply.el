@@ -44,6 +44,7 @@
 ;;; Code:
 
 (require 'chess-pos)
+(require 'chess-algebraic)
 
 (defgroup chess-ply nil
   "Routines for manipulating chess plies."
@@ -97,6 +98,12 @@
 (defsubst chess-ply-next-pos (ply)
   (apply 'chess-pos-move (chess-pos-copy (chess-ply-pos ply))
 	 (chess-ply-changes ply)))
+
+(defsubst chess-ply-to-string (ply &optional long)
+  (chess-ply-to-algebraic ply long))
+
+(defsubst chess-ply-from-string (position move)
+  (chess-algebraic-to-ply position move))
 
 (defconst chess-piece-name-table
   '(("queen"  . ?q)

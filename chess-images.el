@@ -182,7 +182,13 @@ called."
     (apply 'chess-images-draw-square args))
 
    ((eq event 'highlight)
-    (apply 'chess-images-highlight args))))
+    (apply 'chess-images-highlight args))
+
+   ((eq event 'start-edit)
+    (setq cursor-type t))
+
+   ((eq event 'end-edit)
+    (setq cursor-type nil))))
 
 (defun chess-images-determine-size ()
   (let ((display (and (stringp chess-images-separate-frame)

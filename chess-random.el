@@ -10,7 +10,7 @@
 
 (defvar pieces-vector [?r ?n ?b ?q ?k ?b ?n ?r])
 
-(defun shuffle-vector (vector)
+(defun chess-shuffle-vector (vector)
   "Randomly permute the elements of VECTOR (all permutations equally likely)"
   (let ((i 0)
 	j
@@ -28,7 +28,7 @@
 (defun chess-fischer-random-position ()
   (let (pieces position)
     (while (null position)
-      (setq pieces (shuffle-vector pieces-vector))
+      (setq pieces (chess-shuffle-vector pieces-vector))
       (let (first-bishop first-rook king)
 	(catch 'retry
 	  (dotimes (i 8)
@@ -56,13 +56,6 @@
 			   (aref pieces i))
       (chess-pos-set-piece position (chess-rf-to-index 7 i)
 			   (upcase (aref pieces i))))
-
-    ;; jww (2002-04-12): Until I fully support Fischer Random
-    ;; castling, I will disable it here
-    (chess-pos-set-can-castle position ?K nil)
-    (chess-pos-set-can-castle position ?Q nil)
-    (chess-pos-set-can-castle position ?k nil)
-    (chess-pos-set-can-castle position ?q nil)
 
     position))
 

@@ -1,91 +1,55 @@
-
-			       Hotlist
-
-- After I resign (against crafty, for example), the mode-line does not
-  look as it should; the board is not reset, which causes C-l to fail
-  because chess-display-index is now bogus
-
-- Follow what `edit-env' does, in order to make chess-query.el
-
-- Make ( create variations in a display, and C-f and C-b move into and
-  out of them
-
-- Find a way that regexp-alist entries that only need to fire once are
-  only scanned once.
-
-- Add support for ICS observing
-
-- Use server-side sockets in chess-network, if Emacs supports it
-
-- Allow ASCII displays to use a separate frame
-
-- Still need to test many areas: position editing
-
-- In chess-ics.el, setup a completion function based on handles
-
-- Break chess-legal-plies into two parts, one of which would be the
-  inverse of chess-search-position, and would live in chess-pos.el
-
-- Have elp.el not instrument defsubst functions; it obscures the
-  results too much
+These are features scheduled for future 2.x releases.
 
 ----------------------------------------------------------------------
 
-			      To-do List
+			   General Features
+
+- Make ( create variations in a display, and keys to move into and out
+  of them.  At the moment, variations are supported programmatically,
+  but not in the UI.
+
+- Make a display read-only mode, which allows people to view/browse
+  but not alter a game.  This could be used for remoting displays in
+  order that people on other X servers might observe a game.
+
+- Implement the "50 moves after irreversible" draw rule in chess-ply
+
+- Port the code to XEmacs
+
+- Find a way to display pieces on Windows platforms, or at least
+  document how to build XPM support into Emacs for Windows
+
+----------------------------------------------------------------------
+
+			      ICS Client
+
+- Add a completion function against logged in users
 
 - Copy some of ics.el's nicer functionality into chess-ics.el
 
-- Need to implement the "50 moves after irreversible" draw rule
+----------------------------------------------------------------------
 
-- The game should go inactive once I lose by stalemate/checkmate
-
-- When a clock runs down, indicate this in the modeline, and all the
-  user to call-flag in order to win on time
-
-- Detect draw/resign/abort/retract, etc., from ICS and common engines
-
-- in chess-engine-filter and chess-ics-filter, if an error is
-  encountered, skip that line so the same error isn't triggered again
-
-- SPACE to pass, then try to move (against an engine) fails saying:
-  it's not our turn to move
+			    Chess by Mail
 
 - Add support for adjournments; also, implement this is such a way
   that an e-mail or postal game is basically a game that's adjourned
   after every move; use BBDB if available
 
-- Allow databases to return a game moniker, which can be used to
-  reference that game again
-
-- There needs to be much more robustness; it's too easy to get the
-  game into an unplayable state right now
-
-- Break my dependency on cl
-
-- Use more asserts throughout the code
-
-- Read-only mode needs to be more vigorous.  There's nothing
-  preventing the user from using M-x commands.
-
-- Complete chess-pgn-mode's automatic entry, using chess-input, and
-  making space/return perform the move
-
 - Use MIME attachments (application/x-chess-pgn) for sending e-mail
   chess games back and forth.
 
-- In edit mode, mouse-2 and mouse-3 should provide a drop-down list of
-  pieces the square can be set to.  Cursor movement is really not the
-  best for chess-images.  I still need to figure out how best to
-  handle cursor-type with that display.
+----------------------------------------------------------------------
 
-- Implement engine options; then, in chess-puzzle set the option that
-  tells the engine not to resign.
+			 Database Interaction
 
-- Remote displays are horribly insecure.
+- Enable UI commands in chess-display to interact with databases.  As
+  of 2.0, this support is programmatic only.
+
+- Follow what `edit-env' does, in order to make chess-query.el.
 
 ----------------------------------------------------------------------
 
-			       Training
+			  Training/Tutorials
 
 - Write a scripted chess-tutorial.
 
@@ -130,12 +94,3 @@ Need a way to play bughouse/crazyhouse games.
 
 ----------------------------------------------------------------------
 
-			 BEFORE FINAL RELEASE
-
-  port the code to XEmacs
-  profile
-  mem profile
-  docstring
-  texi
-  elint
-  checkdoc

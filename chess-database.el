@@ -46,8 +46,19 @@
 (defun chess-database-count (database)
   (chess-database-command database 'count))
 
-(defun chess-database-read (database index)
-  (chess-database-command database 'read index))
+(defun chess-database-read (database index-or-moniker)
+  (if (integerp index-or-moniker)
+      (chess-database-command database 'read index)
+    (if (string-match "\\`\\([^:]+\\):\\([^#]+\\)#\\([0-9]+\\)\\'"
+		      index-or-moniker)
+	(let* ((type (match-string 1 index-or-moniker))
+	       (path (match-string 2 index-or-moniker))
+	       (index (string-to-int
+		       (match-string 3 index-or-moniker)))
+	       (db (chess-database-open
+		    (intern (concat "chess-" type)) path)))
+	  (if db
+	      (chess-database-read db index))))))
 
 (defun chess-database-write (database game)
   (chess-database-command database 'write game))

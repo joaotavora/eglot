@@ -75,10 +75,9 @@
       (chess-game-undo game (car args))))
 
    ((eq event 'move)
-    (if (= 0 (chess-game-index game))
-	(chess-game-set-tag game "White" chess-full-name)
-      (if (= 1 (chess-game-index game))
-	  (chess-game-set-tag game "Black" chess-engine-opponent-name)))
+    (when (= 1 (chess-game-index game))
+      (chess-game-set-tag game "White" chess-full-name)
+      (chess-game-set-tag game "Black" chess-engine-opponent-name))
 
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args)) "\n"))
 

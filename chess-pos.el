@@ -70,8 +70,8 @@
 
 ;;; Code:
 
-(require 'cl)
 (require 'chess-message)
+(require 'chess-fen)
 
 (defgroup chess-pos nil
   "Routines for manipulating chess positions."

@@ -4,8 +4,6 @@
 ;;
 
 (require 'chess-common)
-(require 'chess-fen)
-(require 'chess-algebraic)
 
 (defvar chess-network-regexp-alist
   (list
@@ -72,6 +70,10 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'illegal))))
+   (cons "call flag$"
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'call-flag))))
    (cons "kibitz\\s-+\\(.+\\)$"
 	 (function
 	  (lambda ()
@@ -106,13 +108,18 @@
       (let ((which (read-char "Are you the c)lient or s)erver? "))
 	    proc)
 	(chess-message 'network-starting)
-	(setq proc (if (eq which ?s)
-		       (start-process "*chess-network*"
-				      (current-buffer) "/usr/bin/nc"
-				      "-l" "-p" (read-string "Port: "))
-		     (open-network-stream "*chess-network*" (current-buffer)
-					  (read-string "Host: ")
-					  (read-string "Port: "))))
+	(setq proc
+	      (if (eq which ?s)
+		  (if (fboundp 'open-network-stream-server)
+		      (open-network-stream-server "*chess-network*"
+						  (current-buffer)
+						  (read-string "Port: "))
+		    (start-process "*chess-network*"
+				   (current-buffer) "/usr/bin/nc"
+				   "-l" "-p" (read-string "Port: ")))
+		(open-network-stream "*chess-network*" (current-buffer)
+				     (read-string "Host: ")
+				     (read-string "Port: "))))
 	(if (eq which ?s)
 	    (chess-message 'network-waiting)
 	  (chess-network-handler 'match)
@@ -174,6 +181,9 @@
 
      ((eq event 'illegal)
       (chess-engine-send nil "illegal\n"))
+
+     ((eq event 'call-flag)
+      (chess-engine-send nil "call flag\n"))
 
      ((eq event 'kibitz)
       (chess-engine-send nil (format "kibitz %s\n"

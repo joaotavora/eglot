@@ -76,9 +76,6 @@
 (require 'chess-game)
 (require 'chess-display)
 (require 'chess-engine)
-(require 'chess-random)
-(require 'chess-database)
-(require 'chess-file)
 
 (defgroup chess nil
   "An Emacs chess playing program."
@@ -193,10 +190,11 @@ available."
     (nconc objects (chess-create-modules chess-default-modules
 					 'chess-module-create game))
 
-    (push (car (chess-create-modules (list (or engine chess-default-engine))
-				     'chess--create-engine game
-				     engine-response-handler
-				     engine-ctor-args))
+    (push (unless (eq engine 'none)
+	    (car (chess-create-modules (list (or engine chess-default-engine))
+				       'chess--create-engine game
+				       engine-response-handler
+				       engine-ctor-args)))
 	  objects)
 
     (unless (car objects)
@@ -208,98 +206,16 @@ available."
 (defalias 'chess-session 'chess)
 
 ;;;###autoload
-(defun chess-create-display ()
-  "Just make a display to use, letting chess.el decide the style."
-  (cadr (chess-session 'chess-none)))
-
-;;;###autoload
-(defun chess-create-display-object (perspective)
-  (car (chess-create-modules (list chess-default-display)
-			     'chess--create-display
-			     (chess-game-create) perspective nil)))
-
-(defvar chess-puzzle-indices nil)
-(defvar chess-puzzle-position nil)
-(make-variable-buffer-local 'chess-puzzle-indices)
-(make-variable-buffer-local 'chess-puzzle-position)
-
-;;;###autoload
-(defun chess-puzzle (file &optional index)
-  "Pick a random puzzle from FILE, and solve it against the default engine.
-The spacebar in the display buffer is bound to `chess-puzzle-next',
-making it easy to go on to the next puzzle once you've solved one."
-  (interactive "fRead chess puzzles from: ")
-  (let* ((database (chess-database-open 'chess-file file))
-	 (objects (and database (chess-session)))
-	 (display (cadr objects)))
-    (when database
-      (with-current-buffer display
-	;; make sure the database is closed when the display is shutdown
-	(chess-game-add-hook (chess-display-game nil)
-			     'chess-database-event-handler database)
-	(chess-game-set-data (chess-display-game nil) 'database database)
-	(define-key (current-local-map) [? ] 'chess-puzzle-next)
-	(let ((count (chess-database-count database)))
-	  (setq chess-puzzle-indices (make-vector count nil))
-	  (dotimes (i count)
-	    (aset chess-puzzle-indices i i))
-	  (random t)
-	  (shuffle-vector chess-puzzle-indices)
-	  (setq chess-puzzle-position 0))
-	(chess-puzzle-next)))))
-
-(chess-message-catalog 'english
-  '((bad-game-read . "Error reading game at position %d")
-    (end-of-puzzles . "There are no more puzzles in this collection")))
-
-(defun chess-puzzle-next ()
-  "Play the next puzzle in the collection, selected randomly."
-  (interactive)
-  (let* ((game (chess-display-game nil))
-	 (database (chess-game-data game 'database))
-	 (index chess-puzzle-position)
-	 next-game)
-    (if (= index (length chess-puzzle-indices))
-	(chess-message 'end-of-puzzles)
-      (setq chess-puzzle-position (1+ chess-puzzle-position))
-      (if (null (setq next-game
-		      (chess-database-read database
-					   (aref chess-puzzle-indices index))))
-	  (chess-error 'bag-game-read
-		       (aref chess-puzzle-indices index))
-	(chess-display-set-game nil next-game 0)
-	(chess-game-set-data game 'my-color
-			     (chess-pos-side-to-move (chess-game-pos game)))
-	(dolist (key '(database database-index database-count))
-	  (chess-game-set-data game key (chess-game-data next-game key)))))))
-
-(chess-message-catalog 'english
-  '((queen-would-take . "The queen would take your knight!")
-    (congratulations  . "Congratulations!")))
-
-(defun chess-tutorial-knight-1 (game ignore event &rest args)
-  (if (eq event 'move)
-      (let ((position (chess-game-pos game)))
-	(if (null (chess-pos-search position ?p))
-	    (chess-message 'congratulations)
-	  (when (chess-search-position
-		 position (car (chess-pos-search position ?N)) ?q)
-	    (chess-game-run-hooks chess-module-game 'undo 1)
-	    (chess-display-update nil)
-	    (chess-error 'queen-would-take))))))
-
-(defun chess-tutorial ()
-  (interactive)
-  (let* (chess-default-modules
-	 (display (chess-create-display)))
-    (with-current-buffer display
-      (chess-game-set-start-position
-       (chess-display-game nil)
-       (chess-fen-to-pos "8/3p1p/2p3p/4q/2p3p/3p1p/8/N w - -"))
-      (chess-game-add-hook (chess-display-game nil) 'chess-tutorial-knight-1)
-      (setq chess-pos-always-white t)
-      (chess-display-popup nil)
-      (message "Goal: take all the pawns, without letting the queen take your knight"))))
+(defun chess-create-display (perspective &optional display-only)
+  "Create a display, letting the user's customization decide the style.
+If DISPLAY-ONLY is non-nil, then only a display is created, with none
+of the usual ancillary modules."
+  (if display-only
+      (car (chess-create-modules (list chess-default-display)
+				 'chess--create-display
+				 (chess-game-create) perspective nil))
+    (let ((display (cadr (chess-session 'none))))
+      (chess-display-set-perspective* display perspective))))
 
 (provide 'chess)
 

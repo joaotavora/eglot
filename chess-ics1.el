@@ -29,9 +29,14 @@
   "Face to use for highlighting pieces that have been selected."
   :group 'chess-ics1)
 
-(defcustom chess-ics1-popup-function 'chess-display-popup-in-window
+(defcustom chess-ics1-popup-function 'chess-ics1-popup
   "The function used to popup a chess-ics1 display."
   :type 'function
+  :group 'chess-ics1)
+
+(defcustom chess-ics1-separate-frame nil
+  "If non-nil, display the chessboard in its own frame."
+  :type 'boolean
   :group 'chess-ics1)
 
 ;;; Code:
@@ -53,6 +58,11 @@
    ((eq event 'highlight)
     (apply 'chess-ics1-highlight args))))
 
+(defun chess-ics1-popup ()
+  (if chess-ics1-separate-frame
+      (chess-display-popup-in-frame 21 43 nil t)
+    (chess-display-popup-in-window)))
+
 (defsubst chess-ics1-piece-text (piece)
   (let ((p (char-to-string piece)))
     (add-text-properties 0 1 (list 'face (if (> piece ?a)
@@ -66,7 +76,8 @@
     (let ((inhibit-redisplay t))
       (goto-char pos)
       (delete-char 3)
-      (insert ?  (chess-ics1-piece-text piece) ? ))))
+      (insert ?  (chess-ics1-piece-text piece) ? )
+      (add-text-properties pos (point) (list 'chess-coord index)))))
 
 (defun chess-ics1-draw (position perspective)
   "Draw the given POSITION from PERSPECTIVE's point of view.

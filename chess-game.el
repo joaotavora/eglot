@@ -9,6 +9,7 @@
 ;; game, and a list of plies representing the main variation.
 
 (require 'chess-ply)
+(require 'chess-pgn)
 
 (defvar chess-game-inhibit-events nil)
 

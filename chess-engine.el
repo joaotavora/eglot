@@ -6,9 +6,6 @@
 ;;; Commentary:
 
 (require 'chess-module)
-(require 'chess-game)
-(require 'chess-algebraic)
-(require 'chess-fen)
 
 (defgroup chess-engine nil
   "Code for reading movements and other commands from an engine."
@@ -256,6 +253,10 @@
      ((eq event 'illegal)
       (chess-message 'opp-illegal))
 
+     ((eq event 'call-flag)
+      ;; jww (2002-04-21): what to do here?
+      )
+
      ((eq event 'kibitz)
       (let ((chess-engine-handling-event t))
 	(chess-game-run-hooks game 'kibitz (car args))))
@@ -321,7 +322,8 @@
 	(chess-game-set-start-position chess-module-game
 				       chess-starting-position)
 	(chess-game-set-data chess-module-game 'my-color t))
-      (chess-game-set-data chess-module-game 'active t))))
+      (chess-game-set-data chess-module-game 'active t))
+    (chess-game-run-hooks chess-module-game 'orient)))
 
 (defun chess-engine-position (engine)
   (chess-with-current-buffer engine

@@ -3,11 +3,6 @@
 ;; Convert a chess game to/from PGN notation
 ;;
 
-(require 'chess-game)
-(require 'chess-pos)
-(require 'chess-algebraic)
-(require 'chess-fen)
-
 (defvar chess-pgn-fill-column 60)
 
 (chess-message-catalog 'english
@@ -219,7 +214,10 @@ If INDENTED is non-nil, indent the move texts."
     (define-key map [?T] 'text-mode)
     (define-key map [(control ?c) (control ?c)] 'chess-pgn-show-position)
     (define-key map [mouse-2] 'chess-pgn-mouse-show-position)
-    (define-key map [(control ?m)] 'chess-pgn-move)
+
+    ;;(define-key map [(control ?m)] 'chess-pgn-move)
+    ;;(define-key map [space] 'chess-pgn-move)
+    ;;(define-key map [? ] 'chess-pgn-move)
 
     (when (require 'pcomplete nil t)
       (set (make-variable-buffer-local 'pcomplete-default-completion-function)
@@ -241,9 +239,6 @@ If INDENTED is non-nil, indent the move texts."
 
 (font-lock-add-keywords 'chess-pgn-mode
   (list (list "\\[\\(\\S-+\\)\\s-+\".*\"\\]" 1 'font-lock-keyword-face)
-	;; jww (2002-04-16): this is a bit heavy
-	;;(cons chess-pgn-move-regexp
-	;;      'chess-pgn-bold-face)
 	(cons "\\(1-0\\|0-1\\|\\*\\)$" 'chess-pgn-bold-face)))
 
 ;;;###autoload

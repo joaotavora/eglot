@@ -91,9 +91,14 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   "Face to use for highlighting pieces that have been selected."
   :group 'chess-plain)
 
-(defcustom chess-plain-popup-function 'chess-display-popup-in-window
+(defcustom chess-plain-popup-function 'chess-plain-popup
   "The function used to popup a chess-plain display."
   :type 'function
+  :group 'chess-plain)
+
+(defcustom chess-plain-separate-frame nil
+  "If non-nil, display the chessboard in its own frame."
+  :type 'boolean
   :group 'chess-plain)
 
 ;;; Code:
@@ -114,6 +119,11 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 
    ((eq event 'highlight)
     (apply 'chess-plain-highlight args))))
+
+(defun chess-plain-popup ()
+  (if chess-plain-separate-frame
+      (chess-display-popup-in-frame 9 (* (1+ chess-plain-spacing) 8) nil t)
+    (chess-display-popup-in-window)))
 
 (defun chess-plain-piece-text (piece rank file)
   (let ((white-square (= (% (+ file rank) 2) 0)))
@@ -141,7 +151,8 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
     (goto-char pos)
     (delete-char 1)
     (insert (chess-plain-piece-text piece (chess-index-rank index)
-				    (chess-index-file index)))))
+				    (chess-index-file index)))
+    (add-text-properties pos (point) (list 'chess-coord index))))
 
 (defun chess-plain-draw (position perspective)
   "Draw the given POSITION from PERSPECTIVE's point of view.
