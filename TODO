@@ -12,19 +12,12 @@
 
 			       Hotlist
 
-- Make the mode-line much more informative, with information on who is
-  playing, etc.
-
-- Add an "mlang" user, and "chess" group to my laptop.
-
 - Polish chess-input.el
 
 - Find a way that regexp-alist entries that only need to fire once are
   only scanned once.
 
 - Make any game-modifying commands in a display use C-c C-?
-
-- Copy some of ics.el's nicer functionality into chess-ics.el
 
 - Complete the ICS12 parser, based on Mario's comments
 
@@ -43,9 +36,23 @@
 
 - Resize the chess board on a window resize event, if possible.
 
+- In chess-ics.el, setup a completion function based on handles
+
+- Break chess-legal-plies into two parts, one of which would be the
+  inverse of chess-search-position, and would live in chess-pos.el
+
+- Have elp.el not instrument defsubst functions; it obscures the
+  results too much
+
+- Mario reports that using chess-plain and chess-link, he ends up with
+  impossible positions being displayed (with too many pieces, bishops
+  of the same color, etc).
+
 ----------------------------------------------------------------------
 
 			      To-do List
+
+- Copy some of ics.el's nicer functionality into chess-ics.el
 
 - Need to implement the "50 moves after irreversible" draw rule
 

@@ -1,0 +1,11 @@
+Welcome to chess.el, a client and library for playing Chess from
+Emacs.
+
+chess.el does not know how to play chess against you.  While the
+library does know all legal moves, there is no "thinking" module.  For
+this, you must download one of the publically available chess engines,
+such as gnuchess, crafty or phalanx.  You will find all of these
+sufficiently challenging, I'm sure.  Once they are installed, chess.el
+will use them, provided the locations of the binaries is on your PATH.
+
+John Wiegley <johnw@gnu.org>

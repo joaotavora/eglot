@@ -64,3 +64,9 @@ update: dist
 	cvs commit -m "bumped minor rev" chess.el
 	make fullclean
 	sitecopy
+
+PKG = $(HOME)/public_html/Emacs/packages/chess-$(VERSION).tar.bz2
+
+upload:
+	lftp -e "cd /incoming; put $(PKG)" upload.sourceforge.net
+	@echo Now edit sourceforge Files list for emacs-chess
