@@ -649,7 +649,8 @@ trying to move a blank square."
       (throw 'in-check t)
     (push candidate candidates)))
 
-(defun chess-search-position (position target piece &optional check-only)
+(defun chess-search-position (position target piece &optional
+				       check-only no-castling)
   "Look on POSITION from TARGET for a PIECE that can move there.
 This routine looks along legal paths of movement for PIECE.  It
 differs from `chess-pos-search', which is a more basic function that
@@ -749,7 +750,7 @@ indices which indicate where a piece may have moved from."
 			   (apply 'chess-incr-index pos dir)))))
 
 	;; test whether the rook can move to the target by castling
-	(if (= test-piece ?R)
+	(if (and (= test-piece ?R) (not no-castling))
 	    (let (rook)
 	      (if (and (equal target (chess-rf-to-index (if color 7 0) 5))
 		       (setq rook (chess-pos-can-castle position
@@ -777,12 +778,13 @@ indices which indicate where a piece may have moved from."
 	    (setq dirs (cdr dirs))))
 
 	;; test whether the king can move to the target by castling
-	(if (or (and (equal target (chess-rf-to-index (if color 7 0) 6))
-		     (chess-pos-can-castle position (if color ?K ?k))
-		     (chess-ply-castling-changes position))
-		(and (equal target (chess-rf-to-index (if color 7 0) 2))
-		     (chess-pos-can-castle position (if color ?Q ?q))
-		     (chess-ply-castling-changes position t)))
+	(if (and (not no-castling)
+		 (or (and (equal target (chess-rf-to-index (if color 7 0) 6))
+			  (chess-pos-can-castle position (if color ?K ?k))
+			  (chess-ply-castling-changes position))
+		     (and (equal target (chess-rf-to-index (if color 7 0) 2))
+			  (chess-pos-can-castle position (if color ?Q ?q))
+			  (chess-ply-castling-changes position t))))
 	    (chess--add-candidate (chess-pos-king-index position color)))))
 
      ;; the knight is a zesty little piece; there may be more than

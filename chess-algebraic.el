@@ -91,7 +91,8 @@ This regexp handles both long and short form.")
 			(if (setq candidates
 				  (chess-search-position position target
 							 (if color piece
-							   (downcase piece))))
+							   (downcase piece))
+							 nil t))
 			    (if (= (length candidates) 1)
 				(list (car candidates) target)
 			      (if (null source)
