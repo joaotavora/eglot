@@ -21,17 +21,21 @@
 
 (defvar chess-crafty-regexp-alist
   (list
-   (cons (concat "\\(White\\|Black\\)\\s-*([0-9]+):\\s-+\\("
+   (cons (concat "move\\s-+\\("
 		 chess-algebraic-regexp "\\)\\s-*$")
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'move
-		     (chess-engine-convert-algebraic (match-string 2) t)))))
+		     (chess-engine-convert-algebraic (match-string 1) t)))))
    (cons "total evaluation\\.+\\s-+\\([-+0-9.]+\\)"
 	 (function
 	  (lambda ()
 	    (setq chess-crafty-evaluation
 		  (string-to-number (match-string 1))))))
+   (cons "tellicsnoalias kibitz Hello from\\s-+\\(.+\\)$"
+	 (function
+	  (lambda ()
+	    (setq chess-engine-opponent-name (match-string 1)))))
    (cons "{\\(Black\\|White\\) resigns}"
 	 (function
 	  (lambda ()
@@ -52,20 +56,8 @@
       (let ((proc (chess-common-handler game 'initialize "crafty")))
 	(when (and proc (processp proc)
 		   (eq (process-status proc) 'run))
-	  (process-send-string proc (concat ;"display nogeneral\n"
-					    "display nochanges\n"
-					    "display noextstats\n"
-					    "display nohashstats\n"
-					    "display nomoves\n"
-					    "display nonodes\n"
-					    "display noply1\n"
-					    "display nostats\n"
-					    "display notime\n"
-					    "display novariation\n"
-					    "alarm off\n"
-					    "ansi off\n"))
-	  (setq chess-engine-process proc
-		chess-engine-opponent-name "Crafty")
+	  (process-send-string proc (concat "xboard\n"))
+	  (setq chess-engine-process proc)
 	  t)))
 
      ((eq event 'setup-pos)
@@ -94,8 +86,8 @@
 	  (chess-engine-send nil "resign -1\n")))
        ((eq (car args) 'ponder)
 	(if (cadr args)
-	    (chess-engine-send nil "ponder on\n")
-	  (chess-engine-send nil "ponder off\n")))))
+	    (chess-engine-send nil "hard\n")
+	  (chess-engine-send nil "easy\n")))))
 
      (t
       (if (and (eq event 'undo)
