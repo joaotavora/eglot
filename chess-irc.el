@@ -10,13 +10,13 @@
   "Use an IRC bot for sending/receiving moves."
   :group 'chess-engine)
 
-(defcustom chess-irc-host "irc.openprojects.net"
+(defcustom chess-irc-server "irc.openprojects.net"
   "The IRC host to connect your chess-irc engine to."
   :type 'string
   :group 'chess-irc)
 
 (defcustom chess-irc-port 6667
-  "The port of the IRC host specified by `chess-irc-host'."
+  "The port of the IRC host specified by `chess-irc-server'."
   :type 'string
   :group 'chess-irc)
 
@@ -50,12 +50,12 @@
   (cond
    ((eq event 'initialize)
     (message "Connecting to IRC server '%s:%d'..."
-	     chess-irc-host chess-irc-port)
+	     chess-irc-server chess-irc-port)
     (let ((engine (current-buffer)) proc)
       (with-current-buffer (generate-new-buffer " *chess-irc*")
 	(setq chess-irc-engine engine
 	      proc (open-network-stream "*chess-irc*" (current-buffer)
-					chess-irc-host chess-irc-port))
+					chess-irc-server chess-irc-port))
 	(message "Connected, now logging in as '%s'..." chess-irc-nick)
 	(when (and proc (eq (process-status proc) 'open))
 	  (process-send-string proc (format "USER %s 0 * :%s\n"

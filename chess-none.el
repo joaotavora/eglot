@@ -11,10 +11,6 @@
   (cond
    ((eq event 'send))
 
-   ((eq event 'ready)
-    (and (chess-engine-game nil)
-	 (chess-game-set-data (chess-engine-game nil) 'active t)))
-
    ((memq event '(resign abort))
     (and (chess-engine-game nil)
 	 (chess-engine-set-start-position nil)))

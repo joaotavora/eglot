@@ -524,18 +524,19 @@ The key bindings available in this mode are:
 	(if ply
 	    (setq chess-display-mode-line
 		  (concat
+		   "   "
 		   (let ((final (chess-ply-final-p ply)))
 		     (cond
 		      ((eq final :checkmate)
-		       "  CHECKMATE")
+		       "CHECKMATE")
 		      ((eq final :resign)
-		       "  RESIGNED")
+		       "RESIGNED")
 		      ((eq final :stalemate)
-		       "  STALEMATE")
+		       "STALEMATE")
 		      ((eq final :draw)
-		       "  DRAWN")
+		       "DRAWN")
 		      (t
-		       (concat "  " (if color "White" "Black")))))
+		       (if color "White" "Black"))))
 		   (if index
 		       (concat "   " (int-to-string
 				      (if (> index 1)
@@ -974,38 +975,47 @@ Clicking once on a piece selects it; then click on the target location."
   (let ((coord (get-text-property (point) 'chess-coord))
 	(position (chess-display-position nil)))
     (when coord
-      (catch 'invalid
-	(if chess-display-last-selected
-	    (let ((last-sel chess-display-last-selected))
-	      ;; if they select the same square again, just deselect it
-	      (if (= (point) (car last-sel))
-		  (chess-display-update nil)
-		(let ((s-piece (chess-pos-piece position (cadr last-sel)))
-		      (t-piece (chess-pos-piece position coord)) ply)
-		  (when (and (not (eq t-piece ? ))
-			     (if (chess-pos-side-to-move position)
-				 (< t-piece ?a)
-			       (> t-piece ?a)))
-		    (message "Cannot capture your own pieces.")
-		    (throw 'invalid t))
-		  (setq ply (chess-ply-create position (cadr last-sel) coord))
-		  (unless ply
-		    (message "That is not a legal move.")
-		    (throw 'invalid t))
-		  (chess-display-move nil ply)))
-	      (setq chess-display-last-selected nil))
-	  (let ((piece (chess-pos-piece position coord)))
-	    (cond
-	     ((eq piece ? )
-	      (message "Cannot select an empty square.")
-	      (throw 'invalid t))
-	     ((if (chess-pos-side-to-move position)
-		  (> piece ?a)
-		(< piece ?a))
-	      (message "Cannot move your opponent's pieces.")
-	      (throw 'invalid t)))
-	    (setq chess-display-last-selected (list (point) coord))
-	    (chess-display-highlight nil coord 'selected)))))))
+      (condition-case err
+	  (if chess-display-last-selected
+	      (let ((last-sel chess-display-last-selected))
+		;; if they select the same square again, just deselect it
+		(if (= (point) (car last-sel))
+		    (throw 'invalid t)
+		  (let ((s-piece (chess-pos-piece position (cadr last-sel)))
+			(t-piece (chess-pos-piece position coord)) ply)
+		    (if (and (/= t-piece ? )
+			     (or (and (< t-piece ?a)
+				      (< s-piece ?a))
+				 (and (> t-piece ?a)
+				      (> s-piece ?a))))
+			(error "You cannot move pieces on top of each other"))
+		    (unless (setq ply (chess-ply-create position
+							(cadr last-sel) coord))
+		      (error "That is not a legal move"))
+		    (chess-display-move nil ply)))
+		(setq chess-display-last-selected nil))
+	    (let ((piece (chess-pos-piece position coord)))
+	      (cond
+	       ((and (chess-display-active-p)
+		     ;; `active' means we're playing somebody via an
+		     ;; engine
+		     (chess-game-data chess-display-game 'active)
+		     (not (eq (chess-game-data chess-display-game
+					       'my-color)
+			      (chess-pos-side-to-move position))))
+		(error "It is not your turn to move"))
+	       ((eq piece ? )
+		(error "You cannot select an empty square"))
+	       ((if (chess-pos-side-to-move position)
+		    (> piece ?a)
+		  (< piece ?a))
+		(error "You cannot move your opponent's pieces")))
+	      (setq chess-display-last-selected (list (point) coord))
+	      (chess-display-highlight nil coord 'selected)))
+	(error
+	 (setq chess-display-last-selected nil)
+	 (chess-display-update nil)
+	 (message (error-message-string err)))))))
 
 (defun chess-display-mouse-select-piece (event)
   "Select the piece the user clicked on."

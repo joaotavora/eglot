@@ -263,7 +263,8 @@ trying to move a blank square."
 	       (to (cadr ch))
 	       (piece (chess-pos-piece position from)))
 	  (if (= piece ? )
-	      (error "Attempted piece move from blank square %s" from))
+	      (error "Attempted piece move from blank square %s"
+		     (chess-index-to-coord from)))
 	  (chess-pos-set-piece position from ? )
 	  (chess-pos-set-piece position to piece))
 	(setq ch (cddr ch)))))
@@ -350,6 +351,9 @@ indices which indicate where a piece may have moved from."
 	       (chess-search-position position target
 				      (if piece p (downcase p)))))
       (setq candidates (cdr candidates)))
+
+     ;; skip erroneous space requests
+     ((= test-piece ? ))
 
      ;; pawn movement, which is diagonal 1 when taking, but forward
      ;; 1 or 2 when moving (the most complex piece, actually)

@@ -117,91 +117,91 @@ maneuver."
 		    (delq :valid changes)))
 	 (color (chess-pos-side-to-move position))
 	 piece)
+    (if (or (null changes) (symbolp (car changes)))
+	ply
+      ;; validate that `changes' can be legally applied to the given
+      ;; position
+      (when (or valid-p
+		(member (car changes)
+			(chess-search-position position (cadr changes)
+					       (chess-pos-piece position
+								(car changes)))))
+	(setq piece (chess-pos-piece position (car changes)))
 
-    ;; validate that `changes' can be legally applied to the given
-    ;; position
-    (when (and changes (not (symbolp (car changes)))
-	       (or valid-p
-		   (member (car changes)
-			   (chess-search-position
-			    position (cadr changes)
-			    (chess-pos-piece position (car changes))))))
-      (setq piece (chess-pos-piece position (car changes)))
+	;; is this a castling maneuver?
+	(if (and (= piece (if color ?K ?k))
+		 (not (or (memq :castle changes)
+			  (memq :long-castle changes))))
+	    (let* ((target (cadr changes))
+		   (file (chess-index-file target))
+		   (long (= 2 file))
+		   new-changes)
+	      (if (and (or (and (= file 6)
+				(chess-pos-can-castle position
+						      (if color ?K ?k)))
+			   (and long
+				(chess-pos-can-castle position
+						      (if color ?Q ?q))))
+		       (setq new-changes
+			     (chess-ply-create-castle position long)))
+		  (setcdr ply new-changes))))
 
-      ;; is this a castling maneuver?
-      (if (and (= piece (if color ?K ?k))
-	       (not (or (memq :castle changes)
-			(memq :long-castle changes))))
-	  (let* ((target (cadr changes))
-		 (file (chess-index-file target))
-		 (long (= 2 file))
-		 new-changes)
-	    (if (and (or (and (= file 6)
-			      (chess-pos-can-castle position
-						    (if color ?K ?k)))
-			 (and long
-			      (chess-pos-can-castle position
-						    (if color ?Q ?q))))
-		     (setq new-changes
-			   (chess-ply-create-castle position long)))
-		(setcdr ply new-changes))))
+	;; is this a pawn move to the ultimate rank?  if so, and we
+	;; haven't already been told, ask for the piece to promote it to
+	(if (and (= piece (if color ?P ?p))
+		 (not (memq :promote changes))
+		 (= (if color 0 7) (chess-index-rank (cadr changes))))
+	    (let ((new-piece (completing-read
+			      "Promote pawn to queen/rook/knight/bishop? "
+			      chess-piece-name-table nil t "queen")))
+	      (setq new-piece
+		    (cdr (assoc new-piece chess-piece-name-table)))
+	      (if color
+		  (setq new-piece (upcase new-piece)))
+	      (nconc changes (list :promote new-piece))))
 
-      ;; is this a pawn move to the ultimate rank?  if so, and we
-      ;; haven't already been told, ask for the piece to promote it to
-      (if (and (= piece (if color ?P ?p))
-	       (not (memq :promote changes))
-	       (= (if color 0 7) (chess-index-rank (cadr changes))))
-	  (let ((new-piece (completing-read
-			    "Promote pawn to queen/rook/knight/bishop? "
-			    chess-piece-name-table nil t "queen")))
-	    (setq new-piece
-		  (cdr (assoc new-piece chess-piece-name-table)))
-	    (if color
-		(setq new-piece (upcase new-piece)))
-	    (nconc changes (list :promote new-piece))))
+	(unless (or (memq :check changes)
+		    (memq :checkmate changes)
+		    (memq :stalemate changes))
+	  (let* ((next-pos (chess-ply-next-pos ply))
+		 (next-color (not color)))
+	    ;; is the opponent's king in check/mate or stalemate now, as
+	    ;; a result of the changes?
+	    (let ((can-move
+		   (catch 'can-move
+		     ;; find out if any of `color's pieces can move.  We
+		     ;; start the search on the home row for that color,
+		     ;; as it's likier to find a legal move faster.
+		     (let ((rank (if next-color 7 0))
+			   (file 0))
+		       (while (funcall (if next-color '>= '<) rank
+				       (if next-color 0 8))
+			 (while (< file 8)
+			   (let* ((to (chess-rf-to-index rank file))
+				  (piece (chess-pos-piece next-pos to)))
+			     (when (or (eq piece ? )
+				       (if next-color
+					   (> piece ?a)
+					 (< piece ?a)))
+			       (if (chess-search-position next-pos to next-color)
+				   (throw 'can-move t))))
+			   (setq file (1+ file)))
+			 (setq file 0 rank (funcall (if next-color '1- '1+)
+						    rank)))))))
 
-      (unless (or (memq :check changes)
-		  (memq :checkmate changes)
-		  (memq :stalemate changes))
-	(let* ((next-pos (chess-ply-next-pos ply))
-	       (next-color (not color)))
-	  ;; is the opponent's king in check/mate or stalemate now, as
-	  ;; a result of the changes?
-	  (let ((can-move
-		 (catch 'can-move
-		   ;; find out if any of `color's pieces can move.  We
-		   ;; start the search on the home row for that color,
-		   ;; as it's likier to find a legal move faster.
-		   (let ((rank (if next-color 7 0))
-			 (file 0))
-		     (while (funcall (if next-color '>= '<) rank
-				     (if next-color 0 8))
-		       (while (< file 8)
-			 (let* ((to (chess-rf-to-index rank file))
-				(piece (chess-pos-piece next-pos to)))
-			   (when (or (eq piece ? )
-				     (if next-color
-					 (> piece ?a)
-				       (< piece ?a)))
-			     (if (chess-search-position next-pos to next-color)
-				 (throw 'can-move t))))
-			 (setq file (1+ file)))
-		       (setq file 0 rank (funcall (if next-color '1- '1+)
-						  rank)))))))
+	      ;; see if anyone from the other side is attacking the king
+	      ;; in the new position
+	      (if (chess-search-position next-pos
+					 (car (chess-pos-search
+					       next-pos (if next-color ?K ?k)))
+					 (not next-color))
+		  (nconc changes (list (if can-move :check :checkmate)))
+		;; no, but is he in stalemate?
+		(unless can-move
+		  (nconc changes (list :stalemate)))))))
 
-	    ;; see if anyone from the other side is attacking the king
-	    ;; in the new position
-	    (if (chess-search-position next-pos
-				       (car (chess-pos-search
-					     next-pos (if next-color ?K ?k)))
-				       (not next-color))
-		(nconc changes (list (if can-move :check :checkmate)))
-	      ;; no, but is he in stalemate?
-	      (unless can-move
-		(nconc changes (list :stalemate))))))))
-
-    ;; return the annotated ply
-    ply))
+	;; return the annotated ply
+	ply))))
 
 (defsubst chess-ply-final-p (ply)
   "Return non-nil if this is the last ply of a game/variation."
