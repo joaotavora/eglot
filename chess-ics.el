@@ -74,6 +74,11 @@ The format of each entry is:
 		   (funcall chess-engine-response-handler 'accept)))))
 	(cons "<12> \\(.+\\)"
 	      'chess-ics-handle-move)
+	(cons "\\S-+ would like to take back \\([0-9]+\\) half move(s)."
+	      (function
+	       (lambda ()
+		 (funcall chess-engine-response-handler 'undo
+			  (string-to-int (match-string 1))))))
 	(cons "\\S-+ accepts the takeback request\\."
 	      (function
 	       (lambda ()

@@ -228,6 +228,7 @@ This conveys the status of the game at the given index."
   "Undo the last COUNT plies of GAME."
   (assert game)
   (assert (integerp count))
+  (assert (> count 0))
   (if (> count (chess-game-index game))
       (chess-error 'undo-limit-reached))
   (let ((chess-game-inhibit-events t))
