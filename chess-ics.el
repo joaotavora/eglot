@@ -2,6 +2,8 @@
 ;;
 ;; An engine for interacting with Internet Chess Servers
 ;;
+;; jww (2002-04-23): This module has only been tested on FICS.
+;;
 
 (require 'comint)
 (require 'chess-network)
@@ -18,6 +20,7 @@ The format of each entry is:
   (SERVER PORT [HANDLE] [PASSWORD-OR-FILENAME] [HELPER] [HELPER ARGS...])"
   :type '(repeat (list (string :tag "Server")
 		       (integer :tag "Port")
+		       (string :tag "Handle")
 		       (choice (const :tag "No password or ask" nil)
 			       (string :tag "Password")
 			       (file :tag "Filename"))
@@ -28,10 +31,10 @@ The format of each entry is:
   :group 'chess-ics)
 
 (defvar chess-ics-handle)
-(defvar chess-ics-logged-in nil)
+(defvar chess-ics-prompt)
 
 (make-variable-buffer-local 'chess-ics-handle)
-(make-variable-buffer-local 'chess-ics-logged-in)
+(make-variable-buffer-local 'chess-ics-prompt)
 
 ;; ICS12 format (with artificial line breaks):
 ;;
@@ -155,8 +158,8 @@ who is black."
 
 (defun chess-ics-handle-move ()
   (let ((chess-engine-handling-event t)
-	(begin (match-beginning 1))
-	(end (match-end 1))
+	(begin (match-beginning 0))
+	(end (match-end 0))
 	(info (chess-ics12-parse (match-string 3))))
     (if (and (chess-game-data (chess-engine-game nil) 'active)
 	     (> (chess-engine-index nil) 0))
@@ -177,22 +180,25 @@ who is black."
 	(chess-game-set-data (chess-engine-game nil) 'active t)
 	(chess-game-set-start-position (chess-engine-game nil) (car info)))
       (chess-game-run-hooks (chess-engine-game nil) 'orient))
+    (goto-char begin)
     (delete-region begin end)
+    ;; we need to counter the `forward-line' in `chess-engine-filter'
+    (forward-line -1)
     t))
 
 (defvar chess-ics-regexp-alist
-  (list (cons "fics%"
+  (list (cons "^\\([A-Za-z0-9_]+\\)%\\s-*$"
 	      (function
 	       (lambda ()
-		 (unless chess-ics-logged-in
-		   (setq chess-ics-logged-in t)
-		   (chess-engine-send nil "set style 12\n")
-		   (chess-engine-send nil "set bell 0\n")))))
+		 (chess-engine-send nil "set style 12\n")
+		 (chess-engine-send nil "set bell 0\n")
+		 'once)))
 	(cons "Logging you in as \"\\([^\"]+\\)\""
 	      (function
 	       (lambda ()
-		 (setq chess-ics-handle (match-string 1)))))
-	(cons "\\(\\(\n*fics%\n*\\)?<12> \\(.+\\)\\)\n"
+		 (setq chess-ics-handle (match-string 1))
+		 'once)))
+	(cons "\\(\\([ \t\n\r]*[A-Za-z0-9_]+%[ \t\n\r]*\\)?<12> \\(.+\\)\\)\n"
 	      'chess-ics-handle-move)
 	(cons "Challenge: \\(\\S-+\\) \\S-+ \\S-+ \\S-+ .+"
 	      (function
@@ -219,36 +225,35 @@ who is black."
 				       nil t (caar chess-ics-server-list))
 		      chess-ics-server-list))))
 
-	(chess-message 'ics-connecting (car server))
+	(chess-message 'ics-connecting (nth 0 server))
 
 	(let ((buf (apply 'make-comint "chess-ics"
-			  (if (nth 3 server)
+			  (if (nth 4 server)
 			      (cons (nth 4 server) (nth 5 server))
 			    (list (cons (nth 0 server) (nth 1 server)))))))
 
-	  (chess-message 'ics-connected (car server))
+	  (chess-message 'ics-connected (nth 0 server))
 
 	  (display-buffer buf)
 	  (set-buffer buf)
 
-	  (add-hook 'comint-output-filter-functions 'chess-ics-filter t t)
+	  (add-hook 'comint-output-filter-functions 'chess-engine-filter t t)
 
 	  (setq comint-prompt-regexp "^[^%\n]*% *"
 		comint-scroll-show-maximum-output t)
 
 	  (let ((proc (get-buffer-process (current-buffer))))
-	    (if (nth 2 server)
-		(progn
-		  (setq chess-ics-handle (nth 2 server))
-		  (comint-send-string proc (concat chess-ics-handle "\n"))
-		  (let ((pass (nth 3 server)))
-		    (when pass
-		      (if (file-readable-p pass)
-			  (setq pass (with-temp-buffer
-				       (insert-file-contents file)
-				       (buffer-string))))
-		      (comint-send-string proc (concat pass "\n")))))
-	      (comint-send-string proc "guest\n\n")))))
+	    (if (null (nth 2 server))
+		(comint-send-string proc "guest\n\n")
+	      (setq chess-ics-handle (nth 2 server))
+	      (comint-send-string proc (concat chess-ics-handle "\n"))
+	      (let ((pass (or (nth 3 server)
+			      (read-passwd "Password: "))))
+		(if (file-readable-p pass)
+		    (setq pass (with-temp-buffer
+				 (insert-file-contents file)
+				 (buffer-string))))
+		(comint-send-string proc (concat pass "\n")))))))
       t)
 
      ((eq event 'match)
@@ -263,25 +268,6 @@ who is black."
 
      (t
       (apply 'chess-network-handler game event args)))))
-
-(defun chess-ics-filter (string)
-  (save-excursion
-    (if chess-engine-last-pos
-	(goto-char chess-engine-last-pos)
-      (goto-char (point-min)))
-    (unwind-protect
-	(while (and (not (eobp))
-		    (/= (line-end-position) (point-max)))
-	  (let ((triggers chess-ics-regexp-alist))
-	    (while triggers
-	      ;; this could be accelerated by joining
-	      ;; together the regexps
-	      (if (and (looking-at (concat "[^\n\r]*" (caar triggers)))
-		       (funcall (cdar triggers)))
-		  (setq triggers nil)
-		(setq triggers (cdr triggers)))))
-	  (forward-line))
-      (setq chess-engine-last-pos (point)))))
 
 (provide 'chess-ics)
 
