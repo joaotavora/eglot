@@ -72,6 +72,8 @@
     (failed-start   . "Failed to start chess engine process")))
 
 (defsubst chess-engine-convert-algebraic (move &optional trust-check)
+  "Convert algebraic move to a ply in reference to the engine position.
+If conversion fails, this function fired an 'illegal event."
   (or (chess-algebraic-to-ply (chess-engine-position nil) move trust-check)
       (chess-engine-command nil 'illegal)))
 
@@ -294,7 +296,8 @@
 	(setq chess-engine-regexp-alist
 	      (copy-alist
 	       (symbol-value
-		(intern-soft (concat (symbol-name module) "-regexp-alist"))))
+		(let ((sym (intern-soft (concat (symbol-name module) "-regexp-alist"))))
+		  (when (boundp sym) sym))))
 	      chess-engine-response-handler
 	      (or response-handler 'chess-engine-default-handler))
 	(let ((proc chess-engine-process))
@@ -317,15 +320,19 @@
 ;; 'wall-clock
 
 (defun chess-engine-set-option (engine option value)
+  "Set ENGINE OPTION to VALUE by invoking its handler with the 'set-option
+event."
   (chess-with-current-buffer engine
     (chess-engine-command engine 'set-option option value)))
 
 (defun chess-engine-set-response-handler (engine &optional response-handler)
+  "Set a new RESPONSE-HANDLER for ENGINE."
   (chess-with-current-buffer engine
     (setq chess-engine-response-handler
 	  (or response-handler 'chess-engine-default-handler))))
 
 (defun chess-engine-response-handler (engine)
+  "Return the function currently defined as the response-handler for ENGINE."
   (chess-with-current-buffer engine
     chess-engine-response-handler))
 
@@ -343,6 +350,7 @@
     (chess-game-run-hooks chess-module-game 'orient)))
 
 (defun chess-engine-position (engine)
+  "Return the current position of the game associated with ENGINE."
   (chess-with-current-buffer engine
     (chess-game-pos chess-module-game)))
 
@@ -360,7 +368,10 @@
   '((engine-not-running . "The engine you were using is no longer running")))
 
 (defun chess-engine-send (engine string)
-  "Send the given STRING to ENGINE."
+  "Send the given STRING to ENGINE.
+If `chess-engine-process' is a valid process object, use `process-send-string'
+to submit the data.  Otherwise, the 'send event is triggered and the engine
+event handler can take care of the data."
   (chess-with-current-buffer engine
     (let ((proc chess-engine-process))
       (if proc
@@ -424,11 +435,11 @@
 						  (line-end-position) t)
 			       (setq result (funcall (cdar triggers))))
 			  (progn
-			    (if (eq result 'once)
-				(if last-trigger
-				    (setcdr last-trigger (cdr triggers))
-				  (setq chess-engine-regexp-alist
-					(cdr triggers))))
+			    (when (eq result 'once)
+			      (if last-trigger
+				  (setcdr last-trigger (cdr triggers))
+				(setq chess-engine-regexp-alist
+				      (cdr triggers))))
 			    (setq triggers nil))
 			(setq last-trigger triggers
 			      triggers (cdr triggers)))))
