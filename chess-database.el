@@ -70,7 +70,12 @@
 (defun chess-database-count (database)
   (chess-database-command database 'count))
 
+(defun chess-database-read-only-p (database)
+  "Return non-nil if DATABASE is read only."
+  (chess-database-command database 'read-only-p))
+
 (defun chess-database-read (database index)
+  "Return from DATABASE the chess game object at INDEX."
   (chess-database-command database 'read index))
 
 (defun chess-database-write (database game)
@@ -80,7 +85,11 @@
   (chess-database-command database 'replace game index))
 
 (defun chess-database-query (database &rest terms)
-  (chess-database-command database 'query terms))
+  "Run a query on DATABASE.
+TERMS is partly dependent on the chess-database module in use.
+chess-scid:
+ tree-search GAME: Perform a tree search on the last position of GAME."
+  (apply 'chess-database-command database 'query terms))
 
 (provide 'chess-database)
 
