@@ -98,6 +98,9 @@ matches."
 (defsubst chess-game-data-alist (game)
   (nth 2 game))
 
+(defsubst chess-game-set-data-alist (game value)
+  (setcar (nthcdr 2 game) value))
+
 (defun chess-game-set-data (game key value)
   (let* ((alist (chess-game-data-alist game))
 	 (cell (assq key alist)))

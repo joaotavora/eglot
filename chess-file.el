@@ -20,7 +20,7 @@
    ((eq event 'rescan)
     (goto-char (point-min))
     (setq chess-file-locations nil)
-    (while (search-forward "[Event" nil t)
+    (while (search-forward "[Event " nil t)
       (goto-char (match-beginning 0))
       (push (point) chess-file-locations)
       (forward-char 1))

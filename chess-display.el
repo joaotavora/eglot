@@ -23,13 +23,12 @@
   :type 'boolean
   :group 'chess-display)
 
-(defcustom chess-display-mode-line-format "   %C   %N. %M"
+(defcustom chess-display-mode-line-format "   %C   %M"
   "The format of a chess display's modeline.
 Special characters include:
 
     %C  The color to move, White or Black; if the game is finished,
 	this will instead be the completion string
-    %N  Current game sequence
     %M  Current algebraic move text (prefixed by ... when White)
     %E  Current position evaluation, if engine supports it
 	(negative numbers favor black) [NOT WORKING YET]"
@@ -147,7 +146,8 @@ makes moves, or any other changes to the underlying game."
 	  (chess-game-set-data chess-display-game 'my-color my-color))
       (chess-game-set-start-position chess-display-game
 				     chess-starting-position)
-      (chess-game-set-data chess-display-game 'my-color t))))
+      (chess-game-set-data chess-display-game 'my-color t))
+    (chess-display-set-index nil 0)))
 
 (defun chess-display-position (display)
   "Return the position currently viewed."
@@ -204,8 +204,7 @@ also view the same game."
   (chess-with-current-buffer display
     (chess-game-set-tags chess-display-game (chess-game-tags game))
     ;; this call triggers `setup-game' for us
-    (let ((chess-game-inhibit-events t))
-      (chess-game-set-plies chess-display-game (chess-game-plies game)))
+    (chess-game-set-plies chess-display-game (chess-game-plies game))
     (chess-display-set-index nil (or index (chess-game-index game)))))
 
 (defun chess-display-detach-game (display)
@@ -232,7 +231,8 @@ modeline."
 (defun chess-display-set-index (display index)
   (chess-with-current-buffer display
     (chess-display-set-index* nil index)
-    (chess-display-update nil t)))
+    (chess-display-update nil t)
+    (chess-display-update-modeline)))
 
 (defsubst chess-display-index (display)
   (chess-with-current-buffer display
@@ -493,15 +493,13 @@ The key bindings available in this mode are:
 		      (if color (chess-string 'mode-white)
 			(chess-string 'mode-black)))))))
 
-	   ((string= code "N")
-	    (if (= index 0)
-		"START"
-	      (setq code (int-to-string
-			  (chess-game-seq chess-display-game)))))
-
 	   ((string= code "M")
-	    (setq code (concat (if color "... ")
-			       (or (chess-ply-to-algebraic ply) "???"))))
+	    (if (= index 0)
+		(setq code (chess-string 'mode-start))
+	      (setq code (concat (int-to-string
+				  (chess-game-seq chess-display-game))
+				 ". "(if color "... ")
+				 (or (chess-ply-to-algebraic ply) "???")))))
 
 	   ((string= code "E")
 	    ;; jww (2002-04-14): This code is encountering some nasty
@@ -571,7 +569,7 @@ Basically, it means we are playing, not editing or reviewing."
 	(delete-backward-char 1))
       (goto-char (point-min))
       (cond
-       ((search-forward "[Event" nil t)
+       ((search-forward "[Event " nil t)
 	(goto-char (match-beginning 0))
 	(chess-display-copy-game display (chess-pgn-to-game)))
        ((looking-at (concat chess-algebraic-regexp "$"))
@@ -1043,8 +1041,9 @@ Clicking once on a piece selects it; then click on the target location."
 			(> piece ?a)
 		      (< piece ?a))
 		    (throw 'message (chess-string 'wrong-color)))
-		   ((null (chess-legal-plies position :index coord))
-		    (throw 'message (chess-string 'piece-immobile))))
+		   ;((null (chess-legal-plies position :index coord))
+		   ; (throw 'message (chess-string 'piece-immobile)))
+		   )
 		  (setq chess-display-last-selected (list (point) coord))
 		  (chess-display-highlight nil coord)
 		  (if chess-display-highlight-legal

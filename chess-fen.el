@@ -46,9 +46,10 @@
   (let ((i 0) (l (length fen))
 	(rank 0) (file 0) (c ?0)
 	(position (chess-pos-create t))
-	error number)
-    (while (and (null error) (/= c ? ) (< i l))
-      (setq c (aref fen i))
+	error (space-count 0))
+    (setq c (aref fen i))
+    (while (and (null error)
+		(/= c ? ) (< i l))
       (cond
        ((= c ?/)
 	(setq file 0 rank (1+ rank)))
@@ -57,15 +58,22 @@
        ((memq (upcase c) '(?K ?Q ?B ?N ?R ?P))
 	(chess-pos-set-piece position (chess-rf-to-index rank file) c)
 	(setq file (1+ file)))
-       (t (setq error t)))
-      (setq i (1+ i)))
+       (t
+	(setq error t)))
+      (setq i (1+ i) c (aref fen i)))
+    (if (= (aref fen i) ? )
+	(setq i (1+ i)))
     (if (memq (aref fen i) '(?b ?w))
-	(chess-pos-set-side-to-move position (= (aref fen i) ?w))
+	(progn
+	  (chess-pos-set-side-to-move position (= (aref fen i) ?w))
+	  (setq i (+ i 2)))
       (setq error t))
-    (setq i (+ i 2) number nil)
-    (while (and (null error) (< i l))
-      (setq c (aref fen i))
+    (setq c (aref fen i))
+    (while (and (null error)
+		(< space-count 2) (< i l))
       (cond
+       ((= c ?-))
+       ((= c ? ) (setq space-count (1+ space-count)))
        ((= c ?K) (chess-pos-set-can-castle position ?K t))
        ((= c ?Q) (chess-pos-set-can-castle position ?Q t))
        ((= c ?k) (chess-pos-set-can-castle position ?k t))
@@ -74,8 +82,9 @@
 	(chess-pos-set-en-passant position (chess-coord-to-index
 					    (substring fen i (+ i 2))))
 	(setq i (1+ i)))
-       (t (setq error t)))
-      (setq i (1+ i)))
+       (t
+	(setq error t)))
+      (setq i (1+ i) c (aref fen i)))
     (unless error
       position)))
 

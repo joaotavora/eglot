@@ -76,7 +76,8 @@
 (require 'chess-game)
 (require 'chess-display)
 (require 'chess-engine)
-(require 'chess-pgn)
+(require 'chess-database)
+(require 'chess-file)
 
 (defgroup chess nil
   "An Emacs chess playing program."
@@ -204,62 +205,66 @@ available."
 (defun chess-read-pgn (&optional file)
   "Read and display a PGN game after point."
   (interactive "P")
-  (if (or file (not (search-forward "[Event" nil t)))
+  (if (or file (not (search-forward "[Event " nil t)))
       (setq file (read-file-name "Read a PGN game from file: ")))
   (if file
       (find-file file))
-  (let ((game (chess-pgn-to-game)))
+  (let ((game (chess-pgn-to-game))
+	display)
     (when game
-      (require chess-default-display)
-      (chess-display-create game chess-default-display
-			    (chess-game-side-to-move game)))))
-
-(defvar chess-puzzle-locations nil)
-
-(defun chess-puzzle-next ()
-  "Play the next puzzle in the collection, selected randomly."
-  (interactive)
-  (if chess-puzzle-locations
-      (chess-puzzle (aref chess-puzzle-locations 0))))
+      (setq display (chess-create-display))
+      (chess-display-set-game display game))))
 
 ;;;###autoload
-(defun chess-puzzle (file)
+(defun chess-puzzle (file &optional index)
   "Pick a random puzzle from FILE, and solve it against the default engine.
 The spacebar in the display buffer is bound to `chess-puzzle-next',
 making it easy to go on to the next puzzle once you've solved one."
   (interactive "fRead chess puzzles from: ")
-  (save-excursion
-    (with-current-buffer (find-file-noselect file)
-      (when (or (null chess-puzzle-locations)
-		(not (equal file (aref chess-puzzle-locations 0))))
-	(let (locations)
-	  (goto-char (point-min))
-	  (while (search-forward "[Event" nil t)
-	    (push (point) locations))
-	  (setq chess-puzzle-locations (vector file locations nil nil)))
-	(random t))
-      (goto-char (nth (random (length (aref chess-puzzle-locations 1)))
-		      (aref chess-puzzle-locations 1)))
-      (let ((game (chess-pgn-to-game)))
-	(when game
-	  (require chess-default-display)
-	  (let (puzzle-display)
-	    (if (buffer-live-p (aref chess-puzzle-locations 2))
-		(progn
-		  (setq puzzle-display (aref chess-puzzle-locations 2))
-		  (chess-display-set-game puzzle-display game))
-	      (setq puzzle-display
-		    (chess-display-create game chess-default-display
-					  (chess-game-side-to-move game))))
-	    (aset chess-puzzle-locations 2 puzzle-display)
-	    ;; setup spacebar as a convenient way to jump to the next puzzle
-	    (with-current-buffer puzzle-display
-	      (define-key (current-local-map) [? ] 'chess-puzzle-next)))
-	  (require chess-default-engine)
-	  (aset chess-puzzle-locations 3
-		(or (and (buffer-live-p (aref chess-puzzle-locations 3))
-			 (aref chess-puzzle-locations 3))
-		    (chess-engine-create game chess-default-engine))))))))
+  (random t)
+  (let* ((database (chess-database-open 'chess-file file))
+	 (objects (and database (chess-session)))
+	 (display (cadr objects)))
+    (when database
+      (with-current-buffer display
+	;; make sure the database is closed when the display is shutdown
+	(chess-game-add-hook (chess-display-game nil)
+			     'chess-database-event-handler database)
+	(chess-game-set-data (chess-display-game nil) 'database database)
+	(define-key (current-local-map) [? ] 'chess-puzzle-next)
+	(chess-puzzle-next)))))
+
+(defun chess-puzzle-next ()
+  "Play the next puzzle in the collection, selected randomly."
+  (interactive)
+  (let* ((database (chess-game-data chess-display-game 'database))
+	 (index (random (chess-database-count database)))
+	 (next-game (chess-database-read database index)))
+    (if (null next-game)
+	(error "Error reading game at position %d" index)
+      (chess-display-set-game nil next-game 0)
+      (chess-game-set-data chess-display-game 'my-color
+			   (chess-pos-side-to-move
+			    (chess-game-pos chess-display-game)))
+      (dolist (key '(database database-index database-count))
+	(chess-game-set-data chess-display-game key
+			     (chess-game-data next-game key))))))
+
+(defun chess-write-game (game file)
+  "Write a chess GAME to FILE as raw Lisp."
+  (let ((game-copy (copy-alist game)))
+    (chess-game-set-hooks game-copy nil)
+    (chess-game-set-data-alist game-copy nil)
+    (with-current-buffer (find-file-noselect)
+      (erase-buffer)
+      (prin1 game)
+      (save-buffer))))
+
+(defun chess-read-game (file)
+  "Read a chess game as raw Lisp from FILE."
+  (with-current-buffer (find-file-noselect)
+    (goto-char (point-min))
+    (read)))
 
 (provide 'chess)
 

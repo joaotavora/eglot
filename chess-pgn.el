@@ -16,9 +16,9 @@
     (pgn-parse-error . "Error parsing PGN syntax")))
 
 (defun chess-pgn-read-plies (game position &optional top-level)
-  (let ((plies (list t)) prevpos done)
+  (let ((plies (list t)) prevpos)
     (catch 'done
-      (while (not (or done (eobp)))
+      (while (not (eobp))
 	(cond
 	 ((looking-at "[1-9][0-9]*\\.[. ]*")
 	  (goto-char (match-end 0)))
@@ -37,9 +37,10 @@
 	       (looking-at "\\(\\*\\|1-0\\|0-1\\|1/2-1/2\\)"))
 	  (goto-char (match-end 0))
 	  (chess-game-set-tag game "Result" (match-string-no-properties 0))
-	  (nconc plies (list (chess-ply-create
-			      (chess-ply-next-pos (car (last plies))))))
-	  (setq done t))
+	  (unless (eq t (car (last plies)))
+	    (nconc plies (list (chess-ply-create
+				(chess-ply-next-pos (car (last plies)))))))
+	  (throw 'done t))
 
 	 ((looking-at "{")
 	  (forward-char)
@@ -57,7 +58,7 @@
 	 ((and (not top-level)
 	       (looking-at ")"))
 	  (forward-char)
-	  (setq done t))
+	  (throw 'done t))
 
 	 (t
 	  (nconc plies (list (chess-ply-create
