@@ -71,7 +71,10 @@ chess-ply
 
 chess-pgn
 - when saving a full game to the clipboard, it shouldn't need to save
-  the FEN if it's starting from a standard position
+  the FEN if it's starting from a standard position (this doesn't
+  always happen)
+- sometimes when clipping to the clipboard the final "*" is stuck to
+  the text of the last move
 
 chess-pos
 - if I checkmate someone, the last position does not have its status
@@ -79,6 +82,12 @@ chess-pos
 
 chess-german
 - complete translation
+
+chess-gnuchess
+- triggers a Lisp error when I resign
+
+chess-phalanx
+- moves from the engine aren't parsed after a pause
 
 general
 - add an 'install' target to the Makefile
