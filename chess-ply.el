@@ -74,6 +74,16 @@
 	    t
 	  (cadr item)))))
 
+(defun chess-ply-set-keyword (ply keyword &optional value)
+  (let* ((changes (chess-ply-changes ply))
+	 (item (memq keyword changes)))
+    (if item
+	(if value
+	    (setcar (cdr item) value))
+      (nconc changes (if value
+			 (list keyword value)
+		       (list keyword))))))
+
 (defsubst chess-ply-source (ply)
   (let ((changes (chess-ply-changes ply)))
     (and (listp changes) (not (symbolp (car changes)))
