@@ -24,16 +24,50 @@
   :type 'boolean
   :group 'chess-display)
 
-(defcustom chess-display-mode-line-format "   %C   %M"
-  "The format of a chess display's modeline.
-Special characters include:
+(chess-message-catalog 'english
+  '((mode-white     . "White")
+    (mode-black     . "Black")
+    (mode-start     . "START")
+    (mode-checkmate . "CHECKMATE")
+    (mode-resigned  . "RESIGNED")
+    (mode-stalemate . "STALEMATE")
+    (mode-drawn     . "DRAWMN")))
 
-    %C  The color to move, White or Black; if the game is finished,
-	this will instead be the completion string
-    %M  Current algebraic move text (prefixed by ... when White)
-    %E  Current position evaluation, if engine supports it
-	(negative numbers favor black) [NOT WORKING YET]"
-  :type 'string
+(defcustom chess-display-mode-line-format
+  '("   "
+    (:eval (let ((final (chess-ply-final-p
+			 (chess-game-ply chess-module-game
+					 chess-display-index))))
+	     (cond
+	      ((eq final :checkmate) (chess-string 'mode-checkmate))
+	      ((eq final :resign)    (chess-string 'mode-resigned))
+	      ((eq final :stalemate) (chess-string 'mode-stalemate))
+	      ((eq final :draw)      (chess-string 'mode-drawn))
+	      (t
+	       (if (chess-game-side-to-move chess-module-game)
+		   (chess-string 'mode-white)
+		 (chess-string 'mode-black))))))
+    "   "
+    (:eval (if (= chess-display-index 0)
+	       (chess-string 'mode-start)
+	     (concat (int-to-string (chess-game-seq chess-module-game))
+		     ". "
+		     (if (chess-game-side-to-move chess-module-game)
+			 "... ")
+		     (chess-ply-to-algebraic
+		      (chess-game-ply chess-module-game
+				      (1- chess-display-index))))))
+    (:eval (let ((white (chess-game-data chess-module-game
+					 'white-remaining))
+		 (black (chess-game-data chess-module-game
+					 'black-remaining)))
+	     (if (and white black)
+		 (format "   W %02d:%02d B %02d:%02d"
+			 (/ (floor white) 60) (% (floor white) 60)
+			 (/ (floor black) 60) (% (floor black) 60))))))
+  "The format of a chess display's modeline.
+See `mode-line-format' for syntax details."
+  :type 'sexp
   :group 'chess-display)
 
 ;;; Code:
@@ -48,14 +82,12 @@ Special characters include:
 (defvar chess-display-event-handler nil)
 (defvar chess-display-no-popup nil)
 (defvar chess-display-edit-mode nil)
-(defvar chess-display-mode-line "")
 
 (make-variable-buffer-local 'chess-display-index)
 (make-variable-buffer-local 'chess-display-perspective)
 (make-variable-buffer-local 'chess-display-event-handler)
 (make-variable-buffer-local 'chess-display-no-popup)
 (make-variable-buffer-local 'chess-display-edit-mode)
-(make-variable-buffer-local 'chess-display-mode-line)
 
 (defmacro chess-with-current-buffer (buffer &rest body)
   `(let ((buf ,buffer))
@@ -176,7 +208,7 @@ also view the same game."
     (funcall chess-display-event-handler 'draw
 	     (chess-display-position nil)
 	     (chess-display-perspective nil))
-    (chess-display-update-modeline)
+    (force-mode-line-update)
     (if (and popup (not chess-display-no-popup)
 	     (chess-module-leader-p nil))
 	(chess-display-popup nil))))
@@ -239,7 +271,7 @@ that is supported by most displays, and is the default mode."
   :group 'chess-display)
 
 (defcustom chess-display-momentous-events
-  '(orient update setup-game pass move resign)
+  '(orient post-undo setup-game pass move resign)
   "Events that will refresh, and cause 'main' displays to popup.
 These are displays for which `chess-display-set-main' has been
 called."
@@ -377,63 +409,7 @@ The key bindings available in this mode are:
   (use-local-map chess-display-mode-map)
   (buffer-disable-undo)
   (setq buffer-auto-save-file-name nil
-	mode-line-format 'chess-display-mode-line))
-
-(chess-message-catalog 'english
-  '((mode-white     . "White")
-    (mode-black     . "Black")
-    (mode-start     . "START")
-    (mode-checkmate . "CHECKMATE")
-    (mode-resigned  . "RESIGNED")
-    (mode-stalemate . "STALEMATE")
-    (mode-drawn     . "DRAWMN")))
-
-(defun chess-display-update-modeline ()
-  "Set the modeline to reflect the current game position."
-  (let* ((mode-line (concat chess-display-mode-line-format))
-	 (color (chess-pos-side-to-move (chess-display-position nil)))
-	 (index chess-display-index)
-	 (ply (chess-game-ply chess-module-game (1- index)))
-	 (case-fold-search nil))
-    (while (string-match "%\\([A-Za-z0-9]\\|([^)]+)\\)" mode-line)
-      (let ((code (match-string-no-properties 1 mode-line)))
-	(if (= ?\( (aref code 0))
-	    (setq code (eval code))
-	  (cond
-	   ((string= code "C")
-	    (setq code
-		  (let ((final (chess-ply-final-p ply)))
-		    (cond
-		     ((eq final :checkmate) (chess-string 'mode-checkmate))
-		     ((eq final :resign)    (chess-string 'mode-resigned))
-		     ((eq final :stalemate) (chess-string 'mode-stalemate))
-		     ((eq final :draw)      (chess-string 'mode-drawn))
-		     (t
-		      (if color (chess-string 'mode-white)
-			(chess-string 'mode-black)))))))
-
-	   ((string= code "M")
-	    (if (= index 0)
-		(setq code (chess-string 'mode-start))
-	      (setq code (concat (int-to-string
-				  (chess-game-seq chess-module-game))
-				 ". "(if color "... ")
-				 (or (chess-ply-to-algebraic ply) "???")))))
-
-	   ((string= code "E")
-	    ;; jww (2002-04-14): This code is encountering some nasty
-	    ;; race conditions
-	    (let ((evaluation (save-match-data
-				(chess-game-run-hooks chess-module-game
-						      'evaluate))))
-	      (setq code (if evaluation
-			     (concat "(" (number-to-string evaluation) ")")
-			   "(thinking)"))))
-
-	   (t
-	    (setq code ""))))
-	(setq mode-line (replace-match code t t mode-line))))
-    (setq chess-display-mode-line mode-line)))
+	mode-line-format 'chess-display-mode-line-format))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

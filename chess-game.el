@@ -180,7 +180,7 @@ matches."
       (chess-error 'undo-limit-reached))
   (let ((chess-game-inhibit-events t))
     (chess-game-set-plies game (nbutlast (chess-game-plies game) count)))
-  (chess-game-run-hooks game 'update))
+  (chess-game-run-hooks game 'post-undo count))
 
 
 (defsubst chess-game-over-p (game)

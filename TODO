@@ -11,6 +11,11 @@
 
 - the game should go inactive once I lose by stalemate/checkmate
 
+- when a clock runs down, indicate this in the modeline, and all the
+  user to call-flag in order to win on time
+
+- parse out the time strings from ICS
+
 - detect draw/resign/abort/retract, etc., from ICS and common engines
 
 - in chess-engine-filter and chess-ics-filter, if an error is

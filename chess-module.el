@@ -83,7 +83,7 @@
   (chess-with-current-buffer module
     (setq chess-module-leader nil)))
 
-(defun chess-module-destroy (module)
+(defun chess-module-destroy (&optional module)
   (let ((buf (or module (current-buffer))))
     (when (buffer-live-p buf)
       (with-current-buffer buf

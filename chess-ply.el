@@ -71,8 +71,12 @@
 (defun chess-ply-keyword (ply keyword)
   (let ((item (memq keyword (chess-ply-changes ply))))
     (if item
-	(if (memq keyword '(:which :promote))
-	    (cdr item)
+	;; these are special keywords which use a value argument;
+	;; `which' is for disambiguating algebraic moves, `promote'
+	;; indicates the piece to promote to, `white' is white's
+	;; remaining time in seconds, and similarly for `black'
+	(if (memq keyword '(:which :promote :white :black))
+	    (cadr item)
 	  t))))
 
 (defsubst chess-ply-source (ply)
