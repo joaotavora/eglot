@@ -23,6 +23,9 @@ chess-clock
 - sometimse, the clock gets shut off (while playing on ICS) for no
   reason that I can determine
 
+chess-crafty
+- since Crafty 19.3 or so, this module doesn't work at all anymore.
+
 chess-display
 - sometimes the final event of a game doesn't change the modeline,
   like CHECKMATE, or FLAG FELL
