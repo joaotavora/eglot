@@ -304,7 +304,8 @@ lowercase to query if black can castle)."
       (let* ((color (< side ?a))
 	     (long (= ?Q (upcase side)))
 	     (file (if long 0 7))
-	     (king-file (chess-pos-king-index position color))
+	     (king-file (chess-index-file
+			 (chess-pos-king-index position color)))
 	     rook)
 	(while (funcall (if long '< '>) file king-file)
 	  (let ((index (chess-rf-to-index (if color 7 0) file)))

@@ -81,7 +81,7 @@
   "An Emacs chess playing program."
   :group 'games)
 
-(defconst chess-version "2.0a16"
+(defconst chess-version "2.0b1"
   "The version of the Emacs chess program.")
 
 (defcustom chess-default-display
@@ -96,8 +96,9 @@ not available."
   '((chess-sound chess-announce)
     chess-autosave
     chess-clock
-    chess-kibitz
-    chess-chat)
+    ;;chess-kibitz   jww (2002-04-30): not fully supported yet
+    ;;chess-chat
+    )
   "Modules to be used when starting a chess session.
 A sublist indicates a series of alternatives, if the first is not
 available.
