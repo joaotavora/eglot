@@ -22,9 +22,9 @@
 
 ;;; Commentary:
 
-;; EPD is "Extended Position Description".  It is a standard for describing
-;; chess positions along with an extended set of structured attribute
-;; values using the ASCII character set.  It is intended for data and
+;; EPD is the "Extended Position Description" format.  It is a standard for
+;; describing chess positions along with an extended set of structured
+;; attribute values using the ASCII character set.  It is intended for data and
 ;; command interchange among chessplaying programs.  It is also intended
 ;; for the representation of portable opening library repositories and for
 ;; problem test suites.
