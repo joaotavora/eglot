@@ -139,6 +139,11 @@
 
 (defun chess-engine-move (engine ply)
   (chess-with-current-buffer engine
+    (cond
+     (chess-engine-game
+      (chess-game-move chess-engine-game ply))
+     (chess-engine-position
+      (apply 'chess-pos-move ply)))
     (chess-engine-command engine 'move ply)))
 
 (defun chess-engine-pass (engine ply)

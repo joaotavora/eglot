@@ -86,11 +86,14 @@
       (nth index (chess-game-plies game))
     (car (last (chess-game-plies game)))))
 
-(defsubst chess-game-add-ply (game ply)
+(defun chess-game-add-ply (game ply)
   "Return the position related to GAME's INDEX position."
-  (nconc (chess-game-plies game) (list ply)))
+  (let ((plies (chess-game-plies game)))
+    (if plies
+	(nconc plies (list ply))
+      (chess-game-set-plies game (list ply)))))
 
-(defun chess-game-pos (game &optional index)
+(defsubst chess-game-pos (game &optional index)
   "Return the position related to GAME's INDEX position."
   (car (chess-game-ply game index)))
 
@@ -102,13 +105,15 @@ SEARCH-FUNC specifies the function used to test the legality of moves.
 TAGS is the starting set of game tags (which can always be changed
 later using the various tag-related methods)."
   (let ((game (list tags
-		    (or search-func 'chess-standard-search-position)
-		    (or position (chess-pos-create)))))
+		    (or search-func 'chess-standard-search-position))))
     (dolist (tag (cons (cons "Date" (format-time-string "%Y.%m.%d"))
 		       chess-game-default-tags))
       (unless (chess-game-tag game (car tag))
 	(chess-game-set-tag game (car tag) (cdr tag))))
-    (chess-game-add-ply game (chess-ply-create (or position (chess-pos-create))))
+    (chess-game-add-ply game (chess-ply-create
+			      (or (and position
+				       (chess-pos-copy position))
+				  (chess-pos-create))))
     (if position
 	(chess-game-set-tag game "FEN" (chess-pos-to-fen position)))
     game))

@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Display a chessboard using graphical images
+;; Chessboard display style using graphical images
 ;;
 ;; $Revision$
 

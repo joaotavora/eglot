@@ -56,14 +56,11 @@
    ((eq event 'pass)
     (chess-engine-send nil "go\n"))
    ((eq event 'move)
-    (cond
-     ((chess-engine-game nil)
-      (chess-game-move (chess-engine-game nil) (car args)))
-     (t
-      (apply 'chess-pos-move (car args))))
-    (chess-engine-send nil (concat (chess-ply-to-algebraic
-				    (car args) nil
-				    (chess-engine-search-function nil))
-				   "\n")))))
+    (chess-engine-send
+     nil (concat (chess-ply-to-algebraic
+		  (car args) nil
+		  (chess-engine-search-function nil)) "\n")))))
+
+(provide 'chess-crafty)
 
 ;;; chess-crafty.el ends here

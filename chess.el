@@ -75,6 +75,8 @@ a0 243
 ;;; Code:
 (require 'chess-session)
 
+(require 'chess-game)
+(require 'chess-display)
 (require 'chess-pgn)
 
 (defgroup chess nil
@@ -103,20 +105,24 @@ a0 243
     ;; setup `chess-handler' to receive all events first
     (chess-session-add-listener session 'chess-handler)
     (chess-session-set-data session 'my-color perspective)
-    ;; unless prefix arg is given, use `chess-default-engine' to play
-    ;; against; otherwise, just create a board for play between two
-    ;; people
-    (unless arg
-      (chess-session-add-listener session chess-default-engine))
     ;; initialize all of the modules, and setup a new game
     (chess-session-event session 'initialize)
     (chess-session-event session 'setup (chess-game-create))
     ;; create a display object linked to the session, and add it to
     ;; the event chain; it is via this object that session events will
     ;; for the most part be generated
+    (require chess-default-display)
     (chess-session-add-listener session 'chess-display nil
 				(chess-display-create chess-default-display
-						      perspective session))))
+						      perspective session))
+    ;; unless prefix arg is given, use `chess-default-engine' to play
+    ;; against; otherwise, just create a board for play between two
+    ;; people
+    (unless arg
+      (require chess-default-engine)
+      (chess-session-add-listener session 'chess-engine nil
+				  (chess-engine-create chess-default-engine
+						       nil session)))))
 
 (defun chess-handler (session window-config event &rest args)
   "React to changes on the chess board in a global Emacs way."

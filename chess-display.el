@@ -57,6 +57,7 @@
 (defvar chess-display-perspective)
 (defvar chess-display-draw-function nil)
 (defvar chess-display-highlight-function nil)
+(defvar chess-display-edit-mode nil)
 (defvar chess-display-mode-line "")
 
 (make-variable-buffer-local 'chess-display-session)
@@ -69,6 +70,7 @@
 (make-variable-buffer-local 'chess-display-perspective)
 (make-variable-buffer-local 'chess-display-draw-function)
 (make-variable-buffer-local 'chess-display-highlight-function)
+(make-variable-buffer-local 'chess-display-edit-mode)
 (make-variable-buffer-local 'chess-display-mode-line)
 
 (defmacro chess-with-current-buffer (buffer &rest body)
@@ -80,9 +82,12 @@
 
 (defun chess-display-create (style perspective &optional session search-func)
   "Create a chess display, for displaying chess objects."
-  (let ((draw (intern-soft (concat (symbol-name style) "-draw")))
-	(highlight (intern-soft (concat (symbol-name style) "-highlight")))
-	(initialize (intern-soft (concat (symbol-name style) "-initialize"))))
+  (let* ((name (symbol-name style))
+	 (draw (intern-soft (concat name "-draw")))
+	 (highlight (intern-soft (concat name "-highlight")))
+	 (initialize (intern-soft (concat name "-initialize"))))
+    (unless initialize
+      (error "There is no known chessboard display style '%s'" name))
     (with-current-buffer (generate-new-buffer "*Chessboard*")
       (setq cursor-type nil
 	    chess-display-session session
@@ -277,7 +282,9 @@ If only START is given, it must be in algebraic move notation."
 	;; game, or alter the game, just as SCID allows
 	(unless (= (chess-display-index nil)
 		   (chess-game-index chess-display-game))
-	  (error "Cannot move partway in a game"))
+	  (error "Cannot move partway in game (index %d != game index %d)"
+		 (chess-display-index nil)
+		 (chess-game-index chess-display-game)))
 	(chess-game-move chess-display-game ply))
        (chess-display-variation
 	(nconc chess-display-variation (list ply)))
@@ -429,7 +436,7 @@ that game (i.e., not editing the position, or reviewing an earlier
 position within the game)."
   (and chess-display-session
        chess-display-game
-       (= (chess-display index nil)
+       (= (chess-display-index nil)
 	  (chess-game-index chess-display-game))
        (not chess-display-edit-mode)))
 
