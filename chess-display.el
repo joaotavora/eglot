@@ -265,9 +265,9 @@ If only START is given, it must be in algebraic move notation."
     ;; game, or alter the game, just as SCID allows
     (if (= chess-display-index (chess-game-index chess-module-game))
 	(let ((chess-display-handling-event t))
+	  (chess-display-paint-move nil ply)
 	  (chess-game-move chess-module-game ply))
-      (error "What to do here??  NYI"))
-    (chess-display-paint-move nil ply)))
+      (error "What to do here??  NYI"))))
 
 (defun chess-display-highlight (display &rest args)
   "Highlight the square at INDEX on the current position.
