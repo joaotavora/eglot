@@ -103,6 +103,11 @@
     (if plies
 	(insert ? ))))
 
+(defvar chess-pgn-tag-order
+  '("Event" "Site" "Date" "Round"
+    "White" "WhiteElo" "Black" "BlackElo"
+    "Result" "TimeControl"))
+
 (defun chess-game-to-pgn (game &optional indented)
   "Convert a chess GAME to PGN notation.
 If INDENTED is non-nil, indent the move texts."
@@ -114,7 +119,18 @@ If INDENTED is non-nil, indent the move texts."
     (if (and (not fen)
 	     (not (equal chess-starting-position first-pos)))
 	(chess-game-set-tag game "FEN" (chess-pos-to-fen first-pos))))
-  (dolist (tag (chess-game-tags game))
+  (dolist (tag (sort (copy-alist (chess-game-tags game))
+		     (function
+		      (lambda (left right)
+			(let ((l-idx (position left chess-pgn-tag-order
+					       :test 'equal))
+			      (r-idx (position right chess-pgn-tag-order
+					       :test 'equal)))
+			  (cond
+			   ((and l-idx (not r-idx)) t)
+			   ((and (not l-idx) r-idx) nil)
+			   ((and l-idx r-idx) (< l-idx r-idx))
+			   (t (string-lessp left right))))))))
     (insert (format "[%s \"%s\"]\n" (car tag) (cdr tag))))
   (insert ?\n)
   (let ((begin (point)))
