@@ -7,38 +7,46 @@
   analysis/highlight tools
   scid interaction
 
+- In M-x chess, if chess-images is being used, ensure that
+  chess-images-directory is valid, otherwise fall back on chess-ics1.
+
+- Turn on memory gc collection messages, and see how much of a pig
+  chess.el is
+
+- Profile!
+
+- Add CTCP (optional) support to chess-irc.el
+
+- Use server-side sockets in chess-network, if Emacs supports it
+
+- In chess-fen-to-pos, syntax check incoming FEN strings
+
+- Support auto-saving of games to PGN, and saving them at appropriate
+  points
+
+- Create a series of generic functions and predicates, so that users
+  can say (chess-position OBJECT) or (chess-move OBJECT), without
+  needing to know the type of OBJECT.
+
+- Allow ASCII displays to use a separate frame
+
 - Rewrite ics.el
 
 - Make use of the my-color data in chess-game.el to ensure that I only
   do what I should be doing
-
-- Allow the user to request a move retraction (ala takeback)
 
 - In edit mode, mouse-2 and mouse-3 should provide a drop-down list of
   pieces the square can be set to.  Cursor movement is really not the
   best for chess-images.  I still need to figure out how best to
   handle cursor-type with that display.
 
-- There is presently no way to start a new game!
-
 - Still need to test many areas: position editing
-
-- Resize ascii windows after popup, so that the whole board is
-  minimally visible
-
-- Need a way to request a draw
 
 - Implement engine options; then, in chess-puzzle set the option that
   tells the engine not to resign.
 
 - Add a display command for writing out the currently displayed game
   to a file.  It will use PGN for games, and FEN for positions.
-
-- Auto-raise the chess-images frame, if it's being displayed as a
-  separate frame.
-
-- Create a to-text rendering interface for all chess game objects.
-  So, chess-game-to-string would use PGN, etc.
 
 - Remote displays are horribly insecure.
 
@@ -58,11 +66,6 @@
   a game object
 
 - Add a module for chatting between opponents
-
-- M-w on a display should kill appropriately (i.e., kill to PGN for a
-  game, to FEN for a position, etc).  C-y should likewise call the
-  appropriate chess-display-set-... function based on the clipboard's
-  contents.  Which might just be a plain algebraic string too!
 
 - Let the user specify a default size for the chess-images display
 
