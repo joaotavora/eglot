@@ -37,8 +37,8 @@ PERSPECTIVE is t for white or nil for black."
   (let ((inhibit-redisplay t)
 	(pos (point)))
     (erase-buffer)
-    (let* ((position chess-display-position)
-	   (inverted (null chess-display-perspective))
+    (let* ((position (chess-display-position nil))
+	   (inverted (null (chess-display-perspective nil)))
 	   (rank (if inverted 7 0))
 	   (file (if inverted 7 0))
 	   beg)
@@ -77,13 +77,14 @@ PERSPECTIVE is t for white or nil for black."
     (set-buffer-modified-p nil)
     (goto-char pos)))
 
-;; jww (2002-03-28): this no longer takes a `pos' arg!
-(defun chess-ics1-highlight (pos index &optional mode)
+(defun chess-ics1-highlight (index &optional mode)
   (if (null (get-buffer-window (current-buffer) t))
       (pop-to-buffer (current-buffer)))
   (let (beg end)
     (save-excursion
-      (goto-char pos)
+      (beginning-of-line)
+      (goto-line (+ 2 (chess-index-rank index)))
+      (forward-char (+ 8 (* 4 (chess-index-file index))))
       (skip-chars-backward "^|")
       (setq beg (point))
       (skip-chars-forward "^|")
@@ -97,8 +98,8 @@ PERSPECTIVE is t for white or nil for black."
   (let ((inhibit-redisplay t)
 	(pos (point)))
     (erase-buffer)
-    (let* ((position chess-display-position)
-	   (inverted (null chess-display-perspective))
+    (let* ((position (chess-display-position nil))
+	   (inverted (null (chess-display-perspective nil)))
 	   (rank (if inverted 7 0))
 	   (file (if inverted 7 0))
 	   beg)
@@ -118,11 +119,15 @@ PERSPECTIVE is t for white or nil for black."
       (set-buffer-modified-p nil)
       (goto-char pos))))
 
-;; jww (2002-03-28): this no longer takes a `pos' arg!
-(defun chess-plain-highlight (pos index &optional mode)
+(defun chess-plain-highlight (index &optional mode)
   (if (null (get-buffer-window (current-buffer) t))
       (pop-to-buffer (current-buffer)))
-  (put-text-property pos (1+ pos) 'face 'chess-display-highlight-face))
+  (save-excursion
+    (beginning-of-line)
+    (goto-line (1+ (chess-index-rank index)))
+    (forward-char (chess-index-file index))
+    (put-text-property (point) (1+ (point)) 'face
+		       'chess-display-highlight-face)))
 
 (provide 'chess-ascii)
 
