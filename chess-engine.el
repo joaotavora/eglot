@@ -80,8 +80,7 @@
        (message "Received invalid PGN text"))))
 
 (defun chess-engine-default-handler (event &rest args)
-  (let ((chess-engine-handling-event t)
-	(game (chess-engine-game nil)))
+  (let ((game (chess-engine-game nil)))
     (cond
      ((eq event 'move)
       (if (null game)
@@ -89,20 +88,22 @@
 	    (setq chess-engine-position (chess-ply-next-pos (car args)))
 	    t)
 	(if (chess-game-data game 'active)
-	    (when (car args)
-	      ;; if the game index is still 0, then our opponent
-	      ;; is white, and we need to pass over the move
-	      (when (and game
-			 (not chess-engine-inhibit-auto-pass)
-			 (chess-game-data game 'my-color)
-			 (= (chess-game-index game) 0))
-		(message "Your opponent played the first move, you are now black")
-		(chess-game-run-hooks game 'pass)
-		;; if no one else flipped my-color, we'll do it
-		(if (chess-game-data game 'my-color)
-		    (chess-game-set-data game 'my-color nil)))
-	      (chess-engine-do-move (car args))
-	      t))))
+	    ;; we don't want the `move' event coming back to us
+	    (let ((chess-engine-handling-event t))
+	      (when (car args)
+		;; if the game index is still 0, then our opponent
+		;; is white, and we need to pass over the move
+		(when (and game
+			   (not chess-engine-inhibit-auto-pass)
+			   (chess-game-data game 'my-color)
+			   (= (chess-game-index game) 0))
+		  (message "Your opponent played the first move, you are now black")
+		  (chess-game-run-hooks game 'pass)
+		  ;; if no one else flipped my-color, we'll do it
+		  (if (chess-game-data game 'my-color)
+		      (chess-game-set-data game 'my-color nil)))
+		(chess-engine-do-move (car args))
+		t)))))
 
      ((eq event 'pass)
       (when (and game (chess-game-data game 'active))
@@ -123,42 +124,49 @@
 
      ((eq event 'setup-pos)
       (when (car args)
-	(chess-engine-set-start-position nil (car args) t)
+	;; we don't want the `setup-game' event coming back to us
+	(let ((chess-engine-handling-event t))
+	  (chess-engine-set-start-position nil (car args) t))
 	t))
 
      ((eq event 'setup-game)
       (when (car args)
-	(if (null game)
-	    (chess-engine-set-game nil (car args))
-	  (let ((chess-game-inhibit-events t))
-	    (chess-engine-copy-game nil (car args))
-	    (chess-game-set-data game 'active t)
-	    (if (string= chess-full-name (chess-game-tag game "White"))
-		(chess-game-set-data game 'my-color t)
-	      (chess-game-set-data game 'my-color nil)))
-	  (chess-game-run-hooks game 'orient))
+	;; we don't want the `setup-game' event coming back to us
+	(let ((chess-engine-handling-event t))
+	  (if (null game)
+	      (chess-engine-set-game nil (car args))
+	    (let ((chess-game-inhibit-events t))
+	      (chess-engine-copy-game nil (car args))
+	      (chess-game-set-data game 'active t)
+	      (if (string= chess-full-name (chess-game-tag game "White"))
+		  (chess-game-set-data game 'my-color t)
+		(chess-game-set-data game 'my-color nil)))
+	    (chess-game-run-hooks game 'orient)))
 	t))
 
      ((eq event 'quit)
       (message "Your opponent has quit playing")
       (if game
-	  (chess-game-set-data game 'active nil))
+	  (let ((chess-engine-handling-event t))
+	    (chess-game-set-data game 'active nil)))
       t)
 
      ((eq event 'resign)
       (when game
-	(message "Your opponent has resigned")
-	(chess-game-end game :resign)
-	(chess-game-set-data game 'active nil)
+	(let ((chess-engine-handling-event t))
+	  (message "Your opponent has resigned")
+	  (chess-game-end game :resign)
+	  (chess-game-set-data game 'active nil))
 	t))
 
      ((eq event 'draw)
       (when game
 	(if (y-or-n-p "Your opponent offers a draw, accept? ")
 	    (progn
-	      (chess-game-end game :draw)
-	      (chess-engine-command nil 'accept)
-	      (chess-game-set-data game 'active nil))
+	      (let ((chess-engine-handling-event t))
+		(chess-game-end game :draw)
+		(chess-game-set-data game 'active nil))
+	      (chess-engine-command nil 'accept)))
 	  (chess-engine-command nil 'decline))
 	t))
 
@@ -166,7 +174,8 @@
       (when game
 	(if (y-or-n-p "Your opponent wants to abort this game, accept? ")
 	    (progn
-	      (chess-game-set-data game 'active nil)
+	      (let ((chess-engine-handling-event t))
+		(chess-game-set-data game 'active nil))
 	      (chess-engine-command nil 'accept))
 	  (chess-engine-command nil 'decline))
 	t))
@@ -177,7 +186,8 @@
 	     (format "Your opponent wants to take back %d moves, accept? "
 		     (car args)))
 	    (progn
-	      (chess-game-undo game (car args))
+	      (let ((chess-engine-handling-event t))
+		(chess-game-undo game (car args)))
 	      (chess-engine-command nil 'accept))
 	  (chess-engine-command nil 'decline))
 	t))
@@ -190,27 +200,28 @@
 		  (message "Your opponent, %s, is now ready to play"
 			   (car args))
 		(message "Your opponent is now ready to play"))
+	      (let ((chess-engine-handling-event t))
+		;; NOTE: There will be no display for this game object!  This
+		;; is really only useful if you are using a computer on the
+		;; accepting side
+		(unless game
+		  (setq game (chess-engine-set-game nil (chess-game-create))))
+		(chess-engine-set-start-position nil)))
+	  (let ((chess-engine-handling-event t))
+	    (cond
+	     ((eq chess-engine-pending-offer 'draw)
+	      (message "Your draw offer was accepted")
+	      (chess-game-end game :draw)
+	      (chess-game-set-data game 'active nil))
 
-	      ;; NOTE: There will be no display for this game object!  This
-	      ;; is really only useful if you are using a computer on the
-	      ;; accepting side
-	      (unless game
-		(setq game (chess-engine-set-game nil (chess-game-create))))
-	      (chess-engine-set-start-position nil))
-	  (cond
-	   ((eq chess-engine-pending-offer 'draw)
-	    (message "Your draw offer was accepted")
-	    (chess-game-end game :draw)
-	    (chess-game-set-data game 'active nil))
+	     ((eq chess-engine-pending-offer 'abort)
+	      (message "Your offer to abort was accepted")
+	      (chess-game-set-data game 'active nil))
 
-	   ((eq chess-engine-pending-offer 'abort)
-	    (message "Your offer to abort was accepted")
-	    (chess-game-set-data game 'active nil))
-
-	   ((eq chess-engine-pending-offer 'undo)
-	    (message "Request to undo %d moves was accepted"
-		     chess-engine-pending-arg)
-	    (chess-game-undo game (car args)))))
+	     ((eq chess-engine-pending-offer 'undo)
+	      (message "Request to undo %d moves was accepted"
+		       chess-engine-pending-arg)
+	      (chess-game-undo game (car args))))))
 	(setq chess-engine-pending-offer nil
 	      chess-engine-pending-arg nil)
 	t))
