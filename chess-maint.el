@@ -1,6 +1,7 @@
 (add-to-list 'load-path ".")
 
 (require 'cl)
+(require 'chess)
 
 (defun chess-generate-texinfo-file ()
   (require 'lispdoc)

@@ -228,6 +228,9 @@ color will do."
 	  (push i found)))
     found))
 
+(defsubst chess-pos-to-string (position &optional full)
+  (chess-pos-to-fen position full))
+
 (defconst chess-pos-piece-values
   '((?p . 1)
     (?n . 3)
