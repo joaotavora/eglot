@@ -4,6 +4,9 @@ These are features scheduled for future 2.x releases.
 
 			   General Features
 
+- Use TrueType or other chess fonts for displaying positions; this
+  might be the best way of displaying positions on Windows
+
 - Enable the chat module, and base its interface on what TNT does
 
 - Merge chess-announce and chess-sound, and use style modules on top
@@ -27,13 +30,6 @@ These are features scheduled for future 2.x releases.
 - Write chess-descriptive.el, and have the code in general use
   chess-ply-to-string and chess-string-to-ply, so that users can use
   descriptive notationas an alternative to algebraic.
-
-- Write chess-html.el, for outputting a game to HTML
-
-- Write chess-latex.el, for outputting a game to LaTeX
-
-- Use TrueType or other chess fonts for displaying positions; this
-  might be the best way of displaying positions on Windows
 
 - Change chess-announce/sound so that it reads from the text rendition
   of the move; this way it will work with either descriptive or
