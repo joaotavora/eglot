@@ -35,7 +35,6 @@
 		   (eq (process-status proc) 'run))
 	  (process-send-string proc "nopost\n")
 	  (setq chess-engine-process proc
-		chess-engine-entire-lines t
 		chess-engine-opponent-name "Phalanx")
 	  t)))
 
