@@ -9,6 +9,10 @@
     analysis/highlight tools
     bughouse/crazyhouse
 
+- Fix highlighting in chess-plain when chess-plain-spacing is set.
+  chess-coord needs to be applied to a larger area, and also the way
+  highlight locations are found needs to be recalculated.
+
 - the game should go inactive once I lose by stalemate/checkmate
 
 - when a clock runs down, indicate this in the modeline, and all the
@@ -46,6 +50,8 @@
   chess games back and forth.
 
 - Copy some of ics.el's nicer functionality into chess-ics.el
+
+- Complete the ICS12 parser, based on Mario's comments
 
 - Add support for ICS observing
 
