@@ -282,7 +282,8 @@
 
 (defun chess-engine-create (module game &optional response-handler
 				 &rest handler-ctor-args)
-  (let* ((engine (chess-module-create module game nil handler-ctor-args)))
+  (let* ((engine (apply 'chess-module-create module game nil
+			handler-ctor-args)))
     (when engine
       (with-current-buffer engine
 	(setq chess-engine-regexp-alist
