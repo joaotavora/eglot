@@ -745,7 +745,7 @@ to the end or beginning."
     (if window
 	(let ((frame (window-frame window)))
 	  (unless (eq frame (selected-frame))
-	    (select-frame-set-input-focus frame)))
+	    (raise-frame frame)))
       (let ((params (list (cons 'name "*Chessboard*")
 			  (cons 'height height)
 			  (cons 'width width))))
