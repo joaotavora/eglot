@@ -19,10 +19,14 @@
 
 (make-variable-buffer-local 'chess-crafty-evaluation)
 
+(defvar chess-crafty-analyzing-p nil
+  "Non-nil if Crafty is currently in analysis mode.")
+
+(make-variable-buffer-local 'chess-crafty-analyzing-p)
+
 (defvar chess-crafty-regexp-alist
   (list
-   (cons (concat "move\\s-+\\("
-		 chess-algebraic-regexp "\\)\\s-*$")
+   (cons (concat "move\\s-+\\(" chess-algebraic-regexp "\\)\\s-*$")
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'move
@@ -36,6 +40,51 @@
 	 (function
 	  (lambda ()
 	    (setq chess-engine-opponent-name (match-string 1)))))
+   (cons "Analyze Mode: type \"exit\" to terminate.$"
+	 (function
+	  (lambda ()
+	    (setq chess-crafty-analyzing-p t))))
+   (cons (concat "\t ?\\([0-9]+\\)\\s-+"
+		 "\\(-?[0-9]+\\)\\s-+\\([0-9]+\\)\\s-+\\([0-9]+\\)\\s-+"
+		 "\\(" ;; The list of moves
+		   "\\( *[1-9][0-9]*\\. "
+		     "\\(\\.\\.\\.\\|" chess-algebraic-regexp "\\)"
+		     "\\( " chess-algebraic-regexp "\\)?\\)+\\)$")
+	 (function
+	  (lambda ()
+	    (when chess-crafty-analyzing-p
+	      ;; We can translate this information to EPD opcodes
+	      (let ((depth (read (match-string 1)))
+		    (centipawn (read (match-string 2)))
+		    (nodes (match-string 4))
+		    (pos (chess-engine-position nil)))
+		(chess-pos-set-epd pos 'acd depth)
+		(chess-pos-set-epd pos 'ce centipawn)
+		(chess-pos-set-epd
+		 pos
+		 'pv ; predicted variation
+		 (save-restriction
+		   (narrow-to-region (match-beginning 5) (match-end 5))
+		   (let ((var (chess-var-create pos)))
+		     (goto-char (point-min))
+		     (while (not (eobp))
+		       (cond
+			((looking-at "[1-9][0-9]*\\.[ .]*")
+			 (goto-char (match-end 0)))
+			((looking-at chess-algebraic-regexp)
+			 (goto-char (match-end 0))
+			 (let ((ply (chess-algebraic-to-ply
+				     (chess-var-pos var)
+				     (match-string-no-properties 0))))
+			   (unless ply
+			     (error "unable to read move '%s'" move))
+			   (chess-var-move var ply))))
+		       (skip-chars-forward " "))
+		     var))))))))
+   (cons "analyze complete.$"
+	 (function
+	  (lambda ()
+	    (setq chess-crafty-analyzing-p nil))))
    (cons "{\\(Black\\|White\\) resigns}"
 	 (function
 	  (lambda ()
@@ -56,7 +105,7 @@
       (let ((proc (chess-common-handler game 'initialize "crafty")))
 	(when (and proc (processp proc)
 		   (eq (process-status proc) 'run))
-	  (process-send-string proc (concat "xboard\n"))
+	  (process-send-string proc "xboard\n")
 	  (setq chess-engine-process proc)
 	  t)))
 
@@ -72,6 +121,11 @@
 		    (> (setq limit (1- limit)) 0))
 	  (sit-for 0 100 t))
 	chess-crafty-evaluation))
+
+     ((eq event 'analyze)
+      (if (car args)
+	  (chess-engine-send nil "analyze\npost\n")
+	(chess-engine-send nil "exit\nnopost\n")))
 
      ((eq event 'setup-game)
       (let ((file (chess-with-temp-file
