@@ -19,6 +19,9 @@
 
 - Make ( create variations in a display, and { begin an annotation
 
+- Have C-p and C-n move forward and backward plies, and C-f and C-b
+  move into and out of variations
+
 - Make chess-display-create use require, not chess.el
 
 - Polish chess-input.el
