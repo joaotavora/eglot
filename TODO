@@ -1,4 +1,4 @@
-- Allow the user to retract a move when playing against an engine
+- Allow the user to request a move retraction (ala takeback)
 
 - In edit mode, mouse-2 and mouse-3 should provide a drop-down list of
   pieces the square can be set to.  Cursor movement is really not the
@@ -7,14 +7,12 @@
 
 - There is presently no way to start a new game!
 
-- Still need to test many areas:
-
-  position editing
+- Still need to test many areas: position editing
 
 - Resize ascii windows after popup, so that the whole board is
   minimally visible
 
-- Need a way to resign, request a draw, etc.
+- Need a way to request a draw
 
 - Implement engine options; then, in chess-puzzle set the option that
   tells the engine not to resign.
@@ -28,7 +26,7 @@
 - Create a to-text rendering interface for all chess game objects.
   So, chess-game-to-string would use PGN, etc.
 
-- Remove displays are horribly insecure.
+- Remote displays are horribly insecure.
 
 - When editing the board in display mode (or doing speculative moves),
   doing them on a copy of the board with no hook except the display
@@ -42,10 +40,10 @@
 - Have a display option that shows legal target squares whenever a
   piece is selected.
 
-- add chess-game-strip-annotations, for removing all annotations from
+- Add chess-game-strip-annotations, for removing all annotations from
   a game object
 
-- add a module for chatting between opponents
+- Add a module for chatting between opponents
 
 - M-w on a display should kill appropriately (i.e., kill to PGN for a
   game, to FEN for a position, etc).  C-y should likewise call the
@@ -56,16 +54,11 @@
 
 - Allow dragging of pieces
 
-- check for chess engine resignations
+- Need to check for chess engine resignations
 
-----------------------------------------------------------------------
+- Need a chess-clock.el module, especially for playing on ICS
 
 - Port image display code to XEmacs
-
-- Tie-in to ics.el, by adding "Internet opponent" to the opponents
-  list.
-
-- Add a way to set the time control, and display its status.
 
 - Support chess by mail, with direct tie-ins to Gnus/RMAIL.
 
