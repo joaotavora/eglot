@@ -244,13 +244,18 @@ modeline."
       (chess-game-set-plies chess-display-game
 			    (chess-game-plies game)))))
 
-(defun chess-display-set-start-position (display position my-color)
+(defun chess-display-set-start-position (display &optional position my-color)
   (chess-with-current-buffer display
     (let ((game (chess-display-game nil)))
       (if (null game)
-	  (chess-display-set-position nil position)
-	(chess-game-set-data game 'my-color my-color)
-	(chess-game-set-start-position game position)))))
+	  (chess-display-set-position nil (or position
+					      chess-starting-position))
+	(if position
+	    (progn
+	      (chess-game-set-start-position game position)
+	      (chess-game-set-data game 'my-color my-color))
+	  (chess-game-set-start-position game chess-starting-position)
+	  (chess-game-set-data game 'my-color t))))))
 
 (defun chess-display-detach-game (display)
   "Set the display game.

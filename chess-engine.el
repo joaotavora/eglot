@@ -60,27 +60,40 @@
 
 (defun chess-engine-default-handler (event &rest args)
   (let ((chess-engine-handling-event t)
-	(game (chess-engine-game nil)))
+	(game (chess-engine-game nil))
+	(position (chess-engine-position nil)))
     (cond
      ((eq event 'move)
-      (when (and game (chess-game-data game 'active))
-	(let ((ply (if (stringp (car args))
-		       (chess-algebraic-to-ply (chess-engine-position nil)
-					       (car args))
+      (if (null game)
+	  (if position
+	      (let ((ply
+		     (if (stringp (car args))
+			 (or (chess-algebraic-to-ply position (car args))
+			     (message "Received invalid move from engine: %s"
+				      (car args)))
+		       (car args))))
+		(if ply
+		    (setq chess-engine-position (chess-ply-next-pos ply)))
+		t))
+	(if (chess-game-data game 'active)
+	    (let ((ply
+		   (if (stringp (car args))
+		       (or (chess-algebraic-to-ply position (car args))
+			   (message "Received invalid move from engine: %s"
+				    (car args)))
 		     (car args))))
-	  (if (null ply)
-	      (message "Received invalid move from engine: %s" (car args))
-	    ;; if the game index is still 0, then our opponent is white,
-	    ;; and we need to pass over the move
-	    (when (and game (chess-game-data game 'my-color)
-		       (= (chess-game-index game) 0))
-	      (message "Your opponent played the first move, you are now black")
-	      (chess-game-run-hooks game 'pass)
-	      ;; if no one else flipped my-color, we'll do it
-	      (if (chess-game-data game 'my-color)
-		  (chess-game-set-data game 'my-color nil)))
-	    (chess-engine-do-move ply)))
-	t))
+	      (when ply
+		;; if the game index is still 0, then our opponent
+		;; is white, and we need to pass over the move
+		(when (and game (chess-game-data game 'my-color)
+			   (= (chess-game-index game) 0))
+		  (message "Your opponent played the first move, you are now black")
+		  (chess-game-run-hooks game 'pass)
+		  ;; if no one else flipped my-color, we'll do it
+		  (if (chess-game-data game 'my-color)
+		      (chess-game-set-data game 'my-color nil)))
+		(chess-engine-do-move ply))
+	      t))))
 
      ((eq event 'pass)
       (when (and game (chess-game-data game 'active))
@@ -104,13 +117,13 @@
 	(if (and (car args) (> (length (car args)) 0))
 	    (message "Your opponent, %s, is now ready to play" (car args))
 	  (message "Your opponent is now ready to play"))
-	(let ((chess-game-inhibit-events t))
-	  (if game
-	      (chess-game-set-start-position game chess-starting-position)
-	    (setq game (chess-engine-set-game nil (chess-game-create))))
-	  (chess-game-set-data game 'my-color t)
-	  (chess-game-set-data game 'active t))
-	(chess-game-run-hooks game 'orient)
+
+	;; NOTE: There will be no display for this game object!  This
+	;; is really only useful if you are using a computer on the
+	;; accepting side
+	(unless game
+	  (setq game (chess-engine-set-game nil (chess-game-create))))
+	(chess-engine-set-start-position engine)
 	t))
 
      ((eq event 'setup-pos)
@@ -149,18 +162,23 @@
 	(chess-game-set-data game 'active nil)
 	t)))))
 
-(defun chess-engine-set-start-position (engine position my-color)
+(defun chess-engine-set-start-position (engine &optional position my-color)
   (chess-with-current-buffer engine
     (let ((game (chess-engine-game nil)))
       (if (null game)
-	  (chess-engine-set-position nil position)
+	  (chess-engine-set-position nil (or position
+					     chess-starting-position))
 	(let ((chess-game-inhibit-events t))
-	  (chess-game-set-start-position game position)
-	  (chess-game-set-data game 'active t)
-	  (chess-game-set-data game 'my-color my-color))
+	  (if position
+	      (progn
+		(chess-game-set-start-position game position)
+		(chess-game-set-data game 'my-color my-color))
+	    (chess-game-set-start-position game chess-starting-position)
+	    (chess-game-set-data game 'my-color t))
+	  (chess-game-set-data game 'active t))
 	(chess-game-run-hooks game 'orient)))))
 
-(defun chess-engine-create (module &optional user-handler &rest args)
+(defun chess-engine-create (module &optional response-handler &rest args)
   (let ((regexp-alist (intern-soft (concat (symbol-name module)
 					   "-regexp-alist")))
 	(handler (intern-soft (concat (symbol-name module) "-handler"))))
@@ -169,7 +187,7 @@
 	(setq chess-engine-regexp-alist (symbol-value regexp-alist)
 	      chess-engine-event-handler handler
 	      chess-engine-response-handler
-	      (or user-handler 'chess-engine-default-handler))
+	      (or response-handler 'chess-engine-default-handler))
 	(when (processp proc)
 	  (unless (memq (process-status proc) '(run open))
 	    (error "Failed to start chess engine process"))
