@@ -1,3 +1,39 @@
+2004-02-22  Mario Lang  <mlang@delysid.org>
+
+	* chess-ics.el: Require 'rx when compiling.
+	(chess-ics-style12-regexp): New constant regexp which matches
+	a style12 string (subgroup 1 to 32).
+	(chess-ics-matcher-alist): Use it.
+	(chess-ics-matcher-alist): Destroy game object if we see a
+	"no longer examining..." message.
+	(chess-ics-handle-style12): Rewrite using `match-string' instead of
+	`pop' based on the new regexp above.
+	(chess-ics-handle-style12): No longer `message' parse errors, rather
+	keep the failed board in the buffer, and add the failure info
+	to the front of the line.  Makes finding remaining bugs a lot
+	easier since the buffer can be reviewed in chronological order.
+	(chess-ics-ads-removed): We need to be a lot more careful when
+	deleteing stuff on a preoutput-filter-function.  Fixed this, which also
+	fixes all the remaining cases of missed boards.  LectureBot
+	ran through three Lectures without any bug, which seems good!
+
+2004-02-21  Mario Lang  <mlang@delysid.org>
+
+	* chess-engine.el (chess-engine-filter): We were calling `forward-line'
+	unconditionally.  However, there is a race condition, namely,
+	if the last line does not end with a newline, forward-line
+	will skip to eob, therefore, engine regexps will simply
+	be missed.  Fixed.
+	(chess-engine-entire-lines): This was a fix for the wrong problem,
+	removed.
+
+2004-02-18  Mario Lang  <mlang@delysid.org>
+
+	* chess-display.el (chess-display-highlight-passed-pawns): New
+	interactive function.
+
+	* chess-pos.el (chess-pos-passed-pawns): New function.
+
 2004-02-12  Mario Lang  <mlang@delysid.org>
 
 	* chess-phalanx.el (chess-phalanx-handler): Set
