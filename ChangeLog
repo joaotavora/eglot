@@ -1,5 +1,8 @@
 2002-04-16  John Wiegley  <johnw@gnu.org>
 
+	* chess-ics.el (chess-ics-handle-move): Record the white and black
+	remaining time as returned from the server.
+
 	* chess-link.el (chess-link): Fixed an error in display creation,
 	and which game was used.
 

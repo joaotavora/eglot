@@ -8,6 +8,8 @@
     analysis/highlight tools
     bughouse/crazyhouse
 
+----------------------------------------------------------------------
+
 - Make the drawing/highlighting code just touch single squares, rather
   than redrawing the whole board each time (fast though this is,
   touching single squares is all that's necessary, and it would be
