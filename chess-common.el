@@ -64,7 +64,10 @@
       (chess-engine-send nil "undo\n"))
     (if (= 1 (mod (car args) 2))
 	(chess-engine-send nil "go\n"))
-    (chess-game-undo chess-engine-game (car args)))
+
+    ;; prevent use from handling the `undo' event which this triggers
+    (let ((chess-engine-handling-event t))
+      (chess-game-undo chess-engine-game (car args))))
 
    ((eq event 'move)
     (chess-engine-send nil (concat (chess-ply-to-algebraic (car args))

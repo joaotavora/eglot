@@ -27,8 +27,6 @@ laptop.
 
 ----------------------------------------------------------------------
 
-- undo is not working with gnuchess
-
 - test making an en passant capture
 
 - the game should go inactive once I lose by stalemate/checkmate

@@ -326,15 +326,12 @@ See `chess-display-type' for the different kinds of displays."
 	(chess-display-set-perspective* nil (not my-color))))
 
      ((eq event 'orient)
-      ;; Set the display's perspective to whichever color I'm
-      ;; playing
-      (chess-display-set-perspective*
-       nil (chess-game-data game 'my-color))))
-
-    (if (memq event '(orient update setup-game move resign))
-	(chess-display-set-index* nil (chess-game-index game)))
+      ;; Set the display's perspective to whichever color I'm playing
+      (chess-display-set-perspective* nil (chess-game-data game 'my-color))))
 
     (let ((momentous (memq event chess-display-momentous-events)))
+      (if momentous
+	  (chess-display-set-index* nil (chess-game-index game)))
       (if (or momentous (memq event chess-display-interesting-events))
 	  (chess-display-update nil momentous)))))
 
@@ -807,26 +804,38 @@ to the end or beginning."
 (make-variable-buffer-local 'chess-legal-moves-pos)
 (make-variable-buffer-local 'chess-legal-moves)
 
+(defun chess-display-assert-can-move ()
+  (if (and (chess-display-active-p)
+	   ;; `active' means we're playing against an engine
+	   (chess-game-data chess-display-game 'active)
+	   (not (eq (chess-game-data chess-display-game 'my-color)
+		    (chess-pos-side-to-move position))))
+      (error "It is not your turn to move")
+    (if (and (= chess-display-index
+		(chess-game-index chess-display-game))
+	     (chess-game-over-p chess-display-game))
+	(error "This game is over"))))
+
 (defun chess-keyboard-test-move (move-ply)
   "Return the given MOVE if it matches the user's current input."
-  (let* ((move (cdr move-ply)) (i 0) (x 0)
-	 (l (length move))
+  (let* ((move (cdr move-ply))
+	 (i 0) (x 0) (l (length move))
 	 (xl (length chess-move-string))
 	 (match t))
     (unless (or (and (equal (downcase chess-move-string) "ok")
-		     (equal move "O-O"))
+		     (string-match "\\`O-O[+#]\\'" move))
 		(and (equal (downcase chess-move-string) "oq")
-		     (equal move "O-O-O")))
+		     (string-match "\\`O-O-O[+#]\\'" move)))
       (while (and (< i l) (< x xl))
 	(let ((move-char (aref move i))
 	      (entry-char (aref chess-move-string x)))
 	  (if (= move-char ?x)
-	      (setq i (1+ i)))
-	  (if (/= entry-char (if (< entry-char ?a)
-				 move-char
-			       (downcase move-char)))
-	      (setq match nil i l)
-	    (setq i (1+ i) x (1+ x))))))
+	      (setq i (1+ i))
+	    (if (/= entry-char (if (< entry-char ?a)
+				   move-char
+				 (downcase move-char)))
+		(setq match nil i l)
+	      (setq i (1+ i) x (1+ x)))))))
     (if match
 	move-ply)))
 
@@ -851,13 +860,9 @@ to the end or beginning."
 (defun chess-keyboard-shortcut (&optional display-only)
   (interactive)
   (let* ((position (chess-display-position nil))
-	 (color (chess-pos-side-to-move position)))
-    (if (and (chess-display-active-p)
-	     ;; `active' means we're playing against an engine
-	     (chess-game-data chess-display-game 'active)
-	     (not (eq (chess-game-data chess-display-game 'my-color)
-		      (chess-pos-side-to-move position))))
-	(error "It is not your turn to move"))
+	 (color (chess-pos-side-to-move position))
+	 char)
+    (chess-display-assert-can-move)
     (unless (memq last-command '(chess-keyboard-shortcut
 				 chess-keyboard-shortcut-delete))
       (setq chess-move-string nil))
@@ -868,30 +873,32 @@ to the end or beginning."
 		 (eq position chess-legal-moves-pos)
 		 (or (> (length chess-move-string) 1)
 		     (eq (car chess-legal-moves) last-command-char)))
-      (setq chess-legal-moves-pos position
+      (setq char last-command-char
+	    chess-legal-moves-pos position
 	    chess-legal-moves
-	    (cons last-command-char
-		  (sort (mapcar
-			 (function
-			  (lambda (ply)
-			    (cons ply (chess-ply-to-algebraic ply))))
-			 (if (eq last-command-char ?b)
-			     (append (chess-legal-plies position
-							(if color ?P ?p) 1)
-				     (chess-legal-plies position
-							(if color ?B ?b)))
-			   (if (and (>= last-command-char ?a)
-				    (<= last-command-char ?h))
-			       (chess-legal-plies position (if color ?P ?p)
-						  (- last-command-char ?a))
-			     (chess-legal-plies
-			      position
-			      (if color
-				  (upcase last-command-char)
-				(downcase last-command-char))))))
-			(function
-			 (lambda (left right)
-			   (string-lessp (cdr left) (cdr right)))))))))
+	    (cons char
+		  (sort
+		   (mapcar
+		    (function
+		     (lambda (ply)
+		       (cons ply (chess-ply-to-algebraic ply))))
+		    (if (eq char ?b)
+			(append (chess-legal-plies
+				 position :piece (if color ?P ?p) :file 1)
+				(chess-legal-plies
+				 position :piece (if color ?B ?b)))
+		      (if (and (>= char ?a)
+			       (<= char ?h))
+			  (chess-legal-plies position
+					     :piece (if color ?P ?p)
+					     :file (- char ?a))
+			(chess-legal-plies position
+					   :piece (if color
+						      (upcase char)
+						    (downcase char))))))
+		   (function
+		    (lambda (left right)
+		      (string-lessp (cdr left) (cdr right)))))))))
   (let ((moves (delq nil (mapcar 'chess-keyboard-test-move
 				 (cdr chess-legal-moves)))))
     (cond
@@ -948,19 +955,9 @@ Clicking once on a piece selects it; then click on the target location."
 		      (error "That is not a legal move"))
 		    (chess-display-move nil ply)))
 		(setq chess-display-last-selected nil))
+	    (chess-display-assert-can-move)
 	    (let ((piece (chess-pos-piece position coord)))
 	      (cond
-	       ((and (chess-display-active-p)
-		     ;; `active' means we're playing an engine
-		     (chess-game-data chess-display-game 'active)
-		     (not (eq (chess-game-data chess-display-game
-					       'my-color)
-			      (chess-pos-side-to-move position))))
-		(error "It is not your turn to move"))
-	       ((and (= chess-display-index
-			(chess-game-index chess-display-game))
-		     (chess-game-over-p chess-display-game))
-		(error "This game is over"))
 	       ((eq piece ? )
 		(error "You cannot select an empty square"))
 	       ((if (chess-pos-side-to-move position)

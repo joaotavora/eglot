@@ -166,8 +166,10 @@ matches."
 (defun chess-game-undo (game count)
   "Undo the last COUNT plies of GAME."
   (if (> count (chess-game-index game))
-      (error "Cannot undo further")
-    (chess-game-set-plies game (nbutlast (chess-game-plies game) count))))
+      (error "Cannot undo further"))
+  (let ((chess-game-inhibit-events t))
+    (chess-game-set-plies game (nbutlast (chess-game-plies game) count)))
+  (chess-game-run-hooks game 'update))
 
 
 (defsubst chess-game-over-p (game)
