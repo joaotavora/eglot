@@ -1,8 +1,5 @@
 2002-04-16  John Wiegley  <johnw@gnu.org>
 
-	* chess-ics.el: Send the "set style 12" command immediately,
-	rather than after the first move.
-
 	* all: Removed the $ Revision strings; they are no longer
 	necessary since I tag every revision that I upload.
 
