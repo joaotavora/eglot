@@ -69,9 +69,10 @@ case of the PIECE determines color.
 
 The return value is a list of candidates, which means a list of
 indices which indicate where a piece may have moved from."
-  (let* ((bias (if (and (char-valid-p piece)
-			(< piece ?a)) -1 1))
-	 (c (= bias -1))
+  (let* ((color (if (char-valid-p piece)
+		    (< piece ?a)
+		  piece))
+	 (bias (if color -1 1))
 	 p pos candidates)
     ;; jww (2002-04-07): Don't return candidates that leave the king
     ;; in check.
@@ -93,13 +94,13 @@ indices which indicate where a piece may have moved from."
       (let ((p (chess-pos-piece position target)))
 	(if (if (= p ? )
 		;; check for en passant
-		(and (= (chess-index-rank target) (if c 2 5))
+		(and (= (chess-index-rank target) (if color 2 5))
 		     (setq pos (chess-add-index target bias 0))
-		     (chess-pos-piece-p position pos (if c ?p ?P))
+		     (chess-pos-piece-p position pos (if color ?p ?P))
 		     (and (chess-pos-en-passant position)
 			  (= (chess-pos-en-passant position) target))
 		     (setq candidates (list pos)))
-	      (if c (> p ?a) (< p ?a)))
+	      (if color (> p ?a) (< p ?a)))
 	    (let ((cands (list t)))
 	      (setq pos (chess-add-index target (- bias) -1))
 	      (if (and pos (chess-pos-piece-p position pos piece))
@@ -114,7 +115,7 @@ indices which indicate where a piece may have moved from."
 	      (if (chess-pos-piece-p position pos piece)
 		  (setq candidates (list pos))
 		(when (and (= ?  (chess-pos-piece position pos))
-			   (= (if c 4 3) (chess-index-rank target)))
+			   (= (if color 4 3) (chess-index-rank target)))
 		  (setq pos (chess-add-index pos (- bias) 0))
 		  (if (and pos (chess-pos-piece-p position pos piece))
 		      (setq candidates (list pos)))))))))
@@ -159,36 +160,36 @@ indices which indicate where a piece may have moved from."
 	  (if (and pos (chess-pos-piece-p position pos piece))
 	      (setq candidates (list pos) dirs nil)
 	    (setq dirs (cdr dirs)))))
-      (let ((rank (if c 7 0)))
+      (let ((rank (if color 7 0)))
 	;; if we can still castle, then the king and rook are in their
 	;; squares; also, make sure that the user is not attempting to
 	;; castle through check
 	(if (and
 	     (null candidates)
 	     (or (and (equal target (chess-rf-to-index rank 6))
-		      (chess-pos-can-castle position (if c ?K ?k))
+		      (chess-pos-can-castle position (if color ?K ?k))
 		      (setq pos (chess-rf-to-index rank 5))
 		      (chess-pos-piece-p position pos ? )
 		      (not (chess-standard-search-position position
-							   pos (not c)))
+							   pos (not color)))
 		      (setq pos (chess-rf-to-index rank 6))
 		      (chess-pos-piece-p position pos ? )
 		      (not (chess-standard-search-position position
-							   pos (not c))))
+							   pos (not color))))
 		 (and (equal target (cons rank 2))
-		      (chess-pos-can-castle position (if c ?Q ?q))
+		      (chess-pos-can-castle position (if color ?Q ?q))
 		      (setq pos (chess-rf-to-index rank 1))
 		      (chess-pos-piece-p position pos ? )
 		      (not (chess-standard-search-position position
-							   pos (not c)))
+							   pos (not color)))
 		      (setq pos (chess-rf-to-index rank 2))
 		      (chess-pos-piece-p position pos ? )
 		      (not (chess-standard-search-position position
-							   pos (not c)))
+							   pos (not color)))
 		      (setq pos (chess-rf-to-index rank 3))
 		      (chess-pos-piece-p position pos ? )
 		      (not (chess-standard-search-position position
-							   pos (not c))))))
+							   pos (not color))))))
 	    (setq candidates (list (chess-rf-to-index rank 4))))))
 
      ;; the knight is a zesty little piece; there may be more than
@@ -207,7 +208,30 @@ indices which indicate where a piece may have moved from."
 
      (t (error "Unrecognized piece identifier")))
 
-    ;; return the discovered candidates list
+    ;; prune from the discovered candidates list any moves which would
+    ;; leave the king in check; castling through check has already
+    ;; been eliminated.
+    (if (char-valid-p piece)
+	(let ((cand candidates) last-cand pos king-pos)
+	  (while cand
+	    ;; determine the resulting position
+	    (setq pos (chess-pos-move (chess-pos-copy position)
+				      (car cand) target))
+	    ;; find the king (only once if the king isn't moving)
+	    (if (or (null king-pos)
+		    (eq (downcase piece) ?k))
+		(setq king-pos (chess-pos-search pos (if color ?K ?k))))
+	    ;; can anybody from the opposite side reach him?  if so,
+	    ;; drop the candidate
+	    (if (chess-standard-search-position pos (car king-pos)
+						(not color))
+		(if last-cand
+		    (setcdr last-cand (cdr cand))
+		  (setq candidates (cdr candidates)))
+	      (setq last-cand cand))
+	    (setq cand (cdr cand)))))
+
+    ;; return the final list of candidate moves
     candidates))
 
 (provide 'chess-standard)
