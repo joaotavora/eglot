@@ -139,9 +139,6 @@ laptop.
 
 - Resize the chess board on a window resize event, if possible.
 
-- Have a display option that shows legal target squares whenever a
-  piece is selected.
-
 - Add chess-game-strip-annotations, for removing all annotations from
   a game object
 
