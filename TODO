@@ -7,6 +7,8 @@
   analysis/highlight tools
   scid interaction
 
+- Rewrite ics.el
+
 - Make use of the my-color data in chess-game.el to ensure that I only
   do what I should be doing
 
