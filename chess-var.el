@@ -53,14 +53,11 @@ of the variation if INDEX is nil)."
 
 (defsubst chess-var-create (&optional position)
   "Create a new chess variation object.
-Optionally use the given starting POSITION.
-SEARCH-FUNC specifies the function used to test the legality of moves.
-TAGS is the starting set of var tags (which can always be changed
-later using the various tag-related methods)."
+Optionally use the given starting POSITION."
   (list (chess-ply-create* (or position chess-starting-position))))
 
 (defun chess-var-move (var ply)
-  "Make a move in the current VAR, from FROM to TO.
+  "Make a move in the current VAR by applying the changes of PLY.
 This creates a new position and adds it to the main variation.
 The 'changes' of the last ply reflect whether the var is currently in
 progress (nil), if it is drawn, resigned, mate, etc."
