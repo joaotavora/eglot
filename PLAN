@@ -21,31 +21,6 @@ chess-display
   it does so on the last ply (per display)
 - need a "save this game to a PGN file/database" command
 
-chess-input
-- In the following game, it wouldn't let me type "rh" to move Rh5,
-  when it was the only possible move
-
-[Event "ICS unrated blitz match"]
-[Site "64.71.131.140"]
-[Date "2002.06.05"]
-[Round "-"]
-[White "realmadrid"]
-[Black "jwiegley"]
-[Result "0-1"]
-[WhiteElo "0"]
-[BlackElo "1128"]
-[TimeControl "60+6"]
-
-1. e4 c5 2. e5 d6 3. f4 dxe5 4. fxe5 Nc6 5. Qh5 g6 6. Qg5 Bg7 7. Nf3 Bf5 8.
-d3 Nxe5 9. Nxe5 Bxe5 10. Qe3 Qa5+ 11. c3 Qc7 12. d4 cxd4 13. cxd4 Bxh2 14.
-Bb5+ Bd7 15. Bxd7+ Kxd7 16. Qh3+ e6 17. Rxh2 Qxc1+ 18. Kf2 Qxb2+ 19. Kg1
-Qxa1 20. Qb3 Qxd4+ 21. Kf1 Qf4+ 22. Kg1 Ne7 23. Qxb7+ Kd6 24. g3 Qe3+ 25.
-Rf2 Qxg3+ 26. Rg2 Qe1+ 27. Kh2 Rhb8 28. Rd2+ Qxd2+ 29. Nxd2 Rxb7 30. Kg3
-Rb2 31. Ne4+ Kd5 32. Nf6+ Ke5 33. Nxh7 Rxa2 34. Ng5 Nf5+ 35. Kg4 Kf6 36.
-Ne4+ Ke7 37. Kg5 Rg2+ 38. Kf4 Rh8 39. Ke5 Rh5 40. Nf6 Ng7+ 41. Nxh5 gxh5
-42. Kf4 h4 43. Kf3 h3 44. Kf4 h2 45. Ke3 h1=Q 46. Kd3 Qh4 47. Kc3 Rg3+ 48.
-Kb2 Qh2+ 49. Ka1 Rg1# {realmadrid checkmated} 0-1
-
 chess-images
 - if chess-display-popup is nil, and I resize the board, it merely
   deletes the frame and never shows it again
@@ -65,6 +40,9 @@ chess-network
 
 chess-ply
 - detect games drawn by three-fold repetition and the 50 move rule
+  (Note, FIDE rules define that a draw must be claimed by one
+   of the opponents, so we do not really need to do this on
+   every move, just when a draw is requested.)
 
 chess-pgn
 - when saving a full game to the clipboard, it shouldn't need to save

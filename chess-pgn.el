@@ -4,6 +4,9 @@
 ;;
 
 (require 'chess-algebraic)
+(require 'chess-fen)
+(require 'chess-game)
+(require 'chess-message)
 
 (defvar chess-pgn-fill-column 60)
 
@@ -329,7 +332,7 @@ PGN text."
 	  (setq last-location locations
 		locations (cdr locations))))
       (setq index (if last-location
-		      (1- (length last-location))
+		      (- (length chess-file-locations) (length last-location))
 		    0))
       (when (or (null chess-pgn-current-game)
 		(/= index (chess-game-data chess-pgn-current-game

@@ -1,3 +1,14 @@
+2004-03-06  root  <root@debian>
+
+	* README: Rephrase the intro, and add a HISTORY section
+	to document the maintainership change.
+
+	* PLAN: Remove chess-input entry, which was bogus.
+
+	* chess-pgn.el (chess-pgn-read-game): Fix database-index calculation.
+	Now `chess-pgn-show-position' should work as expected in multiple
+	game PGN files.
+
 2004-03-01  Mario Lang  <mlang@delysid.org>
 
 	* chess-ply.el 1.46
