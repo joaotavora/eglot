@@ -16,9 +16,6 @@
   chess-coord needs to be applied to a larger area, and also the way
   highlight locations are found needs to be recalculated.
 
-- Change all of the highlighting functions to use properties to find
-  out where the highlighting region should begin.
-
 - Move keyboard shortcutting and mouse selection into their own
   modules
 
