@@ -200,17 +200,20 @@ who is black."
 	  (if (nth 2 server)
 	      (progn
 		(setq chess-ics-handle (nth 2 server))
-		(comint-send-string (concat chess-ics-handle "\n"))
+		(comint-send-string (get-buffer-process (current-buffer))
+				    (concat chess-ics-handle "\n"))
 		(let ((pass (nth 3 server)))
 		  (when pass
 		    (if (file-readable-p pass)
 			(setq pass (with-temp-buffer
 				     (insert-file-contents file)
 				     (buffer-string))))
-		    (comint-send-string (concat pass "\n")))))
+		    (comint-send-string (get-buffer-process (current-buffer))
+					(concat pass "\n")))))
 	    ;; jww (2002-04-13): Have to parse out the allocated Guest
 	    ;; name from the output
-	    (comint-send-string "guest\n\n"))))
+	    (comint-send-string (get-buffer-process (current-buffer))
+				"guest\n\n"))))
       t)
 
      ((eq event 'match)

@@ -209,7 +209,7 @@ available."
 (defun chess-create-display-object (perspective)
   (car (chess-create-modules (list chess-default-display)
 			     'chess--create-display
-			     (chess-mage-create) perspective)))
+			     (chess-game-create) perspective)))
 
 ;;;###autoload
 (defun chess-read-pgn (&optional file)

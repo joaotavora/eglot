@@ -48,7 +48,7 @@
     (string-to-int (chess-scid-get-result "sc_base numGames\n")))
 
    ((eq event 'read)
-    (let ((here (point-max)))
+    (let ((here (point-max)) game)
       (process-send-string chess-scid-process
 			   (format "sc_game load %d\nsc_game pgn\n"
 				   (car args)))
@@ -56,7 +56,7 @@
       (goto-char here)
       (when (setq game (chess-pgn-to-game))
 	(chess-game-set-data game 'database (current-buffer))
-	(chess-game-set-data game 'database-index index)
+	(chess-game-set-data game 'database-index (car args))
 	(chess-game-set-data game 'database-count
 			     (chess-scid-handler 'count))
 	game)))
@@ -70,7 +70,8 @@
       (process-send-string chess-scid-process
 			   (format "sc_game import \"%s\"\n"
 				   (chess-game-to-string (cadr args))))
-      (process-send-string chess-scid-process "sc_game save %d\n" index)))))
+      (process-send-string chess-scid-process
+			   (format "sc_game save %d\n" index))))))
 
 (provide 'chess-scid)
 

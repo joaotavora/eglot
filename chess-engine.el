@@ -275,6 +275,8 @@
 	  (setq chess-engine-current-marker (point-marker))
 	  (current-buffer))))))
 
+(defalias 'chess-engine-destroy 'chess-module-destroy)
+
 (defun chess-engine-command (engine event &rest args)
   (chess-with-current-buffer engine
     (apply chess-module-event-handler chess-module-game event args)))

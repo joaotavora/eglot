@@ -347,41 +347,6 @@ If INDENTED is non-nil, indent the move texts."
       (goto-char (posn-point (event-start event)))))
   (chess-pgn-show-position))
 
-(defun chess-pgn-move ()
-  "Make a move from a PGN buffer."
-  (interactive)
-  (let ((end (point))
-	coords move)
-    (save-excursion
-      (skip-chars-backward "^ ")
-      (setq move (buffer-substring-no-properties (point) end)
-	    coords (chess-algebraic-to-ply chess-display-position move))
-      ;; it will just get reinserted again
-      (delete-region (point) end))))
-
-(defun chess-pgn-insert-move (move &optional color sequence)
-  "Insert an algebraic move description into a PGN buffer.
-If move is the symbol `wait', it means reflect that we are now waiting
-for the opponent to make his move.  If move is the symbol `ready', it
-means our opponent is now waiting for us to move our move.  Otherwise,
-move should be a string representing the algebraic notation for the
-move."
-  (while (= (char-before) ?.)
-    (delete-backward-char 1))
-  (cond
-   ((eq move 'wait)
-    (insert "..."))
-   ((eq move 'ready) t)
-   (t
-    (if (= (char-syntax (char-before)) ? )
-	(insert move))
-    (if color
-	(move-to-column 11 t)
-      (insert ?\n (format "%d.  " (1+ sequence))))))
-  (let ((wind (get-buffer-window (current-buffer))))
-    (if wind
-	(set-window-point wind (point)))))
-
 (provide 'chess-pgn)
 
 ;;; chess-pgn.el ends here

@@ -14,7 +14,8 @@
 (defun chess-database-open (module file)
   "Returns the opened database object, or nil."
   (let* ((name (symbol-name module))
-	 (handler (intern-soft (concat name "-handler"))))
+	 (handler (intern-soft (concat name "-handler")))
+	 buffer)
     (unless handler
       (chess-error 'no-such-database name))
     (when (setq buffer (funcall handler 'open file))

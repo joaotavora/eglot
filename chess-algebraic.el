@@ -107,7 +107,7 @@ This regexp handles both long and short form.")
 					  candidates nil)
 				  (setq candidates (cdr candidates))))
 			      (if (null which)
-				  (chess-error could-not-clarify)
+				  (chess-error 'could-not-clarify)
 				(list which target))))
 			(chess-error 'no-candidates move))))))
 	  (if promotion

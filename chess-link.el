@@ -55,7 +55,7 @@ engine, and the computer the second engine."
 	 (game (chess-game-create))
 	 (display (chess-create-display-object my-color)))
     (chess-game-set-data game 'my-color my-color)
-    (chess-display-set-main display)
+    (chess-module-set-leader display)
     (chess-display-disable-popup display)
     (condition-case err
 	(when (and (require first-engine-type)
@@ -78,7 +78,7 @@ engine, and the computer the second engine."
 	  (chess-display-update display)
 	  (chess-display-popup display))
       (error
-       (chess-display-destroy display)
+       (chess-module-destroy display)
        (error (error-message-string err))))))
 
 (provide 'chess-link)

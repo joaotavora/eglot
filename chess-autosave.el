@@ -25,8 +25,8 @@
     (if (file-readable-p chess-autosave-file)
 	(if (y-or-n-p (chess-string 'chess-read-autosave))
 	    (prog1
-		(chess-game-copy-game game
-				      (chess-read-game chess-autosave-file))
+		(chess-game-copy-game
+		 game (chess-autosave-read chess-autosave-file))
 	      (delete-file chess-autosave-file))
 	  (ignore
 	   (if (y-or-n-p (chess-string 'chess-delete-autosave))

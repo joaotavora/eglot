@@ -72,7 +72,9 @@ Special characters include:
 (defun chess-display-create (game style perspective)
   "Create a chess display, for displaying chess objects."
   (let ((chess-display-style style))
-    (chess-module-create 'chess-display game "*Chessboard*")))
+    (chess-module-create 'chess-display game "*Chessboard*" perspective)))
+
+(defalias 'chess-display-destroy 'chess-module-destroy)
 
 (defun chess-display-clone (display style perspective)
   (let ((new-display (chess-display-create chess-module-game
@@ -114,7 +116,7 @@ Special characters include:
 
 (defun chess-display-set-ply (display ply)
   (chess-with-current-buffer display
-    (setq chess-game-index 1)
+    (setq chess-display-index 1)
     (chess-game-set-plies chess-module-game
 			  (list ply (chess-ply-create
 				     (chess-ply-next-pos ply))))))
@@ -130,7 +132,7 @@ the user able to scroll back and forth through the moves in the
 variation.  Any moves made on the board will extend/change the
 variation that was passed in."
   (chess-with-current-buffer display
-    (setq chess-game-index (or index (chess-var-index variation)))
+    (setq chess-display-index (or index (chess-var-index variation)))
     (chess-game-set-plies chess-module-game variation)))
 
 (defun chess-display-variation (display)
@@ -149,7 +151,7 @@ This is the function to call to cause a display to view a game.  It
 will also update all of the listening engines and other displays to
 also view the same game."
   (chess-with-current-buffer display
-    (chess-game-copy-game chess-display-set-game game)
+    (chess-game-copy-game chess-module-game game)
     (chess-display-set-index nil (or index (chess-game-index game)))))
 
 (defalias 'chess-display-game 'chess-module-game)
@@ -251,7 +253,7 @@ See `chess-display-type' for the different kinds of displays."
       (progn
 	(chess-display-mode)
 	(setq chess-display-index (chess-game-index game)
-	      chess-display-perspective perspective
+	      chess-display-perspective (car args)
 	      chess-display-event-handler
 	      (intern-soft (concat (symbol-name chess-display-style)
 				   "-handler")))
@@ -487,7 +489,7 @@ Basically, it means we are playing, not editing or reviewing."
       (cond
        ((search-forward "[Event " nil t)
 	(goto-char (match-beginning 0))
-	(chess-display-copy-game display (chess-pgn-to-game)))
+	(chess-game-copy-game chess-module-game (chess-pgn-to-game)))
        ((looking-at (concat chess-algebraic-regexp "$"))
 	(let ((move (buffer-string)))
 	  (with-current-buffer display
@@ -784,7 +786,7 @@ to the end or beginning."
   '((not-your-move . "It is not your turn to move")
     (game-is-over  . "This game is over")))
 
-(defun chess-display-assert-can-move ()
+(defun chess-display-assert-can-move (position)
   (if (and (chess-display-active-p)
 	   ;; `active' means we're playing against an engine
 	   (chess-game-data chess-module-game 'active)
@@ -843,7 +845,7 @@ to the end or beginning."
   (let* ((position (chess-display-position nil))
 	 (color (chess-pos-side-to-move position))
 	 char)
-    (chess-display-assert-can-move)
+    (chess-display-assert-can-move position)
     (unless (memq last-command '(chess-keyboard-shortcut
 				 chess-keyboard-shortcut-delete))
       (setq chess-move-string nil))
@@ -949,7 +951,7 @@ Clicking once on a piece selects it; then click on the target location."
 			  (throw 'message (chess-string 'move-not-legal)))
 			(chess-display-move nil ply)))
 		    (setq chess-display-last-selected nil))
-		(chess-display-assert-can-move)
+		(chess-display-assert-can-move position)
 		(let ((piece (chess-pos-piece position coord)))
 		  (cond
 		   ((eq piece ? )
