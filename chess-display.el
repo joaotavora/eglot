@@ -443,25 +443,37 @@ The key bindings available in this mode are:
   (setq buffer-auto-save-file-name nil
 	mode-line-format 'chess-display-mode-line))
 
+(chess-message-catalog 'english
+  '((mode-white     . "White")
+    (mode-black     . "Black")
+    (mode-start     . "START")
+    (mode-checkmate . "CHECKMATE")
+    (mode-resigned  . "RESIGNED")
+    (mode-stalemate . "STALEMATE")
+    (mode-drawn     . "DRAWMN")))
+
 (defun chess-display-set-modeline ()
   "Set the modeline to reflect the current game position."
   (let ((color (chess-pos-side-to-move (chess-display-position nil)))
 	(index chess-display-index))
     (if (= index 0)
 	(setq chess-display-mode-line
-	      (format "   %s   START" (if color "White" "Black")))
+	      (format "   %s   %s" (if color (chess-string 'mode-white)
+				     (chess-string 'mode-black))
+		      (chess-string 'mode-start)))
       (let ((ply (chess-game-ply chess-display-game (1- index))))
 	(setq chess-display-mode-line
 	      (concat
 	       "   "
 	       (let ((final (chess-ply-final-p ply)))
 		 (cond
-		  ((eq final :checkmate) "CHECKMATE")
-		  ((eq final :resign)    "RESIGNED")
-		  ((eq final :stalemate) "STALEMATE")
-		  ((eq final :draw)      "DRAWN")
+		  ((eq final :checkmate) (chess-string 'mode-checkmate))
+		  ((eq final :resign)    (chess-string 'mode-resigned))
+		  ((eq final :stalemate) (chess-string 'mode-stalemate))
+		  ((eq final :draw)      (chess-string 'mode-drawn))
 		  (t
-		   (if color "White" "Black"))))
+		   (if color (chess-string 'mode-white)
+		     (chess-string 'mode-black)))))
 	       (if index
 		   (concat "   " (int-to-string
 				  (if (> index 1)
