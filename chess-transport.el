@@ -26,7 +26,11 @@
    ((eq event 'send)
     ;; Transmit the string given in `(car args)' to the outbound
     ;; transport from here
-    )))
+    )
+
+   (t
+    ;; Pass all other events down to chess-network
+    (apply 'chess-network-handler event args))))
 
 ;; Call `(chess-engine-submit engine STRING)' for text that arrives
 ;; from the inbound transport
