@@ -66,7 +66,7 @@
   (catch 'found
     (dolist (keyword keywords)
       (if (memq keyword (chess-ply-changes ply))
-	  (throw found keyword)))))
+	  (throw 'found keyword)))))
 
 (defsubst chess-ply-source (ply)
   (car (chess-ply-changes ply)))
