@@ -236,13 +236,9 @@ progress (nil), if it is drawn, resigned, mate, etc."
      (t
       (chess-game-run-hooks game 'move current-ply)))))
 
-(defsubst chess-game-resign (game)
-  "Resign the current game."
-  (chess-game-move game (list (chess-game-pos game) :resign)))
-
-(defsubst chess-game-draw (game)
-  "Draw the current game."
-  (chess-game-move game (list (chess-game-pos game) :draw)))
+(defsubst chess-game-end (game keyword)
+  "End the current game, by resignation, draw, etc."
+  (chess-game-move game (list (chess-game-pos game) keyword)))
 
 (provide 'chess-game)
 

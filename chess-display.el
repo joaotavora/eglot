@@ -529,9 +529,18 @@ The key bindings available in this mode are:
 	(if ply
 	    (setq chess-display-mode-line
 		  (concat
-		   (if (chess-ply-final-p ply)
-		       "  FINISHED"
-		     (concat "  " (if color "White" "Black")))
+		   (let ((final (chess-ply-final-p ply)))
+		     (cond
+		      ((eq final :checkmate)
+		       "  CHECKMATE")
+		      ((eq final :resign)
+		       "  RESIGNED")
+		      ((eq final :stalemate)
+		       "  STALEMATE")
+		      ((eq final :draw)
+		       "  DRAWN")
+		      (t
+		       (concat "  " (if color "White" "Black")))))
 		   (if index
 		       (concat "   " (int-to-string
 				      (if (> index 1)
@@ -669,7 +678,7 @@ Basically, it means we are playing, not editing or reviewing."
   (interactive)
   (if (chess-display-active-p)
       (progn
-	(chess-game-resign (chess-display-game nil))
+	(chess-game-end (chess-display-game nil) :resign)
 	(chess-game-run-hooks chess-display-game 'resign))
     (ding)))
 

@@ -63,11 +63,10 @@
   (setcdr ply changes))
 
 (defun chess-ply-has-keyword (ply &rest keywords)
-  (let (found)
+  (catch 'found
     (dolist (keyword keywords)
       (if (memq keyword (chess-ply-changes ply))
-	  (setq found t)))
-    found))
+	  (throw found keyword)))))
 
 (defsubst chess-ply-source (ply)
   (car (chess-ply-changes ply)))

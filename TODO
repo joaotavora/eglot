@@ -20,6 +20,11 @@
 
 - Make sure chess-pos-move does full validation.
 
+- Make sure that chess-search-position can find a rook move due to
+  castling.  For example, O-O includes Rhf1.  So,
+  (chess-search-position ... "f1" ?R) should return the h1 rook, if it
+  could reach that square legally by castling.
+
 - In M-x chess, if chess-images is being used, ensure that
   chess-images-directory is valid, otherwise fall back on chess-ics1.
 
@@ -35,9 +40,33 @@
 - Make use of the my-color data in chess-game.el to ensure that I only
   do what I should be doing
 
+- Add `chess-display-read-only', to indicate that no changes can be
+  made to the displayed chess board.  This would be good for cloned
+  displays, and when observing a bot (or two engines head-to-head).
+
+- Remove `chess-illegal', and just use plain error.
+
+- In the ics12 parser, create the position as part of the ply.  This
+  will validate the move, and read in the correct starting position.
+
+- Allow S in the display to send arbitrary text to the end
+
+- Make chess-display-popup-in-... first class citizens
+
+- Have chess-display-popup-in-frame autosize based on the content (if
+  possible)
+
+- There is an ambiguity in keyboard shortcutting between Bxc6 and bxc6
+
+- Remove chess-display-boring-events, and instead use (not
+  chess-display-interesting-events).  Otherwise, chess-display.el has
+  to care about an ever growing set of non-display events.
+
 ----------------------------------------------------------------------
 
 - Clean/rewrite ics.el
+
+- Add support for ICS observing
 
 - Make the mode-line much more informative, with information on who is
   playing, etc.

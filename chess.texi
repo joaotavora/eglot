@@ -446,8 +446,6 @@ object.
 
 @c lispfun chess-engine-detach-game
 
-@c lispfun chess-engine-pass
-
 @c lispfun chess-engine-send
 
 @unnumbered Concept Index

@@ -151,7 +151,7 @@
      ((eq event 'resign)
       (when game
 	(message "Your opponent has resigned")
-	(chess-game-resign game)
+	(chess-game-end game :resign)
 	(chess-game-set-data game 'active nil)
 	t))
 
