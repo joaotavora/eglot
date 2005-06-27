@@ -121,7 +121,8 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 
 (defun chess-plain-popup ()
   (if chess-plain-separate-frame
-      (chess-display-popup-in-frame 9 (* (1+ chess-plain-spacing) 8) nil t)
+      (chess-display-popup-in-frame 9 (* (1+ chess-plain-spacing) 8)
+				    nil nil t)
     (chess-display-popup-in-window)))
 
 (defun chess-plain-piece-text (piece rank file)
