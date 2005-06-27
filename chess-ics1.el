@@ -59,7 +59,7 @@
 
 (defun chess-ics1-popup ()
   (if chess-ics1-separate-frame
-      (chess-display-popup-in-frame 21 43 nil t)
+      (chess-display-popup-in-frame 21 43 nil nil t)
     (chess-display-popup-in-window)))
 
 (defsubst chess-ics1-piece-text (piece)
