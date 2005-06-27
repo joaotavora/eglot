@@ -197,7 +197,11 @@ called."
 	  chess-images-size (chess-images-best-size
 			     (- (if display
 				    (x-display-pixel-height display)
-				  (display-pixel-height)) 20)
+				  (display-pixel-height))
+				;; On Macs and Windows, account for
+				;; the Start/Status bar
+				(if (memq window-system '(mac windows w32))
+				    80 20))
 			     (- (if display
 				    (x-display-pixel-width display)
 				  (display-pixel-width)) 20)))))
@@ -224,7 +228,8 @@ called."
 			   chess-images-separate-frame)))
 	;; create the frame whenever necessary
 	(chess-display-popup-in-frame (+ max-char-height 2)
-				      max-char-width))
+				      max-char-width
+				      (cdr (assq 'font (frame-parameters)))))
     (chess-display-popup-in-window)))
 
 (defun chess-images-piece-image (piece rank file)
@@ -313,11 +318,12 @@ Common modes are:
 	 (window (get-buffer-window buffer))
 	 (frame (and window (window-frame window))))
     (setq chess-images-size size
-	  chess-images-cache nil )
+	  chess-images-cache nil)
     (if frame
 	(delete-frame frame t))
     (chess-message 'redrawing-frame)
     (chess-display-update buffer t)
+    (chess-display-popup buffer)
     (chess-message 'redrawing-frame-done)))
 
 (defun chess-images-resize ()
