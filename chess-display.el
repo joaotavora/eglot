@@ -265,10 +265,11 @@ also view the same game."
 		     (str (format " %s " (if color
 					     (chess-string 'mode-white)
 					   (chess-string 'mode-black)))))
-		(add-text-properties
-		 0 (length str) (list 'face (if color
-						'chess-display-white-face
-					      'chess-display-black-face)) str)
+		(add-text-properties 0 (length str)
+				     (list 'face (if color
+						     'chess-display-white-face
+						   'chess-display-black-face))
+				     str)
 		str)))))
     (force-mode-line-update)))
 
@@ -428,8 +429,8 @@ that is supported by most displays, and is the default mode."
 	(fit-window-to-buffer (display-buffer (current-buffer)))
       (display-buffer (current-buffer)))))
 
-(defun chess-display-popup-in-frame (height width &optional
-					    display no-minibuffer)
+(defun chess-display-popup-in-frame (height width font
+				     &optional display no-minibuffer)
   "Popup the given DISPLAY, so that it's visible to the user."
   (let ((window (get-buffer-window (current-buffer) t)))
     (if window
@@ -441,6 +442,8 @@ that is supported by most displays, and is the default mode."
 			  (cons 'width width))))
 	(if display
 	    (push (cons 'display display) params))
+	(if font
+	    (push (cons 'font font) params))
 	(if no-minibuffer
 	    (push (cons 'minibuffer nil) params))
 	(select-frame (make-frame params))
