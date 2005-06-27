@@ -1,94 +1,34 @@
 Welcome to chess.el, a client and library for playing Chess from
 Emacs.
 
-chess.el is an Emacs Lisp library and several clients on top of the underlying
-library functionality for performing various activities related
-to the game of chess.
+chess.el is an Emacs Lisp library and several clients on top of the
+underlying library functionality for performing various activities
+related to the game of chess.
+
 You can play against an external chess program such as gnuchess,
-crafty, phalanx or sjeng.  All of them are publically available,
-and chess.el will automatically detect which one
-you have installed, provided they have standard executable
-program names, and are in a located in a directory which
-is part of the PATH.  See the customisable variable 
-`chess-default-engine'.
+crafty, phalanx or sjeng.  All of them are publically available, and
+chess.el will automatically detect which one you have installed,
+provided they have standard executable program names, and are in a
+located in a directory which is part of the PATH.  See the
+customisable variable `chess-default-engine'.
 
 You can also play against another human or computer over the internet
-(through a direct Emacs-to-Emacs connection, or
-on one of the Internet Chess Servers like freechess.org or
-chessclub.com), or even against a very simple chess thinking
-module implemented in pure Emacs Lisp.
+(through a direct Emacs-to-Emacs connection, or on one of the Internet
+Chess Servers like freechess.org or chessclub.com), or even against a
+very simple chess thinking module implemented in pure Emacs Lisp.
 
 chess.el also provides a mode for editing Portable Game Notation (PGN
 files.
 
-To improve your chessaility, you might also like to have
-a look at chess-puzzle, which allows you to solve
-chess puzzle collections (in PGN or EPD format) against
-one of the engines you have installed.
+To improve your chessaility, you might also like to have a look at
+chess-puzzle, which allows you to solve chess puzzle collections (in
+PGN or EPD format) against one of the engines you have installed.
 
 HISTORY
 
-chess.el started out as a single file project with
-version 1.0 by John Wiegley <johnw@gnu.org>.  Version 2.0 is a major
-rewrite and reorganisation of the original code, also done
-by John Wiegley.  In the end of 2003, John did not
-have a lot of time to finish all the various aspects of version 2.0,
-and maintainership was given to Mario Lang <mlang@delysid.org>.
-
-
-LAYOUT
-
-Core library
-
-  chess-pos.el
-    chess-fen.el
-
-  chess-ply.el
-   chess-algebraic.el
-
-  chess-var.el
-  chess-game.el
-
-* chess-module.el
-** chess-announce.el
-** chess-sound.el
-** chess-display.el
-*** chess-plain.el
-*** chess-ics1.el
-*** chess-images.el
-** chess-database.el
-*** chess-file.el
-*** chess-pgn.el
-*** chess-scid.el
-** chess-engine.el
-*** chess-none.el
-*** chess-common.el
-**** chess-ai.el
-**** chess-crafty.el
-**** chess-gnuchess.el
-**** chess-phalanx.el
-*** chess-network.el
-**** chess-irc.el
-
-** input modules
-*** chess-input.el
-*** chess-ucb.el
-
-** chess-autosave.el
-** chess-chat.el
-** chess-clock.el
-** chess-kibitz.el
-
-* chess-message.el
-** chess-german.el
-
-chess-maint.el
-
-chess.el
-chess-ics.el
-chess-link.el
-chess-puzzle.el
-chess-tutorial.el
-
-chess-random.el
-chess-transport.el
+chess.el started out as a single file project with version 1.0 by John
+Wiegley <johnw@gnu.org>.  Version 2.0 is a major rewrite and
+reorganisation of the original code, also done by John Wiegley.  In
+the end of 2003, John did not have a lot of time to finish all the
+various aspects of version 2.0, and maintainership was given to Mario
+Lang <mlang@delysid.org>.

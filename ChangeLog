@@ -1,3 +1,32 @@
+2005-06-27  John Wiegley  <johnw@newartisans.com>
+
+	* chess-ics.el (chess-ics-sought-add): Added this routine to
+	factor out a lot of duplicated code.
+
+	* chess-plain.el (chess-plain-popup): Pass nil for the `font'
+	argument to `chess-display-popup-in-frame', since we don't care
+	what the size of the font is with textual chessboards.
+
+	* chess-input.el (chess-input-shortcut): If a character is typed
+	that is not a legal start of a move (which only happens if it's
+	not bound to anything else), just ignore it.
+
+	* chess-images.el (chess-images-determine-size): On Macs and
+	Windows, reduce the screen height by 80 instead of just 20, to
+	account for the Start/Status bar.
+	(chess-images-popup): Pass in a `font' to
+	`chess-display-popup-in-frame', so that the pixel height for each
+	graphical piece is computed correctly.
+	(chess-images-change-size): Foricbly popup the chess buffer when
+	changing the size of graphical pieces.
+
+	* chess-ics1.el (chess-ics1-popup): Added `font' argument in call
+	to `chess-display-popup-in-frame'.
+
+	* chess-display.el (chess-display-popup-in-frame): Added a `font'
+	parameter, so that the font can be set in new chessboard
+	frames (which is necessary to get the pixel height/width right).
+
 2004-12-07  Mario Lang  <mlang@delysid.org>
 
 	* chess-algebraic.el, chess-announce.el, chess-autosave.el,

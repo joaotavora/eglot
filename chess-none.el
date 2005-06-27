@@ -1,6 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; A null engine, used when two humans play each on the same display.
+;; A null engine, used when two humans play against each other on the
+;; same display.
 ;;
 
 (require 'chess-engine)
