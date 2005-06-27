@@ -71,38 +71,42 @@
       (setq chess-input-move-string nil))
     (unless display-only
       (setq chess-input-move-string
-	    (concat chess-input-move-string (char-to-string last-command-char))))
+	    (concat chess-input-move-string
+		    (char-to-string last-command-char))))
     (unless (and chess-input-moves
 		 (eq position chess-input-moves-pos)
 		 (or (> (length chess-input-move-string) 1)
 		     (eq (car chess-input-moves) last-command-char)))
       (setq char (if (eq (downcase last-command-char) ?o) ?k
-		   last-command-char)
-	    chess-input-moves-pos position
-	    chess-input-moves
-	    (cons char
-		  (sort
-		   (mapcar
-		    (function
-		     (lambda (ply)
-		       (cons ply (chess-ply-to-algebraic ply))))
-		    (if (eq char ?b)
-			(append (chess-legal-plies
-				 position :piece (if color ?P ?p) :file 1)
-				(chess-legal-plies
-				 position :piece (if color ?B ?b)))
-		      (if (and (>= char ?a)
-			       (<= char ?h))
-			  (chess-legal-plies position
-					     :piece (if color ?P ?p)
-					     :file (- char ?a))
-			(chess-legal-plies position
-					   :piece (if color
-						      (upcase char)
-						    (downcase char))))))
+		   last-command-char))
+      (if (or (memq (upcase char) '(?K ?Q ?N ?B ?R ?P))
+	      (and (>= char ?a) (<= char ?h)))
+	  (setq chess-input-moves-pos position
+		chess-input-moves
+		(cons
+		 char
+		 (sort
+		  (mapcar
 		   (function
-		    (lambda (left right)
-		      (string-lessp (cdr left) (cdr right)))))))))
+		    (lambda (ply)
+		      (cons ply (chess-ply-to-algebraic ply))))
+		   (if (eq char ?b)
+		       (append (chess-legal-plies
+				position :piece (if color ?P ?p) :file 1)
+			       (chess-legal-plies
+				position :piece (if color ?B ?b)))
+		     (if (and (>= char ?a)
+			      (<= char ?h))
+			 (chess-legal-plies position
+					    :piece (if color ?P ?p)
+					    :file (- char ?a))
+		       (chess-legal-plies position
+					  :piece (if color
+						     (upcase char)
+						   (downcase char))))))
+		  (function
+		   (lambda (left right)
+		     (string-lessp (cdr left) (cdr right))))))))))
   (let ((moves (delq nil (mapcar 'chess-input-test-move
 				 (cdr chess-input-moves)))))
     (cond
