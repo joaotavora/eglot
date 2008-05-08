@@ -1,7 +1,5 @@
 \input texinfo  @c -*-texinfo-*-
 
-@c "@(#)$Name$:$Id$"
-
 @c Documentation for Chess.el.
 @c Copyright (C) 2001, 2002 John Wiegley.
 
