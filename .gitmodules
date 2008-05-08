@@ -1,0 +1,6 @@
+[submodule "pieces"]
+	path = pieces
+	url = .git
+[submodule "sounds"]
+	path = sounds
+	url = .git
