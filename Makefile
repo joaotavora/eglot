@@ -17,7 +17,7 @@ chess-auto.el: chess-auto.in $(SOURCE)
 		-f generate-autoloads \
 		$(shell pwd)/chess-auto.el .
 
-chess-opening.elc: chess-pos.elc chess-ply.elc
+chess-eco.elc: chess-pos.elc chess-ply.elc
 
 %.elc: %.el
 	$(EMACS) --no-init-file --no-site-file -batch \

@@ -1,4 +1,4 @@
-;;; chess-opening.el --- Chess opening classification
+;;; chess-eco.el --- Chess opening classification
 
 ;; Copyright (C) 2004  Free Software Foundation, Inc.
 
@@ -24,16 +24,16 @@
 
 (eval-when-compile (require 'cl))
 
-(defgroup chess-opening nil
+(defgroup chess-eco nil
   "Chess opening classification module."
   :group 'chess)
 
-(defcustom chess-opening-max-index 36
+(defcustom chess-eco-max-index 36
   "*Index at which to stop chess opening announcements."
-  :group 'chess-opening
+  :group 'chess-eco
   :type 'integer)
 
-(defvar chess-opening-hash-table
+(defvar chess-eco-hash-table
   (let ((hash (make-hash-table :size 10000 :test 'equal)))
     (mapc
      (lambda (entry) (puthash (car entry) (cdr entry) hash))
@@ -10592,15 +10592,15 @@
 hash)
   "List of well known chess opening positions.")
 
-(defvar chess-opening-last-opening nil)
-(make-variable-buffer-local 'chess-opening-last-opening)
+(defvar chess-eco-last-opening nil)
+(make-variable-buffer-local 'chess-eco-last-opening)
 
-(defun chess-opening-classify (game)
+(defun chess-eco-classify (game)
   (let ((plies (chess-game-plies game))
 	found)
     (while plies
       (let* ((fen (chess-pos-to-fen (chess-ply-pos (car plies))))
-	     (entry (gethash fen chess-opening-hash-table)))
+	     (entry (gethash fen chess-eco-hash-table)))
 	(if entry
 	    (setq found entry))
 	(setq plies (cdr plies))))
@@ -10609,9 +10609,9 @@ hash)
 (chess-message-catalog 'english
   '((announce-opening . "%s (ECO code %s)")))
 
-(defun chess-opening-handler (game event &rest args)
-  "Handle for the `chess-opening' module.
-If you add `chess-opening' to `chess-default-modules', this handler will
+(defun chess-eco-handler (game event &rest args)
+  "Handle for the `chess-eco' module.
+If you add `chess-eco' to `chess-default-modules', this handler will
 try to figure out if the current position of a game does match a
 well known chess opening position."
   (cond
@@ -10619,14 +10619,14 @@ well known chess opening position."
 
    ((eq event 'post-move)
     (when (= (chess-game-index game) 1)
-      (setq chess-opening-last-opening nil))
-    (when (< (chess-game-index game) chess-opening-max-index)
-      (let ((info (chess-opening-classify game)))
-	(when (and info (not (eq info chess-opening-last-opening)))
-	  (setq chess-opening-last-opening info)
+      (setq chess-eco-last-opening nil))
+    (when (< (chess-game-index game) chess-eco-max-index)
+      (let ((info (chess-eco-classify game)))
+	(when (and info (not (eq info chess-eco-last-opening)))
+	  (setq chess-eco-last-opening info)
 	  (chess-message 'announce-opening (car info) (cadr info))))))))
 
-(defun chess-opening-parse-scid-eco ()
+(defun chess-eco-parse-scid-eco ()
   (let ((result (list t)))
     (while (re-search-forward
 	    "\\([A-E][0-9][0-9]\\([a-z][0-9]?\\)?\\) \"\\([^\"]+\\)\"[\n ]+\\([^*]*\\|\n\\) +\\*"
@@ -10646,5 +10646,6 @@ well known chess opening position."
 			      (split-string (match-string 4) "[\n ]+") " ")))))
     (cdr result)))
 
-(provide 'chess-opening)
-;;; chess-openings.el ends here
+(provide 'chess-eco)
+
+;;; chess-ecos.el ends here
