@@ -1,0 +1,31 @@
+Emacs Chess was born after I defeated my father for the very first time.
+
+You see, for the first 30 years of my life, never once had I one a game.  A
+couple times against my mother, but Dad always seemed to fork my queen without
+mercy.
+
+So, I began to wonder, "Can anyone get better at chess?"  I looked up some
+simple strategies on the Web -- such as building a strong center -- and lo and
+behold! I won my first game for the very reasons I had read about.
+
+Needless to say, the excitement of victory at last prompted me to buy a book
+on chess (I think it was Chess Analysis), and thus a love was born.
+
+That same week, early in 2001, chess.el, or Emacs Chess, was created.
+
+I was visited my father on a month long vacation at the time, at his home in
+upstate New Jersey, and I remember spending days and nights just hacking away
+on chess.el, and loving every minute of it.  What you see in this directory is
+pure passion, an obsession that took me by storm for over two years until I
+moved to other things.  I hope you enjoy using it as much as I did making it.
+
+John Wiegley <johnw@newartisans.com>
+
+
+Further: Around 2005, another player came on the scene: Mario Lang.  Mario is
+unable to see, but Emacs Chess's design made it possible for me to integrate
+the display code with his braille viewer.  He still plays chess with it to
+this day, as it is the only client that allows him to do so.  He has also
+contributed time, the German language translations, a fair bit of code
+(chess-eco is his doing, among others), and even money to help me bring Emacs
+Chess to where it is today.  Thank you, Mario!

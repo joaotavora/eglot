@@ -1,0 +1,11 @@
+-*- mode: text; outline-layout: (1 :) -*-
+
+This is the NEWS file for Emacs Chess, a chess client and analysis library
+written in Emacs Lisp.
+
+Please note that proper documentation is still on its way.
+
+* Release 2.0:
+
+Began keeping this file.  See doc/chess.info for information about Emacs
+Chess.

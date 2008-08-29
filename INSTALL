@@ -1,0 +1,109 @@
+Installing Eshell
+=================
+
+THE SHORT FORM
+--------------
+
+Here's exactly what to do, with no explanation why.
+
+  1. M-x load-file RET eshell-auto.el RET
+  2. ESC : (add-to-list 'load-path "<path where Eshell resides>") RET
+  3. ESC : (add-to-list 'load-path "<path where Pcomplete resides>") RET
+  4. M-x eshell RET             ; should see a version banner displayed
+  5. ls RET                     ; confirm that you see a file listing
+  6. eshell-test RET            ; confirm that everything runs correctly
+                                ; use `M-x eshell-report-bug' if not
+  7. cd ${dirname (locate-library "eshell-auto")} RET
+  8. find-file Makefile RET
+  9. [edit the Makefile to reflect your site]
+ 10. M-x eshell RET
+ 11. make install RET
+ 12. find-file $user-init-file RET
+ 13. [add the following lines to your .emacs file]
+       (add-to-list 'load-path "<directory where you install Eshell>")
+       (load "eshell-auto")
+ 14. M-x eshell RET
+ 15. customize-option #'eshell-modules-list RET
+ 16. [select the extension modules you prefer]
+ 17. [restart Emacs!]
+ 18. M-x info RET m Eshell RET  ; read the manual and enjoy!
+
+THE LONG FORM
+-------------
+
+ 1. Before building and installing Eshell, it is important to test
+    that it will work properly on your system.  To do this, first load
+    `eshell-auto', which will define certain autoloads required to run
+    Eshell.  This can be done using the command `M-x load-file', and
+    then selecting the file "eshell-auto.el".
+
+ 2. In order for Emacs to find Eshell's files, the Eshell directory
+    must be added to the `load-path' variable.  This can be done
+    within Emacs by typing:
+
+    ESC : (add-to-list 'load-path "<path where Eshell resides>") RET
+    ESC : (add-to-list 'load-path "<path where Pcomplete resides>") RET
+ 
+ 2. Start Eshell from the distributed sources, using default settings,
+    by typing `M-x eshell'.
+
+ 3. Verify that Eshell is functional by typing "ls" followed by RET.
+    You should have already seen a version banner announcing the
+    version number of this release, followed by a prompt.
+
+ 4. Run the test suite by typing "eshell-test" followed by RET in the
+    Eshell buffer.  It is important that Emacs be left alone while the
+    tests are running, since extraneous command input may cause some
+    of the tests to fail (they were never intended to run in the
+    background).  If all of the tests pass, Eshell should work just
+    fine on your system.  If any of the tests fail, please send e-mail
+    to the Eshell maintainer using the command `M-x eshell-report-bug'.
+
+ 5. Edit the file `Makefile' in the directory containing the Eshell
+    sources to reflect the location of certain Emacs dircetories at
+    your site.  The only things you really have to change are the
+    definitions of `lispdir' and `infodir'.  The elisp files will be
+    copied to `lispdir', and the info file to `infodir'.
+
+ 6. Type `make install' in the directory containing the Eshell
+    sources.  This will byte-compile all of the `.el' files and copy
+    both the source and compiled versions to the directories specified
+    in the previous step.  It will also copy the info file, and add a
+    corresponding entry to your "dir" file -- if install-info can be
+    found.
+
+    If you only want to create the compiled elisp files, but don't
+    want to install them, you can type just `make' instead.
+
+ 7. Add the directory into which Eshell was installed to your
+    `load-path' variable.  This can be done by adding the following
+    line to your .emacs file:
+
+    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/eshell")
+
+    The actual directory on your system may differ.
+
+ 8. To install Eshell privately, edit your .emacs file; to install
+    Eshell site-wide, edit the file `site-start.el' in your site-lisp
+    directory (usually `/usr/local/share/emacs/site-lisp' or something
+    similar).  In either case enter the following line into the
+    appropriate file:
+
+    (load "eshell-auto")
+
+ 9. Restart Emacs.  After restarting, customize the variable
+    `eshell-modules-list'.  This variable selects which Eshell
+    extension modules you want to use.  You will find documentation on
+    each of those modules in the Info manual.
+
+10. Read the Info manual.  Although Eshell behaves like most ordinary
+    shells, it has other advanced features and Lisp integration
+    facilities that require a more thorough presentation than these
+    meager notes.
+
+How to make typeset documentation from eshell.doci
+======================================================
+
+   If you have TeX installed at your site, you can make a typeset
+manual from `eshell.doci' by typing "make eshell.dvi".  If you prefer
+a postscript version of this file, use "make eshell.ps" instead.
