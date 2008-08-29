@@ -161,7 +161,8 @@ standard position).  In those cases, this variable should be set to nil.")
     (failed-ics-parse  . "Failed to parse ICS move string (%s): ")))
 
 (defconst chess-ics-style12-regexp
-  (rx (and "<12> " (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
+  (rx (and "<12> "
+	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
  	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
  	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
  	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
@@ -169,15 +170,21 @@ standard position).  In those cases, this variable should be set to nil.")
 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
- 	   (group (in "BW")) ? (group (and (? ?-) (in "0-7"))) ? 
- 	   (group (and (? ?-) digit)) ? (group (and (? ?-) digit)) ? 
-  	   (group (and (? ?-) digit)) ? (group (and (? ?-) digit)) ? 
+ 	   (group (in "BW")) ?
+	   (group (and (? ?-) (in "0-7"))) ? 
+ 	   (group (and (? ?-) digit)) ?
+	   (group (and (? ?-) digit)) ? 
+  	   (group (and (? ?-) digit)) ?
+	   (group (and (? ?-) digit)) ? 
  	   (group (+ digit)) " "
  	   (group (+ digit)) " "
-  	   (group (+ (not (in " ")))) " " (group (+ (not (in " ")))) " "
+  	   (group (+ (not (in " ")))) " "
+	   (group (+ (not (in " ")))) " "
   	   (group (and (? ?-) digit)) " "
- 	   (group (+ digit)) " " (group (+ digit)) " "
- 	   (group (+ digit)) " " (group (+ digit)) " "
+ 	   (group (+ digit)) " "
+	   (group (+ digit)) " "
+ 	   (group (+ digit)) " "
+	   (group (+ digit)) " "
  	   (group (and (? ?-) (+ digit))) " "
  	   (group (and (? ?-) (+ digit))) " "
  	   (group (+ digit)) " "
