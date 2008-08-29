@@ -81,6 +81,7 @@ See `mode-line-format' for syntax details."
 (make-variable-buffer-local 'chess-display-index)
 (make-variable-buffer-local 'chess-display-move-text)
 (make-variable-buffer-local 'chess-display-side-to-move)
+(put 'chess-display-side-to-move 'risky-local-variable t)
 (make-variable-buffer-local 'chess-display-perspective)
 (make-variable-buffer-local 'chess-display-event-handler)
 (make-variable-buffer-local 'chess-display-edit-mode)
