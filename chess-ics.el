@@ -597,17 +597,27 @@ See `chess-ics-game'.")
 		    (chess-game-move game ply)
 		    (setq error nil))
 		(if (= index (chess-game-index game))
-		    (setq error nil)	; Ignore a "refresh" command
+		    ;; this is a refresh, which we can use to verify that our
+		    ;; notion of the game's current position is correct
+		    (let ((their-fen (chess-pos-to-fen position))
+			  (our-fen (chess-pos-to-fen (chess-game-pos game))))
+		      (if (string= their-fen our-fen)
+			  (setq error nil) ; ignore the refresh
+			(setq error
+			      (format "comparing-position (%s != %s)"
+				      their-fen our-fen))))
 		  (if (and (> index (1+ (chess-game-index game)))
 			   (= 1 (chess-game-seq game)))
-		      ;; we lack a complete game, try to get it via the movelist
+		      ;; we lack a complete game, try to get it via the
+		      ;; movelist
 		      (progn
 			(setq error nil)
 			(chess-ics-send
 			 (format "moves %d"
 				 (chess-game-data game 'ics-game-number))))
 		    (setq error
-			  (format "comparing-index (%d:%d)" index (chess-game-index game))))))
+			  (format "comparing-index (%d:%d)"
+				  index (chess-game-index game))))))
 	    ;; no preceeding ply supplied, so this is a starting position
 	    (let ((chess-game-inhibit-events t)
 		  (color (chess-pos-side-to-move position))
