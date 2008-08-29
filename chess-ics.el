@@ -447,8 +447,6 @@ See `chess-ics-game'.")
 	 (setq tags (cddr tags)))
        game))))
 
-(defvar last-triggers nil)
-
 (defun chess-ics-game-destroy (game-number &rest tags)
   (let ((sessions chess-ics-sessions)
 	last-session)
@@ -479,7 +477,7 @@ See `chess-ics-game'.")
 		(if last-session
 		    (setcdr last-session (cdr sessions))
 		  (setq chess-ics-sessions (cdr sessions))))))))
-      (setq last-triggers sessions
+      (setq last-session sessions
 	    sessions (cdr sessions)))))
 
 (defun chess-ics-handle-movelist-item ()
