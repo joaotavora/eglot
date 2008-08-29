@@ -14,8 +14,6 @@
 *.vr
 *~
 /.DS_Store
-/Makefile
-/Makefile.in
 /aclocal.m4
 /autom4te.cache
 /chess-auto.el
@@ -31,5 +29,8 @@
 /elc-stamp
 /elisp-comp
 /install-sh
+/Makefile
+/Makefile.in
 /missing
+/TAGS
 /texinfo.tex
