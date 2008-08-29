@@ -42,9 +42,10 @@
   :group 'chess-sound)
 
 (defsubst chess-sound (file)
-  (funcall chess-sound-play-function
-	   (expand-file-name (concat file ".wav")
-			     chess-sound-directory)))
+  (ignore-errors
+    (funcall chess-sound-play-function
+	     (expand-file-name (concat file ".wav")
+			       chess-sound-directory))))
 
 (defsubst chess-sound-play (file)
   (apply 'call-process chess-sound-program
