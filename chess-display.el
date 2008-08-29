@@ -26,6 +26,11 @@ occurs."
   :type 'boolean
   :group 'chess-display)
 
+(defcustom chess-display-highlight-last-move nil
+  "If non-nil, highlight the last move made on the game."
+  :type 'boolean
+  :group 'chess-display)
+
 (chess-message-catalog 'english
   '((mode-white     . "White")
     (mode-black     . "Black")
@@ -321,6 +326,8 @@ also view the same game."
 
 (defun chess-display-paint-move (display ply)
   (chess-with-current-buffer display
+    (if chess-display-highlight-last-move
+	(chess-display-redraw))
     (let ((position (chess-ply-pos ply))
 	  (ch (chess-ply-changes ply)))
       (while ch
@@ -344,7 +351,9 @@ also view the same game."
 	      (funcall chess-display-event-handler 'draw-square
 		       (chess-display-index-pos nil (chess-pos-en-passant position))
 		       ?  (chess-pos-en-passant position))))
-	  (setq ch (cddr ch)))))))
+	  (setq ch (cddr ch)))))
+    (if chess-display-highlight-last-move
+	(chess-display-highlight-move display ply))))
 
 (chess-message-catalog 'english
   '((not-your-move . "It is not your turn to move")
@@ -393,6 +402,13 @@ that is supported by most displays, and is the default mode."
 				    :index pos))
       (chess-display-highlight nil "pale green"
 			       (chess-ply-target ply)))))
+
+(defun chess-display-highlight-move (display ply)
+  "Highlight the last move made in the current game."
+  (chess-with-current-buffer display
+     (chess-display-highlight nil "medium sea green"
+			      (chess-ply-source ply)
+			      (chess-ply-target ply))))
 
 (defun chess-display-highlight-passed-pawns (&optional display)
   (interactive)
