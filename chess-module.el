@@ -23,6 +23,8 @@
 	   ,@body)
        ,@body)))
 
+(put 'chess-with-current-buffer 'lisp-indent-function 1)
+
 (defun chess-module-create (derived game &optional buffer-name
 				    &rest ctor-args)
   (let* ((name (symbol-name derived))
