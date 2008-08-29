@@ -1,9 +1,9 @@
 BUILT_SOURCES  = chess-auto.el
 CLEANFILES     = TAGS chess-auto.el auto-autoloads.el
-EXTRA_DIST     = autogen.sh doc/chess.pdf
-DISTCLEANFILES = chess-eco.fen doc/chess.info doc/chess.pdf
+EXTRA_DIST     = autogen.sh chess-auto.el.in chess-eco.pos doc/chess.pdf
+DISTCLEANFILES = chess-eco.fen doc/chess.info doc/chess.pdf $(TESTS)
 info_TEXINFOS  = doc/chess.texi
-lisp_DATA      = _pkg.el chess-eco.fen
+dist_lisp_DATA = _pkg.el chess-eco.fen
 
 dist_lisp_LISP =	   \
 	chess.el	   \
@@ -47,6 +47,7 @@ dist_lisp_LISP =	   \
 	chess-scid.el	   \
 	chess-sjeng.el	   \
 	chess-sound.el	   \
+	chess-test.el      \
 	chess-transport.el \
 	chess-tutorial.el  \
 	chess-ucb.el	   \
@@ -68,7 +69,7 @@ chess-eco.fen: chess-eco.pos chess-eco.el
 TESTS = chess-test
 
 chess-test:
-	echo "$(EMACS) -batch -L . -l chess-test.el --eval '(chess-test)'" > $@
+	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el --eval '(chess-test)'" > $@
 	chmod u+x $@
 
 TAGS: $(dist_lisp_LISP)
