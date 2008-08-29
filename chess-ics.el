@@ -590,15 +590,15 @@ See `chess-ics-game'.")
 		    (chess-game-move game ply)
 		    (setq error nil))
 		(if (= index (chess-game-index game))
-		    (setq error 'refresh) ; Ignore a "refresh" command
+		    (setq error nil)	; Ignore a "refresh" command
 		  (if (and (> index (1+ (chess-game-index game)))
-			     (= 1 (chess-game-seq game)))
-		    ;; we lack a complete game, try to get it via the movelist
-		    (progn
-		      (setq error nil)
-		      (chess-ics-send
-		       (format "moves %d"
-			       (chess-game-data game 'ics-game-number))))
+			   (= 1 (chess-game-seq game)))
+		      ;; we lack a complete game, try to get it via the movelist
+		      (progn
+			(setq error nil)
+			(chess-ics-send
+			 (format "moves %d"
+				 (chess-game-data game 'ics-game-number))))
 		    (setq error
 			  (format "comparing-index (%d:%d)" index (chess-game-index game))))))
 	    ;; no preceeding ply supplied, so this is a starting position
