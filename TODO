@@ -8,6 +8,11 @@ LEDGER  -*- mode: org; fill-column: 78 -*-
 
 * TODO [#B] display: Make it possible to "highlight the last move"
 * TODO [#B] display: Make highlight colors easily customizable
+* TODO [#B] display: Draw move highlights as a border, not a background
+* TODO [#B] display: Always validate the display before painting
+  This will require adding a new text property to each square on the board,
+  `chess-piece', so that the validator can walk through the displayed board
+  and ensure that it matches the known position for that board.
 * DONE [#B] ics: Make a refresh act like an assert
   - State "DONE"       [2008-08-29 Fri 06:28]
   Compare with our current known board and trigger an error if it doesn't
