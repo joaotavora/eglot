@@ -7,6 +7,9 @@
 (require 'chess-fen)
 (require 'chess-message)
 
+(eval-when-compile
+  (require 'pcomplete nil t))
+
 (defvar chess-pgn-fill-column 60)
 
 (chess-message-catalog 'english
@@ -224,11 +227,15 @@ PGN text."
 	 game)
       (chess-error 'could-not-read-pgn))))
 
+(eval-after-load "pcomplete"
+  '(progn
+     (make-variable-buffer-local 'pcomplete-default-completion-function)
+     (make-variable-buffer-local 'pcomplete-command-completion-function)
+     (make-variable-buffer-local 'pcomplete-parse-arguments-function)))
+
 ;;;###autoload
 (define-derived-mode chess-pgn-mode text-mode "PGN"
   "A mode for editing chess PGN files."
-  (make-variable-buffer-local 'comment-start)
-  (make-variable-buffer-local 'comment-end)
   (setq comment-start "{"
 	comment-end "}")
 
@@ -248,12 +255,9 @@ PGN text."
     ;;(define-key map [? ] 'chess-pgn-move)
 
     (when (require 'pcomplete nil t)
-      (set (make-variable-buffer-local 'pcomplete-default-completion-function)
-	   'chess-pgn-completions)
-      (set (make-variable-buffer-local 'pcomplete-command-completion-function)
-	   'chess-pgn-completions)
-      (set (make-variable-buffer-local 'pcomplete-parse-arguments-function)
-	   'chess-pgn-current-word)
+      (setq pcomplete-default-completion-function 'chess-pgn-completions)
+      (setq pcomplete-command-completion-function 'chess-pgn-completions)
+      (setq pcomplete-parse-arguments-function 'chess-pgn-current-word)
       (define-key map [tab] 'chess-pgn-complete-move))))
 
 ;;;###autoload
@@ -314,7 +318,7 @@ PGN text."
   (save-excursion
     (when location (goto-char location))
     (if (re-search-backward chess-pgn-move-regexp nil t)
-	(let* ((index (string-to-int (match-string 2)))
+	(let* ((index (string-to-number (match-string 2)))
 	       (first-move (match-string 3))
 	       (second-move (match-string 14))
 	       (ply (1+ (* 2 (1- index)))))

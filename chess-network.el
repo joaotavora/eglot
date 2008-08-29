@@ -52,7 +52,7 @@
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'undo
-		     (string-to-int (match-string 1))))))
+		     (string-to-number (match-string 1))))))
    (cons "accept\\(\\s-+\\(.+\\)\\)?$"
 	 (function
 	  (lambda ()
@@ -120,7 +120,7 @@
 		  (if (fboundp 'open-network-stream-server)
 		      (open-network-stream-server "*chess-network*"
 						  (current-buffer)
-						  (string-to-int
+						  (string-to-number
 						   (read-string "Port: ")))
 		    (start-process "*chess-network*"
 				   (current-buffer) "/usr/bin/nc"

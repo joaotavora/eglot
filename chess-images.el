@@ -364,13 +364,13 @@ They are returned in ascending order, or nil for no sizes available."
 	(with-temp-buffer
 	  (insert-file-contents-literally file)
 	  (re-search-forward "\"\\([0-9]+\\)")
-	  (setq chess-images-sizes (list (string-to-int (match-string 1)))))
+	  (setq chess-images-sizes (list (string-to-number (match-string 1)))))
       (let (sizes)
 	(dolist (file (directory-files chess-images-directory nil
 				       (format "rdd[0-9]+\\.%s"
 					       chess-images-extension)))
 	  (if (string-match "rdd\\([0-9]+\\)\\." file)
-	      (push (string-to-int (match-string 1 file)) sizes)))
+	      (push (string-to-number (match-string 1 file)) sizes)))
 	(setq chess-images-sizes (sort sizes '<))))))
 
 (defun chess-images-best-size (&optional height width)
@@ -425,10 +425,10 @@ This is necessary for bizzare Emacs reasons."
     (goto-char (point-min))
     (if (re-search-forward (concat "\"\\([0-9]+\\)\\s-+\\([0-9]+\\)\\s-+"
 				   "\\([0-9]+\\)\\s-+\\([0-9]+\\)\"") nil t)
-	(let* ((width (string-to-int (match-string 1)))
-	       (height (string-to-int (match-string 2)))
-	       (colors (string-to-int (match-string 3)))
-	       (chars-per-color (string-to-int (match-string 4)))
+	(let* ((width (string-to-number (match-string 1)))
+	       (height (string-to-number (match-string 2)))
+	       (colors (string-to-number (match-string 3)))
+	       (chars-per-color (string-to-number (match-string 4)))
 	       (color-char (make-string chars-per-color ?~)))
 	  (replace-match (int-to-string (+ height add-height)) t t nil 2)
 	  (unless

@@ -21,14 +21,17 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
-(eval-when-compile (require 'cl))
+(eval-when-compile
+  (require 'cl))
 
 (require 'comint)
 (require 'chess)
 (require 'chess-network)
 (require 'chess-pos)
 
-(eval-when-compile (require 'rx))
+(eval-when-compile
+  (require 'rx)
+  (require 'sort))
 
 (defgroup chess-ics nil
   "Engine for interacting with Internet Chess Servers."
@@ -270,7 +273,7 @@ standard position).  In those cases, this variable should be set to nil.")
 		  (delete-region (1- (match-beginning 0)) (match-end 0))))
 	      (when game-num
 		(chess-game-run-hooks
-		 (chess-ics-game (string-to-int game-num))
+		 (chess-ics-game (string-to-number game-num))
 		 'kibitz (buffer-substring text-begin (line-end-position))))
 	      (when (> (- (line-end-position) (line-beginning-position))
 		       fill-column)
@@ -284,7 +287,7 @@ standard position).  In those cases, this variable should be set to nil.")
    (cons "{Game \\([0-9]+\\) (\\(\\S-+\\) vs\\. \\(\\S-+\\)) Creating [^ ]+ \\([^ ]+\\).*}"
 	 (function
 	  (lambda ()
-	    (let ((game-number (string-to-int (match-string 1)))
+	    (let ((game-number (string-to-number (match-string 1)))
 		  (white (match-string-no-properties 2))
 		  (black (match-string-no-properties 3)))
 	      (message "Creating game %d (%s vs. %s)" game-number white black)
@@ -293,17 +296,17 @@ standard position).  In those cases, this variable should be set to nil.")
    (cons "^Game \\([0-9]+\\): \\S-+ backs up \\([0-9]+\\).$"
 	 (function
 	  (lambda ()
-	    (chess-game-undo (chess-ics-game (string-to-int (match-string 1)))
-			     (string-to-int (match-string 2))))))
+	    (chess-game-undo (chess-ics-game (string-to-number (match-string 1)))
+			     (string-to-number (match-string 2))))))
    (cons chess-ics-style12-regexp #'chess-ics-handle-style12)
    (cons "Removing game \\([0-9]+\\) from observation list.$"
 	 (function
 	  (lambda ()
-	    (chess-ics-game-destroy (string-to-int (match-string 1))))))
+	    (chess-ics-game-destroy (string-to-number (match-string 1))))))
    (cons "You are no longer examining game \\([0-9]+\\).$"
 	 (function
 	  (lambda ()
-	    (chess-ics-game-destroy (string-to-int (match-string 1))))))
+	    (chess-ics-game-destroy (string-to-number (match-string 1))))))
    (cons "^Movelist for game \\([0-9]+\\):$"
 	 (function
 	  (lambda ()
@@ -311,7 +314,7 @@ standard position).  In those cases, this variable should be set to nil.")
 		    chess-ics-movelist-game)
 		(message "[movelist] left-over movelist-game[-number]")
 	      (setq chess-ics-movelist-game-number
-		    (string-to-int (match-string 1)))))))
+		    (string-to-number (match-string 1)))))))
    (cons "^Move\\s-+\\*?\\(\\S-+\\)\\s-+\\*?\\(\\S-+\\)\\s-*$"
 	 (function
 	  (lambda ()
@@ -344,7 +347,7 @@ standard position).  In those cases, this variable should be set to nil.")
 	 (function
 	  (lambda ()
 	    (funcall chess-engine-response-handler 'undo
-		     (string-to-int (match-string 1))))))
+		     (string-to-number (match-string 1))))))
    (cons "The game has been aborted on move [^.]+\\."
 	 (function
 	  (lambda ()
@@ -360,7 +363,7 @@ standard position).  In those cases, this variable should be set to nil.")
      (lambda ()
        (let ((chess-engine-handling-event t)
 	     (opponent-p (not (string= chess-ics-handle (match-string 4))))
-	     (game (chess-ics-game (string-to-int (match-string 1))
+	     (game (chess-ics-game (string-to-number (match-string 1))
 				   :White (match-string 2)
 				   :Black (match-string 3))))
 	 (with-current-buffer (chess-game-data game 'engine)
@@ -482,7 +485,7 @@ See `chess-ics-game'.")
 (defun chess-ics-handle-movelist-item ()
   ;; TBD: time taken per ply
   (let ((chess-engine-handling-event t)
-	(seq (string-to-int (match-string 1)))
+	(seq (string-to-number (match-string 1)))
 	(wmove (match-string 2))
 	(bmove (match-string 14))
 	(game chess-ics-movelist-game))
@@ -518,7 +521,7 @@ See `chess-ics-game'.")
 			     (chess-pos-set-piece
 			      pos (chess-rf-to-index r f) (aref rank f))))))
 		     (chess-pos-set-side-to-move pos (string= (match-string 9) "W"))
-		     (let ((file (string-to-int (match-string 10))))
+		     (let ((file (string-to-number (match-string 10))))
 		       (when (>= file 0)
 			 (chess-pos-set-en-passant
 			  pos (chess-rf-to-index
@@ -528,7 +531,7 @@ See `chess-ics-game'.")
 				 (chess-pos-set-can-castle pos (car info) t)))
 			   '((?K . 11) (?Q . 12) (?k . 13) (?q . 14))) pos))
 	 (game (save-match-data
-		 (chess-ics-game (string-to-int (match-string 16))
+		 (chess-ics-game (string-to-number (match-string 16))
 				 :White (match-string 17)
 				 :Black (match-string 18))))
 	 (status
@@ -540,21 +543,21 @@ See `chess-ics-game'.")
 	  ;; -1 I am playing, it is my opponent's move
 	  ;;  1 I am playing and it is my move
 	  ;;  0 I am observing a game being played
-	  (string-to-int (match-string 19))))
+	  (string-to-number (match-string 19))))
     (when (or (= status 2) (= status -2) (= status 0))
       (chess-game-set-data game 'my-color (chess-pos-side-to-move position)))
     ;; initial time and increment (in seconds) of the match
     (chess-game-set-tag
      game "TimeControl" (format "%s/%s" (match-string 20) (match-string 21)))
     ;; material values for each side
-    (let ((centipawn (* 100 (- (string-to-int (match-string 22))
-			       (string-to-int (match-string 23))))))
+    (let ((centipawn (* 100 (- (string-to-number (match-string 22))
+			       (string-to-number (match-string 23))))))
       (chess-pos-set-epd position 'ce (if (chess-pos-side-to-move position)
 					  centipawn (- centipawn))))
     ;; White's and Black's remaining time
-    (chess-game-set-data game 'white-remaining (string-to-int (match-string 24)))
-    (chess-game-set-data game 'black-remaining (string-to-int (match-string 25)))
-    (let ((index (- (* (string-to-int (match-string 26)) 2)
+    (chess-game-set-data game 'white-remaining (string-to-number (match-string 24)))
+    (chess-game-set-data game 'black-remaining (string-to-number (match-string 25)))
+    (let ((index (- (* (string-to-number (match-string 26)) 2)
 		    (if (eq (chess-game-data game 'black-moved-first) t)
 			(if (chess-pos-side-to-move position) 3 2)
 		      (if (chess-pos-side-to-move position) 2 1))))
@@ -809,11 +812,11 @@ descending order.")
 	   (post (substring string (match-end 0))))
       (chess-ics-sought-add (substring (match-string 9 string) 5)
 			    (match-string 1 string)
-			    (string-to-int (match-string 2 string))
+			    (string-to-number (match-string 2 string))
 			    (if (string= (match-string 6 string) "rated")
 				"yes" "no")
-			    (string-to-int (match-string 4 string))
-			    (string-to-int (match-string 5 string))
+			    (string-to-number (match-string 4 string))
+			    (string-to-number (match-string 5 string))
 			    (concat
 			     (if (match-string 3 string)
 				 (concat (match-string 3 string) " ") "")
@@ -848,6 +851,8 @@ This function should be put on `comint-preoutput-filter-functions'."
 		(setq ids (cdr ids)))
 	      (goto-char here)))))))
   string)
+
+(make-variable-buffer-local 'comint-preoutput-filter-functions)
 
 ;;;###autoload
 (defun chess-ics (server port &optional handle password-or-filename
@@ -888,7 +893,6 @@ This function should be put on `comint-preoutput-filter-functions'."
 	  comint-prompt-regexp "^[^%\n]*% *"
 	  comint-scroll-show-maximum-output t)
     (add-hook 'comint-output-filter-functions 'chess-engine-filter t t)
-    (make-variable-buffer-local 'comint-preoutput-filter-functions)
     (setq comint-preoutput-filter-functions
 	  '(chess-ics-ads-removed chess-ics-seeking))
     (let ((ntimes 50))
@@ -902,24 +906,24 @@ This function should be put on `comint-preoutput-filter-functions'."
   (if (not (string-match "^\\([0-9]+\\) \\(.*\\)$" string))
       (format "\nUnknown datagram format: %s\n" string)
     (let ((chess-engine-handling-event t)
-	  (dg (string-to-int (match-string 1 string)))
+	  (dg (string-to-number (match-string 1 string)))
 	  (args (match-string 2 string)))
       (cond
        ((and (or (= dg 22) (= dg 23))
 	     (string-match "\\([0-9]+\\) \\([1-9][0-9]*\\)" args))
-	(chess-game-undo (chess-ics-game (string-to-int (match-string 1 args)))
-			 (string-to-int (match-string 2 args)))
+	(chess-game-undo (chess-ics-game (string-to-number (match-string 1 args)))
+			 (string-to-number (match-string 2 args)))
 	"")
        ((and (or (= dg 101) (= dg 110))
 	     (string-match "\\([0-9]+\\) {\\(.+\\) \\(?:[0-9]+\\) \\(?:[0-9]+\\)} \\([0-9]+\\)" args))
 	(let ((pos (chess-fen-to-pos (match-string 2 args))))
 	  (chess-game-set-start-position
-	   (chess-ics-game (string-to-int (match-string 1 args))) pos))
+	   (chess-ics-game (string-to-number (match-string 1 args))) pos))
 	"")
        ((and (or (= dg 24) (= dg 111))
 	     (string-match "^\\([0-9]+\\) \\(.+\\)$" args))
 	(let* ((move (match-string 2 args))
-	       (game (chess-ics-game (string-to-int (match-string 1 args))))
+	       (game (chess-ics-game (string-to-number (match-string 1 args))))
 	       (pos (chess-game-pos game))
 	       (ply (chess-algebraic-to-ply pos move)))
 	  (chess-game-move game ply)
@@ -942,10 +946,10 @@ This function should be put on `comint-preoutput-filter-functions'."
        ((and (= dg 56)
 	     (string-match "^\\([0-9]+\\) \\([WB]\\) \\([0-9]+\\) \\([01]\\)"
 			   args))
-	(let ((sec (/ (string-to-int (match-string 3 args)) 1000))
+	(let ((sec (/ (string-to-number (match-string 3 args)) 1000))
 	      (color (if (string= (match-string 2 args) "W")
 			 'white-remaining 'black-remaining))
-	      (game (chess-ics-game (string-to-int (match-string 1 args)))))
+	      (game (chess-ics-game (string-to-number (match-string 1 args)))))
 	  (chess-game-set-data game color sec))
 	"")
        ((and (= dg 50)
@@ -956,10 +960,10 @@ This function should be put on `comint-preoutput-filter-functions'."
 		 (if (not (string= (match-string 3 args) ""))
 		     (format "(%s)" (match-string 3 args))
 		   ""))
-	 (string-to-int (match-string 4 args))
+	 (string-to-number (match-string 4 args))
 	 (if (string= (match-string 10 args) "1") "yes" "no")
-	 (string-to-int (match-string 8 args))
-	 (string-to-int (match-string 9 args))
+	 (string-to-number (match-string 8 args))
+	 (string-to-number (match-string 9 args))
 	 (concat (match-string 7 args)
 		 (if (not (string= (match-string 6 args) "0"))
 		     (concat " " (match-string 6 args)) "")
@@ -1011,7 +1015,7 @@ This function should be put on `comint-preoutput-filter-functions'."
 
 (defun chess-ics-icc-preoutput-filter (string)
   (while (string-match "(\\([0-9]+\\) \\(.*?\\))" string)
-    (let ((dg (string-to-int (match-string 1 string)))
+    (let ((dg (string-to-number (match-string 1 string)))
 	  (args (match-string 2 string))
 	  (pre (substring string 0 (match-beginning 0)))
 	  (post (substring string (match-end 0))))
@@ -1020,13 +1024,13 @@ This function should be put on `comint-preoutput-filter-functions'."
 	     (string-match "\\([0-9]+\\) {\\(.+\\) \\(?:[0-9]+\\) \\(?:[0-9]+\\)} \\([0-9]+\\)" args))
 	(let ((pos (chess-fen-to-pos (match-string 2 args))))
 	  (chess-game-set-start-position
-	   (chess-ics-game (string-to-int (match-string 1 args))) pos))
+	   (chess-ics-game (string-to-number (match-string 1 args))) pos))
 	(setq string (concat pre post)))
        ((and (or (= dg 24) (= dg 111))
 	     (string-match "\\([0-9]+\\) \\(.+\\)$" args))
 	(let* ((chess-engine-handling-event t)
 	       (move (match-string 2 args))
-	       (game (chess-ics-game (string-to-int (match-string 1 args))))
+	       (game (chess-ics-game (string-to-number (match-string 1 args))))
 	       (pos (chess-game-pos game))
 	       (ply (chess-algebraic-to-ply pos move)))
 	  (if ply
@@ -1053,10 +1057,10 @@ This function should be put on `comint-preoutput-filter-functions'."
        ((and (= dg 56)
 	     (string-match "\\([0-9]+\\) \\([WB]\\) \\([0-9]+\\) \\([01]\\)"
 			   args))
-	(let ((sec (/ (string-to-int (match-string 3 args)) 1000))
+	(let ((sec (/ (string-to-number (match-string 3 args)) 1000))
 	      (color (if (string= (match-string 2 args) "W")
 			 'white-remaining 'black-remaining))
-	      (game (chess-ics-game (string-to-int (match-string 1 args)))))
+	      (game (chess-ics-game (string-to-number (match-string 1 args)))))
 	  (chess-game-set-data game color sec))
 	(setq string (concat pre post)))
        ((and (= dg 50)
@@ -1067,11 +1071,11 @@ This function should be put on `comint-preoutput-filter-functions'."
 		 (if (not (string= (match-string 3 args) ""))
 		     (format "(%s)" (match-string 3 args))
 		   ""))
-	 (string-to-int (match-string 4 args))
+	 (string-to-number (match-string 4 args))
 	 (if (string= (match-string 10 args) "1")
 	     "yes" "no")
-	 (string-to-int (match-string 8 args))
-	 (string-to-int (match-string 9 args))
+	 (string-to-number (match-string 8 args))
+	 (string-to-number (match-string 9 args))
 	 (concat (match-string 7 args)
 		 (if (not (string= (match-string 6 args) "0"))
 		     (concat " " (match-string 6 args)) "")

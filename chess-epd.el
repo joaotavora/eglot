@@ -83,7 +83,7 @@ and advance point after the correctly parsed position."
   "Return a list of positions contained in FILE."
   (let ((positions (list t)) pos)
     (with-temp-buffer
-      (insert-file-literally file)
+      (insert-file-contents file)
       (goto-char (point-min))
       (while (setq pos (chess-epd-parse))
 	(nconc positions (list pos))))

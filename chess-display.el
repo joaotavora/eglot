@@ -7,6 +7,7 @@
 (require 'chess-module)
 (require 'chess-var)
 (require 'chess-input)
+(require 'chess-random)
 
 (defgroup chess-display nil
   "Common code used by chess displays."
@@ -1084,6 +1085,9 @@ to the end or beginning."
 			     (or piece last-command-char))
 	(funcall chess-display-event-handler 'draw-square
 		 (point) (or piece last-command-char) index))))
+
+(unless (fboundp 'event-window)
+  (defalias 'event-point 'ignore))
 
 (defun chess-display-mouse-set-piece (event)
   "Select the piece the user clicked on."

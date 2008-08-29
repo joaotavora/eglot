@@ -33,7 +33,7 @@
 	      (with-current-buffer buffer
 		(accept-process-output proc)
 		(setq chess-scid-process proc)
-		(if (= 1 (string-to-int
+		(if (= 1 (string-to-number
 			  (chess-scid-get-result
 			   (format "sc_base open %s"
 				   (expand-file-name (car args))))))
@@ -50,7 +50,7 @@
       (sit-for 0 250)))
 
    ((eq event 'read-only-p)
-    (if (zerop (string-to-int (chess-scid-get-result "sc_base isReadOnly")))
+    (if (zerop (string-to-number (chess-scid-get-result "sc_base isReadOnly")))
 	nil
       t))
 
@@ -58,7 +58,7 @@
     (chess-scid-get-result "sc_base filename"))
 
    ((eq event 'count)
-    (string-to-int (chess-scid-get-result "sc_base numGames")))
+    (string-to-number (chess-scid-get-result "sc_base numGames")))
 
    ((eq event 'read)
     (let ((here (point-max)) game)
@@ -98,11 +98,11 @@
 			 "\\([0-9.]+\\)%")
 		 nil t)
 	      (let ((move (match-string 2))
-		    (freq (string-to-int (match-string 3)))
+		    (freq (string-to-number (match-string 3)))
 		    (score (string-to-number (match-string 5)))
-		    (avgelo (string-to-int (match-string 6)))
-		    (perf (string-to-int (match-string 7)))
-		    (avgyear (string-to-int (match-string 8)))
+		    (avgelo (string-to-number (match-string 6)))
+		    (perf (string-to-number (match-string 7)))
+		    (avgyear (string-to-number (match-string 8)))
 		    (draws (string-to-number (match-string 9))))
 		(nconc lines
 		       (list
@@ -125,7 +125,7 @@
 			   "\\([0-9.]+\\)%") nil t)
 	      (goto-char (point-max))
 	      (append
-	       (list (string-to-int (match-string 1))
+	       (list (string-to-number (match-string 1))
 		     (string-to-number (match-string 2))
 		     (string-to-number (match-string 6)))
 	       (cdr lines)))))

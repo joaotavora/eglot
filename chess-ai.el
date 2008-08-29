@@ -21,6 +21,7 @@
 
 ;;; Code:
 
+(require 'chess)
 (require 'chess-common)
 (require 'chess-pos)
 (require 'chess-ply)
