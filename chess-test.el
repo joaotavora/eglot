@@ -28,7 +28,7 @@
 		     (index (if start
 				(max start 1)
 			      1))
-		     (last-index (if count
+		     (last-index (if (and count (> count 0))
 				     (min db-count (+ index count))
 				   db-count))
 		     (begin (current-time))
