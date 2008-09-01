@@ -26,8 +26,8 @@
 	  (let* ((db-count (chess-database-count database))
 		 (ply-count 0)
 		 (index (if start
-			    (max start 1)
-			  1))
+			    (1- start)
+			  0))
 		 (last-index (if (and count (> count 0))
 				 (min db-count (+ index count))
 			       db-count))
