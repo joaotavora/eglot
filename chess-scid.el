@@ -25,24 +25,30 @@
 (defun chess-scid-handler (event &rest args)
   (cond
    ((eq event 'open)
-    (if (file-readable-p (concat (car args) ".sg3"))
-	(let* ((buffer (generate-new-buffer " *chess-scid*"))
-	       (proc (start-process "*chess-scid*" buffer
-				    (executable-find "tcscid"))))
-	  (if (and proc (eq (process-status proc) 'run))
-	      (with-current-buffer buffer
-		(accept-process-output proc)
-		(setq chess-scid-process proc)
-		(if (= 1 (string-to-number
-			  (chess-scid-get-result
-			   (format "sc_base open %s"
-				   (expand-file-name (car args))))))
-		    buffer
-		  (kill-process proc)
-		  (kill-buffer buffer)
-		  nil))
-	    (kill-buffer buffer)
-	    nil))))
+    (let* ((db-file (if (string-match "\\.sg3\\'" (car args))
+			(car args)
+		      (concat (car args) ".sg3")))
+	   (db-base (and (string-match "\\`\\(.+\\)\\.sg3\\'" db-file)
+			 (match-string 1 db-file))))
+      (if (and db-base (file-readable-p db-file))
+	  (let* ((buffer (generate-new-buffer " *chess-scid*"))
+		 (proc (start-process "*chess-scid*" buffer
+				      (or (executable-find "tcscid")
+					  (executable-find "tcchessdb")))))
+	    (if (and proc (eq (process-status proc) 'run))
+		(with-current-buffer buffer
+		  (accept-process-output proc)
+		  (setq chess-scid-process proc)
+		  (if (= 1 (string-to-number
+			    (chess-scid-get-result
+			     (format "sc_base open %s"
+				     (expand-file-name db-base)))))
+		      buffer
+		    (kill-process proc)
+		    (kill-buffer buffer)
+		    nil))
+	      (kill-buffer buffer)
+	      nil)))))
 
    ((eq event 'close)
     (chess-scid-send "sc_base close\nexit")
@@ -61,13 +67,21 @@
     (string-to-number (chess-scid-get-result "sc_base numGames")))
 
    ((eq event 'read)
-    (let ((here (point-max)) game)
-      (process-send-string chess-scid-process
-			   (format "sc_game load %d\nsc_game pgn\n"
-				   (car args)))
+    (process-send-string chess-scid-process
+			 (format "sc_game load %d\n" (car args)))
+    (accept-process-output chess-scid-process)
+    (let ((here (point-max))
+	  (iterations 10))
+      (process-send-string chess-scid-process "sc_game pgn\n")
       (accept-process-output chess-scid-process)
       (goto-char here)
-      (when (setq game (chess-pgn-to-game))
+      (while (and (> (setq iterations (1- iterations)) 0)
+		  (not (or (looking-at "\\[")
+			   (and (search-forward "[" nil t)
+				(goto-char (match-beginning 0))))))
+	(accept-process-output chess-scid-process 1 0 t)))
+    (let ((game (chess-pgn-to-game)))
+      (when game
 	(chess-game-set-data game 'database (current-buffer))
 	(chess-game-set-data game 'database-index (car args))
 	(chess-game-set-data game 'database-count (chess-scid-handler 'count))
