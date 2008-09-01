@@ -5,6 +5,7 @@
 
 (require 'chess-algebraic)
 (require 'chess-fen)
+(require 'chess-ply)
 (require 'chess-message)
 
 (eval-when-compile
@@ -55,7 +56,7 @@
 	    (search-forward "}")
 	    (forward-char)
 	    (chess-pos-add-annotation position (buffer-substring-no-properties
-					       begin (- (point) 2)))))
+						begin (- (point) 2)))))
 	 ((looking-at "(")
 	  (forward-char)
 	  (skip-chars-forward " \t\n")

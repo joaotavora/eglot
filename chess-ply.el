@@ -163,6 +163,7 @@
   '((pawn-promote-query . "Promote to queen? ")))
 
 (defvar chess-ply-checking-mate nil)
+(defvar chess-ply-allow-interactive-query nil)
 
 (defsubst chess-ply-create* (position)
   (assert (vectorp position))
@@ -218,9 +219,12 @@ maneuver."
 	      ;; jww (2002-05-15): This does not always clear ALL
 	      ;; input events
 	      (discard-input) (sit-for 0) (discard-input)
-	      (let ((new-piece (if (yes-or-no-p
-				    (chess-string 'pawn-promote-query))
-				   ?Q ?N)))
+	      (let ((new-piece
+		     (if chess-ply-allow-interactive-query
+			 (if (yes-or-no-p
+			      (chess-string 'pawn-promote-query))
+			     ?Q ?N)
+		       (error "Promotion event without :promote keyword"))))
 		(nconc changes (list :promote (upcase new-piece)))))
 
 	    ;; is this an en-passant capture?
