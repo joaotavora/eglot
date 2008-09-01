@@ -68,8 +68,10 @@ chess-eco.fen: chess-eco.pos chess-eco.el
 
 TESTS = chess-test
 
-chess-test:
-	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el --eval '(chess-test)'" > $@
+database = test/largedb
+
+chess-test: Makefile
+	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el -f chess-test '$(database)'" > $@
 	chmod u+x $@
 
 TAGS: $(dist_lisp_LISP)
