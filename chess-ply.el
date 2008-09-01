@@ -161,7 +161,7 @@
 
 (chess-message-catalog 'english
   '((pawn-promote-query  . "Promote to queen? ")
-    (ambiguous-promotion . "Promotion event without :promote keyword")))
+    (ambiguous-promotion . "Promotion without :promote keyword")))
 
 (defvar chess-ply-checking-mate nil)
 (defvar chess-ply-allow-interactive-query nil)

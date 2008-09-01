@@ -129,7 +129,7 @@ This regexp handles both long and short form.")
 	  (condition-case err
 	      (apply 'chess-ply-create position trust changes)
 	    (error
-	     (error "Error in algebraic move '%s': %s"
+	     (error "In algebraic move '%s': %s"
 		    move (error-message-string err)))))))))
 
 (defun chess-ply--move-text (ply long)
