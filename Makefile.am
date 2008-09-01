@@ -66,12 +66,13 @@ chess-eco.fen: chess-eco.pos chess-eco.el
 		-L $(srcdir) -l chess-eco -f chess-generate-fen-table \
 		chess-eco.pos chess-eco.fen
 
-TESTS = chess-test
-
-database = test/largedb
+TESTS	 = chess-test
+DATABASE = test/largedb
+START	 =
+FINISH	 =
 
 chess-test: Makefile
-	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el -f chess-test '$(database)'" > $@
+	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el -f chess-test '$(DATABASE)' $(START) $(FINISH)" > $@
 	chmod u+x $@
 
 TAGS: $(dist_lisp_LISP)

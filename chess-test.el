@@ -6,20 +6,33 @@
 (require 'chess-database)
 (require 'chess-game)
 
-(defun chess-test (&optional file)
+(defun chess-test (&optional file start finish)
   (unless file
-    (setq file (car command-line-args-left)))
+    (setq file (nth 0 command-line-args-left)))
+  (unless start
+    (setq start (string-to-number (nth 1 command-line-args-left))))
+  (unless finish
+    (setq finish (string-to-number (nth 2 command-line-args-left))))
+
   (message "Opening chess database '%s'" file)
+
   (let ((database (chess-database-open file)))
     (if database
 	(progn
 	  (message "Running chess unit tests...")
 	  (condition-case err
-	      (let ((count (chess-database-count database))
-		    (ply-count 0)
-		    (index 1)
-		    (begin (current-time)))
-		(while (< index count)
+	      (let* ((count (chess-database-count database))
+		     (ply-count 0)
+		     (index (if start
+				(max start 1)
+			      1))
+		     (last-index (if finish
+				     (min count finish)
+				   count))
+		     (begin (current-time)))
+		(message "Testing legality of games in range [%d, %d):"
+			 index last-index)
+		(while (< index last-index)
 		  ;; Reading in the game will cause it to be converted from PGN
 		  ;; (this is true currently) to a chess-game, during which time
 		  ;; every move will be tested for legality.
