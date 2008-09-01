@@ -23,12 +23,3 @@ files.
 To improve your chessaility, you might also like to have a look at
 chess-puzzle, which allows you to solve chess puzzle collections (in
 PGN or EPD format) against one of the engines you have installed.
-
-HISTORY
-
-chess.el started out as a single file project with version 1.0 by John
-Wiegley <johnw@gnu.org>.  Version 2.0 is a major rewrite and
-reorganisation of the original code, also done by John Wiegley.  In
-the end of 2003, John did not have a lot of time to finish all the
-various aspects of version 2.0, and maintainership was given to Mario
-Lang <mlang@delysid.org>.
