@@ -97,7 +97,8 @@ Optionally use the supplied STRING instead of the current buffer."
 	(chess-game-set-tags game nil)
 	(while (looking-at "\\[\\(\\S-+\\)\\s-+\\(\".*?\"\\)\\][ \t\n\r]+")
 	  (chess-game-set-tag game (match-string-no-properties 1)
-			      (read (match-string-no-properties 2)))
+			      (let ((str (match-string-no-properties 2)))
+				(substring str 0 (1- (length str)))))
 	  (goto-char (match-end 0)))
 	(let ((fen (chess-game-tag game "FEN")))
 	  (if fen
