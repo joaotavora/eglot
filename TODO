@@ -6,20 +6,14 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
-* TODO Create a better error hierarchy				       :FEATURE:
-  Instead of using (error), we should be throwing specialized signals that
-  indicate whether it's a problem with a ply, a position, a move, etc.  And
-  then this data object should be included with the error.
-  :PROPERTIES:
-  :UUID: 323563C6-2A99-4B01-A29B-BEB09166C103
-  :END:
-  [2008-08-31 Sun]
-* TODO chess-auto.el is not being built properly			 :BUILD:
+* TODO [#B] chess-auto.el is not being built properly			 :BUILD:
   :PROPERTIES:
   :UUID: 184AF780-815B-43DB-87A4-0A81DE252AB0
   :END:
   [2008-08-31 Sun]
-* TODO Sometimes a chess-test run fails to recognize promotions
+* TODO [#B] Sometimes a chess-test run fails to recognize promotions
+  - Note taken on [2008-09-01 Mon 05:35] \\
+    This happens on game 2030188.
   :PROPERTIES:
   :UUID: 431304B0-E8B9-485E-82B5-D4DF900C27DF
   :END:
@@ -146,27 +140,35 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   :PROPERTIES:
   :UUID: 937301D5-2C31-4F43-83B0-FB9A0CD5F138
   :END:
-* TODO Profile and mem profile
+* TODO [#C] Profile and mem profile
   Especially try to get the validation suite running faster!
   :PROPERTIES:
   :UUID: 4A08E03C-1AEA-4C14-951A-3F8DBB2E29E7
   :END:
-* TODO Elint all files
+* TODO [#C] Elint all files
   :PROPERTIES:
   :UUID: 7F56D199-279D-4DAD-AF4C-D612AFC803FA
   :END:
-* TODO Add docstrings/texi content
+* TODO [#C] Add docstrings/texi content
   :PROPERTIES:
   :UUID: 7BC85C08-7A3B-4A09-94C6-9AF10180924B
   :END:
-* TODO Use checkdoc on all files
+* TODO [#C] Use checkdoc on all files
   :PROPERTIES:
   :UUID: 8D30489F-9000-43C3-BCA6-0C14F0E5C831
   :END:
-* TODO Clean up chess.el
+* TODO [#C] Clean up chess.el
   :PROPERTIES:
   :UUID: F2CC192E-8AD3-47BD-9A9F-3990BA1206A2
   :END:
+* TODO Create a better error hierarchy				       :FEATURE:
+  Instead of using (error), we should be throwing specialized signals that
+  indicate whether it's a problem with a ply, a position, a move, etc.  And
+  then this data object should be included with the error.
+  :PROPERTIES:
+  :UUID: 323563C6-2A99-4B01-A29B-BEB09166C103
+  :END:
+  [2008-08-31 Sun]
 * TODO ics: Add a completion function against logged in users	       :FEATURE:
   :PROPERTIES:
   :UUID: 1AFE6B32-7236-4E71-9CCC-21B797E67F08
