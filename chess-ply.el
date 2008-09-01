@@ -289,7 +289,7 @@ maneuver."
 
 (defsubst chess-ply--add (rank-adj file-adj &optional pos)
   "This is totally a shortcut."
-  (let ((target (or pos (chess-incr-index* candidate rank-adj file-adj))))
+  (let ((target (or pos (chess-incr-index candidate rank-adj file-adj))))
     (if (and (or (not specific-target)
 		 (= target specific-target))
 	     (chess-pos-legal-candidates position color target
