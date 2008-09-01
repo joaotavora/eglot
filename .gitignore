@@ -36,6 +36,7 @@
 /elisp-comp
 /install-sh
 /missing
+/test/largedb.*
 /texinfo.tex
 game.*
 log.*
