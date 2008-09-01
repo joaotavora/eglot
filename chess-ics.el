@@ -170,12 +170,12 @@ standard position).  In those cases, this variable should be set to nil.")
 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
 	   (group (repeat 8 (in "-pnbrqkPNBRQK"))) " "
- 	   (group (in "BW")) ?
-	   (group (and (? ?-) (in "0-7"))) ? 
- 	   (group (and (? ?-) digit)) ?
-	   (group (and (? ?-) digit)) ? 
-  	   (group (and (? ?-) digit)) ?
-	   (group (and (? ?-) digit)) ? 
+ 	   (group (in "BW")) " "
+	   (group (and (? ?-) (in "0-7"))) " "
+ 	   (group (and (? ?-) digit)) " "
+	   (group (and (? ?-) digit)) " "
+  	   (group (and (? ?-) digit)) " "
+	   (group (and (? ?-) digit)) " "
  	   (group (+ digit)) " "
  	   (group (+ digit)) " "
   	   (group (+ (not (in " ")))) " "
