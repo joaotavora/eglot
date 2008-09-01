@@ -93,7 +93,7 @@ making it easy to go on to the next puzzle once you've solved one."
 			       (chess-var-to-algebraic pv))
 		     "")))))))
 
-    
+
 (defun chess-puzzle-handler (game display event &rest args)
   (if (and (eq event 'move)
 	   (chess-game-over-p game))
