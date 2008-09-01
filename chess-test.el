@@ -33,8 +33,8 @@
 			       db-count))
 		 (begin (current-time))
 		 (read-count 0))
-	    (message "Testing legality of games in range [%d, %d):"
-		     index last-index)
+	    (message "Testing legality of games in range [%d, %d]:"
+		     index (1- last-index))
 	    (while (< index last-index)
 	      ;; Reading in the game will cause it to be converted from PGN
 	      ;; (this is true currently) to a chess-game, during which time
@@ -48,7 +48,7 @@
 		      (setq read-count (1+ read-count)
 			    ply-count
 			    (+ ply-count (length (chess-game-plies game))))
-		      (if (= 0 (mod index 1000))
+		      (if (and (> index 0) (= 0 (mod index 1000)))
 			  (message "Read %d games (now at game %d): %d total plies (%.2f ply/sec)"
 				   read-count index ply-count
 				   (/ (float ply-count)
@@ -62,7 +62,7 @@
 			  index (error-message-string err))))
 	      (setq index (1+ index)))
 	    (message "Read %d games (up to game %d): %d plies (%.2f ply/sec, %.2f seconds)"
-		     read-count index ply-count
+		     read-count (1- index) ply-count
 		     (/ (float ply-count)
 			(float
 			 (time-to-seconds
