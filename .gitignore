@@ -16,10 +16,14 @@
 *.vr
 *~
 /.DS_Store
+/Makefile
+/Makefile.in
+/TAGS
 /aclocal.m4
 /autom4te.cache
 /chess-auto.el
 /chess-eco.fen
+/chess-test
 /chess.info
 /chess.texi
 /config.log
@@ -31,10 +35,7 @@
 /elc-stamp
 /elisp-comp
 /install-sh
-/Makefile
-/Makefile.in
 /missing
-/TAGS
 /texinfo.tex
 game.*
 log.*
