@@ -24,16 +24,16 @@
 (defun chess-database-do-open (module file)
   "Returns the opened database object, or nil."
   (let* ((name (symbol-name module))
-	 (handler (intern-soft (concat name "-handler")))
-	 buffer)
+	 (handler (intern-soft (concat name "-handler"))))
     (unless handler
       (chess-error 'no-such-database name))
-    (when (setq buffer (funcall handler 'open file))
-      (with-current-buffer buffer
-	(setq chess-database-handler handler)
-	(add-hook 'kill-buffer-hook 'chess-database-close nil t)
-	(add-hook 'after-revert-hook 'chess-database-rescan nil t)
-	(current-buffer)))))
+    (let ((buffer (funcall handler 'open file)))
+      (when buffer
+	(with-current-buffer buffer
+	  (setq chess-database-handler handler)
+	  (add-hook 'kill-buffer-hook 'chess-database-close nil t)
+	  (add-hook 'after-revert-hook 'chess-database-rescan nil t)
+	  (current-buffer))))))
 
 (defun chess-database-open (file &optional module)
   "Returns the opened database object, or nil."
