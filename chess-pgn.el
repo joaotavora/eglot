@@ -68,6 +68,9 @@
 	  (throw 'done t))
 
 	 (t
+	  (if (eq t (car (last plies)))
+	      (error "PGN parser: Expected a ply here: '%s'"
+		     (buffer-substring (point) (point-max))))
 	  (nconc plies (list (chess-ply-create*
 			      (chess-ply-next-pos (car (last plies))))))
 	  (throw 'done t)))
@@ -85,22 +88,23 @@ Optionally use the supplied STRING instead of the current buffer."
     (chess-pgn-parse)))
 
 (defun chess-pgn-parse ()
-  (when (or (looking-at "\\[")
-	    (and (search-forward "[" nil t)
-		 (goto-char (match-beginning 0))))
-    (let ((game (chess-game-create)))
-      (chess-game-set-tags game nil)
-      (while (looking-at "\\[\\(\\S-+\\)\\s-+\\(\".+?\"\\)\\][ \t\n\r]+")
-	(chess-game-set-tag game (match-string-no-properties 1)
-			    (read (match-string-no-properties 2)))
-	(goto-char (match-end 0)))
-      (let ((fen (chess-game-tag game "FEN")) plies)
-	(if fen
-	    (chess-game-set-start-position game (chess-fen-to-pos fen)))
-	(setq plies (chess-pgn-read-plies game (chess-game-pos game) t))
-	(if plies
-	    (chess-game-set-plies game plies)))
-      game)))
+  (if (or (looking-at "\\[")
+	  (and (search-forward "[" nil t)
+	       (goto-char (match-beginning 0))))
+      (let ((game (chess-game-create))
+	    (begin (point)))
+	(chess-game-set-tags game nil)
+	(while (looking-at "\\[\\(\\S-+\\)\\s-+\\(\".*?\"\\)\\][ \t\n\r]+")
+	  (chess-game-set-tag game (match-string-no-properties 1)
+			      (read (match-string-no-properties 2)))
+	  (goto-char (match-end 0)))
+	(let ((fen (chess-game-tag game "FEN")))
+	  (if fen
+	      (chess-game-set-start-position game (chess-fen-to-pos fen)))
+	  (chess-game-set-plies game (chess-pgn-read-plies game (chess-game-pos game) t)))
+	game)
+    (error "Data not in legal PGN format: '%s'"
+	   (buffer-substring (point) (point-max)))))
 
 (defun chess-pgn-insert-annotations (game index ply)
   (dolist (ann (chess-pos-annotations (chess-ply-pos ply)))
