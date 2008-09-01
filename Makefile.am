@@ -67,12 +67,12 @@ chess-eco.fen: chess-eco.pos chess-eco.el
 		chess-eco.pos chess-eco.fen
 
 TESTS	 = chess-test
-DATABASE = test/largedb
-START	 =
-FINISH	 =
+DATABASE = $(shell test -r test/largedb.sg3 && echo test/largedb || echo test/historic.pgn)
+START	 = $(shell test -r test/largedb.sg3 && perl -e 'print int(rand(4000000)), "\n";' || echo 1)
+COUNT	 = 100000
 
-chess-test: Makefile
-	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el -f chess-test '$(DATABASE)' $(START) $(FINISH)" > $@
+chess-test:
+	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el -f chess-test '$(DATABASE)' $(START) $(COUNT); rm -f $(top_builddir)/chess-test" > $@
 	chmod u+x $@
 
 TAGS: $(dist_lisp_LISP)
