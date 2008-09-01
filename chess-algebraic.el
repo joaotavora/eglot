@@ -120,11 +120,17 @@ This regexp handles both long and short form.")
 	(when changes
 	  (when trust
 	    (if mate
-		(nconc changes (list (if (equal mate "#") :checkmate :check)))))
+		(nconc changes (list (if (equal mate "#")
+					 :checkmate
+				       :check)))))
 	  (unless long-style
 	    (nconc changes (list :san move)))
 
-	  (apply 'chess-ply-create position trust changes))))))
+	  (condition-case err
+	      (apply 'chess-ply-create position trust changes)
+	    (error
+	     (error "Error in algebraic move '%s': %s"
+		    move (error-message-string err)))))))))
 
 (defun chess-ply--move-text (ply long)
   (or

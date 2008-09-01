@@ -160,7 +160,8 @@
 		(if long :long-castle :castle))))))
 
 (chess-message-catalog 'english
-  '((pawn-promote-query . "Promote to queen? ")))
+  '((pawn-promote-query  . "Promote to queen? ")
+    (ambiguous-promotion . "Promotion event without :promote keyword")))
 
 (defvar chess-ply-checking-mate nil)
 (defvar chess-ply-allow-interactive-query nil)
@@ -215,16 +216,16 @@ maneuver."
 	    ;; we haven't already been told, ask for the piece to
 	    ;; promote it to
 	    (when (and (not (memq :promote changes))
-		       (= (if color 0 7) (chess-index-rank (cadr changes))))
-	      ;; jww (2002-05-15): This does not always clear ALL
-	      ;; input events
-	      (discard-input) (sit-for 0) (discard-input)
-	      (let ((new-piece
-		     (if chess-ply-allow-interactive-query
-			 (if (yes-or-no-p
-			      (chess-string 'pawn-promote-query))
-			     ?Q ?N)
-		       (error "Promotion event without :promote keyword"))))
+		       (= (if color 0 7)
+			  (chess-index-rank (cadr changes))))
+	      ;; This does not always clear ALL input events
+	      (discard-input) (sit-for 0) (sleep-for 0 1)
+	      (discard-input)
+	      (unless chess-ply-allow-interactive-query
+		(chess-error 'ambiguous-promotion))
+	      (let ((new-piece (if (yes-or-no-p
+				    (chess-string 'pawn-promote-query))
+				   ?Q ?N)))
 		(nconc changes (list :promote (upcase new-piece)))))
 
 	    ;; is this an en-passant capture?
