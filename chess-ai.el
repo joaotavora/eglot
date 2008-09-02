@@ -25,7 +25,8 @@
 (require 'chess-common)
 (require 'chess-pos)
 (require 'chess-ply)
-(require 'cl)
+(eval-when-compile
+  (require 'cl))
 
 (defgroup chess-ai ()
   "A simple chess engine written in elisp.
