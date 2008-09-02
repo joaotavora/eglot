@@ -6,16 +6,45 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
-* TODO [#B] chess-auto.el is not being built properly			 :BUILD:
-  :PROPERTIES:
-  :UUID: 184AF780-815B-43DB-87A4-0A81DE252AB0
-  :END:
-  [2008-08-31 Sun]
 * TODO [#B] Sometimes a chess-test run fails to recognize promotions
+  SCHEDULED: <2008-09-02 Tue>
   - Note taken on [2008-09-01 Mon 05:35] \\
     This happens on game 2030188.
   :PROPERTIES:
   :UUID: 431304B0-E8B9-485E-82B5-D4DF900C27DF
+  :END:
+  [2008-09-01 Mon]
+* TODO [#C] Investigate the performance possibilities researched by Mario
+  Well, I've played a little with a few transformations but I haven't managed
+  to get any substantial speedup.  Things I see are:
+
+  - char-valid-p is called at least three times, the value could be saved in
+    the toplevel let*.
+  - I am not sure but I think I read inline quoted lists can be slower.  I
+    tried to define the direction lists as a alist in a defconst, but it
+    didnt't really show as a speedup...
+  - The chess--add-candidates defsubst does needless check of check-only in
+    some cases.  I.e., if we rewrite the first cond clause to do different
+    things if check-only is t or nil, that might also do a bit.
+
+  But really, I didnt find anything worthwhile... Maybe it could make sense to
+  have a separate function to handle the (memq piece '(nil t)) case.
+  :PROPERTIES:
+  :UUID: 24E8AD24-067C-4130-9616-63D5DFF60231
+  :END:
+  [2008-09-01 Mon]
+* DONE [#B] chess-auto.el is not being built properly			 :BUILD:
+  SCHEDULED: <2008-09-01 Mon>
+  - State "DONE"       [2008-09-01 Mon 21:16]
+  :PROPERTIES:
+  :UUID: 184AF780-815B-43DB-87A4-0A81DE252AB0
+  :END:
+  [2008-08-31 Sun]
+* DONE [#B] scid: The buffer needs periodic clearing, or it grows too large
+  SCHEDULED: <2008-09-01 Mon>
+  - State "DONE"       [2008-09-01 Mon 21:16]
+  :PROPERTIES:
+  :UUID: 272CE75E-122A-4AEA-8A03-9CD2041895EA
   :END:
   [2008-09-01 Mon]
 * TODO display: Make highlight colors easily customizable
