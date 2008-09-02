@@ -86,7 +86,7 @@ COUNT	 = 100000
 # run).
 #
 #   chess1 $ rm -f chess-test; nice -n 20 make START=0 COUNT=2104715 check
-#   chess2 $ rm -f chess-test; nice -n 20 make START=2104715 COUNT=-1 check
+#   chess2 $ rm -f chess-test; nice -n 20 make START=2104715 COUNT=0 check
 #
 # I run both of these using `screen', with a vertical split so I can watch
 # them both running.  I type C-a H in each screen window before starting, so
