@@ -36,10 +36,11 @@
 
 (defconst chess-algebraic-pieces-regexp "[RNBKQ]")
 
+;; jww (2008-09-01): use rx here, like in chess-ics
 (defconst chess-algebraic-regexp
   (format (concat "\\("
 		    "O-O\\(-O\\)?\\|"
-		    "\\(%s?\\)/?"
+		    "\\(%s?\\)/?"	; what is the / doing here?
 		    "\\([a-h]?[1-8]?\\)"
 		    "\\([x-]?\\)"
 		    "\\([a-h][1-8]\\)"
@@ -58,7 +59,8 @@ This regexp handles both long and short form.")
   '((clarify-piece     . "Clarify piece to move by rank or file")
     (could-not-clarify . "Could not determine which piece to use")
     (could-not-diff    . "Could not differentiate piece")
-    (no-candidates     . "There are no candidate moves for '%s'")))
+    (no-candidates     . "There are no candidate moves for '%s'")
+    (at-move-string    . "At algebraic move '%s': %s")))
 
 (defun chess-algebraic-to-ply (position move &optional trust)
   "Convert the algebraic notation MOVE for POSITION to a ply."
@@ -118,19 +120,18 @@ This regexp handles both long and short form.")
 		(nconc changes (list :promote (aref promotion 0))))))
 
 	(when changes
-	  (when trust
-	    (if mate
-		(nconc changes (list (if (equal mate "#")
-					 :checkmate
-				       :check)))))
+	  (if (and trust mate)
+	      (nconc changes (list (if (equal mate "#")
+				       :checkmate
+				     :check))))
 	  (unless long-style
 	    (nconc changes (list :san move)))
 
 	  (condition-case err
 	      (apply 'chess-ply-create position trust changes)
 	    (error
-	     (error "In algebraic move '%s': %s"
-		    move (error-message-string err)))))))))
+	     (chess-error 'at-move-string
+			  move (error-message-string err)))))))))
 
 (defun chess-ply--move-text (ply long)
   (or
