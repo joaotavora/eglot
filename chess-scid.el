@@ -6,6 +6,10 @@
 ;; compact.
 ;;
 
+(chess-message-catalog 'english
+  '((failed-load     . "Failed to load game %d from ChessDB")
+    (failed-find-end . "Failed to locate end of game %d in ChessDB")))
+
 (defvar chess-scid-process)
 
 (make-variable-buffer-local 'chess-scid-process)
@@ -74,21 +78,34 @@
 			 (format "sc_game load %d\n" (car args)))
     (accept-process-output chess-scid-process)
     (let ((here (point-max))
-	  (iterations 10))
+	  (iterations 10)
+	  found)
       (process-send-string chess-scid-process "sc_game pgn\n")
       (accept-process-output chess-scid-process)
       (goto-char here)
       (while (and (> (setq iterations (1- iterations)) 0)
-		  (not (or (looking-at "\\[")
-			   (and (search-forward "[" nil t)
-				(goto-char (match-beginning 0))))))
-	(accept-process-output chess-scid-process 1 0 t)))
-    (let ((game (chess-pgn-to-game)))
-      (when game
-	(chess-game-set-data game 'database (current-buffer))
-	(chess-game-set-data game 'database-index (car args))
-	(chess-game-set-data game 'database-count (chess-scid-handler 'count))
-	game)))
+		  (not (and (or (looking-at "\\[")
+				(and (search-forward "[" nil t)
+				     (goto-char (match-beginning 0))))
+			    (setq found t))))
+	(accept-process-output chess-scid-process 1 0 t))
+      (if (not found)
+	  (chess-error 'failed-load (car args))
+	(setq iterations 10 found nil here (point))
+	(while (and (> (setq iterations (1- iterations)) 0)
+		    (not (and (re-search-forward "\\(\\*\\|1-0\\|0-1\\|1/2-1/2\\)" nil t)
+			      (goto-char (match-beginning 0))
+			      (setq found t))))
+	  (accept-process-output chess-scid-process 1 0 t))
+	(if (not found)
+	    (chess-error 'failed-find-end (car args))
+	  (goto-char here)
+	  (let ((game (chess-pgn-to-game)))
+	    (when game
+	      (chess-game-set-data game 'database (current-buffer))
+	      (chess-game-set-data game 'database-index (car args))
+	      (chess-game-set-data game 'database-count (chess-scid-handler 'count))
+	      game))))))
 
    ((and (eq event 'query)
 	 (eq (car args) 'tree-search))
