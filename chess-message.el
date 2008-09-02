@@ -31,7 +31,7 @@
 	 (msg (and entry (cdr (assq key (cdr entry))))))
     (if msg
 	(apply 'format msg arguments)
-      "message not found")))
+      (format "Message not found: %s" key))))
 
 (defsubst chess-message (key &rest arguments)
   (message (apply 'chess-string key arguments)))
