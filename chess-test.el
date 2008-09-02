@@ -25,9 +25,7 @@
 	  (message "Running validation suite...")
 	  (let* ((db-count (chess-database-count database))
 		 (ply-count 0)
-		 (index (if start
-			    (1- start)
-			  0))
+		 (index (or start 0))
 		 (last-index (if (and count (> count 0))
 				 (min db-count (+ index count))
 			       db-count))
