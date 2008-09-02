@@ -67,6 +67,9 @@
     (string-to-number (chess-scid-get-result "sc_base numGames")))
 
    ((eq event 'read)
+    ;; clear the buffer, since we don't need old data here any more, and it
+    ;; can accumulate without bound during running of the validation tests
+    (erase-buffer)
     (process-send-string chess-scid-process
 			 (format "sc_game load %d\n" (car args)))
     (accept-process-output chess-scid-process)
