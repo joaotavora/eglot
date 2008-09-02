@@ -54,12 +54,15 @@ dist_lisp_LISP =	   \
 	chess-var.el	   \
 	chess-eco.el
 
-chess-auto.el: $(ELFILES) chess-auto.el.in
-	cp -p $(srcdir)/chess-auto.el.in $@
-	-rm $(top_builddir)/chess-auto.elc
-	$(EMACS) --no-init-file --no-site-file -batch \
-		-L $(top_builddir) -l chess-auto -f generate-autoloads \
+chess-auto.el: $(ELFILES)
+	echo ";;; DO NOT MODIFY THIS FILE" > $(top_builddir)/chess-auto.el
+	echo "(if (featurep 'chess-auto) (error \"Already loaded\"))" \
+		>> $(top_builddir)/chess-auto.el
+	$(EMACS) -batch -L $(srcdir) -l chess-maint.el \
+		-f chess-generate-autoloads \
 		$(top_builddir)/chess-auto.el $(srcdir)
+	echo "(provide 'chess-auto)" >> $(top_builddir)/chess-auto.el
+	ln -f $(top_builddir)/chess-auto.el $(top_builddir)/auto-autoloads.el
 
 chess-eco.fen: chess-eco.pos chess-eco.el
 	$(EMACS) --no-init-file --no-site-file -batch \
