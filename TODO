@@ -6,6 +6,21 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
+* TODO Make the chess-ics-sought buffer read-only
+  :PROPERTIES:
+  :UUID: D416E179-252C-49CE-8BAA-06B31364116F
+  :END:
+  [2008-09-02 Tue]
+* TODO Sought games are not being selected for me when I press RET
+  :PROPERTIES:
+  :UUID: 06F3AD0F-B44D-4845-B345-4406AF8D3212
+  :END:
+  [2008-09-02 Tue]
+* TODO Sometimes the chess-ics-sought buffer doesn't appear
+  :PROPERTIES:
+  :UUID: A3499CBB-5C0D-4C1B-872C-DC4E7D46CA73
+  :END:
+  [2008-09-02 Tue]
 * TODO [#B] Sometimes a chess-test run fails to recognize promotions
   SCHEDULED: <2008-09-02 Tue>
   - Note taken on [2008-09-01 Mon 05:35] \\
