@@ -122,8 +122,8 @@ available."
 (and (fboundp 'font-lock-add-keywords)
      (font-lock-add-keywords
       'emacs-lisp-mode
-      '(("(chess-error\\>"		 . font-lock-warning-face)
-	("(chess-with-current-buffer\\>" . font-lock-keyword-face))))
+      '(("(\\(chess-error\\)\\>"	       1 font-lock-warning-face)
+	("(\\(chess-with-current-buffer\\)\\>" 1 font-lock-keyword-face))))
 
 (defun chess--create-display (module game my-color disable-popup)
   (let ((display (chess-display-create game module my-color)))
