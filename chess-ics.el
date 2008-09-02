@@ -816,6 +816,7 @@ descending order.")
       (goto-char here))))
 
 (defun chess-ics-seeking (string)
+  ;; jww (2008-09-02): we should use rx for this regular expression also
   (while (string-match
 	  (concat "[\n\r]+\\(\\S-+\\) (\\([0-9+ -]+\\)) seeking \\([a-z]\\S-+ \\)?\\([0-9]+\\) \\([0-9]+\\) \\(\\(un\\)?rated\\) \\([^(]*\\)(\"\\([^\"]+\\)\" to respond)\\s-*[\n\r]+"
 		  chess-ics-prompt-regexp)
