@@ -75,7 +75,7 @@
     ;; can accumulate without bound during running of the validation tests
     (erase-buffer)
     (process-send-string chess-scid-process
-			 (format "sc_game load %d\n" (car args)))
+			 (format "sc_game load %d\n" (1+ (car args))))
     (accept-process-output chess-scid-process)
     (let ((here (point-max))
 	  (iterations 10)
@@ -90,7 +90,7 @@
 			    (setq found t))))
 	(accept-process-output chess-scid-process 1 0 t))
       (if (not found)
-	  (chess-error 'failed-load (car args))
+	  (chess-error 'failed-load (1+ (car args)))
 	(setq iterations 10 found nil here (point))
 	(while (and (> (setq iterations (1- iterations)) 0)
 		    (not (and (re-search-forward "\\(\\*\\|1-0\\|0-1\\|1/2-1/2\\)" nil t)
@@ -98,7 +98,7 @@
 			      (setq found t))))
 	  (accept-process-output chess-scid-process 1 0 t))
 	(if (not found)
-	    (chess-error 'failed-find-end (car args))
+	    (chess-error 'failed-find-end (1+ (car args)))
 	  (goto-char here)
 	  (let ((game (chess-pgn-to-game)))
 	    (when game
@@ -170,7 +170,7 @@
 
    ((eq event 'replace)
     (unless (chess-scid-handler 'read-only-p)
-      (let ((index (or (cadr args)
+      (let ((index (or (1+ (cadr args))
 		       (chess-game-data (car args) 'database-index))))
 	(chess-scid-send
 	 (format "sc_game import \"%s\""
