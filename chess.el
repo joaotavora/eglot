@@ -119,6 +119,12 @@ available."
   :type 'string
   :group 'chess)
 
+(and (fboundp 'font-lock-add-keywords)
+     (font-lock-add-keywords
+      'emacs-lisp-mode
+      '(("(chess-error\\>"		 . font-lock-keyword-face)
+	("(chess-with-current-buffer\\>" . font-lock-keyword-face))))
+
 (defun chess--create-display (module game my-color disable-popup)
   (let ((display (chess-display-create game module my-color)))
     (when display
@@ -158,7 +164,8 @@ If an element of MODULE-LIST is a sublist, treat it as alternatives."
     (nreverse objects)))
 
 (chess-message-catalog 'english
-  '((no-engines-found . "Could not find any chess engines to play against; install gnuchess!")))
+  '((no-engines-found
+     . "Could not find any chess engines to play against; install gnuchess!")))
 
 ;;;###autoload
 (defun chess (&optional engine disable-popup engine-response-handler
