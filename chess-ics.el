@@ -790,9 +790,6 @@ descending order.")
 
 (defun chess-ics-sought-add (id name rating rated time inc variant
 			     ics-buffer cmd)
-  (setq id (concat id (make-string (- 4 (length id)) ? )))
-  (setq name (concat name (make-string (- 20 (length name)) ? )))
-  (setq variant (concat variant (make-string (- 25 (length variant)) ? )))
   (with-current-buffer
       (or (get-buffer chess-ics-sought-buffer-name)
 	  (with-current-buffer (get-buffer-create
@@ -807,7 +804,7 @@ descending order.")
 	(delete-region (point) (1+ (line-end-position))))
       (goto-char (point-min))
       (let ((beg (point)))
-	(insert (format "%s %s %4d %4s  %3d/%3d %s"
+	(insert (format "%4s %20s %4d %4s  %3d/%3d %s"
 			id name rating rated time inc variant))
 	(add-text-properties
 	 beg (point)
