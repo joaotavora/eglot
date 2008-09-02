@@ -47,7 +47,7 @@
 			    ply-count
 			    (+ ply-count (length (chess-game-plies game))))
 		      (if (and (> read-count 0) (= 0 (mod read-count 1000)))
-			  (message "Read %d games (next is game %d): %d total plies (%.2f ply/sec)"
+			  (message "Read %d games (next %d): %d total plies (%.2f ply/sec)"
 				   read-count (1+ index) ply-count
 				   (/ (float ply-count)
 				      (float
@@ -59,7 +59,7 @@
 		 (message "Error reading game %d: %s"
 			  index (error-message-string err))))
 	      (setq index (1+ index)))
-	    (message "Read %d games (last game was %d): %d plies (%.2f ply/sec, %.2f seconds)"
+	    (message "Read %d games (last %d): %d plies (%.2f ply/sec, %.2f seconds)"
 		     read-count (1- index) ply-count
 		     (/ (float ply-count)
 			(float
