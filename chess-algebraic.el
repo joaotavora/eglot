@@ -55,6 +55,9 @@ This regexp handles both long and short form.")
 (defconst chess-algebraic-regexp-entire
   (concat chess-algebraic-regexp "$"))
 
+(defconst chess-algebraic-regexp-ws
+  (concat chess-algebraic-regexp "\\s-"))
+
 (chess-message-catalog 'english
   '((clarify-piece     . "Clarify piece to move by rank or file")
     (could-not-clarify . "Could not determine which piece to use")

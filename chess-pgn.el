@@ -18,18 +18,24 @@
     (pgn-parse-error . "Error parsing PGN syntax")))
 
 (defun chess-pgn-read-plies (game position &optional top-level)
-  (let ((plies (list t)) prevpos)
+  (let ((plies (list t)) (begin (point)) move-beg prevpos)
     (catch 'done
       (while (not (eobp))
 	(cond
 	 ((looking-at "[1-9][0-9]*\\.[. ]*")
 	  (goto-char (match-end 0)))
 
-	 ((looking-at chess-algebraic-regexp)
+	 ((looking-at chess-algebraic-regexp-ws)
+	  (setq move-beg (point))
 	  (goto-char (match-end 0))
+	  (skip-syntax-backward " ")
 	  (setq prevpos position)
-	  (let* ((move (match-string-no-properties 0))
-		 (ply (chess-algebraic-to-ply position move)))
+	  (let* ((move (buffer-substring-no-properties move-beg (point)))
+		 (ply (condition-case err
+			  (chess-algebraic-to-ply position move)
+			(error
+			 (message "PGN: %s" (buffer-substring begin (point-max)))
+			 (error (error-message-string err))))))
 	    (unless ply
 	      (chess-error 'pgn-read-error move))
 	    (setq position (chess-ply-next-pos ply))
