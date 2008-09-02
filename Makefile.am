@@ -74,6 +74,29 @@ DATABASE = $(shell test -r test/largedb.sg3 && echo test/largedb || echo test/hi
 START	 = $(shell test -r test/largedb.sg3 && perl -e 'print int(rand(4000000)), "\n";' || echo 1)
 COUNT	 = 100000
 
+# Note: There are 4,209,433 games in test/largedb, if you download the files
+# from:
+#
+#   ftp://ftp.newartisans.com/pub/chess/largedb.7z
+#
+# If you have a dual-core CPU (or more), you'll get the best performance by
+# running a separate Emacs for each core.  Here's how I run all the tests on
+# my dual-core MacBook Pro: (Note, removing chess-test is just a precaution,
+# since the Makefile will not regenerate it if you aborted a previous test
+# run).
+#
+#   chess1 $ rm -f chess-test; nice -n 20 make START=1 COUNT=2104716 check
+#   chess2 $ rm -f chess-test; nice -n 20 make START=2104716 COUNT=-1 check
+#
+# I run both of these using `screen', with a vertical split so I can watch
+# them both running.  I type C-a H in each screen window before starting, so
+# that all the output is logged to a file I can examine afterward.
+#
+# Note that these tests can take days to run.  My MacBook Pro gets around
+# 2,000 plies per second.  If you're a Lisp hacker and want to improve the
+# speed of that, the slowness is pretty much all in `chess-search-position',
+# in the file chess-pos.el.
+
 chess-test:
 	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el -f chess-test '$(DATABASE)' $(START) $(COUNT); rm -f $(top_builddir)/chess-test" > $@
 	chmod u+x $@
