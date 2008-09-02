@@ -48,7 +48,7 @@
 		      (setq read-count (1+ read-count)
 			    ply-count
 			    (+ ply-count (length (chess-game-plies game))))
-		      (if (and (> index 0) (= 0 (mod index 1000)))
+		      (if (and (> read-count 0) (= 0 (mod read-count 1000)))
 			  (message "Read %d games (now at game %d): %d total plies (%.2f ply/sec)"
 				   read-count index ply-count
 				   (/ (float ply-count)
