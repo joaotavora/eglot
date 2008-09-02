@@ -71,7 +71,7 @@ chess-eco.fen: chess-eco.pos chess-eco.el
 
 TESTS	 = chess-test
 DATABASE = $(shell test -r test/largedb.sg3 && echo test/largedb || echo test/historic.pgn)
-START	 = $(shell test -r test/largedb.sg3 && perl -e 'print int(rand(4000000)), "\n";' || echo 1)
+START	 = $(shell test -r test/largedb.sg3 && perl -e 'print int(rand(4000000)), "\n";' || echo 0)
 COUNT	 = 100000
 
 # Note: There are 4,209,433 games in test/largedb, if you download the files
@@ -85,8 +85,8 @@ COUNT	 = 100000
 # since the Makefile will not regenerate it if you aborted a previous test
 # run).
 #
-#   chess1 $ rm -f chess-test; nice -n 20 make START=1 COUNT=2104716 check
-#   chess2 $ rm -f chess-test; nice -n 20 make START=2104716 COUNT=-1 check
+#   chess1 $ rm -f chess-test; nice -n 20 make START=0 COUNT=2104715 check
+#   chess2 $ rm -f chess-test; nice -n 20 make START=2104715 COUNT=-1 check
 #
 # I run both of these using `screen', with a vertical split so I can watch
 # them both running.  I type C-a H in each screen window before starting, so
