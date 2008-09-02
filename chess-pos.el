@@ -72,6 +72,9 @@
 
 (require 'chess-message)
 (require 'chess-fen)
+(eval-when-compile
+  (require 'cl)
+  (setq cl-optimize-speed 9))
 
 (defgroup chess-pos nil
   "Routines for manipulating chess positions."
