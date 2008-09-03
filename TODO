@@ -6,17 +6,25 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
-* TODO Make the chess-ics-sought buffer read-only
+* TODO [#B] Fix errors from the validation suite
+  Error reading game 336249: PGN parser: Expected a ply here: '30'
+  Error reading game 443436: PGN parser: Expected a ply here: 'Rf2'
+  Error reading game 465586: PGN parser: Expected a ply here: 'R'
+  :PROPERTIES:
+  :UUID: 01CFDC4F-350C-472B-A4F6-DFE4503B6D05
+  :END:
+  [2008-09-02 Tue]
+* TODO [#B] Make the chess-ics-sought buffer read-only
   :PROPERTIES:
   :UUID: D416E179-252C-49CE-8BAA-06B31364116F
   :END:
   [2008-09-02 Tue]
-* TODO Sought games are not being selected for me when I press RET
+* TODO [#B] Sought games are not being selected for me when I press RET
   :PROPERTIES:
   :UUID: 06F3AD0F-B44D-4845-B345-4406AF8D3212
   :END:
   [2008-09-02 Tue]
-* TODO Sometimes the chess-ics-sought buffer doesn't appear
+* TODO [#B] Sometimes the chess-ics-sought buffer doesn't appear
   :PROPERTIES:
   :UUID: A3499CBB-5C0D-4C1B-872C-DC4E7D46CA73
   :END:
