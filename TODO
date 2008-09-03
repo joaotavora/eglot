@@ -6,6 +6,14 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
+* TODO [#B] display: Sometimes final event of game doesn't change modeline
+  - Note taken on [2008-09-03 Wed 04:18] \\
+    I just had it happen again tonight, when I resigned with C-c C-r, and it
+    showed up in the *chess-ics* buffer, but it didn't update the modeline.
+  Like CHECKMATE, FLAG FELL, or RESIGN
+  :PROPERTIES:
+  :UUID: 316BD168-29A8-4B54-830C-FA5CEA397518
+  :END:
 * TODO [#B] Fix errors from the validation suite
   Error reading game 336249: PGN parser: Expected a ply here: '30'
   Error reading game 443436: PGN parser: Expected a ply here: 'Rf2'
@@ -29,8 +37,12 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   :UUID: A3499CBB-5C0D-4C1B-872C-DC4E7D46CA73
   :END:
   [2008-09-02 Tue]
-* TODO [#B] Sometimes a chess-test run fails to recognize promotions
-  SCHEDULED: <2008-09-02 Tue>
+* DONE [#B] Sometimes a chess-test run fails to recognize promotions
+  SCHEDULED: <2008-09-02 Tue><
+  - State "DONE"       [2008-09-02 Tue 22:31] \\
+    Fixed.  This appears to be a bug in looking-at/match-string, but it only
+    occurs under high load and certain circumstances.  I was able to get around it
+    by examining the buffer directly.
   - Note taken on [2008-09-01 Mon 05:35] \\
     This happens on game 2030188.
   :PROPERTIES:
@@ -148,11 +160,6 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   single game (and chess-link is not what we want in this case).
   :PROPERTIES:
   :UUID: 8C355AA3-46DD-4261-BC7C-4028CDF42854
-  :END:
-* TODO display: Sometimes final event of game doesn't change modeline
-  Like CHECKMATE, or FLAG FELL
-  :PROPERTIES:
-  :UUID: 316BD168-29A8-4B54-830C-FA5CEA397518
   :END:
 * TODO display: If I win, it still reports CHECKMATE incorrectly
   If I'm white, it does so on the last ply (per display)
