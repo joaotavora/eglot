@@ -6,6 +6,17 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
+* TODO scid: chess-scid-get-result fails on some machines (timing?)
+  It happens on a fast 8-CPU machine of mine that chess-scid-get-result returns
+  the empty string.  The reason for this is that sometimes, the prompt
+  is not output immediately after a result, so upon next call to
+  chess-scid-get-result the first output we see is the prompt ("% ") from
+  the previous command which due to the current algo results in
+  chess-scid-get-result returning "".  It would need to continue reading if it
+  sees a prompt as first output.  Waiting until we see a prompt to make sure we
+  have all the output results in *very slow* behaviour, maybe due to
+  line-buffering (the prompt has no final \n, obviously), so we probably shoud
+  skip over prompt and continue reading.
 * TODO [#B] display: Sometimes final event of game doesn't change modeline
   - Note taken on [2008-09-03 Wed 04:18] \\
     I just had it happen again tonight, when I resigned with C-c C-r, and it
