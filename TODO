@@ -6,55 +6,63 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
-* TODO Make the "debug level" configurable
+* TODO [#B] Make the "debug level" configurable
   The speedup from (setq cl-optimize-speed 9) in chess-pos.el is due to
   eliding assert calls.  This basically makes asserts useless since they are
   now turned off unconditionally.  It would be nice to have a kind of
-  "--enable-debug" or somesuch at configure time to make this obvious. 
-* TODO scid: chess-scid-get-result fails on some machines (timing?)
-  It happens on a fast 8-CPU machine of mine that chess-scid-get-result returns
-  the empty string.  The reason for this is that sometimes, the prompt
+  "--enable-debug" or somesuch at configure time to make this obvious.
+  :PROPERTIES:
+  :ID: 130D8091-A1F5-43DC-AFBA-BFDB5D1ADEDF
+  :END:
+  [2008-09-10 Wed 17:04]
+* TODO [#B] scid: chess-scid-get-result fails on some machines (timing?)
+  It happens on a fast 8-CPU machine of mine that chess-scid-get-result
+  returns the empty string.  The reason for this is that sometimes, the prompt
   is not output immediately after a result, so upon next call to
-  chess-scid-get-result the first output we see is the prompt ("% ") from
-  the previous command which due to the current algo results in
+  chess-scid-get-result the first output we see is the prompt ("% ") from the
+  previous command which due to the current algo results in
   chess-scid-get-result returning "".  It would need to continue reading if it
-  sees a prompt as first output.  Waiting until we see a prompt to make sure we
-  have all the output results in *very slow* behaviour, maybe due to
+  sees a prompt as first output.  Waiting until we see a prompt to make sure
+  we have all the output results in *very slow* behaviour, maybe due to
   line-buffering (the prompt has no final \n, obviously), so we probably shoud
   skip over prompt and continue reading.
+  :PROPERTIES:
+  :ID: AF51A38C-36B6-4976-954D-0BCD6C1A81FD
+  :END:
+  [2008-09-08 Mon 23:41]
 * TODO [#B] display: Sometimes final event of game doesn't change modeline
   - Note taken on [2008-09-03 Wed 04:18] \\
     I just had it happen again tonight, when I resigned with C-c C-r, and it
     showed up in the *chess-ics* buffer, but it didn't update the modeline.
   Like CHECKMATE, FLAG FELL, or RESIGN
   :PROPERTIES:
-  :UUID: 316BD168-29A8-4B54-830C-FA5CEA397518
+  :ID: 316BD168-29A8-4B54-830C-FA5CEA397518
   :END:
+  [2008-09-02 Tue]
 * TODO [#B] Fix errors from the validation suite
   Error reading game 336249: PGN parser: Expected a ply here: '30'
   Error reading game 443436: PGN parser: Expected a ply here: 'Rf2'
   Error reading game 465586: PGN parser: Expected a ply here: 'R'
   :PROPERTIES:
-  :UUID: 01CFDC4F-350C-472B-A4F6-DFE4503B6D05
+  :ID: 01CFDC4F-350C-472B-A4F6-DFE4503B6D05
   :END:
   [2008-09-02 Tue]
 * TODO [#B] Make the chess-ics-sought buffer read-only
   :PROPERTIES:
-  :UUID: D416E179-252C-49CE-8BAA-06B31364116F
+  :ID: D416E179-252C-49CE-8BAA-06B31364116F
   :END:
   [2008-09-02 Tue]
 * TODO [#B] Sought games are not being selected for me when I press RET
   :PROPERTIES:
-  :UUID: 06F3AD0F-B44D-4845-B345-4406AF8D3212
+  :ID: 06F3AD0F-B44D-4845-B345-4406AF8D3212
   :END:
   [2008-09-02 Tue]
 * TODO [#B] Sometimes the chess-ics-sought buffer doesn't appear
   :PROPERTIES:
-  :UUID: A3499CBB-5C0D-4C1B-872C-DC4E7D46CA73
+  :ID: A3499CBB-5C0D-4C1B-872C-DC4E7D46CA73
   :END:
   [2008-09-02 Tue]
 * DONE [#B] Sometimes a chess-test run fails to recognize promotions
-  SCHEDULED: <2008-09-02 Tue><
   - State "DONE"       [2008-09-02 Tue 22:31] \\
     Fixed.  This appears to be a bug in looking-at/match-string, but it only
     occurs under high load and certain circumstances.  I was able to get around it
@@ -62,7 +70,7 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   - Note taken on [2008-09-01 Mon 05:35] \\
     This happens on game 2030188.
   :PROPERTIES:
-  :UUID: 431304B0-E8B9-485E-82B5-D4DF900C27DF
+  :ID: 431304B0-E8B9-485E-82B5-D4DF900C27DF
   :END:
   [2008-09-01 Mon]
 * TODO [#C] Investigate the performance possibilities researched by Mario
@@ -81,209 +89,207 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   But really, I didnt find anything worthwhile... Maybe it could make sense to
   have a separate function to handle the (memq piece '(nil t)) case.
   :PROPERTIES:
-  :UUID: 24E8AD24-067C-4130-9616-63D5DFF60231
+  :ID: 24E8AD24-067C-4130-9616-63D5DFF60231
   :END:
   [2008-09-01 Mon]
 * DONE [#B] chess-auto.el is not being built properly			 :BUILD:
-  SCHEDULED: <2008-09-01 Mon>
   - State "DONE"       [2008-09-01 Mon 21:16]
   :PROPERTIES:
-  :UUID: 184AF780-815B-43DB-87A4-0A81DE252AB0
+  :ID: 184AF780-815B-43DB-87A4-0A81DE252AB0
   :END:
   [2008-08-31 Sun]
 * DONE [#B] scid: The buffer needs periodic clearing, or it grows too large
-  SCHEDULED: <2008-09-01 Mon>
   - State "DONE"       [2008-09-01 Mon 21:16]
   :PROPERTIES:
-  :UUID: 272CE75E-122A-4AEA-8A03-9CD2041895EA
+  :ID: 272CE75E-122A-4AEA-8A03-9CD2041895EA
   :END:
   [2008-09-01 Mon]
 * TODO display: Make highlight colors easily customizable
   :PROPERTIES:
-  :UUID: D0842841-9E89-49A3-9EEB-5FA4D251FE41
+  :ID: D0842841-9E89-49A3-9EEB-5FA4D251FE41
   :END:
 * TODO display: Draw move highlights as a border, not a background
   This should be optional, since backgrounds can look nice too.
   :PROPERTIES:
-  :UUID: 5A7A3C73-5105-4BAB-A027-79310B9CD061
+  :ID: 5A7A3C73-5105-4BAB-A027-79310B9CD061
   :END:
 * TODO display: Always validate the display before painting
   This will require adding a new text property to each square on the board,
   `chess-piece', so that the validator can walk through the displayed board
   and ensure that it matches the known position for that board.
   :PROPERTIES:
-  :UUID: 169EB9E9-ED82-4FA7-AE8A-129FFFE419F6
+  :ID: 169EB9E9-ED82-4FA7-AE8A-129FFFE419F6
   :END:
 * TODO autosave: This module currently isn't working at all!
   :PROPERTIES:
-  :UUID: D31ED224-7C1E-4171-AE38-AE87D0032743
+  :ID: D31ED224-7C1E-4171-AE38-AE87D0032743
   :END:
 * TODO autosave: Doesn't support undoing of moves
   :PROPERTIES:
-  :UUID: 80E09658-6D7E-4DD5-A077-E3CDB80F6003
+  :ID: 80E09658-6D7E-4DD5-A077-E3CDB80F6003
   :END:
 * TODO clock: Sometimes, the clock gets shut off while playing on ICS
   :PROPERTIES:
-  :UUID: 5130D83E-91A4-4FFD-B62F-DFD8345B06AC
+  :ID: 5130D83E-91A4-4FFD-B62F-DFD8345B06AC
   :END:
 * TODO irc: If move before opponent connects, symbol assertion "value"
   :PROPERTIES:
-  :UUID: DCCEB9D3-0F5F-484C-9D4E-A0B7801F101D
+  :ID: DCCEB9D3-0F5F-484C-9D4E-A0B7801F101D
   :END:
 * TODO network: Does not work at all!
   :PROPERTIES:
-  :UUID: AC39392F-57EF-4D79-A718-DEB4B24DFC5D
+  :ID: AC39392F-57EF-4D79-A718-DEB4B24DFC5D
   :END:
 * TODO gnuchess: Triggers a Lisp error when I resign
   :PROPERTIES:
-  :UUID: 8ADABEB5-BF38-4A71-949F-074048AED7B0
+  :ID: 8ADABEB5-BF38-4A71-949F-074048AED7B0
   :END:
 * TODO ics: Takebacks still aren't working 100%
   When I submit a takeback request manually, and the other side accepts, my
   client doesn't know what to do with it
   :PROPERTIES:
-  :UUID: 67BF2EFF-66E6-4DE3-BCD1-D1743D8C7AC3
+  :ID: 67BF2EFF-66E6-4DE3-BCD1-D1743D8C7AC3
   :END:
 * TODO ics: Accepting match request doesn't seem to be working always
   :PROPERTIES:
-  :UUID: 296B2B3D-B4CF-418E-8FA6-36D301D09136
+  :ID: 296B2B3D-B4CF-418E-8FA6-36D301D09136
   :END:
 * TODO ics: Resuming adjourned games does not work at all
   :PROPERTIES:
-  :UUID: D2E35ADE-1CFF-4DB6-A910-DF3C886709B3
+  :ID: D2E35ADE-1CFF-4DB6-A910-DF3C886709B3
   :END:
 * TODO ics: Not detecting forfeit by disconnection at the moment
   :PROPERTIES:
-  :UUID: 0EDCC239-65B0-450F-82B9-12B1E96667D4
+  :ID: 0EDCC239-65B0-450F-82B9-12B1E96667D4
   :END:
 * TODO If you are playing a puzzle game, and the engine is thinking
   And you hit space to move to the next puzzle, then when the last move is
   finally received from the engine it causes an error.
   :PROPERTIES:
-  :UUID: 4583E224-B5A2-47D4-906E-6374AA7AB936
+  :ID: 4583E224-B5A2-47D4-906E-6374AA7AB936
   :END:
 * TODO Port the code to XEmacs
   :PROPERTIES:
-  :UUID: A633A292-722C-4566-9F5D-807675DAB8DD
+  :ID: A633A292-722C-4566-9F5D-807675DAB8DD
   :END:
 * TODO Find a way to display pieces on Windows platforms
   Or at least document how to build XPM support into Emacs for Windows.
   :PROPERTIES:
-  :UUID: D602699C-A340-41A4-BA94-876743D43F8C
+  :ID: D602699C-A340-41A4-BA94-876743D43F8C
   :END:
 * TODO Add chess-ucb to the list of modules created via M-x chess
   Right now there is no facility for having two engines associated with a
   single game (and chess-link is not what we want in this case).
   :PROPERTIES:
-  :UUID: 8C355AA3-46DD-4261-BC7C-4028CDF42854
+  :ID: 8C355AA3-46DD-4261-BC7C-4028CDF42854
   :END:
 * TODO display: If I win, it still reports CHECKMATE incorrectly
   If I'm white, it does so on the last ply (per display)
   :PROPERTIES:
-  :UUID: 3F662E90-3F58-43E9-B59E-936F1EBC3953
+  :ID: 3F662E90-3F58-43E9-B59E-936F1EBC3953
   :END:
 * TODO display: Need "save game to a PGN file/database" command
   :PROPERTIES:
-  :UUID: 2BBA9120-1EE5-4623-9F52-DFB966EC3317
+  :ID: 2BBA9120-1EE5-4623-9F52-DFB966EC3317
   :END:
 * TODO engine: Answering "y" to opponent (takeback, etc) hangs
   I get left with an hourglass cursor.
   :PROPERTIES:
-  :UUID: 0F9290D9-90D6-48ED-9F13-EEDF42EA91F0
+  :ID: 0F9290D9-90D6-48ED-9F13-EEDF42EA91F0
   :END:
 * TODO engine: If no chess engine available, print a nice message
   :PROPERTIES:
-  :UUID: E0889D90-33FD-426F-AC45-6221136162D8
+  :ID: E0889D90-33FD-426F-AC45-6221136162D8
   :END:
 * TODO ply: detect games drawn by 3-fold repetition and 50 move rule
   Note, FIDE rules define that a draw must be claimed by one of the opponents,
   so we do not really need to do this on every move, just when a draw is
   requested.)
   :PROPERTIES:
-  :UUID: 4D3BBF63-A640-483A-ACF9-CC948AEAAAC7
+  :ID: 4D3BBF63-A640-483A-ACF9-CC948AEAAAC7
   :END:
 * TODO pgn: When saving game to clipboard, shouldn't need to save FEN
   If it's starting from a standard position (this doesn't always happen)
   :PROPERTIES:
-  :UUID: 7CB3441C-9398-42D7-A174-5F534ADA473B
+  :ID: 7CB3441C-9398-42D7-A174-5F534ADA473B
   :END:
 * TODO pgn: Sometimes when clipping, "*" is stuck to last move's text
   :PROPERTIES:
-  :UUID: 5B737ED4-F271-425E-9F1D-1DFA7834BAFF
+  :ID: 5B737ED4-F271-425E-9F1D-1DFA7834BAFF
   :END:
 * TODO german: Complete translation
   :PROPERTIES:
-  :UUID: 937301D5-2C31-4F43-83B0-FB9A0CD5F138
+  :ID: 937301D5-2C31-4F43-83B0-FB9A0CD5F138
   :END:
 * TODO [#C] Profile and mem profile
   Especially try to get the validation suite running faster!
   :PROPERTIES:
-  :UUID: 4A08E03C-1AEA-4C14-951A-3F8DBB2E29E7
+  :ID: 4A08E03C-1AEA-4C14-951A-3F8DBB2E29E7
   :END:
 * TODO [#C] Elint all files
   :PROPERTIES:
-  :UUID: 7F56D199-279D-4DAD-AF4C-D612AFC803FA
+  :ID: 7F56D199-279D-4DAD-AF4C-D612AFC803FA
   :END:
 * TODO [#C] Add docstrings/texi content
   :PROPERTIES:
-  :UUID: 7BC85C08-7A3B-4A09-94C6-9AF10180924B
+  :ID: 7BC85C08-7A3B-4A09-94C6-9AF10180924B
   :END:
 * TODO [#C] Use checkdoc on all files
   :PROPERTIES:
-  :UUID: 8D30489F-9000-43C3-BCA6-0C14F0E5C831
+  :ID: 8D30489F-9000-43C3-BCA6-0C14F0E5C831
   :END:
 * TODO [#C] Clean up chess.el
   :PROPERTIES:
-  :UUID: F2CC192E-8AD3-47BD-9A9F-3990BA1206A2
+  :ID: F2CC192E-8AD3-47BD-9A9F-3990BA1206A2
   :END:
 * TODO Create a better error hierarchy				       :FEATURE:
   Instead of using (error), we should be throwing specialized signals that
   indicate whether it's a problem with a ply, a position, a move, etc.  And
   then this data object should be included with the error.
   :PROPERTIES:
-  :UUID: 323563C6-2A99-4B01-A29B-BEB09166C103
+  :ID: 323563C6-2A99-4B01-A29B-BEB09166C103
   :END:
   [2008-08-31 Sun]
 * TODO ics: Add a completion function against logged in users	       :FEATURE:
   :PROPERTIES:
-  :UUID: 1AFE6B32-7236-4E71-9CCC-21B797E67F08
+  :ID: 1AFE6B32-7236-4E71-9CCC-21B797E67F08
   :END:
 * TODO ics: Copy ics.el's nicer functionality into chess-ics.el	       :FEATURE:
   :PROPERTIES:
-  :UUID: 05E523E9-38EC-4268-89B4-2A42409F9059
+  :ID: 05E523E9-38EC-4268-89B4-2A42409F9059
   :END:
 * TODO Use TrueType or other chess fonts for displaying positions      :FEATURE:
   This might be the best way of displaying positions on Windows.
   :PROPERTIES:
-  :UUID: 0387D818-3841-4BA1-A246-F48349F4A53F
+  :ID: 0387D818-3841-4BA1-A246-F48349F4A53F
   :END:
 * TODO Enable chat module, and base its interface on what TNT does     :FEATURE:
   :PROPERTIES:
-  :UUID: A5AC87EC-99B7-4522-9916-F97ED3EC5F78
+  :ID: A5AC87EC-99B7-4522-9916-F97ED3EC5F78
   :END:
 * TODO Merge chess-announce and chess-sound			       :FEATURE:
   Use style modules on top of the underlying module.
   :PROPERTIES:
-  :UUID: 87612913-B3AD-4329-892F-C156F88A358C
+  :ID: 87612913-B3AD-4329-892F-C156F88A358C
   :END:
 * TODO Create generic chess-output interface			       :FEATURE:
   For outputting games to a particular format (PGN, HTML, LaTeX, etc).
   :PROPERTIES:
-  :UUID: A7F64797-4827-4EF6-BFE4-075D6F430D4E
+  :ID: A7F64797-4827-4EF6-BFE4-075D6F430D4E
   :END:
 * TODO Display in modeline which game in the database we're in	       :FEATURE:
   And what the positional evaluation is.
   :PROPERTIES:
-  :UUID: 6144C07C-8F6B-46B8-80A8-C736E3C843F0
+  :ID: 6144C07C-8F6B-46B8-80A8-C736E3C843F0
   :END:
 * TODO Add `force' event for forcing an engine to move		       :FEATURE:
   And a command from chess-display to send this event.
   :PROPERTIES:
-  :UUID: E88AE290-D2DD-4445-942E-E9DE09596A1F
+  :ID: E88AE290-D2DD-4445-942E-E9DE09596A1F
   :END:
 * TODO Let people override the chess-default-* lists		       :FEATURE:
   :PROPERTIES:
-  :UUID: AEBED712-70F6-499B-A8D8-6A8632D9A7D1
+  :ID: AEBED712-70F6-499B-A8D8-6A8632D9A7D1
   :END:
 * TODO Write chess-descriptive.el, and have the code in general use    :FEATURE:
   chess-ply-to-string and chess-string-to-ply, so that users can use
@@ -294,7 +300,7 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   destinguish between QR KR QN and KN.  So chess-descriptive-to-ply would need
   to use a game object as reference, rather than just a position.)
   :PROPERTIES:
-  :UUID: 7C283CC8-450C-468C-93C3-C264CC8F536A
+  :ID: 7C283CC8-450C-468C-93C3-C264CC8F536A
   :END:
 * TODO Change chess-announce/sound so it reads the text rendered move  :FEATURE:
   Such as "king's pawn to e4".
@@ -303,20 +309,20 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   chess-announce and chess-sound can be collapsed into one module, with
   different "styles" of announcing.
   :PROPERTIES:
-  :UUID: B7090875-BB45-438D-B7C9-CC7A0524D98B
+  :ID: B7090875-BB45-438D-B7C9-CC7A0524D98B
   :END:
 * TODO Make ( create variations in a display			       :FEATURE:
   And keys to move into and out of them.  At the moment, variations are
   supported programmatically, but not in the UI.
   :PROPERTIES:
-  :UUID: C7B9BEEE-5261-412C-8592-5E1EDEBC5544
+  :ID: C7B9BEEE-5261-412C-8592-5E1EDEBC5544
   :END:
 * TODO Make a read-only display mode				       :FEATURE:
   Which allows people to view/browse but not alter a game.  This could be used
   for remoting displays in order that people on other X servers might observe
   a game.
   :PROPERTIES:
-  :UUID: 1968B422-B8D9-4493-9C90-401956C8CAE0
+  :ID: 1968B422-B8D9-4493-9C90-401956C8CAE0
   :END:
 * TODO Enhance PGN mode						       :FEATURE:
   Maybe pgn-mode could just allow normal editing, and bind some keys
@@ -352,53 +358,53 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   On first tab, the move number is inserted. On second, you get
   all possible moves in that position.
   :PROPERTIES:
-  :UUID: 7D4ACEDE-C9D9-49E1-883F-829DB80FC5E7
+  :ID: 7D4ACEDE-C9D9-49E1-883F-829DB80FC5E7
   :END:
 * TODO Add support for adjournments				       :FEATURE:
   Also, implement this is such a way that an e-mail or postal game is
   basically a game that's adjourned after every move; use BBDB if available
   :PROPERTIES:
-  :UUID: D41A3E75-04FB-4EC8-A64C-7BD54658AA78
+  :ID: D41A3E75-04FB-4EC8-A64C-7BD54658AA78
   :END:
 * TODO Use MIME attachments (application/x-chess-pgn)		       :FEATURE:
   For sending e-mail chess games back and forth.
   :PROPERTIES:
-  :UUID: B01A0B43-12F3-4978-A63A-01ADBA9BB78D
+  :ID: B01A0B43-12F3-4978-A63A-01ADBA9BB78D
   :END:
 * TODO Enable UI commands in chess-display to interact with databases  :FEATURE:
   As of 2.0, this support is programmatic only.
   :PROPERTIES:
-  :UUID: 8CA4762E-4665-433E-9538-994BEDCABE21
+  :ID: 8CA4762E-4665-433E-9538-994BEDCABE21
   :END:
 * TODO Follow what `edit-env' does, in order to make chess-query.el    :FEATURE:
   :PROPERTIES:
-  :UUID: 48F2D4F3-8B1B-4196-BED0-1407239ADC4F
+  :ID: 48F2D4F3-8B1B-4196-BED0-1407239ADC4F
   :END:
 * TODO Allow the opponent to give hints				       :FEATURE:
   :PROPERTIES:
-  :UUID: 068BE26D-4D81-44CD-A4EB-04F15D5064FB
+  :ID: 068BE26D-4D81-44CD-A4EB-04F15D5064FB
   :END:
 * TODO Add warning mode that uses analysis results to warn the user    :FEATURE:
   And ask for confirmation before doing something that might lead to an
   inferior position.
   :PROPERTIES:
-  :UUID: 9EF1FA72-EDC9-4C97-B699-A0DF8EE1893B
+  :ID: 9EF1FA72-EDC9-4C97-B699-A0DF8EE1893B
   :END:
 * TODO Add a chess tutor program, to teach people how to play chess    :FEATURE:
   :PROPERTIES:
-  :UUID: 8AA53467-6D89-4C27-AF05-4AE793EA6A2E
+  :ID: 8AA53467-6D89-4C27-AF05-4AE793EA6A2E
   :END:
 * TODO Add slots to positions for tracking positional evaluation       :FEATURE:
   These values can be automatically determined when parsing ICS12.
   :PROPERTIES:
-  :UUID: 608A74EE-9699-406B-B57A-08BFECBC9FEB
+  :ID: 608A74EE-9699-406B-B57A-08BFECBC9FEB
   :END:
 * TODO Add an engine function for obtaining a position evaluation      :FEATURE:
   Then, allow M-x chess to startup a non-game oriented engine, solely for the
   purpose of submitting position evaluations, and displaying the result in the
   modeline.  (Also, look at crafty's kibitzing feature).
   :PROPERTIES:
-  :UUID: BE3EAF49-622E-4300-9D63-CB00B5F738F7
+  :ID: BE3EAF49-622E-4300-9D63-CB00B5F738F7
   :END:
 * TODO Add a Map command, that will colorize the squares	       :FEATURE:
   Depending on whether they are reachable by either side.  Green if reachable
@@ -407,11 +413,11 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   stable modes that remains in effect until turned off.  It also requires the
   ability to pass a color to the chessboard highlighting routine.
   :PROPERTIES:
-  :UUID: B2012331-0F7F-488D-BFDC-2C08E2E018FB
+  :ID: B2012331-0F7F-488D-BFDC-2C08E2E018FB
   :END:
 * TODO Using gnuplot-mode, allow evaluation trends to be plotted       :FEATURE:
   :PROPERTIES:
-  :UUID: BC458171-65B7-4CAE-ACF5-9FD0E263F425
+  :ID: BC458171-65B7-4CAE-ACF5-9FD0E263F425
   :END:
 * TODO Add an analyze command					       :FEATURE:
   That will indicate which pieces are defended, how well, which are attacked,
@@ -419,33 +425,33 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   that can be known about the current board, and one move ahead (on both
   sides).
   :PROPERTIES:
-  :UUID: 8439E0A2-6ED6-489D-94EF-9033F76210EE
+  :ID: 8439E0A2-6ED6-489D-94EF-9033F76210EE
   :END:
 * TODO Need a way to play bughouse/crazyhouse games.		       :FEATURE:
   :PROPERTIES:
-  :UUID: 237BDAFD-0B92-4A06-AA25-D5568FF3DC4B
+  :ID: 237BDAFD-0B92-4A06-AA25-D5568FF3DC4B
   :END:
 * TODO A way to keep a correspondence players database in BBDB	       :FEATURE:
   :PROPERTIES:
-  :UUID: 8D40AD04-2392-410E-BDFE-AA80381E2BCB
+  :ID: 8D40AD04-2392-410E-BDFE-AA80381E2BCB
   :END:
 * TODO Tools for managing a tournament				       :FEATURE:
   Setting up pairings, calculating ratings.
   :PROPERTIES:
-  :UUID: D53A7DA4-6940-4E0C-938E-08E12CC7EDEF
+  :ID: D53A7DA4-6940-4E0C-938E-08E12CC7EDEF
   :END:
 * STARTED display: Make it possible to "highlight the last move"       :FEATURE:
   - State "STARTED"    [2008-09-01 Mon 03:59] \\
     This is mostly done.  I'd like to make the highlight done for the
     opponent's moves
   :PROPERTIES:
-  :UUID: F55EAAA5-504E-44A5-AA1A-43516711F8DD
+  :ID: F55EAAA5-504E-44A5-AA1A-43516711F8DD
   :END:
 * DONE "End of file" error reading game 2008149
   - State "DONE"       [2008-09-01 Mon 04:11] \\
     The problem was parsing [Event "Hello \"].
   :PROPERTIES:
-  :UUID: F994A8E9-5EDD-4681-863E-491806F0ED07
+  :ID: F994A8E9-5EDD-4681-863E-491806F0ED07
   :END:
   [2008-09-01 Mon]
 * DONE [#B] ics: A refresh directive should act as a position assert
@@ -453,16 +459,16 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   Compare with our current known board and trigger an error if it doesn't
   match the refresh.
   :PROPERTIES:
-  :UUID: C0F3CD12-83C5-4970-AD27-8C4A4C447BC2
+  :ID: C0F3CD12-83C5-4970-AD27-8C4A4C447BC2
   :END:
 * DONE display: Display problem with chess-display-side-to-move
   The text doesn't show the face in the modeline
   - State "DONE"       [2008-09-01 Mon 03:55]
   :PROPERTIES:
-  :UUID: 884690AC-C3BE-43D6-A600-48D221BD0FB0
+  :ID: 884690AC-C3BE-43D6-A600-48D221BD0FB0
   :END:
 * DONE Add an 'install' target to the Makefile
   - State "DONE"       [2008-09-01 Mon 04:02]
   :PROPERTIES:
-  :UUID: 7A27FDC0-0053-4656-9AC9-6D7BEECE6D4A
+  :ID: 7A27FDC0-0053-4656-9AC9-6D7BEECE6D4A
   :END:
