@@ -6,6 +6,11 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
+* TODO Make the "debug level" configurable
+  The speedup from (setq cl-optimize-speed 9) in chess-pos.el is due to
+  eliding assert calls.  This basically makes asserts useless since they are
+  now turned off unconditionally.  It would be nice to have a kind of
+  "--enable-debug" or somesuch at configure time to make this obvious. 
 * TODO scid: chess-scid-get-result fails on some machines (timing?)
   It happens on a fast 8-CPU machine of mine that chess-scid-get-result returns
   the empty string.  The reason for this is that sometimes, the prompt
