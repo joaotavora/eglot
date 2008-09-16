@@ -22,9 +22,10 @@
     (chess-scid-send command)
     (accept-process-output chess-scid-process)
     (goto-char (point-max))
-    (while (memq (char-before) '(?  ?\t ?\n ?\r ?\%))
-      (backward-char 1))
-    (buffer-substring here (point))))
+    (skip-chars-backward " \t\n\r%")
+    (prog1
+	(buffer-substring here (point))
+      (erase-buffer))))
 
 (defun chess-scid-handler (event &rest args)
   (cond
