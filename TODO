@@ -6,6 +6,11 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
+* TODO When an error occurs during make check, the test should fail
+  :PROPERTIES:
+  :ID: 5FA91881-6013-4E36-B636-2DC021E3FB46
+  :END:
+  [2008-09-16 Tue]
 * TODO A way to keep a correspondence players database in BBDB	       :FEATURE:
   :PROPERTIES:
   :ID: 8D40AD04-2392-410E-BDFE-AA80381E2BCB
