@@ -25,7 +25,7 @@
 		(eobp))
       (accept-process-output chess-scid-process 1 0 t))
     (if (eobp)
-	(error "chess-scid: '%s' failed to produce any output"))
+	(error "chess-scid: '%s' failed to produce any output" command))
     (goto-char (point-max))
     (skip-chars-backward " \t\n\r%")
     (prog1
