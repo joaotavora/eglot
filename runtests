@@ -1,6 +1,6 @@
 #!/bin/sh
 
-NCPU=2
+NCPU=$1
 
 COUNT=4209433
 GROUP=$((COUNT / NCPU))
