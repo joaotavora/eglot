@@ -6,6 +6,11 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
 #+TAGS: FEATURE(f) DOCS(d) BUILD(b)
 #+CATEGORY: Chess
 
+* TODO Titles for the ads window are off
+  :PROPERTIES:
+  :ID: 500B58E3-C9A4-48EA-B61A-87E129938E05
+  :END:
+  [2008-09-17 Wed]
 * TODO When an error occurs during make check, the test should fail
   :PROPERTIES:
   :ID: 5FA91881-6013-4E36-B636-2DC021E3FB46
