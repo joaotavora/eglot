@@ -1,0 +1,22 @@
+#!/bin/sh
+
+NCPU=2
+
+COUNT=4209433
+GROUP=$((COUNT / NCPU))
+
+begin=0
+end=$NCPU
+
+HERE=$(pwd)
+
+while (( begin < end )); do
+    dir=/tmp/chess-test$((begin))
+    rm -fr $dir
+    mkdir $dir
+    rsync -a --delete --exclude='*/' ./ $dir/
+    (cd $dir ; ln -s $HERE/doc $HERE/test .)
+    (cd $dir ; rm -f chess-test)
+    screen -dX screen $HERE/runtest.sh $dir $((begin * GROUP)) $((GROUP))
+    begin=$((begin + 1))
+done
