@@ -11,7 +11,7 @@ end=$NCPU
 HERE=$(pwd)
 
 while (( begin < end )); do
-    dir=/tmp/chess-test$((begin))
+    dir=/tmp/chess-test-$$-$((begin))
     rm -fr $dir
     mkdir $dir
     rsync -a --delete --exclude='*/' ./ $dir/
