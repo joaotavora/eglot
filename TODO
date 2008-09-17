@@ -15,7 +15,13 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   :ID: 130D8091-A1F5-43DC-AFBA-BFDB5D1ADEDF
   :END:
   [2008-09-10 Wed 17:04]
-* TODO [#B] scid: chess-scid-get-result fails on some machines (timing?)
+* DONE [#B] scid: chess-scid-get-result fails on some machines (timing?)
+  - State "DONE"       [2008-09-17 Wed 05:49] \\
+    Fixed by adding more delays in case text has not appeared from the command.
+  - State "STARTED"    [2008-09-16 Tue 04:38] \\
+    I believe I have a fix for this, commit
+    33d57dc0f667c8d1168b46f9e73d9510d8c7e518, but I must await Mario's test on his
+    8 CPU machine.
   It happens on a fast 8-CPU machine of mine that chess-scid-get-result
   returns the empty string.  The reason for this is that sometimes, the prompt
   is not output immediately after a result, so upon next call to

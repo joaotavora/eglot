@@ -18,9 +18,14 @@
   (process-send-string chess-scid-process (concat string "\n")))
 
 (defun chess-scid-get-result (command)
-  (let ((here (point-max)))
+  (let ((here (point-max)) (iterations 10))
     (chess-scid-send command)
     (accept-process-output chess-scid-process)
+    (while (and (> (setq iterations (1- iterations)) 0)
+		(eobp))
+      (accept-process-output chess-scid-process 1 0 t))
+    (if (eobp)
+	(error "chess-scid: '%s' failed to produce any output"))
     (goto-char (point-max))
     (skip-chars-backward " \t\n\r%")
     (prog1
