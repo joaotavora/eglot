@@ -280,7 +280,7 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   Well, I've played a little with a few transformations but I haven't managed
   to get any substantial speedup.  Things I see are:
 
-  - char-valid-p is called at least three times, the value could be saved in
+  - characterp is called at least three times, the value could be saved in
     the toplevel let*.
   - I am not sure but I think I read inline quoted lists can be slower.  I
     tried to define the direction lists as a alist in a defconst, but it

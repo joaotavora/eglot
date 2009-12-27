@@ -705,11 +705,11 @@ If NO-CASTLING is non-nil, do not consider castling moves."
   (assert (vectorp position))
   (assert (and (>= target 0) (< target 64)))
   (assert (memq piece '(t nil ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p)))
-  (let* ((color (if (char-valid-p piece)
+  (let* ((color (if (characterp piece)
 		    (< piece ?a)
 		  piece))
 	 (bias (if color -1 1))
-	 (test-piece (and (char-valid-p piece)
+	 (test-piece (and (characterp piece)
 			  (upcase piece)))
 	 p pos candidates)
     (cond
@@ -844,7 +844,7 @@ If NO-CASTLING is non-nil, do not consider castling moves."
     ;; prune from the discovered candidates list any moves which would
     ;; leave the king in check; castling through check has already
     ;; been eliminated.
-    (if (and candidates (char-valid-p piece))
+    (if (and candidates (characterp piece))
 	(setq candidates
 	      (chess-pos-legal-candidates position color target
 					  candidates)))

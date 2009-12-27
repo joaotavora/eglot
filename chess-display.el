@@ -1097,7 +1097,7 @@ to the end or beginning."
 (defun chess-display-set-piece (&optional piece)
   "Set the piece under point to command character, or space for clear."
   (interactive)
-  (if (or (null piece) (char-valid-p piece))
+  (if (or (null piece) (characterp piece))
       (let ((index (get-text-property (point) 'chess-coord)))
 	(chess-pos-set-piece chess-display-edit-position index
 			     (or piece last-command-char))
