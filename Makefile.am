@@ -27,6 +27,7 @@ dist_lisp_LISP =	   \
 	chess-gnuchess.el  \
 	chess-ics.el	   \
 	chess-ics1.el	   \
+	chess-ics2.el	   \
 	chess-images.el	   \
 	chess-input.el	   \
 	chess-irc.el	   \
