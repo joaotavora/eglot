@@ -37,6 +37,8 @@
 ;; relate to the game, not the position.
 ;;
 
+(eval-when-compile (require 'cl))
+
 (defconst chess-fen-regexp
   "^\\([bnrqkpBNRQKP1-8]*/?\\)+ [bw] \\(-\\|[KQkq]+\\) \\(-\\|[1-8]\\)")
 

@@ -32,6 +32,8 @@
 ;;    chess-algebraic-regexp
 ;;
 
+(eval-when-compile (require 'cl))
+
 (require 'chess-message)
 
 (defconst chess-algebraic-pieces-regexp "[RNBKQ]")
