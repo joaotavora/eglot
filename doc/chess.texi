@@ -42,9 +42,9 @@ any later version published by the Free Software Foundation.
 @sp 4
 @c The title is printed in a large font.
 @center @titlefont{User's Guide}
-@sp
+@sp 1
 @center @titlefont{to}
-@sp
+@sp 1
 @center @titlefont{Emacs Chess: chess.el}
 @ignore
 @sp 2
