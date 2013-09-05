@@ -18,8 +18,9 @@
 
   (message "Opening chess database '%s'" file)
 
-  (let ((database (chess-database-open file))
-	error-occurred)
+  (let* ((large-file-warning-threshold nil)
+	 (database (chess-database-open file))
+	 error-occurred)
     (if database
 	(progn
 	  (message "Running validation suite...")
