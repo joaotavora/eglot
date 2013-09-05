@@ -102,6 +102,16 @@ chess-test:
 	echo "$(EMACS) -batch -L $(srcdir) -l chess-test.el -f chess-test '$(DATABASE)' $(START) $(COUNT); rm -f $(top_builddir)/chess-test" > $@
 	chmod u+x $@
 
+test/twic.pgn:
+	(set -e; f=$$(pwd)/$@; tmp_dir=`mktemp -d`; \
+	 cd $$tmp_dir; \
+	 lftp -c "open http://www.theweekinchess.com/zips/; mget twic*g.zip"; \
+	 for zip in *.zip; do unzip $$zip; done; \
+	 cat *.pgn > $$f; rm *.pgn)
+
+check-twic: test/twic.pgn
+	$(MAKE) DATABASE=$< START=0 COUNT=0 check
+
 TAGS: $(dist_lisp_LISP)
 	@etags $(dist_lisp_LISP)
 	@echo TAGS rebuilt.
