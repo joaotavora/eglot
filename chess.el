@@ -170,7 +170,9 @@ If an element of MODULE-LIST is a sublist, treat it as alternatives."
 ;;;###autoload
 (defun chess (&optional engine disable-popup engine-response-handler
 			&rest engine-ctor-args)
-  "Start a game of chess, playing against ENGINE (a module name)."
+  "Start a game of chess, playing against ENGINE (a module name).
+With prefix argument, prompt for the engine to play against.
+Otherwise use `chess-default-engine' to determine the engine."
   (interactive
    (list
     (if current-prefix-arg
