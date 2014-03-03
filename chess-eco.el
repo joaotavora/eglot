@@ -25,6 +25,8 @@
 (eval-when-compile
   (require 'cl))
 
+(require 'chess-game)
+(require 'chess-ply)
 (require 'chess-pos)
 (require 'chess-fen)
 

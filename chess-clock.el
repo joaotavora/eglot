@@ -3,6 +3,9 @@
 ;; Implements a chess clock
 ;;
 
+(require 'chess-game)
+(require 'chess-module)
+
 (defvar chess-clock-last-time nil)
 (defvar chess-clock-timer nil)
 

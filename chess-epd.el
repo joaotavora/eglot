@@ -37,6 +37,7 @@
 ;;; Code:
 
 (require 'chess-fen)
+(require 'chess-game)
 (require 'chess-ply)
 (require 'chess-pos)
 (require 'chess-var)

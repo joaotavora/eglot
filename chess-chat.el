@@ -4,6 +4,8 @@
 ;; saved.  RET is used to send each chat line.
 ;;
 
+(require 'chess-module)
+
 (defvar chess-chat-input-last nil)
 
 (make-variable-buffer-local 'chess-chat-input-last)

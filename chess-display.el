@@ -121,7 +121,7 @@ of the board, if non-nil, the board is viewed from White's perspective."
       (let* ((chess-display-style style)
 	     (display (chess-module-create 'chess-display game "*Chessboard*"
 			     perspective)))
-	(if (interactive-p)
+	(if (not (or executing-kbd-macro noninteractive))
 	    (progn
 	      (chess-display-update display)
 	      (chess-display-popup display))
@@ -1100,9 +1100,9 @@ to the end or beginning."
   (if (or (null piece) (characterp piece))
       (let ((index (get-text-property (point) 'chess-coord)))
 	(chess-pos-set-piece chess-display-edit-position index
-			     (or piece last-command-char))
+			     (or piece last-command-event))
 	(funcall chess-display-event-handler 'draw-square
-		 (point) (or piece last-command-char) index))))
+		 (point) (or piece last-command-event) index))))
 
 (unless (fboundp 'event-window)
   (defalias 'event-point 'ignore))

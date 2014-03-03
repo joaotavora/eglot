@@ -9,6 +9,7 @@
 ;; an abstraction layer for applications.
 
 (require 'chess-ply)
+(eval-when-compile (require 'cl))
 
 (defsubst chess-var-plies (var)
   "Return the plies of VAR."

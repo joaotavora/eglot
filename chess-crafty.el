@@ -121,7 +121,7 @@
       (let ((limit 50))
 	(while (and (null chess-crafty-evaluation)
 		    (> (setq limit (1- limit)) 0))
-	  (sit-for 0 100 t))
+	  (sit-for 0.1 t))
 	chess-crafty-evaluation))
 
      ((eq event 'analyze)
