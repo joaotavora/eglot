@@ -6,6 +6,7 @@
 ;;   http://www.tim-mann.org/xboard/engine-intf.html
 ;;
 
+(require 'chess)
 (require 'chess-engine)
 (require 'chess-message)
 

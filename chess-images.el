@@ -411,7 +411,7 @@ They are returned in ascending order, or nil for no sizes available."
     (insert "/* pixels */\n")
     (dotimes (i height)
       (insert ?\" (make-string (or width height) ?.) ?\" ?, ?\n))
-    (delete-backward-char 2)
+    (delete-char -2)
     (insert "\n};\n")
     (buffer-string)))
 

@@ -702,7 +702,7 @@ Basically, it means we are playing, not editing or reviewing."
       (insert text)
       (goto-char (point-max))
       (while (and (bolp) (not (bobp)))
-	(delete-backward-char 1))
+	(delete-char -1))
       (goto-char (point-min))
       (cond
        ((search-forward "[Event " nil t)
