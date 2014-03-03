@@ -121,7 +121,7 @@ of the board, if non-nil, the board is viewed from White's perspective."
       (let* ((chess-display-style style)
 	     (display (chess-module-create 'chess-display game "*Chessboard*"
 			     perspective)))
-	(if (not (or executing-kbd-macro noninteractive))
+	(if (called-interactively-p 'any)
 	    (progn
 	      (chess-display-update display)
 	      (chess-display-popup display))
@@ -955,7 +955,7 @@ Basically, it means we are playing, not editing or reviewing."
 	      (ibuffer-maybe-show-regexps nil))
 	  (fset 'buffer-list
 		(function
-		 (lambda ()
+		 (lambda (&optional frame)
 		   (delq nil
 			 (mapcar (function
 				  (lambda (cell)

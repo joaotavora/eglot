@@ -72,13 +72,14 @@
     (unless display-only
       (setq chess-input-move-string
 	    (concat chess-input-move-string
-		    (char-to-string last-command-char))))
+		    (char-to-string last-command-event))))
     (unless (and chess-input-moves
 		 (eq position chess-input-moves-pos)
 		 (or (> (length chess-input-move-string) 1)
-		     (eq (car chess-input-moves) last-command-char)))
-      (setq char (if (eq (downcase last-command-char) ?o) ?k
-		   last-command-char))
+		     (eq (car chess-input-moves) last-command-event)))
+      (setq char (if (eq (downcase last-command-event) ?o)
+		     ?k
+		   last-command-event))
       (if (or (memq (upcase char) '(?K ?Q ?N ?B ?R ?P))
 	      (and (>= char ?a) (<= char ?h)))
 	  (setq chess-input-moves-pos position
