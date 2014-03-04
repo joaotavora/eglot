@@ -51,10 +51,9 @@
 			  (message "Read %d games (next %d): %d total plies (%.2f ply/sec)"
 				   read-count (1+ index) ply-count
 				   (/ (float ply-count)
-				      (float
-				       (time-to-seconds
-					(subtract-time (current-time)
-						       begin))))))))
+				      (float-time
+				       (subtract-time (current-time)
+						      begin)))))))
 		(error
 		 (setq error-occurred t)
 		 (message "Error reading game %d: %s"
@@ -63,12 +62,8 @@
 	    (message "Read %d games (last %d): %d plies (%.2f ply/sec, %.2f seconds)"
 		     read-count (1- index) ply-count
 		     (/ (float ply-count)
-			(float
-			 (time-to-seconds
-			  (subtract-time (current-time)
-					 begin))))
-		     (time-to-seconds (subtract-time (current-time)
-						     begin)))
+			(float-time (subtract-time (current-time) begin)))
+		     (float-time (subtract-time (current-time) begin)))
 	    (message "Running validation suite...done")
 	    (chess-database-close database)))
       (error "Failed to open chess database '%s'" file))
