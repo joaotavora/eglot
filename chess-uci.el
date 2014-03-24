@@ -20,12 +20,16 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
+;;; Commentary:
+
+;; URL: http://en.wikipedia.org/wiki/Universal_Chess_Interface
+
 ;;; Code:
 
 (require 'chess-common)
 
 (defvar chess-uci-long-algebraic-regexp "\\([a-h][1-8]\\)\\([a-h][1-8]\\)\\([nbrq]\\)?"
-  "A regular expression matching a UCI move.")
+  "A regular expression matching a UCI log algebraic move.")
 
 (defun chess-uci-long-algebraic-to-ply (position move)
   "Convert the long algebraic notation MOVE for POSITION to a ply."
@@ -48,7 +52,7 @@
 		 (nconc (list from to)
 			(when promotion
 			  (list :promote (upcase (aref promotion 0)))))))))))
-					 
+
 (defsubst chess-uci-convert-long-algebraic (move)
   "Convert long algebraic MOVE to a ply in reference to the engine position.
 If conversion fails, this function fired an 'illegal event."
@@ -70,6 +74,7 @@ If conversion fails, this function fired an 'illegal event."
   "Patterns matching responses of a standard UCI chess engine.")
 
 (defun chess-uci-position (game)
+  "Convert the current GAME position to a UCI position command string."
   (concat "position fen " (chess-pos-to-fen (chess-game-pos game 0) t)
 	  " moves " (mapconcat (lambda (ply)
 				 (let ((source (chess-ply-source ply))
@@ -85,6 +90,7 @@ If conversion fails, this function fired an 'illegal event."
 	  "\n"))
 
 (defun chess-uci-handler (game event &rest args)
+  "Default handler for UCI based engines."
   (unless chess-engine-handling-event
     (cond
      ((eq event 'move)
