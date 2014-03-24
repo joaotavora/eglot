@@ -48,10 +48,12 @@ dist_lisp_LISP =	   \
 	chess-scid.el	   \
 	chess-sjeng.el	   \
 	chess-sound.el	   \
+	chess-stockfish.el \
 	chess-test.el      \
 	chess-transport.el \
 	chess-tutorial.el  \
 	chess-ucb.el	   \
+	chess-uci.el       \
 	chess-var.el	   \
 	chess-eco.el
 
