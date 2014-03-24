@@ -400,10 +400,8 @@ event handler can take care of the data."
 ;; Primary event handler
 ;;
 
-(defun chess-engine-sentinal (proc event)
-  (when (buffer-live-p (process-buffer proc))
-    (set-buffer (process-buffer proc))
-    (chess-engine-destroy nil)))
+(defun chess-engine-sentinel (proc event)
+  (chess-engine-destroy (process-buffer proc)))
 
 (defun chess-engine-filter (proc &optional string)
   "Filter for receiving text for an engine from an outside source."
