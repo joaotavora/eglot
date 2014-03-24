@@ -304,18 +304,19 @@ lowercase to query if black can castle)."
 	 (value (aref position index)))
     (if (or (eq value nil) (integerp value))
 	value
-      (let* ((color (< side ?a))
-	     (long (= ?Q (upcase side)))
-	     (file (if long 0 7))
-	     (king-file (chess-index-file
-			 (chess-pos-king-index position color)))
-	     rook)
-	(while (funcall (if long '< '>) file king-file)
-	  (let ((index (chess-rf-to-index (if color 7 0) file)))
-	    (if (chess-pos-piece-p position index (if color ?R ?r))
-		(setq rook index file king-file)
-	      (setq file (funcall (if long '1+ '1-) file)))))
-	(aset position index rook)))))
+      (when (chess-pos-king-index position (< side ?a))
+	(let* ((color (< side ?a))
+	       (long (= ?Q (upcase side)))
+	       (file (if long 0 7))
+	       (king-file (chess-index-file
+			   (chess-pos-king-index position color)))
+	       rook)
+	  (while (funcall (if long '< '>) file king-file)
+	    (let ((index (chess-rf-to-index (if color 7 0) file)))
+	      (if (chess-pos-piece-p position index (if color ?R ?r))
+		  (setq rook index file king-file)
+		(setq file (funcall (if long '1+ '1-) file)))))
+	  (aset position index rook))))))
 
 (defsubst chess-pos-set-can-castle (position side value)
   "Set whether the king can castle on the given POSITION on SIDE.
