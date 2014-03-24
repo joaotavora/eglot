@@ -26,7 +26,7 @@
 (defgroup chess-phalanx nil
   "The publically available chess engine 'phalanx'."
   :group 'chess-engine
-  :link '(url-link "http://dusan.freeshell.org/phalanx/"))
+  :link '(url-link "http://phalanx.sourceforge.net/"))
 
 (defcustom chess-phalanx-path (executable-find "phalanx")
   "The path to the phalanx executable."
