@@ -35,17 +35,18 @@
   :group 'chess-stockfish)
 
 (defvar chess-stockfish-regexp-alist
-  (list
-   (cons (concat "^bestmove\\s-+\\(" chess-algebraic-regexp "\\)")
-	 (function
-	  (lambda ()
-	    (message "move")
-	    (funcall chess-engine-response-handler 'move
-		     (chess-engine-convert-algebraic (match-string 1) t)))))
-   (cons "^id\\s-+name\\s-+\\(.+\\)$"
-	 (function
-	  (lambda ()
-	    (setq-local chess-engine-opponent-name (match-string 1)))))))
+  (append
+   chess-uci-regexp-alist
+   (list
+    (cons (concat "^info\\s-+.*nps\\s-+\\([0-9]+\\).*pv\\s-+\\("
+		  chess-uci-long-algebraic-regexp
+		  "\\(\\s-+" chess-uci-long-algebraic-regexp "\\)+\\)")
+	  (function
+	   (lambda ()
+	     (setq-local chess-stockfish-nps (string-to-number (match-string 1)))
+	     (setq-local chess-stockfish-pv
+			 (split-string (match-string 2) " ")))))))
+  "Patterns used to match stockfish output.")
 
 (defun chess-stockfish-handler (game event &rest args)
   (unless chess-engine-handling-event

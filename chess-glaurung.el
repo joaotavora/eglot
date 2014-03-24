@@ -34,17 +34,8 @@
   :type 'file
   :group 'chess-glaurung)
 
-(defvar chess-glaurung-regexp-alist
-  (list
-   (cons (concat "^bestmove\\s-+\\(" chess-algebraic-regexp "\\)")
-	 (function
-	  (lambda ()
-	    (funcall chess-engine-response-handler 'move
-		     (chess-engine-convert-algebraic (match-string 1) t)))))
-   (cons "^id\\s-+name\\s-+\\(.+\\)$"
-	 (function
-	  (lambda ()
-	    (setq-local chess-engine-opponent-name (match-string 1)))))))
+(defvar chess-glaurung-regexp-alist chess-uci-regexp-alist
+  "Patterns used to match engine output.")
 
 (defun chess-glaurung-handler (game event &rest args)
   (unless chess-engine-handling-event

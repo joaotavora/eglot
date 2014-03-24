@@ -24,8 +24,50 @@
 
 (require 'chess-common)
 
-(defvar chess-uci-move-regexp "[a-h][1-8][a-h][1-8][nbrq]?"
+(defvar chess-uci-long-algebraic-regexp "\\([a-h][1-8]\\)\\([a-h][1-8]\\)\\([nbrq]\\)?"
   "A regular expression matching a UCI move.")
+
+(defun chess-uci-long-algebraic-to-ply (position move)
+  "Convert the long algebraic notation MOVE for POSITION to a ply."
+  (assert (vectorp position))
+  (assert (stringp move))
+  (let ((case-fold-search nil))
+    (when (string-match chess-uci-long-algebraic-regexp move)
+      (let ((color (chess-pos-side-to-move position))
+	    (from (chess-coord-to-index (match-string 1 move)))
+	    (to (chess-coord-to-index (match-string 2 move)))
+	    (promotion (match-string 3 move)))
+	(apply #'chess-ply-create position nil
+	       (if (and (= from (chess-pos-king-index position color))
+			(= (chess-index-rank from) (chess-index-rank to))
+			(> (abs (- (chess-index-file from)
+				   (chess-index-file to))) 1))
+		   (chess-ply-castling-changes
+		    position
+		    (< (- (chess-index-file to) (chess-index-file from)) 0))
+		 (nconc (list from to)
+			(when promotion
+			  (list :promote (upcase (aref promotion 0)))))))))))
+					 
+(defsubst chess-uci-convert-long-algebraic (move)
+  "Convert long algebraic MOVE to a ply in reference to the engine position.
+If conversion fails, this function fired an 'illegal event."
+  (or (chess-uci-long-algebraic-to-ply (chess-engine-position nil) move)
+      (chess-engine-command nil 'illegal)))
+
+(defvar chess-uci-regexp-alist
+  (list
+   (cons "^id\\s-+name\\s-+\\(.+\\)$"
+	 (function
+	  (lambda ()
+	    (setq-local chess-engine-opponent-name (match-string 1))
+ 	    'once)))
+   (cons (concat "^bestmove\\s-+\\(" chess-uci-long-algebraic-regexp "\\)")
+	 (function
+	  (lambda ()
+	    (funcall chess-engine-response-handler 'move
+		     (chess-uci-convert-long-algebraic (match-string 1)))))))
+  "Patterns matching responses of a standard UCI chess engine.")
 
 (defun chess-uci-position (game)
   (concat "position fen " (chess-pos-to-fen (chess-game-pos game 0) t)
