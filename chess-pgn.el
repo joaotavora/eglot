@@ -264,7 +264,7 @@ PGN text."
 
     ;;(define-key map [(control ?m)] 'chess-pgn-move)
     ;;(define-key map [space] 'chess-pgn-move)
-    ;;(define-key map [? ] 'chess-pgn-move)
+    (define-key map [? ] 'chess-pgn-insert-and-show-position)
 
     (when (require 'pcomplete nil t)
       (setq pcomplete-default-completion-function 'chess-pgn-completions)
@@ -414,6 +414,11 @@ This does not require that the buffer be in PGN mode."
 	(and (event-point event) (goto-char (event-point event))))
     (set-buffer (window-buffer (posn-window (event-start event))))
     (goto-char (posn-point (event-start event))))
+  (chess-pgn-show-position))
+
+(defun chess-pgn-insert-and-show-position ()
+  (interactive)
+  (self-insert-command 1)
   (chess-pgn-show-position))
 
 (provide 'chess-pgn)
