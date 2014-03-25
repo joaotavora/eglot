@@ -27,6 +27,20 @@
 ;;; Code:
 
 (require 'chess-common)
+(require 'chess-polyglot)
+
+(defgroup chess-uci nil
+  "Customisations for Chess engines based on the UCI protocol"
+  :group 'chess)
+
+(defcustom chess-uci-polyglot-book-file nil
+  "The path to a polyglot binary opening book file."
+  :group 'chess-uci
+  :type '(choice (const :tag "Not specified" nil) file))
+
+(defvar chess-uci-book nil
+  "A (polyglot) opening book object.
+See `chess-uci-polyglot-book-file' for details on how to enable this.")
 
 (defvar chess-uci-long-algebraic-regexp "\\([a-h][1-8]\\)\\([a-h][1-8]\\)\\([nbrq]\\)?"
   "A regular expression matching a UCI log algebraic move.")
@@ -93,12 +107,27 @@ If conversion fails, this function fired an 'illegal event."
   "Default handler for UCI based engines."
   (unless chess-engine-handling-event
     (cond
+     ((eq event 'initialize)
+      (when chess-uci-polyglot-book-file
+	(unless chess-uci-book
+	  (setq chess-uci-book (chess-polyglot-book-open
+				chess-uci-polyglot-book-file))))
+      (apply #'chess-common-handler game event args))
+
      ((eq event 'move)
       (when (= 1 (chess-game-index game))
 	(chess-game-set-tag game "White" chess-full-name)
 	(chess-game-set-tag game "Black" chess-engine-opponent-name))
 
-      (chess-engine-send nil (concat (chess-uci-position game) "go\n"))
+      (let ((book-plies (and chess-uci-book (bufferp chess-uci-book)
+			     (buffer-live-p chess-uci-book)
+			     (chess-polyglot-book-plies chess-uci-book
+							(chess-game-pos game)))))
+	(if book-plies
+	    (let ((chess-display-handling-event nil))
+	      (funcall chess-engine-response-handler 'move (car book-plies)))
+	  (chess-engine-send nil (concat (chess-uci-position game) "go\n"))))
+
       (if (chess-game-over-p game)
 	  (chess-game-set-data game 'active nil)))
 
