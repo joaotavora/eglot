@@ -465,6 +465,25 @@ Use `chess-ply-keyword' on elements of the returned list to retrieve them."
 	(when ply
 	  (setq plies (nconc plies (list ply))))))))
 
+(defun chess-polyglot-book-ply (book position)
+  "If non-nil, a (randomly picked) ply from plies in BOOK for POSITION.
+Random Distribution is defined by the relative weights of the found plies."
+  (let* ((plies (chess-polyglot-book-plies book position))
+	 (random-value (random (cl-reduce
+				#'+ (mapcar (lambda (ply)
+					      (chess-ply-keyword
+					       ply :polyglot-book-weight))
+					    plies))))
+	 (max 0) ply)
+    (while plies
+      (let ((min max))
+	(setq max (+ max (chess-ply-keyword (car plies) :polyglot-book-weight)))
+	(if (and (>= random-value min) (< random-value max))
+	    (progn
+	      (setq ply (car plies) plies nil))
+	  (setq plies (cdr plies)))))
+    ply))
+
 (defalias 'chess-polyglot-book-close 'kill-buffer
   "Close a polyglot book.")
 

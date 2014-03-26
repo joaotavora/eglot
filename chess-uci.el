@@ -119,13 +119,13 @@ If conversion fails, this function fired an 'illegal event."
 	(chess-game-set-tag game "White" chess-full-name)
 	(chess-game-set-tag game "Black" chess-engine-opponent-name))
 
-      (let ((book-plies (and chess-uci-book (bufferp chess-uci-book)
-			     (buffer-live-p chess-uci-book)
-			     (chess-polyglot-book-plies chess-uci-book
-							(chess-game-pos game)))))
-	(if book-plies
+      (let ((book-ply (and chess-uci-book (bufferp chess-uci-book)
+			   (buffer-live-p chess-uci-book)
+			   (chess-polyglot-book-ply chess-uci-book
+						    (chess-game-pos game)))))
+	(if book-ply
 	    (let ((chess-display-handling-event nil))
-	      (funcall chess-engine-response-handler 'move (car book-plies)))
+	      (funcall chess-engine-response-handler 'move book-ply))
 	  (chess-engine-send nil (concat (chess-uci-position game) "go\n"))))
 
       (if (chess-game-over-p game)
