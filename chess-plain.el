@@ -12,12 +12,12 @@
   :group 'chess-display)
 
 (defcustom chess-plain-draw-border nil
-  "*Non-nil if a border should be drawn (using `chess-plain-border-chars')."
+  "Non-nil if a border should be drawn (using `chess-plain-border-chars')."
   :group 'chess-plain
   :type 'boolean)
 
 (defcustom chess-plain-border-chars '(?+ ?- ?+ ?| ?| ?+ ?- ?+)
-  "*A list of Characters used to draw borders."
+  "A list of characters used to draw borders."
   :group 'chess-plain
   :type '(list (character :tag "Upper left corner")
 	       (character :tag "Upper border")
@@ -25,16 +25,16 @@
 	       (character :tag "Left border")
 	       (character :tag "Right border")
 	       (character :tag "Lower left corner")
-	       (character :tag "Lowwer border")
+	       (character :tag "Lower border")
 	       (character :tag "Lower right corner")))
 
 (defcustom chess-plain-black-square-char ?.
-  "*Character used to indicate empty black squares."
+  "Character used to indicate empty black squares."
   :group 'chess-plain
   :type 'character)
 
 (defcustom chess-plain-white-square-char ?.
-  "*Character used to indicate empty white squares."
+  "Character used to indicate empty white squares."
   :group 'chess-plain
   :type 'character)
 
@@ -51,7 +51,7 @@
     (?b . ?b)
     (?n . ?n)
     (?p . ?p))
-  "*Alist of pieces and their corresponding characters."
+  "Alist of pieces and their corresponding characters."
   :group 'chess-plain
   :type '(alist :key-type (character :tag "Internal representation")
 		:value-type (character :tag "Printed representation")))
@@ -64,10 +64,11 @@ lowercase char a black piece.  Possible values: 'color (default),
 indicates a piece on a black square. (Note that you also need to
 modify `chess-plain-piece-chars' to avoid real confusion.)"
   :group 'chess-plain
-  :type '(choice (const color) (const square-color)))
+  :type '(choice (const :tag "Upcase indicates white piece" color)
+		 (const :tag "Upcase indicates black square" square-color)))
 
 (defcustom chess-plain-spacing 1
-  "*Number of spaces between files."
+  "Number of spaces between files."
   :group 'chess-plain
   :type 'integer)
 
@@ -75,14 +76,14 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   '((((class color) (background light)) (:foreground "Black"))
     (((class color) (background dark)) (:foreground "Green"))
     (t (:bold t)))
-  "*The face used for black pieces on the ASCII display."
+  "The face used for black pieces on the ASCII display."
   :group 'chess-plain)
 
 (defface chess-plain-white-face
   '((((class color) (background light)) (:foreground "Blue"))
     (((class color) (background dark)) (:foreground "Yellow"))
     (t (:bold t)))
-  "*The face used for white pieces on the ASCII display."
+  "The face used for white pieces on the ASCII display."
   :group 'chess-plain)
 
 (defface chess-plain-highlight-face
@@ -97,7 +98,7 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   :group 'chess-plain)
 
 (defcustom chess-plain-separate-frame nil
-  "*If non-nil, display the chessboard in its own frame."
+  "If non-nil, display the chessboard in its own frame."
   :type 'boolean
   :group 'chess-plain)
 
