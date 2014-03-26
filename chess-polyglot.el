@@ -45,9 +45,10 @@
 (require 'chess-ply)
 (require 'chess-pos)
 
-(defsubst chess-polyglot-read-octets (count)
+(defsubst chess-polyglot-read-octets (n)
+  "Read N octets from the current buffer."
   (let ((val 0))
-    (dotimes (i count (progn (cl-assert (<= val most-positive-fixnum)) val))
+    (dotimes (i n (progn (cl-assert (<= val most-positive-fixnum)) val))
       (setq val (logior (lsh val 8)
 			(progn (forward-char 1) (preceding-char)))))))
 
@@ -72,7 +73,10 @@ The result is a list of the form (FROM-INDEX TO-INDEX PROMOTION WEIGHT)."
 	     (chess-polyglot-read-octets 2))))))
 
 (defun chess-polyglot-move-to-ply (position from to promotion weight)
-  "Convert a polyglot move for POSITION to a ply."
+  "Convert a polyglot move for POSITION to a ply.
+FROM and TO are integers indicating the square index.
+PROMOTION, if non-nil, indicates the piece to promote to.
+WEIGHT (an integer) is the relative weight of the move."
   (cl-assert (vectorp position))
   (cl-assert (and (integerp from) (>= from 0) (< from 64)))
   (cl-assert (and (integerp to) (>= to 0) (< to 64)))
@@ -99,12 +103,15 @@ The result is a list of the form (FROM-INDEX TO-INDEX PROMOTION WEIGHT)."
 (defconst chess-polyglot-record-size 16
   "The size (in bytes) of a polyglot book entry.")
 
-(defsubst chess-polyglot-forward-record (count)
-  (forward-char (* count chess-polyglot-record-size)))
+(defsubst chess-polyglot-forward-record (n)
+  "Move point N book records forward (backward if N is negative).
+On reaching end or beginning of buffer, stop and signal error."
+  (forward-char (* n chess-polyglot-record-size)))
 
 (defun chess-polyglot-read-moves (key low high)
   "Read all moves associated with KEY from the current buffer.
-LOW and HIGH are the number of the first and last record to consider in the search."
+LOW and HIGH are the number of the first and last record to consider in
+the search."
   (cl-assert (= (% (buffer-size) chess-polyglot-record-size) 0))
   (let* ((mid (/ (+ low high) 2))
 	 (mid-key (progn (goto-char (1+ (* mid chess-polyglot-record-size)))
@@ -432,7 +439,7 @@ Uses 781 predefined hash values from `chess-polyglot-zorbist-keys'."
 ;;; Public interface:
 
 (defun chess-polyglot-book-open (file)
-  "Open a polyglot book file.
+  "Open a polyglot book FILE.
 Returns a buffer object which contains the binary data."
   (when (file-exists-p file)
     (with-current-buffer (get-buffer-create (concat " *chess-polyglot " file "*"))
