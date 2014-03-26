@@ -20,7 +20,24 @@
 
 ;;; Commentary:
 
-;; 
+;; The polyglot book format uses a 64 bit zorbist hash to encode positions.
+;; Since 2 bits are used for tagging in Emacs Lisp, 64 bit values can not be
+;; represented as fixnums.  So we split the 64 bit value up into equally sized
+;; chunks (32 bit fixnums for now).  781 predefined zorbist hash keys are
+;; stored as constants (see `chess-polyglot-zorbist-keys' and used to calculate
+;; zorbist hashes from positions.
+
+;; Binary search is employed to quickly find all the moves from a certain
+;; position.  These moves are converted to proper chess ply objects (see
+;; chess-ply.el).
+
+;; The most interesting functions provided by this file are
+;; `chess-polyglot-book-open', `chess-polyglot-book-plies' and
+;; `chess-polyglot-book-close'.
+
+;; For a detailed description of the polyglot book format, see
+;; <URL:http://hardy.uhasselt.be/Toga/book_format.html> or
+;; <URL:http://hgm.nubati.net/book_format.html>.
 
 ;;; Code:
 
@@ -35,9 +52,14 @@
 			(progn (forward-char 1) (preceding-char)))))))
 
 (defsubst chess-polyglot-read-key ()
+  "Read a polyglot position hash (a 64 bit value) from the current buffer.
+A `cons' with the most significant 32 bit in `car' and the least significant
+32 bit in `cdr' is returned."
   (cons (chess-polyglot-read-octets 4) (chess-polyglot-read-octets 4)))
 
 (defun chess-polyglot-read-move ()
+  "Read a polyglot move (a 32 bit value) from the current buffer.
+The result is a list of the form (FROM-INDEX TO-INDEX PROMOTION WEIGHT)."
   (let ((mask (chess-polyglot-read-octets 2)))
     (pcase (let (r)
 	     (dotimes (i 5 r)
@@ -52,8 +74,8 @@
 (defun chess-polyglot-move-to-ply (position from to promotion weight)
   "Convert a polyglot move for POSITION to a ply."
   (cl-assert (vectorp position))
-  (cl-assert (integerp from))
-  (cl-assert (integerp to))
+  (cl-assert (and (integerp from) (>= from 0) (< from 64)))
+  (cl-assert (and (integerp to) (>= to 0) (< to 64)))
   (cl-assert (memq promotion '(nil ?N ?B ?R ?Q)))
   (cl-assert (integerp weight))
   (let ((ply (apply #'chess-ply-create position nil
@@ -71,39 +93,43 @@
     ply))
 
 (defsubst chess-polyglot-skip-learn ()
+  "Skip the 32 bit learn value."
   (forward-char 4))
 
-(defun chess-polyglot-moves (key &optional low high)
-  (unless low (setq low 0))
-  (unless high (setq high (1- (/ (buffer-size) 16))))
-  (let ((mid (/ (+ low high) 2)))
-    (goto-char (1+ (* mid 16)))
-    (let ((mid-key (chess-polyglot-read-key)))
-      (cond
-       ((= low high)
-	(when (equal key mid-key)
-	  (chess-polyglot-read-move)))
-       ((< (car key) (car mid-key))
-	(chess-polyglot-moves key low mid))
-       ((> (car key) (car mid-key))
-	(chess-polyglot-moves key (1+ mid) high))
-       (t (cond
-	   ((< (cdr key) (cdr mid-key))
-	    (chess-polyglot-moves key low mid))
-	   ((> (cdr key) (cdr mid-key))
-	    (chess-polyglot-moves key (1+ mid) high))
-	   (t (when (> (point) 16) (forward-char -16))
-	      (while (progn (forward-char -8)
-			    (and (> (point) 16) (equal key (chess-polyglot-read-key))))
-		(forward-char -16))
-	      (forward-char 8)
-	      (let (moves)
-		(while (equal key (chess-polyglot-read-key))
-		  (setq moves (nconc moves (list (chess-polyglot-read-move))))
-		  (chess-polyglot-skip-learn))
-		moves))))))))
+(defconst chess-polyglot-record-size 16
+  "The size (in bytes) of a polyglot book entry.")
 
-(defconst chess-polyglot-zorbit-hashes
+(defsubst chess-polyglot-forward-record (count)
+  (forward-char (* count chess-polyglot-record-size)))
+
+(defun chess-polyglot-read-moves (key low high)
+  "Read all moves associated with KEY from the current buffer.
+LOW and HIGH are the number of the first and last record to consider in the search."
+  (cl-assert (= (% (buffer-size) chess-polyglot-record-size) 0))
+  (let* ((mid (/ (+ low high) 2))
+	 (mid-key (progn (goto-char (1+ (* mid chess-polyglot-record-size)))
+			 (chess-polyglot-read-key))))
+    (cond
+     ((= low high) (when (equal key mid-key) (chess-polyglot-read-move)))
+     ((< (car key) (car mid-key)) (chess-polyglot-read-moves key low mid))
+     ((> (car key) (car mid-key)) (chess-polyglot-read-moves key (1+ mid) high))
+     (t (cond
+	 ((< (cdr key) (cdr mid-key)) (chess-polyglot-read-moves key low mid))
+	 ((> (cdr key) (cdr mid-key)) (chess-polyglot-read-moves key (1+ mid) high))
+	 (t (when (> (point) chess-polyglot-record-size)
+	      (chess-polyglot-forward-record -1))
+	    (while (progn (forward-char -8)
+			  (and (> (point) chess-polyglot-record-size)
+			       (equal key (chess-polyglot-read-key))))
+	      (chess-polyglot-forward-record -1))
+	    (forward-char 8)
+	    (let (moves)
+	      (while (equal key (chess-polyglot-read-key))
+		(setq moves (nconc moves (list (chess-polyglot-read-move))))
+		(chess-polyglot-skip-learn))
+	      moves)))))))
+
+(defconst chess-polyglot-zorbist-keys
   [(2637767806 . 863464769) (720845184 . 95069639) (1155203408 . 610415943)
    (2618685246 . 1655139042) (1971536997 . 1218186377) (848342074 . 540017087)
    (263957791 . 1627660921) (3896152207 . 4076560586) (226391645 . 1484086288)
@@ -369,35 +395,41 @@
    (3504620154 . 1427438450) (2009473484 . 2679350403) (1738755500 . 1129731339)
 
    (4174784170 . 2938602761)]
-  "Zorbit hashes.")
+  "Zorbist hashes for polyglot.")
+
+(defconst chess-polyglot-zorbist-piece-type '(?p ?P ?n ?N ?b ?B ?r ?R ?q ?Q ?k ?K)
+  "Map chess pieces to zorbist hash indexes.")
 
 (defun chess-polyglot-pos-to-key (position)
-  "Convert a POSITION to a polyglot zorbist hash, a `cons' of 32bit integers."
+  "Calculate the polyglot zorbist hash for POSITION.
+Uses 781 predefined hash values from `chess-polyglot-zorbist-keys'."
   (cl-assert (vectorp position))
-  (let ((pieces '(?p ?P ?n ?N ?b ?B ?r ?R ?q ?Q ?k ?K))
-	(key (cons 0 0)))
+  (let ((h32 0) (l32 0))
     (dotimes (rank 8)
       (dotimes (file 8)
 	(let ((piece (cl-position (chess-pos-piece position (chess-rf-to-index
 							     rank file))
-				  pieces)))
+				  chess-polyglot-zorbist-piece-type)))
 	  (when piece
 	    (let ((piece-key (aref chess-polyglot-zorbit-hashes
 				   (+ (* 64 piece) (* (- 7 rank) 8) file))))
-	      (setcar key (logxor (car key) (car piece-key)))
-	      (setcdr key (logxor (cdr key) (cdr piece-key))))))))
+	      (setq h32 (logxor h32 (car piece-key))
+		    l32 (logxor l32 (cdr piece-key))))))))
     (let ((sides '(?K ?Q ?k ?q)))
       (dolist (side sides)
 	(when (chess-pos-can-castle position side)
 	  (let ((castle-key (aref chess-polyglot-zorbit-hashes
 				  (+ 768 (cl-position side sides)))))
-	    (setcar key (logxor (car key) (car castle-key)))
-	    (setcdr key (logxor (cdr key) (cdr castle-key)))))))
+	    (setq h32 (logxor h32 (car castle-key))
+		  l32 (logxor l32 (cdr castle-key)))))))
+    ;; TODO: en passant
     (when (chess-pos-side-to-move position)
       (let ((turn-key (aref chess-polyglot-zorbit-hashes 780)))
-	(setcar key (logxor (car key) (car turn-key)))
-	(setcdr key (logxor (cdr key) (cdr turn-key)))))
-    key))
+	(setq h32 (logxor h32 (car turn-key))
+	      l32 (logxor l32 (cdr turn-key)))))
+    (cons h32 l32)))
+
+;;; Public interface:
 
 (defun chess-polyglot-book-open (file)
   "Open a polyglot book file.
@@ -411,13 +443,16 @@ Returns a buffer object which contains the binary data."
 
 (defun chess-polyglot-book-plies (book position)
   "Return a list of plies found in BOOK for POSITION.
-The :polyglot-book-weight ply keyword is used to store move weights."
+The resulting list is ordered, most interesting plies come first.
+The :polyglot-book-weight ply keyword is used to store the actual move weights.
+Use `chess-ply-keyword' on elements of the returned list to retrieve them."
   (cl-assert (bufferp book))
   (cl-assert (vectorp position))
   (let (plies)
     (dolist (move
 	     (with-current-buffer book
-	       (chess-polyglot-moves (chess-polyglot-pos-to-key position)))
+	       (chess-polyglot-read-moves (chess-polyglot-pos-to-key position)
+					  0 (1- (/ (buffer-size) 16))))
 	     plies)
       (let ((ply (apply #'chess-polyglot-move-to-ply position move)))
 	(when ply
