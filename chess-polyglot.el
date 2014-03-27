@@ -24,7 +24,7 @@
 ;; Since 2 bits are used for tagging in Emacs Lisp, 64 bit values can not be
 ;; represented as fixnums.  So we split the 64 bit value up into equally sized
 ;; chunks (32 bit fixnums for now).  781 predefined zorbist hash keys are
-;; stored as constants (see `chess-polyglot-zorbist-keys' and used to calculate
+;; stored as constants (see `chess-polyglot-zorbist-keys') and used to calculate
 ;; zorbist hashes from positions.
 
 ;; Binary search is employed to quickly find all the moves from a certain
@@ -32,8 +32,8 @@
 ;; chess-ply.el).
 
 ;; The most interesting functions provided by this file are
-;; `chess-polyglot-book-open', `chess-polyglot-book-plies' and
-;; `chess-polyglot-book-close'.
+;; `chess-polyglot-book-open', `chess-polyglot-book-plies',
+;; `chess-polyglot-book-ply' and `chess-polyglot-book-close'.
 
 ;; For a detailed description of the polyglot book format, see
 ;; <URL:http://hardy.uhasselt.be/Toga/book_format.html> or
@@ -54,8 +54,8 @@
 
 (defsubst chess-polyglot-read-key ()
   "Read a polyglot position hash (a 64 bit value) from the current buffer.
-A `cons' with the most significant 32 bit in `car' and the least significant
-32 bit in `cdr' is returned."
+A `cons' with the most significant 32 bits in `car' and the least significant
+32 bits in `cdr' is returned."
   (cons (chess-polyglot-read-octets 4) (chess-polyglot-read-octets 4)))
 
 (defun chess-polyglot-read-move ()
@@ -82,17 +82,16 @@ WEIGHT (an integer) is the relative weight of the move."
   (cl-assert (and (integerp to) (>= to 0) (< to 64)))
   (cl-assert (memq promotion '(nil ?N ?B ?R ?Q)))
   (cl-assert (integerp weight))
-  (let ((ply (apply #'chess-ply-create position nil
-		    (if (and (= from
-				(chess-pos-king-index
-				 position (chess-pos-side-to-move position)))
-			     (= (chess-index-rank from) (chess-index-rank to))
-			     (or (= (chess-index-file to) 0)
-				 (= (chess-index-file to) 7)))
-			(chess-ply-castling-changes
-			 position (= (chess-index-file to) 0))
-		      (nconc (list from to)
-			     (when promotion (list :promote promotion)))))))
+  (let* ((color (chess-pos-side-to-move position))
+	 (ply (apply #'chess-ply-create position nil
+		     (if (and (= from (chess-rf-to-index (if color 7 0) 4))
+			      (= from (chess-pos-king-index position color))
+			      (= (chess-index-rank from) (chess-index-rank to))
+			      (memq (chess-index-file to) '(0 7)))
+			 (chess-ply-castling-changes
+			  position (= (chess-index-file to) 0))
+		       (nconc (list from to)
+			      (when promotion (list :promote promotion)))))))
     (chess-ply-set-keyword ply :polyglot-book-weight weight)
     ply))
 
@@ -102,6 +101,10 @@ WEIGHT (an integer) is the relative weight of the move."
 
 (defconst chess-polyglot-record-size 16
   "The size (in bytes) of a polyglot book entry.")
+
+(defsubst chess-polyglot-goto-record (record)
+  "Set point to the beginning of RECORD, a number starting from 0."
+  (goto-char (1+ (* record chess-polyglot-record-size))))
 
 (defsubst chess-polyglot-forward-record (n)
   "Move point N book records forward (backward if N is negative).
@@ -114,7 +117,7 @@ LOW and HIGH are the number of the first and last record to consider in
 the search."
   (cl-assert (= (% (buffer-size) chess-polyglot-record-size) 0))
   (let* ((mid (/ (+ low high) 2))
-	 (mid-key (progn (goto-char (1+ (* mid chess-polyglot-record-size)))
+	 (mid-key (progn (chess-polyglot-goto-record mid)
 			 (chess-polyglot-read-key))))
     (cond
      ((= low high) (when (equal key mid-key) (chess-polyglot-read-move)))
@@ -129,7 +132,7 @@ the search."
 			  (and (> (point) chess-polyglot-record-size)
 			       (equal key (chess-polyglot-read-key))))
 	      (chess-polyglot-forward-record -1))
-	    (forward-char 8)
+	    (forward-char 8) ; skip over move and learn values
 	    (let (moves)
 	      (while (equal key (chess-polyglot-read-key))
 		(setq moves (nconc moves (list (chess-polyglot-read-move))))
@@ -418,20 +421,20 @@ Uses 781 predefined hash values from `chess-polyglot-zorbist-keys'."
 							     rank file))
 				  chess-polyglot-zorbist-piece-type)))
 	  (when piece
-	    (let ((piece-key (aref chess-polyglot-zorbit-hashes
+	    (let ((piece-key (aref chess-polyglot-zorbist-keys
 				   (+ (* 64 piece) (* (- 7 rank) 8) file))))
 	      (setq h32 (logxor h32 (car piece-key))
 		    l32 (logxor l32 (cdr piece-key))))))))
     (let ((sides '(?K ?Q ?k ?q)))
       (dolist (side sides)
 	(when (chess-pos-can-castle position side)
-	  (let ((castle-key (aref chess-polyglot-zorbit-hashes
+	  (let ((castle-key (aref chess-polyglot-zorbist-keys
 				  (+ 768 (cl-position side sides)))))
 	    (setq h32 (logxor h32 (car castle-key))
 		  l32 (logxor l32 (cdr castle-key)))))))
     ;; TODO: en passant
     (when (chess-pos-side-to-move position)
-      (let ((turn-key (aref chess-polyglot-zorbit-hashes 780)))
+      (let ((turn-key (aref chess-polyglot-zorbist-keys 780)))
 	(setq h32 (logxor h32 (car turn-key))
 	      l32 (logxor l32 (cdr turn-key)))))
     (cons h32 l32)))
@@ -459,7 +462,8 @@ Use `chess-ply-keyword' on elements of the returned list to retrieve them."
     (dolist (move
 	     (with-current-buffer book
 	       (chess-polyglot-read-moves (chess-polyglot-pos-to-key position)
-					  0 (1- (/ (buffer-size) 16))))
+					  0 (1- (/ (buffer-size)
+						   chess-polyglot-record-size))))
 	     plies)
       (let ((ply (apply #'chess-polyglot-move-to-ply position move)))
 	(when ply
@@ -467,7 +471,7 @@ Use `chess-ply-keyword' on elements of the returned list to retrieve them."
 
 (defun chess-polyglot-book-ply (book position)
   "If non-nil, a (randomly picked) ply from plies in BOOK for POSITION.
-Random Distribution is defined by the relative weights of the found plies."
+Random distribution is defined by the relative weights of the found plies."
   (let* ((plies (chess-polyglot-book-plies book position))
 	 (random-value (random (cl-reduce
 				#'+ (mapcar (lambda (ply)
@@ -479,8 +483,7 @@ Random Distribution is defined by the relative weights of the found plies."
       (let ((min max))
 	(setq max (+ max (chess-ply-keyword (car plies) :polyglot-book-weight)))
 	(if (and (>= random-value min) (< random-value max))
-	    (progn
-	      (setq ply (car plies) plies nil))
+	    (setq ply (car plies) plies nil)
 	  (setq plies (cdr plies)))))
     ply))
 
