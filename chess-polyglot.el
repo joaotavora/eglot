@@ -48,7 +48,7 @@
 (defsubst chess-polyglot-read-octets (n)
   "Read N octets from the current buffer."
   (let ((val 0))
-    (dotimes (i n (progn (cl-assert (<= val most-positive-fixnum)) val))
+    (dotimes (_ n (progn (cl-assert (<= val most-positive-fixnum)) val))
       (setq val (logior (lsh val 8)
 			(progn (forward-char 1) (preceding-char)))))))
 
@@ -63,7 +63,7 @@ A `cons' with the most significant 32 bits in `car' and the least significant
 The result is a list of the form (FROM-INDEX TO-INDEX PROMOTION WEIGHT)."
   (let ((mask (chess-polyglot-read-octets 2)))
     (pcase (let (r)
-	     (dotimes (i 5 r)
+	     (dotimes (_ 5 r)
 	       (push (logand mask 7) r)
 	       (setq mask (ash mask -3))))
       (`(,promotion ,from-rank ,from-file ,to-rank ,to-file)
