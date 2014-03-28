@@ -36,7 +36,16 @@
 (defcustom chess-uci-polyglot-book-file nil
   "The path to a polyglot binary opening book file."
   :group 'chess-uci
-  :type '(choice (const :tag "Not specified" nil) file))
+  :type '(choice (const :tag "Not specified" nil) (file :must-match t)))
+
+(defcustom chess-uci-polyglot-book-strength 1.0
+  "Influence random distribution when picking a ply from the book.
+A value above 1.0 means to prefer known good moves while a value below
+1.0 means to penalize known good moves.  0.0 will stop to consider
+move weights and simply pick a move at random.  For simple
+reasons of numerical overflow, this should be strictly less than 4.0."
+  :group 'chess-uci
+  :type '(float :match (lambda (widget value) (and (>= value 0) (< value 4)))))
 
 (defvar chess-uci-book nil
   "A (polyglot) opening book object.
@@ -121,8 +130,10 @@ If conversion fails, this function fired an 'illegal event."
 
       (let ((book-ply (and chess-uci-book (bufferp chess-uci-book)
 			   (buffer-live-p chess-uci-book)
-			   (chess-polyglot-book-ply chess-uci-book
-						    (chess-game-pos game)))))
+			   (chess-polyglot-book-ply
+			    chess-uci-book
+			    (chess-game-pos game)
+			    chess-uci-polyglot-book-strength))))
 	(if book-ply
 	    (let ((chess-display-handling-event nil))
 	      (funcall chess-engine-response-handler 'move book-ply))
