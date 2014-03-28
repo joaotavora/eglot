@@ -111,33 +111,28 @@ WEIGHT (an integer) is the relative weight of the move."
 On reaching end or beginning of buffer, stop and signal error."
   (forward-char (* n chess-polyglot-record-size)))
 
-(defun chess-polyglot-read-moves (key low high)
-  "Read all moves associated with KEY from the current buffer.
-LOW and HIGH are the number of the first and last record to consider in
-the search."
+(defsubst chess-polyglot-key-<= (lhs rhs)
+  "Non-nil if the polyglot key LHS is less than or equal to RHS."
+  (or (< (car lhs) (car rhs))
+      (and (= (car lhs) (car rhs)) (<= (cdr lhs) (cdr rhs)))))
+
+(defun chess-polyglot-read-moves (key)
+  "Read all moves associated with KEY from the current buffer."
   (cl-assert (= (% (buffer-size) chess-polyglot-record-size) 0))
-  (let* ((mid (/ (+ low high) 2))
-	 (mid-key (progn (chess-polyglot-goto-record mid)
-			 (chess-polyglot-read-key))))
-    (cond
-     ((= low high) (when (equal key mid-key) (chess-polyglot-read-move)))
-     ((< (car key) (car mid-key)) (chess-polyglot-read-moves key low mid))
-     ((> (car key) (car mid-key)) (chess-polyglot-read-moves key (1+ mid) high))
-     (t (cond
-	 ((< (cdr key) (cdr mid-key)) (chess-polyglot-read-moves key low mid))
-	 ((> (cdr key) (cdr mid-key)) (chess-polyglot-read-moves key (1+ mid) high))
-	 (t (when (> (point) chess-polyglot-record-size)
-	      (chess-polyglot-forward-record -1))
-	    (while (progn (forward-char -8)
-			  (and (> (point) chess-polyglot-record-size)
-			       (equal key (chess-polyglot-read-key))))
-	      (chess-polyglot-forward-record -1))
-	    (forward-char 8) ; skip over move and learn values
-	    (let (moves)
-	      (while (equal key (chess-polyglot-read-key))
-		(setq moves (nconc moves (list (chess-polyglot-read-move))))
-		(chess-polyglot-skip-learn))
-	      moves)))))))
+  (let ((left 0) (right (1- (/ (buffer-size) chess-polyglot-record-size))))
+    (while (< left right)
+      (let ((middle (/ (+ left right) 2)))
+	(if (chess-polyglot-key-<= key (progn (chess-polyglot-goto-record middle)
+					      (chess-polyglot-read-key)))
+	    (setq right middle)
+	  (setq left (1+ middle)))))
+    (cl-assert (= left right))
+    (chess-polyglot-goto-record left)
+    (let ((moves ()))
+      (while (equal key (chess-polyglot-read-key))
+	(setq moves (nconc moves (list (chess-polyglot-read-move))))
+	(chess-polyglot-skip-learn))
+      moves)))
 
 (defconst chess-polyglot-zorbist-keys
   [(2637767806 . 863464769) (720845184 . 95069639) (1155203408 . 610415943)
@@ -461,9 +456,7 @@ Use `chess-ply-keyword' on elements of the returned list to retrieve them."
   (let (plies)
     (dolist (move
 	     (with-current-buffer book
-	       (chess-polyglot-read-moves (chess-polyglot-pos-to-key position)
-					  0 (1- (/ (buffer-size)
-						   chess-polyglot-record-size))))
+	       (chess-polyglot-read-moves (chess-polyglot-pos-to-key position)))
 	     plies)
       (let ((ply (apply #'chess-polyglot-move-to-ply position move)))
 	(when ply
