@@ -26,6 +26,7 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl-lib))
 (require 'chess-common)
 (require 'chess-polyglot)
 
@@ -56,8 +57,8 @@ See `chess-uci-polyglot-book-file' for details on how to enable this.")
 
 (defun chess-uci-long-algebraic-to-ply (position move)
   "Convert the long algebraic notation MOVE for POSITION to a ply."
-  (assert (vectorp position))
-  (assert (stringp move))
+  (cl-assert (vectorp position))
+  (cl-assert (stringp move))
   (let ((case-fold-search nil))
     (when (string-match chess-uci-long-algebraic-regexp move)
       (let ((color (chess-pos-side-to-move position))
@@ -123,11 +124,22 @@ If conversion fails, this function fired an 'illegal event."
 				chess-uci-polyglot-book-file))))
       (apply #'chess-common-handler game event args))
 
+     ((eq event 'new)
+      (chess-engine-send nil "ucinewgame\n")
+      (chess-engine-set-position nil))
+
+     ((eq event 'resign)
+      (chess-game-set-data game 'active nil))
+
      ((eq event 'move)
       (when (= 1 (chess-game-index game))
 	(chess-game-set-tag game "White" chess-full-name)
 	(chess-game-set-tag game "Black" chess-engine-opponent-name))
 
+      (if (chess-game-over-p game)
+	  (chess-game-set-data game 'active nil)))
+
+     ((eq event 'post-move)
       (let ((book-ply (and chess-uci-book (bufferp chess-uci-book)
 			   (buffer-live-p chess-uci-book)
 			   (chess-polyglot-book-ply
@@ -137,10 +149,7 @@ If conversion fails, this function fired an 'illegal event."
 	(if book-ply
 	    (let ((chess-display-handling-event nil))
 	      (funcall chess-engine-response-handler 'move book-ply))
-	  (chess-engine-send nil (concat (chess-uci-position game) "go\n"))))
-
-      (if (chess-game-over-p game)
-	  (chess-game-set-data game 'active nil)))
+	  (chess-engine-send nil (concat (chess-uci-position game) "go\n")))))
 
      (t
       (apply 'chess-common-handler game event args)))))
