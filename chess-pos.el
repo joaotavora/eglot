@@ -643,6 +643,12 @@ trying to move a blank square."
 		     (= (car changes) (chess-pos-can-castle position
 							    (if color ?K ?k))))
 		(chess-pos-set-can-castle position (if color ?K ?k) nil))))
+	 ((let ((can-castle (chess-pos-can-castle position (if color ?q ?Q))))
+	    (and can-castle (= (cadr changes) can-castle)))
+	  (chess-pos-set-can-castle position (if color ?q ?Q) nil))
+	 ((let ((can-castle (chess-pos-can-castle position (if color ?k ?K))))
+	    (and can-castle (= (cadr changes) can-castle)))
+	  (chess-pos-set-can-castle position (if color ?k ?K) nil))
 
 	 ((and (= piece ?p)
 	       (> (abs (- (chess-index-rank (cadr changes))
