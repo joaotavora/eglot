@@ -57,23 +57,99 @@
   :group 'chess-plain
   :type 'character)
 
-(defcustom chess-plain-piece-chars
-  '((?K . ?K)
-    (?Q . ?Q)
-    (?R . ?R)
-    (?B . ?B)
-    (?N . ?N)
-    (?P . ?P)
-    (?k . ?k)
-    (?q . ?q)
-    (?r . ?r)
-    (?b . ?b)
-    (?n . ?n)
-    (?p . ?p))
-  "Alist of pieces and their corresponding characters."
+(defcustom chess-plain-piece-chars '((?K . ?K)
+				     (?Q . ?Q)
+				     (?R . ?R)
+				     (?B . ?B)
+				     (?N . ?N)
+				     (?P . ?P)
+				     (?k . ?k)
+				     (?q . ?q)
+				     (?r . ?r)
+				     (?b . ?b)
+				     (?n . ?n)
+				     (?p . ?p))
+  "Alist of pieces and their corresponding characters.
+Characters defined here should make sense in respect to the current setting
+of `chess-plain-upcase-indicates'."
   :group 'chess-plain
-  :type '(alist :key-type (character :tag "Internal representation")
-		:value-type (character :tag "Printed representation")))
+  :type '(choice (list :tag "Case indicates piece color, english names"
+		       (const :tag "White King: K"   :value (?K . ?K))
+		       (const :tag "White Queen: Q"  :value (?Q . ?Q))
+		       (const :tag "White Rook: R"   :value (?R . ?R))
+		       (const :tag "White Bishop: B" :value (?B . ?B))
+		       (const :tag "White Knight: N" :value (?N . ?N))
+		       (const :tag "White Pawn: P"   :value (?P . ?P))
+		       (const :tag "Black King: k"   :value (?k . ?k))
+		       (const :tag "Black Queen: q"  :value (?q . ?q))
+		       (const :tag "Black Rook: r"   :value (?r . ?r))
+		       (const :tag "Black Bishop: b" :value (?b . ?b))
+		       (const :tag "Black Knight: n" :value (?n . ?n))
+		       (const :tag "Black Pawn: p"   :value (?p . ?p)))
+		 (list :tag "Case indicates piece color, german names"
+		       (const :tag "White King: K"   :value (?K . ?K))
+		       (const :tag "White Queen: D"  :value (?Q . ?D))
+		       (const :tag "White Rook: T"   :value (?R . ?T))
+		       (const :tag "White Bishop: L" :value (?B . ?L))
+		       (const :tag "White Knight: S" :value (?N . ?S))
+		       (const :tag "White Pawn: B"   :value (?P . ?B))
+		       (const :tag "Black King: k"   :value (?k . ?k))
+		       (const :tag "Black Queen: d"  :value (?q . ?d))
+		       (const :tag "Black Rook: t"   :value (?r . ?t))
+		       (const :tag "Black Bishop: l" :value (?b . ?l))
+		       (const :tag "Black Knight: s" :value (?n . ?s))
+		       (const :tag "Black Pawn: b"   :value (?p . ?b)))
+		 (list :tag "Case indicates square color, white english and black german"
+		       (const :tag "White King: K"   :value (?K . ?K))
+		       (const :tag "White Queen: Q"  :value (?Q . ?Q))
+		       (const :tag "White Rook: R"   :value (?R . ?R))
+		       (const :tag "White Bishop: B" :value (?B . ?B))
+		       (const :tag "White Knight: N" :value (?N . ?N))
+		       (const :tag "White Pawn: P"   :value (?P . ?P))
+		       (const :tag "Black King: J"   :value (?k . ?J))
+		       (const :tag "Black Queen: D"  :value (?q . ?D))
+		       (const :tag "Black Rook: T"   :value (?r . ?T))
+		       (const :tag "Black Bishop: L" :value (?b . ?L))
+		       (const :tag "Black Knight: S" :value (?n . ?S))
+		       (const :tag "Black Pawn: X"   :value (?p . ?X)))
+		 (list :tag "Case indicates square color, white german and black english"
+		       (const :tag "White King: J"   :value (?K . ?J))
+		       (const :tag "White Queen: D"  :value (?Q . ?D))
+		       (const :tag "White Rook: T"   :value (?R . ?T))
+		       (const :tag "White Bishop: L" :value (?B . ?L))
+		       (const :tag "White Knight: S" :value (?N . ?S))
+		       (const :tag "White Pawn: X"   :value (?P . ?X))
+		       (const :tag "Black King: K"   :value (?k . ?K))
+		       (const :tag "Black Queen: Q"  :value (?q . ?Q))
+		       (const :tag "Black Rook: R"   :value (?r . ?R))
+		       (const :tag "Black Bishop: B" :value (?b . ?B))
+		       (const :tag "Black Knight: N" :value (?n . ?N))
+		       (const :tag "Black Pawn: P"   :value (?p . ?P)))
+		 (list :tag "Custom"
+		       (cons :format "%v"
+			     (const :format "" ?K) (character :tag "White King"))
+		       (cons :format "%v"
+			     (const :format "" ?Q) (character :tag "White Queen"))
+		       (cons :format "%v"
+			     (const :format "" ?R) (character :tag "White Rook"))
+		       (cons :format "%v"
+			     (const :format "" ?B) (character :tag "White Bishop"))
+		       (cons :format "%v"
+			     (const :format "" ?N) (character :tag "White Knight"))
+		       (cons :format "%v"
+			     (const :format "" ?P) (character :tag "White Pawn"))
+		       (cons :format "%v"
+			     (const :format "" ?k) (character :tag "Black King"))
+		       (cons :format "%v"
+			     (const :format "" ?q) (character :tag "Black Queen"))
+		       (cons :format "%v"
+			     (const :format "" ?r) (character :tag "Black Rook"))
+		       (cons :format "%v"
+			     (const :format "" ?b) (character :tag "Black Bishop"))
+		       (cons :format "%v"
+			     (const :format "" ?n) (character :tag "Black Knight"))
+		       (cons :format "%v"
+			     (const :format "" ?p) (character :tag "Black Pawn")))))
 
 (defcustom chess-plain-upcase-indicates 'color
   "*Defines what a upcase char should indicate.
