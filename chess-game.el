@@ -320,8 +320,7 @@ progress (nil), if it is drawn, resigned, mate, etc."
 
     (if (chess-ply-keyword ply :resign)
 	(chess-game-run-hooks game 'resign)
-      (chess-game-run-hooks game 'move current-ply)
-      (chess-game-run-hooks game 'post-move))))
+      (chess-game-run-hooks game 'move current-ply))))
 
 (defsubst chess-game-end (game keyword)
   "End GAME, by resignation, draw, etc."
