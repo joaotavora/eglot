@@ -376,8 +376,8 @@ If only START is given, it must be in algebraic move notation."
 	  (chess-error 'game-is-over)))
     (if (= chess-display-index (chess-game-index chess-module-game))
 	(let ((chess-display-handling-event t))
-	  (chess-game-move chess-module-game ply)
 	  (chess-display-paint-move nil ply)
+	  (chess-game-move chess-module-game ply)
 	  (chess-display-set-index* nil (chess-game-index chess-module-game)))
       ;; jww (2002-03-28): This should beget a variation within the
       ;; game, or alter the game, just as SCID allows
