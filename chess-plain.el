@@ -213,24 +213,15 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 ;;; Code:
 
 (defun chess-plain-customize ()
+  "Show possible customisations for the plain chessboard display."
   (interactive)
   (customize-group 'chess-plain))
 
 (defun chess-plain-handler (event &rest args)
   (cond
    ((eq event 'initialize) t)
-
-   ((eq event 'popup)
-    (funcall chess-plain-popup-function))
-
-   ((eq event 'draw)
-    (apply 'chess-plain-draw args))
-
-   ((eq event 'draw-square)
-    (apply 'chess-plain-draw-square args))
-
-   ((eq event 'highlight)
-    (apply 'chess-plain-highlight args))))
+   ((eq event 'popup) (funcall chess-plain-popup-function))
+   (t (apply (intern-soft (concat "chess-plain-" (symbol-name event))) args))))
 
 (defun chess-plain-popup ()
   (if chess-plain-separate-frame
@@ -239,7 +230,7 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
     (chess-display-popup-in-window)))
 
 (defun chess-plain-piece-text (piece rank file)
-  (let ((white-square (= (% (+ file rank) 2) 0)))
+  (let ((white-square (zerop (% (+ file rank) 2))))
     (if (eq piece ? )
 	(if white-square
 	    chess-plain-white-square-char
@@ -247,17 +238,15 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
       (let* ((pchar (cdr (assq piece chess-plain-piece-chars)))
 	     (p (char-to-string
 		 (if (eq chess-plain-upcase-indicates 'square-color)
-		     (if white-square
-			 (downcase pchar)
-		       (upcase pchar))
+		     (if white-square (downcase pchar) (upcase pchar))
 		   pchar))))
 	(add-text-properties 0 1 (list 'face (if (> piece ?a)
 						 'chess-plain-black-face
 					       'chess-plain-white-face)) p)
 	p))))
 
-(defsubst chess-plain-draw-square (pos piece index)
-  "Draw a piece image at POS on an already drawn display."
+(defun chess-plain-draw-square (pos piece index)
+  "Draw a piece at POS on an already drawn display."
   (save-excursion
     (goto-char pos)
     (delete-char 1)
