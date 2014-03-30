@@ -690,7 +690,7 @@ Basically, it means we are playing, not editing or reviewing."
 	(kill-new (with-temp-buffer
 		    (chess-game-to-pgn game)
 		    (buffer-string)))
-      (kill-new (chess-pos-to-fen (chess-display-position nil))))))
+      (kill-new (chess-pos-to-fen (chess-display-position nil) t)))))
 
 (defun chess-display-yank-board ()
   "Send the current board configuration to the user."
