@@ -17,16 +17,35 @@
   :type 'boolean)
 
 (defcustom chess-plain-border-chars '(?+ ?- ?+ ?| ?| ?+ ?- ?+)
-  "A list of characters used to draw borders."
+  "Characters used to draw borders."
   :group 'chess-plain
-  :type '(list (character :tag "Upper left corner")
-	       (character :tag "Upper border")
-	       (character :tag "Upper right corner")
-	       (character :tag "Left border")
-	       (character :tag "Right border")
-	       (character :tag "Lower left corner")
-	       (character :tag "Lower border")
-	       (character :tag "Lower right corner")))
+  :type '(choice (list :tag "Plain ASCII"
+		       (const :value ?+ :tag "Upper left corner: +")
+		       (const :value ?- :tag "Upper border: -")
+		       (const :value ?+ :tag "Upper right corner: +")
+		       (const :value ?| :tag "Left border: |")
+		       (const :value ?| :tag "Right border: |")
+		       (const :value ?+ :tag "Lower left corrner: +")
+		       (const :value ?- :tag "Lower border: -")
+		       (const :value ?+ :tag "Lower right corner: +"))
+		 (list :tag "Unicode box drawing characters"
+		       (const :value ?┌ :tag "Upper left corner: ┌")
+		       (const :value ?╶ :tag "Upper border: ╶")
+		       (const :value ?┐ :tag "Upper right corner: ┐")
+		       (const :value ?╷ :tag "Left border: ╷")
+		       (const :value ?╷ :tag "Right border: ╷")
+		       (const :value ?└ :tag "Lower left corrner: └")
+		       (const :value ?╶ :tag "Lower border: ╶")
+		       (const :value ?┘ :tag "Lower right corner: ┘"))
+		 (list :tag "Custom"
+		       (character :tag "Upper left corner")
+		       (character :tag "Upper border")
+		       (character :tag "Upper right corner")
+		       (character :tag "Left border")
+		       (character :tag "Right border")
+		       (character :tag "Lower left corner")
+		       (character :tag "Lower border")
+		       (character :tag "Lower right corner"))))
 
 (defcustom chess-plain-black-square-char ?.
   "Character used to indicate empty black squares."
