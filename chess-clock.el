@@ -87,7 +87,8 @@
 	      (chess-game-inhibit-events t)
 	      counter)
 	  (setq chess-clock-last-time (current-time))
-	  (when (and (> (chess-game-index chess-module-game) 0)
+	  (when (and last-time
+		     (> (chess-game-index chess-module-game) 0)
 		     (not (chess-game-status chess-module-game)))
 	    (if (chess-pos-side-to-move (chess-game-pos chess-module-game))
 		(setq counter 'white-remaining)
