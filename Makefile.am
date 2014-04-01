@@ -6,6 +6,7 @@ info_TEXINFOS  = doc/chess.texi
 dist_lisp_DATA = _pkg.el chess-eco.fen
 
 dist_lisp_LISP =	   \
+	chess-pos.el       \
 	chess.el	   \
 	chess-ai.el	   \
 	chess-algebraic.el \
@@ -42,7 +43,6 @@ dist_lisp_LISP =	   \
 	chess-phalanx.el   \
 	chess-plain.el	   \
 	chess-ply.el	   \
-	chess-pos.el	   \
 	chess-puzzle.el	   \
 	chess-random.el	   \
 	chess-scid.el	   \
