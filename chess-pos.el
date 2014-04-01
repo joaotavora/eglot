@@ -278,8 +278,8 @@ color will do."
 
 (defsubst chess-rf-to-index (rank file)
   "Convert RANK and FILE coordinates into an octal index."
-  (cl-assert (or (>= rank 0) (< rank 8)))
-  (cl-assert (or (>= file 0) (< file 8)))
+  (cl-check-type rank (integer 0 7))
+  (cl-check-type file (integer 0 7))
   (+ (* 8 rank) file))
 
 (defsubst chess-coord-to-index (coord)
