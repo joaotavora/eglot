@@ -3,6 +3,9 @@
 ;; Basic module support code underlying all chess.el modules
 ;;
 
+(eval-when-compile
+  (require 'cl))
+
 (require 'chess-game)
 
 (defvar chess-module-game nil)

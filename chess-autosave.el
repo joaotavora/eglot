@@ -6,6 +6,7 @@
 (require 'chess-game)
 (require 'chess-database)
 (require 'chess-message)
+(require 'chess-module)
 
 (defgroup chess-autosave nil
   "A special display that autosaves after each move."

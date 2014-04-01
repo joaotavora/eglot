@@ -43,6 +43,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'cl))
+
 (require 'chess-pos)
 (require 'chess-algebraic)
 

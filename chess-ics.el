@@ -409,7 +409,7 @@ See `chess-ics-game'.")
 (defun chess-ics-game (game-number &rest tags)
   "Either create, or retrieve an existing game object with GAME-NUMBER."
   (assert (integerp game-number))
-  (assert (or (evenp (length tags)) (eq (car tags) t)))
+  (assert (or (zerop (logand (length tags) 1)) (eq (car tags) t)))
   (or
    ;; First try to find a game which matches the constraints in TAGS
    (catch 'ics-game

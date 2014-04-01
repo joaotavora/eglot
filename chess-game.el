@@ -8,6 +8,8 @@
 ;; A chess game is represented by a set of tags that describe the
 ;; game, and a list of plies representing the main variation.
 
+(eval-when-compile
+  (require 'cl))
 (require 'chess-ply)
 (require 'chess-pgn)
 

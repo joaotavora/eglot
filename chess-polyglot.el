@@ -41,7 +41,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl-lib))
+(require 'cl-lib)
 (require 'chess-ply)
 (require 'chess-pos)
 
@@ -118,7 +118,8 @@ On reaching end or beginning of buffer, stop and signal error."
 
 (defun chess-polyglot-read-moves (key)
   "Read all moves associated with KEY from the current buffer."
-  (cl-assert (= (% (buffer-size) chess-polyglot-record-size) 0))
+  (cl-assert (zerop (% (buffer-size) chess-polyglot-record-size)))
+  ;; Find leftmost entry.
   (let ((left 0) (right (1- (/ (buffer-size) chess-polyglot-record-size))))
     (while (< left right)
       (let ((middle (/ (+ left right) 2)))
@@ -127,12 +128,13 @@ On reaching end or beginning of buffer, stop and signal error."
 	    (setq right middle)
 	  (setq left (1+ middle)))))
     (cl-assert (= left right))
-    (chess-polyglot-goto-record left)
-    (let ((moves ()))
-      (while (equal key (chess-polyglot-read-key))
-	(setq moves (nconc moves (list (chess-polyglot-read-move))))
-	(chess-polyglot-skip-learn))
-      moves)))
+    (chess-polyglot-goto-record left))
+  ;; Read all entries with equal keys.
+  (let ((moves ()))
+    (while (equal key (chess-polyglot-read-key))
+      (setq moves (nconc moves (list (chess-polyglot-read-move))))
+      (chess-polyglot-skip-learn))
+    moves))
 
 (defconst chess-polyglot-zorbist-keys
   [(2637767806 . 863464769) (720845184 . 95069639) (1155203408 . 610415943)

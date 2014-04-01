@@ -4,6 +4,8 @@
 ;; viewed or played.  C-c C-c is used to save a kibitzing comment.
 ;;
 
+(require 'chess-game)
+
 (defvar chess-kibitz-input-last nil)
 (defvar chess-kibitz-index nil)
 

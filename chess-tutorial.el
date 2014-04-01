@@ -3,6 +3,7 @@
 ;; A special kind of display that merely autosaves the game
 ;;
 
+(require 'chess-display)
 (require 'chess-game)
 
 (chess-message-catalog 'english

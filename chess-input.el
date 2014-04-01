@@ -7,6 +7,10 @@
 ;; only way to move your pieces around!
 ;;
 
+(require 'chess-algebraic)
+(require 'chess-ply)
+(require 'chess-pos)
+
 (defvar chess-input-move-string "")
 (defvar chess-input-moves-pos nil)
 (defvar chess-input-moves nil)
