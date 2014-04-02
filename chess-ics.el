@@ -916,7 +916,12 @@ This function should be put on `comint-preoutput-filter-functions'."
 	(accept-process-output (get-buffer-process (current-buffer)) 0 100)))
     (switch-to-buffer buf)))
 
+;;; ICC datagrams
+
+;; See http://www.chessclub.com/resources/formats/formats.txt
+
 (defvar chess-icc-unprocessed nil)
+
 (defun chess-icc-datagram-handler (string)
   (if (not (string-match "^\\([0-9]+\\) \\(.*\\)$" string))
       (format "\nUnknown datagram format: %s\n" string)
@@ -996,13 +1001,14 @@ This function should be put on `comint-preoutput-filter-functions'."
 	    (with-current-buffer buf
 	      (let ((here (point)))
 		(goto-char (point-min))
-		(when (re-search-forward (concat "^" id " ") nil t)
+		(when (re-search-forward (concat "^\\s-*" id " ") nil t)
 		  (delete-region (line-beginning-position)
 				 (1+ (line-end-position))))
 		(goto-char here)))))
 	"")
        (t
 	(format "\nIgnoring datagram DG%03d: %s\n" dg args))))))
+
 (defun chess-icc-preoutput-filter (string)
   (if chess-icc-unprocessed
       (let ((string (concat chess-icc-unprocessed string)))
