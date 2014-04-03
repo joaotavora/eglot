@@ -21,10 +21,9 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
-(eval-when-compile
-  (require 'cl))
-
+(require 'cl-lib)
 (require 'comint)
+
 (require 'chess)
 (require 'chess-network)
 (require 'chess-pos)
@@ -396,7 +395,14 @@ standard position).  In those cases, this variable should be set to nil.")
 	    (let ((opponent (match-string 1)))
 	      (if (y-or-n-p (chess-string 'want-to-play opponent))
 		  (chess-ics-send (concat "accept " opponent))
-		(chess-ics-send "decline match")))))))
+		(chess-ics-send "decline match"))))))
+   ;; Buttonize URLs.
+   (cons "\"?\\(\\(https?\\|ftp\\)://[^ \t\n\r\"]+\\)\"?"
+	 (function
+	  (lambda ()
+	    (make-button (match-beginning 1) (match-end 1)
+			 'action (lambda (button)
+				   (browse-url (button-label button))))))))
   "An alist of regular expressions to use to scan ICS server output.
 The car of each element is the regexp to try, and the cdr is a function
 to run whenever the regexp matches.")
@@ -408,8 +414,8 @@ See `chess-ics-game'.")
 
 (defun chess-ics-game (game-number &rest tags)
   "Either create, or retrieve an existing game object with GAME-NUMBER."
-  (assert (integerp game-number))
-  (assert (or (zerop (logand (length tags) 1)) (eq (car tags) t)))
+  (cl-assert (integerp game-number))
+  (cl-assert (or (zerop (logand (length tags) 1)) (eq (car tags) t)))
   (or
    ;; First try to find a game which matches the constraints in TAGS
    (catch 'ics-game
@@ -423,10 +429,10 @@ See `chess-ics-game'.")
 	       (if (or (null tags) (eq (car tags) t))
 		   (throw 'ics-game game)
 		 (while tag-pairs
-		   (assert (symbolp (car tag-pairs)))
+		   (cl-assert (symbolp (car tag-pairs)))
 		   (let ((tag (substring (symbol-name (car tag-pairs)) 1))
 			 (val (cadr tag-pairs)))
-		     (assert (stringp val))
+		     (cl-assert (stringp val))
 		     (if (string= (chess-game-tag game tag) val)
 			 (setq tag-pairs (cddr tag-pairs))
 		       (if (not (string= (chess-game-tag game tag) "?"))
@@ -442,7 +448,7 @@ See `chess-ics-game'.")
      (push (let (chess-engine-handling-event)
 	     (chess-session 'chess-ics))
 	   chess-ics-sessions)
-     (assert (caar chess-ics-sessions))
+     (cl-assert (caar chess-ics-sessions))
      (with-current-buffer (caar chess-ics-sessions)
        (setq chess-ply-allow-interactive-query t))
      (let ((game (chess-engine-game (caar chess-ics-sessions))))
@@ -450,7 +456,7 @@ See `chess-ics-game'.")
        (chess-game-set-data game 'ics-buffer (current-buffer))
        (chess-game-set-tag game "Site" chess-ics-server)
        (while tags
-	 (assert (keywordp (car tags)))
+	 (cl-assert (keywordp (car tags)))
 	 (chess-game-set-tag
 	  game (substring (symbol-name (car tags)) 1) (cadr tags))
 	 (setq tags (cddr tags)))
@@ -473,10 +479,10 @@ See `chess-ics-game'.")
 		      (setcdr last-session (cdr sessions))
 		    (setq chess-ics-sessions (cdr sessions))))
 	      (while (and tag-pairs found)
-		(assert (symbolp (car tag-pairs)))
+		(cl-assert (symbolp (car tag-pairs)))
 		(let ((tag (substring (symbol-name (car tag-pairs)) 1))
 		      (val (cadr tag-pairs)))
-		  (assert (stringp val))
+		  (cl-assert (stringp val))
 		  (if (string= (chess-game-tag game tag) val)
 		      (setq tag-pairs (cddr tag-pairs))
 		    (setq found nil))))
@@ -647,175 +653,64 @@ See `chess-ics-game'.")
 	  (forward-line -1)))
       t)))
 
-(defface chess-ics-seek-button '((((type pc) (class color))
-				  (:foreground "lightblue"))
-				 (t :underline t))
-  "Default face used for seek buttons."
-  :group 'chess-ics)
-
-(defvar chess-ics-seek-button-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'chess-ics-push-seek-button)
-    (define-key map [mouse-2] 'chess-ics-push-seek-button)
-    map)
-  "Keymap used by seek buttons.")
-
 (defvar chess-ics-sought-parent-buffer nil
   "Contains the buffer from which this seektable originates.")
 (make-variable-buffer-local 'chess-ics-sought-parent-buffer)
 
-(defun chess-ics-sought-accept (&optional pos)
-  "Perform the action specified by a button at location POS.
-POS may be either a buffer position or a mouse-event.
-POS defaults to point, except when `push-button' is invoked
-interactively as the result of a mouse-event, in which case, the
-mouse event is used.
-If there's no button at POS, do nothing and return nil, otherwise
-return t."
-  (interactive
-   (list (if (integerp last-command-event) (point) last-command-event)))
-  (if (and (not (integerp pos)) (eventp pos))
-      ;; POS is a mouse event; switch to the proper window/buffer
-      (let ((posn (event-start pos)))
-        (with-current-buffer (window-buffer (posn-window posn))
-          (push-button (posn-point posn) t)))
-    ;; POS is just normal position
-    (let ((command (get-char-property pos 'ics-command)))
-      (when (stringp command)
-	(chess-ics-send command chess-ics-sought-parent-buffer)
-	t))))
+(defun chess-ics-sought-accept (button)
+  "Perform the action specified by a BUTTON."
+  (let ((buffer (button-get button 'ics-buffer))
+	(command (button-get button 'ics-command)))
+    (when (and (buffer-live-p buffer) (stringp command))
+      (chess-ics-send command buffer)
+      t)))
 
-(defvar chess-ics-popup-sought t
-  "*If non-nil, display the sought buffer automatically.")
+(defcustom chess-ics-popup-sought t
+  "If non-nil, display the sought buffer automatically."
+  :group 'chess-ics
+  :type 'boolean)
 
 (defcustom chess-ics-sought-buffer-name "*chess-ics-sought*"
-  "*The name of the buffer which accumulates seek ads."
+  "The name of the buffer which accumulates seek ads."
   :group 'chess-ics
   :type 'string)
 
-(defvar chess-ics-sought-sort-state nil
-  "Determines the order for seek ads in the sought buffer.
-If nil, do not sort entries, i.e., keep the order of arrival.")
-(make-variable-buffer-local 'chess-ics-sought-sort-state)
-
-(defvar chess-ics-sought-sort-direction nil
-  "Determines the direction of sorting for seek ads in the sought buffer.
-If nil, ads are sorted in ascending order, if non-nil, they are sorted in
-descending order.")
-(make-variable-buffer-local 'chess-ics-sought-sort-direction)
-
-(defun chess-ics-sought-sort ()
-  (case chess-ics-sought-sort-state
-   (id     (sort-numeric-fields 1 (point-min) (point-max)))
-   (player (sort-fields 2 (point-min) (point-max)))
-   (rating (sort-numeric-fields 3 (point-min) (point-max)))
-   (time   (sort-numeric-fields 5 (point-min) (point-max)))
-   (inc    (sort-numeric-fields 6 (point-min) (point-max))))
-  (and chess-ics-sought-sort-state
-       chess-ics-sought-sort-direction
-       (reverse-region (point-min) (point-max))))
-
-(defun chess-ics-sought-toggle-sort-state ()
-  (interactive)
-  (setq chess-ics-sought-sort-state
-	(case chess-ics-sought-sort-state
-	  ((id) 'player)
-	  ((player) 'rating)
-	  ((rating) 'time)
-	  ((time) 'inc)
-	  ((inc) nil)
-	  ((nil) 'id)))
-  (message "Sorting ads by %s..."
-	   (case chess-ics-sought-sort-state
-	     ((id) "ID")
-	     ((player) "player name")
-	     ((rating) "rating (ascending)")
-	     ((reverse-rating) "rating (descending)")
-	     ((time) "initial time")
-	     ((inc) "time increment")
-	     ((nil) "arrival")))
-  (chess-ics-sought-sort))
-
-(defun chess-ics-sought-toggle-sort-direction ()
-  (interactive)
-  (message "Sorting %sscending direction..."
-	   (if (setq chess-ics-sought-sort-direction
-		     (not chess-ics-sought-sort-direction))
-	       "de" "a"))
-  (chess-ics-sought-sort))
-
-(defcustom chess-ics-sought-mode-line-format
-  '("-" mode-line-mule-info mode-line-modified mode-line-frame-identification
-   "   "
-   global-mode-string
-   "   %[("
-   (:eval (mode-line-mode-name))
-   minor-mode-alist
-   "%n"
-   ")%]--"
-   (:eval (format "[%d ads displayed]" (count-lines (point-min) (point-max))))
-   "-%-")
-  "Mode line data for ICS sought mode."
+(define-derived-mode chess-ics-ads-mode tabulated-list-mode "ICSAds"
+  "Mode for displaying sought games from Internet Chess Servers."
   :group 'chess-ics
-  :type 'sexp)
-
-(defvar chess-ics-sought-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "\r" 'chess-ics-sought-accept)
-    (define-key map [mouse-2] 'chess-ics-sought-accept)
-    (define-key map [??] 'describe-mode)
-    (define-key map [?s] 'chess-ics-sought-toggle-sort-state)
-    (define-key map [? ] 'chess-ics-sought-toggle-sort-direction)
-    map)
-  "Keymap for `chess-ics-sought-mode'.")
-
-(define-derived-mode chess-ics-sought-mode fundamental-mode "Seek Ads"
-  "A mode for displaying ICS game seek advertisments."
-  (let ((map (current-local-map)))
-    (define-key map "\r" 'chess-ics-sought-accept)
-    (define-key map [mouse-2] 'chess-ics-sought-accept)
-    (define-key map [return] 'chess-ics-sought-accept)
-    (define-key map [??] 'describe-mode)
-    (define-key map [?s] 'chess-ics-sought-toggle-sort-state)
-    (define-key map [? ] 'chess-ics-sought-toggle-sort-direction)
-    (define-key map [?n] 'next-line)
-    (define-key map [?p] 'previous-line))
-  (setq sort-fold-case t
-	mode-line-format chess-ics-sought-mode-line-format
-	header-line-format
-	'((3 . "ID") " "
-	  (20 "Player") " "
-	  (4 . "Elo") " "
-	  "Rated" " "
-	  (7 . "  Time") " "
-	  "Variant%-")))
+  (setq tabulated-list-format [("Player" 20 t)
+			       ("Rating" 10 t :right-align t)
+			       ("Rated" 5 nil :right-align t)
+			       ("Time" 4 t :right-align t)
+			       ("Inc" 4 t)
+			       ("Variant" 40 t)])
+  (setq tabulated-list-entries nil)
+  (tabulated-list-init-header)
+  (tabulated-list-print))
 
 (defun chess-ics-sought-add (id name rating rated time inc variant
 			     ics-buffer cmd)
-  (with-current-buffer
+  (let ((inhibit-redisplay t))
+    (with-current-buffer
       (or (get-buffer chess-ics-sought-buffer-name)
 	  (with-current-buffer (get-buffer-create
 				chess-ics-sought-buffer-name)
-	    (chess-ics-sought-mode)
+	    (chess-ics-ads-mode)
 	    (and chess-ics-popup-sought (display-buffer (current-buffer)))
 	    (current-buffer)))
-    (setq chess-ics-sought-parent-buffer ics-buffer)
-    (let ((here (point)))
-      (when (re-search-forward (concat "^" (regexp-quote id) " ") nil t)
-	(goto-char (line-beginning-position))
-	(delete-region (point) (1+ (line-end-position))))
-      (goto-char (point-min))
-      (let ((beg (point)))
-	(insert (format "%4s %20s %4d %4s  %3d/%3d %s"
-			id name rating rated time inc variant))
-	(add-text-properties
-	 beg (point)
-	 (list 'rear-nonsticky t
-	       'mouse-face 'highlight
-	       'ics-command cmd))
-	(insert "\n"))
-      (chess-ics-sought-sort)
-      (goto-char here))))
+      (setq chess-ics-sought-parent-buffer ics-buffer)
+      (add-to-list 'tabulated-list-entries
+		   (list id
+			 (vector (list name
+				       'ics-buffer ics-buffer
+				       'ics-command cmd
+				       'action #'chess-ics-sought-accept)
+ 				 (number-to-string rating)
+				 rated
+				 (number-to-string time)
+				 (number-to-string inc)
+				 variant)))
+      (tabulated-list-revert))))
 
 (defun chess-ics-seeking (string)
   ;; jww (2008-09-02): we should use rx for this regular expression also
@@ -825,7 +720,7 @@ descending order.")
 	  string)
     (let* ((pre (substring string 0 (match-beginning 0)))
 	   (post (substring string (match-end 0))))
-      (chess-ics-sought-add (substring (match-string 9 string) 5)
+      (chess-ics-sought-add (string-to-number (substring (match-string 9 string) 5))
 			    (match-string 1 string)
 			    (string-to-number (match-string 2 string))
 			    (if (string= (match-string 6 string) "rated")
@@ -849,22 +744,21 @@ This function should be put on `comint-preoutput-filter-functions'."
 	    (concat "[\n\r]+Ads removed: \\([0-9 ]+\\)\\s-*[\n\r]+"
 		    chess-ics-prompt-regexp)
 	    string)
-      (setq ids (append (save-match-data
-			  (split-string (match-string 1 string) " +")) ids))
-      (setq string (concat (substring string 0 (match-beginning 0))
+      (setq ids (append (mapcar #'string-to-number
+				(save-match-data
+				  (split-string (match-string 1 string) " +")))
+			ids)
+	    string (concat (substring string 0 (match-beginning 0))
 			   (substring string (match-end 0)))))
     (when ids
-      (let ((buf (get-buffer chess-ics-sought-buffer-name)))
+      (let ((buf (get-buffer chess-ics-sought-buffer-name))
+	    (inhibit-redisplay t))
 	(when (buffer-live-p buf)
 	  (with-current-buffer buf
-	    (let ((here (point)))
-	      (while ids
-		(goto-char (point-min))
-		(when (re-search-forward (concat "^\\s-*" (car ids) " ") nil t)
-		  (delete-region (line-beginning-position)
-				 (1+ (line-end-position))))
-		(setq ids (cdr ids)))
-	      (goto-char here)))))))
+	    (setq tabulated-list-entries
+		  (cl-remove-if (lambda (entry) (member (car entry) ids))
+				tabulated-list-entries))
+	    (tabulated-list-revert))))))
   string)
 
 (make-variable-buffer-local 'comint-preoutput-filter-functions)
@@ -975,7 +869,7 @@ This function should be put on `comint-preoutput-filter-functions'."
        ((and (= dg 50)
 	     (string-match "^\\([0-9]+\\) \\(\\S-+\\) {\\([^}]*\\)} \\([0-9]+\\) \\([0-2]\\) \\([0-9]+\\) \\(\\S-+\\) \\([0-9]+\\) \\([0-9]+\\) \\([01]\\) \\(-?[01]\\) \\([0-9]+\\) \\([0-9]+\\) \\([01]\\) \\([01]\\) {\\([^}]*\\)}" args))
 	(chess-ics-sought-add
-	 (match-string 1 args)
+	 (string-to-number (match-string 1 args))
 	 (concat (match-string 2 args)
 		 (if (not (string= (match-string 3 args) ""))
 		     (format "(%s)" (match-string 3 args))
@@ -995,19 +889,17 @@ This function should be put on `comint-preoutput-filter-functions'."
 	 (concat "play " (match-string 1 args)))
 	"")
        ((= dg 51)
-	(let ((id (car (split-string args " ")))
+	(let ((id (string-to-number (car (split-string args " +"))))
 	      (buf (get-buffer chess-ics-sought-buffer-name)))
 	  (when (buffer-live-p buf)
 	    (with-current-buffer buf
-	      (let ((here (point)))
-		(goto-char (point-min))
-		(when (re-search-forward (concat "^\\s-*" id " ") nil t)
-		  (delete-region (line-beginning-position)
-				 (1+ (line-end-position))))
-		(goto-char here)))))
+	      (setq tabulated-list-entries
+		    (cl-remove-if (lambda (entry) (equal (car entry) id))
+				  tabulated-list-entries))
+	      (tabulated-list-revert))))
 	"")
        (t
-	(format "\nIgnoring datagram DG%03d: %s\n" dg args))))))
+	(format "\nIgnoring unhandled datagram DG%03d: %s\n" dg args))))))
 
 (defun chess-icc-preoutput-filter (string)
   (if chess-icc-unprocessed
