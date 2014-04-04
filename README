@@ -17,7 +17,7 @@ You can also play against another human or computer over the internet
 Chess Servers like freechess.org or chessclub.com), or even against a
 very simple chess thinking module implemented in pure Emacs Lisp.
 
-chess.el also provides a mode for editing Portable Game Notation (PGN
+chess.el also provides a mode for editing Portable Game Notation (PGN)
 files.
 
 To improve your chessaility, you might also like to have a look at

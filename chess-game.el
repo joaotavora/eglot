@@ -25,12 +25,12 @@
     ("TimeControl" . "-")))
 
 (defsubst chess-game-hooks (game)
-  "Return the tags alist associated with GAME."
+  "Return the event hooks associated with GAME."
   (assert game)
   (car game))
 
 (defsubst chess-game-set-hooks (game hooks)
-  "Return the tags alist associated with GAME."
+  "Set the event hooks associated with GAME."
   (assert game)
   (assert (or hooks (eq hooks nil)))
   (setcar game hooks))
@@ -94,7 +94,7 @@ After the TAGS alist was set the 'set-tags event is triggered."
     (and tags (cdr (assoc tag tags)))))
 
 (defun chess-game-set-tag (game tag value)
-  "Set a TAG for GAME to VALUE."
+  "Set TAG for GAME to VALUE."
   (assert game)
   (assert tag)
   (assert value)
@@ -108,7 +108,7 @@ After the TAGS alist was set the 'set-tags event is triggered."
   (chess-game-run-hooks game 'set-tag tag))
 
 (defsubst chess-game-del-tag (game tag)
-  "Delete a TAG from GAME."
+  "Delete TAG from GAME."
   (assert game)
   (assert tag)
   (chess-game-set-tags game (assq-delete-all tag (chess-game-tags game)))
