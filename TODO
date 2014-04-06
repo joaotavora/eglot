@@ -11,11 +11,6 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   :ID: CAE4078C-4446-4810-AF91-38527042FBCA
   :END:
   [2008-09-17 Wed]
-* TODO Titles for the ads window are off
-  :PROPERTIES:
-  :ID: 500B58E3-C9A4-48EA-B61A-87E129938E05
-  :END:
-  [2008-09-17 Wed]
 * TODO When an error occurs during make check, the test should fail
   :PROPERTIES:
   :ID: 5FA91881-6013-4E36-B636-2DC021E3FB46
@@ -208,7 +203,8 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   TAB 1.TAB ...
 
   On first tab, the move number is inserted. On second, you get
-  all possible moves in that position.
+  all possible moves in that position. If a opening book is loaded, moves will
+  be ordered according to the scores of the known book moves.
   :PROPERTIES:
   :ID: 7D4ACEDE-C9D9-49E1-883F-829DB80FC5E7
   :END:
@@ -318,11 +314,6 @@ EMACS-CHESS  -*- mode: org; fill-column: 78 -*-
   :ID: 130D8091-A1F5-43DC-AFBA-BFDB5D1ADEDF
   :END:
   [2008-09-10 Wed 17:04]
-* TODO Make the chess-ics-sought buffer read-only
-  :PROPERTIES:
-  :ID: D416E179-252C-49CE-8BAA-06B31364116F
-  :END:
-  [2008-09-02 Tue]
 * TODO Merge chess-announce and chess-sound						:Feature:
   Use style modules on top of the underlying module.
   :PROPERTIES:
