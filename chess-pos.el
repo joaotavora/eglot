@@ -727,9 +727,7 @@ If NO-CASTLING is non-nil, do not consider castling moves."
      ;; from any piece movement.  This is useful for testing whether a
      ;; king is in check, for example.
      ((memq piece '(t nil))
-      (dolist (p (if check-only
-		     '(?P ?R ?N ?B ?Q)
-		   '(?P ?R ?N ?B ?Q ?K)))
+      (dolist (p '(?P ?R ?N ?B ?Q ?K))
 	(mapc 'chess--add-candidate
 	      (chess-search-position position target
 				     (if piece p (downcase p))
