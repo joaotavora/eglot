@@ -1,6 +1,6 @@
 ;;; chess-ai.el --- A Chess playing module
 
-;; Copyright (C) 2004  Free Software Foundation, Inc.
+;; Copyright (C) 2014  Free Software Foundation, Inc.
 
 ;; Author: Mario Lang <mlang@delysid.org>
 
@@ -151,11 +151,26 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
 	      v
 	    (- v)))))))
 
+(defun chess-ai-plies (position)
+  "Return an ordered list of all legal plies for POSITION.
+Move ordering is rather naive at the moment.  Capturing
+moves come first, the rest is sorted according to the square
+index."
+  (let ((side-to-move (chess-pos-side-to-move position)))
+    (sort
+     (chess-legal-plies position :color side-to-move)
+     (lambda (a b)
+       (let ((l '(?Q ?R ?B ?N ?P ? ))
+	     (p1 (cadr (chess-ply-changes a)))
+	     (p2 (cadr (chess-ply-changes b))))
+	 (or (< (length (memq (chess-pos-piece position p1) l))
+		(length (memq (chess-pos-piece position p2) l)))
+	     (funcall (if side-to-move #'< #'>) p1 p2)))))))
+
 (defun chess-ai-eval-1 (position depth achievable cutoff eval-fn)
   (if (zerop depth)
       (funcall eval-fn position)
-    (let ((plies (chess-legal-plies position
-				    :color (chess-pos-side-to-move position))))
+    (let ((plies (chess-ai-plies position)))
       (if (null plies)
 	  (funcall eval-fn position)
 	(let ((best-ply (car plies)))
@@ -175,22 +190,32 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
 DEPTH plies."
   (if (zerop depth)
       (cons (funcall eval-fn position) position)
-    (let ((plies (chess-legal-plies
-		  position :color (chess-pos-side-to-move position))))
+    (let ((plies (chess-ai-plies position)))
       (if (null plies)
 	  (cons (funcall eval-fn position) position)
-	(let ((progress (make-progress-reporter "Thinking..." 0 (1- (length plies))))
-	      (best-ply (car plies)))
-	  (cl-loop for i from 0
+	(let* ((best-ply (car plies))
+	       (progress (make-progress-reporter
+			  (format "Thinking... (%s) "
+				  (chess-ply-to-algebraic best-ply))
+			  0 (length plies))))
+	  (cl-loop for i from 1
 		   for ply in plies
-		   do (let ((value (- (chess-ai-eval-1 (chess-ply-next-pos ply)
-						       (1- depth)
-						       (- cutoff) (- achievable)
-						       eval-fn))))
-			(progress-reporter-update progress i)
-			(when (> value achievable)
-			  (setq achievable value
-				best-ply ply)))
+		   do (progn
+			(let ((value (- (chess-ai-eval-1
+					 (chess-ply-next-pos ply)
+					 (1- depth) (- cutoff) (- achievable)
+					 eval-fn))))
+			  (progress-reporter-update progress i)
+			  (when (> value achievable)
+			    (setq achievable value
+				  best-ply ply)
+			    (accept-process-output nil 0.05)
+			    (progress-reporter-force-update
+			     progress
+			     i
+			     (format "Thinking... (%s cp=%d) "
+				     (chess-ply-to-algebraic best-ply)
+				     achievable)))))
 		   until (>= achievable cutoff))
 	  (progress-reporter-done progress)
 	  (cons achievable best-ply))))))
