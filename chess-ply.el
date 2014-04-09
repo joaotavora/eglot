@@ -299,9 +299,23 @@ maneuver."
 					 (list candidate)))
 	(if chess-ply-throw-if-any
 	    (throw 'any-found t)
-	  (let ((ply (chess-ply-create position t candidate target)))
-	    (if ply
-		(push ply plies)))))))
+	  (if (not chess-ply-allow-interactive-query)
+	      (let ((promotion (and (chess-pos-piece-p position candidate
+							(if color ?P ?p))
+				     (= (chess-index-rank target)
+					(if color 0 7)))))
+		(if promotion
+		    (progn
+		      (let ((ply (chess-ply-create position t candidate target
+						   :promote ?Q)))
+			(when ply (push ply plies)))
+		      (let ((ply (chess-ply-create position t candidate target
+						   :promote ?N)))
+			(when ply (push ply plies))))
+		  (let ((ply (chess-ply-create position t candidate target)))
+		    (when ply (push ply plies)))))
+	    (let ((ply (chess-ply-create position t candidate target)))
+	      (when ply (push ply plies))))))))
 
 (defun chess-legal-plies (position &rest keywords)
   "Return a list of all legal plies in POSITION.
@@ -477,7 +491,7 @@ position object passed in."
 
 	 (t (chess-error 'piece-unrecognized))))
 
-      (delq nil plies)))))
+      plies))))
 
 (provide 'chess-ply)
 
