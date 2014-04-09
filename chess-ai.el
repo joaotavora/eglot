@@ -66,9 +66,19 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
   :type 'integer)
 
 (defcustom chess-ai-passed-pawn 50
-  "Extra Score for a passed Pawn."
+  "Extra score for a passed Pawn."
   :group 'chess-ai
   :type 'integer)
+
+(defcustom chess-ai-mobility t
+  "Non-nil if piece mobility should be considered during static evaluation."
+  :group 'chess-ai
+  :type 'boolean)
+
+(defcustom chess-ai-quiescence t
+  "Non-nil if quiescence search should be performed."
+  :group 'chess-ai
+  :type 'boolean)
 
 (defun chess-ai-eval-static (position)
   "Calculate the static score for POSITION."
@@ -97,17 +107,18 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
 		 ((= piece ?N) (push i white-knights) (cl-incf v chess-ai-knight-value))
 		 ((= piece ?n) (push i black-knights) (cl-decf v chess-ai-knight-value))))))
 	  ;; Reward passed Pawns
-	  (when white-pawns
+	  (when (and white-pawns (< (length black-pawns) 7))
 	    (setq v (+ v (* (length
 			     (chess-pos-passed-pawns position t white-pawns))
 			    chess-ai-passed-pawn))))
-	  (when black-pawns
+	  (when (and black-pawns (< (length white-pawns) 7))
 	    (setq v (- v
 		       (* (length
 			   (chess-pos-passed-pawns position nil black-pawns))
 			  chess-ai-passed-pawn))))
 	  ;; Mobility
-	  (setq
+	  (when chess-ai-mobility
+	    (setq
 	   v
 	   (+
 	    v
@@ -145,54 +156,80 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
 	      (if black-knights
 		  (length (chess-legal-plies position :piece ?n
 					     :candidates black-knights))
-		0)))))
+		0))))))
 
 	  (if (chess-pos-side-to-move position)
 	      v
 	    (- v)))))))
 
-(defun chess-ai-plies (position)
+(defun chess-ai-plies (position &optional capture-only)
   "Return an ordered list of all legal plies for POSITION.
 Move ordering is rather naive at the moment.  Capturing
 moves come first, the rest is sorted according to the square
 index."
-  (let ((side-to-move (chess-pos-side-to-move position)))
-    (sort
-     (chess-legal-plies position :color side-to-move)
-     (lambda (a b)
-       (let ((l '(?Q ?R ?B ?N ?P ? ))
-	     (p1 (cadr (chess-ply-changes a)))
-	     (p2 (cadr (chess-ply-changes b))))
-	 (or (< (length (memq (chess-pos-piece position p1) l))
-		(length (memq (chess-pos-piece position p2) l)))
-	     (funcall (if side-to-move #'< #'>) p1 p2)))))))
+  (let* ((side-to-move (chess-pos-side-to-move position))
+	 (plies (chess-legal-plies position :color side-to-move)))
+    (if (not capture-only)
+	(cl-sort plies
+		 (lambda (a b)
+		   (let ((l '(?Q ?R ?B ?N ?P ? ))
+			 (p1 (cadr (chess-ply-changes a)))
+			 (p2 (cadr (chess-ply-changes b))))
+		     (or (< (length (memq (chess-pos-piece position p1) l))
+			    (length (memq (chess-pos-piece position p2) l)))
+			 (funcall (if side-to-move #'< #'>) p1 p2)))))
+      (cl-delete-if (lambda (ply)
+		      (= (chess-pos-piece position
+					   (cadr (chess-ply-changes ply)))
+			  ? ))
+		    plies))))
+
+(defun chess-ai-eval-2 (position achievable cutoff eval-fn)
+  (let ((stand-pat (funcall eval-fn position)))
+    (if (>= stand-pat cutoff)
+	cutoff
+      (when (< achievable stand-pat)
+	(setq achievable stand-pat))
+      (let ((plies (chess-ai-plies position t)))
+	(while plies
+	  (let ((value (- (chess-ai-eval-2 (chess-ply-next-pos (car plies))
+					   (- cutoff) (- achievable)
+					   eval-fn))))
+	    (if (>= value cutoff)
+		(setq achievable cutoff
+		      plies nil)
+	      (when (> value achievable)
+		(setq achievable value))
+	      (setq plies (cdr plies)))))
+	achievable))))
 
 (defun chess-ai-eval-1 (position depth achievable cutoff eval-fn)
   (if (zerop depth)
-      (funcall eval-fn position)
+      (if chess-ai-quiescence
+	  (chess-ai-eval-2 position achievable cutoff eval-fn)
+	(funcall eval-fn position))
     (let ((plies (chess-ai-plies position)))
       (if (null plies)
 	  (funcall eval-fn position)
-	(let ((best-ply (car plies)))
-	  (cl-loop for ply in plies
+	(cl-loop for ply in plies
 		   do (let ((value (- (chess-ai-eval-1 (chess-ply-next-pos ply)
 						       (1- depth)
 						       (- cutoff) (- achievable)
 						       eval-fn))))
 			(when (> value achievable)
-			  (setq achievable value
-				best-ply ply)))
+			  (setq achievable value)))
 		   until (>= achievable cutoff))
-	  achievable)))))
+	achievable))))
 
 (defun chess-ai-eval (position depth achievable cutoff eval-fn)
   "Evaluate POSITION using a simple AlphaBeta search algorithm using at most
 DEPTH plies."
+  (let ((chess-ply-allow-interactive-query nil))
   (if (zerop depth)
-      (cons (funcall eval-fn position) position)
+      (cons (funcall eval-fn position) nil)
     (let ((plies (chess-ai-plies position)))
       (if (null plies)
-	  (cons (funcall eval-fn position) position)
+	  (cons (funcall eval-fn position) nil)
 	(let* ((best-ply (car plies))
 	       (progress (make-progress-reporter
 			  (format "Thinking... (%s) "
@@ -213,12 +250,12 @@ DEPTH plies."
 			    (progress-reporter-force-update
 			     progress
 			     i
-			     (format "Thinking... (%s cp=%d) "
+			     (format "Thinking... (%s {cp=%d}) "
 				     (chess-ply-to-algebraic best-ply)
 				     achievable)))))
 		   until (>= achievable cutoff))
 	  (progress-reporter-done progress)
-	  (cons achievable best-ply))))))
+	  (cons achievable best-ply)))))))
 
 (defun chess-ai-best-move (position depth)
   "Find the best move for POSITION using `chess-ai-eval' with DEPTH."
