@@ -19,6 +19,17 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
+;;; Commentary:
+
+;; This file implements simple negamax and quiescence search for chess
+;; positions.  Contrary to other engine modules, it does not delegate position
+;; evaluation to an external program, it directly tries to calculate move
+;; evaluations in Emacs Lisp.
+
+;; See `chess-ai-best-move' for programmatic access.
+
+;; Use "C-u M-x chess RET ai RET" to play against this engine.
+
 ;;; Code:
 
 (require 'chess)
@@ -36,7 +47,10 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
   :group 'chess)
 
 (defcustom chess-ai-depth 2
-  "The default search depth used to prune the search tree."
+  "The default search depth used to prune the search tree.
+
+If `chess-ai-quiescence' is non-nil, quiescence search will be performed after
+the ply depth limit has been reached."
   :group 'chess-ai
   :type 'integer)
 
@@ -80,6 +94,8 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
   :group 'chess-ai
   :type 'boolean)
 
+;;;; Static evaluation
+
 (defun chess-ai-eval-static (position)
   "Calculate the static score for POSITION."
   (cl-assert (vectorp position))
@@ -90,8 +106,8 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
       (if (eq status :stalemate)
 	  0
 	(let (white-queens black-queens white-rooks black-rooks
-	      white-bishops black-bishops white-knights black-knights
-	      white-pawns black-pawns)
+			   white-bishops black-bishops white-knights black-knights
+			   white-pawns black-pawns)
 	  (dotimes (i 64)
 	    (let ((piece (aref position i)))
 	      (unless (= piece ? )
@@ -119,48 +135,50 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
 	  ;; Mobility
 	  (when chess-ai-mobility
 	    (setq
-	   v
-	   (+
-	    v
-	    (-
+	     v
 	     (+
-	      (if white-queens
-		  (length (chess-legal-plies position :piece ?Q
-					     :candidates white-queens))
-		0)
-	      (if white-rooks
-		  (length (chess-legal-plies position :piece ?R
-					     :candidates white-rooks))
-		0)
-	      (if white-bishops
-		  (length (chess-legal-plies position :piece ?B
-					     :candidates white-bishops))
-		0)
-	      (if white-knights
-		  (length (chess-legal-plies position :piece ?N
-					     :candidates white-knights))
-		0))
-	     (+
-	      (if black-queens
-		  (length (chess-legal-plies position :piece ?q
-					     :candidates black-queens))
-		0)
-	      (if black-rooks
-		  (length (chess-legal-plies position :piece ?r
-					     :candidates black-rooks))
-		0)
-	      (if black-bishops
-		  (length (chess-legal-plies position :piece ?b
-					     :candidates black-bishops))
-		0)
-	      (if black-knights
-		  (length (chess-legal-plies position :piece ?n
-					     :candidates black-knights))
-		0))))))
+	      v
+	      (-
+	       (+
+		(if white-queens
+		    (length (chess-legal-plies position :piece ?Q
+					       :candidates white-queens))
+		  0)
+		(if white-rooks
+		    (length (chess-legal-plies position :piece ?R
+					       :candidates white-rooks))
+		  0)
+		(if white-bishops
+		    (length (chess-legal-plies position :piece ?B
+					       :candidates white-bishops))
+		  0)
+		(if white-knights
+		    (length (chess-legal-plies position :piece ?N
+					       :candidates white-knights))
+		  0))
+	       (+
+		(if black-queens
+		    (length (chess-legal-plies position :piece ?q
+					       :candidates black-queens))
+		  0)
+		(if black-rooks
+		    (length (chess-legal-plies position :piece ?r
+					       :candidates black-rooks))
+		  0)
+		(if black-bishops
+		    (length (chess-legal-plies position :piece ?b
+					       :candidates black-bishops))
+		  0)
+		(if black-knights
+		    (length (chess-legal-plies position :piece ?n
+					       :candidates black-knights))
+		  0))))))
 
 	  (if (chess-pos-side-to-move position)
 	      v
 	    (- v)))))))
+
+;;;; Move ordering
 
 (defun chess-ai-plies (position &optional capture-only)
   "Return an ordered list of all legal plies for POSITION.
@@ -180,28 +198,26 @@ index."
 			 (funcall (if side-to-move #'< #'>) p1 p2)))))
       (cl-delete-if (lambda (ply)
 		      (= (chess-pos-piece position
-					   (cadr (chess-ply-changes ply)))
-			  ? ))
+					  (cadr (chess-ply-changes ply)))
+			 ? ))
 		    plies))))
 
+;;;; Searching
+
 (defun chess-ai-eval-2 (position achievable cutoff eval-fn)
+  "Try to find a quiet position by evaluating only capturing moves."
   (let ((stand-pat (funcall eval-fn position)))
     (if (>= stand-pat cutoff)
 	cutoff
       (when (< achievable stand-pat)
 	(setq achievable stand-pat))
-      (let ((plies (chess-ai-plies position t)))
-	(while plies
-	  (let ((value (- (chess-ai-eval-2 (chess-ply-next-pos (car plies))
-					   (- cutoff) (- achievable)
-					   eval-fn))))
-	    (if (>= value cutoff)
-		(setq achievable cutoff
-		      plies nil)
-	      (when (> value achievable)
-		(setq achievable value))
-	      (setq plies (cdr plies)))))
-	achievable))))
+      (cl-loop for ply in (chess-ai-plies position t)
+	       for value = (- (chess-ai-eval-2
+			       (chess-ply-next-pos ply)
+			       (- cutoff) (- achievable) eval-fn))
+	       when (>= value cutoff) return cutoff
+	       when (> value achievable) do (setq achievable value))
+      achievable)))
 
 (defun chess-ai-eval-1 (position depth achievable cutoff eval-fn)
   (if (zerop depth)
@@ -212,33 +228,36 @@ index."
       (if (null plies)
 	  (funcall eval-fn position)
 	(cl-loop for ply in plies
-		   do (let ((value (- (chess-ai-eval-1 (chess-ply-next-pos ply)
-						       (1- depth)
-						       (- cutoff) (- achievable)
-						       eval-fn))))
-			(when (> value achievable)
-			  (setq achievable value)))
-		   until (>= achievable cutoff))
+		 for value = (- (chess-ai-eval-1 (chess-ply-next-pos ply)
+						 (1- depth)
+						 (- cutoff) (- achievable)
+						 eval-fn))
+		 when (> value achievable) do (setq achievable value)
+		 until (>= achievable cutoff))
 	achievable))))
 
 (defun chess-ai-eval (position depth achievable cutoff eval-fn)
-  "Evaluate POSITION using a simple AlphaBeta search algorithm using at most
-DEPTH plies."
+  "Evaluate POSITION using a simple negamax search algorithm using at least
+DEPTH plies.  If `chess-ai-quiescence' is non-nil additionally only capturing
+moves are examined until a quiet position is reached.  EVAL-FN is called
+for all leave nodes of the resulting tree.
+A `cons' cell is returned where `cdr' is the best move from POSITION
+and `car' is the score of that move.  If there is no legal move from POSITION,
+`cdr' is nil."
   (let ((chess-ply-allow-interactive-query nil))
-  (if (zerop depth)
-      (cons (funcall eval-fn position) nil)
-    (let ((plies (chess-ai-plies position)))
-      (if (null plies)
-	  (cons (funcall eval-fn position) nil)
-	(let* ((best-ply (car plies))
-	       (progress (make-progress-reporter
-			  (format "Thinking... (%s) "
-				  (chess-ply-to-algebraic best-ply))
-			  0 (length plies))))
-	  (cl-loop for i from 1
-		   for ply in plies
-		   do (progn
-			(let ((value (- (chess-ai-eval-1
+    (if (zerop depth)
+	(cons (funcall eval-fn position) nil)
+      (let ((plies (chess-ai-plies position)))
+	(if (null plies)
+	    (cons (funcall eval-fn position) nil)
+	  (let* ((best-ply (car plies))
+		 (progress (make-progress-reporter
+			    (format "Thinking... (%s) "
+				    (chess-ply-to-algebraic best-ply))
+			    0 (length plies))))
+	    (cl-loop for i from 1
+		     for ply in plies
+		     do (let ((value (- (chess-ai-eval-1
 					 (chess-ply-next-pos ply)
 					 (1- depth) (- cutoff) (- achievable)
 					 eval-fn))))
@@ -252,10 +271,10 @@ DEPTH plies."
 			     i
 			     (format "Thinking... (%s {cp=%d}) "
 				     (chess-ply-to-algebraic best-ply)
-				     achievable)))))
-		   until (>= achievable cutoff))
-	  (progress-reporter-done progress)
-	  (cons achievable best-ply)))))))
+				     achievable))))
+		     until (>= achievable cutoff))
+	    (progress-reporter-done progress)
+	    (cons achievable best-ply)))))))
 
 (defun chess-ai-best-move (position depth)
   "Find the best move for POSITION using `chess-ai-eval' with DEPTH."
@@ -285,7 +304,7 @@ DEPTH plies."
 	(let (chess-display-handling-event)
 	  (funcall chess-engine-response-handler
 		   'move (chess-ai-best-move (chess-engine-position nil)
-						   chess-ai-depth)))))
+					     chess-ai-depth)))))
 
      (t
       (apply 'chess-common-handler game event args)))))
