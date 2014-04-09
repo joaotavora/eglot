@@ -1,4 +1,4 @@
-;;; chess-ai.el --- A Chess playing module
+;;; chess-ai.el --- A native Emacs Lisp Chess playing module
 
 ;; Copyright (C) 2014  Free Software Foundation, Inc.
 
@@ -204,31 +204,31 @@ index."
 
 ;;;; Searching
 
-(defun chess-ai-eval-2 (position achievable cutoff eval-fn)
+(defun chess-ai-quiescence (position achievable cutoff eval-fn)
   "Try to find a quiet position by evaluating only capturing moves."
   (let ((stand-pat (funcall eval-fn position)))
     (if (>= stand-pat cutoff)
 	cutoff
-      (when (< achievable stand-pat)
+      (when (> stand-pat achievable)
 	(setq achievable stand-pat))
       (cl-loop for ply in (chess-ai-plies position t)
-	       for value = (- (chess-ai-eval-2
+	       for value = (- (chess-ai-quiescence
 			       (chess-ply-next-pos ply)
 			       (- cutoff) (- achievable) eval-fn))
-	       when (>= value cutoff) return cutoff
-	       when (> value achievable) do (setq achievable value))
+	       when (> value achievable) do (setq achievable value)
+	       until (>= achievable cutoff))
       achievable)))
 
-(defun chess-ai-eval-1 (position depth achievable cutoff eval-fn)
+(defun chess-ai-search (position depth achievable cutoff eval-fn)
   (if (zerop depth)
       (if chess-ai-quiescence
-	  (chess-ai-eval-2 position achievable cutoff eval-fn)
+	  (chess-ai-quiescence position achievable cutoff eval-fn)
 	(funcall eval-fn position))
     (let ((plies (chess-ai-plies position)))
       (if (null plies)
 	  (funcall eval-fn position)
 	(cl-loop for ply in plies
-		 for value = (- (chess-ai-eval-1 (chess-ply-next-pos ply)
+		 for value = (- (chess-ai-search (chess-ply-next-pos ply)
 						 (1- depth)
 						 (- cutoff) (- achievable)
 						 eval-fn))
@@ -257,7 +257,7 @@ and `car' is the score of that move.  If there is no legal move from POSITION,
 			    0 (length plies))))
 	    (cl-loop for i from 1
 		     for ply in plies
-		     do (let ((value (- (chess-ai-eval-1
+		     do (let ((value (- (chess-ai-search
 					 (chess-ply-next-pos ply)
 					 (1- depth) (- cutoff) (- achievable)
 					 eval-fn))))
