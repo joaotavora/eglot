@@ -54,6 +54,11 @@ the ply depth limit has been reached."
   :group 'chess-ai
   :type 'integer)
 
+(defcustom chess-ai-quiescence-depth 2
+  "Search depth for quiescence search."
+  :group 'chess-ai
+  :type 'integer)
+
 (defcustom chess-ai-pawn-value 100
   "Value of a Pawn."
   :group 'chess-ai
@@ -204,25 +209,28 @@ index."
 
 ;;;; Searching
 
-(defun chess-ai-quiescence (position achievable cutoff eval-fn)
+(defun chess-ai-quiescence (position depth achievable cutoff eval-fn)
   "Try to find a quiet position by evaluating only capturing moves."
   (let ((stand-pat (funcall eval-fn position)))
     (if (>= stand-pat cutoff)
 	cutoff
       (when (> stand-pat achievable)
 	(setq achievable stand-pat))
-      (cl-loop for ply in (chess-ai-plies position t)
-	       for value = (- (chess-ai-quiescence
-			       (chess-ply-next-pos ply)
-			       (- cutoff) (- achievable) eval-fn))
-	       when (> value achievable) do (setq achievable value)
-	       until (>= achievable cutoff))
-      achievable)))
+      (if (zerop depth)
+	  achievable
+	(cl-loop for ply in (chess-ai-plies position t)
+		 for value = (- (chess-ai-quiescence
+				 (chess-ply-next-pos ply)
+				 (1- depth) (- cutoff) (- achievable) eval-fn))
+		 when (> value achievable) do (setq achievable value)
+		 until (>= achievable cutoff))
+	achievable))))
 
 (defun chess-ai-search (position depth achievable cutoff eval-fn)
   (if (zerop depth)
       (if chess-ai-quiescence
-	  (chess-ai-quiescence position achievable cutoff eval-fn)
+	  (chess-ai-quiescence position chess-ai-quiescence-depth
+			       achievable cutoff eval-fn)
 	(funcall eval-fn position))
     (let ((plies (chess-ai-plies position)))
       (if (null plies)
@@ -236,18 +244,36 @@ index."
 		 until (>= achievable cutoff))
 	achievable))))
 
+(defun chess-ai-legal-plies (position depth)
+  "Return a sorted list of legal plies for POSITION with scores calculated DEPTH
+plies deep."
+  (cl-sort
+   (mapcar (lambda (ply)
+	     (chess-ply-set-keyword
+	      ply :score (- (chess-ai-search (chess-ply-next-pos ply)
+					     (1- depth)
+					     (1+ most-negative-fixnum)
+					     most-positive-fixnum
+					     #'chess-ai-eval-static)))
+	     ply)
+	   (chess-legal-plies position :color (chess-pos-side-to-move position)))
+   (lambda (lhs rhs)
+     (> (chess-ply-keyword lhs :score) (chess-ply-keyword rhs :score)))))
+
 (defun chess-ai-eval (position depth achievable cutoff eval-fn)
   "Evaluate POSITION using a simple negamax search algorithm using at least
 DEPTH plies.  If `chess-ai-quiescence' is non-nil additionally only capturing
 moves are examined until a quiet position is reached.  EVAL-FN is called
 for all leave nodes of the resulting tree.
-A `cons' cell is returned where `cdr' is the best move from POSITION
-and `car' is the score of that move.  If there is no legal move from POSITION,
-`cdr' is nil."
+A `cons' cell is returned where `cdr' is the supposedly best move from POSITION
+and `car' is the score of that move.  If there is no legal move from POSITION
+\(or DEPTH is 0), `cdr' will be nil."
   (let ((chess-ply-allow-interactive-query nil))
     (if (zerop depth)
 	(cons (funcall eval-fn position) nil)
-      (let ((plies (chess-ai-plies position)))
+      (let ((plies (let ((chess-ai-mobility nil)
+			 (chess-ai-quiescence nil))
+		     (chess-ai-legal-plies position 2))))
 	(if (null plies)
 	    (cons (funcall eval-fn position) nil)
 	  (let* ((best-ply (car plies))
@@ -257,15 +283,15 @@ and `car' is the score of that move.  If there is no legal move from POSITION,
 			    0 (length plies))))
 	    (cl-loop for i from 1
 		     for ply in plies
-		     do (let ((value (- (chess-ai-search
+	 	     do (let ((value (- (chess-ai-search
 					 (chess-ply-next-pos ply)
 					 (1- depth) (- cutoff) (- achievable)
 					 eval-fn))))
 			  (progress-reporter-update progress i)
+			    (accept-process-output nil 0.05)
 			  (when (> value achievable)
 			    (setq achievable value
 				  best-ply ply)
-			    (accept-process-output nil 0.05)
 			    (progress-reporter-force-update
 			     progress
 			     i
