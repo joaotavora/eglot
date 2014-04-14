@@ -23,8 +23,10 @@ dist_lisp_LISP =	   \
 	chess-epd.el	   \
 	chess-fen.el	   \
 	chess-file.el	   \
+	chess-fruit.el     \
 	chess-game.el	   \
 	chess-german.el	   \
+	chess-glaurung.el  \
 	chess-gnuchess.el  \
 	chess-ics.el	   \
 	chess-ics1.el	   \
