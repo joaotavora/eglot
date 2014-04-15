@@ -36,7 +36,7 @@
 (require 'chess-common)
 (require 'chess-pos)
 (require 'chess-ply)
-(eval-when-compile (require 'cl-lib))
+(require 'cl-lib)
 
 (defgroup chess-ai ()
   "A simple chess engine written in Emacs Lisp.
