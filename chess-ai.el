@@ -36,7 +36,7 @@
 (require 'chess-common)
 (require 'chess-pos)
 (require 'chess-ply)
-(require 'cl-lib)
+(eval-when-compile (require 'cl-lib))
 
 (defgroup chess-ai ()
   "A simple chess engine written in Emacs Lisp.
@@ -192,14 +192,14 @@ index."
   (let* ((side-to-move (chess-pos-side-to-move position))
 	 (plies (chess-legal-plies position :color side-to-move)))
     (if (not capture-only)
-	(cl-sort plies
-		 (lambda (a b)
-		   (let ((l '(?Q ?R ?B ?N ?P ? ))
-			 (p1 (cadr (chess-ply-changes a)))
-			 (p2 (cadr (chess-ply-changes b))))
-		     (or (< (length (memq (chess-pos-piece position p1) l))
-			    (length (memq (chess-pos-piece position p2) l)))
-			 (funcall (if side-to-move #'< #'>) p1 p2)))))
+	(sort plies
+	      (lambda (a b)
+		(let ((l '(?Q ?R ?B ?N ?P ? ))
+		      (p1 (cadr (chess-ply-changes a)))
+		      (p2 (cadr (chess-ply-changes b))))
+		  (or (< (length (memq (chess-pos-piece position p1) l))
+			 (length (memq (chess-pos-piece position p2) l)))
+		      (funcall (if side-to-move #'< #'>) p1 p2)))))
       (cl-delete-if (lambda (ply)
 		      (= (chess-pos-piece position
 					  (cadr (chess-ply-changes ply)))
@@ -246,7 +246,7 @@ index."
 (defun chess-ai-legal-plies (position depth)
   "Return a sorted list of legal plies for POSITION with scores calculated DEPTH
 plies deep."
-  (cl-sort
+  (sort
    (mapcar (lambda (ply)
 	     (chess-ply-set-keyword
 	      ply :score (- (chess-ai-search (chess-ply-next-pos ply)
