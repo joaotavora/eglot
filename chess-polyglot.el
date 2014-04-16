@@ -508,15 +508,16 @@ distribute the probability that a move gets picked."
   (cl-flet ((ply-weight (ply)
 	      (round (expt (chess-ply-keyword ply :polyglot-book-weight)
 			   strength))))
-    (let* ((plies (chess-polyglot-book-plies book position))
-	   (random-value (random (cl-reduce #'+ (mapcar #'ply-weight plies))))
-	   (max 0) ply)
-      (while plies
-	(if (< random-value (cl-incf max (ply-weight (car plies))))
-	    (setq ply (car plies) plies nil)
-	  (setq plies (cdr plies))))
-      (cl-assert ply)
-      ply)))
+    (let ((plies (chess-polyglot-book-plies book position)))
+      (when plies
+	(let ((random-value (random (cl-reduce #'+ (mapcar #'ply-weight plies))))
+	      (max 0) ply)
+	  (while plies
+	    (if (< random-value (cl-incf max (ply-weight (car plies))))
+		(setq ply (car plies) plies nil)
+	      (setq plies (cdr plies))))
+	  (cl-assert ply)
+	  ply)))))
 
 (defalias 'chess-polyglot-book-close 'kill-buffer
   "Close a polyglot book.")
