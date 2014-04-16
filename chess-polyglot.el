@@ -45,6 +45,22 @@
 (require 'chess-ply)
 (require 'chess-pos)
 
+(defgroup chess-polyglot ()
+  "Polyglot opening book support."
+  :group 'chess)
+
+(defcustom chess-polyglot-book-strength 1.0
+  "Influence random distribution when picking a ply from the book.
+A value above 1.0 means to prefer known good moves while a value below
+1.0 means to penalize known good moves.  0.0 will force uniform
+distribution of move weights.  For reasons of numerical overflow,
+this should be strictly less than 4.0."
+  :group 'chess-polyglot
+  :type '(float :match (lambda (widget value) (and (>= value 0) (< value 4)))))
+
+(defvar chess-polyglot-book nil
+  "The default polyglot book object.")
+
 (defsubst chess-polyglot-read-octets (n)
   "Read N octets from the current buffer."
   (let ((val 0))
@@ -483,10 +499,11 @@ Use `chess-ply-keyword' on elements of the returned list to retrieve them."
 Random distribution is defined by the relative weights of the found plies.
 If non-nil, STRENGTH defines the bias towards better moves.
 A value below 1.0 will penalize known good moves while a value
-above 1.0 will prefer known good moves.  The default is 1.0.
+above 1.0 will prefer known good moves.  The default is the value
+of `chess-polyglot-book-strength'.
 A strength value of 0.0 will completely ignore move weights and evenly
 distribute the probability that a move gets picked."
-  (unless strength (setq strength 1.0))
+  (unless strength (setq strength chess-polyglot-book-strength))
   (cl-assert (and (>= strength 0) (< strength 4)))
   (cl-flet ((ply-weight (ply)
 	      (round (expt (chess-ply-keyword ply :polyglot-book-weight)
@@ -495,13 +512,28 @@ distribute the probability that a move gets picked."
 	   (random-value (random (cl-reduce #'+ (mapcar #'ply-weight plies))))
 	   (max 0) ply)
       (while plies
-	(if (< random-value (setq max (+ max (ply-weight (car plies)))))
+	(if (< random-value (cl-incf max (ply-weight (car plies))))
 	    (setq ply (car plies) plies nil)
 	  (setq plies (cdr plies))))
+      (cl-assert ply)
       ply)))
 
 (defalias 'chess-polyglot-book-close 'kill-buffer
   "Close a polyglot book.")
+
+(defun chess-polyglot-book-reload (symbol value)
+  (set symbol value)
+  (when (eq symbol 'chess-polyglot-book-file)
+    (setq chess-polyglot-book (chess-polyglot-book-open value))))
+
+(defcustom chess-polyglot-book-file (expand-file-name "chess-polyglot.bin"
+						      (file-name-directory
+						       (or load-file-name
+							   buffer-file-name)))
+  "Path to default polyglot book file."
+  :group 'chess-polyglot
+  :set 'chess-polyglot-book-reload
+  :type '(file :must-match t))
 
 (provide 'chess-polyglot)
 ;;; chess-polyglot.el ends here

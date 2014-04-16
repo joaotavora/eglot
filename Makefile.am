@@ -45,6 +45,7 @@ dist_lisp_LISP =	   \
 	chess-phalanx.el   \
 	chess-plain.el	   \
 	chess-ply.el	   \
+	chess-polyglot.el  \
 	chess-puzzle.el	   \
 	chess-random.el	   \
 	chess-scid.el	   \
