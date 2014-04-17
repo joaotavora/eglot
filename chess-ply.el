@@ -440,21 +440,22 @@ position object passed in."
 			     (chess-pos-piece-p position pos (not color))))
 		(chess-ply--add nil nil pos)))
 
-	  (if (chess-pos-can-castle position (if color ?K ?k))
-	      (let ((changes (chess-ply-castling-changes position nil
-							 candidate)))
-		(if changes
-		    (if chess-ply-throw-if-any
-			(throw 'any-found t)
-		      (push (cons position changes) plies)))))
+	  (unless (chess-search-position position candidate (not color) nil t)
+	    (if (chess-pos-can-castle position (if color ?K ?k))
+		(let ((changes (chess-ply-castling-changes position nil
+							   candidate)))
+		  (if changes
+		      (if chess-ply-throw-if-any
+			  (throw 'any-found t)
+			(push (cons position changes) plies)))))
 
-	  (if (chess-pos-can-castle position (if color ?Q ?q))
-	      (let ((changes (chess-ply-castling-changes position t
-							 candidate)))
-		(if changes
-		    (if chess-ply-throw-if-any
-			(throw 'any-found t)
-		      (push (cons position changes) plies))))))
+	    (if (chess-pos-can-castle position (if color ?Q ?q))
+		(let ((changes (chess-ply-castling-changes position t
+							   candidate)))
+		  (if changes
+		      (if chess-ply-throw-if-any
+			  (throw 'any-found t)
+			(push (cons position changes) plies)))))))
 
 	 ;; the knight is a zesty little piece; there may be more than
 	 ;; one, but at only one possible square in each direction
