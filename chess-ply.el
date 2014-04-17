@@ -305,12 +305,9 @@ maneuver."
 				     (= (chess-index-rank target)
 					(if color 0 7)))))
 		(if promotion
-		    (progn
+		    (dolist (promote '(?Q ?R ?B ?N))
 		      (let ((ply (chess-ply-create position t candidate target
-						   :promote ?Q)))
-			(when ply (push ply plies)))
-		      (let ((ply (chess-ply-create position t candidate target
-						   :promote ?N)))
+						   :promote promote)))
 			(when ply (push ply plies))))
 		  (let ((ply (chess-ply-create position t candidate target)))
 		    (when ply (push ply plies)))))
