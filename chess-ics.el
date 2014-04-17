@@ -38,8 +38,8 @@
 
 (defcustom chess-ics-server-list '(("freechess.org" 5000)
 				   ("chess.unix-ag.uni-kl.de" 5000)
-				   ("chess.mds.mdh.se" 5000)
-				   ("chessclub.com" 5000))
+				   ("chessclub.com" 5000)
+				   ("chess.net" 5000))
   "A list of servers to connect to.
 The format of each entry is:
 
@@ -236,6 +236,12 @@ standard position).  In those cases, this variable should be set to nil.")
    (cons "Press return to enter the server as"
 	 (function
 	  (lambda ()
+	    (chess-ics-send "")
+	    'once)))
+   (cons "Press return to enter chess.net as \"\\([^\"]+\\)\":"
+	 (function
+	  (lambda ()
+	    (setq chess-ics-handle (match-string 1))
 	    (chess-ics-send "")
 	    'once)))
    (cons "%\\s-*$"
@@ -755,10 +761,12 @@ This function should be put on `comint-preoutput-filter-functions'."
 	    (inhibit-redisplay t))
 	(when (buffer-live-p buf)
 	  (with-current-buffer buf
-	    (setq tabulated-list-entries
-		  (cl-remove-if (lambda (entry) (member (car entry) ids))
-				tabulated-list-entries))
-	    (tabulated-list-revert))))))
+	    (let ((old-length (length tabulated-list-entries)))
+	      (setq tabulated-list-entries
+		    (cl-remove-if (lambda (entry) (member (car entry) ids))
+				  tabulated-list-entries))
+	      (when (/= (length tabulated-list-entries) old-length)
+		(tabulated-list-revert))))))))
   string)
 
 (make-variable-buffer-local 'comint-preoutput-filter-functions)
