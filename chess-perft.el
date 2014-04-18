@@ -54,58 +54,40 @@ The result is a list of the form
   (if (zerop depth)
       (cl-values 1 0 0 0 0)
     (let ((plies (chess-legal-plies position
-				    :color (chess-pos-side-to-move position))))
+				    :color (chess-pos-side-to-move position)))
+	  (nodes 0) (captures 0) (en-passants 0) (castles 0) (promotions 0)
+	  (checks 0) (checkmates 0))
       (if (= depth 1)
-	  (cl-values (length plies)
-		     ;; Captures
-		     (cl-count-if
-		      (lambda (ply)
-			(or (chess-pos-piece-p
-			     (chess-ply-pos ply) (chess-ply-target ply)
-			     (not (chess-pos-side-to-move (chess-ply-pos ply))))
-			    (chess-ply-keyword ply :en-passant)))
-		      plies)
-		     ;; En passants
-		     (cl-count-if
-		      (lambda (ply)
-			(chess-ply-keyword ply :en-passant))
-		      plies)
-		     ;; Castles
-		     (cl-count-if
-		      (lambda (ply)
-			(chess-ply-any-keyword ply :castle :long-castle))
-		      plies)
-		     ;; Promotions
-		     (cl-count-if
-		      (lambda (ply)
-			(chess-ply-keyword ply :promote))
-		      plies)
-		     ;; Checks
-		     (cl-count-if
-		      (lambda (ply)
-			(chess-ply-any-keyword ply :check :checkmate))
-		      plies)
-		     ;; Checkmates
-		     (cl-count-if
-		      (lambda (ply)
-			(chess-ply-any-keyword ply :checkmate))
-		      plies))
-	(let ((nodes 0) (captures 0) (en-passants 0)
-	      (castles 0) (promotions 0)
-	      (checks 0) (checkmates 0))
-	  (dolist (ply plies (cl-values nodes
-					captures en-passants
-					castles promotions
-					checks checkmates))
-	    (cl-multiple-value-bind (n c e ca p ch cm)
-		(chess-perft (chess-ply-next-pos ply) (1- depth))
-	      (cl-incf nodes n)
-	      (cl-incf captures c)
-	      (cl-incf en-passants e)
-	      (cl-incf castles ca)
-	      (cl-incf promotions p)
-	      (cl-incf checks ch)
-	      (cl-incf checkmates cm))))))))
+	  (dolist (ply plies)
+	    (cl-incf nodes)
+	    (when (let ((position (chess-ply-pos ply)))
+		    (chess-pos-piece-p position (chess-ply-target ply)
+				       (not (chess-pos-side-to-move position))))
+	      (cl-incf captures))
+	    (when (chess-ply-keyword ply :en-passant)
+	      (cl-incf captures)
+	      (cl-incf en-passants))
+	    (if (chess-ply-any-keyword ply :castle :long-castle)
+		(cl-incf castles)
+	      (when (chess-ply-keyword ply :promote)
+		(cl-incf promotions)))
+	    (when (chess-ply-any-keyword ply :check :checkmate)
+	      (cl-incf checks))
+	    (when (chess-ply-any-keyword ply :checkmate)
+	      (cl-incf checkmates))	    )
+	(dolist (ply plies)
+	  (cl-multiple-value-bind (n c e ca p ch cm)
+	      (chess-perft (chess-ply-next-pos ply) (1- depth))
+	    (cl-incf nodes n)
+	    (cl-incf captures c)
+	    (cl-incf en-passants e)
+	    (cl-incf castles ca)
+	    (cl-incf promotions p)
+	    (cl-incf checks ch)
+	    (cl-incf checkmates cm))))
+
+      (cl-values nodes
+		 captures en-passants castles promotions checks checkmates))))
 
 (ert-deftest chess-perft-startpos-depth1 ()
   (should (equal (chess-perft (chess-pos-create) 1) '(20 0 0 0 0 0 0))))
