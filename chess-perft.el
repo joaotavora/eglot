@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; The classic perft function counts all leave nodes at a certain depth.
+;; The classic perft function counts all leaf nodes at a certain depth.
 ;; To make it easier to identify specific problems we also count properties
 ;; of the individual (final) plies.  We count capturing plies, en passant plies,
 ;; castling plies, plies that promote to a piece,
@@ -48,9 +48,9 @@
 (require 'ert)
 
 (defun chess-perft (position depth)
-  "Count all leave nodes of the tree starting at POSITION pruned at DEPTH.
+  "Count all leaf nodes of the tree starting at POSITION pruned at DEPTH.
 The result is a list of the form
- (LEAVES CAPTURES EN-PASSANTS CASTLES PROMOTIONS CHECKS CHECKMATES)."
+ (LEAFS CAPTURES EN-PASSANTS CASTLES PROMOTIONS CHECKS CHECKMATES)."
   (if (zerop depth)
       (cl-values 1 0 0 0 0)
     (let ((plies (chess-legal-plies position
