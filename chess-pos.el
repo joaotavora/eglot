@@ -601,28 +601,32 @@ trying to move a blank square."
   (cl-assert (listp changes))
   (cl-assert (> (length changes) 0))
 
-  ;; apply the piece movements listed in `changes'
-  (let ((ch changes))
-    (while ch
-      (if (symbolp (car ch))
-	  (setq ch nil)
-	(let* ((from (car ch))
-	       (to (cadr ch))
-	       (piece (chess-pos-piece position from)))
-	  (if (= piece ? )
-	      (chess-error 'move-from-blank (chess-index-to-coord from))
-	    (chess-pos-set-piece position from ? )
-	    (chess-pos-set-piece position to piece)))
-	(setq ch (cddr ch)))))
+  (let* ((color (chess-pos-side-to-move position))
+	 (can-castle-kingside (chess-pos-can-castle position (if color ?K ?k)))
+	 (can-castle-queenside (chess-pos-can-castle position (if color ?Q ?q))))
+    
+    ;; apply the piece movements listed in `changes'
+    (let ((ch changes))
+      (while ch
+	(if (symbolp (car ch))
+	    (setq ch nil)
+	  (let* ((from (car ch))
+		 (to (cadr ch))
+		 (piece (chess-pos-piece position from)))
+	    (if (= piece ? )
+		(chess-error 'move-from-blank (chess-index-to-coord from))
+	      (chess-pos-set-piece position from ? )
+	      (chess-pos-set-piece position to piece)))
+	  (setq ch (cddr ch)))))
 
-  ;; now fix up the resulting position
-  (let ((color (chess-pos-side-to-move position)))
+    ;; now fix up the resulting position
+
     ;; if the move was en-passant, remove the captured pawn
     (if (memq :en-passant changes)
 	(chess-pos-set-piece position
 			     (chess-incr-index (cadr changes)
 					       (if color 1 -1) 0) ? ))
-
+    
     ;; once a piece is moved, en passant is no longer available
     (chess-pos-set-en-passant position nil)
 
@@ -636,14 +640,14 @@ trying to move a blank square."
 	  (chess-pos-set-can-castle position (if color ?Q ?q) nil))
 
 	 ((= piece ?r)
-	  (let* ((side (if color ?Q ?q))
-		 (can-castle (chess-pos-can-castle position side)))
-	    (if (and can-castle (= (car changes) can-castle))
-		(chess-pos-set-can-castle position side nil)
-	      (setq side (if color ?K ?k)
-		    can-castle (chess-pos-can-castle position side))
-	      (if (and can-castle (= (car changes) can-castle))
-		  (chess-pos-set-can-castle position side nil)))))
+	  (if (and can-castle-queenside
+		   (= (car changes)
+		      can-castle-queenside))
+	      (chess-pos-set-can-castle position (if color ?Q ?q) nil)
+	    (if (and can-castle-kingside
+		     (= (car changes)
+			can-castle-kingside))
+		(chess-pos-set-can-castle position (if color ?K ?k) nil))))
 
 	 ((let ((can-castle (chess-pos-can-castle position (if color ?q ?Q))))
 	    (and can-castle (= (cadr changes) can-castle)))
@@ -727,11 +731,9 @@ If NO-CASTLING is non-nil, do not consider castling moves."
      ;; from any piece movement.  This is useful for testing whether a
      ;; king is in check, for example.
      ((memq piece '(t nil))
-      (dolist (p '(?P ?R ?N ?B ?Q ?K))
+      (dolist (p (if piece '(?P ?R ?N ?B ?Q ?K) '(?p ?r ?n ?b ?q ?k)))
 	(mapc 'chess--add-candidate
-	      (chess-search-position position target
-				     (if piece p (downcase p))
-				     check-only))))
+	      (chess-search-position position target p check-only))))
 
      ;; skip erroneous space requests
      ((= test-piece ? ))
