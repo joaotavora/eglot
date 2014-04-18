@@ -136,8 +136,6 @@ The result is a list of the form
     (should (equal (chess-perft position 2) '(2039 351 1 91 0 3 0)))))
 
 (ert-deftest chess-perft-kiwipete-depth3 ()
-  "This test is expected to fail due to a (undetermined) bug in castling
-generation.  We do generate too many castling moves."
   :tags '(:capture :en-passant :castle :check :checkmate)
   (let ((position
 	 (chess-fen-to-pos
