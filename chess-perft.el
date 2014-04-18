@@ -63,36 +63,12 @@ The result is a list of the form
 			(or (chess-pos-piece-p
 			     (chess-ply-pos ply) (chess-ply-target ply)
 			     (not (chess-pos-side-to-move (chess-ply-pos ply))))
-			    (let ((en-passant (chess-pos-en-passant
-					       (chess-ply-pos ply))))
-			      (and en-passant
-				   (chess-pos-piece-p (chess-ply-pos ply)
-						      en-passant
-						      (not
-						       (chess-pos-side-to-move
-							(chess-ply-pos ply))))
-				   (/= (chess-ply-target ply) en-passant)
-				   (/= (chess-pos-piece
-					(chess-ply-pos ply) en-passant)
-				       (chess-pos-piece
-					(chess-ply-next-pos ply) en-passant))))))
+			    (chess-ply-keyword ply :en-passant)))
 		      plies)
 		     ;; En passants
 		     (cl-count-if
 		      (lambda (ply)
-			(let ((en-passant (chess-pos-en-passant
-					   (chess-ply-pos ply))))
-			  (and en-passant
-			       (chess-pos-piece-p (chess-ply-pos ply)
-						  en-passant
-						  (not
-						   (chess-pos-side-to-move
-						    (chess-ply-pos ply))))
-			       (/= (chess-ply-target ply) en-passant)
-			       (/= (chess-pos-piece
-				    (chess-ply-pos ply) en-passant)
-				   (chess-pos-piece
-				    (chess-ply-next-pos ply) en-passant)))))
+			(chess-ply-keyword ply :en-passant))
 		      plies)
 		     ;; Castles
 		     (cl-count-if
