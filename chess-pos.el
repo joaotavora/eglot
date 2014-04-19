@@ -1,4 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; Routines for manipulating chess positions
 ;;
@@ -364,7 +364,32 @@ in order to execute faster."
 (defconst chess-direction-west -1)
 (defconst chess-direction-west-northwest -12)
 
-(defun chess-next-index (index direction)
+(defconst chess-rook-directions (list chess-direction-north
+				      chess-direction-west
+				      chess-direction-east
+				      chess-direction-south)
+  "The directions a rook is allowed to move to.")
+
+(defconst chess-bishop-directions (list chess-direction-northwest
+					chess-direction-northeast
+ 					chess-direction-southwest
+					chess-direction-southeast)
+  "The directions a bishop is allowed to move to.")
+
+(defconst chess-queen-directions (list chess-direction-northwest
+				       chess-direction-north
+				       chess-direction-northeast
+				       chess-direction-west
+				       chess-direction-east
+				       chess-direction-southwest
+				       chess-direction-south
+				       chess-direction-southeast)
+  "The directions a queen is allowed to move to.")
+
+(defvaralias 'chess-king-directions 'chess-queen-directions
+  "The directions a king is allowed to move to.")
+
+(defsubst chess-next-index (index direction)
   "Create a new INDEX from an old one, by advancing it in DIRECTION.
 DIRECTION should be one of
 `chess-direction-north' (white pawns, rooks, queens and kings),
@@ -385,6 +410,8 @@ DIRECTION should be one of
 `chess-direction-north-northwest' (knights).
 
 If the new index is not on the board, nil is returned."
+  (cl-check-type index (integer 0 63))
+  (cl-check-type direction (integer -21 21))
   (aref chess-pos-address-index
 	(+ (aref chess-pos-index-address index) direction)))
 
@@ -839,18 +866,9 @@ If NO-CASTLING is non-nil, do not consider castling moves."
      ;; rank and file and/or diagonal for the nearest pieces!
      ((memq test-piece '(?R ?B ?Q))
       (dolist (dir (cond
-		    ((= test-piece ?R)
-		     (list               chess-direction-north
-			   chess-direction-west          chess-direction-east
-			                 chess-direction-south))
-		    ((= test-piece ?B)
-		     (list chess-direction-northwest        chess-direction-northeast
-
-		           chess-direction-southwest         chess-direction-southeast))
-		    ((= test-piece ?Q)
-		     (list chess-direction-northwest chess-direction-north chess-direction-northeast
-		           chess-direction-west                        chess-direction-east
-		           chess-direction-southwest chess-direction-south chess-direction-southeast))))
+		    ((= test-piece ?R) chess-rook-directions)
+		    ((= test-piece ?B) chess-bishop-directions)
+		    ((= test-piece ?Q) chess-queen-directions)))
 	;; up the current file
 	(setq pos (chess-next-index target dir))
 	(while pos
@@ -877,12 +895,10 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 
      ;; the king is a trivial case of the queen, except when castling
      ((= test-piece ?K)
-      (let ((dirs '((-1 -1) (-1 0) (-1 1)
-		    (0 -1)         (0 1)
-		    (1 -1)  (1 0)  (1 1))))
+      (let ((dirs chess-king-directions))
 	(while dirs
 	  ;; up the current file
-	  (setq pos (apply 'chess-incr-index target (car dirs)))
+	  (setq pos (chess-next-index target (car dirs)))
 	  (if (and pos (chess-pos-piece-p position pos piece))
 	      (progn
 		(chess--add-candidate pos)
