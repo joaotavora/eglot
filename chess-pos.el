@@ -376,6 +376,16 @@ in order to execute faster."
 					chess-direction-southeast)
   "The directions a bishop is allowed to move to.")
 
+(defconst chess-knight-directions (list chess-direction-north-northeast
+					chess-direction-east-northeast
+					chess-direction-east-southeast
+					chess-direction-south-southeast
+					chess-direction-south-southwest
+					chess-direction-west-southwest
+					chess-direction-west-northwest
+					chess-direction-north-northwest)
+  "The directions a knight is allowed to move to.")
+
 (defconst chess-queen-directions (list chess-direction-northwest
 				       chess-direction-north
 				       chess-direction-northeast
@@ -918,10 +928,7 @@ If NO-CASTLING is non-nil, do not consider castling moves."
      ;; the knight is a zesty little piece; there may be more than
      ;; one, but at only one possible square in each direction
      ((= test-piece ?N)
-      (dolist (dir (list chess-direction-north-northeast chess-direction-east-northeast
-			 chess-direction-east-southeast chess-direction-south-southeast
-			 chess-direction-south-southwest chess-direction-west-southwest
-			 chess-direction-west-northwest chess-direction-north-northwest))
+      (dolist (dir chess-knight-directions)
 	;; up the current file
 	(if (and (setq pos (chess-next-index target dir))
 		 (chess-pos-piece-p position pos piece))
