@@ -22,21 +22,25 @@
 
 ;; The classic perft function counts all leaf nodes at a certain depth.
 ;; To make it easier to identify specific problems we also count properties
-;; of the individual (final) plies.  We count capturing plies, en passant plies,
+;; of the (final) plies.  We count capturing plies, en passant plies,
 ;; castling plies, plies that promote to a piece,
 ;; plies which bring the opponent king in check and plies which result in
 ;; checkmate.
 
-;; Typically depths greater than 4 will result in very long runtimes.
-;; We only define tests which do not take a lot of execution time
+;; For more details about perft in general, see
+;; <URL:https://chessprogramming.wikispaces.com/Perft>.
+
+;; Typically, depths greater than 4 will result in very long runtimes.
+;; We only define tests which don't take a lot of execution time
 ;; (less than a million nodes).
 
-;; To make it easier to selectively run tests, all tests provide tags
-;; to indentify which type of ply they are covering.
+;; To make it easier to selectively run tests, most tests provide tags
+;; to indentify which types of plies they are covering.
 ;; The available ERT tags are:
-;; :capture, :en-passant, :castle, :promotion, :check and :checkmate.
+;; `:capture', `:en-passant', `:castle', `:promotion',
+;; `:check' and `:checkmate'.
 ;;
-;; For instance, to make sure castling plies work as expected, run
+;; For instance, to make sure castling plies work as expected, you might run
 ;; M-: (ert '(tag :castle)) RET
 
 ;;; Code:
@@ -49,10 +53,15 @@
 
 (defun chess-perft (position depth)
   "Count all leaf nodes of the tree starting at POSITION pruned at DEPTH.
-The result is a list of the form
- (LEAFS CAPTURES EN-PASSANTS CASTLES PROMOTIONS CHECKS CHECKMATES)."
+If not called interactively the result is a list of the form
+\(LEAFS CAPTURES EN-PASSANTS CASTLES PROMOTIONS CHECKS CHECKMATES)."
+  (interactive (list (or (ignore-errors (chess-display-position nil))
+			 (chess-fen-to-pos (read-string "FEN: " nil nil
+							(chess-pos-to-fen
+							 (chess-pos-create)))))
+		     (read-number "Depth: " 1)))
   (if (zerop depth)
-      (cl-values 1 0 0 0 0)
+      (cl-values 1 0 0 0 0 0 0)
     (let ((plies (chess-legal-plies position
 				    :color (chess-pos-side-to-move position)))
 	  (nodes 0) (captures 0) (en-passants 0) (castles 0) (promotions 0)
@@ -75,19 +84,32 @@ The result is a list of the form
 	      (cl-incf checks))
 	    (when (chess-ply-any-keyword ply :checkmate)
 	      (cl-incf checkmates))	    )
-	(dolist (ply plies)
-	  (cl-multiple-value-bind (n c e ca p ch cm)
-	      (chess-perft (chess-ply-next-pos ply) (1- depth))
-	    (cl-incf nodes n)
-	    (cl-incf captures c)
-	    (cl-incf en-passants e)
-	    (cl-incf castles ca)
-	    (cl-incf promotions p)
-	    (cl-incf checks ch)
-	    (cl-incf checkmates cm))))
+	(let ((progress (when (called-interactively-p 'any)
+			  (make-progress-reporter "Perft... " 0 (length plies))))
+	      (index 0))
+	  (when (= depth 3) (accept-process-output))
+	  (dolist (ply plies)
+	    (unless (chess-ply-final-p ply)
+	      (cl-multiple-value-bind (n c e ca p ch cm)
+		  (chess-perft (chess-ply-next-pos ply) (1- depth))
+		(cl-incf nodes n)
+		(cl-incf captures c)
+		(cl-incf en-passants e)
+		(cl-incf castles ca)
+		(cl-incf promotions p)
+		(cl-incf checks ch)
+		(cl-incf checkmates cm)))
+	    
+	    (when progress
+	      (cl-incf index)
+	      (progress-reporter-force-update
+	       progress index (format "Perft... (%d nodes) " nodes))))))
 
-      (cl-values nodes
-		 captures en-passants castles promotions checks checkmates))))
+      (if (called-interactively-p 'any)
+	  (message "%d nodes (%d captures (%d ep), %d castles, %d promotions and %d checks (%d mate))"
+		   nodes captures en-passants castles promotions checks checkmates)
+	(cl-values nodes
+		   captures en-passants castles promotions checks checkmates)))))
 
 (ert-deftest chess-perft-startpos-depth1 ()
   (should (equal (chess-perft (chess-pos-create) 1) '(20 0 0 0 0 0 0))))
