@@ -843,15 +843,14 @@ If NO-CASTLING is non-nil, do not consider castling moves."
      ;; pawn movement, which is diagonal 1 when taking, but forward
      ;; 1 or 2 when moving (the most complex piece, actually)
      ((= test-piece ?P)
-      (let ((p (chess-pos-piece position target)))
+      (let ((p (chess-pos-piece position target))
+	    (backward (if color chess-direction-south chess-direction-north)))
   	(if (if (= p ? )
 		;; check for en passant
 		(and (= (chess-index-rank target) (if color 2 5))
 		     (let ((ep (chess-pos-en-passant position)))
 		       (when ep
-			 (= ep (chess-next-index target (if color
-							    chess-direction-south
-							  chess-direction-north)))))
+			 (= ep (chess-next-index target backward))))
 		     (or (and (setq pos (chess-incr-index target
 							  (if color 1 -1) -1))
 			      (chess-pos-piece-p position pos
@@ -862,22 +861,22 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 						 (if color ?P ?p)))))
 	      (if color (> p ?a) (< p ?a)))
 	    (progn
-	      (if (and (setq pos (chess-incr-index target (- bias) -1))
+	      (if (and (setq pos (chess-next-index target (if color
+							      chess-direction-southeast
+							    chess-direction-northwest)))
 		       (chess-pos-piece-p position pos piece))
 		  (chess--add-candidate pos))
-	      (if (and (setq pos (chess-incr-index target (- bias) 1))
+	      (if (and (setq pos (chess-next-index target (if color
+							      chess-direction-southwest
+							    chess-direction-northeast)))
 		       (chess-pos-piece-p position pos piece))
 		  (chess--add-candidate pos)))
-	  (if (setq pos (chess-next-index target (if color
-						     chess-direction-south
-						   chess-direction-north)))
+	  (if (setq pos (chess-next-index target backward))
 	      (if (chess-pos-piece-p position pos piece)
 		  (chess--add-candidate pos)
 		(if (and (chess-pos-piece-p position pos ? )
 			 (= (if color 4 3) (chess-index-rank target))
-			 (setq pos (chess-next-index pos (if color
-							     chess-direction-south
-							   chess-direction-north)))
+			 (setq pos (chess-next-index pos backward))
 			 (chess-pos-piece-p position pos piece))
 		    (chess--add-candidate pos)))))))
 
