@@ -401,6 +401,7 @@ in order to execute faster."
 
 (defsubst chess-next-index (index direction)
   "Create a new INDEX from an old one, by advancing it in DIRECTION.
+
 DIRECTION should be one of
 `chess-direction-north' (white pawns, rooks, queens and kings),
 `chess-direction-north-northeast' (knights),
@@ -723,8 +724,10 @@ trying to move a blank square."
     ;; if the move was en-passant, remove the captured pawn
     (if (memq :en-passant changes)
 	(chess-pos-set-piece position
-			     (chess-incr-index (cadr changes)
-					       (if color 1 -1) 0) ? ))
+			     (chess-next-index (cadr changes)
+					       (if color
+						   chess-direction-south
+						 chess-direction-north)) ? ))
     
     ;; once a piece is moved, en passant is no longer available
     (chess-pos-set-en-passant position nil)
@@ -844,9 +847,11 @@ If NO-CASTLING is non-nil, do not consider castling moves."
   	(if (if (= p ? )
 		;; check for en passant
 		(and (= (chess-index-rank target) (if color 2 5))
-		     ;; make this fail if no en-passant is possible
-		     (= (or (chess-pos-en-passant position) 100)
-			(or (chess-incr-index target (if color 1 -1) 0) 200))
+		     (let ((ep (chess-pos-en-passant position)))
+		       (when ep
+			 (= ep (chess-next-index target (if color
+							    chess-direction-south
+							  chess-direction-north)))))
 		     (or (and (setq pos (chess-incr-index target
 							  (if color 1 -1) -1))
 			      (chess-pos-piece-p position pos
@@ -863,12 +868,16 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 	      (if (and (setq pos (chess-incr-index target (- bias) 1))
 		       (chess-pos-piece-p position pos piece))
 		  (chess--add-candidate pos)))
-	  (if (setq pos (chess-incr-index target (- bias) 0))
+	  (if (setq pos (chess-next-index target (if color
+						     chess-direction-south
+						   chess-direction-north)))
 	      (if (chess-pos-piece-p position pos piece)
 		  (chess--add-candidate pos)
 		(if (and (chess-pos-piece-p position pos ? )
 			 (= (if color 4 3) (chess-index-rank target))
-			 (setq pos (chess-incr-index pos (- bias) 0))
+			 (setq pos (chess-next-index pos (if color
+							     chess-direction-south
+							   chess-direction-north)))
 			 (chess-pos-piece-p position pos piece))
 		    (chess--add-candidate pos)))))))
 
