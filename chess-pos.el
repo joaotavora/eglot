@@ -326,43 +326,55 @@ in order to execute faster."
   (chess-rf-to-index (+ (chess-index-rank index) rank-move)
 		     (+ (chess-index-file index) file-move)))
 
+;; A 10x12 based scheme to increment indices
+
 (defconst chess-pos-address-index
   (apply #'vector
-	 (append (make-list 20 nil)
-		 (cl-loop for rank from 0 to 7
-			  nconc (nconc (list nil)
-				       (cl-loop for index
-						from (* rank 8)
-						to (+ 7 (* rank 8))
-						collect index)
-				       (list nil)))
-		 (make-list 20 nil)))
+	 (nconc (make-list (* 2 10) nil)
+		(cl-loop for rank from 0 to 7
+			 nconc (nconc (list nil)
+				      (cl-loop for file from 0 to 7
+					       collect (chess-rf-to-index
+							rank file))
+				      (list nil)))
+		(make-list (* 2 10) nil)))
   "Map square addresses to square indices.")
 
 (defconst chess-pos-index-address
-  (let ((addresses ()))
-    (dotimes (r 8)
-      (cl-loop for i from (+ (* (1+ r) 10) 11) to (+ 7 (+ (* (1+ r) 10) 11))
-	       do (push i addresses)))
-    (apply #'vector (nreverse addresses)))
+  (apply #'vector
+	 (cl-loop for rank from 0 to 7
+		  nconc (cl-loop for file from 0 to 7
+				 collect (+ (* (+ rank 2) 10) 1 file))))
   "Map square indices to square addresses.")
 
-(defconst chess-direction-northwest -11)
-(defconst chess-direction-north-northwest -21)
 (defconst chess-direction-north -10)
-(defconst chess-direction-north-northeast -19)
-(defconst chess-direction-northeast -9)
-(defconst chess-direction-east-northeast -8)
 (defconst chess-direction-east 1)
-(defconst chess-direction-east-southeast 12)
-(defconst chess-direction-southeast 11)
-(defconst chess-direction-south-southeast 21)
 (defconst chess-direction-south 10)
-(defconst chess-direction-south-southwest 19)
-(defconst chess-direction-southwest 9)
-(defconst chess-direction-west-southwest 8)
 (defconst chess-direction-west -1)
-(defconst chess-direction-west-northwest -12)
+(defconst chess-direction-northeast (+ chess-direction-north
+				       chess-direction-east))
+(defconst chess-direction-southeast (+ chess-direction-south
+				       chess-direction-east))
+(defconst chess-direction-southwest (+ chess-direction-south
+				       chess-direction-west))
+(defconst chess-direction-northwest (+ chess-direction-north
+				       chess-direction-west))
+(defconst chess-direction-north-northeast (+ chess-direction-north
+					     chess-direction-northeast))
+(defconst chess-direction-east-northeast (+ chess-direction-east
+					    chess-direction-northeast))
+(defconst chess-direction-east-southeast (+ chess-direction-east
+					    chess-direction-southeast))
+(defconst chess-direction-south-southeast (+ chess-direction-south
+					     chess-direction-southeast))
+(defconst chess-direction-south-southwest (+ chess-direction-south
+					     chess-direction-southwest))
+(defconst chess-direction-west-southwest (+ chess-direction-west
+					    chess-direction-southwest))
+(defconst chess-direction-west-northwest (+ chess-direction-west
+					    chess-direction-northwest))
+(defconst chess-direction-north-northwest (+ chess-direction-north
+					     chess-direction-northwest))
 
 (defconst chess-rook-directions (list chess-direction-north
 				      chess-direction-west
@@ -386,14 +398,8 @@ in order to execute faster."
 					chess-direction-north-northwest)
   "The directions a knight is allowed to move to.")
 
-(defconst chess-queen-directions (list chess-direction-northwest
-				       chess-direction-north
-				       chess-direction-northeast
-				       chess-direction-west
-				       chess-direction-east
-				       chess-direction-southwest
-				       chess-direction-south
-				       chess-direction-southeast)
+(defconst chess-queen-directions (append chess-bishop-directions
+					 chess-rook-directions)
   "The directions a queen is allowed to move to.")
 
 (defvaralias 'chess-king-directions 'chess-queen-directions
@@ -419,6 +425,10 @@ DIRECTION should be one of
 `chess-direction-west-northwest' (knights),
 `chess-direction-northwest' (bishops, queens and kings) or
 `chess-direction-north-northwest' (knights).
+
+For predefined lists of all directions a certain piece can go, see
+`chess-knight-directions',, `chess-bishop-directions', `chess-rook-directions',
+`chess-queen-directions' and `chess-king-directions'.
 
 If the new index is not on the board, nil is returned."
   (cl-check-type index (integer 0 63))
