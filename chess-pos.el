@@ -834,7 +834,6 @@ If NO-CASTLING is non-nil, do not consider castling moves."
   (let* ((color (if (characterp piece)
 		    (< piece ?a)
 		  piece))
-	 (bias (if color -1 1))
 	 (test-piece (and (characterp piece)
 			  (upcase piece)))
 	 p pos candidates)
