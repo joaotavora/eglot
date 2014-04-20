@@ -851,12 +851,16 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 		     (let ((ep (chess-pos-en-passant position)))
 		       (when ep
 			 (= ep (chess-next-index target backward))))
-		     (or (and (setq pos (chess-incr-index target
-							  (if color 1 -1) -1))
+		     (or (and (setq pos (chess-next-index target
+							  (if color
+							      chess-direction-southwest
+							    chess-direction-northeast)))
 			      (chess-pos-piece-p position pos
 						 (if color ?P ?p)))
-			 (and (setq pos (chess-incr-index target
-							  (if color 1 -1) 1))
+			 (and (setq pos (chess-next-index target
+							  (if color
+							      chess-direction-southeast
+							    chess-direction-northwest)))
 			      (chess-pos-piece-p position pos
 						 (if color ?P ?p)))))
 	      (if color (> p ?a) (< p ?a)))
@@ -983,9 +987,11 @@ in check)."
 	    (setq other-piece (chess-pos-piece position target))
 	    (chess-pos-set-piece position target piece)
 	    (when (and (= piece (if color ?P ?p))
-		       (chess-pos-en-passant position)
-		       (= (chess-pos-en-passant position)
-			  (chess-incr-index target (if color 1 -1) 0)))
+		       (let ((ep (chess-pos-en-passant position)))
+			 (when ep
+			   (= ep (chess-next-index target (if color
+							      chess-direction-south
+							    chess-direction-north))))))
 	      (chess-pos-set-piece position
 				   (setq en-passant-square
 					 (chess-incr-index target
