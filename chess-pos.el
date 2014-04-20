@@ -904,12 +904,12 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 	;; up the current file
 	(setq pos (chess-next-index target dir))
 	(while pos
-	  (if (chess-pos-piece-p position pos piece)
-	      (progn
-		(chess--add-candidate pos)
-		(setq pos nil))
-	    (setq pos (and (chess-pos-piece-p position pos ? )
-			   (chess-next-index pos dir)))))
+	  (let ((pos-piece (chess-pos-piece position pos)))
+	    (if (eq pos-piece piece)
+		(progn
+		  (chess--add-candidate pos)
+		  (setq pos nil))
+	      (setq pos (and (eq pos-piece ? ) (chess-next-index pos dir))))))
 
 	;; test whether the rook can move to the target by castling
 	(if (and (= test-piece ?R) (not no-castling))
