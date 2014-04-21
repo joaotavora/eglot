@@ -249,8 +249,7 @@ maneuver."
 		   (next-color (not color))
 		   (king (chess-pos-king-index next-pos next-color))
 		   (in-check (catch 'in-check
-			       (chess-search-position next-pos king
-						      (not next-color) t))))
+			       (chess-search-position next-pos king color t))))
 	      ;; first, see if the moves leaves the king in check.
 	      ;; This is tested by seeing if any of the opponent's
 	      ;; pieces can reach the king in the position that will
@@ -343,12 +342,14 @@ position object passed in."
       (catch 'any-found
 	(apply 'chess-legal-plies position (delq :any keywords)))))
    ((memq :color keywords)
-    (let ((plies (list t))
-	  (color (cadr (memq :color keywords))))
-      (dolist (p '(?P ?R ?N ?B ?K ?Q))
+    (let* ((plies (list t))
+	   (color (cadr (memq :color keywords)))
+	   (pieces (if color '(?P ?N ?B ?R ?Q ?K) '(?p ?n ?b ?r ?q ?k)))
+	   (candidates (apply #'chess-pos-search* position pieces)))
+      (dolist (p pieces)
 	(nconc plies (chess-legal-plies position
-					:piece (if color p
-						 (downcase p)))))
+					:piece p
+					:candidates (cdr (assq p candidates)))))
       (cdr plies)))
    (t
     (let* ((piece (cadr (memq :piece keywords)))

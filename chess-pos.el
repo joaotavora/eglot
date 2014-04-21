@@ -459,7 +459,7 @@ If the new index is not on the board, nil is returned."
 (defsubst chess-pos-search (position piece-or-color)
   "Look on POSITION anywhere for PIECE-OR-COLOR, returning all coordinates.
 If PIECE-OR-COLOR is t for white or nil for black, any piece of that
-color will do."
+color will do.  See also `chess-pos-search*'."
   (cl-assert (vectorp position))
   (cl-assert (memq piece-or-color
 		'(t nil ?  ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p)))
@@ -468,6 +468,20 @@ color will do."
       (if (chess-pos-piece-p position i piece-or-color)
 	  (push i found)))
     found))
+
+(defsubst chess-pos-search* (position &rest pieces)
+  "Look on POSITION for any of PIECES.
+The result is an alist where `car' of an entry is the piece and `cdr' is
+a list of the indices that piece can be found at.  Pieces which did not appear
+in POSITION at all will be present in the resulting alist, but the `cdr' of
+their entry will be nil."
+  (let ((alist (mapcar #'list pieces)))
+    (dotimes (index 64)
+      (let ((piece (chess-pos-piece position index)))
+	(unless (eq piece ? )
+	  (let ((candidates (assq piece alist)))
+	    (when candidates (push index (cdr candidates)))))))
+    alist))
 
 (defsubst chess-pos-set-king-index (position color index)
   "Set the known index of the king on POSITION for COLOR, to INDEX.
@@ -865,7 +879,6 @@ If NO-CASTLING is non-nil, do not consider castling moves."
       (dolist (dir-type (if piece
 			    chess-sliding-white-piece-directions
 			  chess-sliding-black-piece-directions))
-	;; up the current file
 	(let ((dir (car dir-type)))
 	  (setq pos (chess-next-index target dir))
 	  (while pos
@@ -875,19 +888,19 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 		    (chess--add-candidate pos)
 		    (setq pos nil))
 		(setq pos (and (eq pos-piece ? ) (chess-next-index pos dir))))))))
+
       ;; test whether the rook can move to the target by castling
-      (if (and (not no-castling))
-	  (let (rook)
-	    (if (and (= target (if color ?\075 ?\005))
+      (unless no-castling
+	(let (rook)
+	  (if (and (= target (if color ?\075 ?\005))
+		   (setq rook (chess-pos-can-castle position (if color ?K ?k)))
+		   (chess-ply-castling-changes position))
+	      (chess--add-candidate rook)
+	    (if (and (= target (if color ?\073 ?\003))
 		     (setq rook (chess-pos-can-castle position
-						      (if color ?K ?k)))
-		     (chess-ply-castling-changes position))
-		(chess--add-candidate rook)
-	      (if (and (= target (if color ?\073 ?\003))
-		       (setq rook (chess-pos-can-castle position
-							(if color ?Q ?q)))
-		       (chess-ply-castling-changes position t))
-		  (chess--add-candidate rook)))))
+						      (if color ?Q ?q)))
+		     (chess-ply-castling-changes position t))
+		(chess--add-candidate rook)))))
 
       (dolist (p (if piece '(?P ?N ?K) '(?p ?n ?k)))
 	(mapc 'chess--add-candidate
