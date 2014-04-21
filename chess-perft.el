@@ -87,7 +87,7 @@ If not called interactively the result is a list of the form
 	(let ((progress (when (called-interactively-p 'any)
 			  (make-progress-reporter "Perft... " 0 (length plies))))
 	      (index 0))
-	  (when (= depth 3) (accept-process-output))
+	  (when (and (not noninteractive) (= depth 2)) (accept-process-output))
 	  (dolist (ply plies)
 	    (unless (chess-ply-final-p ply)
 	      (cl-multiple-value-bind (n c e ca p ch cm)
@@ -124,6 +124,10 @@ If not called interactively the result is a list of the form
 (ert-deftest chess-perft-startpos-depth4 ()
   :tags '(:capture :check :checkmate)
   (should (equal (chess-perft (chess-pos-create) 4) '(197281 1576 0 0 0 469 8))))
+
+(ert-deftest chess-perft-startpos-depth5 ()
+  :tags '(:capture :en-passant :check :checkmate)
+  (should (equal (chess-perft (chess-pos-create) 5) '(4865609 82719 258 0 0 27351 347))))
 
 (ert-deftest chess-perft-kiwipete-depth1 ()
   :tags '(:capture :castle)
