@@ -908,21 +908,20 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 		(progn
 		  (chess--add-candidate pos)
 		  (setq pos nil))
-	      (setq pos (and (eq pos-piece ? ) (chess-next-index pos dir))))))
-
-	;; test whether the rook can move to the target by castling
-	(if (and (= test-piece ?R) (not no-castling))
-	    (let (rook)
-	      (if (and (= target (if color ?\075 ?\005))
+	      (setq pos (and (eq pos-piece ? ) (chess-next-index pos dir)))))))
+      ;; test whether the rook can move to the target by castling
+      (if (and (= test-piece ?R) (not no-castling))
+	  (let (rook)
+	    (if (and (= target (if color ?\075 ?\005))
+		     (setq rook (chess-pos-can-castle position
+						      (if color ?K ?k)))
+		     (chess-ply-castling-changes position))
+		(chess--add-candidate rook)
+	      (if (and (= target (if color ?\073 ?\003))
 		       (setq rook (chess-pos-can-castle position
-							(if color ?K ?k)))
-		       (chess-ply-castling-changes position))
-		  (chess--add-candidate rook)
-		(if (and (= target (if color ?\073 ?\003))
-			 (setq rook (chess-pos-can-castle position
-							  (if color ?Q ?q)))
-			 (chess-ply-castling-changes position t))
-		    (chess--add-candidate rook)))))))
+							(if color ?Q ?q)))
+		       (chess-ply-castling-changes position t))
+		  (chess--add-candidate rook))))))
 
      ;; the king is a trivial case of the queen, except when castling
      ((= test-piece ?K)
