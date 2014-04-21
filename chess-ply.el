@@ -342,14 +342,13 @@ position object passed in."
       (catch 'any-found
 	(apply 'chess-legal-plies position (delq :any keywords)))))
    ((memq :color keywords)
-    (let* ((plies (list t))
-	   (color (cadr (memq :color keywords)))
-	   (pieces (if color '(?P ?N ?B ?R ?Q ?K) '(?p ?n ?b ?r ?q ?k)))
-	   (candidates (apply #'chess-pos-search* position pieces)))
-      (dolist (p pieces)
-	(nconc plies (chess-legal-plies position
-					:piece p
-					:candidates (cdr (assq p candidates)))))
+    (let ((plies (list t)))
+      (dolist (p (apply #'chess-pos-search* position (if (cadr (memq :color keywords))
+							 '(?P ?N ?B ?R ?Q ?K)
+						       '(?p ?n ?b ?r ?q ?k))))
+	(when (cdr p)
+	  (nconc plies (chess-legal-plies position
+					  :piece (car p) :candidates (cdr p)))))
       (cdr plies)))
    (t
     (let* ((piece (cadr (memq :piece keywords)))
