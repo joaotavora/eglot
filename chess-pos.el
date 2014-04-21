@@ -405,6 +405,26 @@ in order to execute faster."
 (defvaralias 'chess-king-directions 'chess-queen-directions
   "The directions a king is allowed to move to.")
 
+(defconst chess-sliding-white-piece-directions
+  (list (list chess-direction-north ?R ?Q)
+	(list chess-direction-northeast ?B ?Q)
+	(list chess-direction-east ?R ?Q)
+	(list chess-direction-southeast ?B ?Q)
+	(list chess-direction-south ?R ?Q)
+	(list chess-direction-southwest ?B ?Q)
+	(list chess-direction-west ?R ?Q)
+	(list chess-direction-northwest ?B ?Q)))
+
+(defconst chess-sliding-black-piece-directions
+  (list (list chess-direction-north ?r ?q)
+	(list chess-direction-northeast ?b ?q)
+	(list chess-direction-east ?r ?q)
+	(list chess-direction-southeast ?b ?q)
+	(list chess-direction-south ?r ?q)
+	(list chess-direction-southwest ?b ?q)
+	(list chess-direction-west ?r ?q)
+	(list chess-direction-northwest ?b ?q)))
+
 (defsubst chess-next-index (index direction)
   "Create a new INDEX from an old one, by advancing it in DIRECTION.
 
@@ -842,7 +862,34 @@ If NO-CASTLING is non-nil, do not consider castling moves."
      ;; from any piece movement.  This is useful for testing whether a
      ;; king is in check, for example.
      ((memq piece '(t nil))
-      (dolist (p (if piece '(?P ?R ?N ?B ?Q ?K) '(?p ?r ?n ?b ?q ?k)))
+      (dolist (dir-type (if piece
+			    chess-sliding-white-piece-directions
+			  chess-sliding-black-piece-directions))
+	;; up the current file
+	(let ((dir (car dir-type)))
+	  (setq pos (chess-next-index target dir))
+	  (while pos
+	    (let ((pos-piece (chess-pos-piece position pos)))
+	      (if (memq pos-piece (cdr dir-type))
+		  (progn
+		    (chess--add-candidate pos)
+		    (setq pos nil))
+		(setq pos (and (eq pos-piece ? ) (chess-next-index pos dir))))))))
+      ;; test whether the rook can move to the target by castling
+      (if (and (not no-castling))
+	  (let (rook)
+	    (if (and (= target (if color ?\075 ?\005))
+		     (setq rook (chess-pos-can-castle position
+						      (if color ?K ?k)))
+		     (chess-ply-castling-changes position))
+		(chess--add-candidate rook)
+	      (if (and (= target (if color ?\073 ?\003))
+		       (setq rook (chess-pos-can-castle position
+							(if color ?Q ?q)))
+		       (chess-ply-castling-changes position t))
+		  (chess--add-candidate rook)))))
+
+      (dolist (p (if piece '(?P ?N ?K) '(?p ?n ?k)))
 	(mapc 'chess--add-candidate
 	      (chess-search-position position target p check-only))))
 
