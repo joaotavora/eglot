@@ -39,7 +39,8 @@
 (defcustom chess-ics-server-list '(("freechess.org" 5000)
 				   ("chess.unix-ag.uni-kl.de" 5000)
 				   ("chessclub.com" 5000)
-				   ("chess.net" 5000))
+				   ("chess.net" 5000)
+				   ("oics.olympuschess.com" 5000))
   "A list of servers to connect to.
 The format of each entry is:
 
