@@ -49,6 +49,7 @@
 ;; You can hunt for all occurances of a certain piece using:
 ;;
 ;;    (chess-pos-search POSITION PIECE)
+;;    (chess-pos-search* POSITION PIECE...)
 ;;
 ;; You might also try the `search' event, which employs the
 ;; intelligence of listening rules modules to search out your piece
@@ -328,7 +329,7 @@ in order to execute faster."
 
 ;; A 10x12 based scheme to increment indices
 
-(defconst chess-pos-address-index
+(defconst chess-pos-10x12-index
   (apply #'vector
 	 (nconc (make-list (* 2 10) nil)
 		(cl-loop for rank from 0 to 7
@@ -340,7 +341,7 @@ in order to execute faster."
 		(make-list (* 2 10) nil)))
   "Map square addresses to square indices.")
 
-(defconst chess-pos-index-address
+(defconst chess-pos-10x12-address
   (apply #'vector
 	 (cl-loop for rank from 0 to 7
 		  nconc (cl-loop for file from 0 to 7
@@ -416,14 +417,8 @@ in order to execute faster."
 	(list chess-direction-northwest ?B ?Q)))
 
 (defconst chess-sliding-black-piece-directions
-  (list (list chess-direction-north ?r ?q)
-	(list chess-direction-northeast ?b ?q)
-	(list chess-direction-east ?r ?q)
-	(list chess-direction-southeast ?b ?q)
-	(list chess-direction-south ?r ?q)
-	(list chess-direction-southwest ?b ?q)
-	(list chess-direction-west ?r ?q)
-	(list chess-direction-northwest ?b ?q)))
+  (mapcar (lambda (entry) (cons (car entry) (mapcar #'downcase (cdr entry))))
+	  chess-sliding-white-piece-directions))
 
 (defsubst chess-next-index (index direction)
   "Create a new INDEX from an old one, by advancing it in DIRECTION.
@@ -453,8 +448,8 @@ For predefined lists of all directions a certain piece can go, see
 If the new index is not on the board, nil is returned."
   (cl-check-type index (integer 0 63))
   (cl-check-type direction (integer -21 21))
-  (aref chess-pos-address-index
-	(+ (aref chess-pos-index-address index) direction)))
+  (aref chess-pos-10x12-index
+	(+ (aref chess-pos-10x12-address index) direction)))
 
 (defsubst chess-pos-search (position piece-or-color)
   "Look on POSITION anywhere for PIECE-OR-COLOR, returning all coordinates.
@@ -471,16 +466,21 @@ color will do.  See also `chess-pos-search*'."
 
 (defsubst chess-pos-search* (position &rest pieces)
   "Look on POSITION for any of PIECES.
-The result is an alist where `car' of an entry is the piece and `cdr' is
-a list of the indices that piece can be found at.  Pieces which did not appear
-in POSITION at all will be present in the resulting alist, but the `cdr' of
-their entry will be nil."
+The result is an alist where each element looks like (PIECE . INDICES).
+Pieces which did not appear in POSITION will be present in the resulting
+alist, but the `cdr' of their enties will be nil."
+  (cl-assert (not (null pieces)))
+  (cl-assert (cl-reduce (lambda (ok piece)
+			  (when ok
+			    (memq piece '(?P ?N ?B ?R ?Q ?K ?p ?n ?b ?r ?q ?k))))
+			pieces :initial-value t))
+  (cl-assert (= (length pieces) (length (cl-delete-duplicates pieces))))
   (let ((alist (mapcar #'list pieces)))
     (dotimes (index 64)
       (let ((piece (chess-pos-piece position index)))
 	(unless (eq piece ? )
-	  (let ((candidates (assq piece alist)))
-	    (when candidates (push index (cdr candidates)))))))
+	  (let ((entry (assq piece alist)))
+	    (when entry (push index (cdr entry)))))))
     alist))
 
 (defsubst chess-pos-set-king-index (position color index)
@@ -563,7 +563,7 @@ Returns nil if en passant is unavailable."
   (aref position 64))
 
 (defsubst chess-pos-set-en-passant (position index)
-  "Set the index of any pawn on POSITION that can be captured en passant."
+  "Set the INDEX of any pawn on POSITION that can be captured en passant."
   (cl-assert (vectorp position))
   (cl-assert (or (eq index nil)
 	      (and (>= index 0) (< index 64))))
@@ -590,24 +590,24 @@ or one of the symbols: `check', `checkmate', `stalemate'."
   (aref position 70))
 
 (defsubst chess-pos-set-side-to-move (position color)
-  "Set the color whose move it is in POSITION."
+  "Set the COLOR whose move it is in POSITION."
   (cl-assert (vectorp position))
   (cl-assert (memq color '(nil t)))
   (aset position 70 color))
 
 (defsubst chess-pos-annotations (position)
-  "Return the list of annotations for this position."
+  "Return the list of annotations for this POSITION."
   (cl-assert (vectorp position))
   (aref position 71))
 
 (defsubst chess-pos-set-annotations (position annotations)
-  "Return the list of annotations for this position."
+  "Set the list of ANNOTATIONS for this POSITION."
   (cl-assert (vectorp position))
   (cl-assert (listp annotations))
   (aset position 71 annotations))
 
 (defun chess-pos-add-annotation (position annotation)
-  "Add an annotation for this position."
+  "Add an ANNOTATION for this POSITION."
   (cl-assert (vectorp position))
   (cl-assert (or (stringp annotation) (listp annotation)))
   (let ((ann (chess-pos-annotations position)))
@@ -638,12 +638,12 @@ or one of the symbols: `check', `checkmate', `stalemate'."
    position (assq-delete-all opcode (chess-pos-annotations position))))
 
 (defun chess-pos-preceding-ply (position)
-  "Delete the given EPD OPCODE."
+  "Return the ply that preceds POSITION."
   (cl-assert (vectorp position))
   (aref position 74))
 
 (defun chess-pos-set-preceding-ply (position ply)
-  "Delete the given EPD OPCODE."
+  "Set the preceding PLY for POSITION."
   (cl-assert (vectorp position))
   (cl-assert (listp ply))
   (aset position 74 ply))
