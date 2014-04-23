@@ -42,7 +42,7 @@
 (defgroup chess-ai ()
   "A simple chess engine written in Emacs Lisp.
 
-This module does not allow for configuring search time used to calculate
+This module does not allow to configure search time used to calculate
 reply moves.  You can only specify the search depth (see `chess-ai-depth')."
   :group 'chess)
 
@@ -50,7 +50,7 @@ reply moves.  You can only specify the search depth (see `chess-ai-depth')."
   "The default search depth used to prune the search tree.
 
 If `chess-ai-quiescence' is non-nil, quiescence search will be performed after
-the ply depth limit has been reached."
+this ply depth limit has been reached."
   :group 'chess-ai
   :type 'integer)
 
@@ -301,7 +301,8 @@ and `car' is the score of that move.  If there is no legal move from POSITION
 	    (cons lower-bound best-ply)))))))
 
 (defun chess-ai-best-move (position &optional depth eval-fn)
-  "Find the best move for POSITION."
+  "Find the best move for POSITION.
+DEPTH defaults to the value of `chess-ai-depth'."
   (cdr (chess-ai-eval position (or depth chess-ai-depth)
 		      (1+ most-negative-fixnum) most-positive-fixnum
 		      (or eval-fn #'chess-ai-eval-static))))
