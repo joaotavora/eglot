@@ -11,41 +11,37 @@
   "A minimal, customizable ASCII display."
   :group 'chess-display)
 
-(defcustom chess-plain-draw-border nil
-  "Non-nil if a border should be drawn (using `chess-plain-border-chars')."
+(defcustom chess-plain-border-style [?+ ?- ?+ ?| ?| ?+ ?- ?+]
+  "If non-nil, a vector describing the border characters."
   :group 'chess-plain
-  :type 'boolean)
-
-(defcustom chess-plain-border-chars '(?+ ?- ?+ ?| ?| ?+ ?- ?+)
-  "Characters used to draw borders."
-  :group 'chess-plain
-  :type '(choice (list :tag "Plain ASCII"
-		       (const :value ?+ :tag "Upper left corner: +")
-		       (const :value ?- :tag "Upper border: -")
-		       (const :value ?+ :tag "Upper right corner: +")
-		       (const :value ?| :tag "Left border: |")
-		       (const :value ?| :tag "Right border: |")
-		       (const :value ?+ :tag "Lower left corrner: +")
-		       (const :value ?- :tag "Lower border: -")
-		       (const :value ?+ :tag "Lower right corner: +"))
-		 (list :tag "Unicode box drawing characters"
-		       (const :value ?┌ :tag "Upper left corner: ┌")
-		       (const :value ?╶ :tag "Upper border: ╶")
-		       (const :value ?┐ :tag "Upper right corner: ┐")
-		       (const :value ?╷ :tag "Left border: ╷")
-		       (const :value ?╷ :tag "Right border: ╷")
-		       (const :value ?└ :tag "Lower left corrner: └")
-		       (const :value ?╶ :tag "Lower border: ╶")
-		       (const :value ?┘ :tag "Lower right corner: ┘"))
-		 (list :tag "Custom"
-		       (character :tag "Upper left corner")
-		       (character :tag "Upper border")
-		       (character :tag "Upper right corner")
-		       (character :tag "Left border")
-		       (character :tag "Right border")
-		       (character :tag "Lower left corner")
-		       (character :tag "Lower border")
-		       (character :tag "Lower right corner"))))
+  :type '(choice (const :tag "No border" nil)
+		 (vector :tag "Plain ASCII"
+			 (const :value ?+ :tag "Upper left corner: +")
+			 (const :value ?- :tag "Upper border: -")
+			 (const :value ?+ :tag "Upper right corner: +")
+			 (const :value ?| :tag "Left border: |")
+			 (const :value ?| :tag "Right border: |")
+			 (const :value ?+ :tag "Lower left corrner: +")
+			 (const :value ?- :tag "Lower border: -")
+			 (const :value ?+ :tag "Lower right corner: +"))
+		 (vector :tag "Unicode box drawing characters"
+			 (const :value ?┌ :tag "Upper left corner: ┌")
+			 (const :value ?╶ :tag "Upper border: ╶")
+			 (const :value ?┐ :tag "Upper right corner: ┐")
+			 (const :value ?╷ :tag "Left border: ╷")
+			 (const :value ?╷ :tag "Right border: ╷")
+			 (const :value ?└ :tag "Lower left corrner: └")
+			 (const :value ?╶ :tag "Lower border: ╶")
+			 (const :value ?┘ :tag "Lower right corner: ┘"))
+		 (vector :tag "Custom"
+			 (character :tag "Upper left corner")
+			 (character :tag "Upper border")
+			 (character :tag "Upper right corner")
+			 (character :tag "Left border")
+			 (character :tag "Right border")
+			 (character :tag "Lower left corner")
+			 (character :tag "Lower border")
+			 (character :tag "Lower right corner"))))
 
 (defcustom chess-plain-black-square-char ?.
   "Character used to indicate empty black squares."
@@ -162,7 +158,8 @@ of `chess-plain-upcase-indicates'."
 		       (cons :format "%v"
 			     (const :format "" ?n) (character :tag "Black Knight"))
 		       (cons :format "%v"
-			     (const :format "" ?p) (character :tag "Black Pawn")))))
+			     (const :format "" ?p) (character :tag "Black Pawn")))
+		 (function :tag "Function")))
 
 (defcustom chess-plain-upcase-indicates 'color
   "Defines what a upcase char should indicate.
@@ -263,15 +260,15 @@ PERSPECTIVE is t for white or nil for black."
     (let* ((inverted (not perspective))
 	   (rank (if inverted 7 0))
 	   (file (if inverted 7 0)) beg)
-      (if chess-plain-draw-border
-	  (insert ?  (nth 0 chess-plain-border-chars)
-		  (make-string (+ 8 (* 7 chess-plain-spacing))
-			       (nth 1 chess-plain-border-chars))
-		  (nth 2 chess-plain-border-chars) ?\n))
+      (when chess-plain-border-style
+	(insert ?  (aref chess-plain-border-style 0)
+		(make-string (+ 8 (* 7 chess-plain-spacing))
+			     (aref chess-plain-border-style 1))
+		(aref chess-plain-border-style 2) ?\n))
       (while (if inverted (>= rank 0) (< rank 8))
-	(if chess-plain-draw-border
-	    (insert (number-to-string (- 8 rank))
-		    (nth 3 chess-plain-border-chars)))
+	(when chess-plain-border-style
+	  (insert (number-to-string (- 8 rank))
+		  (aref chess-plain-border-style 3)))
 	(while (if inverted (>= file 0) (< file 8))
 	  (let ((piece (chess-pos-piece position
 					(chess-rf-to-index rank file)))
@@ -283,16 +280,16 @@ PERSPECTIVE is t for white or nil for black."
 	    (when (if inverted (>= file 1) (< file 7))
 	      (insert (make-string chess-plain-spacing ? ))))
 	  (setq file (if inverted (1- file) (1+ file))))
-	(if chess-plain-draw-border
-	    (insert (nth 4 chess-plain-border-chars)))
+	(when chess-plain-border-style
+	  (insert (aref chess-plain-border-style 4)))
 	(insert ?\n)
 	(setq file (if inverted 7 0)
 	      rank (if inverted (1- rank) (1+ rank))))
-      (if chess-plain-draw-border
-	  (insert ?  (nth 5 chess-plain-border-chars)
+      (if chess-plain-border-style
+	  (insert ?  (aref chess-plain-border-style 5)
 		  (make-string (+ 8 (* 7 chess-plain-spacing))
-			       (nth 6 chess-plain-border-chars))
-		  (nth 7 chess-plain-border-chars) ?\n
+			       (aref chess-plain-border-style 6))
+		  (aref chess-plain-border-style 7) ?\n
 		  ? ?  
 		  (let ((string (if (not inverted) "abcdefgh" "hgfedcba")))
 		    (mapconcat 'string (string-to-list string) 
