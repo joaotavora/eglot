@@ -876,35 +876,48 @@ If NO-CASTLING is non-nil, do not consider castling moves."
      ;; from any piece movement.  This is useful for testing whether a
      ;; king is in check, for example.
      ((memq piece '(t nil))
+      ;; test for bishops, rooks, queens and kings at once
       (dolist (dir-type (if piece
 			    chess-sliding-white-piece-directions
 			  chess-sliding-black-piece-directions))
 	(let ((dir (car dir-type)))
 	  (setq pos (chess-next-index target dir))
-	  (while pos
-	    (let ((pos-piece (chess-pos-piece position pos)))
-	      (if (memq pos-piece (cdr dir-type))
-		  (progn
-		    (chess--add-candidate pos)
-		    (setq pos nil))
-		(setq pos (and (eq pos-piece ? ) (chess-next-index pos dir))))))))
+	  (let ((king (if color ?K ?k)))
+	    (while pos
+	      (let ((pos-piece (chess-pos-piece position pos)))
+		(if (or (and king (or (eq pos-piece king)
+				      (memq pos-piece (cdr dir-type))))
+			(memq pos-piece (cdr dir-type)))
+		    (progn
+		      (chess--add-candidate pos)
+		      (setq pos nil))
+		  (setq pos (and (eq pos-piece ? ) (chess-next-index pos dir))))
+		(setq king nil))))))
 
-      ;; test whether the rook can move to the target by castling
-      (unless no-castling
-	(let (rook)
-	  (if (and (= target (if color ?\075 ?\005))
-		   (setq rook (chess-pos-can-castle position (if color ?K ?k)))
-		   (chess-ply-castling-changes position))
-	      (chess--add-candidate rook)
-	    (if (and (= target (if color ?\073 ?\003))
-		     (setq rook (chess-pos-can-castle position
-						      (if color ?Q ?q)))
-		     (chess-ply-castling-changes position t))
-		(chess--add-candidate rook)))))
-
-      (dolist (p (if piece '(?P ?N ?K) '(?p ?n ?k)))
+      ;; test for knights and pawns
+      (dolist (p (if piece '(?P ?N) '(?p ?n)))
 	(mapc 'chess--add-candidate
-	      (chess-search-position position target p check-only))))
+	      (chess-search-position position target p check-only)))
+
+      ;; test whether the rook or king can move to the target by castling
+      (unless no-castling
+	(if (and (or (and (eq target (if color ?\076 ?\006))
+			  (chess-pos-can-castle position (if color ?K ?k))
+			  (chess-ply-castling-changes position))
+		     (and (eq target (if color ?\072 ?\002))
+			  (chess-pos-can-castle position (if color ?Q ?q))
+			  (chess-ply-castling-changes position t))))
+	    (chess--add-candidate (chess-pos-king-index position color))
+	  (let (rook)
+	    (if (and (eq target (if color ?\075 ?\005))
+		     (setq rook (chess-pos-can-castle position (if color ?K ?k)))
+		     (chess-ply-castling-changes position))
+		(chess--add-candidate rook)
+	      (if (and (eq target (if color ?\073 ?\003))
+		       (setq rook (chess-pos-can-castle position
+							(if color ?Q ?q)))
+		       (chess-ply-castling-changes position t))
+		  (chess--add-candidate rook)))))))
 
      ;; skip erroneous space requests
      ((= test-piece ? ))
@@ -997,10 +1010,10 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 
 	;; test whether the king can move to the target by castling
 	(if (and (not no-castling)
-		 (or (and (equal target (chess-rf-to-index (if color 7 0) 6))
+		 (or (and (eq target (if color ?\076 ?\006))
 			  (chess-pos-can-castle position (if color ?K ?k))
 			  (chess-ply-castling-changes position))
-		     (and (equal target (chess-rf-to-index (if color 7 0) 2))
+		     (and (eq target (if color ?\072 ?\002))
 			  (chess-pos-can-castle position (if color ?Q ?q))
 			  (chess-ply-castling-changes position t))))
 	    (chess--add-candidate (chess-pos-king-index position color)))))
