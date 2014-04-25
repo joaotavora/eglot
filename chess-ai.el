@@ -139,45 +139,46 @@ this ply depth limit has been reached."
 			  chess-ai-passed-pawn))))
 	  ;; Mobility
 	  (when chess-ai-mobility
-	    (setq
-	     v
-	     (+
-	      v
-	      (-
+	    (let ((chess-ply-checking-mate t))
+	      (setq
+	       v
 	       (+
-		(if white-queens
-		    (length (chess-legal-plies position :piece ?Q
-					       :candidates white-queens))
-		  0)
-		(if white-rooks
-		    (length (chess-legal-plies position :piece ?R
-					       :candidates white-rooks))
-		  0)
-		(if white-bishops
-		    (length (chess-legal-plies position :piece ?B
-					       :candidates white-bishops))
-		  0)
-		(if white-knights
-		    (length (chess-legal-plies position :piece ?N
-					       :candidates white-knights))
-		  0))
-	       (+
-		(if black-queens
-		    (length (chess-legal-plies position :piece ?q
-					       :candidates black-queens))
-		  0)
-		(if black-rooks
-		    (length (chess-legal-plies position :piece ?r
-					       :candidates black-rooks))
-		  0)
-		(if black-bishops
-		    (length (chess-legal-plies position :piece ?b
-					       :candidates black-bishops))
-		  0)
-		(if black-knights
-		    (length (chess-legal-plies position :piece ?n
-					       :candidates black-knights))
-		  0))))))
+		v
+		(-
+		 (+
+		  (if white-queens
+		      (length (chess-legal-plies position :piece ?Q
+						 :candidates white-queens))
+		    0)
+		  (if white-rooks
+		      (length (chess-legal-plies position :piece ?R
+						 :candidates white-rooks))
+		    0)
+		  (if white-bishops
+		      (length (chess-legal-plies position :piece ?B
+						 :candidates white-bishops))
+		    0)
+		  (if white-knights
+		      (length (chess-legal-plies position :piece ?N
+						 :candidates white-knights))
+		    0))
+		 (+
+		  (if black-queens
+		      (length (chess-legal-plies position :piece ?q
+						 :candidates black-queens))
+		    0)
+		  (if black-rooks
+		      (length (chess-legal-plies position :piece ?r
+						 :candidates black-rooks))
+		    0)
+		  (if black-bishops
+		      (length (chess-legal-plies position :piece ?b
+						 :candidates black-bishops))
+		    0)
+		  (if black-knights
+		      (length (chess-legal-plies position :piece ?n
+						 :candidates black-knights))
+		    0)))))))
 
 	  (if (chess-pos-side-to-move position)
 	      v
