@@ -123,7 +123,8 @@ If not called interactively the result is a list of the form
 
 (ert-deftest chess-perft-startpos-depth4 ()
   :tags '(:capture :check :checkmate)
-  (should (equal (chess-perft (chess-pos-create) 4) '(197281 1576 0 0 0 469 8))))
+  (should (equal (chess-perft (chess-pos-create) 4)
+		 '(197281 1576 0 0 0 469 8))))
 
 (ert-deftest chess-perft-startpos-depth5 ()
   :tags '(:capture :en-passant :check :checkmate)
@@ -149,6 +150,14 @@ If not called interactively the result is a list of the form
 	 (chess-fen-to-pos
 	  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -")))
     (should (equal (chess-perft position 3) '(97862 17102 45 3162 0 993 1)))))
+
+(ert-deftest chess-perft-kiwipete-depth4 ()
+  :tags '(:capture :en-passant :castle :promote :check :checkmate)
+  (let ((position
+	 (chess-fen-to-pos
+	  "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -")))
+    (should (equal (chess-perft position 4)
+		   '(4085603 757163 1929 128013 15172 25523 43)))))
 
 (ert-deftest chess-perft-pos3-depth1 ()
   :tags '(:capture :check)
