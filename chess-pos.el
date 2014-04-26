@@ -845,6 +845,37 @@ trying to move a blank square."
       (throw 'in-check t)
     (push candidate candidates)))
 
+(defconst chess-white-can-slide-to
+  (let ((squares (make-vector 64 nil)))
+    (dotimes (index 64)
+      (aset squares index
+	    (cl-loop for dir in chess-sliding-white-piece-directions
+		     for ray = (let ((square index) (first t))
+				 (cl-loop while (setq square (chess-next-index
+							      square (car dir)))
+					  collect (cons square
+							(if first
+							    (cons ?K (cdr dir))
+							  (cdr dir)))
+					  do (setq first nil)))
+		     when ray collect ray)))
+    squares))
+(defconst chess-black-can-slide-to
+  (let ((squares (make-vector 64 nil)))
+    (dotimes (index 64)
+      (aset squares index
+	    (cl-loop for dir in chess-sliding-black-piece-directions
+		     for ray = (let ((square index) (first t))
+				 (cl-loop while (setq square (chess-next-index
+							      square (car dir)))
+					  collect (cons square
+							(if first
+							    (cons ?k (cdr dir))
+							  (cdr dir)))
+					  do (setq first nil)))
+		     when ray collect ray)))
+    squares))
+
 (defun chess-search-position (position target piece &optional
 				       check-only no-castling)
   "Look on POSITION from TARGET for a PIECE that can move there.
@@ -877,22 +908,16 @@ If NO-CASTLING is non-nil, do not consider castling moves."
      ;; king is in check, for example.
      ((memq piece '(t nil))
       ;; test for bishops, rooks, queens and kings at once
-      (dolist (dir-type (if piece
-			    chess-sliding-white-piece-directions
-			  chess-sliding-black-piece-directions))
-	(let ((dir (car dir-type)))
-	  (setq pos (chess-next-index target dir))
-	  (let ((king (if color ?K ?k)))
-	    (while pos
-	      (let ((pos-piece (chess-pos-piece position pos)))
-		(if (or (and king (or (eq pos-piece king)
-				      (memq pos-piece (cdr dir-type))))
-			(memq pos-piece (cdr dir-type)))
-		    (progn
-		      (chess--add-candidate pos)
-		      (setq pos nil))
-		  (setq pos (and (eq pos-piece ? ) (chess-next-index pos dir))))
-		(setq king nil))))))
+      (dolist (ray (aref (if piece
+			     chess-white-can-slide-to
+			   chess-black-can-slide-to) target))
+	(while ray
+	  (let ((pos-piece (chess-pos-piece position (caar ray))))
+	    (if (memq pos-piece (cdar ray))
+		(progn
+		  (chess--add-candidate (caar ray))
+		  (setq ray nil))
+	      (setq ray (when (eq pos-piece ? ) (cdr ray)))))))
 
       ;; test for knights and pawns
       (dolist (p (if piece '(?P ?N) '(?p ?n)))
