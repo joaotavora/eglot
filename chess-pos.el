@@ -913,11 +913,9 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 			   chess-black-can-slide-to) target))
 	(while ray
 	  (let ((pos-piece (chess-pos-piece position (caar ray))))
-	    (if (memq pos-piece (cdar ray))
-		(progn
-		  (chess--add-candidate (caar ray))
-		  (setq ray nil))
-	      (setq ray (when (eq pos-piece ? ) (cdr ray)))))))
+	    (setq ray (cond ((memq pos-piece (cdar ray))
+			     (chess--add-candidate (caar ray)) nil)
+			    ((eq pos-piece ? ) (cdr ray)))))))
 
       ;; test for knights and pawns
       (dolist (p (if piece '(?P ?N) '(?p ?n)))
@@ -949,15 +947,15 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 
      ;; pawn movement, which is diagonal 1 when taking, but forward
      ;; 1 or 2 when moving (the most complex piece, actually)
-     ((= test-piece ?P)
+     ((eq test-piece ?P)
       (let ((p (chess-pos-piece position target))
 	    (backward (if color chess-direction-south chess-direction-north)))
-  	(if (if (= p ? )
+	(if (if (eq p ? )
 		;; check for en passant
 		(and (= (chess-index-rank target) (if color 2 5))
 		     (let ((ep (chess-pos-en-passant position)))
 		       (when ep
-			 (= ep (chess-next-index target backward))))
+			 (= ep (funcall (if color #'+ #'-) target 8))))
 		     (or (and (setq pos (chess-next-index target
 							  (if color
 							      chess-direction-southwest
@@ -983,13 +981,14 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 		       (chess-pos-piece-p position pos piece))
 		  (chess--add-candidate pos)))
 	  (if (setq pos (chess-next-index target backward))
-	      (if (chess-pos-piece-p position pos piece)
-		  (chess--add-candidate pos)
-		(if (and (chess-pos-piece-p position pos ? )
-			 (= (if color 4 3) (chess-index-rank target))
-			 (setq pos (chess-next-index pos backward))
-			 (chess-pos-piece-p position pos piece))
-		    (chess--add-candidate pos)))))))
+	      (let ((pos-piece (chess-pos-piece position pos)))
+		(if (eq pos-piece piece)
+		    (chess--add-candidate pos)
+		  (if (and (eq pos-piece ? )
+			   (= (if color 4 3) (chess-index-rank target))
+			   (setq pos (funcall (if color #'+ #'-) pos 8))
+			   (chess-pos-piece-p position pos piece))
+		      (chess--add-candidate pos))))))))
 
      ;; the rook, bishop and queen are the easiest; just look along
      ;; rank and file and/or diagonal for the nearest pieces!
@@ -1084,13 +1083,13 @@ in check)."
   (cl-assert (> (length candidates) 0))
   (let ((cand candidates)
 	(piece (chess-pos-piece position (car candidates)))
-	other-piece en-passant-square last-cand king-pos)
+	(other-piece (chess-pos-piece position target))
+	en-passant-square last-cand king-pos)
     (while cand
       (unwind-protect
 	  (progn
 	    ;; determine the resulting position
 	    (chess-pos-set-piece position (car cand) ? )
-	    (setq other-piece (chess-pos-piece position target))
 	    (chess-pos-set-piece position target piece)
 	    (when (and (= piece (if color ?P ?p))
 		       (let ((ep (chess-pos-en-passant position)))
