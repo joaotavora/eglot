@@ -408,34 +408,23 @@ position object passed in."
 	 ;; rank and file and/or diagonal for the nearest pieces!
 	 ((memq test-piece '(?R ?B ?Q))
 	  (dolist (dir (cond
-			((= test-piece ?R)
-			 '(        (-1 0)
-			   (0 -1)          (0 1)
-				   (1 0)))
-			((= test-piece ?B)
-			 '((-1 -1)        (-1 1)
-
-			   (1 -1)         (1 1)))
-			((= test-piece ?Q)
-			 '((-1 -1) (-1 0) (-1 1)
-			   (0 -1)         (0 1)
-			   (1 -1)  (1 0)  (1 1)))))
-	    (setq pos (apply 'chess-incr-index candidate dir))
+			((= test-piece ?R) chess-rook-directions)
+			((= test-piece ?B) chess-bishop-directions)
+			((= test-piece ?Q) chess-queen-directions)))
+	    (setq pos (chess-next-index candidate dir))
 	    (while pos
 	      (if (chess-pos-piece-p position pos ? )
 		  (progn
 		    (chess-ply--add nil nil pos)
-		    (setq pos (apply 'chess-incr-index pos dir)))
+		    (setq pos (chess-next-index pos dir)))
 		(if (chess-pos-piece-p position pos (not color))
 		    (chess-ply--add nil nil pos))
 		(setq pos nil)))))
 
 	 ;; the king is a trivial case of the queen, except when castling
 	 ((= test-piece ?K)
-	  (dolist (dir '((-1 -1) (-1 0) (-1 1)
-			 (0 -1)         (0 1)
-			 (1 -1)  (1 0)  (1 1)))
-	    (setq pos (apply 'chess-incr-index candidate dir))
+	  (dolist (dir chess-king-directions)
+	    (setq pos (chess-next-index candidate dir))
 	    (if (and pos (or (chess-pos-piece-p position pos ? )
 			     (chess-pos-piece-p position pos (not color))))
 		(chess-ply--add nil nil pos)))
@@ -460,12 +449,9 @@ position object passed in."
 	 ;; the knight is a zesty little piece; there may be more than
 	 ;; one, but at only one possible square in each direction
 	 ((= test-piece ?N)
-	  (dolist (dir '((-2 -1) (-2 1)
-			 (-1 -2) (-1 2)
-			 (1 -2)  (1 2)
-			 (2 -1)  (2 1)))
+	  (dolist (dir chess-knight-directions)
 	    ;; up the current file
-	    (if (and (setq pos (apply 'chess-incr-index candidate dir))
+	    (if (and (setq pos (chess-next-index candidate dir))
 		     (or (chess-pos-piece-p position pos ? )
 			 (chess-pos-piece-p position pos (not color))))
 		(chess-ply--add nil nil pos))))
