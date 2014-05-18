@@ -212,30 +212,30 @@ maneuver."
 			 (setq new-changes
 			       (chess-ply-castling-changes position long
 							   (car changes))))
-		    (setcdr ply new-changes))))
+		    (setcdr ply new-changes)))
 
-	  (when (= piece (if color ?P ?p))
-	    ;; is this a pawn move to the ultimate rank?  if so, and
-	    ;; we haven't already been told, ask for the piece to
-	    ;; promote it to
-	    (when (and (not (memq :promote changes))
-		       (= (if color 0 7)
-			  (chess-index-rank (cadr changes))))
-	      ;; This does not always clear ALL input events
-	      (discard-input) (sit-for 0) (sleep-for 0 1)
-	      (discard-input)
-	      (unless chess-ply-allow-interactive-query
-		(chess-error 'ambiguous-promotion))
-	      (let ((new-piece (if (yes-or-no-p
-				    (chess-string 'pawn-promote-query))
-				   ?Q ?N)))
-		(nconc changes (list :promote (upcase new-piece)))))
+	    (when (eq piece (if color ?P ?p))
+	      ;; is this a pawn move to the ultimate rank?  if so, and
+	      ;; we haven't already been told, ask for the piece to
+	      ;; promote it to
+	      (when (and (not (memq :promote changes))
+			 (= (if color 0 7)
+			    (chess-index-rank (cadr changes))))
+		;; This does not always clear ALL input events
+		(discard-input) (sit-for 0) (sleep-for 0 1)
+		(discard-input)
+		(unless chess-ply-allow-interactive-query
+		  (chess-error 'ambiguous-promotion))
+		(let ((new-piece (if (yes-or-no-p
+				      (chess-string 'pawn-promote-query))
+				     ?Q ?N)))
+		  (nconc changes (list :promote (upcase new-piece)))))
 
-	    ;; is this an en-passant capture?
-	    (if (= (or (chess-pos-en-passant position) 100)
-		   (or (chess-incr-index (cadr changes)
-					 (if color 1 -1) 0) 200))
-		(nconc changes (list :en-passant))))
+	      ;; is this an en-passant capture?
+	      (when (let ((ep (chess-pos-en-passant position)))
+		      (when ep
+			(eq ep (funcall (if color #'+ #'-) (cadr changes) 8))))
+		(nconc changes (list :en-passant)))))
 
 	  ;; we must determine whether this ply results in a check,
 	  ;; checkmate or stalemate
@@ -249,7 +249,7 @@ maneuver."
 		   (next-color (not color))
 		   (king (chess-pos-king-index next-pos next-color))
 		   (in-check (catch 'in-check
-			       (chess-search-position next-pos king color t))))
+			       (chess-search-position next-pos king color t t))))
 	      ;; first, see if the moves leaves the king in check.
 	      ;; This is tested by seeing if any of the opponent's
 	      ;; pieces can reach the king in the position that will
@@ -359,6 +359,7 @@ position object passed in."
 	    (upcase (or piece
 			(chess-pos-piece position
 					 (cadr (memq :index keywords))))))
+	   (ep (when (eq test-piece ?P) (chess-pos-en-passant position)))
 	   pos plies file)
       ;; since we're looking for moves of a particular piece, do a
       ;; more focused search
@@ -382,27 +383,35 @@ position object passed in."
 	 ;; 1 or 2 when moving (the most complex piece, actually)
 	 ((= test-piece ?P)
 	  (let* ((bias  (if color -1 1))
-		 (ahead (chess-incr-index candidate bias 0))
-		 (2ahead (chess-incr-index candidate (if color -2 2) 0)))
+		 (ahead (chess-next-index candidate (if color
+							chess-direction-north
+						      chess-direction-south)))
+		 (2ahead (when ahead (chess-next-index ahead (if color
+								 chess-direction-north
+							chess-direction-south)))))
 	    (when (chess-pos-piece-p position ahead ? )
-	      (chess-ply--add bias 0 ahead)
+	      (chess-ply--add nil nil ahead)
 	      (if (and (= (if color 6 1) (chess-index-rank candidate))
 		       2ahead (chess-pos-piece-p position 2ahead ? ))
-		  (chess-ply--add (if color -2 2) 0 2ahead)))
-	    (when (setq pos (chess-incr-index candidate bias -1))
+		  (chess-ply--add nil nil 2ahead)))
+	    (when (setq pos (chess-next-index candidate
+					      (if color
+						  chess-direction-northeast
+						chess-direction-southwest)))
 	      (if (chess-pos-piece-p position pos (not color))
-		  (chess-ply--add nil nil pos))
-	      ;; check for en passant capture toward queenside
-	      (if (= (or (chess-pos-en-passant position) 100)
-		     (or (chess-incr-index pos (if color 1 -1) 0) 200))
-		  (chess-ply--add nil nil pos)))
-	    (when (setq pos (chess-incr-index candidate bias 1))
+		  (chess-ply--add nil nil pos)
+		;; check for en passant capture toward kingside
+		(when (and ep (= ep (funcall (if color #'+ #'-) pos 8)))
+		  (chess-ply--add nil nil pos))))
+	    (when (setq pos (chess-next-index candidate
+					      (if color
+						  chess-direction-northwest
+						chess-direction-southeast)))
 	      (if (chess-pos-piece-p position pos (not color))
-		  (chess-ply--add nil nil pos))
-	      ;; check for en passant capture toward kingside
-	      (if (= (or (chess-pos-en-passant position) 100)
-		     (or (chess-incr-index pos (if color 1 -1) 0) 200))
-		  (chess-ply--add nil nil pos)))))
+		  (chess-ply--add nil nil pos)
+		;; check for en passant capture toward queenside
+		(when (and ep (eq ep (funcall (if color #'+ #'-) pos 8)))
+		  (chess-ply--add nil nil pos))))))
 
 	 ;; the rook, bishop and queen are the easiest; just look along
 	 ;; rank and file and/or diagonal for the nearest pieces!
