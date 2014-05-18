@@ -9,8 +9,8 @@
 ;; Author: John Wiegley <johnw@gnu.org>
 ;; Maintainer: Mario Lang <mlang@delysid.org>
 ;; Description: Play chess in Emacs
-;; URL: http://emacs-chess.sourceforge.net/
-;; Compatibility: Emacs21
+;; URL: https://github.com/jwiegley/emacs-chess/
+;; Compatibility: Emacs24
 
 ;; This file is not part of GNU Emacs.
 
