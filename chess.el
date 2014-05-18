@@ -36,8 +36,7 @@
 ;; This program will not play chess against you; it is not a chess
 ;; computer.  It can use a chess computer, however, to simulate your
 ;; opponent's moves.  This is decided when you choose your opponent.
-;; You must, of course, have that chess computer installed.  See the
-;; top of chess-player.el for more information.
+;; You must, of course, have that chess computer installed.
 ;;
 ;; To just get a chessboard up, put the following in your .emacs file:
 ;;
