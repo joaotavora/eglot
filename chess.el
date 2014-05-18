@@ -33,22 +33,17 @@
 
 ;; Welcome to Emacs Chess, a chess playing module for GNU Emacs.
 ;;
-;; This program will not play chess against you; it is not a chess
-;; computer.  It can use a chess computer, however, to simulate your
-;; opponent's moves.  This is decided when you choose your opponent.
-;; You must, of course, have that chess computer installed.
+;; Type `M-x chess', and play chess against the default engine module.
+;; Type `C-u M-x chess' to select a specific engine.
 ;;
-;; To just get a chessboard up, put the following in your .emacs file:
+;; You can play against various external chess computer programs.
+;; There is also an Emacs based chess computer module which does not require
+;; any external programs.  However, the internal AI is not very strong.
 ;;
-;;   (add-to-list 'load-path "<the path to Emacs Chess>")
-;;
-;;   (autoload 'chess "chess" "Play a game of chess" t)
-;;
-;; Now you can type `M-x chess', and play chess against anyone else in
-;; the room with you, without having to install anything more.
+;; To play on one of the internet chess servers, type `M-x chess-ics'.
 ;;
 ;; Once this is working, the next thing to do is to customize
-;; `chess-use-modules'.  This is a list of functionality modules used
+;; `chess-default-modules'.  This is a list of functionality modules used
 ;; by chess.el to provide its functionality.  You can enable or
 ;; disable modules so that Emacs Chess better suites your tastes.
 ;; Those modules in turn often have configuration variables, and
@@ -60,13 +55,7 @@
 ;; displays, opponents, analysis programs, etc.  See the documentation
 ;; in chess-module.el to learn more.
 ;;
-;; There is no documentation for this program other than what exists
-;; in the source files.  This is because the source files aim at being
-;; self documenting, and as chess is such a simple game, most chess
-;; players aren't going to need to know much about this program in
-;; particular.
-;;
-;; However, most people will probably be interested in reading the top
+;; Most people will probably also be interested in reading the top
 ;; of chess-display.el and chess-pgn.el, which describe the user
 ;; interface commands available in each of those buffer types.
 
