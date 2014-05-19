@@ -1,9 +1,9 @@
-;;; chess-polyglot.el --- Polyglot book access for Emacs  -*- lexical-binding: t; -*-
+;;; chess-polyglot.el --- Polyglot chess book access for Emacs  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014  Mario Lang
+;; Copyright (C) 2014  Free Software Foundation, Inc.
 
 ;; Author: Mario Lang <mlang@delysid.org>
-;; Keywords: games
+;; Keywords: data, games
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
