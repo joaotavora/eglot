@@ -1,10 +1,33 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; A game database that uses SCID for storage/retrieval
-;;
-;; The advantage is that it's much faster than PGN, and far, far more
+;;; chess-scid.el --- A game database that uses SCID for storage/retrieval
+
+;; Copyright (C) 2002, 2004, 2008  Free Software Foundation, Inc.
+
+;; Author: John Wiegley <johnw@gnu.org>
+;; Maintainer: Mario Lang <mlang@delysid.org>
+;; Keywords: games, processes
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; The advantage of SCID is that it's much faster than PGN, and far, far more
 ;; compact.
 ;;
+;; SCID offers a Tcl-based command-line interface, tcscid, which is what
+;; this module uses to query SCID databases.
+
+;;; Code:
 
 (chess-message-catalog 'english
   '((failed-load     . "Failed to load game %d from ChessDB")
