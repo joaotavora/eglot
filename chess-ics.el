@@ -1,25 +1,35 @@
-;;; chess-ics.el --- An engine for interacting with Internet Chess Servers
+;;; chess-ics.el --- Play on Internet Chess Servers
 
-;; Copyright (C) 2002, 2003, 2004  Free Software Foundation, Inc.
+;; Copyright (C) 2002, 2003, 2004, 2014  Free Software Foundation, Inc.
 
 ;; Author: John Wiegley
 ;; Maintainer: Mario Lang <mlang@delysid.org>
 ;; Keywords: games, processes
 
-;; This file is free software; you can redistribute it and/or modify
+;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 
-;; This file is distributed in the hope that it will be useful,
+;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to
-;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-;; Boston, MA 02111-1307, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This module allows to play chess on an Internet Chess Server.
+;; Contrary to other chess engine modules for chess.el, you are not supposed to
+;; use `chess-ics' as an engine for `M-x chess', rather, you call
+;; `M-x chess-ics' directly to play chess on the internet.
+;;
+;; The two major Internet Chess Servers, freechess.org and chessclub.com
+;; are both supported.  See `chess-ics-server-list' for the supported servers.
+
+;;; Code:
 
 (require 'cl-lib)
 (require 'comint)
