@@ -1,11 +1,31 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; chess-ucb.el --- Engine interface to the Novag Universal Chess Board
+
+;; Copyright (C) 2002, 2014 Free Software Foundation, Inc.
+
+;; Author: John Wiegley <johnw@gnu.org>
+;; Maintainer: Mario Lang <mlang@delysid.org>
+;; Keywords: games
+
+;; This is free software; you can redistribute it and/or modify it under
+;; the terms of the GNU General Public License as published by the Free
+;; Software Foundation; either version 3, or (at your option) any later
+;; version.
 ;;
-;; Engine interface to the Novag Universal Chess Board
+;; This is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+;; for more details.
 ;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
 ;; jww (2002-04-25): This code has not been tested yet, since I don't
 ;; have access to a UCB.  If anybody wants to donate one, or the money
 ;; for one ($300), I would be happy to correct this module.  :)
-;;
+
+;;; Code:
 
 (require 'chess-common)
 
