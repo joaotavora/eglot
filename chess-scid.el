@@ -29,6 +29,10 @@
 
 ;;; Code:
 
+(require 'chess-game)
+(require 'chess-message)
+(require 'chess-pgn)
+
 (chess-message-catalog 'english
   '((failed-load     . "Failed to load game %d from ChessDB")
     (failed-find-end . "Failed to locate end of game %d in ChessDB")))
