@@ -1,9 +1,28 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; Play against an opponent over the network
-;;
+;;; chess-network.el --- Play against an opponent over the network
+
+;; Copyright (C) 2002, 2003, 2008  Free Software Foundation, Inc.
+
+;; Author: John Wiegley <johnw@gnu.org>
+;; Maintainer: Mario Lang <mlang@delysid.org>
+;; Keywords: games
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Code:
 
 (require 'chess-common)
+(require 'chess-fen)
 
 (defvar chess-network-regexp-alist
   (list
@@ -140,7 +159,7 @@
 
      ((eq event 'setup-pos)
       (chess-engine-send nil (format "fen %s\n"
-				     (chess-pos-to-string (car args)))))
+				     (chess-pos-to-fen (car args)))))
 
      ((eq event 'setup-game)
       (chess-engine-send nil (format "pgn %s\n"

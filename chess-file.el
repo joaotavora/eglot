@@ -27,6 +27,8 @@
 
 ;;; Code:
 
+(require 'chess-fen)
+
 (defvar chess-file-locations nil
   "A list of starting positions of individual records of this collection.")
 (make-variable-buffer-local 'chess-file-locations)

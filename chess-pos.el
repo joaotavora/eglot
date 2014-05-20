@@ -84,7 +84,6 @@
 ;;; Code:
 
 (require 'chess-message)
-(require 'chess-fen)
 (eval-when-compile
   (require 'cl-lib)
   (cl-proclaim '(optimize (speed 3) (safety 2))))
@@ -678,19 +677,6 @@ The current side-to-move is always white."
       (vconcat (make-vector 64 ? )
 	       [nil nil nil nil nil nil t nil nil nil nil])
     (chess-pos-copy chess-starting-position)))
-
-(defsubst chess-pos-to-string (position &optional full)
-  "Convert the given POSITION into a string.
-The returned string can be converted back to a position using
-`chess-pos-from-string'."
-  (cl-assert (vectorp position))
-  (chess-pos-to-fen position full))
-
-(defsubst chess-pos-from-string (string)
-  "Convert the given STRING to a chess position.
-This string should have been created by `chess-pos-to-string'."
-  (cl-assert (stringp string))
-  (chess-fen-to-pos string))
 
 (defconst chess-pos-piece-values
   '((?p . 1)

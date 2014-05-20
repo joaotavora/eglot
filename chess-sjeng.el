@@ -1,4 +1,4 @@
-;;; chess-sjeng.el --- Play chess against sjeng!
+;;; chess-sjeng.el --- Play against sjeng!
 
 ;; Copyright (C) 2004  Free Software Foundation, Inc.
 
@@ -21,6 +21,7 @@
 ;;; Code:
 
 (require 'chess-common)
+(require 'chess-fen)
 
 (defgroup chess-sjeng nil
   "The publically available chess engine 'sjeng'."
@@ -73,7 +74,7 @@
 
      ((eq event 'setup-pos)
       (chess-engine-send nil (format "setboard %s\n"
-				     (chess-pos-to-string (car args)))))
+				     (chess-pos-to-fen (car args)))))
 
      ((eq event 'move)
       (when (= 1 (chess-game-index game))

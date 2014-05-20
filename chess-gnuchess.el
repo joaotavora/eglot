@@ -22,6 +22,7 @@
 ;;; Code:
 
 (require 'chess-common)
+(require 'chess-fen)
 
 (defgroup chess-gnuchess nil
   "The publically available chess engine 'gnuchess'."
@@ -69,7 +70,7 @@
 
      ((eq event 'setup-pos)
       (let ((file (chess-with-temp-file
-		      (insert (chess-pos-to-string (car args)) ?\n))))
+		      (insert (chess-pos-to-fen (car args)) ?\n))))
 	(chess-engine-send nil (format "epdload %s\n" file))))
 
      ((eq event 'setup-game)

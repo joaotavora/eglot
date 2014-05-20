@@ -22,6 +22,7 @@
 ;;; Code:
 
 (require 'chess-common)
+(require 'chess-fen)
 (require 'chess-var)
 
 (defgroup chess-crafty nil
@@ -131,7 +132,7 @@
 
      ((eq event 'setup-pos)
       (chess-engine-send nil (format "setboard %s\n"
-				     (chess-pos-to-string (car args)))))
+				     (chess-pos-to-fen (car args)))))
 
      ((eq event 'evaluate)
       (setq chess-crafty-evaluation nil)
