@@ -1,10 +1,36 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; A special kind of display that merely autosaves the game
-;;
+;;; chess-tutorial.el --- A simple chess training display
 
+;; Copyright (C) 2002, 2004, 2014  Free Software Foundation, Inc.
+
+;; Author: John Wiegley <johnw@gnu.org>
+;; Maintainer: Mario Lang <mlang@delysid.org>
+;; Keywords: games
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; `M-x chess-tutorial' implements a simple knight movement exercise.
+;; The objective is to take all pawns on the chessboard without moving to a
+;; square which is attacked by a queen.
+
+;;; Code:
+
+(require 'chess)
 (require 'chess-display)
 (require 'chess-game)
+(require 'chess-message)
 
 (chess-message-catalog 'english
   '((queen-would-take . "The queen would take your knight!")
