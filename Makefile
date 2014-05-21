@@ -18,7 +18,7 @@ test:
 chess-eco.fen: chess-eco.pos
 	$(EMACS) -L . -l chess-eco.el -f chess-generate-fen-table $< $@
 
-chess.info: chess.texi
+chess.info: doc/chess.texi
 	$(MAKEINFO) --no-split -o $@ $<
 
 dir: chess.info
