@@ -1,0 +1,38 @@
+/* XPM */
+static char *nld29[] = {
+/* columns rows colors chars-per-pixel */
+"29 29 3 1",
+"  c black s dark_piece",
+". c green s dark_square",
+"X c white s light_piece",
+/* pixels */
+".............................",
+".............................",
+"....... .... ................",
+".......  ...  ...............",
+"....... X . X ...............",
+"....... XX  X     ...........",
+".......   XXXXXXXX  .........",
+"...... XXXXXXXXXXXX  ........",
+"...... X  XXXXXXXXXX  .......",
+"..... X XXXXXXXXXXXXX .......",
+"..... X XXXXXX XXXXXX  ......",
+".... XXXXXXXXX XXXXXXX  .....",
+".... XXXXXXXXX XXXXXXX  .....",
+"... XXXXXXXXX  XXXXXXX  .....",
+"... XXXXXXX  . XXXXXXXX  ....",
+".. XXXXXXX ... XXXXXXXX  ....",
+"..   XXXX .... XXXXXXXX  ....",
+"..  XXXX .... XXXXXXXXX  ....",
+".. XX X .... XXXXXXXXXXX ....",
+"...    ..... XXXXXXXXXXX  ...",
+"........... XXXXXXXXXXXX  ...",
+".......... XXXXXXXXXXXXX  ...",
+"......... XXXXXXXXXXXXXX  ...",
+"........ XXXXXXXXXXXXXXX  ...",
+"........ XXXXXXXXXXXXXXX  ...",
+"........                  ...",
+".............................",
+".............................",
+"............................."
+};

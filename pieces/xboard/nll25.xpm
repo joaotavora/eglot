@@ -1,0 +1,34 @@
+/* XPM */
+static char *nll25[] = {
+/* columns rows colors chars-per-pixel */
+"25 25 3 1",
+"  c black s dark_piece",
+". c gray s light_square",
+"X c white s light_piece",
+/* pixels */
+".........................",
+".........................",
+"....... ... .............",
+".......  . X ............",
+"....... X  X    .........",
+"...... X XXX XXX  .......",
+"......   XXXXXXXX  ......",
+".....  X XXXXXXXXX  .....",
+".....   XXXXXXXXXXX .....",
+".... XXXXXXXX XXXXX  ....",
+".... XXXXXXXX XXXXX  ....",
+"... XXXXXXXXX XXXXXX  ...",
+"... XXXXXXXX  XXXXXX  ...",
+"..   XXXX   . XXXXXX  ...",
+"..  XXXX .... XXXXXX  ...",
+".. XX X .... XXXXXXXX  ..",
+"...    .... XXXXXXXXX  ..",
+".....  ... XXXXXXXXXX  ..",
+"......... XXXXXXXXXXX  ..",
+"......... XXXXXXXXXXX  ..",
+"........ XXXXXXXXXXXX  ..",
+"........ XXXXXXXXXXXX  ..",
+"........               ..",
+".........................",
+"........................."
+};

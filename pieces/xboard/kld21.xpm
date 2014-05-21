@@ -1,0 +1,30 @@
+/* XPM */
+static char *kld21[] = {
+/* columns rows colors chars-per-pixel */
+"21 21 3 1",
+"  c black s dark_piece",
+". c green s dark_square",
+"X c white s light_piece",
+/* pixels */
+".....................",
+".......... ..........",
+".........   .........",
+".......... ..........",
+".........   .........",
+"........  X  ........",
+"..      XXXXX      ..",
+".  XXXX XXXXX XXXX  .",
+". XXXXXX XXX XXXXXX .",
+". XXXXXXX X XXXXXXX .",
+". XXXXXXX   XXXXXXX .",
+".  XXXXXXX XXXXXXX  .",
+"..  XXX       XXX  ..",
+"...    XXXXXXX    ...",
+".... XXXXXXXXXXX ....",
+"....   XXXXXXX   ....",
+".... XX       XX ....",
+"....   XXXXXXX   ....",
+"......         ......",
+".....................",
+"....................."
+};

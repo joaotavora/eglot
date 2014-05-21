@@ -1,0 +1,35 @@
+#!/bin/sh
+
+for size in 129 116 108 95 87 80 72 64 58 54 49 45 40 37 33 29 25 21 ; do
+
+  mkdir $size
+
+  for piece in p r n b q k ; do
+
+    name=${piece}ld${size}
+    echo $name
+    convert -pen green -draw 'color 0,0 floodfill' \
+	XBM:${piece}${size}o.bm tmp.xpm
+    sed < tmp.xpm > $size/$name.xpm -f convbm.sed -e s/magick/$name/
+
+    name=${piece}ll${size}
+    echo $name
+    convert -pen gray  -draw 'color 0,0 floodfill' \
+	XBM:${piece}${size}o.bm tmp.xpm
+    sed < tmp.xpm > $size/$name.xpm -f convbm.sed -e s/magick/$name/
+
+    name=${piece}dd${size}
+    echo $name
+    convert -pen green -draw 'color 0,0 floodfill' \
+	XBM:${piece}${size}s.bm tmp.xpm
+    sed < tmp.xpm > $size/$name.xpm -f convbm.sed -e s/magick/$name/
+
+    name=${piece}dl${size}
+    echo $name
+    convert -pen gray  -draw 'color 0,0 floodfill' \
+	XBM:${piece}${size}s.bm tmp.xpm
+    sed < tmp.xpm > $size/$name.xpm -f convbm.sed -e s/magick/$name/
+
+  done
+
+done
