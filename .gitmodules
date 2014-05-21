@@ -1,6 +1,0 @@
-[submodule "pieces"]
-	path = pieces
-	url = git://github.com/jwiegley/emacs-chess.git
-[submodule "sounds"]
-	path = sounds
-	url = git://github.com/jwiegley/emacs-chess.git
