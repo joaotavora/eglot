@@ -3,5 +3,5 @@
 .elpaignore
 chess-eco.pos
 chess-test.el
-doc/chess.texi
+doc
 Makefile
