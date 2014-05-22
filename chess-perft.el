@@ -1,6 +1,6 @@
 ;;; chess-perft.el --- Perft tests for emacs-chess   -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014  Mario Lang
+;; Copyright (C) 2014  Free Software Foundation, Inc.
 
 ;; Author: Mario Lang <mlang@delysid.org>
 ;; Keywords: games
