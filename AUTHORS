@@ -22,7 +22,7 @@ moved to other things.  I hope you enjoy using it as much as I did making it.
 John Wiegley <johnw@newartisans.com>
 
 
-Further: Around 2005, another player came on the scene: Mario Lang.  Mario is
+Further: Around 2004, another player came on the scene: Mario Lang.  Mario is
 unable to see, but Emacs Chess's design made it possible for me to integrate
 the display code with his braille viewer.  He still plays chess with it to
 this day, as it is the only client that allows him to do so.  He has also
