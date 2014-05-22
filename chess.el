@@ -30,6 +30,10 @@
 
 ;; Welcome to Emacs Chess, a chess playing module for GNU Emacs.
 ;;
+;; chess.el is an Emacs Lisp library and several clients on top of the
+;; underlying library functionality for performing various activities
+;; related to the game of chess.
+;;
 ;; Type `M-x chess', and play chess against one of the default engine modules.
 ;;
 ;; Type `C-u M-x chess' to select a specific engine.
@@ -44,9 +48,9 @@
 ;; `chess-pgn-mode' provides a text-mode derived mode which can display the
 ;; chess position at point.
 ;;
-;; If you are new to Chess, `M-x chess-tutorial' provides a simple knight
+;; To improve your chessaility, `M-x chess-tutorial' provides a simple knight
 ;; movement exercise to get you started, and `M-x chess-puzzle' can be used
-;; to solve puzzle collections.
+;; to solve puzzle collections in EPD or PGN format.
 ;;
 ;; There are some different types of chessboard display modules available.
 ;; * A simple character based display (chess-plain).
