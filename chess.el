@@ -1,16 +1,12 @@
-;;; chess.el --- Play chess in Emacs
+;;; chess.el --- Play chess in GNU Emacs
 
 ;; Copyright (C) 2001, 2014 Free Software Foundation, Inc.
 
-;; Emacs Lisp Archive Entry
-;; Filename: chess.el
+;; Author: John Wiegley <johnw@gnu.org>
+;; Maintainer: Mario Lang <mlang@delysid.org>
 ;; Version: 0
 ;; Package-Requires: ((cl-lib "0.5"))
 ;; Keywords: games
-;; Author: John Wiegley <johnw@gnu.org>
-;; Maintainer: Mario Lang <mlang@delysid.org>
-;; Description: Play chess in Emacs
-;; URL: https://github.com/jwiegley/emacs-chess/
 ;; Compatibility: Emacs24
 
 ;; This program is free software; you can redistribute it and/or modify
