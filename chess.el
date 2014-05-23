@@ -4,7 +4,7 @@
 
 ;; Emacs Lisp Archive Entry
 ;; Filename: chess.el
-;; Version: -1
+;; Version: 0
 ;; Package-Requires: ((cl-lib "0.5"))
 ;; Keywords: games
 ;; Author: John Wiegley <johnw@gnu.org>
