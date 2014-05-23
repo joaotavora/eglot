@@ -131,8 +131,9 @@
   (unless chess-engine-handling-event
     (cond
      ((eq event 'initialize)
-      (let ((which (read-char "Are you the c)lient or s)erver? "))
-	    proc)
+      (let* ((cursor-in-echo-area t)
+	     (which (read-char "Are you the c)lient or s)erver? "))
+	     proc)
 	(chess-message 'network-starting)
 	(setq proc
 	      (if (eq which ?s)
