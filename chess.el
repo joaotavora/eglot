@@ -42,6 +42,8 @@
 ;; There is also an Emacs based chess computer module (ai) which does not
 ;; require any external programs.  However, the internal AI is not very strong.
 ;;
+;; To play against another human on a different machine running GNU Emacs,
+;; type `C-u M-x chess RET network RET'.
 ;; To play on one of the internet chess servers, type `M-x chess-ics'.
 ;;
 ;; If you'd like to view or edit Portable Game Notation (PGN) files,
