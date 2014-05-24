@@ -1051,17 +1051,19 @@ This function should be put on `comint-preoutput-filter-functions'."
        nil (format "match %s\n"
 		   (read-string (chess-string 'challenge-whom)))))
 
-     ;; this handler is taken from chess-common; we need to send long
-     ;; algebraic notation to the ICS server, not short
+     ;; we need to send long algebraic notation to the ICS server, not short
      ((eq event 'move)
-      (chess-ics-send
-       (if (chess-ply-any-keyword (car args) :castle :long-castle)
-	   (chess-ply-to-algebraic (car args))
-	 (concat (chess-index-to-coord
-		  (chess-ply-source (car args))) "-"
-		  (chess-index-to-coord
-		   (chess-ply-target (car args)))))
-       (chess-game-data game 'ics-buffer))
+      (let ((ply (car args)))
+	(chess-ics-send
+	 (if (chess-ply-any-keyword ply :castle :long-castle)
+	     (chess-ply-to-algebraic ply)
+	   (concat (chess-index-to-coord (chess-ply-source ply))
+		   "-"
+		   (chess-index-to-coord (chess-ply-target ply))
+		   (if (characterp (chess-ply-keyword ply :promote))
+		       (format "=%c" (chess-ply-keyword ply :promote))
+		     "")))
+	 (chess-game-data game 'ics-buffer)))
       (if (chess-game-over-p game)
 	  (chess-game-set-data game 'active nil)))
 
