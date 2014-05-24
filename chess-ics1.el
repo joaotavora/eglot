@@ -1,6 +1,6 @@
 ;;; chess-ics1.el --- Classic ICS1 style chessboard display
 
-;; Copyright (C) 2002, 2005  Free Software Foundation, Inc.
+;; Copyright (C) 2002, 2005, 2014  Free Software Foundation, Inc.
 
 ;; Author: John Wiegley <johnw@gnu.org>
 ;; Keywords: games
@@ -103,7 +103,7 @@ PERSPECTIVE is t for white or nil for black."
     (erase-buffer)
     (let* ((inverted (not perspective))
 	   (rank (if inverted 7 0))
-	   (file (if inverted 7 0)) beg)
+	   (file (if inverted 7 0)))
       (insert "\n      +---+---+---+---+---+---+---+---+\n")
       (while (if inverted (>= rank 0) (< rank 8))
 	(if (/= rank (if inverted 7 0))

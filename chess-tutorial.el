@@ -38,7 +38,7 @@
     (knight-1-done    . "Goal: take all the pawns, without letting the queen take your knight")
     (cannot-take-queen . "You cannot take the queen")))
 
-(defun chess-tutorial-knight-1 (game ignore event &rest args)
+(defun chess-tutorial-knight-1 (game _ignore event &rest _args)
   (if (eq event 'move)
       (let ((position (chess-game-pos game)))
 	(if (null (chess-pos-search position ?p))

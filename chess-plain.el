@@ -285,7 +285,7 @@ PERSPECTIVE is t for white or nil for black."
     (erase-buffer)
     (let* ((inverted (not perspective))
 	   (rank (if inverted 7 0))
-	   (file (if inverted 7 0)) beg)
+	   (file (if inverted 7 0)))
       (when chess-plain-border-style
 	(insert ?  (aref chess-plain-border-style 0)
 		(make-string (+ 8 (* 7 chess-plain-spacing))

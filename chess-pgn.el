@@ -149,8 +149,7 @@ Optionally use the supplied STRING instead of the current buffer."
   (if (or (looking-at "\\[")
 	  (and (search-forward "[" nil t)
 	       (goto-char (match-beginning 0))))
-      (let ((game (chess-game-create))
-	    (begin (point)))
+      (let ((game (chess-game-create)))
 	(chess-game-set-tags game nil)
 	(while (looking-at "\\[\\(\\S-+\\)\\s-+\\(\".*?\"\\)\\][ \t\n\r]+")
 	  (chess-game-set-tag game (match-string-no-properties 1)
@@ -246,9 +245,8 @@ PGN text."
 			   (t (string-lessp left right))))))))
     (insert (format "[%s \"%s\"]\n" (car tag) (cdr tag))))
   (insert ?\n)
-  (let ((begin (point)))
-    (chess-pgn-insert-plies game 1 (chess-game-plies game))
-    (insert (or (chess-game-tag game "Result") "*") ?\n)))
+  (chess-pgn-insert-plies game 1 (chess-game-plies game))
+  (insert (or (chess-game-tag game "Result") "*") ?\n))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -290,12 +288,6 @@ PGN text."
 	 game)
       (chess-error 'could-not-read-pgn))))
 
-(eval-after-load "pcomplete"
-  '(progn
-     (make-variable-buffer-local 'pcomplete-default-completion-function)
-     (make-variable-buffer-local 'pcomplete-command-completion-function)
-     (make-variable-buffer-local 'pcomplete-parse-arguments-function)))
-
 ;;;###autoload
 (define-derived-mode chess-pgn-mode text-mode "PGN"
   "A mode for editing chess PGN files."
@@ -318,9 +310,12 @@ PGN text."
     (define-key map [? ] 'chess-pgn-insert-and-show-position)
 
     (when (require 'pcomplete nil t)
-      (setq pcomplete-default-completion-function 'chess-pgn-completions)
-      (setq pcomplete-command-completion-function 'chess-pgn-completions)
-      (setq pcomplete-parse-arguments-function 'chess-pgn-current-word)
+      (set (make-local-variable 'pcomplete-default-completion-function)
+           'chess-pgn-completions)
+      (set (make-local-variable 'pcomplete-command-completion-function)
+           'chess-pgn-completions)
+      (set (make-local-variable 'pcomplete-parse-arguments-function)
+           'chess-pgn-current-word)
       (define-key map [tab] 'chess-pgn-complete-move))))
 
 ;;;###autoload
@@ -382,7 +377,7 @@ PGN text."
     (when location (goto-char location))
     (if (re-search-backward chess-pgn-move-regexp nil t)
 	(let* ((index (string-to-number (match-string 2)))
-	       (first-move (match-string 3))
+	       ;; (first-move (match-string 3))
 	       (second-move (match-string 14))
 	       (ply (1+ (* 2 (1- index)))))
 	  (if second-move
@@ -413,6 +408,8 @@ PGN text."
 					   'database-index)))
 	(setq chess-pgn-current-game
 	      (chess-database-read chess-pgn-database index))))))
+
+(defvar chess-game-inhibit-events)
 
 (defun chess-pgn-create-display ()
   "Return the move index associated with point."

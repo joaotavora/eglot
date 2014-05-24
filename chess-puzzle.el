@@ -1,6 +1,6 @@
 ;;; chess-puzzle.el --- Support for viewing and solving chess puzzles
 
-;; Copyright (C) 2002, 2004, 2008  Free Software Foundation, Inc.
+;; Copyright (C) 2002, 2004, 2008, 2014  Free Software Foundation, Inc.
 
 ;; Author: John Wiegley <johnw@gnu.org>
 ;; Maintainer: Mario Lang <mlang@delysid.org>
@@ -51,7 +51,7 @@
     (end-of-puzzles . "There are no more puzzles in this collection")))
 
 ;;;###autoload
-(defun chess-puzzle (file &optional index)
+(defun chess-puzzle (file &optional index) ;FIXME: index not used!
   "Pick a random puzzle from FILE, and solve it against the default engine.
 The spacebar in the display buffer is bound to `chess-puzzle-next',
 making it easy to go on to the next puzzle once you've solved one."
@@ -79,6 +79,8 @@ making it easy to go on to the next puzzle once you've solved one."
 	  (setq chess-puzzle-position 0))
 	(chess-game-run-hooks (chess-display-game display) 'disable-autosave)
 	(chess-puzzle-next)))))
+
+(defvar chess-display-handling-event)
 
 (defun chess-puzzle-next ()
   "Play the next puzzle in the collection, selected randomly."
@@ -118,7 +120,7 @@ making it easy to go on to the next puzzle once you've solved one."
 		     "")))))))
 
 
-(defun chess-puzzle-handler (game display event &rest args)
+(defun chess-puzzle-handler (game display event &rest _args)
   (if (and (eq event 'move)
 	   (chess-game-over-p game))
       (with-current-buffer display

@@ -529,10 +529,8 @@ distribute the probability that a move gets picked."
 
 (defun chess-polyglot-book-reload (symbol value)
   (set symbol value)
-  (when (eq symbol 'chess-polyglot-book-file)
-    (setq chess-polyglot-book
-	  (when chess-polyglot-book-file
-	    (chess-polyglot-book-open chess-polyglot-book-file)))))
+  (setq chess-polyglot-book
+        (when value (chess-polyglot-book-open value))))
 
 (defcustom chess-polyglot-book-file (expand-file-name "chess-polyglot.bin"
 						      (file-name-directory

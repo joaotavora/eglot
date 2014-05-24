@@ -17,6 +17,8 @@
 /TAGS
 /auto-autoloads.el
 /chess-auto.el
+/chess-autoloads.el
+/chess-pkg.el
 /chess-test
 /config.log
 /config.status

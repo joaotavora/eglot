@@ -20,8 +20,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
+(eval-when-compile (require 'cl-lib))
 
 (require 'chess-game)
 
@@ -48,7 +47,7 @@
 (defun chess-module-create (derived game &optional buffer-name
 				    &rest ctor-args)
   (let* ((name (symbol-name derived))
-	 handler buffer)
+	 handler)
     (unless (and (require derived nil t)
 		 (setq handler (intern-soft (concat name "-handler"))))
       (chess-error 'no-such-module name))

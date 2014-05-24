@@ -76,7 +76,6 @@
 	      ;; We can translate this information to EPD opcodes
 	      (let ((depth (read (match-string 1)))
 		    (centipawn (read (match-string 2)))
-		    (nodes (match-string 4))
 		    (pos (chess-engine-position nil)))
 		(chess-pos-set-epd pos 'acd depth)
 		(chess-pos-set-epd pos 'ce centipawn)

@@ -52,7 +52,7 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl))
+(eval-when-compile (require 'cl-lib))
 
 (require 'chess-message)
 (require 'chess-pos)
@@ -167,7 +167,6 @@ This regexp handles both long and short form.")
 	  (from (chess-ply-source ply))
 	  (to (chess-ply-target ply))
 	  (from-piece (chess-pos-piece pos from))
-	  (color (chess-pos-side-to-move pos))
 	  (rank 0) (file 0)
 	  (from-rank (chess-index-rank from))
 	  (from-file (chess-index-file from))

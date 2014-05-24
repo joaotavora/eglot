@@ -51,7 +51,7 @@ to the user."
     (chess-disable-autosave . "Disable autosaving for this game? ")
     (autosave-available     . "There is an autosave file; type ~ after connecting to read it")))
 
-(defun chess-autosave-handler (game event &rest args)
+(defun chess-autosave-handler (game event &rest _args)
   (cond
    ((eq event 'initialize)
     (kill-buffer (current-buffer))
@@ -116,7 +116,7 @@ to the user."
   (insert ")"))
 
 (defun chess-autosave-write (game file)
-  "Write a chess GAME to FILE as raw Lisp."
+  "Write a chess GAME to FILE as raw Lisp." ;FIXME: `file' is not used!
   (let ((index (chess-game-index game)))
     (if (or (= 1 index) (and (bobp) (eobp)))
 	(progn
@@ -136,7 +136,7 @@ to the user."
     (message nil)))
 
 (defun chess-autosave-read (game file)
-  "Read a chess game as raw Lisp from FILE."
+  "Read a chess game as raw Lisp from FILE." ;FIXME: `file' is not used!
   (goto-char (point-min))
   (chess-game-set-tags game (read (current-buffer)))
   (let* ((plies (read (current-buffer)))
