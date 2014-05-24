@@ -87,7 +87,7 @@
 
 (defun chess-module-set-game* (module game)
   (chess-with-current-buffer module
-    (assert game)
+    (cl-assert game)
     (if chess-module-game
 	(chess-module-detach-game nil))
     (setq chess-module-game game)

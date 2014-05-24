@@ -169,7 +169,7 @@ Optionally use the supplied STRING instead of the current buffer."
   (dolist (ann (chess-pos-annotations (chess-ply-pos ply)))
     (if (stringp ann)
 	(insert "\n{" ann "}")
-      (assert (listp ann))
+      (cl-assert (listp ann))
       (chess-pgn-insert-plies game index ann))))
 
 (defun chess-pgn-insert-plies (game index plies &optional

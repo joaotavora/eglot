@@ -44,11 +44,11 @@
 	(value (cdr annotation)))
     (cond
      ((or (eq opcode 'am) (eq opcode 'bm))
-      (assert (consp value))
+      (cl-assert (consp value))
       (format "%S %s;"
 	      opcode (mapconcat #'chess-ply-to-string value " ")))
      ((eq opcode 'ce)
-      (assert (integerp value))
+      (cl-assert (integerp value))
       (format "%S %d;" opcode value))
      ((or (eq opcode 'pv) (eq opcode 'sv))
       (format "%S %s;"
@@ -59,7 +59,7 @@
 (defun chess-pos-to-epd (position)
   "Convert a chess POSITION to a string representation in extended
 position description format."
-  (assert position)
+  (cl-assert position)
   (concat (chess-pos-to-fen position)
 	  (when (consp (chess-pos-annotations position))
 	    (concat " "

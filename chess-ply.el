@@ -71,34 +71,34 @@
 
 (defsubst chess-ply-pos (ply)
   "Returns the base position associated with PLY."
-  (assert (listp ply))
+  (cl-assert (listp ply))
   (car ply))
 
 (defsubst chess-ply-set-pos (ply position)
   "Set the base position of PLY."
-  (assert (listp ply))
-  (assert (vectorp position))
+  (cl-assert (listp ply))
+  (cl-assert (vectorp position))
   (setcar ply position))
 
 (defsubst chess-ply-changes (ply)
-  (assert (listp ply))
+  (cl-assert (listp ply))
   (cdr ply))
 
 (defsubst chess-ply-set-changes (ply changes)
-  (assert (listp ply))
-  (assert (listp changes))
+  (cl-assert (listp ply))
+  (cl-assert (listp changes))
   (setcdr ply changes))
 
 (defun chess-ply-any-keyword (ply &rest keywords)
-  (assert (listp ply))
+  (cl-assert (listp ply))
   (catch 'found
     (dolist (keyword keywords)
       (if (memq keyword (chess-ply-changes ply))
 	  (throw 'found keyword)))))
 
 (defun chess-ply-keyword (ply keyword)
-  (assert (listp ply))
-  (assert (symbolp keyword))
+  (cl-assert (listp ply))
+  (cl-assert (symbolp keyword))
   (let ((item (memq keyword (chess-ply-changes ply))))
     (if item
 	(if (eq item (last (chess-ply-changes ply)))
@@ -106,8 +106,8 @@
 	  (cadr item)))))
 
 (defun chess-ply-set-keyword (ply keyword &optional value)
-  (assert (listp ply))
-  (assert (symbolp keyword))
+  (cl-assert (listp ply))
+  (cl-assert (symbolp keyword))
   (let* ((changes (chess-ply-changes ply))
 	 (item (memq keyword changes)))
     (if item
@@ -120,20 +120,20 @@
 
 (defsubst chess-ply-source (ply)
   "Returns the source square index value of PLY."
-  (assert (listp ply))
+  (cl-assert (listp ply))
   (let ((changes (chess-ply-changes ply)))
     (and (listp changes) (not (symbolp (car changes)))
 	 (car changes))))
 
 (defsubst chess-ply-target (ply)
   "Returns the target square index value of PLY."
-  (assert (listp ply))
+  (cl-assert (listp ply))
   (let ((changes (chess-ply-changes ply)))
     (and (listp changes) (not (symbolp (car changes)))
 	 (cadr changes))))
 
 (defsubst chess-ply-next-pos (ply)
-  (assert (listp ply))
+  (cl-assert (listp ply))
   (or (chess-ply-keyword ply :next-pos)
       (let ((position (apply 'chess-pos-move
 			     (chess-pos-copy (chess-ply-pos ply))
@@ -142,12 +142,12 @@
 	(chess-ply-set-keyword ply :next-pos position))))
 
 (defsubst chess-ply-to-string (ply &optional long)
-  (assert (listp ply))
+  (cl-assert (listp ply))
   (chess-ply-to-algebraic ply long))
 
 (defsubst chess-ply-from-string (position move)
-  (assert (vectorp position))
-  (assert (stringp move))
+  (cl-assert (vectorp position))
+  (cl-assert (stringp move))
   (chess-algebraic-to-ply position move))
 
 (defconst chess-piece-name-table
@@ -158,7 +158,7 @@
 
 (defun chess-ply-castling-changes (position &optional long king-index)
   "Create castling changes; this function supports Fischer Random castling."
-  (assert (vectorp position))
+  (cl-assert (vectorp position))
   (let* ((color (chess-pos-side-to-move position))
 	 (king (or king-index (chess-pos-king-index position color)))
 	 (rook (chess-pos-can-castle position (if color
@@ -186,7 +186,7 @@
 (defvar chess-ply-allow-interactive-query nil)
 
 (defsubst chess-ply-create* (position)
-  (assert (vectorp position))
+  (cl-assert (vectorp position))
   (list position))
 
 (defun chess-ply-create (position &optional valid-p &rest changes)
@@ -197,7 +197,7 @@ also extend castling, and will prompt for a promotion piece.
 
 Note: Do not pass in the rook move if CHANGES represents a castling
 maneuver."
-  (assert (vectorp position))
+  (cl-assert (vectorp position))
   (let* ((ply (cons position changes))
 	 (color (chess-pos-side-to-move position))
 	 piece)
@@ -346,7 +346,7 @@ criteria.
 
 NOTE: All of the returned plies will reference the same copy of the
 position object passed in."
-  (assert (vectorp position))
+  (cl-assert (vectorp position))
   (cond
    ((null keywords)
     (let ((plies (list t)))

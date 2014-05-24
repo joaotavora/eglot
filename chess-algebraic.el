@@ -90,8 +90,8 @@ This regexp handles both long and short form.")
 
 (defun chess-algebraic-to-ply (position move &optional trust)
   "Convert the algebraic notation MOVE for POSITION to a ply."
-  (assert (vectorp position))
-  (assert (stringp move))
+  (cl-assert (vectorp position))
+  (cl-assert (stringp move))
   (let ((case-fold-search nil))
     (when (string-match chess-algebraic-regexp-entire move)
       (let ((color (chess-pos-side-to-move position))
@@ -213,7 +213,7 @@ This regexp handles both long and short form.")
 (defun chess-ply-to-algebraic (ply &optional long)
   "Convert the given PLY to algebraic notation.
 If LONG is non-nil, render the move into long notation."
-  (assert (listp ply))
+  (cl-assert (listp ply))
   (or (and (not long) (chess-ply-keyword ply :san))
       (and (null (chess-ply-source ply)) "")
       (let ((move (chess-ply--move-text ply long)))

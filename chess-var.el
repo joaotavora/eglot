@@ -27,43 +27,43 @@
 
 (defsubst chess-var-plies (var)
   "Return the plies of VAR."
-  (assert var)
+  (cl-assert var)
   var)
 
 (defsubst chess-var-pos (var &optional index)
   "Return the position related to VAR's INDEX ply."
-  (assert var)
+  (cl-assert var)
   (chess-ply-pos (chess-var-ply var index)))
 
 (defsubst chess-var-index (var)
   "Return the VAR's current position index."
-  (assert var)
+  (cl-assert var)
   (1- (length (chess-var-plies var))))
 
 (defsubst chess-var-seq (var)
   "Return the current VAR sequence."
-  (assert var)
+  (cl-assert var)
   (1+ (/ (chess-var-index var) 2)))
 
 (defsubst chess-var-side-to-move (var &optional index)
   "Return the color whose move it is in VAR at INDEX (or at the last position
 of the variation if INDEX is nil)."
-  (assert var)
+  (cl-assert var)
   (chess-pos-side-to-move (chess-var-pos var index)))
 
 (defun chess-var-ply (var &optional index)
   "Return VAR's INDEXth ply."
-  (assert var)
+  (cl-assert var)
   (if index
       (nth index (chess-var-plies var))
     (car (last (chess-var-plies var)))))
 
 (defun chess-var-add-ply (var ply)
   "Return the position related to VAR's INDEX position."
-  (assert var)
-  (assert (listp ply))
+  (cl-assert var)
+  (cl-assert (listp ply))
   (let ((plies (chess-var-plies var)))
-    (assert plies)
+    (cl-assert plies)
     (nconc plies (list ply))))
 
 (defsubst chess-var-create (&optional position)
@@ -76,14 +76,14 @@ Optionally use the given starting POSITION."
 This creates a new position and adds it to the main variation.
 The 'changes' of the last ply reflect whether the var is currently in
 progress (nil), if it is drawn, resigned, mate, etc."
-  (assert var)
-  (assert (listp ply))
+  (cl-assert var)
+  (cl-assert (listp ply))
   (let ((current-ply (chess-var-ply var))
 	(changes (chess-ply-changes ply))
 	(position (chess-ply-pos ply)))
     (if (chess-ply-final-p current-ply)
 	(chess-error 'add-to-completed))
-    (assert (eq position (chess-ply-pos current-ply)))
+    (cl-assert (eq position (chess-ply-pos current-ply)))
     (chess-ply-set-changes current-ply changes)
     (chess-var-add-ply var (chess-ply-create*
 			    (chess-ply-next-pos current-ply)))))
