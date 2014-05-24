@@ -47,7 +47,7 @@
   (set-marker chess-chat-input-last (point-max))
   (set-buffer-modified-p nil))
 
-(defun chess-chat-handler (game event &rest args)
+(defun chess-chat-handler (_game event &rest args)
   (cond
    ((eq event 'initialize)
     (kill-buffer (current-buffer))

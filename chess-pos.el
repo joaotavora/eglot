@@ -705,7 +705,7 @@ Optionally, if INDICES is non-nil those indices are considered as candidates.
 A Pawn whose advance to the eighth rank is not blocked by an
 opposing Pawn in the same file and who does not have to pass one
 on an adjoining file is called a passed Pawn."
-  (let ((seventh (if color 1 6)) (bias (if color -1 1)) (pawn (if color ?p ?P))
+  (let ((seventh (if color 1 6)) (pawn (if color ?p ?P))
 	pawns)
     (dolist (index (or pawn-indices
 		       (chess-pos-search position (if color ?P ?p))) pawns)
@@ -834,14 +834,10 @@ trying to move a blank square."
 (chess-message-catalog 'english
   '((piece-unrecognized . "Unrecognized piece identifier")))
 
-(eval-when-compile
-  (defvar candidates)
-  (defvar check-only))
-
-(defsubst chess--add-candidate (candidate)
-  (if check-only
-      (throw 'in-check t)
-    (push candidate candidates)))
+(defmacro chess--add-candidate (candidate)
+  `(if check-only
+       (throw 'in-check t)
+     (push ,candidate candidates)))
 
 (defconst chess-white-can-slide-to
   (let ((squares (make-vector 64 nil)))
@@ -899,7 +895,7 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 		  piece))
 	 (test-piece (and (characterp piece)
 			  (upcase piece)))
-	 p pos candidates)
+         pos candidates)
     (cond
      ;; if the piece is `t', it means to find the candidates resulting
      ;; from any piece movement.  This is useful for testing whether a

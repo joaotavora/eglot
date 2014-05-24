@@ -99,6 +99,8 @@ If conversion fails, this function fired an 'illegal event."
   (or (chess-pgn-to-game pgn)
       (ignore (chess-message 'invalid-pgn))))
 
+(defvar chess-full-name)
+
 (defun chess-engine-default-handler (event &rest args)
   "Default engine response handler."
   (let ((game (chess-engine-game nil)))
@@ -414,7 +416,7 @@ event handler can take care of the data."
 ;; Primary event handler
 ;;
 
-(defun chess-engine-sentinel (proc event)
+(defun chess-engine-sentinel (proc _event)
   (chess-engine-destroy (process-buffer proc)))
 
 (defun chess-engine-filter (proc &optional string)
@@ -423,7 +425,7 @@ event handler can take care of the data."
 		 (process-buffer proc)
 	       (current-buffer)))
 	(inhibit-redisplay t)
-	last-point last-line-no-newline)
+        last-line-no-newline)
     (when (buffer-live-p buf)
       (with-current-buffer buf
 	(if (stringp proc)

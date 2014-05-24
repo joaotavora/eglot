@@ -1,6 +1,6 @@
 ;;; chess-eco.el --- Chess opening classification
 
-;; Copyright (C) 2004  Free Software Foundation, Inc.
+;; Copyright (C) 2004, 2014  Free Software Foundation, Inc.
 
 ;; Author: Mario Lang <mlang@delysid.org>
 ;; Keywords: games
@@ -19,9 +19,6 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Code:
-
-(eval-when-compile
-  (require 'cl))
 
 (require 'chess-game)
 (require 'chess-ply)
@@ -98,7 +95,7 @@
 (chess-message-catalog 'english
   '((announce-opening . "%s (ECO code %s)")))
 
-(defun chess-eco-handler (game event &rest args)
+(defun chess-eco-handler (game event &rest _args)
   "Handle for the `chess-eco' module.
 If you add `chess-eco' to `chess-default-modules', this handler will
 try to figure out if the current position of a game does match a

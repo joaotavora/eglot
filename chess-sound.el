@@ -1,6 +1,6 @@
 ;;; chess-sound.el --- Announce chess moves with pre-recorded sound files
 
-;; Copyright (C) 2002, 2008  Free Software Foundation, Inc.
+;; Copyright (C) 2002, 2008, 2014  Free Software Foundation, Inc.
 
 ;; Author: John Wiegley <johnw@gnu.org>
 ;; Maintainer: Mario Lang <mlang@delysid.org>
@@ -73,7 +73,7 @@
   (apply 'call-process chess-sound-program
 	 nil nil nil (append chess-sound-args (list file))))
 
-(defun chess-sound-handler (game event &rest args)
+(defun chess-sound-handler (game event &rest _args)
   (cond
    ((eq event 'initialize)
     (and (file-directory-p chess-sound-directory)
@@ -94,8 +94,7 @@
 	       (target (chess-ply-target ply))
 	       (s-piece (and source (chess-pos-piece pos source)))
 	       (t-piece (and target (chess-pos-piece pos target)))
-	       (which (chess-ply-keyword ply :which))
-	       text)
+	       (which (chess-ply-keyword ply :which)))
 	  (cond
 	   ((chess-ply-keyword ply :castle)
 	    (chess-sound "O-O"))

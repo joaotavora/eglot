@@ -240,9 +240,7 @@ called."
       (let* ((size (float (+ (* (or chess-images-border-width 0) 8)
 			     (* chess-images-size 8))))
 	     (max-char-height (ceiling (/ size (frame-char-height))))
-	     (max-char-width  (ceiling (/ size (frame-char-width))))
-	     (display (and (stringp chess-images-separate-frame)
-			   chess-images-separate-frame)))
+	     (max-char-width  (ceiling (/ size (frame-char-width)))))
 	;; create the frame whenever necessary
 	(chess-display-popup-in-frame (+ max-char-height 2)
 				      max-char-width
@@ -311,8 +309,7 @@ chess board are light or dark depending on location."
 Common modes are:
   `selected'    show that the piece has been selected for movement.
   `unselected'  show that the piece has been unselected."
-  (let* ((inverted (not (chess-display-perspective nil)))
-	 (pos (chess-display-index-pos nil index))
+  (let* ((pos (chess-display-index-pos nil index))
 	 (highlight (copy-alist (get-text-property pos 'display))))
     (setcar (last highlight)
 	    (list (cons "light_square" (if (eq mode :selected)
@@ -509,10 +506,6 @@ This is necessary for bizzare Emacs reasons."
 		nil nil nil nil))
 
   (let* ((colors '("black" "white"))
-	 (backgrounds (list chess-images-dark-color
-			    chess-images-light-color))
-	 (piece-colors (list chess-images-black-color
-			     chess-images-white-color))
 	 blank name image-data)
     (dotimes (c 2)
       (dotimes (b 2)

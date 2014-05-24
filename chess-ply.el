@@ -59,8 +59,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
+(eval-when-compile (require 'cl-lib))
 
 (require 'chess-pos)
 (require 'chess-algebraic)
@@ -296,18 +295,11 @@ maneuver."
       (chess-ply-any-keyword (chess-pos-preceding-ply
 			      (chess-ply-pos ply)) :stalemate :checkmate)))
 
-(eval-when-compile
-  (defvar position)
-  (defvar candidate)
-  (defvar color)
-  (defvar plies)
-  (defvar specific-target))
-
 (defvar chess-ply-throw-if-any nil)
 
-(defsubst chess-ply--add (rank-adj file-adj &optional pos)
+(defmacro chess-ply--add (rank-adj file-adj &optional pos)
   "This is totally a shortcut."
-  (let ((target (or pos (chess-incr-index candidate rank-adj file-adj))))
+  `(let ((target (or ,pos (chess-incr-index candidate ,rank-adj ,file-adj))))
     (if (and (or (not specific-target)
 		 (= target specific-target))
 	     (chess-pos-legal-candidates position color target
@@ -398,8 +390,7 @@ position object passed in."
 	 ;; pawn movement, which is diagonal 1 when taking, but forward
 	 ;; 1 or 2 when moving (the most complex piece, actually)
 	 ((= test-piece ?P)
-	  (let* ((bias  (if color -1 1))
-		 (ahead (chess-next-index candidate (if color
+	  (let* ((ahead (chess-next-index candidate (if color
 							chess-direction-north
 						      chess-direction-south)))
 		 (2ahead (when ahead (chess-next-index ahead (if color

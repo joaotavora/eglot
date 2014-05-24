@@ -23,7 +23,7 @@
 ;;; Code:
 
 (require 'chess-ply)
-(eval-when-compile (require 'cl))
+(eval-when-compile (require 'cl-lib))
 
 (defsubst chess-var-plies (var)
   "Return the plies of VAR."

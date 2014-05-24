@@ -41,6 +41,8 @@
   (let ((map (current-local-map)))
     (define-key map [(control ?c) (control ?c)] 'chess-kibitz-save)))
 
+(defvar chess-module-game)
+
 (defun chess-kibitz-save ()
   (interactive)
   (let ((ann (buffer-substring-no-properties chess-kibitz-input-last
