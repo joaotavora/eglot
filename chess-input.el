@@ -52,16 +52,14 @@
       (while (and (< i l) (< x xl))
 	(let ((move-char (aref move i))
 	      (entry-char (aref chess-input-move-string x)))
-	  (if (and (= move-char ?x)
-		   (/= entry-char ?x))
-	      (setq i (1+ i))
-	    (if (/= entry-char (if (< entry-char ?a)
-				   move-char
-				 (downcase move-char)))
-		(setq match nil i l)
-	      (setq i (1+ i) x (1+ x)))))))
-    (if match
-	move-ply)))
+	  (cond
+	   ((or (and (= move-char ?x) (/= entry-char ?x))
+		(and (= move-char ?=) (/= entry-char ?=)))
+	    (setq i (1+ i)))
+	   ((/= entry-char (if (< entry-char ?a) move-char (downcase move-char)))
+	    (setq match nil i l))
+	   (t (setq i (1+ i) x (1+ x)))))))
+    (when match move-ply)))
 
 (defsubst chess-input-display-moves (&optional move-list)
   (if (> (length chess-input-move-string) 0)
