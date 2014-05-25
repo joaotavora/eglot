@@ -1,6 +1,10 @@
 ;;; chess-input.el --- Keyboard entry of algebraic notation, using shortcut notation
 
-;; Copyright (C) 2014 Free Software Foundation, Inc.
+;; Copyright (C) 2002, 2005, 2014 Free Software Foundation, Inc.
+
+;; Author: John Wiegley <johnw@gnu.org>
+;; Maintainer: Mario Lang <mlang@delysid.org>
+;; Keywords: games
 
 ;; This is free software; you can redistribute it and/or modify it under
 ;; the terms of the GNU General Public License as published by the Free
@@ -17,9 +21,14 @@
 
 ;;; Commentary:
 
-;; This scheme was adapted from the way SCID
-;; (http://scid.sourceforge.net), by Shane Hudson, behaves.  It's the
-;; only way to move your pieces around!
+;; This scheme was adapted from the way SCID (<http://scid.sourceforge.net/>),
+;; by Shane Hudson, behaves.  It is based on standard algebraic notation.
+;; You do not need to type all characters from the corresponding SAN of a move,
+;; chess-input will automatically pick the move once it is unambiguous.
+;;
+;; Additionally, optional characters from SAN are treated as such.
+;; You do not need to type x or =, although you can, if you prefer to.
+;; For instance, "bxc8=N#" can be selected by typing `b c 8 n'.
 
 ;;; Code:
 
