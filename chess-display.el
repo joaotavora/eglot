@@ -972,14 +972,11 @@ The key bindings available in this mode are:
 	(chess-game-run-hooks chess-module-game 'undo count))
     (ding)))
 
-(defvar ibuffer-maybe-show-regexps)
-
 (defun chess-display-list-buffers ()
   "List all buffders related to this display's current game."
   (interactive)
   (let ((chess-game chess-module-game)
-        (lb-command (lookup-key ctl-x-map [(control ?b)]))
-        (ibuffer-maybe-show-regexps nil))
+        (lb-command (lookup-key ctl-x-map [(control ?b)])))
     ;; FIXME: Running "whatever code is bound to `C-x b'" (which could really
     ;; be anything, if the user is using a completely different key layout, as
     ;; in Evil, ErgoEmacs, or whatnot) while rebinding buffer-list is
