@@ -4,7 +4,7 @@
 
 ;; Author: John Wiegley <johnw@gnu.org>
 ;; Maintainer: Mario Lang <mlang@delysid.org>
-;; Version: 0
+;; Version: 2.0.0
 ;; Package-Requires: ((cl-lib "0.5"))
 ;; Keywords: games
 ;; Compatibility: Emacs24
@@ -88,7 +88,7 @@
   "An Emacs chess playing program."
   :group 'games)
 
-(defconst chess-version "2.0b6"
+(defconst chess-version "2.0.0"
   "The version of the Emacs chess program.")
 
 (defcustom chess-default-display
