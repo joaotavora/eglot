@@ -635,7 +635,7 @@ See `chess-display-type' for the different kinds of displays."
 		   ?1 ?2 ?3 ?4 ?5 ?6 ?7 ?8
 		   ?r ?n ?b ?q ?k
 		   ?R ?N ?B ?Q ?K
-		   ?o ?O ?x))
+		   ?o ?O ?x ?=))
       (define-key map (vector key) 'chess-input-shortcut))
     (define-key map [backspace] 'chess-input-shortcut-delete)
 
