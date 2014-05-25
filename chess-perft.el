@@ -185,32 +185,28 @@ If not called interactively the result is a list of the form
     (should (equal (chess-perft position 5) '(674624 52051 1165 0 0 52950 0)))))
 
 (ert-deftest chess-perft-pos4-depth1 ()
-  (let ((chess-ply-allow-interactive-query nil)
-	(position
+  (let ((position
 	 (chess-fen-to-pos
 	  "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq -")))
     (should (equal (chess-perft position 1) '(6 0 0 0 0 0 0)))))
 
 (ert-deftest chess-perft-pos4-depth2 ()
   :tags '(:capture :castle :promotion :check)
-  (let ((chess-ply-allow-interactive-query nil)
-	(position
+  (let ((position
 	 (chess-fen-to-pos
 	  "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq -")))
     (should (equal (chess-perft position 2) '(264 87 0 6 48 10 0)))))
 
 (ert-deftest chess-perft-pos4-depth3 ()
   :tags '(:capture :en-passant :promotion :check :checkmate)
-  (let ((chess-ply-allow-interactive-query nil)
-	(position
+  (let ((position
 	 (chess-fen-to-pos
 	  "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq -")))
     (should (equal (chess-perft position 3) '(9467 1021 4 0 120 38 22)))))
 
 (ert-deftest chess-perft-pos4-depth4 ()
   :tags '(:capture :castle :promotion :check :checkmate)
-  (let ((chess-ply-allow-interactive-query nil)
-	(position
+  (let ((position
 	 (chess-fen-to-pos
 	  "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq -")))
     (should (equal (chess-perft position 4) '(422333 131393 0 7795 60032 15492 5)))))

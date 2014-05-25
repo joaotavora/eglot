@@ -250,54 +250,53 @@ for all leave nodes of the resulting tree.
 A `cons' cell is returned where `cdr' is the supposedly best move from POSITION
 and `car' is the score of that move.  If there is no legal move from POSITION
 \(or DEPTH is 0), `cdr' will be nil."
-  (let ((chess-ply-allow-interactive-query nil))
-    (if (zerop depth)
-	(cons (funcall eval-fn position) nil)
-      (let ((plies (let ((chess-ai-mobility nil)
-			 (chess-ai-quiescence nil))
-		     (sort
-		      (mapcar
-		       (lambda (ply)
-			 (chess-ply-set-keyword
-			  ply :score
-			  (- (chess-ai-search (chess-ply-next-pos ply)
-					      1
-					      (1+ most-negative-fixnum)
-					      most-positive-fixnum
-					      #'chess-ai-eval-static)))
-			 ply)
-		       (chess-legal-plies
-			position :color (chess-pos-side-to-move position)))
-		      (lambda (lhs rhs)
-			(> (chess-ply-keyword lhs :score)
-			   (chess-ply-keyword rhs :score)))))))
-	(if (null plies)
-	    (cons (funcall eval-fn position) nil)
-	  (let* ((best-ply (car plies))
-		 (progress (make-progress-reporter
-			    (format "Thinking... (%s) "
-				    (chess-ply-to-algebraic best-ply))
-			    0 (length plies))))
-	    (cl-loop for i from 1
-		     for ply in plies
-	 	     do (let ((value (- (chess-ai-search
-					 (chess-ply-next-pos ply)
-					 (1- depth) (- upper-bound) (- lower-bound)
-					 eval-fn))))
-			  (progress-reporter-update progress i)
-			    (accept-process-output nil 0.05)
-			  (when (> value lower-bound)
-			    (setq lower-bound value
-				  best-ply ply)
-			    (progress-reporter-force-update
-			     progress
-			     i
-			     (format "Thinking... (%s {cp=%d}) "
-				     (chess-ply-to-algebraic best-ply)
-				     lower-bound))))
-		     until (>= lower-bound upper-bound))
-	    (progress-reporter-done progress)
-	    (cons lower-bound best-ply)))))))
+  (if (zerop depth)
+      (cons (funcall eval-fn position) nil)
+    (let ((plies (let ((chess-ai-mobility nil)
+		       (chess-ai-quiescence nil))
+		   (sort
+		    (mapcar
+		     (lambda (ply)
+		       (chess-ply-set-keyword
+			ply :score
+			(- (chess-ai-search (chess-ply-next-pos ply)
+					    1
+					    (1+ most-negative-fixnum)
+					    most-positive-fixnum
+					    #'chess-ai-eval-static)))
+		       ply)
+		     (chess-legal-plies
+		      position :color (chess-pos-side-to-move position)))
+		    (lambda (lhs rhs)
+		      (> (chess-ply-keyword lhs :score)
+			 (chess-ply-keyword rhs :score)))))))
+      (if (null plies)
+	  (cons (funcall eval-fn position) nil)
+	(let* ((best-ply (car plies))
+	       (progress (make-progress-reporter
+			  (format "Thinking... (%s) "
+				  (chess-ply-to-algebraic best-ply))
+			  0 (length plies))))
+	  (cl-loop for i from 1
+		   for ply in plies
+		   do (let ((value (- (chess-ai-search
+				       (chess-ply-next-pos ply)
+				       (1- depth) (- upper-bound) (- lower-bound)
+				       eval-fn))))
+			(progress-reporter-update progress i)
+			(accept-process-output nil 0.05)
+			(when (> value lower-bound)
+			  (setq lower-bound value
+				best-ply ply)
+			  (progress-reporter-force-update
+			   progress
+			   i
+			   (format "Thinking... (%s {cp=%d}) "
+				   (chess-ply-to-algebraic best-ply)
+				   lower-bound))))
+		   until (>= lower-bound upper-bound))
+	  (progress-reporter-done progress)
+	  (cons lower-bound best-ply))))))
 
 (defun chess-ai-best-move (position &optional depth eval-fn)
   "Find the best move for POSITION.

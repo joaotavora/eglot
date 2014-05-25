@@ -114,7 +114,6 @@
     (opp-undo-dec	    . "Your request to undo %d moves was decline")
     (opp-undo-ret	    . "Your opponent has retracted their request to undo %d moves")
     (opponent-says	    . "Dein Gegner sagt: %s")
-    (pawn-promote-query     . "Promote pawn to queen/rook/knight/bishop? ")
     (pgn-parse-error	    . "Error parsing PGN syntax")
     (pgn-read-error	    . "Error reading move: %s")
     (piece-images-loaded    . "Loading chess piece images...done")

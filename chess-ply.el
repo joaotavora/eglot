@@ -178,11 +178,9 @@
 		(if long :long-castle :castle))))))
 
 (chess-message-catalog 'english
-  '((pawn-promote-query  . "Promote to queen? ")
-    (ambiguous-promotion . "Promotion without :promote keyword")))
+  '((ambiguous-promotion . "Promotion without :promote keyword")))
 
 (defvar chess-ply-checking-mate nil)
-(defvar chess-ply-allow-interactive-query nil)
 
 (defsubst chess-ply-create* (position)
   (cl-assert (vectorp position))
@@ -230,21 +228,12 @@ maneuver."
 		    (setcdr ply new-changes)))
 
 	    (when (eq piece (if color ?P ?p))
-	      ;; is this a pawn move to the ultimate rank?  if so, and
-	      ;; we haven't already been told, ask for the piece to
-	      ;; promote it to
+	      ;; is this a pawn move to the ultimate rank?  if so, check
+	      ;; that the :promote keyword is present.
 	      (when (and (not (memq :promote changes))
 			 (= (if color 0 7)
 			    (chess-index-rank (cadr changes))))
-		;; This does not always clear ALL input events
-		(discard-input) (sit-for 0) (sleep-for 0 1)
-		(discard-input)
-		(unless chess-ply-allow-interactive-query
-		  (chess-error 'ambiguous-promotion))
-		(let ((new-piece (if (yes-or-no-p
-				      (chess-string 'pawn-promote-query))
-				     ?Q ?N)))
-		  (nconc changes (list :promote (upcase new-piece)))))
+		(chess-error 'ambiguous-promotion))
 
 	      ;; is this an en-passant capture?
 	      (when (let ((ep (chess-pos-en-passant position)))
@@ -306,20 +295,17 @@ maneuver."
 					 (list candidate)))
 	(if chess-ply-throw-if-any
 	    (throw 'any-found t)
-	  (if (not chess-ply-allow-interactive-query)
-	      (let ((promotion (and (chess-pos-piece-p position candidate
-							(if color ?P ?p))
-				     (= (chess-index-rank target)
-					(if color 0 7)))))
-		(if promotion
-		    (dolist (promote '(?Q ?R ?B ?N))
-		      (let ((ply (chess-ply-create position t candidate target
-						   :promote promote)))
-			(when ply (push ply plies))))
-		  (let ((ply (chess-ply-create position t candidate target)))
-		    (when ply (push ply plies)))))
-	    (let ((ply (chess-ply-create position t candidate target)))
-	      (when ply (push ply plies))))))))
+	  (let ((promotion (and (chess-pos-piece-p position candidate
+						   (if color ?P ?p))
+				(= (chess-index-rank target)
+				   (if color 0 7)))))
+	    (if promotion
+		(dolist (promote '(?Q ?R ?B ?N))
+		  (let ((ply (chess-ply-create position t candidate target
+					       :promote promote)))
+		    (when ply (push ply plies))))
+	      (let ((ply (chess-ply-create position t candidate target)))
+		(when ply (push ply plies)))))))))
 
 (defun chess-legal-plies (position &rest keywords)
   "Return a list of all legal plies in POSITION.

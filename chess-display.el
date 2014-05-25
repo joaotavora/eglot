@@ -850,8 +850,7 @@ The key bindings available in this mode are:
 		  (if (chess-pos-side-to-move (chess-display-position nil))
 		      "White" "Black")
 		  (1+ (/ (or chess-display-index 0) 2))))))
-  (let ((ply (let ((chess-ply-allow-interactive-query t))
-	       (chess-algebraic-to-ply (chess-display-position nil) move))))
+  (let ((ply (chess-algebraic-to-ply (chess-display-position nil) move)))
     (unless ply
       (chess-error 'illegal-notation move))
     (chess-display-move nil ply)))
