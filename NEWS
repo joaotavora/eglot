@@ -1,11 +1,20 @@
--*- mode: text; outline-layout: (1 :) -*-
-
 This is the NEWS file for Emacs Chess, a chess client and analysis library
 written in Emacs Lisp.
 
-Please note that proper documentation is still on its way.
 
-* Release 2.0:
+* Release 2.0.1:
+
+** chess-polyglot now works on 32-bit platforms.
+
+
+* Release 2.0.0:
 
 Began keeping this file.  See doc/chess.info for information about Emacs
 Chess.
+
+
+Local variables:
+coding: utf-8
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:
