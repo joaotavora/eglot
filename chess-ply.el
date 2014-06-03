@@ -62,7 +62,6 @@
 (eval-when-compile (require 'cl-lib))
 
 (require 'chess-pos)
-(require 'chess-algebraic)
 
 (defgroup chess-ply nil
   "Routines for manipulating chess plies."
@@ -139,15 +138,6 @@
 			     (chess-ply-changes ply))))
 	(chess-pos-set-preceding-ply position ply)
 	(chess-ply-set-keyword ply :next-pos position))))
-
-(defsubst chess-ply-to-string (ply &optional long)
-  (cl-assert (listp ply))
-  (chess-ply-to-algebraic ply long))
-
-(defsubst chess-ply-from-string (position move)
-  (cl-assert (vectorp position))
-  (cl-assert (stringp move))
-  (chess-algebraic-to-ply position move))
 
 (defconst chess-piece-name-table
   '(("queen"  . ?q)

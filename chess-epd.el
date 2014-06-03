@@ -33,6 +33,7 @@
 
 ;;; Code:
 
+(require 'chess-algebraic)
 (require 'chess-fen)
 (require 'chess-game)
 (require 'chess-ply)
@@ -46,7 +47,7 @@
      ((or (eq opcode 'am) (eq opcode 'bm))
       (cl-assert (consp value))
       (format "%S %s;"
-	      opcode (mapconcat #'chess-ply-to-string value " ")))
+	      opcode (mapconcat #'chess-ply-to-algebraic value " ")))
      ((eq opcode 'ce)
       (cl-assert (integerp value))
       (format "%S %d;" opcode value))
@@ -116,16 +117,16 @@ and advance point after the correctly parsed position."
 		       (cond
 			((or (eq opcode 'am) (eq opcode 'bm))
 			 (mapcar (lambda (move)
-				   (chess-ply-from-string pos move))
+				   (chess-algebraic-to-ply pos move))
 				 (split-string val " ")))
 			((eq opcode 'ce)
 			 (read val))
 			((or (eq opcode 'pm) (eq opcode 'sm)) ;predicted/supplied move
-			 (chess-ply-from-string pos val))
+			 (chess-algebraic-to-ply pos val))
 			((or (eq opcode 'pv) (eq opcode 'sv)) ; predicted/supplied variation
 			 (let ((var (chess-var-create pos)))
 			   (mapc (lambda (ply)
-				   (let ((changes (chess-ply-from-string
+				   (let ((changes (chess-algebraic-to-ply
 						   (chess-var-pos var) ply)))
 				     (if changes
 					 (chess-var-move var changes)

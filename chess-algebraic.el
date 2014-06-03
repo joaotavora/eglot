@@ -55,6 +55,7 @@
 (eval-when-compile (require 'cl-lib))
 
 (require 'chess-message)
+(require 'chess-ply)
 (require 'chess-pos)
 
 (defconst chess-algebraic-regexp

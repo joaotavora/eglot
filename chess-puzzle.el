@@ -27,9 +27,13 @@
 
 ;;; Code:
 
+(require 'chess)
+(require 'chess-algebraic)
+(require 'chess-database)
+(require 'chess-display)
+(require 'chess-engine)
 (require 'chess-game)
 (require 'chess-random)
-(require 'chess-database)
 
 (defgroup chess-puzzle nil
   "A mode for playing games from a database of puzzles."
@@ -113,7 +117,7 @@ making it easy to go on to the next puzzle once you've solved one."
 	(when (or bm pv)
 	  (message "Best move %s %s%s"
 		   (if (zerop (chess-game-index game)) "is" "would have been")
-		   (chess-ply-to-string (car bm))
+		   (chess-ply-to-algebraic (car bm))
 		   (if pv
 		       (concat ", predicted variation "
 			       (chess-var-to-algebraic pv))
