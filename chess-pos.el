@@ -84,8 +84,8 @@
 ;;; Code:
 
 (require 'chess-message)
+(require 'cl-lib)
 (eval-when-compile
-  (require 'cl-lib)
   (cl-proclaim '(optimize (speed 3) (safety 2))))
 
 (defgroup chess-pos nil
@@ -913,8 +913,8 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 
       ;; test for knights and pawns
       (dolist (p (if piece '(?P ?N) '(?p ?n)))
-	(mapc 'chess--add-candidate
-	      (chess-search-position position target p check-only no-castling)))
+	(dolist (cand (chess-search-position position target p check-only no-castling))
+          (chess--add-candidate cand)))
 
       ;; test whether the rook or king can move to the target by castling
       (unless no-castling
