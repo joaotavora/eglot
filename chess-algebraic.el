@@ -57,29 +57,21 @@
 (require 'chess-message)
 (require 'chess-pos)
 
-(defconst chess-algebraic-pieces-regexp "[RNBKQ]")
-
-;; jww (2008-09-01): use rx here, like in chess-ics
 (defconst chess-algebraic-regexp
-  (format (concat "\\("
-		    "O-O\\(-O\\)?\\|"
-		    "\\(%s?\\)/?"	; what is the / doing here?
-		    "\\([a-h]?[1-8]?\\)"
-		    "\\([x-]?\\)"
-		    "\\([a-h][1-8]\\)"
-		    "\\(=\\(%s\\)\\)?"
-		  "\\)"
-		  "\\([#+]\\)?")
-	  chess-algebraic-pieces-regexp
-	  chess-algebraic-pieces-regexp)
+  (rx (group (or (or "O-O" "O-O-O")
+		 (and (optional (group (char ?N ?B ?R ?Q ?K)))
+		      (optional (char ?/))
+		      (group (optional (char "a-h")) (optional (char "1-8")))
+		      (optional (group (char ?- ?x)))
+		      (group (char "a-h") (char "1-8"))
+		      (optional (group ?= (group (char ?N ?B ?R ?Q ?K)))))))
+      (optional (group (char ?+ ?#))))
   "A regular expression that matches all possible algebraic moves.
 This regexp handles both long and short form.")
 
-(defconst chess-algebraic-regexp-entire
-  (concat chess-algebraic-regexp "$"))
+(defconst chess-algebraic-regexp-entire (concat chess-algebraic-regexp "$"))
 
-(defconst chess-algebraic-regexp-ws
-  (concat chess-algebraic-regexp "\\s-"))
+(defconst chess-algebraic-regexp-ws (concat chess-algebraic-regexp "\\s-"))
 
 (chess-message-catalog 'english
   '((clarify-piece     . "Clarify piece to move by rank or file")
@@ -95,17 +87,17 @@ This regexp handles both long and short form.")
   (let ((case-fold-search nil))
     (when (string-match chess-algebraic-regexp-entire move)
       (let ((color (chess-pos-side-to-move position))
-	    (mate (match-string 9 move))
+	    (mate (match-string 8 move))
 	    (piece (aref move 0))
 	    changes long-style)
 	(if (eq piece ?O)
 	    (setq changes (chess-ply-castling-changes
 			   position (= (length (match-string 1 move)) 5)))
-	  (let ((promotion (match-string 8 move)))
+	  (let ((promotion (match-string 7 move)))
 	    (setq
 	     changes
-	     (let ((source (match-string 4 move))
-		   (target (chess-coord-to-index (match-string 6 move))))
+	     (let ((source (match-string 3 move))
+		   (target (chess-coord-to-index (match-string 5 move))))
 	       (if (and source (= (length source) 2))
 		   (prog1
 		       (list (chess-coord-to-index source) target)
@@ -142,8 +134,8 @@ This regexp handles both long and short form.")
 			       (chess-error 'could-not-clarify)
 			     (list which target))))
 		     (chess-error 'no-candidates move))))))
-	    (if promotion
-		(nconc changes (list :promote (aref promotion 0))))))
+	    (when promotion
+	      (nconc changes (list :promote (aref promotion 0))))))
 
 	(when changes
 	  (if (and trust mate)
