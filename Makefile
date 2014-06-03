@@ -12,7 +12,7 @@ INSTALL_INFO = install-info
 
 all: chess-eco.fen chess.info dir
 
-test:
+test: chess-perft.elc
 	$(EMACS) -L . -l chess-perft -f ert-run-tests-batch
 
 chess-eco.fen: chess-eco.pos
@@ -24,3 +24,14 @@ chess.info: doc/chess.texi
 dir: chess.info
 	$(INSTALL_INFO) $< $@
 
+chess-perft.elc: chess-fen.elc chess-ply.elc chess-pos.elc
+chess-ply.elc: chess-algebraic.elc
+
+.el.elc:
+	@$(EMACS) --batch -L . \
+	--eval "(defun byte-compile-dest-file (f) \"$@\")" \
+	--eval "(unless (byte-compile-file \"$<\") (kill-emacs 1))"
+
+
+clean:
+	rm -f *.elc
