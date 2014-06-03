@@ -2,9 +2,6 @@
 # Lisp data for Emacs Chess.
 #
 # If you update chess.texi or chess-eco.pos, run make on this file.
-#
-# NOTE: The "test" target is unnecessarily slow as it requires compiled Lisp
-# files for decent performance.
 
 EMACS = emacs --batch --no-site-file
 MAKEINFO = makeinfo
