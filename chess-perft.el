@@ -45,6 +45,7 @@
 
 ;;; Code:
 
+(require 'chess-display)
 (require 'chess-fen)
 (require 'chess-ply)
 (require 'chess-pos)
