@@ -6,6 +6,12 @@ written in Emacs Lisp.
 
 ** chess-polyglot now works on 32-bit platforms.
 
+** Redo `chess-algebraic-regexp' with `rx' to improve readability.
+
+** Fix "invalid function" error in `chess-search-position'.
+   This was introduced by the recent conversion
+   of `chess--add-candidates' from a defsubst to a defmacro.
+
 
 * Release 2.0.0:
 
