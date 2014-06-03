@@ -28,10 +28,9 @@ chess-perft.elc: chess-fen.elc chess-ply.elc chess-pos.elc
 chess-ply.elc: chess-algebraic.elc
 
 .el.elc:
-	@$(EMACS) --batch -L . \
+	@$(EMACS) -L . \
 	--eval "(defun byte-compile-dest-file (f) \"$@\")" \
 	--eval "(unless (byte-compile-file \"$<\") (kill-emacs 1))"
-
 
 clean:
 	rm -f *.elc
