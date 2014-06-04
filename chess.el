@@ -86,9 +86,10 @@
 
 (defgroup chess nil
   "An Emacs chess playing program."
-  :group 'games)
+  :group 'games
+  :link '(custom-manual "(chess)Top"))
 
-(defconst chess-version "2.0.0"
+(defconst chess-version "2.0.1"
   "The version of the Emacs chess program.")
 
 (defcustom chess-default-display
