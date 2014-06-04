@@ -662,6 +662,10 @@ Returns the target square index value of @var{ply}.
 
 @c lispfun chess-ply-next-pos
 
+@defun chess-ply-next-pos ply
+Return the position that results from executing @var{ply}.
+@end defun
+
 @c lispfun chess-ply-final-p
 
 @defun chess-ply-final-p ply
@@ -837,13 +841,13 @@ Add to @var{game} an event hook @var{function}.
 @c lispfun chess-game-add-ply
 
 @defun chess-game-add-ply game ply
-Return the position related to @var{game}'s @var{index} position.
+Add @var{ply} to the main variation of @var{game}.
 @end defun
 
 @c lispfun chess-game-hooks
 
 @defun chess-game-hooks game
-Return the tags alist associated with @var{game}.
+Return the event hooks associated with @var{game}.
 @end defun
 
 @c lispfun chess-game-plies
@@ -869,7 +873,7 @@ Run the event hooks of @var{game} and pass @var{args}.
 @c lispfun chess-game-set-hooks
 
 @defun chess-game-set-hooks game hooks
-Return the tags alist associated with @var{game}.
+Set the event hooks associated with @var{game}.
 @end defun
 
 @c lispfun chess-game-set-plies
@@ -952,7 +956,7 @@ Return the @var{game}'s current position index.
 @c lispfun chess-game-seq
 
 @defun chess-game-seq game
-Return the current @var{game} sequence.
+Return the current @var{game} sequence number.
 @end defun
 
 @c lispfun chess-game-side-to-move
@@ -960,6 +964,7 @@ Return the current @var{game} sequence.
 @defun chess-game-side-to-move game &optional index
 Return the color whose move it is in @var{game} at @var{index} (or at the last position
 if @var{index} is nil).
+@code{t} for white and @code{nil} for black.
 @end defun
 
 @node Game plies, Making a move, Game positions, Games
@@ -990,14 +995,14 @@ progress (nil), if it is drawn, resigned, mate, etc.
 @c lispfun chess-pgn-to-game
 
 @defun chess-pgn-to-game &optional string
-Convert @var{pgn} notation at point into a chess game.
+Convert @dfn{PGN notation} at point into a chess game.
 Optionally use the supplied @var{string} instead of the current buffer.
 @end defun
 
 @c lispfun chess-game-to-pgn
 
 @defun chess-game-to-pgn game &optional indented to-string
-Convert a chess @var{game} to @var{pgn} notation.
+Convert a chess @var{game} to @dfn{PGN notation}.
 If @var{indented} is non-nil, indent the move texts.
 If @var{to-string} is non-nil, return a string instead of inserting the resulting
 @var{pgn} text.

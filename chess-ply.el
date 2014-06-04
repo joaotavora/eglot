@@ -131,6 +131,7 @@
 	 (cadr changes))))
 
 (defsubst chess-ply-next-pos (ply)
+  "Return the position that results from executing PLY."
   (cl-assert (listp ply))
   (or (chess-ply-keyword ply :next-pos)
       (let ((position (apply 'chess-pos-move

@@ -1,5 +1,9 @@
 2014-06-05  Mario Lang  <mlang@delysid.org>
 
+	* doc/chess.texi (The "next" position): Actually add `chess-ply-next-pos'.
+
+	* chess-ply.el (chess-ply-next-pos): Add docstring.
+
 	* doc/chess.texi (Position coordinates): Document `chess-next-index'
 	and related constants.
 	(The sought game display): Update as the mentioned mode name has changed.

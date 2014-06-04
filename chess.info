@@ -542,6 +542,9 @@ File: chess.info,  Node: The "next" position,  Next: Algebraic notation,  Prev: 
 1.2.3 The "next" position
 -------------------------
 
+ -- Function: chess-ply-next-pos ply
+     Return the position that results from executing PLY.
+
  -- Function: chess-ply-final-p ply
      Return non-nil if this is the last ply of a game/variation.
 
@@ -691,10 +694,10 @@ variations.
      Add to GAME an event hook FUNCTION.
 
  -- Function: chess-game-add-ply game ply
-     Return the position related to GAME's INDEX position.
+     Add PLY to the main variation of GAME.
 
  -- Function: chess-game-hooks game
-     Return the tags alist associated with GAME.
+     Return the event hooks associated with GAME.
 
  -- Function: chess-game-plies game
      Return the main variation of GAME as a list of plies.
@@ -707,7 +710,7 @@ variations.
      Run the event hooks of GAME and pass ARGS.
 
  -- Function: chess-game-set-hooks game hooks
-     Return the tags alist associated with GAME.
+     Set the event hooks associated with GAME.
 
  -- Function: chess-game-set-plies game plies
      Set the list of plies which represents the main variation of GAME.
@@ -768,11 +771,11 @@ File: chess.info,  Node: Game positions,  Next: Game plies,  Prev: Game tags,  U
      Return the GAME's current position index.
 
  -- Function: chess-game-seq game
-     Return the current GAME sequence.
+     Return the current GAME sequence number.
 
  -- Function: chess-game-side-to-move game &optional index
      Return the color whose move it is in GAME at INDEX (or at the last
-     position if INDEX is nil).
+     position if INDEX is nil).  't' for white and 'nil' for black.
 
 
 File: chess.info,  Node: Game plies,  Next: Making a move,  Prev: Game positions,  Up: Games
@@ -803,11 +806,11 @@ File: chess.info,  Node: PGN notation,  Prev: Making a move,  Up: Games
 ------------------
 
  -- Function: chess-pgn-to-game &optional string
-     Convert PGN notation at point into a chess game.  Optionally use
+     Convert "PGN notation" at point into a chess game.  Optionally use
      the supplied STRING instead of the current buffer.
 
  -- Function: chess-game-to-pgn game &optional indented to-string
-     Convert a chess GAME to PGN notation.  If INDENTED is non-nil,
+     Convert a chess GAME to "PGN notation".  If INDENTED is non-nil,
      indent the move texts.  If TO-STRING is non-nil, return a string
      instead of inserting the resulting PGN text.
 
@@ -1480,7 +1483,8 @@ Function and Variable Index
 * chess-plain-white-square-char:         Plain ASCII diagram displays.
                                                                (line 22)
 * chess-ply-create:                      Creating plies.       (line  6)
-* chess-ply-final-p:                     The "next" position.  (line  6)
+* chess-ply-final-p:                     The "next" position.  (line  9)
+* chess-ply-next-pos:                    The "next" position.  (line  6)
 * chess-ply-pos:                         Ply details.          (line  6)
 * chess-ply-set-pos:                     Ply details.          (line  9)
 * chess-ply-source:                      Ply details.          (line 12)
@@ -1551,46 +1555,46 @@ Node: Plies16994
 Node: Creating plies18185
 Node: Ply details19369
 Node: The "next" position19849
-Node: Algebraic notation20111
-Node: Variations21539
-Node: Creating variations22667
-Node: Variation positions22975
-Node: Varation plies23576
-Node: Making a move in a variation24017
-Node: Games24592
-Node: Creating games26278
-Node: Game tags26719
-Node: Game positions27326
-Node: Game plies27907
-Node: Making a move28176
-Node: PGN notation28603
-Node: PGN mode29353
-Node: Collections29614
-Node: Opening Databases30415
-Node: Querying Databases30799
-Node: Modifying Databases31425
-Node: Finalising Databases31697
-Node: Database Modules31872
-Node: chess-file32166
-Node: chess-scid32808
-Node: Modules33045
-Node: Chessboard displays39794
-Node: Generic display manipulation functions40422
-Node: Plain ASCII diagram displays43347
-Node: ICS1 style ASCII displays44792
-Node: Graphical displays45096
-Node: Engines45250
-Node: Common functions45828
-Node: Crafty46868
-Node: Gnu Chess46983
-Node: Phalanx47095
-Node: Sjeng47202
-Node: Internet Chess Servers47287
-Node: Connecting to a server48206
-Node: Seeking an opponent for a new game48882
-Node: The sought game display49334
-Node: Concept Index50310
-Node: Function and Variable Index50553
-Node: Key Index61752
+Node: Algebraic notation20207
+Node: Variations21635
+Node: Creating variations22763
+Node: Variation positions23071
+Node: Varation plies23672
+Node: Making a move in a variation24113
+Node: Games24688
+Node: Creating games26358
+Node: Game tags26799
+Node: Game positions27406
+Node: Game plies28030
+Node: Making a move28299
+Node: PGN notation28726
+Node: PGN mode29480
+Node: Collections29741
+Node: Opening Databases30542
+Node: Querying Databases30926
+Node: Modifying Databases31552
+Node: Finalising Databases31824
+Node: Database Modules31999
+Node: chess-file32293
+Node: chess-scid32935
+Node: Modules33172
+Node: Chessboard displays39921
+Node: Generic display manipulation functions40549
+Node: Plain ASCII diagram displays43474
+Node: ICS1 style ASCII displays44919
+Node: Graphical displays45223
+Node: Engines45377
+Node: Common functions45955
+Node: Crafty46995
+Node: Gnu Chess47110
+Node: Phalanx47222
+Node: Sjeng47329
+Node: Internet Chess Servers47414
+Node: Connecting to a server48333
+Node: Seeking an opponent for a new game49009
+Node: The sought game display49461
+Node: Concept Index50437
+Node: Function and Variable Index50680
+Node: Key Index61952
 
 End Tag Table
