@@ -294,28 +294,26 @@ color will do."
   (cl-check-type file (integer 0 7))
   (+ (* 8 rank) file))
 
-(defsubst chess-coord-to-index (coord)
-  "Convert a COORD string into an index value."
-  (cl-assert (stringp coord))
-  (cl-assert (= (length coord) 2))
-  (+ (* 8 (- 7 (- (aref coord 1) ?1)))
-     (- (aref coord 0) ?a)))
-
-(defsubst chess-index-to-coord (index)
-  "Convert the chess position INDEX into a coord string."
-  (cl-assert (and (>= index 0) (< index 64)))
-  (concat (char-to-string (+ (mod index 8) ?a))
-	  (char-to-string (+ (- 7 (/ index 8)) ?1))))
-
 (defsubst chess-index-rank (index)
   "Return the rank component of the given INDEX."
-  (cl-assert (and (>= index 0) (< index 64)))
+  (cl-check-type index (integer 0 63))
   (/ index 8))
 
 (defsubst chess-index-file (index)
   "Return the file component of the given INDEX."
-  (cl-assert (and (>= index 0) (< index 64)))
+  (cl-check-type index (integer 0 63))
   (mod index 8))
+
+(defsubst chess-coord-to-index (coord)
+  "Convert a COORD string (such as \"e4\" into an index value."
+  (cl-assert (stringp coord))
+  (cl-assert (= (length coord) 2))
+  (chess-rf-to-index (- 7 (- (aref coord 1) ?1)) (- (aref coord 0) ?a)))
+
+(defsubst chess-index-to-coord (index)
+  "Convert the chess position INDEX into a coord string."
+  (cl-check-type index (integer 0 63))
+  (string (+ (chess-index-file index) ?a) (+ (- 7 (chess-index-rank index)) ?1)))
 
 (defsubst chess-incr-index (index rank-move file-move)
   "Create a new INDEX from an old one, by adding RANK-MOVE and FILE-MOVE."
