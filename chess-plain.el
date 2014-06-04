@@ -35,7 +35,8 @@
 
 (defgroup chess-plain nil
   "A minimal, customizable ASCII display."
-  :group 'chess-display)
+  :group 'chess-display
+  :link '(custom-manual "(chess)Plain ASCII diagram displays"))
 
 (defcustom chess-plain-border-style [?+ ?- ?+ ?| ?| ?+ ?- ?+]
   "If non-nil, a vector describing the border characters."

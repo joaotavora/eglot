@@ -1,3 +1,15 @@
+2014-06-05  Mario Lang  <mlang@delysid.org>
+
+	* doc/chess.texi (Position coordinates): Document `chess-next-index'
+	and related constants.
+	(The sought game display): Update as the mentioned mode name has changed.
+
+2014-06-04  Mario Lang  <mlang@delysid.org>
+
+	* chess-ics.el (chess-ics): Add custom-manual link.
+
+	* chess-plain.el (chess-plain): Add custom-manual link.
+
 2005-06-27  John Wiegley  <johnw@newartisans.com>
 
 	* chess-ics.el (chess-ics-sought-add): Added this routine to

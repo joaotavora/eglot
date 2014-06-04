@@ -44,7 +44,8 @@
 
 (defgroup chess-ics nil
   "Engine for interacting with Internet Chess Servers."
-  :group 'chess-engine)
+  :group 'chess
+  :link '(custom-manual "(chess)Internet Chess Servers"))
 
 (defcustom chess-ics-server-list '(("freechess.org" 5000)
 				   ("chess.unix-ag.uni-kl.de" 5000)

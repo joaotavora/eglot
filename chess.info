@@ -133,11 +133,53 @@ two conversion functions:
  -- Function: chess-index-to-coord index
      Convert the chess position INDEX into a coord string.
 
-   There is also one helper function for iterative changes of an index:
+   For fast manipulation of chess position indices, the following
+constants and functions are provided:
 
- -- Function: chess-incr-index index rank-move file-move
-     Create a new INDEX from an old one, by adding RANK-MOVE and
-     FILE-MOVE.
+   For queens and rooks:
+
+ -- Constant: chess-direction-north
+     Signify one step north, as seen from the perspective of the white
+     player.
+
+ -- Constant: chess-direction-east
+     Signify one step east, as seen from the perspective of the white
+     player.
+
+ -- Constant: chess-direction-south
+     Signify one step south, as seen from the perspective of the white
+     player.
+
+ -- Constant: chess-direction-west
+     Signify one step west, as seen from the perspective of the white
+     player.
+
+   For queens and bishops:
+
+ -- Constant: chess-direction-northeast
+     Signify one step northeast, as seen from the perspective of the
+     white player.
+
+ -- Constant: chess-direction-southeast
+     Signify one step southeast, as seen from the perspective of the
+     white player.
+
+ -- Constant: chess-direction-southwest
+     Signify one step southwest, as seen from the perspective of the
+     white player.
+
+ -- Constant: chess-direction-northwest
+     Signify one step northwest, as seen from the perspective of the
+     white player.
+
+ -- Function: chess-next-index index direction
+     Create a new INDEX from an old one, by advancing it into DIRECTION.
+     If the resulting index is not valid, nil is returned.
+
+   Due to the underlying technique used to efficiently detect off-board
+squares, a direction specifier should at most do two steps in any
+direction.  Directions can be combined, so that '(*
+chess-direction-north 2)' will give a typical initial white pawn push.
 
 
 File: chess.info,  Node: Position details,  Next: Annotations,  Prev: Position coordinates,  Up: Positions
@@ -1235,9 +1277,9 @@ File: chess.info,  Node: Internet Chess Servers,  Next: Concept Index,  Prev: En
 Based on the services provided above, there is also a speical mode for
 communication with Internet Chess Servers.
 
-   ON an Internet Chess Server you can seek to play against other human
+   On an Internet Chess Server you can seek to play against other human
 or computer players, observe other games being player or examined, play
-tournaments, chat with fellow chess players, participate in a team game,
+tournaments, chat with fellow chess players, participate in team games,
 or do various other interesting chess related things.
 
    A default set of well known servers is defined in the following
@@ -1267,6 +1309,11 @@ To open a new connection to an Internet Chess Server, use:
           password-or-filename helper &rest helper-args
      Connect to an Internet Chess Server.
 
+   Internet Chess Server support is a derivative of Comint mode, a
+general-purpose mode for communicating with interactive subprocesses.  A
+history of previously entered commands at the ICS prompt is available
+with 'M-p' and 'M-n'.  See COMINT-MODE-MAP.
+
 
 File: chess.info,  Node: Seeking an opponent for a new game,  Next: The sought game display,  Prev: Connecting to a server,  Up: Internet Chess Servers
 
@@ -1285,22 +1332,21 @@ File: chess.info,  Node: The sought game display,  Prev: Seeking an opponent for
 ===========================
 
 There is a special mode for displaying games sought by other users on an
-Internet Chess Server.  Provided you didn't turn off seek ads manually
-(for instance by setting the seek variable to 0 (off) on the ICS server
-by issueing "set seek 0"), the first seek advertisment automatically
-pops up a new window which is in 'chess-ics-sought-mode'.
+Internet Chess Server.  Provided you didn't turn off seek advertisments
+manually (for instance by setting the seek variable to 0 (off) on the
+ICS server by issueing "set seek 0"), the first seek advertisment
+automatically pops up a new window which is in 'chess-ics-ads-mode', a
+derivative of 'tabulated-list-mode'.
 
- -- Function: chess-ics-sought-mode
+ -- Function: chess-ics-ads-mode
      A mode for displaying ICS game seek advertisments.
 
-     This mode runs the hook 'chess-ics-sought-mode-hook', as the final
+     This mode runs the hook 'chess-ics-ads-mode-hook', as the final
      step during initialization.
 
      key binding -- -----
 
-     RET	chess-ics-sought-accept SPC
-     chess-ics-sought-toggle-sort-direction ?		describe-mode s
-     chess-ics-sought-toggle-sort-state <mouse-2>
+     ?		describe-mode RET	chess-ics-sought-accept <mouse-2>
      chess-ics-sought-accept
 
    In this buffer, use mouse-2 or 'RET' on a line to accept that
@@ -1335,6 +1381,14 @@ Function and Variable Index
 * chess-database-query:                  Querying Databases.   (line 12)
 * chess-database-read:                   Querying Databases.   (line  9)
 * chess-database-read-only-p:            Modifying Databases.  (line  6)
+* chess-direction-east:                  Position coordinates. (line 37)
+* chess-direction-north:                 Position coordinates. (line 33)
+* chess-direction-northeast:             Position coordinates. (line 51)
+* chess-direction-northwest:             Position coordinates. (line 63)
+* chess-direction-south:                 Position coordinates. (line 41)
+* chess-direction-southeast:             Position coordinates. (line 55)
+* chess-direction-southwest:             Position coordinates. (line 59)
+* chess-direction-west:                  Position coordinates. (line 45)
 * chess-display-active-p:                Generic display manipulation functions.
                                                                (line 12)
 * chess-display-clear-board:             Generic display manipulation functions.
@@ -1395,17 +1449,17 @@ Function and Variable Index
 * chess-game-to-pgn:                     PGN notation.         (line 10)
 * chess-ics:                             Connecting to a server.
                                                                (line  8)
+* chess-ics-ads-mode:                    The sought game display.
+                                                               (line 13)
 * chess-ics-server-list:                 Internet Chess Servers.
                                                                (line 17)
-* chess-ics-sought-mode:                 The sought game display.
-                                                               (line 12)
 * chess-ics1-separate-frame:             ICS1 style ASCII displays.
                                                                (line  6)
-* chess-incr-index:                      Position coordinates. (line 30)
 * chess-index-file:                      Position coordinates. (line 13)
 * chess-index-rank:                      Position coordinates. (line 10)
 * chess-index-to-coord:                  Position coordinates. (line 25)
 * chess-legal-plies:                     Creating plies.       (line 16)
+* chess-next-index:                      Position coordinates. (line 67)
 * chess-pgn-insert-plies:                PGN notation.         (line 15)
 * chess-pgn-to-game:                     PGN notation.         (line  6)
 * chess-pgn-visualize:                   PGN mode.             (line  6)
@@ -1483,60 +1537,60 @@ Node: The chess.el library1291
 Node: Positions1600
 Node: Creating positions2685
 Node: Position coordinates3456
-Node: Position details4599
-Node: Annotations9052
-Node: FEN notation9394
-Node: EPD notation10891
-Node: Operations12400
-Node: Opcode "acd" analysis count depth13374
-Node: Opcode "acn" analysis count nodes13728
-Node: Opcode "acs" analysis count seconds14253
-Node: Opcode "am" avoid move(s)14773
-Node: Opcode "bm" best move(s)15214
-Node: Plies15609
-Node: Creating plies16800
-Node: Ply details17984
-Node: The "next" position18464
-Node: Algebraic notation18726
-Node: Variations20154
-Node: Creating variations21282
-Node: Variation positions21590
-Node: Varation plies22191
-Node: Making a move in a variation22632
-Node: Games23207
-Node: Creating games24893
-Node: Game tags25334
-Node: Game positions25941
-Node: Game plies26522
-Node: Making a move26791
-Node: PGN notation27218
-Node: PGN mode27968
-Node: Collections28229
-Node: Opening Databases29030
-Node: Querying Databases29414
-Node: Modifying Databases30040
-Node: Finalising Databases30312
-Node: Database Modules30487
-Node: chess-file30781
-Node: chess-scid31423
-Node: Modules31660
-Node: Chessboard displays38409
-Node: Generic display manipulation functions39037
-Node: Plain ASCII diagram displays41962
-Node: ICS1 style ASCII displays43407
-Node: Graphical displays43711
-Node: Engines43865
-Node: Common functions44443
-Node: Crafty45483
-Node: Gnu Chess45598
-Node: Phalanx45710
-Node: Sjeng45817
-Node: Internet Chess Servers45902
-Node: Connecting to a server46822
-Node: Seeking an opponent for a new game47243
-Node: The sought game display47695
-Node: Concept Index48721
-Node: Function and Variable Index48964
-Node: Key Index59579
+Node: Position details5984
+Node: Annotations10437
+Node: FEN notation10779
+Node: EPD notation12276
+Node: Operations13785
+Node: Opcode "acd" analysis count depth14759
+Node: Opcode "acn" analysis count nodes15113
+Node: Opcode "acs" analysis count seconds15638
+Node: Opcode "am" avoid move(s)16158
+Node: Opcode "bm" best move(s)16599
+Node: Plies16994
+Node: Creating plies18185
+Node: Ply details19369
+Node: The "next" position19849
+Node: Algebraic notation20111
+Node: Variations21539
+Node: Creating variations22667
+Node: Variation positions22975
+Node: Varation plies23576
+Node: Making a move in a variation24017
+Node: Games24592
+Node: Creating games26278
+Node: Game tags26719
+Node: Game positions27326
+Node: Game plies27907
+Node: Making a move28176
+Node: PGN notation28603
+Node: PGN mode29353
+Node: Collections29614
+Node: Opening Databases30415
+Node: Querying Databases30799
+Node: Modifying Databases31425
+Node: Finalising Databases31697
+Node: Database Modules31872
+Node: chess-file32166
+Node: chess-scid32808
+Node: Modules33045
+Node: Chessboard displays39794
+Node: Generic display manipulation functions40422
+Node: Plain ASCII diagram displays43347
+Node: ICS1 style ASCII displays44792
+Node: Graphical displays45096
+Node: Engines45250
+Node: Common functions45828
+Node: Crafty46868
+Node: Gnu Chess46983
+Node: Phalanx47095
+Node: Sjeng47202
+Node: Internet Chess Servers47287
+Node: Connecting to a server48206
+Node: Seeking an opponent for a new game48882
+Node: The sought game display49334
+Node: Concept Index50310
+Node: Function and Variable Index50553
+Node: Key Index61752
 
 End Tag Table
