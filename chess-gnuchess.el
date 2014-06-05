@@ -26,7 +26,9 @@
 
 (defgroup chess-gnuchess nil
   "The publically available chess engine 'gnuchess'."
-  :group 'chess-engine)
+  :group 'chess-engine
+  :link '(custom-manual "(chess)GNU Chess")
+  :link '(url-link "http://www.gnu.org/software/chess/"))
 
 (defcustom chess-gnuchess-path (let ((exec-path (cons "/usr/games" exec-path)))
 				 (executable-find "gnuchess"))

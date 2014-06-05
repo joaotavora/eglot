@@ -26,6 +26,7 @@
 (defgroup chess-sjeng nil
   "The publically available chess engine 'sjeng'."
   :group 'chess-engine
+  :link '(custom-manual "(chess)Sjeng")
   :link '(url-link "http://sjeng.sourceforge.net"))
 
 (defcustom chess-sjeng-path (executable-find "sjeng")

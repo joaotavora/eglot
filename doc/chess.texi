@@ -1587,6 +1587,20 @@ use @kbd{C-u M-x chess @key{RET} ai @key{RET}}.
 Defines the default search depth for this engine.
 @end defopt
 
+@defopt chess-ai-quiescence-depth
+Defines the number of plies to search for a quiet position.
+This is in addition to `chess-ai-depth'.
+@end defopt
+
+If you'd like to employ the search and evaluation functions provided
+by this module programmatically, the following function is the top-level
+entry point.
+
+@defun chess-ai-best-move position &optional depth eval-fn
+Find the supposedly best move (ply) for @var{position}.
+@var{depth} defaults to the value of `chess-ai-depth'.
+@end defun
+
 @node Crafty, Fruit, AI, Engines
 @section Crafty
 

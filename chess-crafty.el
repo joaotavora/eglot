@@ -27,7 +27,8 @@
 
 (defgroup chess-crafty nil
   "The publically available chess engine 'crafty'."
-  :group 'chess-engine)
+  :group 'chess-engine
+  :link '(custom-manual "(chess)Crafty"))
 
 (defcustom chess-crafty-path (or (executable-find "crafty")
 				 (executable-find "wcrafty"))

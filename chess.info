@@ -1341,6 +1341,18 @@ does not require any external programs to be installed.
  -- User Option: chess-ai-depth
      Defines the default search depth for this engine.
 
+ -- User Option: chess-ai-quiescence-depth
+     Defines the number of plies to search for a quiet position.  This
+     is in addition to 'chess-ai-depth'.
+
+   If you'd like to employ the search and evaluation functions provided
+by this module programmatically, the following function is the top-level
+entry point.
+
+ -- Function: chess-ai-best-move position &optional depth eval-fn
+     Find the supposedly best move (ply) for POSITION.  DEPTH defaults
+     to the value of 'chess-ai-depth'.
+
 
 File: chess.info,  Node: Crafty,  Next: Fruit,  Prev: AI,  Up: Engines
 
@@ -1587,7 +1599,9 @@ Function and Variable Index
  [index ]
 * Menu:
 
+* chess-ai-best-move:                    AI.                   (line 24)
 * chess-ai-depth:                        AI.                   (line 13)
+* chess-ai-quiescence-depth:             AI.                   (line 16)
 * chess-algebraic-regexp:                Algebraic notation.   (line 33)
 * chess-algebraic-to-ply:                Algebraic notation.   (line 17)
 * chess-coord-to-index:                  Position coordinates. (line 22)
@@ -1838,19 +1852,19 @@ Node: Graphical displays47463
 Node: Engines47617
 Node: Common functions48142
 Node: AI49178
-Node: Crafty49653
-Node: Fruit50384
-Node: Glaurung51230
-Node: GNU Chess51820
-Node: Phalanx52656
-Node: Sjeng53238
-Node: Stockfish53927
-Node: Internet Chess Servers54692
-Node: Connecting to a server55779
-Node: Seeking an opponent for a new game56455
-Node: The sought game display56907
-Node: Concept Index57885
-Node: Function and Variable Index58128
-Node: Key Index70817
+Node: Crafty50145
+Node: Fruit50876
+Node: Glaurung51722
+Node: GNU Chess52312
+Node: Phalanx53148
+Node: Sjeng53730
+Node: Stockfish54419
+Node: Internet Chess Servers55184
+Node: Connecting to a server56271
+Node: Seeking an opponent for a new game56947
+Node: The sought game display57399
+Node: Concept Index58377
+Node: Function and Variable Index58620
+Node: Key Index71455
 
 End Tag Table

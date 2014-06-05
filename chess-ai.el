@@ -42,7 +42,8 @@
 
 This module does not allow to configure search time used to calculate
 reply moves.  You can only specify the search depth (see `chess-ai-depth')."
-  :group 'chess)
+  :group 'chess
+  :link '(custom-manual "(chess)AI"))
 
 (defcustom chess-ai-depth 2
   "The default search depth used to prune the search tree.
@@ -312,8 +313,7 @@ DEPTH defaults to the value of `chess-ai-depth'."
       (setq chess-engine-opponent-name "Emacs AI")
       t)
 
-     ((eq event 'new)
-      (chess-engine-set-position nil))
+     ((eq event 'new) (chess-engine-set-position nil))
 
      ((eq event 'move)
       (when (= 1 (chess-game-index game))
@@ -329,11 +329,11 @@ DEPTH defaults to the value of `chess-ai-depth'."
 	  (funcall chess-engine-response-handler 'move
 		   (or (and (bufferp chess-polyglot-book)
 			    (buffer-live-p chess-polyglot-book)
-			    (chess-polyglot-book-ply chess-polyglot-book position))
+			    (chess-polyglot-book-ply chess-polyglot-book
+						     position))
 		       (chess-ai-best-move position))))))
 
-     (t
-      (apply 'chess-common-handler game event args)))))
+     (t (apply 'chess-common-handler game event args)))))
 
 (provide 'chess-ai)
 ;;; chess-ai.el ends here
