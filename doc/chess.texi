@@ -87,14 +87,14 @@ structured for use as a library, and also how to use it as a client.
 @end ifinfo
 
 @menu
-* The chess.el library::        
-* Modules::                     
-* Chessboard displays::         
-* Engines::                     
-* Internet Chess Servers::      
-* Concept Index::               
-* Function and Variable Index::  
-* Key Index::                   
+* The chess.el library::
+* Modules::
+* Chessboard displays::
+* Engines::
+* Internet Chess Servers::
+* Concept Index::
+* Function and Variable Index::
+* Key Index::
 @end menu
 
 @node The chess.el library, Modules, Top, Top
@@ -102,11 +102,11 @@ structured for use as a library, and also how to use it as a client.
 @cindex library
 
 @menu
-* Positions::                   
-* Plies::                       
-* Variations::                  
-* Games::                       
-* Collections::                 
+* Positions::
+* Plies::
+* Variations::
+* Games::
+* Collections::
 @end menu
 
 @node Positions, Plies, The chess.el library, The chess.el library
@@ -130,12 +130,12 @@ notation.
 Chess puzzles are most often provided as a set of positions.
 
 @menu
-* Creating positions::          
-* Position coordinates::        
-* Position details::            
-* Annotations::                 
-* FEN notation::                
-* EPD notation::                
+* Creating positions::
+* Position coordinates::
+* Position details::
+* Annotations::
+* FEN notation::
+* EPD notation::
 @end menu
 
 @node Creating positions, Position coordinates, Positions, Positions
@@ -501,12 +501,12 @@ Return a list of positions contained in @var{file}.
 @end defun
 
 @menu
-* Operations::                  
-* Opcode "acd" analysis count depth::  
-* Opcode "acn" analysis count nodes::  
-* Opcode "acs" analysis count seconds::  
-* Opcode "am" avoid move(s)::   
-* Opcode "bm" best move(s)::    
+* Operations::
+* Opcode "acd" analysis count depth::
+* Opcode "acn" analysis count nodes::
+* Opcode "acs" analysis count seconds::
+* Opcode "am" avoid move(s)::
+* Opcode "bm" best move(s)::
 @end menu
 
 @node Operations, Opcode "acd" analysis count depth, EPD notation, EPD notation
@@ -584,10 +584,10 @@ Transmitting the base position's FEN string along with the ply offers a
 form of confirmation during the course of a game.
 
 @menu
-* Creating plies::              
-* Ply details::                 
-* The "next" position::         
-* Algebraic notation::          
+* Creating plies::
+* Ply details::
+* The "next" position::
+* Algebraic notation::
 @end menu
 
 @node Creating plies, Ply details, Plies, Plies
@@ -734,10 +734,10 @@ They may be represented verbally by announcing each of the plies in
 turn, as mentioned above.
 
 @menu
-* Creating variations::         
-* Variation positions::         
-* Varation plies::              
-* Making a move in a variation::  
+* Creating variations::
+* Variation positions::
+* Varation plies::
+* Making a move in a variation::
 @end menu
 
 @node Creating variations, Variation positions, Variations, Variations
@@ -883,12 +883,12 @@ Set the list of plies which represents the main variation of @var{game}.
 @end defun
 
 @menu
-* Creating games::              
-* Game tags::                   
-* Game positions::              
-* Game plies::                  
-* Making a move::               
-* PGN notation::                
+* Creating games::
+* Game tags::
+* Game positions::
+* Game plies::
+* Making a move::
+* PGN notation::
 @end menu
 
 @node Creating games, Game tags, Games, Games
@@ -1015,7 +1015,7 @@ If @var{to-string} is non-nil, return a string instead of inserting the resultin
 @end defun
 
 @menu
-* PGN mode::                    
+* PGN mode::
 @end menu
 
 @node PGN mode,  , PGN notation, PGN notation
@@ -1043,11 +1043,11 @@ games from the library, or performing library-wide analyses and
 searches.
 
 @menu
-* Opening Databases::           
-* Querying Databases::          
-* Modifying Databases::         
-* Finalising Databases::        
-* Database Modules::            
+* Opening Databases::
+* Querying Databases::
+* Modifying Databases::
+* Finalising Databases::
+* Database Modules::
 @end menu
 
 @node Opening Databases, Querying Databases, Collections, Collections
@@ -1116,8 +1116,8 @@ Currently, there are two subclasses of the above defined
 database base-class:
 
 @menu
-* chess-file::                  
-* chess-scid::                  
+* chess-file::
+* chess-scid::
 @end menu
 
 @node chess-file, chess-scid, Database Modules, Database Modules
@@ -1268,10 +1268,10 @@ fashion to a human reader, it is necessary to create and use a display
 object.
 
 @menu
-* Generic display manipulation functions::  
-* Plain ASCII diagram displays::  
-* ICS1 style ASCII displays::   
-* Graphical displays::          
+* Generic display manipulation functions::
+* Plain ASCII diagram displays::
+* ICS1 style ASCII displays::
+* Graphical displays::
 @end menu
 
 @node Generic display manipulation functions, Plain ASCII diagram displays, Chessboard displays, Chessboard displays
@@ -1461,14 +1461,16 @@ can be other uses for engine objects, such as providing networked engined
 for playing with opponent over different types of transports.
 
 @menu
-* Common functions::            
-* Crafty::                      
-* Gnu Chess::                   
-* Phalanx::                     
-* Sjeng::                       
+* Common functions::
+* AI::
+* Crafty::
+* Gnu Chess::
+* Phalanx::
+* Sjeng::
+* Stockfish::
 @end menu
 
-@node Common functions, Crafty, Engines, Engines
+@node Common functions, AI, Engines, Engines
 @section Common functions
 
 @c lispfun chess-engine-create
@@ -1518,17 +1520,65 @@ to submit the data.  Otherwise, the 'send event is triggered and the engine
 event handler can take care of the data.
 @end defun
 
-@node Crafty, Gnu Chess, Common functions, Engines
+@node AI, Crafty, Common functions, Engines
+@section AI
+
+The @dfn{AI} engine module defines a pure Emacs Lisp implementation
+of an opponent.  Contrary to all other engine modules mentioned later on,
+it does not require any external programs to be installed.
+
+To explicitly select this engine as an opponent,
+use @kbd{C-u M-x chess RET ai RET}.
+
+@defopt chess-ai-depth
+Defines the default search depth for this engine.
+@end defopt
+
+@node Crafty, Gnu Chess, AI, Engines
 @section Crafty
+
+Crafty is a chess program written by Michael Byrne, UAB professor
+Dr. Robert Hyatt, Tracy Riegle, Peter Skinner and Ted Langreck.  It is directly
+derived from Cray Blitz, winner of the 1983 and 1986 World Computer Chess
+Championships.
+
+If Crafty is installed and can be found in the program search path,
+the @code{chess-crafty} engine module will automatically detect it.
+
+@vindex chess-crafty-path
+If Crafty is installed in a non-standard location, variable @code{chess-crafty-path}
+can be set to point to the executable.
+
+If you have multiple engines installed you can explicitly select
+to play against Crafty by invoking @kbd{C-u M-x chess RET crafty RET}.
 
 @node Gnu Chess, Phalanx, Crafty, Engines
 @section Gnu Chess
 
+GNU Chess is free software, licensed under the terms of the
+GNU General Public License version 3 or any later version,
+and is maintained by collaborating developers.  As one of the earliest
+computer chess programs with full source code available, it's one of the oldest
+for Unix-based systems and has since been ported to many other platforms.
+
+If GNU Chess is installed and can be found in the program search path,
+the @code{chess-gnuchess} engine module will automatically detect it.
+
+@vindex chess-gnuchess-path
+If GNU Chess is installed in a non-standard location, variable
+@code{chess-gnuchess-path} can be set to point to the executable.
+
+If you have multiple engines installed you can explicitly select
+to play against GNU Chess by invoking @kbd{C-u M-x chess RET gnuchess RET}.
+
 @node Phalanx, Sjeng, Gnu Chess, Engines
 @section Phalanx
 
-@node Sjeng,  , Phalanx, Engines
+@node Sjeng, Stockfish, Phalanx, Engines
 @section Sjeng
+
+@node Stockfish,  , Sjeng, Engines
+@section Stockfish
 
 @node Internet Chess Servers, Concept Index, Engines, Top
 @chapter Internet Chess Servers
@@ -1551,9 +1601,9 @@ The format of each entry is:
 @end defvar
 
 @menu
-* Connecting to a server::      
-* Seeking an opponent for a new game::  
-* The sought game display::     
+* Connecting to a server::
+* Seeking an opponent for a new game::
+* The sought game display::
 @end menu
 
 @node Connecting to a server, Seeking an opponent for a new game, Internet Chess Servers, Internet Chess Servers

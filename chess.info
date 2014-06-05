@@ -28,14 +28,14 @@ structured for use as a library, and also how to use it as a client.
 
 * Menu:
 
-* The chess.el library::        
-* Modules::                     
-* Chessboard displays::         
-* Engines::                     
-* Internet Chess Servers::      
-* Concept Index::               
-* Function and Variable Index::  
-* Key Index::                   
+* The chess.el library::
+* Modules::
+* Chessboard displays::
+* Engines::
+* Internet Chess Servers::
+* Concept Index::
+* Function and Variable Index::
+* Key Index::
 
 
 File: chess.info,  Node: The chess.el library,  Next: Modules,  Prev: Top,  Up: Top
@@ -45,11 +45,11 @@ File: chess.info,  Node: The chess.el library,  Next: Modules,  Prev: Top,  Up: 
 
 * Menu:
 
-* Positions::                   
-* Plies::                       
-* Variations::                  
-* Games::                       
-* Collections::                 
+* Positions::
+* Plies::
+* Variations::
+* Games::
+* Collections::
 
 
 File: chess.info,  Node: Positions,  Next: Plies,  Prev: The chess.el library,  Up: The chess.el library
@@ -76,12 +76,12 @@ notation.
 
 * Menu:
 
-* Creating positions::          
-* Position coordinates::        
-* Position details::            
-* Annotations::                 
-* FEN notation::                
-* EPD notation::                
+* Creating positions::
+* Position coordinates::
+* Position details::
+* Annotations::
+* FEN notation::
+* EPD notation::
 
 
 File: chess.info,  Node: Creating positions,  Next: Position coordinates,  Prev: Positions,  Up: Positions
@@ -375,12 +375,12 @@ file name with the suffix ".epd".
 
 * Menu:
 
-* Operations::                  
-* Opcode "acd" analysis count depth::  
-* Opcode "acn" analysis count nodes::  
-* Opcode "acs" analysis count seconds::  
-* Opcode "am" avoid move(s)::   
-* Opcode "bm" best move(s)::    
+* Operations::
+* Opcode "acd" analysis count depth::
+* Opcode "acn" analysis count nodes::
+* Opcode "acs" analysis count seconds::
+* Opcode "am" avoid move(s)::
+* Opcode "bm" best move(s)::
 
 
 File: chess.info,  Node: Operations,  Next: Opcode "acd" analysis count depth,  Prev: EPD notation,  Up: EPD notation
@@ -482,10 +482,10 @@ form of confirmation during the course of a game.
 
 * Menu:
 
-* Creating plies::              
-* Ply details::                 
-* The "next" position::         
-* Algebraic notation::          
+* Creating plies::
+* Ply details::
+* The "next" position::
+* Algebraic notation::
 
 
 File: chess.info,  Node: Creating plies,  Next: Ply details,  Prev: Plies,  Up: Plies
@@ -609,10 +609,10 @@ turn, as mentioned above.
 
 * Menu:
 
-* Creating variations::         
-* Variation positions::         
-* Varation plies::              
-* Making a move in a variation::  
+* Creating variations::
+* Variation positions::
+* Varation plies::
+* Making a move in a variation::
 
 
 File: chess.info,  Node: Creating variations,  Next: Variation positions,  Prev: Variations,  Up: Variations
@@ -717,12 +717,12 @@ variations.
 
 * Menu:
 
-* Creating games::              
-* Game tags::                   
-* Game positions::              
-* Game plies::                  
-* Making a move::               
-* PGN notation::                
+* Creating games::
+* Game tags::
+* Game positions::
+* Game plies::
+* Making a move::
+* PGN notation::
 
 
 File: chess.info,  Node: Creating games,  Next: Game tags,  Prev: Games,  Up: Games
@@ -820,7 +820,7 @@ File: chess.info,  Node: PGN notation,  Prev: Making a move,  Up: Games
 
 * Menu:
 
-* PGN mode::                    
+* PGN mode::
 
 
 File: chess.info,  Node: PGN mode,  Prev: PGN notation,  Up: PGN notation
@@ -851,11 +851,11 @@ and searches.
 
 * Menu:
 
-* Opening Databases::           
-* Querying Databases::          
-* Modifying Databases::         
-* Finalising Databases::        
-* Database Modules::            
+* Opening Databases::
+* Querying Databases::
+* Modifying Databases::
+* Finalising Databases::
+* Database Modules::
 
 
 File: chess.info,  Node: Opening Databases,  Next: Querying Databases,  Prev: Collections,  Up: Collections
@@ -913,8 +913,8 @@ base-class:
 
 * Menu:
 
-* chess-file::                  
-* chess-scid::                  
+* chess-file::
+* chess-scid::
 
 
 File: chess.info,  Node: chess-file,  Next: chess-scid,  Prev: Database Modules,  Up: Database Modules
@@ -1076,10 +1076,10 @@ object.
 
 * Menu:
 
-* Generic display manipulation functions::  
-* Plain ASCII diagram displays::  
-* ICS1 style ASCII displays::   
-* Graphical displays::          
+* Generic display manipulation functions::
+* Plain ASCII diagram displays::
+* ICS1 style ASCII displays::
+* Graphical displays::
 
 
 File: chess.info,  Node: Generic display manipulation functions,  Next: Plain ASCII diagram displays,  Prev: Chessboard displays,  Up: Chessboard displays
@@ -1214,14 +1214,16 @@ for playing with opponent over different types of transports.
 
 * Menu:
 
-* Common functions::            
-* Crafty::                      
-* Gnu Chess::                   
-* Phalanx::                     
-* Sjeng::                       
+* Common functions::
+* AI::
+* Crafty::
+* Gnu Chess::
+* Phalanx::
+* Sjeng::
+* Stockfish::
 
 
-File: chess.info,  Node: Common functions,  Next: Crafty,  Prev: Engines,  Up: Engines
+File: chess.info,  Node: Common functions,  Next: AI,  Prev: Engines,  Up: Engines
 
 4.1 Common functions
 ====================
@@ -1248,28 +1250,79 @@ File: chess.info,  Node: Common functions,  Next: Crafty,  Prev: Engines,  Up: E
      handler can take care of the data.
 
 
-File: chess.info,  Node: Crafty,  Next: Gnu Chess,  Prev: Common functions,  Up: Engines
+File: chess.info,  Node: AI,  Next: Crafty,  Prev: Common functions,  Up: Engines
 
-4.2 Crafty
+4.2 AI
+======
+
+The "AI" engine module defines a pure Emacs Lisp implementation of an
+opponent.  Contrary to all other engine modules mentioned later on, it
+does not require any external programs to be installed.
+
+   To explicitly select this engine as an opponent, use 'C-u M-x chess
+RET ai RET'.
+
+ -- User Option: chess-ai-depth
+     Defines the default search depth for this engine.
+
+
+File: chess.info,  Node: Crafty,  Next: Gnu Chess,  Prev: AI,  Up: Engines
+
+4.3 Crafty
 ==========
+
+Crafty is a chess program written by Michael Byrne, UAB professor Dr.
+Robert Hyatt, Tracy Riegle, Peter Skinner and Ted Langreck.  It is
+directly derived from Cray Blitz, winner of the 1983 and 1986 World
+Computer Chess Championships.
+
+   If Crafty is installed and can be found in the program search path,
+the 'chess-crafty' engine module will automatically detect it.
+
+   If Crafty is installed in a non-standard location, variable
+'chess-crafty-path' can be set to point to the executable.
+
+   If you have multiple engines installed you can explicitly select to
+play against Crafty by invoking 'C-u M-x chess RET crafty RET'.
 
 
 File: chess.info,  Node: Gnu Chess,  Next: Phalanx,  Prev: Crafty,  Up: Engines
 
-4.3 Gnu Chess
+4.4 Gnu Chess
 =============
+
+GNU Chess is free software, licensed under the terms of the GNU General
+Public License version 3 or any later version, and is maintained by
+collaborating developers.  As one of the earliest computer chess
+programs with full source code available, it's one of the oldest for
+Unix-based systems and has since been ported to many other platforms.
+
+   If GNU Chess is installed and can be found in the program search
+path, the 'chess-gnuchess' engine module will automatically detect it.
+
+   If GNU Chess is installed in a non-standard location, variable
+'chess-gnuchess-path' can be set to point to the executable.
+
+   If you have multiple engines installed you can explicitly select to
+play against GNU Chess by invoking 'C-u M-x chess RET gnuchess RET'.
 
 
 File: chess.info,  Node: Phalanx,  Next: Sjeng,  Prev: Gnu Chess,  Up: Engines
 
-4.4 Phalanx
+4.5 Phalanx
 ===========
 
 
-File: chess.info,  Node: Sjeng,  Prev: Phalanx,  Up: Engines
+File: chess.info,  Node: Sjeng,  Next: Stockfish,  Prev: Phalanx,  Up: Engines
 
-4.5 Sjeng
+4.6 Sjeng
 =========
+
+
+File: chess.info,  Node: Stockfish,  Prev: Sjeng,  Up: Engines
+
+4.7 Stockfish
+=============
 
 
 File: chess.info,  Node: Internet Chess Servers,  Next: Concept Index,  Prev: Engines,  Up: Top
@@ -1296,9 +1349,9 @@ variable:
 
 * Menu:
 
-* Connecting to a server::      
-* Seeking an opponent for a new game::  
-* The sought game display::     
+* Connecting to a server::
+* Seeking an opponent for a new game::
+* The sought game display::
 
 
 File: chess.info,  Node: Connecting to a server,  Next: Seeking an opponent for a new game,  Prev: Internet Chess Servers,  Up: Internet Chess Servers
@@ -1375,9 +1428,11 @@ Function and Variable Index
  [index ]
 * Menu:
 
+* chess-ai-depth:                        AI.                   (line 13)
 * chess-algebraic-regexp:                Algebraic notation.   (line 33)
 * chess-algebraic-to-ply:                Algebraic notation.   (line 17)
 * chess-coord-to-index:                  Position coordinates. (line 22)
+* chess-crafty-path:                     Crafty.               (line 14)
 * chess-database-filename:               Querying Databases.   (line  6)
 * chess-database-modules:                Opening Databases.    (line  6)
 * chess-database-open:                   Opening Databases.    (line 10)
@@ -1450,6 +1505,7 @@ Function and Variable Index
 * chess-game-tag:                        Game tags.            (line 13)
 * chess-game-tags:                       Game tags.            (line  6)
 * chess-game-to-pgn:                     PGN notation.         (line 10)
+* chess-gnuchess-path:                   Gnu Chess.            (line 15)
 * chess-ics:                             Connecting to a server.
                                                                (line  8)
 * chess-ics-ads-mode:                    The sought game display.
@@ -1537,64 +1593,66 @@ Key Index
 
 Tag Table:
 Node: Top437
-Node: The chess.el library1291
-Node: Positions1600
-Node: Creating positions2685
-Node: Position coordinates3456
-Node: Position details5984
-Node: Annotations10437
-Node: FEN notation10779
-Node: EPD notation12276
-Node: Operations13785
-Node: Opcode "acd" analysis count depth14759
-Node: Opcode "acn" analysis count nodes15113
-Node: Opcode "acs" analysis count seconds15638
-Node: Opcode "am" avoid move(s)16158
-Node: Opcode "bm" best move(s)16599
-Node: Plies16994
-Node: Creating plies18185
-Node: Ply details19369
-Node: The "next" position19849
-Node: Algebraic notation20207
-Node: Variations21635
-Node: Creating variations22763
-Node: Variation positions23071
-Node: Varation plies23672
-Node: Making a move in a variation24113
-Node: Games24688
-Node: Creating games26358
-Node: Game tags26799
-Node: Game positions27406
-Node: Game plies28030
-Node: Making a move28299
-Node: PGN notation28726
-Node: PGN mode29480
-Node: Collections29741
-Node: Opening Databases30542
-Node: Querying Databases30926
-Node: Modifying Databases31552
-Node: Finalising Databases31824
-Node: Database Modules31999
-Node: chess-file32293
-Node: chess-scid32935
-Node: Modules33172
-Node: Chessboard displays39921
-Node: Generic display manipulation functions40549
-Node: Plain ASCII diagram displays43474
-Node: ICS1 style ASCII displays44919
-Node: Graphical displays45223
-Node: Engines45377
-Node: Common functions45955
-Node: Crafty46995
-Node: Gnu Chess47110
-Node: Phalanx47222
-Node: Sjeng47329
-Node: Internet Chess Servers47414
-Node: Connecting to a server48333
-Node: Seeking an opponent for a new game49009
-Node: The sought game display49461
-Node: Concept Index50437
-Node: Function and Variable Index50680
-Node: Key Index61952
+Node: The chess.el library1190
+Node: Positions1399
+Node: Creating positions2405
+Node: Position coordinates3176
+Node: Position details5704
+Node: Annotations10157
+Node: FEN notation10499
+Node: EPD notation11996
+Node: Operations13474
+Node: Opcode "acd" analysis count depth14448
+Node: Opcode "acn" analysis count nodes14802
+Node: Opcode "acs" analysis count seconds15327
+Node: Opcode "am" avoid move(s)15847
+Node: Opcode "bm" best move(s)16288
+Node: Plies16683
+Node: Creating plies17824
+Node: Ply details19008
+Node: The "next" position19488
+Node: Algebraic notation19846
+Node: Variations21274
+Node: Creating variations22368
+Node: Variation positions22676
+Node: Varation plies23277
+Node: Making a move in a variation23718
+Node: Games24293
+Node: Creating games25867
+Node: Game tags26308
+Node: Game positions26915
+Node: Game plies27539
+Node: Making a move27808
+Node: PGN notation28235
+Node: PGN mode28969
+Node: Collections29230
+Node: Opening Databases29981
+Node: Querying Databases30365
+Node: Modifying Databases30991
+Node: Finalising Databases31263
+Node: Database Modules31438
+Node: chess-file31696
+Node: chess-scid32338
+Node: Modules32575
+Node: Chessboard displays39324
+Node: Generic display manipulation functions39935
+Node: Plain ASCII diagram displays42860
+Node: ICS1 style ASCII displays44305
+Node: Graphical displays44609
+Node: Engines44763
+Node: Common functions45265
+Node: AI46301
+Node: Crafty46772
+Node: Gnu Chess47503
+Node: Phalanx48369
+Node: Sjeng48476
+Node: Stockfish48579
+Node: Internet Chess Servers48674
+Node: Connecting to a server49580
+Node: Seeking an opponent for a new game50256
+Node: The sought game display50708
+Node: Concept Index51684
+Node: Function and Variable Index51927
+Node: Key Index63418
 
 End Tag Table
