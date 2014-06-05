@@ -1,26 +1,8 @@
 \input texinfo  @c -*-texinfo-*-
 
-@c Documentation for Chess.el.
-@c Copyright (C) 2001, 2002 John Wiegley.
-
-@c This file is free software; you can redistribute it and/or modify it
-@c under the terms of the GNU General Public License as published by the
-@c Free Software Foundation; either version 2 of the License, or (at
-@c your option) any later version.
-
-@c This file is distributed in the hope that it will be useful, but
-@c WITHOUT ANY WARRANTY; without even the implied warraonty of
-@c MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-@c General Public License for more details.
-
-@c You should have received a copy of the GNU General Public License
-@c along with Eshell; see the file COPYING.  If not, write to the Free
-@c Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-
-@c %**start of header
-@setfilename chess.info
+@setfilename ../chess.info
+@documentlanguage en
 @settitle Emacs Chess: chess.el
-@c %**end of header
 
 @dircategory Emacs
 @direntry
@@ -29,7 +11,7 @@
 @setchapternewpage on
 
 @ifinfo
-Copyright @copyright{} 2001, 2002 John Wiegley.
+Copyright @copyright{} 2001, 2002, 2014 Free Software Foundation, @abbr{Inc.}
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
@@ -100,6 +82,12 @@ structured for use as a library, and also how to use it as a client.
 @node The chess.el library, Modules, Top, Top
 @chapter The chess.el library
 @cindex library
+
+This chapter documents the low-level aspects of chess.el, mostly targeting
+developers interested in understand the underlying @acronym{API}s@.
+
+@ref{Chessboard displays} and following chapters
+if you are interested in the more user-visible apsects of chess.el.
 
 @menu
 * Positions::
@@ -829,7 +817,7 @@ sub-variations of interest to those studying the game afterwards.
 Where TAGS is an alist that associates arbitrary English tag names to
 their values.
 
-A game may be represented in ASCII using standard PGN notation.
+A game may be represented in ASCII using @acronym{PGN, Portable Game Notation}.
 Representing them graphically or verbally is similar to what is done
 for variations.
 
@@ -1325,7 +1313,7 @@ real world.
 
 The previous chapter described all the objects found in
 chess---positions, plies, variations, games and collections.  However,
-these objects can only be manipulated programmitically using the
+these objects can only be manipulated programmatically using the
 functions given so far.  In order to present them in a meaningful
 fashion to a human reader, it is necessary to create and use a display
 object.
@@ -1526,7 +1514,9 @@ for playing with opponent over different types of transports.
 * Common functions::
 * AI::
 * Crafty::
-* Gnu Chess::
+* Fruit::
+* Glaurung::
+* GNU Chess::
 * Phalanx::
 * Sjeng::
 * Stockfish::
@@ -1589,14 +1579,15 @@ The @dfn{AI} engine module defines a pure Emacs Lisp implementation
 of an opponent.  Contrary to all other engine modules mentioned later on,
 it does not require any external programs to be installed.
 
+@kindex @kbd{C-u M-x chess RET ai RET}
 To explicitly select this engine as an opponent,
-use @kbd{C-u M-x chess RET ai RET}.
+use @kbd{C-u M-x chess @key{RET} ai @key{RET}}.
 
 @defopt chess-ai-depth
 Defines the default search depth for this engine.
 @end defopt
 
-@node Crafty, Gnu Chess, AI, Engines
+@node Crafty, Fruit, AI, Engines
 @section Crafty
 
 Crafty is a chess program written by Michael Byrne, UAB professor
@@ -1611,11 +1602,50 @@ the @code{chess-crafty} engine module will automatically detect it.
 If Crafty is installed in a non-standard location, variable @code{chess-crafty-path}
 can be set to point to the executable.
 
+@kindex @kbd{C-u M-x chess RET crafty RET}
 If you have multiple engines installed you can explicitly select
-to play against Crafty by invoking @kbd{C-u M-x chess RET crafty RET}.
+to play against Crafty by invoking @kbd{C-u M-x chess @key{RET} crafty @key{RET}}.
 
-@node Gnu Chess, Phalanx, Crafty, Engines
-@section Gnu Chess
+@node Fruit, Glaurung, Crafty, Engines
+@section Fruit
+
+Fruit is a chess engine developed by Fabien Letouzey. It was
+commercially available from September 2005 until July 2007.  Now it is freeware
+and you can download it for free from @uref{http://www.fruitchess.com/}.
+The development on Fruit by Fabien Letouzey has ceded and it is unlikely to
+continue.
+
+Fruit was vice world computer chess champion 2005.
+
+If Fruit is installed and can be found in the program search path,
+the @code{chess-fruit} engine module will automatically detect it.
+
+@vindex chess-fruit-path
+If Fruit is installed in a non-standard location, variable
+@code{chess-fruit-path} can be set to point to the executable.
+
+@kindex @kbd{C-u M-x chess RET fruit RET}
+If you have multiple engines installed you can explicitly select
+to play against Fruit by invoking @kbd{C-u M-x chess @key{RET} fruit @key{RET}}.
+
+@node Glaurung, GNU Chess, Fruit, Engines
+@section Glaurung
+
+Glaurung is another freely distributed strong computer chess engine.
+
+If Glaurung is installed and can be found in the program search path,
+the @code{chess-glaurung} engine module will automatically detect it.
+
+@vindex chess-glaurung-path
+If Glaurung is installed in a non-standard location, variable
+@code{chess-glaurung-path} can be set to point to the executable.
+
+@kindex @kbd{C-u M-x chess RET glaurung RET}
+If you have multiple engines installed you can explicitly select
+to play against Glaurung by invoking @kbd{C-u M-x chess @key{RET} glaurung @key{RET}}.
+
+@node GNU Chess, Phalanx, Glaurung, Engines
+@section GNU Chess
 
 GNU Chess is free software, licensed under the terms of the
 GNU General Public License version 3 or any later version,
@@ -1630,17 +1660,63 @@ the @code{chess-gnuchess} engine module will automatically detect it.
 If GNU Chess is installed in a non-standard location, variable
 @code{chess-gnuchess-path} can be set to point to the executable.
 
+@kindex @kbd{C-u M-x chess RET gnuchess RET}
 If you have multiple engines installed you can explicitly select
-to play against GNU Chess by invoking @kbd{C-u M-x chess RET gnuchess RET}.
+to play against GNU Chess by invoking .
 
-@node Phalanx, Sjeng, Gnu Chess, Engines
+@node Phalanx, Sjeng, GNU Chess, Engines
 @section Phalanx
+
+Phalanx is an old, popular chess engine, with an interesting history.
+
+If Phalanx is installed and can be found in the program search path,
+the @code{chess-phalanx} engine module will automatically detect it.
+
+@vindex chess-phalanx-path
+If Phalanx is installed in a non-standard location, variable
+@code{chess-phalanx-path} can be set to point to the executable.
+
+@kindex @kbd{C-u M-x chess RET phalanx RET}
+If you have multiple engines installed you can explicitly select
+to play against Phalanx by invoking @kbd{C-u M-x chess @key{RET} phalanx @key{RET}}.
 
 @node Sjeng, Stockfish, Phalanx, Engines
 @section Sjeng
 
+@uref{http://sjeng.org/, Sjeng} is a championship-winner automated chess engine
+developed by Gian-Carlo Pascutto from Belgium.  While its original
+version was free, recent developments are for sale.
+
+If Sjeng is installed and can be found in the program search path,
+the @code{chess-sjeng} engine module will automatically detect it.
+
+@vindex chess-sjeng-path
+If Sjeng is installed in a non-standard location, variable
+@code{chess-sjeng-path} can be set to point to the executable.
+
+@kindex @kbd{C-u M-x chess RET sjeng RET}
+If you have multiple engines installed you can explicitly select
+to play against Sjeng by invoking @kbd{C-u M-x chess @key{RET} sjeng @key{RET}}.
+
 @node Stockfish,  , Sjeng, Engines
 @section Stockfish
+
+@uref{http://www.stockfishchess.org/, Stockfish} is one of the strongest
+chess engines in the world, appearing near or at the top of most chess engine
+rating lists.
+Stockfish is also free software, licensed under the terms of the
+GNU General Public License.
+
+If Stockfish is installed and can be found in the program search path,
+the @code{chess-stockfish} engine module will automatically detect it.
+
+@vindex chess-stockfish-path
+If Stockfish is installed in a non-standard location, variable
+@code{chess-stockfish-path} can be set to point to the executable.
+
+@kindex @kbd{C-u M-x chess RET stockfish RET}
+If you have multiple engines installed you can explicitly select
+to play against Stockfish by invoking @kbd{C-u M-x chess @key{RET} stockfish @key{RET}}.
 
 @node Internet Chess Servers, Concept Index, Engines, Top
 @chapter Internet Chess Servers
@@ -1659,8 +1735,13 @@ A default set of well known servers is defined in the following variable:
 A list of servers to connect to.
 The format of each entry is:
 
-  (SERVER PORT [HANDLE] [PASSWORD-OR-FILENAME] [HELPER] [HELPER ARGS...])
+  (@var{server} @var{port} [@var{handle}] [@var{password-or-filename}] [@var{helper}] [@var{helper args}@enddots{}])
 @end defvar
+
+Internet Chess Servers based on
+@uref{http://www.freechess.org/, @acronym{FICS, Free Internet Chess Server}}
+and @uref{http://www.chessclub.com/, @acronym{ICC, Internet Chess Club}}
+are currently supported.
 
 @menu
 * Connecting to a server::
@@ -1679,6 +1760,8 @@ To open a new connection to an Internet Chess Server, use:
 Connect to an Internet Chess Server.
 @end defun
 
+@kindex @kbd{M-p}
+@kindex @kbd{M-n}
 Internet Chess Server support is a derivative of Comint mode,
 a general-purpose mode for communicating with interactive subprocesses.
 A history of previously entered commands at the ICS prompt is
@@ -1720,7 +1803,8 @@ key             binding
 
 @end defun
 
-In this buffer, use mouse-2 or @kbd{RET} on a line to accept that
+@kindex @kbd{RET}
+In this buffer, use mouse-2 or @kbd{@key{RET}} on a line to accept that
 particular game and play it.
 
 @node Concept Index, Function and Variable Index, Internet Chess Servers, Top
