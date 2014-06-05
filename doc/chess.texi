@@ -107,6 +107,7 @@ structured for use as a library, and also how to use it as a client.
 * Variations::
 * Games::
 * Collections::
+* Chess Opening Books::
 @end menu
 
 @node Positions, Plies, The chess.el library, The chess.el library
@@ -1028,7 +1029,7 @@ Visualize the move for the @var{pgn} game under point.
 This does not require that the buffer be in @var{pgn} mode.
 @end defun
 
-@node Collections,  , Games, The chess.el library
+@node Collections, Chess Opening Books, Games, The chess.el library
 @section Collections
 
 A @dfn{collection} is a set of games archived for later perusal.  A set
@@ -1138,6 +1139,68 @@ collections into one uniform concept.
 
 This modules implement basic reading and writing functionality
 for SCID (Shane's Chess Information Database) files.
+
+@node Chess Opening Books,  , Collections, The chess.el library
+@section Chess Opening Books
+
+There are two different modules/libraries provided for looking up
+chess positions in opening books.
+
+@menu
+* ECO Classification::
+* Polyglot opening book format support::
+@end menu
+
+@node ECO Classification, Polyglot opening book format support, Chess Opening Books, Chess Opening Books
+@subsection ECO Classification
+
+@vindex chess-default-modules
+Module @code{chess-eco} provides a database of well known names
+for chess opening positions.  If this module is activated (see variable
+@code{chess-default-modules}) known chess opening positions will be announced
+in the minibuffer during a game.
+
+@node Polyglot opening book format support,  , ECO Classification, Chess Opening Books
+@subsection Polyglot opening book format support
+
+The popular and freely documented Polyglot opening book format
+is supported.  There is a default polyglot book file shipped with chess.el
+to support engines which do not have built-in support for looking up positions
+in opening books (such as some UCI protocol based engines).
+
+@defvar chess-polyglot-book-file
+Path to default polyglot book file.
+@end defvar
+
+@defvar chess-polyglot-book
+If non-nil, the buffer holding the currently loaded polyglot book data.
+
+This is used by UCI based engine modules as well as the internal AI.
+@end defvar
+
+@defun chess-polyglot-book-open file
+Open a polyglot book @var{file}.
+
+Returns a buffer object which contains the binary data.
+@end defun
+
+@defun chess-polyglot-book-plies book position
+Return a list of plies found in @var{book} for @var{position}.
+The resulting list is ordered, most interesting plies come first.
+The @code{:polyglot-book-weight} ply keyword is used to store the actual move weights.
+Use `chess-ply-keyword' on elements of the returned list to retrieve them.
+@end defun
+
+@defun chess-polyglot-book-ply book position &optional strength
+If non-nil a (randomly picked) ply from @var{book} for @var{position}.
+Random distribution is defined by the relative weights of the found plies.
+If non-nil, @var{strength} defines the bias towards better moves.
+A value below 1.0 will penalize known good moves while a value
+above 1.0 will prefer known good moves.  The default is the value
+of `chess-polyglot-book-strength'.
+A strength value of 0.0 will completely ignore move weights and evenly
+distribute the probability that a move gets picked.
+@end defun
 
 @node Modules, Chessboard displays, The chess.el library, Top
 @chapter Modules

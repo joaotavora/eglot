@@ -50,6 +50,7 @@ File: chess.info,  Node: The chess.el library,  Next: Modules,  Prev: Top,  Up: 
 * Variations::
 * Games::
 * Collections::
+* Chess Opening Books::
 
 
 File: chess.info,  Node: Positions,  Next: Plies,  Prev: The chess.el library,  Up: The chess.el library
@@ -833,7 +834,7 @@ File: chess.info,  Node: PGN mode,  Prev: PGN notation,  Up: PGN notation
      require that the buffer be in PGN mode.
 
 
-File: chess.info,  Node: Collections,  Prev: Games,  Up: The chess.el library
+File: chess.info,  Node: Collections,  Next: Chess Opening Books,  Prev: Games,  Up: The chess.el library
 
 1.5 Collections
 ===============
@@ -940,6 +941,74 @@ File: chess.info,  Node: chess-scid,  Prev: chess-file,  Up: Database Modules
 
 This modules implement basic reading and writing functionality for SCID
 (Shane's Chess Information Database) files.
+
+
+File: chess.info,  Node: Chess Opening Books,  Prev: Collections,  Up: The chess.el library
+
+1.6 Chess Opening Books
+=======================
+
+There are two different modules/libraries provided for looking up chess
+positions in opening books.
+
+* Menu:
+
+* ECO Classification::
+* Polyglot opening book format support::
+
+
+File: chess.info,  Node: ECO Classification,  Next: Polyglot opening book format support,  Prev: Chess Opening Books,  Up: Chess Opening Books
+
+1.6.1 ECO Classification
+------------------------
+
+Module 'chess-eco' provides a database of well known names for chess
+opening positions.  If this module is activated (see variable
+'chess-default-modules') known chess opening positions will be announced
+in the minibuffer during a game.
+
+
+File: chess.info,  Node: Polyglot opening book format support,  Prev: ECO Classification,  Up: Chess Opening Books
+
+1.6.2 Polyglot opening book format support
+------------------------------------------
+
+The popular and freely documented Polyglot opening book format is
+supported.  There is a default polyglot book file shipped with chess.el
+to support engines which do not have built-in support for looking up
+positions in opening books (such as some UCI protocol based engines).
+
+ -- Variable: chess-polyglot-book-file
+     Path to default polyglot book file.
+
+ -- Variable: chess-polyglot-book
+     If non-nil, the buffer holding the currently loaded polyglot book
+     data.
+
+     This is used by UCI based engine modules as well as the internal
+     AI.
+
+ -- Function: chess-polyglot-book-open file
+     Open a polyglot book FILE.
+
+     Returns a buffer object which contains the binary data.
+
+ -- Function: chess-polyglot-book-plies book position
+     Return a list of plies found in BOOK for POSITION.  The resulting
+     list is ordered, most interesting plies come first.  The
+     ':polyglot-book-weight' ply keyword is used to store the actual
+     move weights.  Use 'chess-ply-keyword' on elements of the returned
+     list to retrieve them.
+
+ -- Function: chess-polyglot-book-ply book position &optional strength
+     If non-nil a (randomly picked) ply from BOOK for POSITION.  Random
+     distribution is defined by the relative weights of the found plies.
+     If non-nil, STRENGTH defines the bias towards better moves.  A
+     value below 1.0 will penalize known good moves while a value above
+     1.0 will prefer known good moves.  The default is the value of
+     'chess-polyglot-book-strength'.  A strength value of 0.0 will
+     completely ignore move weights and evenly distribute the
+     probability that a move gets picked.
 
 
 File: chess.info,  Node: Modules,  Next: Chessboard displays,  Prev: The chess.el library,  Up: Top
@@ -1439,6 +1508,7 @@ Function and Variable Index
 * chess-database-query:                  Querying Databases.   (line 12)
 * chess-database-read:                   Querying Databases.   (line  9)
 * chess-database-read-only-p:            Modifying Databases.  (line  6)
+* chess-default-modules:                 ECO Classification.   (line  6)
 * chess-direction-east:                  Position coordinates. (line 37)
 * chess-direction-north:                 Position coordinates. (line 33)
 * chess-direction-northeast:             Position coordinates. (line 51)
@@ -1546,6 +1616,16 @@ Function and Variable Index
 * chess-ply-source:                      Ply details.          (line 12)
 * chess-ply-target:                      Ply details.          (line 15)
 * chess-ply-to-algebraic:                Algebraic notation.   (line 25)
+* chess-polyglot-book:                   Polyglot opening book format support.
+                                                               (line 14)
+* chess-polyglot-book-file:              Polyglot opening book format support.
+                                                               (line 11)
+* chess-polyglot-book-open:              Polyglot opening book format support.
+                                                               (line 21)
+* chess-polyglot-book-plies:             Polyglot opening book format support.
+                                                               (line 26)
+* chess-polyglot-book-ply:               Polyglot opening book format support.
+                                                               (line 33)
 * chess-pos-add-annotation:              Annotations.          (line  9)
 * chess-pos-always-white:                Position details.     (line 93)
 * chess-pos-annotations:                 Annotations.          (line  6)
@@ -1594,65 +1674,68 @@ Key Index
 Tag Table:
 Node: Top437
 Node: The chess.el library1190
-Node: Positions1399
-Node: Creating positions2405
-Node: Position coordinates3176
-Node: Position details5704
-Node: Annotations10157
-Node: FEN notation10499
-Node: EPD notation11996
-Node: Operations13474
-Node: Opcode "acd" analysis count depth14448
-Node: Opcode "acn" analysis count nodes14802
-Node: Opcode "acs" analysis count seconds15327
-Node: Opcode "am" avoid move(s)15847
-Node: Opcode "bm" best move(s)16288
-Node: Plies16683
-Node: Creating plies17824
-Node: Ply details19008
-Node: The "next" position19488
-Node: Algebraic notation19846
-Node: Variations21274
-Node: Creating variations22368
-Node: Variation positions22676
-Node: Varation plies23277
-Node: Making a move in a variation23718
-Node: Games24293
-Node: Creating games25867
-Node: Game tags26308
-Node: Game positions26915
-Node: Game plies27539
-Node: Making a move27808
-Node: PGN notation28235
-Node: PGN mode28969
-Node: Collections29230
-Node: Opening Databases29981
-Node: Querying Databases30365
-Node: Modifying Databases30991
-Node: Finalising Databases31263
-Node: Database Modules31438
-Node: chess-file31696
-Node: chess-scid32338
-Node: Modules32575
-Node: Chessboard displays39324
-Node: Generic display manipulation functions39935
-Node: Plain ASCII diagram displays42860
-Node: ICS1 style ASCII displays44305
-Node: Graphical displays44609
-Node: Engines44763
-Node: Common functions45265
-Node: AI46301
-Node: Crafty46772
-Node: Gnu Chess47503
-Node: Phalanx48369
-Node: Sjeng48476
-Node: Stockfish48579
-Node: Internet Chess Servers48674
-Node: Connecting to a server49580
-Node: Seeking an opponent for a new game50256
-Node: The sought game display50708
-Node: Concept Index51684
-Node: Function and Variable Index51927
-Node: Key Index63418
+Node: Positions1423
+Node: Creating positions2429
+Node: Position coordinates3200
+Node: Position details5728
+Node: Annotations10181
+Node: FEN notation10523
+Node: EPD notation12020
+Node: Operations13498
+Node: Opcode "acd" analysis count depth14472
+Node: Opcode "acn" analysis count nodes14826
+Node: Opcode "acs" analysis count seconds15351
+Node: Opcode "am" avoid move(s)15871
+Node: Opcode "bm" best move(s)16312
+Node: Plies16707
+Node: Creating plies17848
+Node: Ply details19032
+Node: The "next" position19512
+Node: Algebraic notation19870
+Node: Variations21298
+Node: Creating variations22392
+Node: Variation positions22700
+Node: Varation plies23301
+Node: Making a move in a variation23742
+Node: Games24317
+Node: Creating games25891
+Node: Game tags26332
+Node: Game positions26939
+Node: Game plies27563
+Node: Making a move27832
+Node: PGN notation28259
+Node: PGN mode28993
+Node: Collections29254
+Node: Opening Databases30033
+Node: Querying Databases30417
+Node: Modifying Databases31043
+Node: Finalising Databases31315
+Node: Database Modules31490
+Node: chess-file31748
+Node: chess-scid32390
+Node: Chess Opening Books32627
+Node: ECO Classification32946
+Node: Polyglot opening book format support33381
+Node: Modules35234
+Node: Chessboard displays41983
+Node: Generic display manipulation functions42594
+Node: Plain ASCII diagram displays45519
+Node: ICS1 style ASCII displays46964
+Node: Graphical displays47268
+Node: Engines47422
+Node: Common functions47924
+Node: AI48960
+Node: Crafty49431
+Node: Gnu Chess50162
+Node: Phalanx51028
+Node: Sjeng51135
+Node: Stockfish51238
+Node: Internet Chess Servers51333
+Node: Connecting to a server52239
+Node: Seeking an opponent for a new game52915
+Node: The sought game display53367
+Node: Concept Index54343
+Node: Function and Variable Index54586
+Node: Key Index66910
 
 End Tag Table
