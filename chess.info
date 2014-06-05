@@ -1178,10 +1178,9 @@ File: chess.info,  Node: Generic display manipulation functions,  Next: Plain AS
  -- Function: chess-display-invert
      Invert the perspective of the current chess board.
 
- -- Function: chess-display-move display ply &optional prev-pos pos
+ -- Function: chess-display-move display ply
      Move a piece on DISPLAY, by applying the given PLY.  The position
-     of PLY must match the currently displayed position.  If only START
-     is given, it must be in algebraic move notation.
+     of PLY must match the currently displayed position.
 
  -- Function: chess-display-perspective display
      Return the current perspective of DISPLAY.
@@ -1530,21 +1529,21 @@ Function and Variable Index
 * chess-display-move:                    Generic display manipulation functions.
                                                                (line 28)
 * chess-display-perspective:             Generic display manipulation functions.
-                                                               (line 33)
+                                                               (line 32)
 * chess-display-position:                Generic display manipulation functions.
-                                                               (line 36)
+                                                               (line 35)
 * chess-display-quit:                    Generic display manipulation functions.
-                                                               (line 39)
+                                                               (line 38)
 * chess-display-set-game:                Generic display manipulation functions.
-                                                               (line 42)
+                                                               (line 41)
 * chess-display-set-perspective:         Generic display manipulation functions.
-                                                               (line 48)
+                                                               (line 47)
 * chess-display-set-position:            Generic display manipulation functions.
-                                                               (line 51)
+                                                               (line 50)
 * chess-display-set-variation:           Generic display manipulation functions.
-                                                               (line 55)
+                                                               (line 54)
 * chess-display-update:                  Generic display manipulation functions.
-                                                               (line 63)
+                                                               (line 62)
 * chess-engine-command:                  Common functions.     (line 18)
 * chess-engine-create:                   Common functions.     (line  6)
 * chess-engine-position:                 Common functions.     (line 15)
@@ -1719,23 +1718,23 @@ Node: Polyglot opening book format support33381
 Node: Modules35234
 Node: Chessboard displays41983
 Node: Generic display manipulation functions42594
-Node: Plain ASCII diagram displays45519
-Node: ICS1 style ASCII displays46964
-Node: Graphical displays47268
-Node: Engines47422
-Node: Common functions47924
-Node: AI48960
-Node: Crafty49431
-Node: Gnu Chess50162
-Node: Phalanx51028
-Node: Sjeng51135
-Node: Stockfish51238
-Node: Internet Chess Servers51333
-Node: Connecting to a server52239
-Node: Seeking an opponent for a new game52915
-Node: The sought game display53367
-Node: Concept Index54343
-Node: Function and Variable Index54586
-Node: Key Index66910
+Node: Plain ASCII diagram displays45427
+Node: ICS1 style ASCII displays46872
+Node: Graphical displays47176
+Node: Engines47330
+Node: Common functions47832
+Node: AI48868
+Node: Crafty49339
+Node: Gnu Chess50070
+Node: Phalanx50936
+Node: Sjeng51043
+Node: Stockfish51146
+Node: Internet Chess Servers51241
+Node: Connecting to a server52147
+Node: Seeking an opponent for a new game52823
+Node: The sought game display53275
+Node: Concept Index54251
+Node: Function and Variable Index54494
+Node: Key Index66818
 
 End Tag Table

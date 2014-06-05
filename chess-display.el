@@ -393,10 +393,9 @@ Basically, it means we are playing, not editing or reviewing."
        (not (chess-game-over-p chess-module-game))
        (not chess-display-edit-mode)))
 
-(defun chess-display-move (display ply &optional _prev-pos _pos)
+(defun chess-display-move (display ply)
   "Move a piece on DISPLAY, by applying the given PLY.
-The position of PLY must match the currently displayed position.
-If only START is given, it must be in algebraic move notation."
+The position of PLY must match the currently displayed position."
   (chess-with-current-buffer display
     (if (and (chess-display-active-p)
 	     ;; `active' means we're playing against an engine
@@ -1210,8 +1209,7 @@ Clicking once on a piece selects it; then click on the target location."
 							      coord))
 			    (throw 'message (chess-string 'move-not-legal)))
 			  (condition-case err
-			      (chess-display-move nil ply
-						  (car last-sel) (point))
+			      (chess-display-move nil ply)
 			    (error
 			     (throw 'message (error-message-string err)))))))
 		    (setq chess-display-last-selected nil))

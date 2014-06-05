@@ -1385,10 +1385,9 @@ Invert the perspective of the current chess board.
 
 @c lispfun chess-display-move
 
-@defun chess-display-move display ply &optional prev-pos pos
+@defun chess-display-move display ply
 Move a piece on @var{display}, by applying the given @var{ply}.
 The position of @var{ply} must match the currently displayed position.
-If only @var{start} is given, it must be in algebraic move notation.
 @end defun
 
 @c lispfun chess-display-move-backward
