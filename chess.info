@@ -1497,7 +1497,7 @@ File: chess.info,  Node: Internet Chess Servers,  Next: Concept Index,  Prev: En
 5 Internet Chess Servers
 ************************
 
-Based on the services provided above, there is also a speical mode for
+Based on the services provided above, there is also a special mode for
 communication with Internet Chess Servers.
 
    On an Internet Chess Server you can seek to play against other human
@@ -1521,11 +1521,13 @@ variable:
 * Menu:
 
 * Connecting to a server::
+* Chess ICS Mode::
+* Command History::
 * Seeking an opponent for a new game::
 * The sought game display::
 
 
-File: chess.info,  Node: Connecting to a server,  Next: Seeking an opponent for a new game,  Prev: Internet Chess Servers,  Up: Internet Chess Servers
+File: chess.info,  Node: Connecting to a server,  Next: Chess ICS Mode,  Prev: Internet Chess Servers,  Up: Internet Chess Servers
 
 5.1 Connecting to a server
 ==========================
@@ -1536,15 +1538,217 @@ To open a new connection to an Internet Chess Server, use:
           password-or-filename helper &rest helper-args
      Connect to an Internet Chess Server.
 
-   Internet Chess Server support is a derivative of Comint mode, a
-general-purpose mode for communicating with interactive subprocesses.  A
-history of previously entered commands at the ICS prompt is available
-with 'M-p' and 'M-n'.  See COMINT-MODE-MAP.
+
+File: chess.info,  Node: Chess ICS Mode,  Next: Command History,  Prev: Connecting to a server,  Up: Internet Chess Servers
+
+5.2 Chess ICS Mode
+==================
+
+The major mode for ICS buffers is Chess ICS mode.  Many of its special
+commands are bound to the 'C-c' prefix.  Here is a list of ICS mode
+commands:
+
+'<RET>'
+     Send the current line as input to the server ('comint-send-input').
+     Any prompt at the beginning of the line is omitted.  If point is at
+     the end of buffer, this is like submitting the command line in an
+     ordinary interactive shell.  However, you can also invoke <RET>
+     elsewhere in the ICS buffer to submit the current line as input.
+
+'C-d'
+     Either delete a character or send EOF (End Of File)
+     ('comint-delchar-or-maybe-eof').  Typed at the end of the ICS
+     buffer, this sends EOF to the server and terminates the connection.
+     Typed at any other position in the buffer, this deletes a character
+     as usual.
+
+'C-c C-a'
+     Move to the beginning of the line, but after the prompt if any
+     ('comint-bol-or-process-mark').  If you repeat this command twice
+     in a row, the second time it moves back to the process mark, which
+     is the beginning of the input that you have not yet sent to the
+     server.  (Normally that is the same place--the end of the prompt on
+     this line--but after 'C-c <SPC>' the process mark may be in a
+     previous line.)
+
+'C-c <SPC>'
+     Accumulate multiple lines of input, then send them together
+     ('comint-accumulate').  This command inserts a newline before
+     point, but does not send the preceding text as input to the
+     server--at least, not yet.  Both lines, the one before this newline
+     and the one after, will be sent together (along with the newline
+     that separates them), when you type <RET>.
+
+'C-c C-u'
+     Kill all text pending at end of buffer to be sent as input
+     ('comint-kill-input').  If point is not at end of buffer, this only
+     kills the part of this text that precedes point.
+
+'C-c C-w'
+     Kill a word before point ('backward-kill-word').
+
+'C-c C-o'
+     Delete the last batch of output from an ICS server command
+     ('comint-delete-output').  This is useful if a server command spews
+     out lots of output that just gets in the way.
+
+'C-c C-s'
+     Write the last batch of output from an ICS server command to a file
+     ('comint-write-output').  With a prefix argument, the file is
+     appended to instead.  Any prompt at the end of the output is not
+     written.
+
+'C-c C-r'
+'C-M-l'
+     Scroll to display the beginning of the last batch of output at the
+     top of the window; also move the cursor there
+     ('comint-show-output').
+
+'C-c C-e'
+     Scroll to put the end of the buffer at the bottom of the window
+     ('comint-show-maximum-output').
+
+'M-x comint-truncate-buffer'
+     This command truncates the ICS buffer to a certain maximum number
+     of lines, specified by the variable 'comint-buffer-maximum-size'.
+     Here's how to do this automatically each time you get output from
+     the server:
+
+          (add-hook 'comint-output-filter-functions
+                    'comint-truncate-buffer)
+
+   ICS mode is a derivative of Comint mode, a general-purpose mode for
+communicating with interactive subprocesses.  Most of the features of
+ICS mode actually come from Comint mode, as you can see from the command
+names listed above.
 
 
-File: chess.info,  Node: Seeking an opponent for a new game,  Next: The sought game display,  Prev: Connecting to a server,  Up: Internet Chess Servers
+File: chess.info,  Node: Command History,  Next: Seeking an opponent for a new game,  Prev: Chess ICS Mode,  Up: Internet Chess Servers
 
-5.2 Seeking an opponent for a new game
+5.3 ICS Command History
+=======================
+
+ICS buffers support two ways of repeating earlier commands.  You can use
+keys like those used for the minibuffer history; these work much as they
+do in the minibuffer, inserting text from prior commands while point
+remains always at the end of the buffer.  You can move through the
+buffer to previous inputs in their original place, then resubmit them or
+copy them to the end.
+
+* Menu:
+
+* Ring: ICS Ring.               Fetching commands from the history list.
+* Shell History Copying::
+
+
+File: chess.info,  Node: ICS Ring,  Next: Shell History Copying,  Prev: Command History,  Up: Command History
+
+5.3.1 ICS History Ring
+----------------------
+
+'M-p'
+'C-<UP>'
+     Fetch the next earlier old ICS command.
+
+'M-n'
+'C-<DOWN>'
+     Fetch the next later old ICS command.
+
+'M-r'
+     Begin an incremental regexp search of old ICS commands.
+
+'C-c C-x'
+     Fetch the next subsequent command from the history.
+
+'C-c .'
+     Fetch one argument from an old ICS command.
+
+'C-c C-l'
+     Display the buffer's history of ICS commands in another window
+     ('comint-dynamic-list-input-ring').
+
+   ICS buffers provide a history of previously entered commands.  To
+reuse commands from the history, use the editing commands 'M-p', 'M-n',
+'M-r' and 'M-s'.  These work just like the minibuffer history commands
+(*note (emacs)Minibuffer History::), except that they operate within the
+ICS buffer rather than the minibuffer.
+
+   'M-p' fetches an earlier ICS command to the end of the ICS buffer.
+Successive use of 'M-p' fetches successively earlier commands, each
+replacing any text that was already present as potential input.  'M-n'
+does likewise except that it finds successively more recent ICS commands
+from the buffer.  'C-<UP>' works like 'M-p', and 'C-<DOWN>' like 'M-n'.
+
+   The history search command 'M-r' begins an incremental regular
+expression search of previous ICS commands.  After typing 'M-r', start
+typing the desired string or regular expression; the last matching ICS
+command will be displayed in the current line.  Incremental search
+commands have their usual effects--for instance, 'C-s' and 'C-r' search
+forward and backward for the next match (*note (emacs)Incremental
+Search::).  When you find the desired input, type <RET> to terminate the
+search.  This puts the input in the command line.  Any partial input you
+were composing before navigating the history list is restored when you
+go to the beginning or end of the history ring.
+
+   Often it is useful to reexecute several successive ICS commands that
+were previously executed in sequence.  To do this, first find and
+reexecute the first command of the sequence.  Then type 'C-c C-x'; that
+will fetch the following command--the one that follows the command you
+just repeated.  Then type <RET> to reexecute this command.  You can
+reexecute several successive commands by typing 'C-c C-x <RET>' over and
+over.
+
+   The command 'C-c .' ('comint-input-previous-argument') copies an
+individual argument from a previous command, like '<ESC> .' in Bash.
+The simplest use copies the last argument from the previous ICS command.
+With a prefix argument N, it copies the Nth argument instead.  Repeating
+'C-c .' copies from an earlier ICS command instead, always using the
+same value of N (don't give a prefix argument when you repeat the 'C-c
+.' command).
+
+   These commands get the text of previous ICS commands from a special
+history list, not from the ICS buffer itself.  Thus, editing the ICS
+buffer, or even killing large parts of it, does not affect the history
+that these commands access.
+
+
+File: chess.info,  Node: Shell History Copying,  Prev: ICS Ring,  Up: Command History
+
+5.3.2 Shell History Copying
+---------------------------
+
+'C-c C-p'
+     Move point to the previous prompt ('comint-previous-prompt').
+
+'C-c C-n'
+     Move point to the following prompt ('comint-next-prompt').
+
+'C-c <RET>'
+     Copy the input command at point, inserting the copy at the end of
+     the buffer ('comint-copy-old-input').  This is useful if you move
+     point back to a previous command.  After you copy the command, you
+     can submit the copy as input with <RET>.  If you wish, you can edit
+     the copy before resubmitting it.  If you use this command on an
+     output line, it copies that line to the end of the buffer.
+
+'Mouse-2'
+     If 'comint-use-prompt-regexp' is 'nil' (the default), copy the old
+     input command that you click on, inserting the copy at the end of
+     the buffer ('comint-insert-input').  If 'comint-use-prompt-regexp'
+     is non-'nil', or if the click is not over old input, just yank as
+     usual.
+
+   Moving to a previous input and then copying it with 'C-c <RET>' or
+'Mouse-2' produces the same results--the same buffer contents--that you
+would get by using 'M-p' enough times to fetch that previous input from
+the history list.  However, 'C-c <RET>' copies the text from the buffer,
+which can be different from what is in the history list if you edit the
+input text in the buffer after it has been sent.
+
+
+File: chess.info,  Node: Seeking an opponent for a new game,  Next: The sought game display,  Prev: Command History,  Up: Internet Chess Servers
+
+5.4 Seeking an opponent for a new game
 ======================================
 
 After you connected to a server, one of the first things you will want
@@ -1552,10 +1756,18 @@ to do is find an oponent for a new game.  You can use the ICS command
 "seek" to announce your availability for a chess game to interested
 people.
 
+   For example:
+
+     fics% seek 10 10 rated
+
+   This will announce your availability to play a rated game with 10
+minutes initial time-control for each player, and 10 seconds added for
+every move made.
+
 
 File: chess.info,  Node: The sought game display,  Prev: Seeking an opponent for a new game,  Up: Internet Chess Servers
 
-5.3 The sought game display
+5.5 The sought game display
 ===========================
 
 There is a special mode for displaying games sought by other users on an
@@ -1588,7 +1800,11 @@ Concept Index
  [index ]
 * Menu:
 
-* library:                               The chess.el library.  (line 6)
+* Chess ICS mode:                        Chess ICS Mode.       (line  6)
+* Comint mode:                           Chess ICS Mode.       (line 79)
+* library:                               The chess.el library. (line  6)
+* mode, Comint:                          Chess ICS Mode.       (line 79)
+* mode, ICS:                             Chess ICS Mode.       (line  6)
 
 
 File: chess.info,  Node: Function and Variable Index,  Next: Key Index,  Prev: Concept Index,  Up: Top
@@ -1599,6 +1815,7 @@ Function and Variable Index
  [index ]
 * Menu:
 
+* backward-kill-word:                    Chess ICS Mode.       (line 47)
 * chess-ai-best-move:                    AI.                   (line 24)
 * chess-ai-depth:                        AI.                   (line 13)
 * chess-ai-quiescence-depth:             AI.                   (line 16)
@@ -1771,6 +1988,29 @@ Function and Variable Index
 * chess-var-seq:                         Variation positions.  (line 12)
 * chess-var-side-to-move:                Variation positions.  (line 15)
 * chess-var-to-algebraic:                Varation plies.       (line 12)
+* comint-accumulate:                     Chess ICS Mode.       (line 34)
+* comint-bol-or-process-mark:            Chess ICS Mode.       (line 25)
+* comint-buffer-maximum-size:            Chess ICS Mode.       (line 71)
+* comint-copy-old-input:                 Shell History Copying.
+                                                               (line 12)
+* comint-delchar-or-maybe-eof:           Chess ICS Mode.       (line 18)
+* comint-delete-output:                  Chess ICS Mode.       (line 50)
+* comint-dynamic-list-input-ring:        ICS Ring.             (line 24)
+* comint-get-next-from-history:          ICS Ring.             (line 18)
+* comint-history-isearch-backward-regexp: ICS Ring.            (line 14)
+* comint-input-previous-argument:        ICS Ring.             (line 21)
+* comint-kill-input:                     Chess ICS Mode.       (line 42)
+* comint-next-input:                     ICS Ring.             (line 10)
+* comint-next-prompt:                    Shell History Copying.
+                                                               (line  9)
+* comint-previous-input:                 ICS Ring.             (line  6)
+* comint-previous-prompt:                Shell History Copying.
+                                                               (line  6)
+* comint-send-input:                     Chess ICS Mode.       (line 11)
+* comint-show-maximum-output:            Chess ICS Mode.       (line 67)
+* comint-show-output:                    Chess ICS Mode.       (line 62)
+* comint-truncate-buffer:                Chess ICS Mode.       (line 71)
+* comint-write-output:                   Chess ICS Mode.       (line 55)
 
 
 File: chess.info,  Node: Key Index,  Prev: Function and Variable Index,  Up: Top
@@ -1781,18 +2021,37 @@ Key Index
  [index ]
 * Menu:
 
-* 'C-u M-x chess RET ai RET':            AI.                   (line 10)
-* 'C-u M-x chess RET crafty RET':        Crafty.               (line 17)
-* 'C-u M-x chess RET fruit RET':         Fruit.                (line 20)
-* 'C-u M-x chess RET glaurung RET':      Glaurung.             (line 14)
-* 'C-u M-x chess RET gnuchess RET':      GNU Chess.            (line 18)
-* 'C-u M-x chess RET phalanx RET':       Phalanx.              (line 14)
-* 'C-u M-x chess RET sjeng RET':         Sjeng.                (line 16)
-* 'C-u M-x chess RET stockfish RET':     Stockfish.            (line 17)
-* 'M-n':                                 Connecting to a server.
+* C-c . (Shell mode):                    ICS Ring.             (line 21)
+* C-c C-a:                               Chess ICS Mode.       (line 25)
+* C-c C-e:                               Chess ICS Mode.       (line 67)
+* C-c C-l (Shell mode):                  ICS Ring.             (line 24)
+* C-c C-n:                               Shell History Copying.
+                                                               (line  9)
+* C-c C-o:                               Chess ICS Mode.       (line 50)
+* C-c C-p:                               Shell History Copying.
+                                                               (line  6)
+* C-c C-r:                               Chess ICS Mode.       (line 62)
+* C-c C-s:                               Chess ICS Mode.       (line 55)
+* C-c C-u:                               Chess ICS Mode.       (line 42)
+* C-c C-w:                               Chess ICS Mode.       (line 47)
+* C-c C-x:                               ICS Ring.             (line 18)
+* C-c RET:                               Shell History Copying.
                                                                (line 12)
-* 'M-p':                                 Connecting to a server.
-                                                               (line 12)
+* C-c SPC:                               Chess ICS Mode.       (line 34)
+* C-d:                                   Chess ICS Mode.       (line 18)
+* C-M-l:                                 Chess ICS Mode.       (line 62)
+* C-u M-x chess RET ai RET:              AI.                   (line 10)
+* C-u M-x chess RET crafty RET:          Crafty.               (line 17)
+* C-u M-x chess RET fruit RET:           Fruit.                (line 20)
+* C-u M-x chess RET glaurung RET:        Glaurung.             (line 14)
+* C-u M-x chess RET gnuchess RET:        GNU Chess.            (line 18)
+* C-u M-x chess RET phalanx RET:         Phalanx.              (line 14)
+* C-u M-x chess RET sjeng RET:           Sjeng.                (line 16)
+* C-u M-x chess RET stockfish RET:       Stockfish.            (line 17)
+* M-n:                                   ICS Ring.             (line 10)
+* M-p:                                   ICS Ring.             (line  6)
+* M-r:                                   ICS Ring.             (line 14)
+* RET:                                   Chess ICS Mode.       (line 11)
 * 'RET':                                 The sought game display.
                                                                (line 24)
 
@@ -1860,11 +2119,15 @@ Node: Phalanx53148
 Node: Sjeng53730
 Node: Stockfish54419
 Node: Internet Chess Servers55184
-Node: Connecting to a server56271
-Node: Seeking an opponent for a new game56947
-Node: The sought game display57399
-Node: Concept Index58377
-Node: Function and Variable Index58620
-Node: Key Index71455
+Node: Connecting to a server56310
+Node: Chess ICS Mode56711
+Node: Command History60119
+Node: ICS Ring60794
+Node: Shell History Copying63855
+Node: Seeking an opponent for a new game65305
+Node: The sought game display65954
+Node: Concept Index66932
+Node: Function and Variable Index67467
+Node: Key Index82027
 
 End Tag Table

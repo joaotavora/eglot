@@ -1579,7 +1579,7 @@ The @dfn{AI} engine module defines a pure Emacs Lisp implementation
 of an opponent.  Contrary to all other engine modules mentioned later on,
 it does not require any external programs to be installed.
 
-@kindex @kbd{C-u M-x chess RET ai RET}
+@kindex C-u M-x chess RET ai RET
 To explicitly select this engine as an opponent,
 use @kbd{C-u M-x chess @key{RET} ai @key{RET}}.
 
@@ -1616,7 +1616,7 @@ the @code{chess-crafty} engine module will automatically detect it.
 If Crafty is installed in a non-standard location, variable @code{chess-crafty-path}
 can be set to point to the executable.
 
-@kindex @kbd{C-u M-x chess RET crafty RET}
+@kindex C-u M-x chess RET crafty RET
 If you have multiple engines installed you can explicitly select
 to play against Crafty by invoking @kbd{C-u M-x chess @key{RET} crafty @key{RET}}.
 
@@ -1638,7 +1638,7 @@ the @code{chess-fruit} engine module will automatically detect it.
 If Fruit is installed in a non-standard location, variable
 @code{chess-fruit-path} can be set to point to the executable.
 
-@kindex @kbd{C-u M-x chess RET fruit RET}
+@kindex C-u M-x chess RET fruit RET
 If you have multiple engines installed you can explicitly select
 to play against Fruit by invoking @kbd{C-u M-x chess @key{RET} fruit @key{RET}}.
 
@@ -1654,7 +1654,7 @@ the @code{chess-glaurung} engine module will automatically detect it.
 If Glaurung is installed in a non-standard location, variable
 @code{chess-glaurung-path} can be set to point to the executable.
 
-@kindex @kbd{C-u M-x chess RET glaurung RET}
+@kindex C-u M-x chess RET glaurung RET
 If you have multiple engines installed you can explicitly select
 to play against Glaurung by invoking @kbd{C-u M-x chess @key{RET} glaurung @key{RET}}.
 
@@ -1674,7 +1674,7 @@ the @code{chess-gnuchess} engine module will automatically detect it.
 If GNU Chess is installed in a non-standard location, variable
 @code{chess-gnuchess-path} can be set to point to the executable.
 
-@kindex @kbd{C-u M-x chess RET gnuchess RET}
+@kindex C-u M-x chess RET gnuchess RET
 If you have multiple engines installed you can explicitly select
 to play against GNU Chess by invoking .
 
@@ -1690,7 +1690,7 @@ the @code{chess-phalanx} engine module will automatically detect it.
 If Phalanx is installed in a non-standard location, variable
 @code{chess-phalanx-path} can be set to point to the executable.
 
-@kindex @kbd{C-u M-x chess RET phalanx RET}
+@kindex C-u M-x chess RET phalanx RET
 If you have multiple engines installed you can explicitly select
 to play against Phalanx by invoking @kbd{C-u M-x chess @key{RET} phalanx @key{RET}}.
 
@@ -1708,7 +1708,7 @@ the @code{chess-sjeng} engine module will automatically detect it.
 If Sjeng is installed in a non-standard location, variable
 @code{chess-sjeng-path} can be set to point to the executable.
 
-@kindex @kbd{C-u M-x chess RET sjeng RET}
+@kindex C-u M-x chess RET sjeng RET
 If you have multiple engines installed you can explicitly select
 to play against Sjeng by invoking @kbd{C-u M-x chess @key{RET} sjeng @key{RET}}.
 
@@ -1728,14 +1728,14 @@ the @code{chess-stockfish} engine module will automatically detect it.
 If Stockfish is installed in a non-standard location, variable
 @code{chess-stockfish-path} can be set to point to the executable.
 
-@kindex @kbd{C-u M-x chess RET stockfish RET}
+@kindex C-u M-x chess RET stockfish RET
 If you have multiple engines installed you can explicitly select
 to play against Stockfish by invoking @kbd{C-u M-x chess @key{RET} stockfish @key{RET}}.
 
 @node Internet Chess Servers, Concept Index, Engines, Top
 @chapter Internet Chess Servers
 
-Based on the services provided above, there is also a speical mode
+Based on the services provided above, there is also a special mode
 for communication with Internet Chess Servers.
 
 On an Internet Chess Server you can seek to play against other
@@ -1759,11 +1759,13 @@ are currently supported.
 
 @menu
 * Connecting to a server::
+* Chess ICS Mode::
+* Command History::
 * Seeking an opponent for a new game::
 * The sought game display::
 @end menu
 
-@node Connecting to a server, Seeking an opponent for a new game, Internet Chess Servers, Internet Chess Servers
+@node Connecting to a server, Chess ICS Mode, Internet Chess Servers, Internet Chess Servers
 @section Connecting to a server
 
 To open a new connection to an Internet Chess Server, use:
@@ -1774,20 +1776,277 @@ To open a new connection to an Internet Chess Server, use:
 Connect to an Internet Chess Server.
 @end defun
 
-@kindex @kbd{M-p}
-@kindex @kbd{M-n}
-Internet Chess Server support is a derivative of Comint mode,
-a general-purpose mode for communicating with interactive subprocesses.
-A history of previously entered commands at the ICS prompt is
-available with @kbd{M-p} and @kbd{M-n}.  See @var{comint-mode-map}.
+@node Chess ICS Mode, Command History, Connecting to a server, Internet Chess Servers
+@section Chess ICS Mode
+@cindex Chess ICS mode
+@cindex mode, ICS
 
-@node Seeking an opponent for a new game, The sought game display, Connecting to a server, Internet Chess Servers
+  The major mode for ICS buffers is Chess ICS mode.  Many of its special
+commands are bound to the @kbd{C-c} prefix.  Here is a list of ICS mode
+commands:
+
+@table @kbd
+@item @key{RET}
+@kindex RET
+@findex comint-send-input
+Send the current line as input to the server
+(@code{comint-send-input}).  Any prompt at the beginning of the
+line is omitted.  If point is at the end of
+buffer, this is like submitting the command line in an ordinary
+interactive shell.  However, you can also invoke @key{RET} elsewhere
+in the ICS buffer to submit the current line as input.
+
+@item C-d
+@kindex C-d
+@findex comint-delchar-or-maybe-eof
+Either delete a character or send @acronym{EOF, End Of File}
+(@code{comint-delchar-or-maybe-eof}).  Typed at the end of the ICS
+buffer, this sends @acronym{EOF} to the server and terminates the
+connection.  Typed at any other
+position in the buffer, this deletes a character as usual.
+
+@item C-c C-a
+@kindex C-c C-a
+@findex comint-bol-or-process-mark
+Move to the beginning of the line, but after the prompt if any
+(@code{comint-bol-or-process-mark}).  If you repeat this command twice
+in a row, the second time it moves back to the process mark, which is
+the beginning of the input that you have not yet sent to the server.
+(Normally that is the same place---the end of the prompt on this
+line---but after @kbd{C-c @key{SPC}} the process mark may be in a
+previous line.)
+
+@item C-c @key{SPC}
+@kindex C-c SPC
+@findex comint-accumulate
+Accumulate multiple lines of input, then send them together
+(@code{comint-accumulate}).  This
+command inserts a newline before point, but does not send the preceding
+text as input to the server---at least, not yet.  Both lines, the one
+before this newline and the one after, will be sent together (along with
+the newline that separates them), when you type @key{RET}.
+
+@item C-c C-u
+@kindex C-c C-u
+@findex comint-kill-input
+Kill all text pending at end of buffer to be sent as input
+(@code{comint-kill-input}).  If point is not at end of buffer,
+this only kills the part of this text that precedes point.
+
+@item C-c C-w
+@kindex C-c C-w
+@findex backward-kill-word
+Kill a word before point (@code{backward-kill-word}).
+
+@item C-c C-o
+@kindex C-c C-o
+@findex comint-delete-output
+Delete the last batch of output from an ICS server command
+(@code{comint-delete-output}).  This is useful if a server command spews
+out lots of output that just gets in the way.
+
+@item C-c C-s
+@kindex C-c C-s
+@findex comint-write-output
+Write the last batch of output from an ICS server command to a file
+(@code{comint-write-output}).  With a prefix argument, the file is
+appended to instead.  Any prompt at the end of the output is not
+written.
+
+@item C-c C-r
+@itemx C-M-l
+@kindex C-c C-r
+@kindex C-M-l
+@findex comint-show-output
+Scroll to display the beginning of the last batch of output at the top
+of the window; also move the cursor there (@code{comint-show-output}).
+
+@item C-c C-e
+@kindex C-c C-e
+@findex comint-show-maximum-output
+Scroll to put the end of the buffer at the bottom of the window
+(@code{comint-show-maximum-output}).
+
+@item M-x comint-truncate-buffer
+@findex comint-truncate-buffer
+@vindex comint-buffer-maximum-size
+This command truncates the ICS buffer to a certain maximum number of
+lines, specified by the variable @code{comint-buffer-maximum-size}.
+Here's how to do this automatically each time you get output from the
+server:
+
+@example
+(add-hook 'comint-output-filter-functions
+          'comint-truncate-buffer)
+@end example
+@end table
+
+@cindex Comint mode
+@cindex mode, Comint
+  ICS mode is a derivative of Comint mode, a general-purpose mode for
+communicating with interactive subprocesses.  Most of the features of
+ICS mode actually come from Comint mode, as you can see from the
+command names listed above.
+
+@node Command History, Seeking an opponent for a new game, Chess ICS Mode, Internet Chess Servers
+@section ICS Command History
+
+  ICS buffers support two ways of repeating earlier commands.  You
+can use keys like those used for the minibuffer history; these work
+much as they do in the minibuffer, inserting text from prior commands
+while point remains always at the end of the buffer.  You can move
+through the buffer to previous inputs in their original place, then
+resubmit them or copy them to the end.
+
+@menu
+* Ring: ICS Ring.               Fetching commands from the history list.
+* Shell History Copying::
+@end menu
+
+@node ICS Ring, Shell History Copying, Command History, Command History
+@subsection ICS History Ring
+
+@table @kbd
+@findex comint-previous-input
+@kindex M-p
+@item M-p
+@itemx C-@key{UP}
+Fetch the next earlier old ICS command.
+
+@kindex M-n
+@findex comint-next-input
+@item M-n
+@itemx C-@key{DOWN}
+Fetch the next later old ICS command.
+
+@kindex M-r
+@findex comint-history-isearch-backward-regexp
+@item M-r
+Begin an incremental regexp search of old ICS commands.
+
+@item C-c C-x
+@kindex C-c C-x
+@findex comint-get-next-from-history
+Fetch the next subsequent command from the history.
+
+@item C-c .
+@kindex C-c . @r{(Shell mode)}
+@findex comint-input-previous-argument
+Fetch one argument from an old ICS command.
+
+@item C-c C-l
+@kindex C-c C-l @r{(Shell mode)}
+@findex comint-dynamic-list-input-ring
+Display the buffer's history of ICS commands in another window
+(@code{comint-dynamic-list-input-ring}).
+@end table
+
+  ICS buffers provide a history of previously entered
+commands.  To reuse commands from the history, use the editing
+commands @kbd{M-p}, @kbd{M-n}, @kbd{M-r} and @kbd{M-s}.  These work
+just like the minibuffer history commands (@pxref{Minibuffer
+History, , , emacs}), except that they operate within the ICS buffer rather
+than the minibuffer.
+
+  @kbd{M-p} fetches an earlier ICS command to the end of the ICS
+buffer.  Successive use of @kbd{M-p} fetches successively earlier
+commands, each replacing any text that was already present as
+potential input.  @kbd{M-n} does likewise except that it finds
+successively more recent ICS commands from the buffer.
+@kbd{C-@key{UP}} works like @kbd{M-p}, and @kbd{C-@key{DOWN}} like
+@kbd{M-n}.
+
+  The history search command @kbd{M-r} begins an incremental regular
+expression search of previous ICS commands.  After typing @kbd{M-r},
+start typing the desired string or regular expression; the last
+matching ICS command will be displayed in the current line.
+Incremental search commands have their usual effects---for instance,
+@kbd{C-s} and @kbd{C-r} search forward and backward for the next match
+(@pxref{Incremental Search, , , emacs}).  When you find the desired input, type
+@key{RET} to terminate the search.  This puts the input in the command
+line.  Any partial input you were composing before navigating the
+history list is restored when you go to the beginning or end of the
+history ring.
+
+  Often it is useful to reexecute several successive ICS commands that
+were previously executed in sequence.  To do this, first find and
+reexecute the first command of the sequence.  Then type @kbd{C-c C-x};
+that will fetch the following command---the one that follows the command
+you just repeated.  Then type @key{RET} to reexecute this command.  You
+can reexecute several successive commands by typing @kbd{C-c C-x
+@key{RET}} over and over.
+
+  The command @kbd{C-c .}@: (@code{comint-input-previous-argument})
+copies an individual argument from a previous command, like
+@kbd{@key{ESC} .} in Bash.  The simplest use copies the last argument from the
+previous ICS command.  With a prefix argument @var{n}, it copies the
+@var{n}th argument instead.  Repeating @kbd{C-c .} copies from an
+earlier ICS command instead, always using the same value of @var{n}
+(don't give a prefix argument when you repeat the @kbd{C-c .}
+command).
+
+  These commands get the text of previous ICS commands from a special
+history list, not from the ICS buffer itself.  Thus, editing the ICS
+buffer, or even killing large parts of it, does not affect the history
+that these commands access.
+
+@node Shell History Copying,  , ICS Ring, Command History
+@subsection Shell History Copying
+
+@table @kbd
+@kindex C-c C-p
+@findex comint-previous-prompt
+@item C-c C-p
+Move point to the previous prompt (@code{comint-previous-prompt}).
+
+@kindex C-c C-n
+@findex comint-next-prompt
+@item C-c C-n
+Move point to the following prompt (@code{comint-next-prompt}).
+
+@kindex C-c RET
+@findex comint-copy-old-input
+@item C-c @key{RET}
+Copy the input command at point, inserting the copy at the end of the
+buffer (@code{comint-copy-old-input}).  This is useful if you move
+point back to a previous command.  After you copy the command, you can
+submit the copy as input with @key{RET}.  If you wish, you can edit
+the copy before resubmitting it.  If you use this command on an output
+line, it copies that line to the end of the buffer.
+
+@item Mouse-2
+If @code{comint-use-prompt-regexp} is @code{nil} (the default), copy
+the old input command that you click on, inserting the copy at the end
+of the buffer (@code{comint-insert-input}).  If
+@code{comint-use-prompt-regexp} is non-@code{nil}, or if the click is
+not over old input, just yank as usual.
+@end table
+
+  Moving to a previous input and then copying it with @kbd{C-c
+@key{RET}} or @kbd{Mouse-2} produces the same results---the same
+buffer contents---that you would get by using @kbd{M-p} enough times
+to fetch that previous input from the history list.  However, @kbd{C-c
+@key{RET}} copies the text from the buffer, which can be different
+from what is in the history list if you edit the input text in the
+buffer after it has been sent.
+
+@node Seeking an opponent for a new game, The sought game display, Command History, Internet Chess Servers
 @section Seeking an opponent for a new game
 
 After you connected to a server, one of the first things you will
 want to do is find an oponent for a new game.  You can use the
 ICS command "seek" to announce your availability for a chess game
 to interested people.
+
+For example:
+
+@example
+fics% seek 10 10 rated
+@end example
+
+This will announce your availability to play a rated game with 10 minutes
+initial time-control for each player, and 10 seconds added
+for every move made.
 
 @node The sought game display,  , Seeking an opponent for a new game, Internet Chess Servers
 @section The sought game display
