@@ -102,7 +102,7 @@ not available."
 
 (defcustom chess-default-modules
   '((chess-sound chess-announce)
-    chess-autosave
+    ;;chess-autosave ml (2014-06-06): module not fully working
     chess-clock
     ;;chess-kibitz   jww (2002-04-30): not fully supported yet
     ;;chess-chat
