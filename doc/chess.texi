@@ -1320,12 +1320,13 @@ object.
 
 @menu
 * Generic display manipulation functions::
+* Chess display mode::
 * Plain ASCII diagram displays::
 * ICS1 style ASCII displays::
 * Graphical displays::
 @end menu
 
-@node Generic display manipulation functions, Plain ASCII diagram displays, Chessboard displays, Chessboard displays
+@node Generic display manipulation functions, Chess display mode, Chessboard displays, Chessboard displays
 @section Generic display manipulation functions
 
 @c lispfun chess-display-create
@@ -1449,7 +1450,84 @@ Update the chessboard @var{display}.  @var{popup} too, if that arg is non-nil.
 
 @c lispfun chess-display-variation
 
-@node Plain ASCII diagram displays, ICS1 style ASCII displays, Generic display manipulation functions, Chessboard displays
+@node Chess display mode, Plain ASCII diagram displays, Generic display manipulation functions, Chessboard displays
+@section Chess display mode
+
+Chess display mode is a special major mode (@pxref{Major Modes, , , emacs})
+that allows to select pieces to move with the mouse or by moving
+point to the desired square/piece.  Additionally, you can enter
+moves in a variant of algebraic notation via the keyboard.
+
+All the chessboard displays described in following sections
+share the basic behaviour provided by chess display mode.
+They basically only differ in appearance of the various chessboards.
+
+@table @kbd
+@kindex C-i
+@kindex TAB
+@item C-i
+@itemx @key{TAB}
+@findex chess-display-invert
+Invert the perspective of the current chess board.
+
+@kindex RET
+@kindex down-mouse-1
+@kindex down-mouse-2
+@kindex drag-mouse-1
+@kindex drag-mouse-2
+@item @key{RET}
+@itemx down-mouse-1
+@itemx down-mouse-2
+@itemx drag-mouse-1
+@itemx drag-mouse-2
+@findex chess-display-select-piece
+Select the piece/square currently indicated by point
+(@code{chess-display-select-piece}) to move from/to.
+
+@kindex ,
+@item ,
+@findex chess-display-move-backward
+Show the previous move in the current game.
+
+@kindex @.
+@item @.
+@findex chess-display-move-forward
+Show the next move in the current game.
+
+@kindex <
+@item <
+@findex chess-display-move-first
+Move to the initial position of the current game (@code{chess-display-move-first}).
+
+@kindex >
+@item >
+@findex chess-display-move-last
+Move to the last position of the current game (@code{chess-display-move-last}).
+
+@kindex C-c C-d
+@item C-c C-d
+@findex chess-display-draw
+Offer to draw the current game (@code{chess-display-draw}).
+
+@kindex C-c C-r
+@item C-c C-r
+@findex chess-display-resign
+Resign the current game (@code{chess-display-resign}).
+
+@kindex M-w
+@item M-w
+@findex chess-display-kill-board
+Copy the currently displays position to the kill ring as a FEN string
+(@code{chess-display-kill-board}).
+
+@kindex X
+@item X
+@findex chess-display-quit
+Quit this chessboard display (@code{chess-display-quit}).
+
+@end table
+
+@node Plain ASCII diagram displays, ICS1 style ASCII displays, Chess display mode, Chessboard displays
 @section Plain ASCII diagram displays
 
 The simplest display style available is chess-plain, a very customisable
@@ -1459,12 +1537,10 @@ ASCII board diagram display.
 If non-nil, display the chessboard in its own frame.
 @end defvar
 
-@defvar chess-plain-draw-border
-Non-nil if a border should be drawn (using `chess-plain-border-chars').
-@end defvar
+@defvar chess-plain-border-style
+If non-nil, a vector of Characters used to draw borders.
 
-@defvar chess-plain-border-chars
-A list of Characters used to draw borders.
+Otherwise, omit to draw any border around the chessboard diagram.
 @end defvar
 
 @defvar chess-plain-black-square-char
@@ -1501,6 +1577,19 @@ If non-nil, display the chessboard in its own frame.
 
 @node Graphical displays,  , ICS1 style ASCII displays, Chessboard displays
 @section Graphical displays
+
+The graphical chessboard display (@code{chess-images}) uses image files
+to create a visually appealing chessboard in a buffer.
+
+@defvar chess-images-directory
+A directory which contains images in @acronym{XPM} format.
+
+If you want to draw your own images, each piece must be named
+@file{@var{color}-@var{piece}.xpm}, where @var{color} is either black or white,
+and @var{piece} is one of rook, knight, bishop, queen, king or pawn.
+
+The only image format currently supported is @acronym{XPM}.
+@end defvar
 
 @node Engines, Internet Chess Servers, Chessboard displays, Top
 @chapter Engines
@@ -1899,12 +1988,12 @@ through the buffer to previous inputs in their original place, then
 resubmit them or copy them to the end.
 
 @menu
-* Ring: ICS Ring.               Fetching commands from the history list.
-* Shell History Copying::
+* ICS Command Ring::
+* ICS History Copying::
 @end menu
 
-@node ICS Ring, Shell History Copying, Command History, Command History
-@subsection ICS History Ring
+@node ICS Command Ring, ICS History Copying, Command History, Command History
+@subsection ICS Command History Ring
 
 @table @kbd
 @findex comint-previous-input
@@ -1930,12 +2019,12 @@ Begin an incremental regexp search of old ICS commands.
 Fetch the next subsequent command from the history.
 
 @item C-c .
-@kindex C-c . @r{(Shell mode)}
+@kindex C-c .
 @findex comint-input-previous-argument
 Fetch one argument from an old ICS command.
 
 @item C-c C-l
-@kindex C-c C-l @r{(Shell mode)}
+@kindex C-c C-l
 @findex comint-dynamic-list-input-ring
 Display the buffer's history of ICS commands in another window
 (@code{comint-dynamic-list-input-ring}).
@@ -1990,8 +2079,8 @@ history list, not from the ICS buffer itself.  Thus, editing the ICS
 buffer, or even killing large parts of it, does not affect the history
 that these commands access.
 
-@node Shell History Copying,  , ICS Ring, Command History
-@subsection Shell History Copying
+@node ICS History Copying,  , ICS Command Ring, Command History
+@subsection ICS History Copying
 
 @table @kbd
 @kindex C-c C-p

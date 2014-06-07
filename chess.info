@@ -1152,12 +1152,13 @@ object.
 * Menu:
 
 * Generic display manipulation functions::
+* Chess display mode::
 * Plain ASCII diagram displays::
 * ICS1 style ASCII displays::
 * Graphical displays::
 
 
-File: chess.info,  Node: Generic display manipulation functions,  Next: Plain ASCII diagram displays,  Prev: Chessboard displays,  Up: Chessboard displays
+File: chess.info,  Node: Generic display manipulation functions,  Next: Chess display mode,  Prev: Chessboard displays,  Up: Chessboard displays
 
 3.1 Generic display manipulation functions
 ==========================================
@@ -1222,9 +1223,63 @@ File: chess.info,  Node: Generic display manipulation functions,  Next: Plain AS
      Update the chessboard DISPLAY.  POPUP too, if that arg is non-nil.
 
 
-File: chess.info,  Node: Plain ASCII diagram displays,  Next: ICS1 style ASCII displays,  Prev: Generic display manipulation functions,  Up: Chessboard displays
+File: chess.info,  Node: Chess display mode,  Next: Plain ASCII diagram displays,  Prev: Generic display manipulation functions,  Up: Chessboard displays
 
-3.2 Plain ASCII diagram displays
+3.2 Chess display mode
+======================
+
+Chess display mode is a special major mode (*note (emacs)Major Modes::)
+that allows to select pieces to move with the mouse or by moving point
+to the desired square/piece.  Additionally, you can enter moves in a
+variant of algebraic notation via the keyboard.
+
+   All the chessboard displays described in following sections share the
+basic behaviour provided by chess display mode.  They basically only
+differ in appearance of the various chessboards.
+
+'C-i'
+'<TAB>'
+     Invert the perspective of the current chess board.
+
+'<RET>'
+'down-mouse-1'
+'down-mouse-2'
+'drag-mouse-1'
+'drag-mouse-2'
+     Select the piece/square currently indicated by point
+     ('chess-display-select-piece') to move from/to.
+
+','
+     Show the previous move in the current game.
+
+'.'
+     Show the next move in the current game.
+
+'<'
+     Move to the initial position of the current game
+     ('chess-display-move-first').
+
+'>'
+     Move to the last position of the current game
+     ('chess-display-move-last').
+
+'C-c C-d'
+     Offer to draw the current game ('chess-display-draw').
+
+'C-c C-r'
+     Resign the current game ('chess-display-resign').
+
+'M-w'
+     Copy the currently displays position to the kill ring as a FEN
+     string ('chess-display-kill-board').
+
+'X'
+     Quit this chessboard display ('chess-display-quit').
+
+
+File: chess.info,  Node: Plain ASCII diagram displays,  Next: ICS1 style ASCII displays,  Prev: Chess display mode,  Up: Chessboard displays
+
+3.3 Plain ASCII diagram displays
 ================================
 
 The simplest display style available is chess-plain, a very customisable
@@ -1233,12 +1288,10 @@ ASCII board diagram display.
  -- Variable: chess-plain-separate-frame
      If non-nil, display the chessboard in its own frame.
 
- -- Variable: chess-plain-draw-border
-     Non-nil if a border should be drawn (using
-     'chess-plain-border-chars').
+ -- Variable: chess-plain-border-style
+     If non-nil, a vector of Characters used to draw borders.
 
- -- Variable: chess-plain-border-chars
-     A list of Characters used to draw borders.
+     Otherwise, omit to draw any border around the chessboard diagram.
 
  -- Variable: chess-plain-black-square-char
      Character used to indicate empty black squares.
@@ -1263,7 +1316,7 @@ ASCII board diagram display.
 
 File: chess.info,  Node: ICS1 style ASCII displays,  Next: Graphical displays,  Prev: Plain ASCII diagram displays,  Up: Chessboard displays
 
-3.3 ICS1 style ASCII displays
+3.4 ICS1 style ASCII displays
 =============================
 
  -- Variable: chess-ics1-separate-frame
@@ -1272,8 +1325,20 @@ File: chess.info,  Node: ICS1 style ASCII displays,  Next: Graphical displays,  
 
 File: chess.info,  Node: Graphical displays,  Prev: ICS1 style ASCII displays,  Up: Chessboard displays
 
-3.4 Graphical displays
+3.5 Graphical displays
 ======================
+
+The graphical chessboard display ('chess-images') uses image files to
+create a visually appealing chessboard in a buffer.
+
+ -- Variable: chess-images-directory
+     A directory which contains images in XPM format.
+
+     If you want to draw your own images, each piece must be named
+     'COLOR-PIECE.xpm', where COLOR is either black or white, and PIECE
+     is one of rook, knight, bishop, queen, king or pawn.
+
+     The only image format currently supported is XPM.
 
 
 File: chess.info,  Node: Engines,  Next: Internet Chess Servers,  Prev: Chessboard displays,  Up: Top
@@ -1637,14 +1702,14 @@ copy them to the end.
 
 * Menu:
 
-* Ring: ICS Ring.               Fetching commands from the history list.
-* Shell History Copying::
+* ICS Command Ring::
+* ICS History Copying::
 
 
-File: chess.info,  Node: ICS Ring,  Next: Shell History Copying,  Prev: Command History,  Up: Command History
+File: chess.info,  Node: ICS Command Ring,  Next: ICS History Copying,  Prev: Command History,  Up: Command History
 
-5.3.1 ICS History Ring
-----------------------
+5.3.1 ICS Command History Ring
+------------------------------
 
 'M-p'
 'C-<UP>'
@@ -1712,10 +1777,10 @@ buffer, or even killing large parts of it, does not affect the history
 that these commands access.
 
 
-File: chess.info,  Node: Shell History Copying,  Prev: ICS Ring,  Up: Command History
+File: chess.info,  Node: ICS History Copying,  Prev: ICS Command Ring,  Up: Command History
 
-5.3.2 Shell History Copying
----------------------------
+5.3.2 ICS History Copying
+-------------------------
 
 'C-c C-p'
      Move point to the previous prompt ('comint-previous-prompt').
@@ -1844,18 +1909,28 @@ Function and Variable Index
                                                                (line 16)
 * chess-display-create:                  Generic display manipulation functions.
                                                                (line  6)
+* chess-display-draw:                    Chess display mode.   (line 42)
 * chess-display-highlight:               Generic display manipulation functions.
                                                                (line 19)
 * chess-display-invert:                  Generic display manipulation functions.
                                                                (line 25)
+* chess-display-invert <1>:              Chess display mode.   (line 17)
+* chess-display-kill-board:              Chess display mode.   (line 48)
 * chess-display-move:                    Generic display manipulation functions.
                                                                (line 28)
+* chess-display-move-backward:           Chess display mode.   (line 28)
+* chess-display-move-first:              Chess display mode.   (line 34)
+* chess-display-move-forward:            Chess display mode.   (line 31)
+* chess-display-move-last:               Chess display mode.   (line 38)
 * chess-display-perspective:             Generic display manipulation functions.
                                                                (line 32)
 * chess-display-position:                Generic display manipulation functions.
                                                                (line 35)
 * chess-display-quit:                    Generic display manipulation functions.
                                                                (line 38)
+* chess-display-quit <1>:                Chess display mode.   (line 52)
+* chess-display-resign:                  Chess display mode.   (line 45)
+* chess-display-select-piece:            Chess display mode.   (line 24)
 * chess-display-set-game:                Generic display manipulation functions.
                                                                (line 41)
 * chess-display-set-perspective:         Generic display manipulation functions.
@@ -1907,6 +1982,7 @@ Function and Variable Index
                                                                (line 17)
 * chess-ics1-separate-frame:             ICS1 style ASCII displays.
                                                                (line  6)
+* chess-images-directory:                Graphical displays.   (line  9)
 * chess-index-file:                      Position coordinates. (line 13)
 * chess-index-rank:                      Position coordinates. (line 10)
 * chess-index-to-coord:                  Position coordinates. (line 25)
@@ -1917,21 +1993,19 @@ Function and Variable Index
 * chess-pgn-visualize:                   PGN mode.             (line  6)
 * chess-phalanx-path:                    Phalanx.              (line 11)
 * chess-plain-black-square-char:         Plain ASCII diagram displays.
-                                                               (line 19)
-* chess-plain-border-chars:              Plain ASCII diagram displays.
-                                                               (line 16)
-* chess-plain-draw-border:               Plain ASCII diagram displays.
+                                                               (line 17)
+* chess-plain-border-style:              Plain ASCII diagram displays.
                                                                (line 12)
 * chess-plain-piece-chars:               Plain ASCII diagram displays.
-                                                               (line 25)
+                                                               (line 23)
 * chess-plain-separate-frame:            Plain ASCII diagram displays.
                                                                (line  9)
 * chess-plain-spacing:                   Plain ASCII diagram displays.
-                                                               (line 36)
+                                                               (line 34)
 * chess-plain-upcase-indicates:          Plain ASCII diagram displays.
-                                                               (line 28)
+                                                               (line 26)
 * chess-plain-white-square-char:         Plain ASCII diagram displays.
-                                                               (line 22)
+                                                               (line 20)
 * chess-ply-create:                      Creating plies.       (line  6)
 * chess-ply-final-p:                     The "next" position.  (line  9)
 * chess-ply-next-pos:                    The "next" position.  (line  6)
@@ -1991,21 +2065,18 @@ Function and Variable Index
 * comint-accumulate:                     Chess ICS Mode.       (line 34)
 * comint-bol-or-process-mark:            Chess ICS Mode.       (line 25)
 * comint-buffer-maximum-size:            Chess ICS Mode.       (line 71)
-* comint-copy-old-input:                 Shell History Copying.
-                                                               (line 12)
+* comint-copy-old-input:                 ICS History Copying.  (line 12)
 * comint-delchar-or-maybe-eof:           Chess ICS Mode.       (line 18)
 * comint-delete-output:                  Chess ICS Mode.       (line 50)
-* comint-dynamic-list-input-ring:        ICS Ring.             (line 24)
-* comint-get-next-from-history:          ICS Ring.             (line 18)
-* comint-history-isearch-backward-regexp: ICS Ring.            (line 14)
-* comint-input-previous-argument:        ICS Ring.             (line 21)
+* comint-dynamic-list-input-ring:        ICS Command Ring.     (line 24)
+* comint-get-next-from-history:          ICS Command Ring.     (line 18)
+* comint-history-isearch-backward-regexp: ICS Command Ring.    (line 14)
+* comint-input-previous-argument:        ICS Command Ring.     (line 21)
 * comint-kill-input:                     Chess ICS Mode.       (line 42)
-* comint-next-input:                     ICS Ring.             (line 10)
-* comint-next-prompt:                    Shell History Copying.
-                                                               (line  9)
-* comint-previous-input:                 ICS Ring.             (line  6)
-* comint-previous-prompt:                Shell History Copying.
-                                                               (line  6)
+* comint-next-input:                     ICS Command Ring.     (line 10)
+* comint-next-prompt:                    ICS History Copying.  (line  9)
+* comint-previous-input:                 ICS Command Ring.     (line  6)
+* comint-previous-prompt:                ICS History Copying.  (line  6)
 * comint-send-input:                     Chess ICS Mode.       (line 11)
 * comint-show-maximum-output:            Chess ICS Mode.       (line 67)
 * comint-show-output:                    Chess ICS Mode.       (line 62)
@@ -2021,24 +2092,28 @@ Key Index
  [index ]
 * Menu:
 
-* C-c . (Shell mode):                    ICS Ring.             (line 21)
+* ,:                                     Chess display mode.   (line 27)
+* .:                                     Chess display mode.   (line 30)
+* <:                                     Chess display mode.   (line 33)
+* >:                                     Chess display mode.   (line 37)
+* C-c .:                                 ICS Command Ring.     (line 21)
 * C-c C-a:                               Chess ICS Mode.       (line 25)
+* C-c C-d:                               Chess display mode.   (line 41)
 * C-c C-e:                               Chess ICS Mode.       (line 67)
-* C-c C-l (Shell mode):                  ICS Ring.             (line 24)
-* C-c C-n:                               Shell History Copying.
-                                                               (line  9)
+* C-c C-l:                               ICS Command Ring.     (line 24)
+* C-c C-n:                               ICS History Copying.  (line  9)
 * C-c C-o:                               Chess ICS Mode.       (line 50)
-* C-c C-p:                               Shell History Copying.
-                                                               (line  6)
-* C-c C-r:                               Chess ICS Mode.       (line 62)
+* C-c C-p:                               ICS History Copying.  (line  6)
+* C-c C-r:                               Chess display mode.   (line 44)
+* C-c C-r <1>:                           Chess ICS Mode.       (line 62)
 * C-c C-s:                               Chess ICS Mode.       (line 55)
 * C-c C-u:                               Chess ICS Mode.       (line 42)
 * C-c C-w:                               Chess ICS Mode.       (line 47)
-* C-c C-x:                               ICS Ring.             (line 18)
-* C-c RET:                               Shell History Copying.
-                                                               (line 12)
+* C-c C-x:                               ICS Command Ring.     (line 18)
+* C-c RET:                               ICS History Copying.  (line 12)
 * C-c SPC:                               Chess ICS Mode.       (line 34)
 * C-d:                                   Chess ICS Mode.       (line 18)
+* C-i:                                   Chess display mode.   (line 15)
 * C-M-l:                                 Chess ICS Mode.       (line 62)
 * C-u M-x chess RET ai RET:              AI.                   (line 10)
 * C-u M-x chess RET crafty RET:          Crafty.               (line 17)
@@ -2048,12 +2123,20 @@ Key Index
 * C-u M-x chess RET phalanx RET:         Phalanx.              (line 14)
 * C-u M-x chess RET sjeng RET:           Sjeng.                (line 16)
 * C-u M-x chess RET stockfish RET:       Stockfish.            (line 17)
-* M-n:                                   ICS Ring.             (line 10)
-* M-p:                                   ICS Ring.             (line  6)
-* M-r:                                   ICS Ring.             (line 14)
-* RET:                                   Chess ICS Mode.       (line 11)
+* down-mouse-1:                          Chess display mode.   (line 19)
+* down-mouse-2:                          Chess display mode.   (line 19)
+* drag-mouse-1:                          Chess display mode.   (line 19)
+* drag-mouse-2:                          Chess display mode.   (line 19)
+* M-n:                                   ICS Command Ring.     (line 10)
+* M-p:                                   ICS Command Ring.     (line  6)
+* M-r:                                   ICS Command Ring.     (line 14)
+* M-w:                                   Chess display mode.   (line 47)
+* RET:                                   Chess display mode.   (line 19)
+* RET <1>:                               Chess ICS Mode.       (line 11)
 * 'RET':                                 The sought game display.
                                                                (line 24)
+* TAB:                                   Chess display mode.   (line 15)
+* X:                                     Chess display mode.   (line 51)
 
 
 
@@ -2104,30 +2187,31 @@ Node: ECO Classification33233
 Node: Polyglot opening book format support33668
 Node: Modules35521
 Node: Chessboard displays42270
-Node: Generic display manipulation functions42881
-Node: Plain ASCII diagram displays45714
-Node: ICS1 style ASCII displays47159
-Node: Graphical displays47463
-Node: Engines47617
-Node: Common functions48142
-Node: AI49178
-Node: Crafty50145
-Node: Fruit50876
-Node: Glaurung51722
-Node: GNU Chess52312
-Node: Phalanx53148
-Node: Sjeng53730
-Node: Stockfish54419
-Node: Internet Chess Servers55184
-Node: Connecting to a server56310
-Node: Chess ICS Mode56711
-Node: Command History60119
-Node: ICS Ring60794
-Node: Shell History Copying63855
-Node: Seeking an opponent for a new game65305
-Node: The sought game display65954
-Node: Concept Index66932
-Node: Function and Variable Index67467
-Node: Key Index82027
+Node: Generic display manipulation functions42904
+Node: Chess display mode45727
+Node: Plain ASCII diagram displays47240
+Node: ICS1 style ASCII displays48630
+Node: Graphical displays48934
+Node: Engines49557
+Node: Common functions50082
+Node: AI51118
+Node: Crafty52085
+Node: Fruit52816
+Node: Glaurung53662
+Node: GNU Chess54252
+Node: Phalanx55088
+Node: Sjeng55670
+Node: Stockfish56359
+Node: Internet Chess Servers57124
+Node: Connecting to a server58250
+Node: Chess ICS Mode58651
+Node: Command History62059
+Node: ICS Command Ring62680
+Node: ICS History Copying65763
+Node: Seeking an opponent for a new game67215
+Node: The sought game display67864
+Node: Concept Index68842
+Node: Function and Variable Index69377
+Node: Key Index84404
 
 End Tag Table
