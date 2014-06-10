@@ -1489,6 +1489,18 @@ Select the piece/square currently indicated by point
 @findex chess-display-move-backward
 Show the previous move in the current game.
 
+@kindex C-r
+@item C-r
+@findex chess-display-search-backward
+Find previous move which algebraic notation matches a regular expression
+@code{chess-display-search-backward}.
+
+@kindex C-s
+@item C-s
+@findex chess-display-search-forward
+Find next move which algebraic notation matches a regular expression
+@code{chess-display-search-forward}.
+
 @kindex @.
 @item @.
 @findex chess-display-move-forward
@@ -1531,6 +1543,55 @@ display to another, as well as quickly setting up a position
 from a FEN string previously added to the kill ring from
 somewhere else.
 
+@kindex a
+@kindex b
+@kindex c
+@kindex d
+@kindex e
+@kindex f
+@kindex g
+@kindex h
+@kindex 1
+@kindex 2
+@kindex 3
+@kindex 4
+@kindex 5
+@kindex 6
+@kindex 7
+@kindex 8
+@kindex N
+@kindex B
+@kindex R
+@kindex Q
+@kindex K
+@kindex x
+@kindex =
+@item a @dots{} h
+@itemx 1 @dots{} 8
+@itemx N
+@itemx B
+@itemx R
+@itemx Q
+@itemx K
+@itemx x
+@itemx =
+@findex chess-input-shortcut
+Enter move in algebraic notation.
+
+The move will be accepted as soon as it is unambiguous.
+So in most situations, you do not need to type the complete
+algebraic move string.  For instance, if there is only one piece
+which can be taken by one of your knights, typing @kbd{N x} is
+sufficient to select that move.
+
+Additionally, the characters @kbd{x} and @kbd{=} are optional,
+as there is no difference between @kbd{N x e 4} and @kbd{N e 4}.
+
+@kindex backspace
+@item @key{backspace}
+@findex chess-input-shortcut-delete
+Delete the last entered chess move shortcut @code{chess-input-shortcut-delete}.
+
 @kindex X
 @item X
 @findex chess-display-quit
@@ -1544,14 +1605,14 @@ chessboard display.
 @node Plain ASCII diagram displays, ICS1 style ASCII displays, Chess display mode, Chessboard displays
 @section Plain ASCII diagram displays
 
-The simplest display style available is @va{chess-plain}, a very customisable
+The simplest display style available is @var{chess-plain}, a very customisable
 ASCII board diagram display.
 
 @defopt chess-plain-separate-frame
 If non-nil, display the chessboard in its own frame.
 @end defopt
 
-@defvar chess-plain-border-style
+@defopt chess-plain-border-style
 If non-nil, a vector of Characters used to draw borders.
 
 Otherwise, omit to draw any border around the chessboard diagram.

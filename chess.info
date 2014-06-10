@@ -47,7 +47,7 @@ This chapter documents the low-level aspects of chess.el, mostly
 targeting developers interested in understand the underlying APIs.
 
    *note Chessboard displays:: and following chapters if you are
-interested in the more user-visible apsects of chess.el.
+interested in the more user-visible aspects of chess.el.
 
 * Menu:
 
@@ -234,7 +234,7 @@ square, or set that square's value:
 
  -- Function: chess-pos-can-castle position side
      Return whether the king on POSITION can castle on SIDE.  SIDE must
-     be either ?K for the kingside, or ?Q for the queenside (use
+     be either ?K for the king side, or ?Q for the queen side (use
      lowercase to query if black can castle).
 
  -- Function: chess-pos-set-can-castle position side value
@@ -244,8 +244,8 @@ square, or set that square's value:
 
      It is only necessary to call this function if setting up a position
      manually.  Note that all newly created positions have full castling
-     priveleges set, unless the position is created blank, in which case
-     castling priveleges are unset.  See 'chess-pos-copy'.
+     privileges set, unless the position is created blank, in which case
+     castling privileges are unset.  See 'chess-pos-copy'.
 
  -- Function: chess-pos-en-passant position
      Return the index of any pawn on POSITION that can be captured en
@@ -330,7 +330,7 @@ ignored).
 
    CASTLING can contain K, Q, k or q, to signify whether the white or
 black king can still castle on the king or queen side.  EN-PASSANT
-signifies the target sqaure of an en passant capture, such as "e3" or
+signifies the target square of an en passant capture, such as "e3" or
 "a6".
 
    The starting chess position always looks like this:
@@ -357,7 +357,7 @@ File: chess.info,  Node: EPD notation,  Prev: FEN notation,  Up: Positions
 EPD is "Extended Position Description"; it is a standard for describing
 chess positions along with an extended set of structured attribute
 values using the ASCII character set.  It is intended for data and
-command interchange among chessplaying programs.  It is also intended
+command interchange among chess-playing programs.  It is also intended
 for the representation of portable opening library repositories.
 
    A single EPD uses one text line of variable length composed of four
@@ -517,7 +517,7 @@ File: chess.info,  Node: Creating plies,  Next: Ply details,  Prev: Plies,  Up: 
      :any return t if any piece can move at all :color <t or nil> :piece
      <piece character> :file <number 0 to 7> [can only be used if :piece
      is present] :index <coordinate index> :target <specific target
-     index> :candidates <list of inddices>
+     index> :candidates <list of indices>
 
      These will constrain the plies generated to those matching the
      above criteria.
@@ -618,7 +618,7 @@ turn, as mentioned above.
 
 * Creating variations::
 * Variation positions::
-* Varation plies::
+* Variation plies::
 * Making a move in a variation::
 
 
@@ -632,7 +632,7 @@ File: chess.info,  Node: Creating variations,  Next: Variation positions,  Prev:
      starting POSITION.
 
 
-File: chess.info,  Node: Variation positions,  Next: Varation plies,  Prev: Creating variations,  Up: Variations
+File: chess.info,  Node: Variation positions,  Next: Variation plies,  Prev: Creating variations,  Up: Variations
 
 1.3.2 Variation positions
 -------------------------
@@ -651,10 +651,10 @@ File: chess.info,  Node: Variation positions,  Next: Varation plies,  Prev: Crea
      position of the variation if INDEX is nil).
 
 
-File: chess.info,  Node: Varation plies,  Next: Making a move in a variation,  Prev: Variation positions,  Up: Variations
+File: chess.info,  Node: Variation plies,  Next: Making a move in a variation,  Prev: Variation positions,  Up: Variations
 
-1.3.3 Varation plies
---------------------
+1.3.3 Variation plies
+---------------------
 
  -- Function: chess-var-ply var &optional index
      Return VAR's INDEXth ply.
@@ -666,7 +666,7 @@ File: chess.info,  Node: Varation plies,  Next: Making a move in a variation,  P
      Reveal the plies of VAR by converting them to algebraic notation.
 
 
-File: chess.info,  Node: Making a move in a variation,  Prev: Varation plies,  Up: Variations
+File: chess.info,  Node: Making a move in a variation,  Prev: Variation plies,  Up: Variations
 
 1.3.4 Making a move in a variation
 ----------------------------------
@@ -1252,6 +1252,14 @@ differ in appearance of the various chessboards.
 ','
      Show the previous move in the current game.
 
+'C-r'
+     Find previous move which algebraic notation matches a regular
+     expression 'chess-display-search-backward'.
+
+'C-s'
+     Find next move which algebraic notation matches a regular
+     expression 'chess-display-search-forward'.
+
 '.'
      Show the next move in the current game.
 
@@ -1270,11 +1278,46 @@ differ in appearance of the various chessboards.
      Resign the current game ('chess-display-resign').
 
 'M-w'
-     Copy the currently displays position to the kill ring as a FEN
+     Copy the currently displayed position to the kill ring as a FEN
      string ('chess-display-kill-board').
+
+'C-y'
+     Set the current display position via a FEN string from the kill
+     ring ('chess-display-yank-board').
+
+     This is useful to copy positions from one chessboard display to
+     another, as well as quickly setting up a position from a FEN string
+     previously added to the kill ring from somewhere else.
+
+'a ... h'
+'1 ... 8'
+'N'
+'B'
+'R'
+'Q'
+'K'
+'x'
+'='
+     Enter move in algebraic notation.
+
+     The move will be accepted as soon as it is unambiguous.  So in most
+     situations, you do not need to type the complete algebraic move
+     string.  For instance, if there is only one piece which can be
+     taken by one of your knights, typing 'N x' is sufficient to select
+     that move.
+
+     Additionally, the characters 'x' and '=' are optional, as there is
+     no difference between 'N x e 4' and 'N e 4'.
+
+'<backspace>'
+     Delete the last entered chess move shortcut
+     'chess-input-shortcut-delete'.
 
 'X'
      Quit this chessboard display ('chess-display-quit').
+
+     This destroys the session (and all related modules) associated with
+     this chessboard display.
 
 
 File: chess.info,  Node: Plain ASCII diagram displays,  Next: ICS1 style ASCII displays,  Prev: Chess display mode,  Up: Chessboard displays
@@ -1282,35 +1325,35 @@ File: chess.info,  Node: Plain ASCII diagram displays,  Next: ICS1 style ASCII d
 3.3 Plain ASCII diagram displays
 ================================
 
-The simplest display style available is chess-plain, a very customisable
+The simplest display style available is CHESS-PLAIN, a very customisable
 ASCII board diagram display.
 
- -- Variable: chess-plain-separate-frame
+ -- User Option: chess-plain-separate-frame
      If non-nil, display the chessboard in its own frame.
 
- -- Variable: chess-plain-border-style
+ -- User Option: chess-plain-border-style
      If non-nil, a vector of Characters used to draw borders.
 
      Otherwise, omit to draw any border around the chessboard diagram.
 
- -- Variable: chess-plain-black-square-char
+ -- User Option: chess-plain-black-square-char
      Character used to indicate empty black squares.
 
- -- Variable: chess-plain-white-square-char
+ -- User Option: chess-plain-white-square-char
      Character used to indicate black white squares.
 
- -- Variable: chess-plain-piece-chars
+ -- User Option: chess-plain-piece-chars
      Alist of pieces and their corresponding characters.
 
- -- Variable: chess-plain-upcase-indicates
-     Defines what a upcase char should indicate.  The default is 'color,
-     meaning a upcase char is a white piece, a lowercase char a black
-     piece.  Possible values: 'color (default), 'square-color.  If set
-     to 'square-color, a uppercase character indicates a piece on a
-     black square.  (Note that you also need to modify
-     'chess-plain-piece-chars' to avoid real confusion.)
+ -- User Option: chess-plain-upcase-indicates
+     Defines what a upcase char should indicate.  The default is
+     ''color', meaning a upcase char is a white piece, a lowercase char
+     a black piece.  Possible values: ''color' (default),
+     ''square-color'.  If set to ''square-color', a uppercase character
+     indicates a piece on a black square.  (Note that you also need to
+     modify 'chess-plain-piece-chars' to avoid real confusion.)
 
- -- Variable: chess-plain-spacing
+ -- User Option: chess-plain-spacing
      Number of spaces between files.
 
 
@@ -1319,7 +1362,7 @@ File: chess.info,  Node: ICS1 style ASCII displays,  Next: Graphical displays,  
 3.4 ICS1 style ASCII displays
 =============================
 
- -- Variable: chess-ics1-separate-frame
+ -- User Option: chess-ics1-separate-frame
      If non-nil, display the chessboard in its own frame.
 
 
@@ -1331,7 +1374,7 @@ File: chess.info,  Node: Graphical displays,  Prev: ICS1 style ASCII displays,  
 The graphical chessboard display ('chess-images') uses image files to
 create a visually appealing chessboard in a buffer.
 
- -- Variable: chess-images-directory
+ -- User Option: chess-images-directory
      A directory which contains images in XPM format.
 
      If you want to draw your own images, each piece must be named
@@ -1602,6 +1645,10 @@ To open a new connection to an Internet Chess Server, use:
  -- Function: chess-ics server port &optional handle
           password-or-filename helper &rest helper-args
      Connect to an Internet Chess Server.
+
+     If called interactively, you will be prompted to enter a server
+     (from 'chess-ics-server-list' and possibly identification
+     credentials.
 
 
 File: chess.info,  Node: Chess ICS Mode,  Next: Command History,  Prev: Connecting to a server,  Up: Internet Chess Servers
@@ -1909,27 +1956,29 @@ Function and Variable Index
                                                                (line 16)
 * chess-display-create:                  Generic display manipulation functions.
                                                                (line  6)
-* chess-display-draw:                    Chess display mode.   (line 42)
+* chess-display-draw:                    Chess display mode.   (line 50)
 * chess-display-highlight:               Generic display manipulation functions.
                                                                (line 19)
 * chess-display-invert:                  Generic display manipulation functions.
                                                                (line 25)
 * chess-display-invert <1>:              Chess display mode.   (line 17)
-* chess-display-kill-board:              Chess display mode.   (line 48)
+* chess-display-kill-board:              Chess display mode.   (line 56)
 * chess-display-move:                    Generic display manipulation functions.
                                                                (line 28)
 * chess-display-move-backward:           Chess display mode.   (line 28)
-* chess-display-move-first:              Chess display mode.   (line 34)
-* chess-display-move-forward:            Chess display mode.   (line 31)
-* chess-display-move-last:               Chess display mode.   (line 38)
+* chess-display-move-first:              Chess display mode.   (line 42)
+* chess-display-move-forward:            Chess display mode.   (line 39)
+* chess-display-move-last:               Chess display mode.   (line 46)
 * chess-display-perspective:             Generic display manipulation functions.
                                                                (line 32)
 * chess-display-position:                Generic display manipulation functions.
                                                                (line 35)
 * chess-display-quit:                    Generic display manipulation functions.
                                                                (line 38)
-* chess-display-quit <1>:                Chess display mode.   (line 52)
-* chess-display-resign:                  Chess display mode.   (line 45)
+* chess-display-quit <1>:                Chess display mode.   (line 92)
+* chess-display-resign:                  Chess display mode.   (line 53)
+* chess-display-search-backward:         Chess display mode.   (line 31)
+* chess-display-search-forward:          Chess display mode.   (line 35)
 * chess-display-select-piece:            Chess display mode.   (line 24)
 * chess-display-set-game:                Generic display manipulation functions.
                                                                (line 41)
@@ -1941,6 +1990,7 @@ Function and Variable Index
                                                                (line 54)
 * chess-display-update:                  Generic display manipulation functions.
                                                                (line 62)
+* chess-display-yank-board:              Chess display mode.   (line 60)
 * chess-engine-command:                  Common functions.     (line 18)
 * chess-engine-create:                   Common functions.     (line  6)
 * chess-engine-position:                 Common functions.     (line 15)
@@ -1986,6 +2036,8 @@ Function and Variable Index
 * chess-index-file:                      Position coordinates. (line 13)
 * chess-index-rank:                      Position coordinates. (line 10)
 * chess-index-to-coord:                  Position coordinates. (line 25)
+* chess-input-shortcut:                  Chess display mode.   (line 76)
+* chess-input-shortcut-delete:           Chess display mode.   (line 88)
 * chess-legal-plies:                     Creating plies.       (line 16)
 * chess-next-index:                      Position coordinates. (line 67)
 * chess-pgn-insert-plies:                PGN notation.         (line 15)
@@ -2056,12 +2108,12 @@ Function and Variable Index
 * chess-var-index:                       Variation positions.  (line  9)
 * chess-var-move:                        Making a move in a variation.
                                                                (line  6)
-* chess-var-plies:                       Varation plies.       (line  9)
-* chess-var-ply:                         Varation plies.       (line  6)
+* chess-var-plies:                       Variation plies.      (line  9)
+* chess-var-ply:                         Variation plies.      (line  6)
 * chess-var-pos:                         Variation positions.  (line  6)
 * chess-var-seq:                         Variation positions.  (line 12)
 * chess-var-side-to-move:                Variation positions.  (line 15)
-* chess-var-to-algebraic:                Varation plies.       (line 12)
+* chess-var-to-algebraic:                Variation plies.      (line 12)
 * comint-accumulate:                     Chess ICS Mode.       (line 34)
 * comint-bol-or-process-mark:            Chess ICS Mode.       (line 25)
 * comint-buffer-maximum-size:            Chess ICS Mode.       (line 71)
@@ -2093,18 +2145,32 @@ Key Index
 * Menu:
 
 * ,:                                     Chess display mode.   (line 27)
-* .:                                     Chess display mode.   (line 30)
-* <:                                     Chess display mode.   (line 33)
-* >:                                     Chess display mode.   (line 37)
+* .:                                     Chess display mode.   (line 38)
+* 1:                                     Chess display mode.   (line 67)
+* 2:                                     Chess display mode.   (line 67)
+* 3:                                     Chess display mode.   (line 67)
+* 4:                                     Chess display mode.   (line 67)
+* 5:                                     Chess display mode.   (line 67)
+* 6:                                     Chess display mode.   (line 67)
+* 7:                                     Chess display mode.   (line 67)
+* 8:                                     Chess display mode.   (line 67)
+* <:                                     Chess display mode.   (line 41)
+* =:                                     Chess display mode.   (line 67)
+* >:                                     Chess display mode.   (line 45)
+* a:                                     Chess display mode.   (line 67)
+* b:                                     Chess display mode.   (line 67)
+* B:                                     Chess display mode.   (line 67)
+* backspace:                             Chess display mode.   (line 87)
+* c:                                     Chess display mode.   (line 67)
 * C-c .:                                 ICS Command Ring.     (line 21)
 * C-c C-a:                               Chess ICS Mode.       (line 25)
-* C-c C-d:                               Chess display mode.   (line 41)
+* C-c C-d:                               Chess display mode.   (line 49)
 * C-c C-e:                               Chess ICS Mode.       (line 67)
 * C-c C-l:                               ICS Command Ring.     (line 24)
 * C-c C-n:                               ICS History Copying.  (line  9)
 * C-c C-o:                               Chess ICS Mode.       (line 50)
 * C-c C-p:                               ICS History Copying.  (line  6)
-* C-c C-r:                               Chess display mode.   (line 44)
+* C-c C-r:                               Chess display mode.   (line 52)
 * C-c C-r <1>:                           Chess ICS Mode.       (line 62)
 * C-c C-s:                               Chess ICS Mode.       (line 55)
 * C-c C-u:                               Chess ICS Mode.       (line 42)
@@ -2115,6 +2181,8 @@ Key Index
 * C-d:                                   Chess ICS Mode.       (line 18)
 * C-i:                                   Chess display mode.   (line 15)
 * C-M-l:                                 Chess ICS Mode.       (line 62)
+* C-r:                                   Chess display mode.   (line 30)
+* C-s:                                   Chess display mode.   (line 34)
 * C-u M-x chess RET ai RET:              AI.                   (line 10)
 * C-u M-x chess RET crafty RET:          Crafty.               (line 17)
 * C-u M-x chess RET fruit RET:           Fruit.                (line 20)
@@ -2123,20 +2191,31 @@ Key Index
 * C-u M-x chess RET phalanx RET:         Phalanx.              (line 14)
 * C-u M-x chess RET sjeng RET:           Sjeng.                (line 16)
 * C-u M-x chess RET stockfish RET:       Stockfish.            (line 17)
+* C-y:                                   Chess display mode.   (line 59)
+* d:                                     Chess display mode.   (line 67)
 * down-mouse-1:                          Chess display mode.   (line 19)
 * down-mouse-2:                          Chess display mode.   (line 19)
 * drag-mouse-1:                          Chess display mode.   (line 19)
 * drag-mouse-2:                          Chess display mode.   (line 19)
+* e:                                     Chess display mode.   (line 67)
+* f:                                     Chess display mode.   (line 67)
+* g:                                     Chess display mode.   (line 67)
+* h:                                     Chess display mode.   (line 67)
+* K:                                     Chess display mode.   (line 67)
 * M-n:                                   ICS Command Ring.     (line 10)
 * M-p:                                   ICS Command Ring.     (line  6)
 * M-r:                                   ICS Command Ring.     (line 14)
-* M-w:                                   Chess display mode.   (line 47)
+* M-w:                                   Chess display mode.   (line 55)
+* N:                                     Chess display mode.   (line 67)
+* Q:                                     Chess display mode.   (line 67)
+* R:                                     Chess display mode.   (line 67)
 * RET:                                   Chess display mode.   (line 19)
 * RET <1>:                               Chess ICS Mode.       (line 11)
-* 'RET':                                 The sought game display.
+* RET <2>:                               The sought game display.
                                                                (line 24)
 * TAB:                                   Chess display mode.   (line 15)
-* X:                                     Chess display mode.   (line 51)
+* x:                                     Chess display mode.   (line 67)
+* X:                                     Chess display mode.   (line 91)
 
 
 
@@ -2147,71 +2226,71 @@ Node: Positions1702
 Node: Creating positions2708
 Node: Position coordinates3479
 Node: Position details6007
-Node: Annotations10460
-Node: FEN notation10802
-Node: EPD notation12299
-Node: Operations13777
-Node: Opcode "acd" analysis count depth14751
-Node: Opcode "acn" analysis count nodes15105
-Node: Opcode "acs" analysis count seconds15630
-Node: Opcode "am" avoid move(s)16150
-Node: Opcode "bm" best move(s)16591
-Node: Plies16986
-Node: Creating plies18127
-Node: Ply details19311
-Node: The "next" position19791
-Node: Algebraic notation20149
-Node: Variations21577
-Node: Creating variations22671
-Node: Variation positions22979
-Node: Varation plies23580
-Node: Making a move in a variation24021
-Node: Games24596
-Node: Creating games26178
-Node: Game tags26619
-Node: Game positions27226
-Node: Game plies27850
-Node: Making a move28119
-Node: PGN notation28546
-Node: PGN mode29280
-Node: Collections29541
-Node: Opening Databases30320
-Node: Querying Databases30704
-Node: Modifying Databases31330
-Node: Finalising Databases31602
-Node: Database Modules31777
-Node: chess-file32035
-Node: chess-scid32677
-Node: Chess Opening Books32914
-Node: ECO Classification33233
-Node: Polyglot opening book format support33668
-Node: Modules35521
-Node: Chessboard displays42270
-Node: Generic display manipulation functions42904
-Node: Chess display mode45727
-Node: Plain ASCII diagram displays47240
-Node: ICS1 style ASCII displays48630
-Node: Graphical displays48934
-Node: Engines49557
-Node: Common functions50082
-Node: AI51118
-Node: Crafty52085
-Node: Fruit52816
-Node: Glaurung53662
-Node: GNU Chess54252
-Node: Phalanx55088
-Node: Sjeng55670
-Node: Stockfish56359
-Node: Internet Chess Servers57124
-Node: Connecting to a server58250
-Node: Chess ICS Mode58651
-Node: Command History62059
-Node: ICS Command Ring62680
-Node: ICS History Copying65763
-Node: Seeking an opponent for a new game67215
-Node: The sought game display67864
-Node: Concept Index68842
-Node: Function and Variable Index69377
-Node: Key Index84404
+Node: Annotations10462
+Node: FEN notation10804
+Node: EPD notation12301
+Node: Operations13780
+Node: Opcode "acd" analysis count depth14754
+Node: Opcode "acn" analysis count nodes15108
+Node: Opcode "acs" analysis count seconds15633
+Node: Opcode "am" avoid move(s)16153
+Node: Opcode "bm" best move(s)16594
+Node: Plies16989
+Node: Creating plies18130
+Node: Ply details19313
+Node: The "next" position19793
+Node: Algebraic notation20151
+Node: Variations21579
+Node: Creating variations22674
+Node: Variation positions22982
+Node: Variation plies23584
+Node: Making a move in a variation24028
+Node: Games24604
+Node: Creating games26186
+Node: Game tags26627
+Node: Game positions27234
+Node: Game plies27858
+Node: Making a move28127
+Node: PGN notation28554
+Node: PGN mode29288
+Node: Collections29549
+Node: Opening Databases30328
+Node: Querying Databases30712
+Node: Modifying Databases31338
+Node: Finalising Databases31610
+Node: Database Modules31785
+Node: chess-file32043
+Node: chess-scid32685
+Node: Chess Opening Books32922
+Node: ECO Classification33241
+Node: Polyglot opening book format support33676
+Node: Modules35529
+Node: Chessboard displays42278
+Node: Generic display manipulation functions42912
+Node: Chess display mode45735
+Node: Plain ASCII diagram displays48523
+Node: ICS1 style ASCII displays49942
+Node: Graphical displays50249
+Node: Engines50875
+Node: Common functions51400
+Node: AI52436
+Node: Crafty53403
+Node: Fruit54134
+Node: Glaurung54980
+Node: GNU Chess55570
+Node: Phalanx56406
+Node: Sjeng56988
+Node: Stockfish57677
+Node: Internet Chess Servers58442
+Node: Connecting to a server59568
+Node: Chess ICS Mode60120
+Node: Command History63528
+Node: ICS Command Ring64149
+Node: ICS History Copying67232
+Node: Seeking an opponent for a new game68684
+Node: The sought game display69333
+Node: Concept Index70311
+Node: Function and Variable Index70846
+Node: Key Index86238
 
 End Tag Table
