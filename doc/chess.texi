@@ -87,7 +87,7 @@ This chapter documents the low-level aspects of chess.el, mostly targeting
 developers interested in understand the underlying @acronym{API}s@.
 
 @ref{Chessboard displays} and following chapters
-if you are interested in the more user-visible apsects of chess.el.
+if you are interested in the more user-visible aspects of chess.el.
 
 @menu
 * Positions::
@@ -307,7 +307,7 @@ If @var{no-castling} is non-nil, do not consider castling moves.
 
 @defun chess-pos-can-castle position side
 Return whether the king on @var{position} can castle on @var{side}.
-@var{side} must be either ?K for the kingside, or ?Q for the queenside (use
+@var{side} must be either ?K for the king side, or ?Q for the queen side (use
 lowercase to query if black can castle).
 @end defun
 
@@ -320,8 +320,8 @@ See `chess-pos-can-castle'.
 
 It is only necessary to call this function if setting up a position
 manually.  Note that all newly created positions have full castling
-priveleges set, unless the position is created blank, in which case
-castling priveleges are unset.  See `chess-pos-copy'.
+privileges set, unless the position is created blank, in which case
+castling privileges are unset.  See `chess-pos-copy'.
 @end defun
 
 @c lispfun chess-pos-en-passant
@@ -429,7 +429,7 @@ The SIDE is w or b, to indicate whose move it is.
 
 CASTLING can contain K, Q, k or q, to signify whether the white or
 black king can still castle on the king or queen side.  EN-PASSANT
-signifies the target sqaure of an en passant capture, such as "e3" or "a6".
+signifies the target square of an en passant capture, such as "e3" or "a6".
 
 The starting chess position always looks like this:
 
@@ -458,7 +458,7 @@ If @var{full} is non-nil, represent trailing spaces as well.
 EPD is "Extended Position Description"; it is a standard for describing chess
 positions along with an extended set of structured attribute values using the
 ASCII character set.  It is intended for data and command interchange among
-chessplaying programs.  It is also intended for the representation of portable
+chess-playing programs.  It is also intended for the representation of portable
 opening library repositories.
 
 A single EPD uses one text line of variable length composed of four data field
@@ -606,7 +606,7 @@ Return a list of all legal plies in @var{position}.
   :file <number 0 to 7> [can only be used if :piece is present]
   :index <coordinate index>
   :target <specific target index>
-  :candidates <list of inddices>
+  :candidates <list of indices>
 
 These will constrain the plies generated to those matching the above
 criteria.
@@ -725,7 +725,7 @@ turn, as mentioned above.
 @menu
 * Creating variations::
 * Variation positions::
-* Varation plies::
+* Variation plies::
 * Making a move in a variation::
 @end menu
 
@@ -739,7 +739,7 @@ Create a new chess variation object.
 Optionally use the given starting @var{position}.
 @end defun
 
-@node Variation positions, Varation plies, Creating variations, Variations
+@node Variation positions, Variation plies, Creating variations, Variations
 @subsection Variation positions
 
 @c lispfun chess-var-pos
@@ -767,8 +767,8 @@ Return the color whose move it is in @var{var} at @var{index} (or at the last po
 of the variation if @var{index} is nil).
 @end defun
 
-@node Varation plies, Making a move in a variation, Variation positions, Variations
-@subsection Varation plies
+@node Variation plies, Making a move in a variation, Variation positions, Variations
+@subsection Variation plies
 
 @c lispfun chess-var-ply
 
@@ -789,7 +789,7 @@ Reveal the plies of @var{var} by converting them to algebraic
 notation.
 @end defun
 
-@node Making a move in a variation,  , Varation plies, Variations
+@node Making a move in a variation,  , Variation plies, Variations
 @subsection Making a move in a variation
 
 @c lispfun chess-var-move
@@ -1517,63 +1517,77 @@ Resign the current game (@code{chess-display-resign}).
 @kindex M-w
 @item M-w
 @findex chess-display-kill-board
-Copy the currently displays position to the kill ring as a FEN string
+Copy the currently displayed position to the kill ring as a FEN string
 (@code{chess-display-kill-board}).
+
+@kindex C-y
+@item C-y
+@findex chess-display-yank-board
+Set the current display position via a FEN string from the kill ring
+(@code{chess-display-yank-board}).
+
+This is useful to copy positions from one chessboard
+display to another, as well as quickly setting up a position
+from a FEN string previously added to the kill ring from
+somewhere else.
 
 @kindex X
 @item X
 @findex chess-display-quit
 Quit this chessboard display (@code{chess-display-quit}).
 
+This destroys the session (and all related modules) associated with this
+chessboard display.
+
 @end table
 
 @node Plain ASCII diagram displays, ICS1 style ASCII displays, Chess display mode, Chessboard displays
 @section Plain ASCII diagram displays
 
-The simplest display style available is chess-plain, a very customisable
+The simplest display style available is @va{chess-plain}, a very customisable
 ASCII board diagram display.
 
-@defvar chess-plain-separate-frame
+@defopt chess-plain-separate-frame
 If non-nil, display the chessboard in its own frame.
-@end defvar
+@end defopt
 
 @defvar chess-plain-border-style
 If non-nil, a vector of Characters used to draw borders.
 
 Otherwise, omit to draw any border around the chessboard diagram.
-@end defvar
+@end defopt
 
-@defvar chess-plain-black-square-char
+@defopt chess-plain-black-square-char
 Character used to indicate empty black squares.
-@end defvar
+@end defopt
 
-@defvar chess-plain-white-square-char
+@defopt chess-plain-white-square-char
 Character used to indicate black white squares.
-@end defvar
+@end defopt
 
-@defvar chess-plain-piece-chars
+@defopt chess-plain-piece-chars
 Alist of pieces and their corresponding characters.
-@end defvar
+@end defopt
 
-@defvar chess-plain-upcase-indicates
+@defopt chess-plain-upcase-indicates
 Defines what a upcase char should indicate.
-The default is 'color, meaning a upcase char is a white piece, a
-lowercase char a black piece.  Possible values: 'color (default),
-'square-color.  If set to 'square-color, a uppercase character
-indicates a piece on a black square. (Note that you also need to
+The default is @code{'color}, meaning a upcase char is a white piece, a
+lowercase char a black piece.  Possible values: @code{'color} (default),
+@code{'square-color}.  If set to @code{'square-color}, a uppercase character
+indicates a piece on a black square.  (Note that you also need to
 modify `chess-plain-piece-chars' to avoid real confusion.)
-@end defvar
+@end defopt
 
-@defvar chess-plain-spacing
+@defopt chess-plain-spacing
 Number of spaces between files.
-@end defvar
+@end defopt
 
 @node ICS1 style ASCII displays, Graphical displays, Plain ASCII diagram displays, Chessboard displays
 @section ICS1 style ASCII displays
 
-@defvar chess-ics1-separate-frame
+@defopt chess-ics1-separate-frame
 If non-nil, display the chessboard in its own frame.
-@end defvar
+@end defopt
 
 @node Graphical displays,  , ICS1 style ASCII displays, Chessboard displays
 @section Graphical displays
@@ -1581,7 +1595,7 @@ If non-nil, display the chessboard in its own frame.
 The graphical chessboard display (@code{chess-images}) uses image files
 to create a visually appealing chessboard in a buffer.
 
-@defvar chess-images-directory
+@defopt chess-images-directory
 A directory which contains images in @acronym{XPM} format.
 
 If you want to draw your own images, each piece must be named
@@ -1589,7 +1603,7 @@ If you want to draw your own images, each piece must be named
 and @var{piece} is one of rook, knight, bishop, queen, king or pawn.
 
 The only image format currently supported is @acronym{XPM}.
-@end defvar
+@end defopt
 
 @node Engines, Internet Chess Servers, Chessboard displays, Top
 @chapter Engines
@@ -1863,6 +1877,9 @@ To open a new connection to an Internet Chess Server, use:
 
 @defun chess-ics server port &optional handle password-or-filename helper &rest helper-args
 Connect to an Internet Chess Server.
+
+If called interactively, you will be prompted to enter a server
+(from `chess-ics-server-list' and possibly identification credentials.
 @end defun
 
 @node Chess ICS Mode, Command History, Connecting to a server, Internet Chess Servers
@@ -2165,7 +2182,7 @@ key             binding
 
 @end defun
 
-@kindex @kbd{RET}
+@kindex RET
 In this buffer, use mouse-2 or @kbd{@key{RET}} on a line to accept that
 particular game and play it.
 
