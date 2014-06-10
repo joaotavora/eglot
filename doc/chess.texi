@@ -69,11 +69,12 @@ structured for use as a library, and also how to use it as a client.
 @end ifinfo
 
 @menu
-* The chess.el library::
-* Modules::
-* Chessboard displays::
-* Engines::
-* Internet Chess Servers::
+* The chess.el library::        Basic objects required to deal with Chess
+* Modules::                     The module-system explained
+* Chessboard displays::         Different types of chessboards in a buffer
+* Engines::                     Internal and external chess-playing engines
+* Chess Session::               Tying it all together
+* Internet Chess Servers::      Playing chess with other people
 * Concept Index::
 * Function and Variable Index::
 * Key Index::
@@ -83,8 +84,8 @@ structured for use as a library, and also how to use it as a client.
 @chapter The chess.el library
 @cindex library
 
-This chapter documents the low-level aspects of chess.el, mostly targeting
-developers interested in understand the underlying @acronym{API}s@.
+  This chapter documents the low-level aspects of chess.el, mostly targeting
+developers interested in understanding the underlying @acronym{API}s@.
 
 @ref{Chessboard displays} and following chapters
 if you are interested in the more user-visible aspects of chess.el.
@@ -100,6 +101,7 @@ if you are interested in the more user-visible aspects of chess.el.
 
 @node Positions, Plies, The chess.el library, The chess.el library
 @section Positions
+@cindex position
 
 A chess @dfn{position} is a given layout of pieces on a chess board,
 also reflecting which side is next to move, and what privileges are
@@ -158,6 +160,7 @@ Generate a Fischer Random style position.
 
 @node Position coordinates, Position details, Creating positions, Positions
 @subsection Position coordinates
+@cindex cooridnates
 
 First of all, a coordinate system of octal indices is
 used, where ?\044 signifies rank 4 file 4 (i.e., "e4").  Rank is
@@ -407,76 +410,79 @@ Add an annotation for this position.
 
 @node FEN notation, EPD notation, Annotations, Positions
 @subsection FEN notation
+@cindex fen
 
-FEN notation encodes a chess position using a simple string.  The
-format is:
+@dfn{@acronym{FEN, Forsyth-Edwards Notation}} encodes a chess position using
+a simple string.  The format is:
 
-   POSITION SIDE CASTLING EN-PASSANT
+   @var{position} @var{side} @var{castling} @var{en-passant}
 
-The POSITION gives all eight ranks, by specifying a letter for each
-piece on the position, and a number for any intervening spaces.
+The @var{position} gives all eight ranks, by specifying a letter for each
+piece on the position, and a number for any intervening spaces, ranks
+separated by slashes.
 Trailing spaces need not be counted.  Uppercase letters signify
 white, and lowercase black.  For example, if your position only had
-a black king on d8, your POSITION string would be:
+a black king on d8, your @var{position} string would be:
 
-  3k////////
+@example
+3k////////
+@end example
 
 For the three spaces (a, b and c file), the black king, and then
 all the remaining ranks (which are all empty, so their spaces can
 be ignored).
 
-The SIDE is w or b, to indicate whose move it is.
+The @var{side} is @samp{w} or @samp{b}, to indicate whose move it is.
 
-CASTLING can contain K, Q, k or q, to signify whether the white or
-black king can still castle on the king or queen side.  EN-PASSANT
-signifies the target square of an en passant capture, such as "e3" or "a6".
+@var{castling} can contain @samp{K}, @samp{Q}, @samp{k} or @samp{q}, to signify
+whether the white or black king can still castle on the king or queen side.
+If neither colour can castle on any side, @samp{-} should be provided.
+
+@var{en-passant} signifies the target square of an en passant capture, such as
+@samp{e3} or @samp{a6}.
 
 The starting chess position always looks like this:
 
-  rnbqkbnr/pppppppp/////PPPPPPPP/RNBQKBNR/ w KQkq -
+@example
+rnbqkbnr/pppppppp/////PPPPPPPP/RNBQKBNR/ w KQkq -
+@end example
 
 And in "full" mode (where all spaces are accounted for):
 
-  rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
-
-@c lispfun chess-fen-to-pos
+@example
+rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
+@end example
 
 @defun chess-fen-to-pos fen
-Convert a @var{fen-}like notation string to a chess position.
+Convert a @var{fen}-like string to a chess position.
 @end defun
 
-@c lispfun chess-pos-to-fen
-
 @defun chess-pos-to-fen position &optional full
-Convert a chess @var{position} to @var{fen-}like notation.
+Convert a chess @var{position} to a @acronym{FEN} string.
 If @var{full} is non-nil, represent trailing spaces as well.
 @end defun
 
 @node EPD notation,  , FEN notation, Positions
 @subsection EPD notation
 
-EPD is "Extended Position Description"; it is a standard for describing chess
+@dfn{@acronym{EPD, Extended Position Description}} is a standard for describing chess
 positions along with an extended set of structured attribute values using the
 ASCII character set.  It is intended for data and command interchange among
 chess-playing programs.  It is also intended for the representation of portable
 opening library repositories.
 
 A single EPD uses one text line of variable length composed of four data field
-followed by zero or more operations.  The four fields of the EPD specification
-are the same as the first four fields of the FEN specification.
+followed by zero or more operations.  The four fields of the @acronym{EPD} specification
+are the same as the first four fields of the @acronym{FEN} specification.
 
-A text file composed exclusively of EPD data records should have a file name
-with the suffix ".epd".
-
-@c lispfun chess-epd-to-pos
+A text file composed exclusively of @acronym{EPD} data records should have a file name
+with the suffix @file{.epd}.
 
 @defun chess-epd-to-pos &optional string
-Convert extended position description to a chess position.
-If @var{string} is not specified, look for an @var{epd} string in the current buffer,
+Convert extended position description @var{string} to a chess position.
+If @var{string} is not specified, look for an @acronym{epd} string in the current buffer,
 and advance point after the correctly parsed position.
 @end defun
-
-@c lispfun chess-pos-to-epd
 
 @defun chess-pos-to-epd position
 Convert a chess @var{position} to a string representation in extended
@@ -501,11 +507,11 @@ Return a list of positions contained in @var{file}.
 @node Operations, Opcode "acd" analysis count depth, EPD notation, EPD notation
 @subsubsection Operations
 
-An EPD operation is composed of an opcode followed by zero or more operands and
-is concluded by a semicolon.
+An @acronym{EPD} operation is composed of an opcode followed by zero or
+more operands and is concluded by a semicolon.
 
 Multiple operations are separated by a single space character.  If there is at
-least one operation present in an EPD line, it is separated from the last
+least one operation present in an @acronym{EPD} record, it is separated from the last
 (fourth) data field by a single space character.
 
 Some opcodes that allow for more than one operand may have special ordering
@@ -665,7 +671,7 @@ Return non-nil if this is the last ply of a game/variation.
 @subsection Algebraic notation
 
 A thing to deal with in chess is algebraic move notation, such as
-Nxf3+.  (I leave description of this notation to better manuals
+@samp{Nxf3+}.  (I leave description of this notation to better manuals
 than this).  This notation is a shorthand way of representing where
 a piece is moving from and to, by specifying the piece is involved,
 where it's going, and whether or not a capture or check is
@@ -676,8 +682,6 @@ cases, but two for a castle) using the following function (NOTE:
 POSITION determines which side is on move (by calling
 `chess-pos-side-to-move')):
 
-@c lispfun chess-algebraic-to-ply
-
 @defun chess-algebraic-to-ply position move &optional trust
 Convert the algebraic notation @var{move} for @var{position} to a ply.
 @end defun
@@ -687,11 +691,9 @@ error if not.
 
 To convert from a ply to algebraic notation, use:
 
-@c lispfun chess-ply-to-algebraic
-
 @defun chess-ply-to-algebraic ply &optional long
-Convert the given @var{ply} to algebraic notation.
-If @var{long} is non-nil, render the move into long notation.
+Convert the given @var{ply} to algebraic notation (a string).
+If @var{long} is non-nil, render the move into long algebraic notation.
 @end defun
 
 Lastly, there is a regexp for quickly checking if a string is in
@@ -1462,6 +1464,16 @@ All the chessboard displays described in following sections
 share the basic behaviour provided by chess display mode.
 They basically only differ in appearance of the various chessboards.
 
+@menu
+* Basic operations::
+* Selecting pieces with the keyboard::
+* Selecting pieces with the mouse::
+* Entering moves with algebraic notation::
+@end menu
+
+@node Basic operations, Selecting pieces with the keyboard, Chess display mode, Chess display mode
+@subsection Basic operations
+
 @table @kbd
 @kindex C-i
 @kindex TAB
@@ -1469,20 +1481,6 @@ They basically only differ in appearance of the various chessboards.
 @itemx @key{TAB}
 @findex chess-display-invert
 Invert the perspective of the current chess board.
-
-@kindex RET
-@kindex down-mouse-1
-@kindex down-mouse-2
-@kindex drag-mouse-1
-@kindex drag-mouse-2
-@item @key{RET}
-@itemx down-mouse-1
-@itemx down-mouse-2
-@itemx drag-mouse-1
-@itemx drag-mouse-2
-@findex chess-display-select-piece
-Select the piece/square currently indicated by point
-(@code{chess-display-select-piece}) to move from/to.
 
 @kindex ,
 @item ,
@@ -1543,6 +1541,56 @@ display to another, as well as quickly setting up a position
 from a FEN string previously added to the kill ring from
 somewhere else.
 
+@kindex X
+@item X
+@findex chess-display-quit
+Quit this chessboard display (@code{chess-display-quit}).
+
+This destroys the session (and all related modules) associated with this
+chessboard display.
+@end table
+
+@node Selecting pieces with the keyboard, Selecting pieces with the mouse, Basic operations, Chess display mode
+@subsection Selecting pieces with the keyboard
+
+In character based chessboard displays, point can be moved around
+in the buffer as uaual.  You can indicate the initial square/piece
+and the target square/piece by moving point to the desired position
+and pressing @kbd{@key{RET}}.
+
+@table @kbd
+@kindex RET
+@item @key{RET}
+@findex chess-display-select-piece
+Select the piece/square currently indicated by point
+(@code{chess-display-select-piece}) to move from/to.
+@end table
+
+@node Selecting pieces with the mouse, Entering moves with algebraic notation, Selecting pieces with the keyboard, Chess display mode
+@subsection Selecting pieces with the mouse
+
+Similarily, you can also use the mouse (if available) to indicate
+the source and target square of your move.
+
+@table @kbd
+@kindex down-mouse-1
+@kindex down-mouse-2
+@kindex drag-mouse-1
+@kindex drag-mouse-2
+@item down-mouse-1
+@itemx down-mouse-2
+@itemx drag-mouse-1
+@itemx drag-mouse-2
+@findex chess-display-select-piece
+Select the piece/square currently indicated by the mouse pointer
+(@code{chess-display-select-piece}) to move from/to.
+@end table
+
+@node Entering moves with algebraic notation,  , Selecting pieces with the mouse, Chess display mode
+@subsection Entering moves with algebraic notation
+@cindex algebraic notation, entering moves with
+
+@table @asis
 @kindex a
 @kindex b
 @kindex c
@@ -1566,15 +1614,15 @@ somewhere else.
 @kindex K
 @kindex x
 @kindex =
-@item a @dots{} h
-@itemx 1 @dots{} 8
-@itemx N
-@itemx B
-@itemx R
-@itemx Q
-@itemx K
-@itemx x
-@itemx =
+@item @kbd{a} @dots{} @kbd{h}
+@itemx @kbd{1} @dots{} @kbd{8}
+@itemx @kbd{N}
+@itemx @kbd{B}
+@itemx @kbd{R}
+@itemx @kbd{Q}
+@itemx @kbd{K}
+@itemx @kbd{x}
+@itemx @kbd{=}
 @findex chess-input-shortcut
 Enter move in algebraic notation.
 
@@ -1590,16 +1638,10 @@ as there is no difference between @kbd{N x e 4} and @kbd{N e 4}.
 @kindex backspace
 @item @key{backspace}
 @findex chess-input-shortcut-delete
-Delete the last entered chess move shortcut @code{chess-input-shortcut-delete}.
+Delete the last entered chess move character @code{chess-input-shortcut-delete}.
 
-@kindex X
-@item X
-@findex chess-display-quit
-Quit this chessboard display (@code{chess-display-quit}).
-
-This destroys the session (and all related modules) associated with this
-chessboard display.
-
+This is useful if you have accidentally typed a wrong character,
+and the move was not unambiguous yet.
 @end table
 
 @node Plain ASCII diagram displays, ICS1 style ASCII displays, Chess display mode, Chessboard displays
@@ -1666,7 +1708,7 @@ and @var{piece} is one of rook, knight, bishop, queen, king or pawn.
 The only image format currently supported is @acronym{XPM}.
 @end defopt
 
-@node Engines, Internet Chess Servers, Chessboard displays, Top
+@node Engines, Chess Session, Chessboard displays, Top
 @chapter Engines
 
 Engines are the representation of an opponent in Chess.  THe main type
@@ -1739,7 +1781,7 @@ event handler can take care of the data.
 @node AI, Crafty, Common functions, Engines
 @section AI
 
-The @dfn{AI} engine module defines a pure Emacs Lisp implementation
+The @acronym{AI} engine module defines a pure Emacs Lisp implementation
 of an opponent.  Contrary to all other engine modules mentioned later on,
 it does not require any external programs to be installed.
 
@@ -1768,17 +1810,18 @@ Find the supposedly best move (ply) for @var{position}.
 @node Crafty, Fruit, AI, Engines
 @section Crafty
 
-Crafty is a chess program written by Michael Byrne, UAB professor
+@dfn{Crafty} is a chess program written by Michael Byrne, UAB professor
 Dr. Robert Hyatt, Tracy Riegle, Peter Skinner and Ted Langreck.  It is directly
 derived from Cray Blitz, winner of the 1983 and 1986 World Computer Chess
 Championships.
 
-If Crafty is installed and can be found in the program search path,
-the @code{chess-crafty} engine module will automatically detect it.
+If the @command{crafty} program is installed and can be found in the program
+search path (@code{exec-path}), the @code{chess-crafty} engine module will
+automatically detect it.
 
 @vindex chess-crafty-path
-If Crafty is installed in a non-standard location, variable @code{chess-crafty-path}
-can be set to point to the executable.
+If @command{crafty} is installed in a non-standard location, variable
+@code{chess-crafty-path} can be set to point to the executable.
 
 @kindex C-u M-x chess RET crafty RET
 If you have multiple engines installed you can explicitly select
@@ -1787,7 +1830,7 @@ to play against Crafty by invoking @kbd{C-u M-x chess @key{RET} crafty @key{RET}
 @node Fruit, Glaurung, Crafty, Engines
 @section Fruit
 
-Fruit is a chess engine developed by Fabien Letouzey. It was
+@dfn{Fruit} is a chess engine developed by Fabien Letouzey. It was
 commercially available from September 2005 until July 2007.  Now it is freeware
 and you can download it for free from @uref{http://www.fruitchess.com/}.
 The development on Fruit by Fabien Letouzey has ceded and it is unlikely to
@@ -1795,7 +1838,8 @@ continue.
 
 Fruit was vice world computer chess champion 2005.
 
-If Fruit is installed and can be found in the program search path,
+If the @command{fruit} command is installed and can be found in the program
+search path (@code{exec-path}),
 the @code{chess-fruit} engine module will automatically detect it.
 
 @vindex chess-fruit-path
@@ -1809,9 +1853,10 @@ to play against Fruit by invoking @kbd{C-u M-x chess @key{RET} fruit @key{RET}}.
 @node Glaurung, GNU Chess, Fruit, Engines
 @section Glaurung
 
-Glaurung is another freely distributed strong computer chess engine.
+@dfn{Glaurung} is another freely distributed strong computer chess engine.
 
-If Glaurung is installed and can be found in the program search path,
+If the @command{glaurung} program is installed and can be found in the
+program search path (@code{exec-path}),
 the @code{chess-glaurung} engine module will automatically detect it.
 
 @vindex chess-glaurung-path
@@ -1825,13 +1870,14 @@ to play against Glaurung by invoking @kbd{C-u M-x chess @key{RET} glaurung @key{
 @node GNU Chess, Phalanx, Glaurung, Engines
 @section GNU Chess
 
-GNU Chess is free software, licensed under the terms of the
+@dfn{GNU Chess} is free software, licensed under the terms of the
 GNU General Public License version 3 or any later version,
 and is maintained by collaborating developers.  As one of the earliest
 computer chess programs with full source code available, it's one of the oldest
 for Unix-based systems and has since been ported to many other platforms.
 
-If GNU Chess is installed and can be found in the program search path,
+If the @command{gnuChess} program is installed and can be found in the
+program search path (@code{exec-path}),
 the @code{chess-gnuchess} engine module will automatically detect it.
 
 @vindex chess-gnuchess-path
@@ -1845,9 +1891,10 @@ to play against GNU Chess by invoking .
 @node Phalanx, Sjeng, GNU Chess, Engines
 @section Phalanx
 
-Phalanx is an old, popular chess engine, with an interesting history.
+@dfn{Phalanx} is an old, popular chess engine, with an interesting history.
 
-If Phalanx is installed and can be found in the program search path,
+If the @command{phalanx} program is installed and can be found in the
+program search path (@code{exec-path}),
 the @code{chess-phalanx} engine module will automatically detect it.
 
 @vindex chess-phalanx-path
@@ -1861,11 +1908,12 @@ to play against Phalanx by invoking @kbd{C-u M-x chess @key{RET} phalanx @key{RE
 @node Sjeng, Stockfish, Phalanx, Engines
 @section Sjeng
 
-@uref{http://sjeng.org/, Sjeng} is a championship-winner automated chess engine
+@uref{http://sjeng.org/, @dfn{Sjeng}} is a championship-winner automated chess engine
 developed by Gian-Carlo Pascutto from Belgium.  While its original
 version was free, recent developments are for sale.
 
-If Sjeng is installed and can be found in the program search path,
+If the @command{sjeng} program is installed and can be found in the
+program search path (@code{exec-path}),
 the @code{chess-sjeng} engine module will automatically detect it.
 
 @vindex chess-sjeng-path
@@ -1879,13 +1927,14 @@ to play against Sjeng by invoking @kbd{C-u M-x chess @key{RET} sjeng @key{RET}}.
 @node Stockfish,  , Sjeng, Engines
 @section Stockfish
 
-@uref{http://www.stockfishchess.org/, Stockfish} is one of the strongest
+@uref{http://www.stockfishchess.org/, @dfn{Stockfish}} is one of the strongest
 chess engines in the world, appearing near or at the top of most chess engine
 rating lists.
 Stockfish is also free software, licensed under the terms of the
 GNU General Public License.
 
-If Stockfish is installed and can be found in the program search path,
+If the @command{stockfish} program is installed and can be found in the
+program search path (@code{exec-path}),
 the @code{chess-stockfish} engine module will automatically detect it.
 
 @vindex chess-stockfish-path
@@ -1896,7 +1945,36 @@ If Stockfish is installed in a non-standard location, variable
 If you have multiple engines installed you can explicitly select
 to play against Stockfish by invoking @kbd{C-u M-x chess @key{RET} stockfish @key{RET}}.
 
-@node Internet Chess Servers, Concept Index, Engines, Top
+@node Chess Session, Internet Chess Servers, Engines, Top
+@chapter Chess Session
+
+A chess session assembles all modules mentioned in previous
+chapters into a working system to interact with.  A session typically
+consists of at least one display module, one engine module,
+and possibly a number of optional modules.  All these mdoules
+share a common game object which is used to keep track of the
+currently active game.
+
+@defun chess engine disable-popup engine-response-handler &rest engine-ctor-args
+Play a game against @var{engine}.
+
+This function constructs all the necessary modules required for a chess session.
+In particular, it will start @var{engine} and create a chess display as
+configured in @code{chess-default-display}.
+
+This is the main entry-point for interactively launching
+a chessboard display with associated engine.
+
+If you want to launch a chess session as part of your own code,
+the probably more expressive alias `chess-session' might be interesting
+to use.
+@end defun
+
+You can have several active chess sessions.
+In fact, some features later described in this manual make use
+of this, @xref{Internet Chess Servers}.
+
+@node Internet Chess Servers, Concept Index, Chess Session, Top
 @chapter Internet Chess Servers
 
 Based on the services provided above, there is also a special mode
@@ -1927,6 +2005,7 @@ are currently supported.
 * Command History::
 * Seeking an opponent for a new game::
 * The sought game display::
+* Watching other games::
 @end menu
 
 @node Connecting to a server, Chess ICS Mode, Internet Chess Servers, Internet Chess Servers
@@ -2215,7 +2294,7 @@ This will announce your availability to play a rated game with 10 minutes
 initial time-control for each player, and 10 seconds added
 for every move made.
 
-@node The sought game display,  , Seeking an opponent for a new game, Internet Chess Servers
+@node The sought game display, Watching other games, Seeking an opponent for a new game, Internet Chess Servers
 @section The sought game display
 
 There is a special mode for displaying games sought by other users
@@ -2246,6 +2325,41 @@ key             binding
 @kindex RET
 In this buffer, use mouse-2 or @kbd{@key{RET}} on a line to accept that
 particular game and play it.
+
+@node Watching other games,  , The sought game display, Internet Chess Servers
+@section Watching other games
+
+You can also watch other games currently being played on @acronym{ICS}.
+Even services like @samp{LectureBot} from @acronym{FICS} can
+be used.
+
+@example
+fics% observe lecturebot
+You are now observing game 5.
+Game 5: LectureBot (0) LectureBot (0) unrated untimed 0 0
+
+LectureBot(TD)(----)[5] kibitzes: (Note: A passed pawn is a pawn that
+          does not have enemy pawns blocking the path either on the
+          same or adjacent files).
+LectureBot(TD)(----)[5] kibitzes: Connected passed pawns are a pain to
+          have to deal with. They are usually a winning advantage if
+          they cannot be blockaded. The blockading piece has to give
+          up duties elsewhere. It's almost like being a piece up.
+fics% unobserv lecturebot
+Removing game 5 from observation list.
+fics% 
+@end example
+
+Once you start to observe a particular game or player, the
+current position will pop up in a chessboard display.
+As you are an observer, you will not be able to enter new moves.
+However, you should be able to navigate back and forth in the history
+of the game.
+
+If a new move is made by any party in the game and you are currently
+displaying the last position in the game, the chessboard display
+will automaticall update to reflect the new position and show
+the last move in the mode line.
 
 @node Concept Index, Function and Variable Index, Internet Chess Servers, Top
 @unnumbered Concept Index
