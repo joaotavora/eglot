@@ -140,12 +140,6 @@
 	(chess-pos-set-preceding-ply position ply)
 	(chess-ply-set-keyword ply :next-pos position))))
 
-(defconst chess-piece-name-table
-  '(("queen"  . ?q)
-    ("rook"   . ?r)
-    ("knight" . ?n)
-    ("bishop" . ?b)))
-
 (defun chess-ply-castling-changes (position &optional long king-index)
   "Create castling changes; this function supports Fischer Random castling."
   (cl-assert (vectorp position))

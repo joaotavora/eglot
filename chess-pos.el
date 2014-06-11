@@ -412,7 +412,7 @@ in order to execute faster."
 					 chess-rook-directions)
   "The directions a queen is allowed to move to.")
 
-(defvaralias 'chess-king-directions 'chess-queen-directions
+(defconst chess-king-directions chess-queen-directions
   "The directions a king is allowed to move to.")
 
 (defconst chess-sliding-white-piece-directions
@@ -477,7 +477,7 @@ color will do.  See also `chess-pos-search*'."
   "Look on POSITION for any of PIECES.
 The result is an alist where each element looks like (PIECE . INDICES).
 Pieces which did not appear in POSITION will be present in the resulting
-alist, but the `cdr' of their enties will be nil."
+alist, but the `cdr' of their entries will be nil."
   (cl-assert (not (null pieces)))
   (cl-assert (cl-reduce (lambda (ok piece)
 			  (when ok
@@ -867,6 +867,9 @@ trying to move a blank square."
 					  do (setq first nil)))
 		     when ray collect ray)))
     squares))
+
+(declare-function chess-ply-castling-changes "chess-ply"
+		  (position &optional long king-index))
 
 (defun chess-search-position (position target piece &optional
 				       check-only no-castling)

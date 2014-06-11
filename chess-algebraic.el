@@ -74,6 +74,14 @@ This regexp handles both long and short form.")
 
 (defconst chess-algebraic-regexp-ws (concat chess-algebraic-regexp "\\s-"))
 
+(defconst chess-algebraic-figurine-pieces
+  '((?K . #x2654) (?Q . #x2655) (?R . #x2656)
+    (?B . #x2657) (?N . #x2658) (?P . #x2659)
+    (?k . #x265A) (?q . #x265B) (?r . #x265C)
+    (?b . #x265D) (?n . #x265E) (?p . #x265F))
+  "Map internal piece characters to Unicode chess figures (as used in figurine
+notation.")
+
 (chess-message-catalog 'english
   '((clarify-piece     . "Clarify piece to move by rank or file")
     (could-not-clarify . "Could not determine which piece to use")
@@ -82,7 +90,9 @@ This regexp handles both long and short form.")
     (at-move-string    . "At algebraic move '%s': %s")))
 
 (defun chess-algebraic-to-ply (position move &optional trust)
-  "Convert the algebraic notation MOVE for POSITION to a ply."
+  "Convert the (short or long) algebraic notation MOVE for POSITION to a ply.
+
+Figurine notation is currently not supported."
   (cl-assert (vectorp position))
   (cl-assert (stringp move))
   (let ((case-fold-search nil))
@@ -140,7 +150,7 @@ This regexp handles both long and short form.")
 
 	(when changes
 	  (if (and trust mate)
-	      (nconc changes (list (if (equal mate "#")
+	      (nconc changes (list (if (string-equal mate "#")
 				       :checkmate
 				     :check))))
 	  (unless long-style
@@ -152,61 +162,72 @@ This regexp handles both long and short form.")
 	     (chess-error 'at-move-string
 			  move (error-message-string err)))))))))
 
-(defun chess-ply--move-text (ply long)
-  (or
-   (and (chess-ply-keyword ply :castle) "O-O")
-   (and (chess-ply-keyword ply :long-castle) "O-O-O")
-   (let* ((pos (chess-ply-pos ply))
-	  (from (chess-ply-source ply))
-	  (to (chess-ply-target ply))
-	  (from-piece (chess-pos-piece pos from))
-	  (rank 0) (file 0)
-	  (from-rank (chess-index-rank from))
-	  (from-file (chess-index-file from))
-	  (differentiator (chess-ply-keyword ply :which)))
-	(unless differentiator
-	  (let ((candidates (chess-search-position pos to from-piece nil t)))
-	    (when (> (length candidates) 1)
-	      (dolist (candidate candidates)
-		(when (= (chess-index-rank candidate) from-rank)
-		  (setq rank (1+ rank)))
-		(when (= (chess-index-file candidate) from-file)
-		  (setq file (1+ file))))
-	      (cond
-	       ((= file 1)
-		(setq differentiator (+ from-file ?a)))
-	       ((= rank 1)
-		(setq differentiator (+ (- 7 from-rank) ?1)))
-	       (t (chess-error 'could-not-diff)))
-	      (chess-ply-set-keyword ply :which differentiator))))
-	(concat
-	 (unless (= (upcase from-piece) ?P)
-	   (char-to-string (upcase from-piece)))
-	 (cond
-	  (long (chess-index-to-coord from))
-	  (differentiator (char-to-string differentiator))
-	  ((and (not long) (= (upcase from-piece) ?P)
-		(/= from-file (chess-index-file to)))
-	   (char-to-string (+ from-file ?a))))
-	 (if (or (/= ?  (chess-pos-piece pos to))
-		 (chess-ply-keyword ply :en-passant))
-	     "x" (if long "-"))
-	 (chess-index-to-coord to)
-	 (let ((promote (chess-ply-keyword ply :promote)))
-	   (if promote
-	       (concat "=" (char-to-string promote))))
-	 (if (chess-ply-keyword ply :check) "+"
-	   (if (chess-ply-keyword ply :checkmate) "#"))))))
-
-(defun chess-ply-to-algebraic (ply &optional long)
+(defun chess-ply-to-algebraic (ply &optional type)
   "Convert the given PLY to algebraic notation.
-If LONG is non-nil, render the move into long notation."
+Optional argument TYPE specifies the kind of algebraic notation to generate.
+`:san' (the default) generates short (or standard) algebraic notation.
+`:lan' generates long algebraic notation (like \"Nb1-c3\".
+`:fan' generates figurine algebraic notation (like \"♘c3\"."
   (cl-assert (listp ply))
-  (or (and (not long) (chess-ply-keyword ply :san))
+  (cl-check-type type (member nil :san :fan :lan))
+  (unless type (setq type :san))
+  (or (chess-ply-keyword ply type)
       (and (null (chess-ply-source ply)) "")
-      (let ((move (chess-ply--move-text ply long)))
-	(unless long (chess-ply-set-keyword ply :san move))
-	move)))
+      (chess-ply-set-keyword
+       ply type
+       (or
+	(and (chess-ply-keyword ply :castle) "O-O")
+	(and (chess-ply-keyword ply :long-castle) "O-O-O")
+	(let* ((pos (chess-ply-pos ply))
+	       (from (chess-ply-source ply))
+	       (to (chess-ply-target ply))
+	       (from-piece (chess-pos-piece pos from))
+	       (rank 0) (file 0)
+	       (from-rank (chess-index-rank from))
+	       (from-file (chess-index-file from))
+	       (differentiator (chess-ply-keyword ply :which)))
+	  (unless differentiator
+	    (let ((candidates (chess-search-position pos to from-piece nil t)))
+	      (when (> (length candidates) 1)
+		(dolist (candidate candidates)
+		  (when (= (chess-index-rank candidate) from-rank)
+		    (setq rank (1+ rank)))
+		  (when (= (chess-index-file candidate) from-file)
+		    (setq file (1+ file))))
+		(cond
+		 ((= file 1)
+		  (setq differentiator (+ from-file ?a)))
+		 ((= rank 1)
+		  (setq differentiator (+ (- 7 from-rank) ?1)))
+		 (t (chess-error 'could-not-diff)))
+		(chess-ply-set-keyword ply :which differentiator))))
+	  (concat
+	   (unless (= (upcase from-piece) ?P)
+	     (char-to-string
+	      (cond ((memq type '(:san :lan)) (upcase from-piece))
+		    ((eq type :fan)
+		     (cdr (assq from-piece chess-algebraic-figurine-pieces))))))
+	   (cond
+	    ((eq type :lan) (chess-index-to-coord from))
+	    (differentiator (char-to-string differentiator))
+	    ((and (not (eq type :lan)) (= (upcase from-piece) ?P)
+		  (/= from-file (chess-index-file to)))
+	     (char-to-string (+ from-file ?a))))
+	   (if (or (/= ?  (chess-pos-piece pos to))
+		   (chess-ply-keyword ply :en-passant))
+	       "x" (if (eq type :lan) "-"))
+	   (chess-index-to-coord to)
+	   (let ((promote (chess-ply-keyword ply :promote)))
+	     (if promote
+		 (concat "=" (char-to-string
+			      (cond ((eq type :fan)
+				     (cdr (assq (if (chess-pos-side-to-move pos)
+						    promote
+						  (downcase promote))
+						chess-algebraic-figurine-pieces)))
+				    (t promote))))))
+	   (if (chess-ply-keyword ply :check) "+"
+	     (if (chess-ply-keyword ply :checkmate) "#"))))))))
 
 (provide 'chess-algebraic)
 

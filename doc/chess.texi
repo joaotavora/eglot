@@ -1,6 +1,7 @@
 \input texinfo  @c -*-texinfo-*-
 
 @setfilename ../chess.info
+@documentencoding UTF-8
 @documentlanguage en
 @settitle Emacs Chess: chess.el
 
@@ -34,14 +35,14 @@ any later version published by the Free Software Foundation.
 @c -release-
 @end ignore
 @sp 3
-@center John Wiegley
+@center John Wiegley and Mario Lang
 @c -date-
 
 @c  The following two commands start the copyright page for the printed
 @c  manual.  This will not appear in the Info file.
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2001, 2002 John Wiegley.
+Copyright @copyright{} 2001, 2002, 2014 Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1 or
@@ -108,15 +109,15 @@ also reflecting which side is next to move, and what privileges are
 currently available to each side (castling short or long, en passant
 capture, etc).
 
-A position may be represented in ASCII using FEN (or EPD) notation, or
+A position may be represented in @acronym{ASCII} using @acronym{FEN} (or EPD), or
 graphically by displaying a chess board.  It is rather inconvenient to
 render them verbally.
 
 The position can be represented on a remote terminal using X windows, or
-by transmitting the FEN string via a network connection, or clipboard,
+by transmitting the @acronym{FEN} string via a network connection, or clipboard,
 to another chess board rendering tool.  It may of course also be
-represented physically, by setting up the pieces to match the FEN
-notation.
+represented physically, by setting up the pieces to match the @acronym{FEN}
+specification.
 
 Chess puzzles are most often provided as a set of positions.
 
@@ -132,27 +133,21 @@ Chess puzzles are most often provided as a set of positions.
 @node Creating positions, Position coordinates, Positions, Positions
 @subsection Creating positions
 
-@c lispfun chess-pos-create
-
 @defun chess-pos-create &optional blank
 Create a new chess position, set at the starting position.
 If @var{blank} is non-nil, all of the squares will be empty.
 The current side-to-move is always white.
 @end defun
 
-@c lispfun chess-pos-copy
-
 @defun chess-pos-copy position
 Copy the given chess @var{position}.
-If there are annotations or @var{epd} opcodes set, these lists are copied as
+If there are annotations or @acronym{EPD} opcodes set, these lists are copied as
 well, so that the two positions do not share the same lists.
 @end defun
 
 @defvar chess-starting-position
 Starting position of a chess game.
 @end defvar
-
-@c lispfun chess-fischer-random-position
 
 @defun chess-fischer-random-position 
 Generate a Fischer Random style position.
@@ -166,34 +161,24 @@ First of all, a coordinate system of octal indices is
 used, where ?\044 signifies rank 4 file 4 (i.e., "e4").  Rank is
 numbered 0 to 7, top to bottom, and file is 0 to 7, left to right.
 
-@c lispfun chess-index-rank
-
 @defun chess-index-rank index
 Return the rank component of the given @var{index}.
 @end defun
-
-@c lispfun chess-index-file
 
 @defun chess-index-file index
 Return the file component of the given @var{index}.
 @end defun
 
-@c lispfun chess-rf-to-index
-
 @defun chess-rf-to-index rank file
 Convert @var{rank} and @var{file} coordinates into an octal index.
 @end defun
 
-For those who wish to use ASCII coordinates, such as "e4", there
+For those who wish to use @acronym{ASCII} coordinates, such as "e4", there
 are two conversion functions:
-
-@c lispfun chess-coord-to-index
 
 @defun chess-coord-to-index coord
 Convert a @var{coord} string into an index value.
 @end defun
-
-@c lispfun chess-index-to-coord
 
 @defun chess-index-to-coord index
 Convert the chess position @var{index} into a coord string.
@@ -202,47 +187,57 @@ Convert the chess position @var{index} into a coord string.
 For fast manipulation of chess position indices, the following
 constants and functions are provided:
 
+@cindex queen
+@cindex rook
 For queens and rooks:
 
+@cindex north
 @defvr Constant chess-direction-north
 Signify one step north, as seen from the perspective of the white player.
 @end defvr
 
+@cindex east
 @defvr Constant chess-direction-east
 Signify one step east, as seen from the perspective of the white player.
 @end defvr
 
+@cindex south
 @defvr Constant chess-direction-south
 Signify one step south, as seen from the perspective of the white player.
 @end defvr
 
+@cindex west
 @defvr Constant chess-direction-west
 Signify one step west, as seen from the perspective of the white player.
 @end defvr
 
+@cindex queen
+@cindex bishop
 For queens and bishops:
 
+@cindex northeast
 @defvr Constant chess-direction-northeast
 Signify one step northeast, as seen from the perspective of the white player.
 @end defvr
 
+@cindex southeast
 @defvr Constant chess-direction-southeast
 Signify one step southeast, as seen from the perspective of the white player.
 @end defvr
 
+@cindex southwest
 @defvr Constant chess-direction-southwest
 Signify one step southwest, as seen from the perspective of the white player.
 @end defvr
 
+@cindex northwest
 @defvr Constant chess-direction-northwest
 Signify one step northwest, as seen from the perspective of the white player.
 @end defvr
 
-@c lispfun chess-next-index
-
 @defun chess-next-index index direction
 Create a new @var{index} from an old one, by advancing it into @var{direction}.
-If the resulting index is not valid, nil is returned.
+If the resulting index is not valid (outside the board), nil is returned.
 @end defun
 
 Due to the underlying technique used to efficiently detect off-board squares,
@@ -256,13 +251,9 @@ will give a typical initial white pawn push.
 With an octal index value, you can look up what's on a particular
 square, or set that square's value:
 
-@c lispfun chess-pos-piece
-
 @defun chess-pos-piece position index
 Return the piece on @var{position} at @var{index}.
 @end defun
-
-@c lispfun chess-pos-piece-p
 
 @defun chess-pos-piece-p position index piece-or-color
 Return non-nil if at @var{position}/@var{index} there is the given @var{piece-or-color}.
@@ -270,15 +261,11 @@ If @var{piece-or-color} is t for white or nil for black, any piece of that
 color will do.
 @end defun
 
-@c lispfun chess-pos-set-piece
-
 @defun chess-pos-set-piece position index piece
 Set the piece on @var{position} at @var{index} to @var{piece}.
-@var{piece} must be one of K Q N B R or P.  Use lowercase to set black
-pieces.
+@var{piece} must be one of @code{?K} @code{?Q} @code{?N} @code{?B}
+@code{?R} or @code{?P}.  Use lowercase to set black pieces.
 @end defun
-
-@c lispfun chess-pos-search
 
 @defun chess-pos-search position piece-or-color
 Look on @var{position} anywhere for @var{piece-or-color}, returning all coordinates.
@@ -286,7 +273,13 @@ If @var{piece-or-color} is t for white or nil for black, any piece of that
 color will do.
 @end defun
 
-@c lispfun chess-search-position
+@defun chess-pos-search* position &rest pieces
+Look on @var{position} for any of @var{pieces}.
+
+The result is an alist where each element looks like (@var{piece} . @var{indices}).
+Pieces which did not appear in @var{position} will be present in the resulting
+alist, but the `cdr' of their entries will be nil.
+@end defun
 
 @defun chess-search-position position target piece &optional check-only no-castling
 Look on @var{position} from @var{target} for a @var{piece} that can move there.
@@ -441,18 +434,6 @@ If neither colour can castle on any side, @samp{-} should be provided.
 @var{en-passant} signifies the target square of an en passant capture, such as
 @samp{e3} or @samp{a6}.
 
-The starting chess position always looks like this:
-
-@example
-rnbqkbnr/pppppppp/////PPPPPPPP/RNBQKBNR/ w KQkq -
-@end example
-
-And in "full" mode (where all spaces are accounted for):
-
-@example
-rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -
-@end example
-
 @defun chess-fen-to-pos fen
 Convert a @var{fen}-like string to a chess position.
 @end defun
@@ -461,6 +442,22 @@ Convert a @var{fen}-like string to a chess position.
 Convert a chess @var{position} to a @acronym{FEN} string.
 If @var{full} is non-nil, represent trailing spaces as well.
 @end defun
+
+This is how the starting position looks like:
+
+@vindex chess-starting-position
+@lisp
+(chess-pos-to-fen chess-starting-position)
+@result{} "rnbqkbnr/pppppppp/////PPPPPPPP/RNBQKBNR w KQkq -"
+@end lisp
+
+Some external programs might have problems parsing terse
+FEN strings.  If you are unsure, use the more verbose form:
+
+@lisp
+(chess-pos-to-fen chess-starting-position t)
+@result{} "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -"
+@end lisp
 
 @node EPD notation,  , FEN notation, Positions
 @subsection EPD notation
@@ -488,8 +485,6 @@ and advance point after the correctly parsed position.
 Convert a chess @var{position} to a string representation in extended
 position description format.
 @end defun
-
-@c lispfun chess-epd-read-file
 
 @defun chess-epd-read-file file
 Return a list of positions contained in @var{file}.
@@ -671,16 +666,12 @@ Return non-nil if this is the last ply of a game/variation.
 @subsection Algebraic notation
 
 A thing to deal with in chess is algebraic move notation, such as
-@samp{Nxf3+}.  (I leave description of this notation to better manuals
-than this).  This notation is a shorthand way of representing where
-a piece is moving from and to, by specifying the piece is involved,
+@samp{Nxf3+}.  This notation is a shorthand way of representing where
+a piece is moving from and to, by specifying the piece involved,
 where it's going, and whether or not a capture or check is
 involved.
 
-You can convert from algebraic notation to a ply (one pair in most
-cases, but two for a castle) using the following function (NOTE:
-POSITION determines which side is on move (by calling
-`chess-pos-side-to-move')):
+You can convert from algebraic notation to a ply using the following function:
 
 @defun chess-algebraic-to-ply position move &optional trust
 Convert the algebraic notation @var{move} for @var{position} to a ply.
@@ -691,9 +682,15 @@ error if not.
 
 To convert from a ply to algebraic notation, use:
 
-@defun chess-ply-to-algebraic ply &optional long
+@defun chess-ply-to-algebraic ply &optional type
 Convert the given @var{ply} to algebraic notation (a string).
-If @var{long} is non-nil, render the move into long algebraic notation.
+
+Optional argument @var{type} specifies the kind of algebraic notation to
+generate.
+@code{:san} (the default) generates short (or standard) algebraic notation.
+@code{:lan} generates long algebraic notation (like @samp{Nb1-c3}).
+@code{:fan} generates figurine algebraic notation (uppercase letters will
+be replaced by Unicode chess figures).
 @end defun
 
 Lastly, there is a regexp for quickly checking if a string is in
@@ -803,10 +800,8 @@ The 'changes' of the last ply reflect whether the var is currently in
 progress (nil), if it is drawn, resigned, mate, etc.
 @end defun
 
-@c lispfun chess-var-add-ply
-
 @defun chess-var-add-ply var ply
-Return the position related to @var{var}'s @var{index} position.
+Add to @var{var} the given @var{ply}.
 @end defun
 
 @node Games, Collections, Variations, The chess.el library
@@ -1499,8 +1494,8 @@ Find previous move which algebraic notation matches a regular expression
 Find next move which algebraic notation matches a regular expression
 @code{chess-display-search-forward}.
 
-@kindex @.
-@item @.
+@kindex .
+@item .
 @findex chess-display-move-forward
 Show the next move in the current game.
 

@@ -1,3 +1,19 @@
+2014-06-11  Mario Lang  <mlang@delysid.org>
+
+	* chess-pos.el (chess-ply-castling-changes): Declare.
+
+	* chess-ply.el (chess-piece-name-table): Remove, unused.
+
+	* chess-algebraic.el (chess-algebraic-figurine-pieces): New constant.
+	(chess-ply--move-text): Remove and fold into...
+	(chess-ply-to-algebraic): ...this function.
+	Rename argument LONG to TYPE and additionally allow to
+	generate figurine notation.
+	* chess-var.el (chess-var-add-ply): Fix docstring.
+	(chess-var-to-algebraic): Adjust argument names.
+	* doc/chess.texi (Making a move in a variation): Same here.
+	(Algebraic notation): Mention figurine notation.
+
 2014-06-05  Mario Lang  <mlang@delysid.org>
 
 	* doc/chess.texi (The "next" position): Actually add `chess-ply-next-pos'.

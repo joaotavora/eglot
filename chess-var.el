@@ -22,6 +22,7 @@
 
 ;;; Code:
 
+(require 'chess-algebraic)
 (require 'chess-ply)
 (eval-when-compile (require 'cl-lib))
 
@@ -59,7 +60,7 @@ of the variation if INDEX is nil)."
     (car (last (chess-var-plies var)))))
 
 (defun chess-var-add-ply (var ply)
-  "Return the position related to VAR's INDEX position."
+  "Add to VAR the given PLY."
   (cl-assert var)
   (cl-assert (listp ply))
   (let ((plies (chess-var-plies var)))
@@ -79,23 +80,23 @@ progress (nil), if it is drawn, resigned, mate, etc."
   (cl-assert var)
   (cl-assert (listp ply))
   (let ((current-ply (chess-var-ply var))
-	(changes (chess-ply-changes ply))
-	(position (chess-ply-pos ply)))
+	(changes (chess-ply-changes ply)))
     (if (chess-ply-final-p current-ply)
 	(chess-error 'add-to-completed))
-    (cl-assert (eq position (chess-ply-pos current-ply)))
+    (cl-assert (eq (chess-ply-pos ply) (chess-ply-pos current-ply)))
     (chess-ply-set-changes current-ply changes)
     (chess-var-add-ply var (chess-ply-create*
 			    (chess-ply-next-pos current-ply)))))
 
-(defun chess-var-to-algebraic (var &optional long)
-  "Reveal the plies of VAR by converting them to algebraic
-notation."
+(defun chess-var-to-algebraic (var &optional type)
+  "Reveal the plies of VAR by converting them to algebraic notation.
+Optional argument TYPE defines the type of algebraic notation to use
+(`:san', `:lan' or `:fan'."
   (mapconcat (lambda (ply)
-	       (chess-ply-to-algebraic ply long))
+	       (chess-ply-to-algebraic ply type))
 	     (if (chess-ply-final-p (chess-var-ply var))
 		 (chess-var-plies var)
-	       (reverse (cdr (reverse (chess-var-plies var)))))
+	       (butlast (chess-var-plies var)))
 	     " "))
 
 (provide 'chess-var)
