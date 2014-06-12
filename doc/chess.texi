@@ -1643,8 +1643,24 @@ and the move was not unambiguous yet.
 @node Plain ASCII diagram displays, ICS1 style ASCII displays, Chess display mode, Chessboard displays
 @section Plain ASCII diagram displays
 
-The simplest display style available is @var{chess-plain}, a very customisable
-ASCII board diagram display.
+The simplest display style available is @code{chess-plain}, a very customisable
+@acronym{ASCII} board diagram display.
+
+This is how the starting position looks in its default configuration:
+
+@example
+ +---------------+
+8|r n b q k b n r|
+7|p p p p p p p p|
+6|. . . . . . . .|
+5|. . . . . . . .|
+4|. . . . . . . .|
+3|. . . . . . . .|
+2|P P P P P P P P|
+1|R N B Q K B N R|
+ +---------------+
+  a b c d e f g h
+@end example
 
 @defopt chess-plain-separate-frame
 If non-nil, display the chessboard in its own frame.
@@ -1683,6 +1699,31 @@ Number of spaces between files.
 
 @node ICS1 style ASCII displays, Graphical displays, Plain ASCII diagram displays, Chessboard displays
 @section ICS1 style ASCII displays
+
+@code{chess-ics1} is a more verbose @acronym{ASCII} chessboard display.
+
+This is how the starting position looks with this chessboard display:
+
+@example
+      +---+---+---+---+---+---+---+---+
+    8 | r | n | b | q | k | b | n | r |
+      +---+---+---+---+---+---+---+---+
+    7 | p | p | p | p | p | p | p | p |
+      +---+---+---+---+---+---+---+---+
+    6 |   |   |   |   |   |   |   |   |
+      +---+---+---+---+---+---+---+---+
+    5 |   |   |   |   |   |   |   |   |
+      +---+---+---+---+---+---+---+---+
+    4 |   |   |   |   |   |   |   |   |
+      +---+---+---+---+---+---+---+---+
+    3 |   |   |   |   |   |   |   |   |
+      +---+---+---+---+---+---+---+---+
+    2 | P | P | P | P | P | P | P | P |
+      +---+---+---+---+---+---+---+---+
+    1 | R | N | B | Q | K | B | N | R |
+      +---+---+---+---+---+---+---+---+
+        a   b   c   d   e   f   g   h
+@end example
 
 @defopt chess-ics1-separate-frame
 If non-nil, display the chessboard in its own frame.

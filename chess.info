@@ -1405,8 +1405,22 @@ File: chess.info,  Node: Plain ASCII diagram displays,  Next: ICS1 style ASCII d
 3.3 Plain ASCII diagram displays
 ================================
 
-The simplest display style available is CHESS-PLAIN, a very customisable
-ASCII board diagram display.
+The simplest display style available is ‘chess-plain’, a very
+customisable ASCII board diagram display.
+
+   This is how the starting position looks in its default configuration:
+
+      +---------------+
+     8|r n b q k b n r|
+     7|p p p p p p p p|
+     6|. . . . . . . .|
+     5|. . . . . . . .|
+     4|. . . . . . . .|
+     3|. . . . . . . .|
+     2|P P P P P P P P|
+     1|R N B Q K B N R|
+      +---------------+
+       a b c d e f g h
 
  -- User Option: chess-plain-separate-frame
      If non-nil, display the chessboard in its own frame.
@@ -1441,6 +1455,29 @@ File: chess.info,  Node: ICS1 style ASCII displays,  Next: Graphical displays,  
 
 3.4 ICS1 style ASCII displays
 =============================
+
+‘chess-ics1’ is a more verbose ASCII chessboard display.
+
+   This is how the starting position looks with this chessboard display:
+
+           +---+---+---+---+---+---+---+---+
+         8 | r | n | b | q | k | b | n | r |
+           +---+---+---+---+---+---+---+---+
+         7 | p | p | p | p | p | p | p | p |
+           +---+---+---+---+---+---+---+---+
+         6 |   |   |   |   |   |   |   |   |
+           +---+---+---+---+---+---+---+---+
+         5 |   |   |   |   |   |   |   |   |
+           +---+---+---+---+---+---+---+---+
+         4 |   |   |   |   |   |   |   |   |
+           +---+---+---+---+---+---+---+---+
+         3 |   |   |   |   |   |   |   |   |
+           +---+---+---+---+---+---+---+---+
+         2 | P | P | P | P | P | P | P | P |
+           +---+---+---+---+---+---+---+---+
+         1 | R | N | B | Q | K | B | N | R |
+           +---+---+---+---+---+---+---+---+
+             a   b   c   d   e   f   g   h
 
  -- User Option: chess-ics1-separate-frame
      If non-nil, display the chessboard in its own frame.
@@ -2215,7 +2252,7 @@ Function and Variable Index
 * chess-ics-server-list:                 Internet Chess Servers.
                                                               (line  17)
 * chess-ics1-separate-frame:             ICS1 style ASCII displays.
-                                                              (line   6)
+                                                              (line  29)
 * chess-images-directory:                Graphical displays.  (line   9)
 * chess-index-file:                      Position coordinates.
                                                               (line  13)
@@ -2235,19 +2272,19 @@ Function and Variable Index
 * chess-pgn-visualize:                   PGN mode.            (line   6)
 * chess-phalanx-path:                    Phalanx.             (line  12)
 * chess-plain-black-square-char:         Plain ASCII diagram displays.
-                                                              (line  17)
+                                                              (line  31)
 * chess-plain-border-style:              Plain ASCII diagram displays.
-                                                              (line  12)
-* chess-plain-piece-chars:               Plain ASCII diagram displays.
-                                                              (line  23)
-* chess-plain-separate-frame:            Plain ASCII diagram displays.
-                                                              (line   9)
-* chess-plain-spacing:                   Plain ASCII diagram displays.
-                                                              (line  34)
-* chess-plain-upcase-indicates:          Plain ASCII diagram displays.
                                                               (line  26)
+* chess-plain-piece-chars:               Plain ASCII diagram displays.
+                                                              (line  37)
+* chess-plain-separate-frame:            Plain ASCII diagram displays.
+                                                              (line  23)
+* chess-plain-spacing:                   Plain ASCII diagram displays.
+                                                              (line  48)
+* chess-plain-upcase-indicates:          Plain ASCII diagram displays.
+                                                              (line  40)
 * chess-plain-white-square-char:         Plain ASCII diagram displays.
-                                                              (line  20)
+                                                              (line  34)
 * chess-ply-changes:                     Ply details.         (line  12)
 * chess-ply-create:                      Creating plies.      (line   6)
 * chess-ply-final-p:                     The "next" position. (line   9)
@@ -2497,31 +2534,31 @@ Node: Selecting pieces with the keyboard50049
 Node: Selecting pieces with the mouse50641
 Node: Entering moves with algebraic notation51207
 Node: Plain ASCII diagram displays52225
-Node: ICS1 style ASCII displays53664
-Node: Graphical displays53971
-Node: Engines54605
-Node: Common functions55121
-Node: AI56169
-Node: Crafty57148
-Node: Fruit57935
-Node: Glaurung58831
-Node: GNU Chess59471
-Node: Phalanx60354
-Node: Sjeng60986
-Node: Stockfish61725
-Node: Chess Session62540
-Node: Internet Chess Servers63779
-Node: Connecting to a server64936
-Node: Chess ICS Mode65492
-Node: Command History69005
-Node: ICS Command Ring69626
-Node: ICS History Copying72839
-Node: Seeking an opponent for a new game74357
-Node: The sought game display75006
-Node: Watching other games76034
-Node: Concept Index77516
-Node: Function and Variable Index79375
-Node: Key Index96400
+Node: ICS1 style ASCII displays54008
+Node: Graphical displays55260
+Node: Engines55894
+Node: Common functions56410
+Node: AI57458
+Node: Crafty58437
+Node: Fruit59224
+Node: Glaurung60120
+Node: GNU Chess60760
+Node: Phalanx61643
+Node: Sjeng62275
+Node: Stockfish63014
+Node: Chess Session63829
+Node: Internet Chess Servers65068
+Node: Connecting to a server66225
+Node: Chess ICS Mode66781
+Node: Command History70294
+Node: ICS Command Ring70915
+Node: ICS History Copying74128
+Node: Seeking an opponent for a new game75646
+Node: The sought game display76295
+Node: Watching other games77323
+Node: Concept Index78805
+Node: Function and Variable Index80664
+Node: Key Index97689
 
 End Tag Table
 
