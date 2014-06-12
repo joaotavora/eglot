@@ -15,7 +15,7 @@
 Copyright @copyright{} 2001, 2002, 2014 Free Software Foundation, @abbr{Inc.}
 
 Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
+under the terms of the @acronym{GNU} Free Documentation License, Version 1.1 or
 any later version published by the Free Software Foundation.
 @end ifinfo
 
@@ -45,7 +45,7 @@ any later version published by the Free Software Foundation.
 Copyright @copyright{} 2001, 2002, 2014 Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
+under the terms of the @acronym{GNU} Free Documentation License, Version 1.1 or
 any later version published by the Free Software Foundation.
 @end titlepage
 
@@ -464,9 +464,9 @@ FEN strings.  If you are unsure, use the more verbose form:
 
 @dfn{@acronym{EPD, Extended Position Description}} is a standard for describing chess
 positions along with an extended set of structured attribute values using the
-ASCII character set.  It is intended for data and command interchange among
-chess-playing programs.  It is also intended for the representation of portable
-opening library repositories.
+@acronym{ASCII} character set.  It is intended for data and command interchange
+among chess-playing programs.  It is also intended for the representation of
+portable opening library repositories.
 
 A single EPD uses one text line of variable length composed of four data field
 followed by zero or more operations.  The four fields of the @acronym{EPD} specification
@@ -513,7 +513,7 @@ Some opcodes that allow for more than one operand may have special ordering
 requirements for the operands.  For example, the "pv" (predicted variation)
 opcode requires its operands (moves) to appear in the order in which they would
 be played.  All other opcodes that allow for more than one operand should have
-operands appearing in ASCII order.  An example of the latter set is the "bm"
+operands appearing in @acronym{ASCII} order.  An example of the latter set is the "bm"
 (best move[s]) opcode; its operands are moves that are all immediately playable
 from the current position.
 
@@ -544,14 +544,14 @@ byte) representation is suggested.
 
 The opcode "am" indicates a set of zero or more moves, all immediately playable
 from the current position, that are to be avoided in the opinion of the EPD
-writer.  Each operand is a SAN move; they appear in ASCII order.
+writer.  Each operand is a @acronym{SAN} move; they appear in @acronym{ASCII} order.
 
 @node Opcode "bm" best move(s),  , Opcode "am" avoid move(s), EPD notation
 @subsubsection Opcode "bm" best move(s)
 
 The opcode "bm" indicates a set of zero or more moves, all immediately playable
 from the current position, that are judged to the best available by the EPD
-writer.  Each operand is a SAN move; they appear in ASCII order.
+writer.  Each operand is a @acronym{SAN} move; they appear in @acronym{ASCII} order.
 
 @node Plies, Variations, Positions, The chess.el library
 @section Plies
@@ -713,8 +713,8 @@ represented interesting tangents during a game---but not actually
 played---as envisioned by the player, an annotator, or someone studying
 the game.
 
-Variations may be represented in ASCII by stating the FEN string for
-starting position, followed by the list of plies that follow that
+Variations may be represented in @acronym{ASCII} by stating the @acronym{FEN}
+string for starting position, followed by the list of plies that follow that
 position.  They are difficult to represent graphically, except for
 showing each position in turn with a slight pause between---or by
 allowing the user to navigate each of the subsequent positions in turn.
@@ -814,35 +814,26 @@ sub-variations of interest to those studying the game afterwards.
 Where TAGS is an alist that associates arbitrary English tag names to
 their values.
 
-A game may be represented in ASCII using @acronym{PGN, Portable Game Notation}.
+A game may be represented in @acronym{ASCII} using @acronym{PGN,
+Portable Game Notation}.
 Representing them graphically or verbally is similar to what is done
 for variations.
-
-@c lispfun chess-game-add-hook
 
 @defun chess-game-add-hook game function &optional data prepend
 Add to @var{game} an event hook @var{function}.
 @end defun
 
-@c lispfun chess-game-add-ply
-
 @defun chess-game-add-ply game ply
 Add @var{ply} to the main variation of @var{game}.
 @end defun
-
-@c lispfun chess-game-hooks
 
 @defun chess-game-hooks game
 Return the event hooks associated with @var{game}.
 @end defun
 
-@c lispfun chess-game-plies
-
 @defun chess-game-plies game
 Return the main variation of @var{game} as a list of plies.
 @end defun
-
-@c lispfun chess-game-remove-hook
 
 @defun chess-game-remove-hook game function &optional data
 Remove from @var{game} all event hooks that match @var{function}.
@@ -850,19 +841,13 @@ If @var{data} is specified, only remove those hooks whose associated data
 matches.
 @end defun
 
-@c lispfun chess-game-run-hooks
-
 @defun chess-game-run-hooks game &rest args
 Run the event hooks of @var{game} and pass @var{args}.
 @end defun
 
-@c lispfun chess-game-set-hooks
-
 @defun chess-game-set-hooks game hooks
 Set the event hooks associated with @var{game}.
 @end defun
-
-@c lispfun chess-game-set-plies
 
 @defun chess-game-set-plies game plies
 Set the list of plies which represents the main variation of @var{game}.
@@ -1697,6 +1682,10 @@ modify `chess-plain-piece-chars' to avoid real confusion.)
 Number of spaces between files.
 @end defopt
 
+@kindex M-x customize-group RET chess-plain RET
+To customize options of @code{chess-plain}, use
+@kbd{M-x customize-group @key{RET} chess-plain @key{RET}}.
+
 @node ICS1 style ASCII displays, Graphical displays, Plain ASCII diagram displays, Chessboard displays
 @section ICS1 style ASCII displays
 
@@ -1729,6 +1718,10 @@ This is how the starting position looks with this chessboard display:
 If non-nil, display the chessboard in its own frame.
 @end defopt
 
+@kindex M-x customize-group RET chess-ics1 RET
+To customize options of @code{chess-ics1}, use
+@kbd{M-x customize-group @key{RET} chess-ics1 @key{RET}}.
+
 @node Graphical displays,  , ICS1 style ASCII displays, Chessboard displays
 @section Graphical displays
 
@@ -1744,6 +1737,14 @@ and @var{piece} is one of rook, knight, bishop, queen, king or pawn.
 
 The only image format currently supported is @acronym{XPM}.
 @end defopt
+
+@defopt chess-images-separate-frame
+If non-nil, display the chessboard in its own frame.
+@end defopt
+
+@kindex M-x customize-group RET chess-images RET
+For all customization options of @code{chess-images}, use
+@kbd{M-x customize-group @key{RET} chess-images @key{RET}}.
 
 @node Engines, Chess Session, Chessboard displays, Top
 @chapter Engines
@@ -1768,18 +1769,14 @@ for playing with opponent over different types of transports.
 @node Common functions, AI, Engines, Engines
 @section Common functions
 
-@c lispfun chess-engine-create
-
 @defun chess-engine-create module game &optional response-handler &rest handler-ctor-args
 Create a new chess engine @var{module} (a symbol) associated with @var{game}.
 Optionally supply a new @var{response-handler}.
 @end defun
 
-@c lispfun chess-engine-set-option
-
 @defun chess-engine-set-option engine option value
-Set @var{engine} @var{option} to @var{value} by invoking its handler with the 'set-option
-event.
+Set @var{engine} @var{option} to @var{value} by invoking its handler with
+the 'set-option event.
 @end defun
 
 @c lispfun chess-engine-destroy
@@ -1907,23 +1904,25 @@ to play against Glaurung by invoking @kbd{C-u M-x chess @key{RET} glaurung @key{
 @node GNU Chess, Phalanx, Glaurung, Engines
 @section GNU Chess
 
-@dfn{GNU Chess} is free software, licensed under the terms of the
-GNU General Public License version 3 or any later version,
-and is maintained by collaborating developers.  As one of the earliest
-computer chess programs with full source code available, it's one of the oldest
-for Unix-based systems and has since been ported to many other platforms.
+@uref{http://gnu.org/software/chess/, @dfn{@acronym{GNU} Chess}} is free
+software, licensed under the terms of the @acronym{GNU} General Public License, and is
+maintained by collaborating developers.
+As one of the earliest computer chess programs with full source code available,
+it's one of the oldest for Unix-based systems and has since been ported to many
+other platforms.
 
-If the @command{gnuChess} program is installed and can be found in the
+If the @command{gnuchess} program is installed and can be found in the
 program search path (@code{exec-path}),
 the @code{chess-gnuchess} engine module will automatically detect it.
 
 @vindex chess-gnuchess-path
-If GNU Chess is installed in a non-standard location, variable
+If @acronym{GNU} Chess is installed in a non-standard location, variable
 @code{chess-gnuchess-path} can be set to point to the executable.
 
 @kindex C-u M-x chess RET gnuchess RET
 If you have multiple engines installed you can explicitly select
-to play against GNU Chess by invoking .
+to play against @acronym{GNU} Chess by invoking
+@kbd{C-u M-x chess @key{RET} gnuchess @key{RET}}.
 
 @node Phalanx, Sjeng, GNU Chess, Engines
 @section Phalanx
@@ -1968,7 +1967,7 @@ to play against Sjeng by invoking @kbd{C-u M-x chess @key{RET} sjeng @key{RET}}.
 chess engines in the world, appearing near or at the top of most chess engine
 rating lists.
 Stockfish is also free software, licensed under the terms of the
-GNU General Public License.
+@acronym{GNU} General Public License.
 
 If the @command{stockfish} program is installed and can be found in the
 program search path (@code{exec-path}),
@@ -2010,6 +2009,21 @@ to use.
 You can have several active chess sessions.
 In fact, some features later described in this manual make use
 of this, @xref{Internet Chess Servers}.
+
+@kindex M-x chess RET
+@vindex chess-default-display
+@vindex chess-default-engine
+To interactively start a chess session, invoke
+@kbd{M-x chess @key{RET}}.  This uses @code{chess-default-display}
+to determine the chessboard display to use, and
+@code{chess-default-engine} to determine an opponent.
+
+@kindex C-u M-x chess RET
+If you want to play against a specific engine, provide
+a prefix argument as in @kbd{C-u M-x chess @key{RET}}, which will
+prompt for an engine module.  The module name has the common
+prefix @samp{chess-} stripped.  So you enter @samp{gnuchess}
+to indicate you'd like to play against the @code{chess-gnuchess} module.
 
 @node Internet Chess Servers, Concept Index, Chess Session, Top
 @chapter Internet Chess Servers
