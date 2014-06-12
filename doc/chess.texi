@@ -560,17 +560,17 @@ A @dfn{ply} is the differential between two positions.  Or, it is the
 coordinate transformations applied to one position in order to arrive at
 the following position.  It is also informally called "a move".
 
-A ply may be represented in ASCII by printing the FEN string of the base
-position, and then printing the positional transformation in algebraic
-notation.  Since the starting position is usually known, the FEN string
+A ply may be represented in @acronym{ASCII} by printing the @acronym{FEN} string
+of the base position, and then printing the positional transformation in algebraic
+notation.  Since the starting position is usually known, the @acronym{FEN} string
 is optional.  A ply may be represented graphically by moving the chess
 piece(s) involved.  It may be rendered verbally by voicing which piece
 is to move, where it will move to, and what will happen a result of the
 move (piece capture, check, etc).
 
-Plies may be sent over network connections, postal mail, e-mail, etc.,
+Plies may be sent over network connections, postal mail, e-mail, @abbr{etc.},
 so long as the current position is maintained at both sides.
-Transmitting the base position's FEN string along with the ply offers a
+Transmitting the base position's @acronym{FEN} string along with the ply offers a
 form of confirmation during the course of a game.
 
 @menu
@@ -583,8 +583,6 @@ form of confirmation during the course of a game.
 @node Creating plies, Ply details, Plies, Plies
 @subsection Creating plies
 
-@c lispfun chess-ply-create
-
 @defun chess-ply-create position &optional valid-p &rest changes
 Create a ply from the given @var{position} by applying the supplied @var{changes}.
 This function will guarantee the resulting ply is legal, and will also
@@ -594,8 +592,6 @@ also extend castling, and will prompt for a promotion piece.
 Note: Do not pass in the rook move if @var{changes} represents a castling
 maneuver.
 @end defun
-
-@c lispfun chess-legal-plies
 
 @defun chess-legal-plies position &rest keywords
 Return a list of all legal plies in @var{position}.
@@ -612,51 +608,55 @@ Return a list of all legal plies in @var{position}.
 These will constrain the plies generated to those matching the above
 criteria.
 
-@var{note}: All of the returned plies will reference the same copy of the
+NOTE: All of the returned plies will reference the same copy of the
 position object passed in.
 @end defun
 
 @node Ply details, The "next" position, Creating plies, Plies
 @subsection Ply details
 
-@c lispfun chess-ply-pos
-
 @defun chess-ply-pos ply
 Returns the base position associated with @var{ply}.
 @end defun
-
-@c lispfun chess-ply-set-pos
 
 @defun chess-ply-set-pos ply position
 Set the base position of @var{ply}.
 @end defun
 
-@c lispfun chess-ply-changes
+@defun chess-ply-changes
+Return the coordinate transformations and keywords associated with this @var{ply}.
 
-@c lispfun chess-ply-set-changes
+A list of a pair of indices (or two, in case of castling) followed by
+optional keywords.
+@end defun
 
-@c lispfun chess-ply-source
+@defun chess-ply-set-changes
+Set the coordinate transformations and keywords associated with this @var{ply}.
+@end defun
 
 @defun chess-ply-source ply
-Returns the source square index value of @var{ply}.
+Return the source square index value of @var{ply}.
 @end defun
-
-@c lispfun chess-ply-target
 
 @defun chess-ply-target ply
-Returns the target square index value of @var{ply}.
+Return the target square index value of @var{ply}.
 @end defun
+
+For example, here is how to find the source square of a freshly created ply:
+
+@lisp
+(chess-ply-source (chess-ply-create chess-starting-position nil
+                                    (chess-coord-to-index "e2")
+                                    (chess-coord-to-index "e4")))
+@result{} 52
+@end lisp
 
 @node The "next" position, Algebraic notation, Ply details, Plies
 @subsection The "next" position
 
-@c lispfun chess-ply-next-pos
-
 @defun chess-ply-next-pos ply
 Return the position that results from executing @var{ply}.
 @end defun
-
-@c lispfun chess-ply-final-p
 
 @defun chess-ply-final-p ply
 Return non-nil if this is the last ply of a game/variation.
@@ -1482,6 +1482,7 @@ Invert the perspective of the current chess board.
 @findex chess-display-move-backward
 Show the previous move in the current game.
 
+@cindex algebraic notation, searching moves
 @kindex C-r
 @item C-r
 @findex chess-display-search-backward

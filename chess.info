@@ -552,11 +552,30 @@ File: chess.info,  Node: Ply details,  Next: The "next" position,  Prev: Creatin
  -- Function: chess-ply-set-pos ply position
      Set the base position of PLY.
 
+ -- Function: chess-ply-changes
+     Return the coordinate transformations and keywords associated with
+     this PLY.
+
+     A list of a pair of indices (or two, in case of castling) followed
+     by optional keywords.
+
+ -- Function: chess-ply-set-changes
+     Set the coordinate transformations and keywords associated with
+     this PLY.
+
  -- Function: chess-ply-source ply
-     Returns the source square index value of PLY.
+     Return the source square index value of PLY.
 
  -- Function: chess-ply-target ply
-     Returns the target square index value of PLY.
+     Return the target square index value of PLY.
+
+   For example, here is how to find the source square of a freshly
+created ply:
+
+     (chess-ply-source (chess-ply-create chess-starting-position nil
+                                         (chess-coord-to-index "e2")
+                                         (chess-coord-to-index "e4")))
+     ⇒ 52
 
 
 File: chess.info,  Node: The "next" position,  Next: Algebraic notation,  Prev: Ply details,  Up: Plies
@@ -2048,6 +2067,7 @@ Concept Index
 
 * algebraic notation, entering moves with: Entering moves with algebraic notation.
                                                                (line  6)
+* algebraic notation, searching moves:   Basic operations.     (line 13)
 * bishop:                                Position coordinates. (line 49)
 * Chess ICS mode:                        Chess ICS Mode.       (line  6)
 * Comint mode:                           Chess ICS Mode.       (line 79)
@@ -2228,13 +2248,15 @@ Function and Variable Index
                                                               (line  26)
 * chess-plain-white-square-char:         Plain ASCII diagram displays.
                                                               (line  20)
+* chess-ply-changes:                     Ply details.         (line  12)
 * chess-ply-create:                      Creating plies.      (line   6)
 * chess-ply-final-p:                     The "next" position. (line   9)
 * chess-ply-next-pos:                    The "next" position. (line   6)
 * chess-ply-pos:                         Ply details.         (line   6)
+* chess-ply-set-changes:                 Ply details.         (line  19)
 * chess-ply-set-pos:                     Ply details.         (line   9)
-* chess-ply-source:                      Ply details.         (line  12)
-* chess-ply-target:                      Ply details.         (line  15)
+* chess-ply-source:                      Ply details.         (line  23)
+* chess-ply-target:                      Ply details.         (line  26)
 * chess-ply-to-algebraic:                Algebraic notation.  (line  22)
 * chess-polyglot-book:                   Polyglot opening book format support.
                                                               (line  14)
@@ -2440,66 +2462,66 @@ Node: Opcode "bm" best move(s)17655
 Node: Plies18050
 Node: Creating plies19193
 Node: Ply details20376
-Node: The "next" position20856
-Node: Algebraic notation21214
-Node: Variations22753
-Node: Creating variations23852
-Node: Variation positions24160
-Node: Variation plies24766
-Node: Making a move in a variation25212
-Node: Games25765
-Node: Creating games27347
-Node: Game tags27792
-Node: Game positions28401
-Node: Game plies29035
-Node: Making a move29304
-Node: PGN notation29735
-Node: PGN mode30469
-Node: Collections30730
-Node: Opening Databases31509
-Node: Querying Databases31897
-Node: Modifying Databases32523
-Node: Finalising Databases32795
-Node: Database Modules32970
-Node: chess-file33228
-Node: chess-scid33878
-Node: Chess Opening Books34117
-Node: ECO Classification34436
-Node: Polyglot opening book format support34879
-Node: Modules36744
-Node: Chessboard displays43520
-Node: Generic display manipulation functions44154
-Node: Chess display mode46985
-Node: Basic operations47791
-Node: Selecting pieces with the keyboard49407
-Node: Selecting pieces with the mouse49999
-Node: Entering moves with algebraic notation50565
-Node: Plain ASCII diagram displays51583
-Node: ICS1 style ASCII displays53022
-Node: Graphical displays53329
-Node: Engines53963
-Node: Common functions54479
-Node: AI55527
-Node: Crafty56506
-Node: Fruit57293
-Node: Glaurung58189
-Node: GNU Chess58829
-Node: Phalanx59712
-Node: Sjeng60344
-Node: Stockfish61083
-Node: Chess Session61898
-Node: Internet Chess Servers63137
-Node: Connecting to a server64294
-Node: Chess ICS Mode64850
-Node: Command History68363
-Node: ICS Command Ring68984
-Node: ICS History Copying72197
-Node: Seeking an opponent for a new game73715
-Node: The sought game display74364
-Node: Watching other games75392
-Node: Concept Index76874
-Node: Function and Variable Index78660
-Node: Key Index95539
+Node: The "next" position21498
+Node: Algebraic notation21856
+Node: Variations23395
+Node: Creating variations24494
+Node: Variation positions24802
+Node: Variation plies25408
+Node: Making a move in a variation25854
+Node: Games26407
+Node: Creating games27989
+Node: Game tags28434
+Node: Game positions29043
+Node: Game plies29677
+Node: Making a move29946
+Node: PGN notation30377
+Node: PGN mode31111
+Node: Collections31372
+Node: Opening Databases32151
+Node: Querying Databases32539
+Node: Modifying Databases33165
+Node: Finalising Databases33437
+Node: Database Modules33612
+Node: chess-file33870
+Node: chess-scid34520
+Node: Chess Opening Books34759
+Node: ECO Classification35078
+Node: Polyglot opening book format support35521
+Node: Modules37386
+Node: Chessboard displays44162
+Node: Generic display manipulation functions44796
+Node: Chess display mode47627
+Node: Basic operations48433
+Node: Selecting pieces with the keyboard50049
+Node: Selecting pieces with the mouse50641
+Node: Entering moves with algebraic notation51207
+Node: Plain ASCII diagram displays52225
+Node: ICS1 style ASCII displays53664
+Node: Graphical displays53971
+Node: Engines54605
+Node: Common functions55121
+Node: AI56169
+Node: Crafty57148
+Node: Fruit57935
+Node: Glaurung58831
+Node: GNU Chess59471
+Node: Phalanx60354
+Node: Sjeng60986
+Node: Stockfish61725
+Node: Chess Session62540
+Node: Internet Chess Servers63779
+Node: Connecting to a server64936
+Node: Chess ICS Mode65492
+Node: Command History69005
+Node: ICS Command Ring69626
+Node: ICS History Copying72839
+Node: Seeking an opponent for a new game74357
+Node: The sought game display75006
+Node: Watching other games76034
+Node: Concept Index77516
+Node: Function and Variable Index79375
+Node: Key Index96400
 
 End Tag Table
 
