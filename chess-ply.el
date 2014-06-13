@@ -78,6 +78,8 @@
   (cl-assert (vectorp position))
   (setcar ply position))
 
+(gv-define-simple-setter chess-ply-pos chess-ply-set-pos)
+
 (defsubst chess-ply-changes (ply)
   (cl-assert (listp ply))
   (cdr ply))
@@ -87,7 +89,11 @@
   (cl-assert (listp changes))
   (setcdr ply changes))
 
+(gv-define-simple-setter chess-ply-changes chess-ply-set-changes)
+
 (defun chess-ply-any-keyword (ply &rest keywords)
+  "Return non-nil if PLY contains at least one of KEYWORDS."
+  (declare (side-effect-free t))
   (cl-assert (listp ply))
   (catch 'found
     (dolist (keyword keywords)
@@ -95,13 +101,11 @@
 	  (throw 'found keyword)))))
 
 (defun chess-ply-keyword (ply keyword)
+  (declare (side-effect-free t))
   (cl-assert (listp ply))
   (cl-assert (symbolp keyword))
   (let ((item (memq keyword (chess-ply-changes ply))))
-    (if item
-	(if (eq item (last (chess-ply-changes ply)))
-	    t
-	  (cadr item)))))
+    (and item (if (not (cdr item)) t (cadr item)))))
 
 (defun chess-ply-set-keyword (ply keyword &optional value)
   (cl-assert (listp ply))
@@ -109,12 +113,14 @@
   (let* ((changes (chess-ply-changes ply))
 	 (item (memq keyword changes)))
     (if item
-	(if value
-	    (setcar (cdr item) value))
+	(when value
+	  (setcar (cdr item) value))
       (nconc changes (if value
 			 (list keyword value)
 		       (list keyword))))
     value))
+
+(gv-define-simple-setter chess-ply-keyword chess-ply-set-keyword)
 
 (defsubst chess-ply-source (ply)
   "Returns the source square index value of PLY."
@@ -148,19 +154,19 @@
 	 (rook (chess-pos-can-castle position (if color
 						  (if long ?Q ?K)
 						(if long ?q ?k))))
-	 (bias (if long -1 1)) pos)
+	 (direction (if long chess-direction-west chess-direction-east)) pos)
     (when rook
-      (setq pos (chess-incr-index king 0 bias))
-      (while (and pos (not (equal pos rook))
+      (setq pos (chess-next-index king direction))
+      (while (and pos (/= pos rook)
 		  (chess-pos-piece-p position pos ? )
 		  (or (and long (< (chess-index-file pos) 2))
 		      (chess-pos-legal-candidates
 		       position color pos (list king))))
-	(setq pos (chess-incr-index pos 0 bias)))
-      (if (equal pos rook)
-	  (list king (chess-rf-to-index (if color 7 0) (if long 2 6))
-		rook (chess-rf-to-index (if color 7 0) (if long 3 5))
-		(if long :long-castle :castle))))))
+	(setq pos (chess-next-index pos direction)))
+      (when (equal pos rook)
+	(list king (if color (if long #o72 #o76) (if long #o02 #o06))
+	      rook (if color (if long #o73 #o75) (if long #o03 #o05))
+	      (if long :long-castle :castle))))))
 
 (chess-message-catalog 'english
   '((ambiguous-promotion . "Promotion without :promote keyword")))

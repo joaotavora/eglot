@@ -1,3 +1,18 @@
+2014-06-13  Mario Lang  <mlang@delysid.org>
+
+	* chess-pos.el (chess-pos-en-passant, chess-pos-status)
+	(chess-pos-side-to-move, chess-pos-annotations)
+	(chess-pos-preceding-ply): Enable use as generalized variables.
+	(chess-pos-p): New function.
+
+	* chess-ply.el (chess-ply-pos, chess-ply-changes)
+	(chess-ply-keyword): Enable use as generalized variables.
+	(chess-ply-castling-changes): Convert to using
+	`chess-next-index'.
+
+	* chess-polyglot.el (chess-polyglot-pos-to-key): Use logxor to invert
+	rank instead of two loops to keep rank/file apart.
+
 2014-06-11  Mario Lang  <mlang@delysid.org>
 
 	* chess-pos.el (chess-ply-castling-changes): Declare.

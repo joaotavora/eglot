@@ -102,7 +102,7 @@ this ply depth limit has been reached."
 
 (defun chess-ai-eval-static (position)
   "Calculate the static score for POSITION."
-  (cl-assert (vectorp position))
+  (cl-check-type position chess-pos)
   (let ((v 0)
 	(status (chess-pos-status position)))
     (if (eq status :checkmate)

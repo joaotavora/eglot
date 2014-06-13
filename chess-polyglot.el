@@ -97,11 +97,11 @@ The result is a list of the form (FROM-INDEX TO-INDEX PROMOTION WEIGHT)."
 FROM and TO are integers indicating the square indices.
 PROMOTION, if non-nil, indicates the piece to promote to.
 WEIGHT (an integer) is the relative weight of the move."
-  (cl-assert (vectorp position))
-  (cl-assert (and (integerp from) (>= from 0) (< from 64)))
-  (cl-assert (and (integerp to) (>= to 0) (< to 64)))
-  (cl-assert (memq promotion '(nil ?N ?B ?R ?Q)))
-  (cl-assert (integerp weight))
+  (cl-check-type position chess-pos)
+  (cl-check-type from (integer 0 63))
+  (cl-check-type to (integer 0 63))
+  (cl-check-type promotion (member nil ?N ?B ?R ?Q))
+  (cl-check-type weight integer)
   (let* ((color (chess-pos-side-to-move position))
 	 (ply (apply #'chess-ply-create position nil
 		     (if (and (= from (chess-rf-to-index (if color 7 0) 4))
@@ -429,20 +429,19 @@ On reaching end or beginning of buffer, stop and signal error."
 (defun chess-polyglot-pos-to-key (position)
   "Calculate the polyglot zorbist hash for POSITION.
 Uses 781 predefined hash values from `chess-polyglot-zorbist-keys'."
-  (cl-assert (vectorp position))
+  (declare (side-effect-free t))
+  (cl-check-type position chess-pos)
   (let ((a16 0) (b16 0) (c16 0) (d16 0))
-    (dotimes (rank 8)
-      (dotimes (file 8)
-	(let ((piece (cl-position (chess-pos-piece position (chess-rf-to-index
-							     rank file))
-				  chess-polyglot-zorbist-piece-type)))
-	  (when piece
-	    (let ((piece-key (aref chess-polyglot-zorbist-keys
-				   (+ (* 64 piece) (* (- 7 rank) 8) file))))
-	      (setq a16 (logxor a16 (nth 0 piece-key))
-		    b16 (logxor b16 (nth 1 piece-key))
-		    c16 (logxor c16 (nth 2 piece-key))
-		    d16 (logxor d16 (nth 3 piece-key))))))))
+    (dotimes (index 64)
+      (let ((piece (cl-position (chess-pos-piece position index)
+				chess-polyglot-zorbist-piece-type)))
+	(when piece
+	  (let ((piece-key (aref chess-polyglot-zorbist-keys
+				 (+ (* 64 piece) (logxor index #o70)))))
+	    (setq a16 (logxor a16 (nth 0 piece-key))
+		  b16 (logxor b16 (nth 1 piece-key))
+		  c16 (logxor c16 (nth 2 piece-key))
+		  d16 (logxor d16 (nth 3 piece-key)))))))
     (let ((sides '(?K ?Q ?k ?q)))
       (dolist (side sides)
 	(when (chess-pos-can-castle position side)

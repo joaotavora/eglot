@@ -93,8 +93,8 @@ notation.")
   "Convert the (short or long) algebraic notation MOVE for POSITION to a ply.
 
 Figurine notation is currently not supported."
-  (cl-assert (vectorp position))
-  (cl-assert (stringp move))
+  (cl-check-type position chess-pos)
+  (cl-check-type move string)
   (let ((case-fold-search nil))
     (when (string-match chess-algebraic-regexp-entire move)
       (let ((color (chess-pos-side-to-move position))
@@ -168,7 +168,7 @@ Optional argument TYPE specifies the kind of algebraic notation to generate.
 `:san' (the default) generates short (or standard) algebraic notation.
 `:lan' generates long algebraic notation (like \"Nb1-c3\".
 `:fan' generates figurine algebraic notation (like \"♘c3\"."
-  (cl-assert (listp ply))
+  (cl-check-type ply (and list (not null)))
   (cl-check-type type (member nil :san :fan :lan))
   (unless type (setq type :san))
   (or (chess-ply-keyword ply type)
