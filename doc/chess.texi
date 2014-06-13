@@ -55,7 +55,7 @@ any later version published by the Free Software Foundation.
 @c                   The real text starts here
 @c ================================================================
 
-@ifinfo
+@ifnottex
 @node Top, The chess.el library, (dir), (dir)
 @top Emacs Chess: chess.el
 
@@ -67,7 +67,7 @@ multitude of other purposes.
 
 The purpose of this manual is to help you understand how Chess.el is
 structured for use as a library, and also how to use it as a client.
-@end ifinfo
+@end ifnottex
 
 @menu
 * The chess.el library::        Basic objects required to deal with Chess
