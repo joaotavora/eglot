@@ -63,9 +63,7 @@
 (require 'chess-message)
 (require 'mm-decode)
 (require 'mm-view)
-
-(eval-when-compile
-  (require 'pcomplete nil t))
+(require 'pcomplete)
 
 (defvar chess-pgn-fill-column 60)
 
@@ -298,6 +296,18 @@ PGN text."
 	 game)
       (chess-error 'could-not-read-pgn))))
 
+(defvar chess-pgn-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map text-mode-map)
+    (define-key map [(control ?c) (control ?c)] 'chess-pgn-show-position)
+    (define-key map [mouse-2] 'chess-pgn-mouse-show-position)
+
+    ;;(define-key map [(control ?m)] 'chess-pgn-move)
+    ;;(define-key map [space] 'chess-pgn-move)
+    (define-key map [? ] 'chess-pgn-insert-and-show-position)
+    (define-key map [tab] 'chess-pgn-complete-move)
+    map))
+
 ;;;###autoload
 (define-derived-mode chess-pgn-mode text-mode "PGN"
   "A mode for editing chess PGN files."
@@ -310,23 +320,12 @@ PGN text."
 
   (if (fboundp 'font-lock-mode)
       (font-lock-mode 1))
-
-  (let ((map (current-local-map)))
-    (define-key map [(control ?c) (control ?c)] 'chess-pgn-show-position)
-    (define-key map [mouse-2] 'chess-pgn-mouse-show-position)
-
-    ;;(define-key map [(control ?m)] 'chess-pgn-move)
-    ;;(define-key map [space] 'chess-pgn-move)
-    (define-key map [? ] 'chess-pgn-insert-and-show-position)
-
-    (when (require 'pcomplete nil t)
-      (set (make-local-variable 'pcomplete-default-completion-function)
-           'chess-pgn-completions)
-      (set (make-local-variable 'pcomplete-command-completion-function)
-           'chess-pgn-completions)
-      (set (make-local-variable 'pcomplete-parse-arguments-function)
-           'chess-pgn-current-word)
-      (define-key map [tab] 'chess-pgn-complete-move))))
+  (set (make-local-variable 'pcomplete-default-completion-function)
+       'chess-pgn-completions)
+  (set (make-local-variable 'pcomplete-command-completion-function)
+       'chess-pgn-completions)
+  (set (make-local-variable 'pcomplete-parse-arguments-function)
+       'chess-pgn-current-word))
 
 ;;;###autoload
 (defalias 'pgn-mode 'chess-pgn-mode)
