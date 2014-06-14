@@ -23,6 +23,7 @@
 
 (require 'chess-common)
 (require 'chess-fen)
+(require 'chess-pgn)
 
 (defgroup chess-gnuchess nil
   "The publically available chess engine 'gnuchess'."
@@ -79,7 +80,7 @@
       (if (zerop (chess-game-index (car args)))
 	  (chess-gnuchess-handler game 'setup-pos (chess-game-pos game 0))
 	(let ((file (chess-with-temp-file
-			(insert (chess-game-to-string (car args)) ?\n))))
+			(chess-insert-pgn (car args)) (insert ?\n))))
 	  (chess-engine-send nil (format "pgnload %s\n" file)))))
 
      ((eq event 'pass)

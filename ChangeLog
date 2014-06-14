@@ -1,5 +1,17 @@
 2014-06-14  Mario Lang  <mlang@delysid.org>
 
+	* chess-test.el (chess-test): Renamed to...
+	(chess-test-database): More descriptive name.
+	(chess-perft): Require as this is our entry-point for testing.
+	* doc/chess.texi: Renamed to...
+	* chess.texi: Top-level file, keeping doc/ for just one file is useless.
+	* Makefile: Adjust and use the predefined MAKEINFO variable from GNU Make.
+	* chess-pgn.el (chess-game): Require.
+	(chess-pgn-parse): Use `rx'.
+	* chess-game.el (chess-pgn): Do not require.
+	(chess-game-to-string, chess-game-from-string): Remove, all callers
+	updated to use chess-pgn functions directly.
+
 	* chess-algebraic.el (chess-ply-to-algebraic): If TYPE is `:numeric',
 	generate ICCF numeric notation.
 	(chess-algebraic-regexp, chess-algebraic-to-ply): Optionally allow "0-0"

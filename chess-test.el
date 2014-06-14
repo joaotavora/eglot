@@ -25,8 +25,9 @@
 
 (require 'chess-database)
 (require 'chess-game)
+(require 'chess-perft)
 
-(defun chess-test (&optional file start count)
+(defun chess-test-database (&optional file start count)
   (unless file
     (setq file (nth 0 command-line-args-left)))
   (unless start

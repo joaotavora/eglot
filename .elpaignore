@@ -3,6 +3,5 @@
 .elpaignore
 chess-eco.pos
 chess-test.el
-doc
 ChangeLog
 Makefile

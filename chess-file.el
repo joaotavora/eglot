@@ -28,6 +28,7 @@
 ;;; Code:
 
 (require 'chess-fen)
+(require 'chess-pgn)
 
 (defvar chess-file-locations nil
   "A list of starting positions of individual records of this collection.")

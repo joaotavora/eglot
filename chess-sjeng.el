@@ -22,6 +22,7 @@
 
 (require 'chess-common)
 (require 'chess-fen)
+(require 'chess-pgn)
 
 (defgroup chess-sjeng nil
   "The publically available chess engine 'sjeng'."
@@ -95,7 +96,7 @@
 
      ((eq event 'setup-game)
       (let ((file (chess-with-temp-file
-		      (insert (chess-game-to-string (car args)) ?\n))))
+		      (chess-insert-pgn (car args)) (insert ?\n))))
 	(chess-engine-send nil (format "read %s\n" file))))
 
      ((eq event 'set-option)

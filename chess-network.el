@@ -23,6 +23,7 @@
 
 (require 'chess-common)
 (require 'chess-fen)
+(require 'chess-pgn)
 
 (defvar chess-network-regexp-alist
   (list
@@ -165,7 +166,7 @@
      ((eq event 'setup-game)
       (chess-engine-send nil (format "pgn %s\n"
 				     (chess-network-flatten-multiline
-				      (chess-game-to-string (car args))))))
+				      (chess-game-to-pgn (car args) nil t)))))
 
      ((eq event 'pass)
       (chess-engine-send nil "pass\n"))

@@ -28,7 +28,6 @@
 
 (eval-when-compile (require 'cl-lib))
 (require 'chess-ply)
-(require 'chess-pgn)
 
 (defvar chess-game-inhibit-events nil)
 
@@ -266,16 +265,6 @@ If INDEX is non-nil, the last played ply is returned."
   (let ((last-ply (car (last (nth 3 game) 2))))
     (and last-ply (chess-ply-final-p last-ply))))
 
-
-(defsubst chess-game-to-string (game &optional indented)
-  "Convert GAME to a string in PGN format."
-  (cl-assert game)
-  (chess-game-to-pgn game indented t))
-
-(defsubst chess-game-from-string (pgn)
-  "Convert a PGN format string to a chess game object."
-  (cl-check-type pgn string)
-  (chess-pgn-to-game pgn))
 
 (defsubst chess-game-copy-game (game new-game)
   (cl-assert game)
