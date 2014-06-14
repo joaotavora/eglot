@@ -135,9 +135,7 @@ On reaching end or beginning of buffer, stop and signal error."
   "Non-nil if the polyglot key LHS is less than or equal to RHS."
   (while (and lhs rhs (= (car lhs) (car rhs)))
     (setq lhs (cdr lhs) rhs (cdr rhs)))
-  (if (and (null lhs) (null rhs))
-      t
-    (<= (car lhs) (car rhs))))
+  (or (and (null lhs) (null rhs)) (<= (car lhs) (car rhs))))
 
 (defun chess-polyglot-read-moves (key)
   "Read all moves associated with KEY from the current buffer."

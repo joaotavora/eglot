@@ -1,3 +1,8 @@
+2014-06-14  Mario Lang  <mlang@delysid.org>
+
+	* chess-algebraic.el (chess-ply-to-algebraic): If TYPE is `:numeric',
+	generate ICCF numeric notation.
+
 2014-06-13  Mario Lang  <mlang@delysid.org>
 
 	* chess-pos.el (chess-pos-en-passant, chess-pos-status)

@@ -165,17 +165,28 @@ Figurine notation is currently not supported."
 (defun chess-ply-to-algebraic (ply &optional type)
   "Convert the given PLY to algebraic notation.
 Optional argument TYPE specifies the kind of algebraic notation to generate.
-`:san' (the default) generates short (or standard) algebraic notation.
-`:lan' generates long algebraic notation (like \"Nb1-c3\".
-`:fan' generates figurine algebraic notation (like \"♘c3\"."
+`:san' (the default) generates short (or standard) algebraic notation
+\(like \"Nc3\").  `:lan' generates long algebraic notation (like \"Nb1-c3\".
+`:fan' generates figurine algebraic notation (like \"♘c3\".
+Finally, `:numeric' generates ICCF numeric notation (like \"2133\"."
   (cl-check-type ply (and list (not null)))
-  (cl-check-type type (member nil :san :fan :lan))
+  (cl-check-type type (member nil :san :fan :lan :numeric))
   (unless type (setq type :san))
   (or (chess-ply-keyword ply type)
       (and (null (chess-ply-source ply)) "")
       (chess-ply-set-keyword
        ply type
        (or
+	(and (eq type :numeric)
+	     (apply
+	      #'string
+	      (+ (chess-index-file (chess-ply-source ply)) ?1)
+	      (+ (chess-index-rank (logxor (chess-ply-source ply) #o70)) ?1)
+	      (+ (chess-index-file (chess-ply-target ply)) ?1)
+	      (+ (chess-index-rank (logxor (chess-ply-target ply) #o70)) ?1)
+	      (when (chess-ply-keyword ply :promote)
+		(list (+ (cl-position (chess-ply-keyword ply :promote)
+				      '(?Q ?R ?B ?N)) ?1)))))
 	(and (chess-ply-keyword ply :castle) "O-O")
 	(and (chess-ply-keyword ply :long-castle) "O-O-O")
 	(let* ((pos (chess-ply-pos ply))
