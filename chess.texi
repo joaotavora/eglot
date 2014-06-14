@@ -299,15 +299,11 @@ pieces which can give check (not the opponents king).
 If @var{no-castling} is non-nil, do not consider castling moves.
 @end defun
 
-@c lispfun chess-pos-can-castle
-
 @defun chess-pos-can-castle position side
 Return whether the king on @var{position} can castle on @var{side}.
 @var{side} must be either ?K for the king side, or ?Q for the queen side (use
 lowercase to query if black can castle).
 @end defun
-
-@c lispfun chess-pos-set-can-castle
 
 @defun chess-pos-set-can-castle position side value
 Set whether the king can castle on the given @var{position} on @var{side}.
@@ -317,31 +313,23 @@ See `chess-pos-can-castle'.
 It is only necessary to call this function if setting up a position
 manually.  Note that all newly created positions have full castling
 privileges set, unless the position is created blank, in which case
-castling privileges are unset.  See `chess-pos-copy'.
+castling privileges are unset.  See `chess-pos-create'.
 @end defun
-
-@c lispfun chess-pos-en-passant
 
 @defun chess-pos-en-passant position
 Return the index of any pawn on @var{position} that can be captured en passant.
 Returns nil if en passant is unavailable.
 @end defun
 
-@c lispfun chess-pos-set-en-passant
-
 @defun chess-pos-set-en-passant position index
 Set the index of any pawn on @var{position} that can be captured en passant.
 @end defun
 
-@c lispfun chess-pos-status
-
 @defun chess-pos-status position
 Return whether the side to move in the @var{position} is in a special state.
-nil is returned if not, otherwise one of the symbols: `check',
-`checkmate', `stalemate'.
+nil is returned if not, otherwise one of the keywords: `:check',
+`:checkmate' or `:stalemate'.
 @end defun
-
-@c lispfun chess-pos-set-status
 
 @defun chess-pos-set-status position value
 Set whether the side to move in @var{position} is in a special state.
@@ -349,19 +337,13 @@ Set whether the side to move in @var{position} is in a special state.
 or one of the symbols: `check', `checkmate', `stalemate'.
 @end defun
 
-@c lispfun chess-pos-side-to-move
-
 @defun chess-pos-side-to-move position
 Return the color whose move it is in @var{position}.
 @end defun
 
-@c lispfun chess-pos-set-side-to-move
-
 @defun chess-pos-set-side-to-move position color
 Set the color whose move it is in @var{position}.
 @end defun
-
-@c lispfun chess-pos-passed-pawns
 
 @defun chess-pos-passed-pawns position color &optional pawn-indices
 If @var{color} has Passed Pawns in @var{position}, return a list of their indices.
@@ -378,8 +360,6 @@ This is really only useful when setting up training positions.
 This variable automatically becomes buffer-local when changed.
 @end defvar
 
-@c lispfun chess-pos-move
-
 @defun chess-pos-move position &rest changes
 Move a piece on the @var{position} directly, using the indices in @var{changes}.
 This function does not check any rules, it only makes sure you are not
@@ -389,13 +369,9 @@ trying to move a blank square.
 @node Annotations, FEN notation, Position details, Positions
 @subsection Annotations
 
-@c lispfun chess-pos-annotations
-
 @defun chess-pos-annotations position
 Return the list of annotations for this position.
 @end defun
-
-@c lispfun chess-pos-add-annotation
 
 @defun chess-pos-add-annotation position annotation
 Add an annotation for this position.
@@ -408,7 +384,7 @@ Add an annotation for this position.
 @dfn{@acronym{FEN, Forsyth-Edwards Notation}} encodes a chess position using
 a simple string.  The format is:
 
-   @var{position} @var{side} @var{castling} @var{en-passant}
+   @samp{@var{position} @var{side} @var{castling} @var{en-passant}}
 
 The @var{position} gives all eight ranks, by specifying a letter for each
 piece on the position, and a number for any intervening spaces, ranks
@@ -616,7 +592,7 @@ position object passed in.
 @subsection Ply details
 
 @defun chess-ply-pos ply
-Returns the base position associated with @var{ply}.
+Return the base position associated with @var{ply}.
 @end defun
 
 @defun chess-ply-set-pos ply position
@@ -675,6 +651,9 @@ You can convert from algebraic notation to a ply using the following function:
 
 @defun chess-algebraic-to-ply position move &optional trust
 Convert the algebraic notation @var{move} for @var{position} to a ply.
+
+If optional argument @var{trust} is non-nil, accept check or checkmate
+symbols (@samp{+} and @samp{#}) as given.
 @end defun
 
 The function also checks if a move is legal, and will raise an
@@ -682,6 +661,11 @@ error if not.
 
 To convert from a ply to algebraic notation, use:
 
+@cindex standard algebraic notation
+@cindex short algebraic notation
+@cindex long algebraic notation
+@cindex figurine algebraic notation
+@cindex numeric notation
 @defun chess-ply-to-algebraic ply &optional type
 Convert the given @var{ply} to algebraic notation (a string).
 
@@ -691,6 +675,8 @@ generate.
 @code{:lan} generates long algebraic notation (like @samp{Nb1-c3}).
 @code{:fan} generates figurine algebraic notation (uppercase letters will
 be replaced by Unicode chess figures).
+@code{:numeric} generates ICCF numeric notation as used in corespondence
+chess (like @samp{2133}).
 @end defun
 
 Lastly, there is a regexp for quickly checking if a string is in
@@ -699,7 +685,7 @@ buffer:
 
 @defvar chess-algebraic-regexp
 A regular expression that matches all possible algebraic moves.
-This regexp handles both long and short form.
+This regexp handles short, long and figurine algebraic notation.
 @end defvar
 
 @node Variations, Games, Plies, The chess.el library
@@ -741,25 +727,17 @@ Optionally use the given starting @var{position}.
 @node Variation positions, Variation plies, Creating variations, Variations
 @subsection Variation positions
 
-@c lispfun chess-var-pos
-
 @defun chess-var-pos var &optional index
 Return the position related to @var{var}'s @var{index} ply.
 @end defun
-
-@c lispfun chess-var-index
 
 @defun chess-var-index var
 Return the @var{var}'s current position index.
 @end defun
 
-@c lispfun chess-var-seq
-
 @defun chess-var-seq var
 Return the current @var{var} sequence.
 @end defun
-
-@c lispfun chess-var-side-to-move
 
 @defun chess-var-side-to-move var &optional index
 Return the color whose move it is in @var{var} at @var{index} (or at the last position
@@ -769,19 +747,13 @@ of the variation if @var{index} is nil).
 @node Variation plies, Making a move in a variation, Variation positions, Variations
 @subsection Variation plies
 
-@c lispfun chess-var-ply
-
 @defun chess-var-ply var &optional index
 Return @var{var}'s @var{index}th ply.
 @end defun
 
-@c lispfun chess-var-plies
-
 @defun chess-var-plies var
 Return the plies of @var{var}.
 @end defun
-
-@c lispfun chess-var-to-algebraic
 
 @defun chess-var-to-algebraic var &optional long
 Reveal the plies of @var{var} by converting them to algebraic
@@ -790,8 +762,6 @@ notation.
 
 @node Making a move in a variation,  , Variation plies, Variations
 @subsection Making a move in a variation
-
-@c lispfun chess-var-move
 
 @defun chess-var-move var ply
 Make a move in the current @var{var} by applying the changes of @var{ply}.
@@ -865,8 +835,6 @@ Set the list of plies which represents the main variation of @var{game}.
 @node Creating games, Game tags, Games, Games
 @subsection Creating games
 
-@c lispfun chess-game-create
-
 @defun chess-game-create &optional position tags
 Create a new chess game object.
 Optionally use the given starting @var{position} (see also
@@ -878,32 +846,22 @@ later using the various tag-related methods).
 @node Game tags, Game positions, Creating games, Games
 @subsection Game tags
 
-@c lispfun chess-game-tags
-
 @defun chess-game-tags game
 Return the tags alist associated with @var{game}.
 @end defun
-
-@c lispfun chess-game-set-tags
 
 @defun chess-game-set-tags game tags
 Set the tags alist associated with @var{game}.
 After the @var{tags} alist was set the 'set-tags event is triggered.
 @end defun
 
-@c lispfun chess-game-tag
-
 @defun chess-game-tag game tag
 Return the value for @var{tag} in @var{game}.
 @end defun
 
-@c lispfun chess-game-set-tag
-
 @defun chess-game-set-tag game tag value
 Set a @var{tag} for @var{game} to @var{value}.
 @end defun
-
-@c lispfun chess-game-del-tag
 
 @defun chess-game-del-tag game tag
 Delete a @var{tag} from @var{game}.
@@ -912,25 +870,17 @@ Delete a @var{tag} from @var{game}.
 @node Game positions, Game plies, Game tags, Games
 @subsection Game positions
 
-@c lispfun chess-game-pos
-
 @defun chess-game-pos game &optional index
 Return the current position of @var{game} or a position of a given @var{index}.
 @end defun
-
-@c lispfun chess-game-index
 
 @defun chess-game-index game
 Return the @var{game}'s current position index.
 @end defun
 
-@c lispfun chess-game-seq
-
 @defun chess-game-seq game
 Return the current @var{game} sequence number.
 @end defun
-
-@c lispfun chess-game-side-to-move
 
 @defun chess-game-side-to-move game &optional index
 Return the color whose move it is in @var{game} at @var{index} (or at the last position
@@ -941,8 +891,6 @@ if @var{index} is nil).
 @node Game plies, Making a move, Game positions, Games
 @subsection Game plies
 
-@c lispfun chess-game-ply
-
 @defun chess-game-ply game &optional index
 Return a ply of @var{game}.
 If @var{index} is non-nil, the last played ply is returned.
@@ -950,8 +898,6 @@ If @var{index} is non-nil, the last played ply is returned.
 
 @node Making a move, PGN notation, Game plies, Games
 @subsection Making a move
-
-@c lispfun chess-game-move
 
 @defun chess-game-move game ply
 Make a move in the current @var{game} using @var{ply}.
@@ -963,14 +909,10 @@ progress (nil), if it is drawn, resigned, mate, etc.
 @node PGN notation,  , Making a move, Games
 @subsection PGN notation
 
-@c lispfun chess-pgn-to-game
-
 @defun chess-pgn-to-game &optional string
 Convert @dfn{PGN notation} at point into a chess game.
 Optionally use the supplied @var{string} instead of the current buffer.
 @end defun
-
-@c lispfun chess-game-to-pgn
 
 @defun chess-game-to-pgn game &optional indented to-string
 Convert a chess @var{game} to @dfn{PGN notation}.
@@ -978,8 +920,6 @@ If @var{indented} is non-nil, indent the move texts.
 If @var{to-string} is non-nil, return a string instead of inserting the resulting
 @var{pgn} text.
 @end defun
-
-@c lispfun chess-pgn-insert-plies
 
 @defun chess-pgn-insert-plies game index plies &optional for-black indented no-annotations
 @var{nyi}: Still have to implement @var{indented} argument.
@@ -991,8 +931,6 @@ If @var{to-string} is non-nil, return a string instead of inserting the resultin
 
 @node PGN mode,  , PGN notation, PGN notation
 @subsubsection PGN mode
-
-@c lispfun chess-pgn-visualize
 
 @defun chess-pgn-visualize 
 Visualize the move for the @var{pgn} game under point.
@@ -1028,16 +966,15 @@ searches.
 List of database modules to try when `chess-database-open' is called.
 @end defvar
 
-@c lispfun chess-database-open
-
 @defun chess-database-open file &optional module
+Open a game database specified by @var{file}.
+You can optionally specify the database @var{module} to use.
+
 Returns the opened database object, or nil.
 @end defun
 
 @node Querying Databases, Modifying Databases, Opening Databases, Collections
 @subsection Querying Databases
-
-@c lispfun chess-database-filename
 
 @defun chess-database-filename database
 Return the filename of an already opened @var{database}.
@@ -1045,13 +982,9 @@ Return the filename of an already opened @var{database}.
 
 @c lispfun chess-database-count
 
-@c lispfun chess-database-read
-
 @defun chess-database-read database index
 Return from @var{database} the chess game object at @var{index}.
 @end defun
-
-@c lispfun chess-database-query
 
 @defun chess-database-query database &rest terms
 Run a query on @var{database}.
@@ -1062,8 +995,6 @@ chess-scid:
 
 @node Modifying Databases, Finalising Databases, Querying Databases, Collections
 @subsection Modifying Databases
-
-@c lispfun chess-database-read-only-p
 
 @defun chess-database-read-only-p database
 Return non-nil if @var{database} is read only.
@@ -1138,9 +1069,9 @@ is supported.  There is a default polyglot book file shipped with chess.el
 to support engines which do not have built-in support for looking up positions
 in opening books (such as some UCI protocol based engines).
 
-@defvar chess-polyglot-book-file
+@defopt chess-polyglot-book-file
 Path to default polyglot book file.
-@end defvar
+@end defopt
 
 @defvar chess-polyglot-book
 If non-nil, the buffer holding the currently loaded polyglot book data.
@@ -1154,6 +1085,7 @@ Open a polyglot book @var{file}.
 Returns a buffer object which contains the binary data.
 @end defun
 
+@findex chess-ply-keyword
 @defun chess-polyglot-book-plies book position
 Return a list of plies found in @var{book} for @var{position}.
 The resulting list is ordered, most interesting plies come first.
@@ -1311,8 +1243,6 @@ object.
 @node Generic display manipulation functions, Chess display mode, Chessboard displays, Chessboard displays
 @section Generic display manipulation functions
 
-@c lispfun chess-display-create
-
 @defun chess-display-create game style perspective
 Create a chess display, for displaying chess objects.
 Where @var{game} is the chess game object to use, @var{style} should be the display
@@ -1322,14 +1252,10 @@ of the board, if non-nil, the board is viewed from White's perspective.
 
 @c lispfun chess-display-destroy
 
-@c lispfun chess-display-active-p
-
 @defun chess-display-active-p 
 Return non-nil if the displayed chessboard reflects an active game.
 Basically, it means we are playing, not editing or reviewing.
 @end defun
-
-@c lispfun chess-display-clear-board
 
 @defun chess-display-clear-board 
 Setup the current board for editing.
@@ -1337,24 +1263,19 @@ Setup the current board for editing.
 
 @c lispfun chess-display-game
 
-@c lispfun chess-display-highlight
-
 @defun chess-display-highlight display &rest args
-Highlight the square at @var{index} on the current position.
-The given highlighting @var{mode} is used, or the default if the style you
-are displaying with doesn't support that mode.  `selected' is a mode
-that is supported by most displays, and is the default mode.
+In @var{display} highlight the squares given in @var{args} on the current position.
+
+@var{args} is a list of highlighting modes and position coordinates.
+The default highlighting mode is @code{:selected} which is supported
+by most displays.
 @end defun
 
 @c lispfun chess-display-index
 
-@c lispfun chess-display-invert
-
 @defun chess-display-invert 
 Invert the perspective of the current chess board.
 @end defun
-
-@c lispfun chess-display-move
 
 @defun chess-display-move display ply
 Move a piece on @var{display}, by applying the given @var{ply}.
@@ -1369,27 +1290,19 @@ The position of @var{ply} must match the currently displayed position.
 
 @c lispfun chess-display-move-last
 
-@c lispfun chess-display-perspective
-
 @defun chess-display-perspective display
 Return the current perspective of @var{display}.
 @end defun
 
 @c lispfun chess-display-ply
 
-@c lispfun chess-display-position
-
 @defun chess-display-position display
 Return the position currently viewed on @var{display}.
 @end defun
 
-@c lispfun chess-display-quit
-
 @defun chess-display-quit 
 Quit the game associated with the current display.
 @end defun
-
-@c lispfun chess-display-set-game
 
 @defun chess-display-set-game display game &optional index
 Set the given @var{display} to display the @var{game} object, optionally at @var{index}.
@@ -1399,8 +1312,6 @@ also view the same game.
 @end defun
 
 @c lispfun chess-display-set-index
-
-@c lispfun chess-display-set-perspective
 
 @defun chess-display-set-perspective display perspective
 Set @var{perspective} of @var{display}.
@@ -1435,7 +1346,7 @@ Update the chessboard @var{display}.  @var{popup} too, if that arg is non-nil.
 @node Chess display mode, Plain ASCII diagram displays, Generic display manipulation functions, Chessboard displays
 @section Chess display mode
 
-Chess display mode is a special major mode (@pxref{Major Modes, , , emacs})
+@dfn{Chess display mode} is a special major mode (@pxref{Major Modes, , , emacs})
 that allows to select pieces to move with the mouse or by moving
 point to the desired square/piece.  Additionally, you can enter
 moves in a variant of algebraic notation via the keyboard.
@@ -1443,6 +1354,10 @@ moves in a variant of algebraic notation via the keyboard.
 All the chessboard displays described in following sections
 share the basic behaviour provided by chess display mode.
 They basically only differ in appearance of the various chessboards.
+
+@defopt chess-display-highlight-legal
+If non-nil, highlight legal target squares when a piece is selected.
+@end defopt
 
 @menu
 * Basic operations::

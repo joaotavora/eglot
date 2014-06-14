@@ -255,7 +255,7 @@ square, or set that square’s value:
      It is only necessary to call this function if setting up a position
      manually.  Note that all newly created positions have full castling
      privileges set, unless the position is created blank, in which case
-     castling privileges are unset.  See ‘chess-pos-copy’.
+     castling privileges are unset.  See ‘chess-pos-create’.
 
  -- Function: chess-pos-en-passant position
      Return the index of any pawn on POSITION that can be captured en
@@ -267,8 +267,8 @@ square, or set that square’s value:
 
  -- Function: chess-pos-status position
      Return whether the side to move in the POSITION is in a special
-     state.  nil is returned if not, otherwise one of the symbols:
-     ‘check’, ‘checkmate’, ‘stalemate’.
+     state.  nil is returned if not, otherwise one of the keywords:
+     ‘:check’, ‘:checkmate’ or ‘:stalemate’.
 
  -- Function: chess-pos-set-status position value
      Set whether the side to move in POSITION is in a special state.
@@ -322,7 +322,7 @@ File: chess.info,  Node: FEN notation,  Next: EPD notation,  Prev: Annotations, 
 "FEN (Forsyth-Edwards Notation)" encodes a chess position using a simple
 string.  The format is:
 
-   POSITION SIDE CASTLING EN-PASSANT
+   ‘POSITION SIDE CASTLING EN-PASSANT’
 
    The POSITION gives all eight ranks, by specifying a letter for each
 piece on the position, and a number for any intervening spaces, ranks
@@ -547,7 +547,7 @@ File: chess.info,  Node: Ply details,  Next: The "next" position,  Prev: Creatin
 -----------------
 
  -- Function: chess-ply-pos ply
-     Returns the base position associated with PLY.
+     Return the base position associated with PLY.
 
  -- Function: chess-ply-set-pos ply position
      Set the base position of PLY.
@@ -606,6 +606,9 @@ function:
  -- Function: chess-algebraic-to-ply position move &optional trust
      Convert the algebraic notation MOVE for POSITION to a ply.
 
+     If optional argument TRUST is non-nil, accept check or checkmate
+     symbols (‘+’ and ‘#’) as given.
+
    The function also checks if a move is legal, and will raise an error
 if not.
 
@@ -618,7 +621,9 @@ if not.
      generate.  ‘:san’ (the default) generates short (or standard)
      algebraic notation.  ‘:lan’ generates long algebraic notation (like
      ‘Nb1-c3’).  ‘:fan’ generates figurine algebraic notation (uppercase
-     letters will be replaced by Unicode chess figures).
+     letters will be replaced by Unicode chess figures).  ‘:numeric’
+     generates ICCF numeric notation as used in corespondence chess
+     (like ‘2133’).
 
    Lastly, there is a regexp for quickly checking if a string is in
 algebraic notation or not, or searching out algebraic strings in a
@@ -626,7 +631,7 @@ buffer:
 
  -- Variable: chess-algebraic-regexp
      A regular expression that matches all possible algebraic moves.
-     This regexp handles both long and short form.
+     This regexp handles short, long and figurine algebraic notation.
 
 
 File: chess.info,  Node: Variations,  Next: Games,  Prev: Plies,  Up: The chess.el library
@@ -911,6 +916,9 @@ File: chess.info,  Node: Opening Databases,  Next: Querying Databases,  Prev: Co
      called.
 
  -- Function: chess-database-open file &optional module
+     Open a game database specified by FILE.  You can optionally specify
+     the database MODULE to use.
+
      Returns the opened database object, or nil.
 
 
@@ -1020,7 +1028,7 @@ supported.  There is a default polyglot book file shipped with chess.el
 to support engines which do not have built-in support for looking up
 positions in opening books (such as some UCI protocol based engines).
 
- -- Variable: chess-polyglot-book-file
+ -- User Option: chess-polyglot-book-file
      Path to default polyglot book file.
 
  -- Variable: chess-polyglot-book
@@ -1212,10 +1220,12 @@ File: chess.info,  Node: Generic display manipulation functions,  Next: Chess di
      Setup the current board for editing.
 
  -- Function: chess-display-highlight display &rest args
-     Highlight the square at INDEX on the current position.  The given
-     highlighting MODE is used, or the default if the style you are
-     displaying with doesn’t support that mode.  ‘selected’ is a mode
-     that is supported by most displays, and is the default mode.
+     In DISPLAY highlight the squares given in ARGS on the current
+     position.
+
+     ARGS is a list of highlighting modes and position coordinates.  The
+     default highlighting mode is ‘:selected’ which is supported by most
+     displays.
 
  -- Function: chess-display-invert
      Invert the perspective of the current chess board.
@@ -1263,14 +1273,18 @@ File: chess.info,  Node: Chess display mode,  Next: Plain ASCII diagram displays
 3.2 Chess display mode
 ======================
 
-Chess display mode is a special major mode (*note (emacs)Major Modes::)
-that allows to select pieces to move with the mouse or by moving point
-to the desired square/piece.  Additionally, you can enter moves in a
-variant of algebraic notation via the keyboard.
+"Chess display mode" is a special major mode (*note (emacs)Major
+Modes::) that allows to select pieces to move with the mouse or by
+moving point to the desired square/piece.  Additionally, you can enter
+moves in a variant of algebraic notation via the keyboard.
 
    All the chessboard displays described in following sections share the
 basic behaviour provided by chess display mode.  They basically only
 differ in appearance of the various chessboards.
+
+ -- User Option: chess-display-highlight-legal
+     If non-nil, highlight legal target squares when a piece is
+     selected.
 
 * Menu:
 
@@ -2133,19 +2147,24 @@ Concept Index
 * cooridnates:                           Position coordinates. (line  6)
 * east:                                  Position coordinates. (line 37)
 * fen:                                   FEN notation.         (line  6)
+* figurine algebraic notation:           Algebraic notation.   (line 25)
 * library:                               The chess.el library. (line  6)
+* long algebraic notation:               Algebraic notation.   (line 25)
 * mode, Comint:                          Chess ICS Mode.       (line 79)
 * mode, ICS:                             Chess ICS Mode.       (line  6)
 * north:                                 Position coordinates. (line 33)
 * northeast:                             Position coordinates. (line 51)
 * northwest:                             Position coordinates. (line 63)
+* numeric notation:                      Algebraic notation.   (line 25)
 * position:                              Positions.            (line  6)
 * queen:                                 Position coordinates. (line 31)
 * queen <1>:                             Position coordinates. (line 49)
 * rook:                                  Position coordinates. (line 31)
+* short algebraic notation:              Algebraic notation.   (line 25)
 * south:                                 Position coordinates. (line 41)
 * southeast:                             Position coordinates. (line 55)
 * southwest:                             Position coordinates. (line 59)
+* standard algebraic notation:           Algebraic notation.   (line 25)
 * west:                                  Position coordinates. (line 45)
 
 
@@ -2162,7 +2181,7 @@ Function and Variable Index
 * chess-ai-best-move:                    AI.                  (line  24)
 * chess-ai-depth:                        AI.                  (line  13)
 * chess-ai-quiescence-depth:             AI.                  (line  16)
-* chess-algebraic-regexp:                Algebraic notation.  (line  35)
+* chess-algebraic-regexp:                Algebraic notation.  (line  40)
 * chess-algebraic-to-ply:                Algebraic notation.  (line  14)
 * chess-coord-to-index:                  Position coordinates.
                                                               (line  22)
@@ -2201,22 +2220,23 @@ Function and Variable Index
 * chess-display-draw:                    Basic operations.    (line  33)
 * chess-display-highlight:               Generic display manipulation functions.
                                                               (line  19)
+* chess-display-highlight-legal:         Chess display mode.  (line  15)
 * chess-display-invert:                  Generic display manipulation functions.
-                                                              (line  25)
+                                                              (line  27)
 * chess-display-invert <1>:              Basic operations.    (line   8)
 * chess-display-kill-board:              Basic operations.    (line  39)
 * chess-display-move:                    Generic display manipulation functions.
-                                                              (line  28)
+                                                              (line  30)
 * chess-display-move-backward:           Basic operations.    (line  11)
 * chess-display-move-first:              Basic operations.    (line  25)
 * chess-display-move-forward:            Basic operations.    (line  22)
 * chess-display-move-last:               Basic operations.    (line  29)
 * chess-display-perspective:             Generic display manipulation functions.
-                                                              (line  32)
+                                                              (line  34)
 * chess-display-position:                Generic display manipulation functions.
-                                                              (line  35)
+                                                              (line  37)
 * chess-display-quit:                    Generic display manipulation functions.
-                                                              (line  38)
+                                                              (line  40)
 * chess-display-quit <1>:                Basic operations.    (line  51)
 * chess-display-resign:                  Basic operations.    (line  36)
 * chess-display-search-backward:         Basic operations.    (line  14)
@@ -2226,15 +2246,15 @@ Function and Variable Index
 * chess-display-select-piece <1>:        Selecting pieces with the mouse.
                                                               (line  13)
 * chess-display-set-game:                Generic display manipulation functions.
-                                                              (line  41)
+                                                              (line  43)
 * chess-display-set-perspective:         Generic display manipulation functions.
-                                                              (line  47)
+                                                              (line  49)
 * chess-display-set-position:            Generic display manipulation functions.
-                                                              (line  50)
+                                                              (line  52)
 * chess-display-set-variation:           Generic display manipulation functions.
-                                                              (line  54)
+                                                              (line  56)
 * chess-display-update:                  Generic display manipulation functions.
-                                                              (line  62)
+                                                              (line  64)
 * chess-display-yank-board:              Basic operations.    (line  43)
 * chess-engine-command:                  Common functions.    (line  18)
 * chess-engine-create:                   Common functions.    (line   6)
@@ -2313,13 +2333,15 @@ Function and Variable Index
 * chess-ply-changes:                     Ply details.         (line  12)
 * chess-ply-create:                      Creating plies.      (line   6)
 * chess-ply-final-p:                     The "next" position. (line   9)
+* chess-ply-keyword:                     Polyglot opening book format support.
+                                                              (line  26)
 * chess-ply-next-pos:                    The "next" position. (line   6)
 * chess-ply-pos:                         Ply details.         (line   6)
 * chess-ply-set-changes:                 Ply details.         (line  19)
 * chess-ply-set-pos:                     Ply details.         (line   9)
 * chess-ply-source:                      Ply details.         (line  23)
 * chess-ply-target:                      Ply details.         (line  26)
-* chess-ply-to-algebraic:                Algebraic notation.  (line  22)
+* chess-ply-to-algebraic:                Algebraic notation.  (line  25)
 * chess-polyglot-book:                   Polyglot opening book format support.
                                                               (line  14)
 * chess-polyglot-book-file:              Polyglot opening book format support.
@@ -2520,78 +2542,78 @@ Node: Positions2007
 Node: Creating positions3009
 Node: Position coordinates3780
 Node: Position details6337
-Node: Annotations11195
-Node: FEN notation11537
-Node: EPD notation13355
-Node: Operations14839
-Node: Opcode "acd" analysis count depth15815
-Node: Opcode "acn" analysis count nodes16169
-Node: Opcode "acs" analysis count seconds16694
-Node: Opcode "am" avoid move(s)17214
-Node: Opcode "bm" best move(s)17655
-Node: Plies18050
-Node: Creating plies19193
-Node: Ply details20376
-Node: The "next" position21498
-Node: Algebraic notation21856
-Node: Variations23395
-Node: Creating variations24494
-Node: Variation positions24802
-Node: Variation plies25408
-Node: Making a move in a variation25854
-Node: Games26407
-Node: Creating games27989
-Node: Game tags28434
-Node: Game positions29043
-Node: Game plies29677
-Node: Making a move29946
-Node: PGN notation30377
-Node: PGN mode31111
-Node: Collections31372
-Node: Opening Databases32151
-Node: Querying Databases32539
-Node: Modifying Databases33165
-Node: Finalising Databases33437
-Node: Database Modules33612
-Node: chess-file33870
-Node: chess-scid34520
-Node: Chess Opening Books34759
-Node: ECO Classification35078
-Node: Polyglot opening book format support35521
-Node: Modules37386
-Node: Chessboard displays44162
-Node: Generic display manipulation functions44796
-Node: Chess display mode47627
-Node: Basic operations48433
-Node: Selecting pieces with the keyboard50049
-Node: Selecting pieces with the mouse50641
-Node: Entering moves with algebraic notation51207
-Node: Plain ASCII diagram displays52225
-Node: ICS1 style ASCII displays54110
-Node: Graphical displays55462
-Node: Engines56313
-Node: Common functions56829
-Node: AI57877
-Node: Crafty58856
-Node: Fruit59643
-Node: Glaurung60539
-Node: GNU Chess61179
-Node: Phalanx62104
-Node: Sjeng62736
-Node: Stockfish63475
-Node: Chess Session64290
-Node: Internet Chess Servers66057
-Node: Connecting to a server67214
-Node: Chess ICS Mode67770
-Node: Command History71283
-Node: ICS Command Ring71904
-Node: ICS History Copying75117
-Node: Seeking an opponent for a new game76635
-Node: The sought game display77284
-Node: Watching other games78312
-Node: Concept Index79794
-Node: Function and Variable Index81653
-Node: Key Index98897
+Node: Annotations11203
+Node: FEN notation11545
+Node: EPD notation13369
+Node: Operations14853
+Node: Opcode "acd" analysis count depth15829
+Node: Opcode "acn" analysis count nodes16183
+Node: Opcode "acs" analysis count seconds16708
+Node: Opcode "am" avoid move(s)17228
+Node: Opcode "bm" best move(s)17669
+Node: Plies18064
+Node: Creating plies19207
+Node: Ply details20390
+Node: The "next" position21511
+Node: Algebraic notation21869
+Node: Variations23651
+Node: Creating variations24750
+Node: Variation positions25058
+Node: Variation plies25664
+Node: Making a move in a variation26110
+Node: Games26663
+Node: Creating games28245
+Node: Game tags28690
+Node: Game positions29299
+Node: Game plies29933
+Node: Making a move30202
+Node: PGN notation30633
+Node: PGN mode31367
+Node: Collections31628
+Node: Opening Databases32407
+Node: Querying Databases32902
+Node: Modifying Databases33528
+Node: Finalising Databases33800
+Node: Database Modules33975
+Node: chess-file34233
+Node: chess-scid34883
+Node: Chess Opening Books35122
+Node: ECO Classification35441
+Node: Polyglot opening book format support35884
+Node: Modules37752
+Node: Chessboard displays44528
+Node: Generic display manipulation functions45162
+Node: Chess display mode47960
+Node: Basic operations48895
+Node: Selecting pieces with the keyboard50511
+Node: Selecting pieces with the mouse51103
+Node: Entering moves with algebraic notation51669
+Node: Plain ASCII diagram displays52687
+Node: ICS1 style ASCII displays54572
+Node: Graphical displays55924
+Node: Engines56775
+Node: Common functions57291
+Node: AI58339
+Node: Crafty59318
+Node: Fruit60105
+Node: Glaurung61001
+Node: GNU Chess61641
+Node: Phalanx62566
+Node: Sjeng63198
+Node: Stockfish63937
+Node: Chess Session64752
+Node: Internet Chess Servers66519
+Node: Connecting to a server67676
+Node: Chess ICS Mode68232
+Node: Command History71745
+Node: ICS Command Ring72366
+Node: ICS History Copying75579
+Node: Seeking an opponent for a new game77097
+Node: The sought game display77746
+Node: Watching other games78774
+Node: Concept Index80256
+Node: Function and Variable Index82480
+Node: Key Index99949
 
 End Tag Table
 
