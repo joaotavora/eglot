@@ -1,3 +1,10 @@
+2014-06-15  Mario Lang  <mlang@delysid.org>
+
+	* chess-display.el (chess-display-select-piece): Redraw legal targets
+	if a move is either accepted or the same piece is selected again.
+	This fixes ...
+	(chess-display-highlight-legal): Now set to `t' by default.
+
 2014-06-14  Mario Lang  <mlang@delysid.org>
 
 	* chess-test.el (chess-test): Renamed to...

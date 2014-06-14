@@ -43,7 +43,7 @@ occurs."
 
 (make-variable-buffer-local 'chess-display-popup)
 
-(defcustom chess-display-highlight-legal nil
+(defcustom chess-display-highlight-legal t
   "If non-nil, highlight legal target squares when a piece is selected."
   :type 'boolean
   :group 'chess-display)
@@ -432,8 +432,7 @@ that is supported by most displays, and is the default mode."
 (defun chess-display-highlight-legal (display pos)
   "Highlight all legal move targets from POS."
   (chess-with-current-buffer display
-    (dolist (ply (chess-legal-plies (chess-display-position nil)
-				    :index pos))
+    (dolist (ply (chess-legal-plies (chess-display-position nil) :index pos))
       (chess-display-highlight nil "pale green"
 			       (chess-ply-target ply)))))
 
@@ -1184,8 +1183,7 @@ Clicking once on a piece selects it; then click on the target location."
 	      (if chess-display-last-selected
 		  (let ((last-sel chess-display-last-selected))
 		    ;; if they select the same square again, just deselect
-		    ;; it by redrawing the display and removing all
-		    ;; highlights
+		    ;; it by redrawing the square to remove highlights.
 		    (if (= (point) (car last-sel))
 			(funcall chess-display-event-handler 'draw-square
 				 (car last-sel)
@@ -1212,6 +1210,17 @@ Clicking once on a piece selects it; then click on the target location."
 			      (chess-display-move nil ply)
 			    (error
 			     (throw 'message (error-message-string err)))))))
+		    ;; Redraw legal targets to clear highlight.
+		    (when chess-display-highlight-legal
+		      (dolist (index (mapcar #'chess-ply-target
+					     (chess-legal-plies
+					      position
+					      :index (cdr last-sel))))
+			(unless (= index coord)
+			  (funcall chess-display-event-handler 'draw-square
+				 (chess-display-index-pos nil index)
+				 (chess-pos-piece position index)
+				 index))))
 		    (setq chess-display-last-selected nil))
 		(let ((piece (chess-pos-piece position coord)))
 		  (cond
