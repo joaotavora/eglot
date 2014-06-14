@@ -52,35 +52,38 @@
 
 ;;; Code:
 
-(eval-when-compile (require 'cl-lib))
-
 (require 'chess-message)
 (require 'chess-ply)
 (require 'chess-pos)
-
-(defconst chess-algebraic-regexp
-  (rx (group (or (or "O-O" "O-O-O")
-		 (and (optional (group (char ?N ?B ?R ?Q ?K)))
-		      (optional (char ?/))
-		      (group (optional (char "a-h")) (optional (char "1-8")))
-		      (optional (group (char ?- ?x)))
-		      (group (char "a-h") (char "1-8"))
-		      (optional (group ?= (group (char ?N ?B ?R ?Q ?K)))))))
-      (optional (group (char ?+ ?#))))
-  "A regular expression that matches all possible algebraic moves.
-This regexp handles both long and short form.")
-
-(defconst chess-algebraic-regexp-entire (concat chess-algebraic-regexp "$"))
-
-(defconst chess-algebraic-regexp-ws (concat chess-algebraic-regexp "\\s-"))
+(require 'cl-lib)
 
 (defconst chess-algebraic-figurine-pieces
   '((?K . #x2654) (?Q . #x2655) (?R . #x2656)
     (?B . #x2657) (?N . #x2658) (?P . #x2659)
     (?k . #x265A) (?q . #x265B) (?r . #x265C)
     (?b . #x265D) (?n . #x265E) (?p . #x265F))
-  "Map internal piece characters to Unicode chess figures (as used in figurine
+  "Map internal piece representation to Unicode chess figures (as used in figurine
 notation.")
+
+(defconst chess-algebraic-regexp
+  (rx (group (or (or "O-O" "O-O-O" "0-0" "0-0-0")
+		 (and (optional (group (char ?N ?B ?R ?Q ?K
+					     ?♔ ?♕ ?♖ ?♗ ?♘
+					     ?♚ ?♛ ?♜ ?♝ ?♞)))
+		      (optional (char ?/))
+		      (group (optional (char "a-h")) (optional (char "1-8")))
+		      (optional (group (char ?- ?x)))
+		      (group (char "a-h") (char "1-8"))
+		      (optional (group ?= (group (char ?N ?B ?R ?Q ?K
+						       ?♔ ?♕ ?♖ ?♗ ?♘
+						       ?♚ ?♛ ?♜ ?♝ ?♞)))))))
+      (optional (group (char ?+ ?#))))
+  "A regular expression that matches all possible algebraic moves.
+This regexp matches short, long and figurine notation.")
+
+(defconst chess-algebraic-regexp-entire (concat chess-algebraic-regexp "$"))
+
+(defconst chess-algebraic-regexp-ws (concat chess-algebraic-regexp "\\s-"))
 
 (chess-message-catalog 'english
   '((clarify-piece     . "Clarify piece to move by rank or file")
@@ -90,9 +93,7 @@ notation.")
     (at-move-string    . "At algebraic move '%s': %s")))
 
 (defun chess-algebraic-to-ply (position move &optional trust)
-  "Convert the (short or long) algebraic notation MOVE for POSITION to a ply.
-
-Figurine notation is currently not supported."
+  "Convert (short, long or figurine) algebraic notation MOVE for POSITION to a ply."
   (cl-check-type position chess-pos)
   (cl-check-type move string)
   (let ((case-fold-search nil))
@@ -100,8 +101,8 @@ Figurine notation is currently not supported."
       (let ((color (chess-pos-side-to-move position))
 	    (mate (match-string 8 move))
 	    (piece (aref move 0))
-	    changes long-style)
-	(if (eq piece ?O)
+	    changes type)
+	(if (or (eq piece ?O) (eq piece ?0))
 	    (setq changes (chess-ply-castling-changes
 			   position (= (length (match-string 1 move)) 5)))
 	  (let ((promotion (match-string 7 move)))
@@ -112,11 +113,17 @@ Figurine notation is currently not supported."
 	       (if (and source (= (length source) 2))
 		   (prog1
 		       (list (chess-coord-to-index source) target)
-		     (setq long-style t))
+		     (setq type :lan))
 		 (if (= (length source) 0)
 		     (setq source nil)
 		   (setq source (aref source 0)))
 		 (let (candidates which)
+		   (when (and (not type) (< piece ?a))
+		     (setq type :san))
+		   (when (rassq piece chess-algebraic-figurine-pieces)
+		     (unless type (setq type :fan))
+		     (setq piece (upcase
+				  (car (rassq piece chess-algebraic-figurine-pieces)))))
 		   (unless (< piece ?a)
 		     (setq source piece piece ?P))
 		   ;; we must use our knowledge of how pieces can
@@ -145,16 +152,24 @@ Figurine notation is currently not supported."
 			       (chess-error 'could-not-clarify)
 			     (list which target))))
 		     (chess-error 'no-candidates move))))))
+
 	    (when promotion
-	      (nconc changes (list :promote (aref promotion 0))))))
+	      (nconc changes
+		     (list :promote
+			   (upcase (or (car (rassq (aref promotion 0)
+						   chess-algebraic-figurine-pieces))
+				       (aref promotion 0))))))))
 
 	(when changes
 	  (if (and trust mate)
 	      (nconc changes (list (if (string-equal mate "#")
 				       :checkmate
 				     :check))))
-	  (unless long-style
-	    (nconc changes (list :san move)))
+	  ;; If we know the notation type by now, remember the string so that
+	  ;; we do not need to re-generate it later on.
+	  (when type
+	    (cl-check-type type keyword)
+	    (nconc changes (list type move)))
 
 	  (condition-case err
 	      (apply 'chess-ply-create position trust changes)

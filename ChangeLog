@@ -2,6 +2,10 @@
 
 	* chess-algebraic.el (chess-ply-to-algebraic): If TYPE is `:numeric',
 	generate ICCF numeric notation.
+	(chess-algebraic-regexp, chess-algebraic-to-ply): Optionally allow "0-0"
+	and "0-0-0" in addition to "O-O" and "O-O-O" to mean castling.
+	(chess-algebraic-regexp, chess-algebraic-to-ply): Handle figurine
+	notation.
 
 2014-06-13  Mario Lang  <mlang@delysid.org>
 
