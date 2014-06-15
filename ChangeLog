@@ -2,6 +2,7 @@
 
 	* chess-display.el (chess-display-draw-square): New function.
 	(chess-display-paint-move, chess-display-set-piece): Use it.
+	(chess-display-highlight-move): Simplify.
 
 	* chess-plain.el (chess-plain-handler): Fix error if unknown event
 	is received.

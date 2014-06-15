@@ -353,12 +353,14 @@ also view the same game."
 (defun chess-display-draw-square (display index piece &optional pos)
   (cl-check-type display (or null buffer))
   (cl-check-type index (integer 0 63))
+  (cl-check-type piece (member ?  ?P ?N ?B ?R ?Q ?K ?p ?n ?b ?r ?q ?k))
   (chess-with-current-buffer display
     (cl-check-type pos (or null (number ((point-min)) ((point-max)))))
     (funcall chess-display-event-handler 'draw-square
 	     (or pos (chess-display-index-pos nil index)) piece index)))
 
 (defun chess-display-paint-move (display ply)
+  (cl-check-type display (or null buffer))
   (chess-with-current-buffer display
     (if chess-display-highlight-last-move
 	(chess-display-redraw))
@@ -440,10 +442,9 @@ that is supported by most displays, and is the default mode."
 
 (defun chess-display-highlight-move (display ply)
   "Highlight the last move made in the current game."
-  (chess-with-current-buffer display
-     (chess-display-highlight nil "medium sea green"
-			      (chess-ply-source ply)
-			      (chess-ply-target ply))))
+  (chess-display-highlight display "medium sea green"
+			   (chess-ply-source ply)
+			   (chess-ply-target ply)))
 
 (defun chess-display-highlight-passed-pawns (&optional display)
   (interactive)
