@@ -1,3 +1,11 @@
+2014-06-16  Mario Lang  <mlang@delysid.org>
+
+	* chess-display.el (chess-display-move): Fix repainting when playing
+	against the internal engine (AI) which runs off the `post-move' game
+	event by adding a `redisplay' call just before the `post-move' emision.
+	(chess-display-select-piece): Use `chess-display-draw-square'.
+	(chess-display-draw-square): Make PIECE argument optional.
+
 2014-06-15  Mario Lang  <mlang@delysid.org>
 
 	* chess-display.el (chess-display-draw-square): New function.

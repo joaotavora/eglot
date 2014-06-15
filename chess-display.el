@@ -355,11 +355,13 @@ also view the same game."
 (defun chess-display-draw-square (display index piece &optional pos)
   (cl-check-type display (or null buffer))
   (cl-check-type index (integer 0 63))
-  (cl-check-type piece (member ?  ?P ?N ?B ?R ?Q ?K ?p ?n ?b ?r ?q ?k))
+  (cl-check-type piece (member nil ?  ?P ?N ?B ?R ?Q ?K ?p ?n ?b ?r ?q ?k))
   (chess-with-current-buffer display
     (cl-check-type pos (or null (number ((point-min)) ((point-max)))))
     (funcall chess-display-event-handler 'draw-square
-	     (or pos (chess-display-index-pos nil index)) piece index)))
+	     (or pos (chess-display-index-pos nil index))
+	     (or piece (chess-pos-piece (chess-display-position nil) index))
+	     index)))
 
 (defun chess-display-paint-move (display ply)
   (cl-check-type display (or null buffer))
@@ -418,6 +420,7 @@ The position of PLY must match the currently displayed position."
 	  (chess-game-move chess-module-game ply)
 	  (chess-display-paint-move nil ply)
 	  (chess-display-set-index* nil (chess-game-index chess-module-game))
+	  (redisplay)                   ; FIXME: This is clearly necessary, but why?
 	  (chess-game-run-hooks chess-module-game 'post-move))
       ;; jww (2002-03-28): This should beget a variation within the
       ;; game, or alter the game, just as SCID allows
@@ -1222,10 +1225,7 @@ Clicking once on a piece selects it; then click on the target location."
 					      position
 					      :index (cdr last-sel))))
 			(unless (= index coord)
-			  (funcall chess-display-event-handler 'draw-square
-				 (chess-display-index-pos nil index)
-				 (chess-pos-piece position index)
-				 index))))
+			  (chess-display-draw-square nil index))))
 		    (setq chess-display-last-selected nil))
 		(let ((piece (chess-pos-piece position coord)))
 		  (cond
