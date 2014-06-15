@@ -32,8 +32,9 @@
 (require 'chess-random)
 
 (defgroup chess-display nil
-  "Common code used by chess displays."
-  :group 'chess)
+  "Options common to all chessboard displays."
+  :group 'chess
+  :link '(custom-manual "(chess)Chessboard displays"))
 
 (defcustom chess-display-popup t
   "If non-nil (the default), popup displays whenever a significant event
@@ -362,16 +363,14 @@ also view the same game."
 		(to (cadr ch)))
 	    (funcall chess-display-event-handler 'draw-square
 		     (chess-display-index-pos nil from) ?  from)
-	    (let ((new-piece (chess-ply-keyword ply :promote)))
-	      (if new-piece
-		  (funcall chess-display-event-handler 'draw-square
-			   (chess-display-index-pos nil to)
-			   (if (chess-pos-side-to-move position)
-			       new-piece
-			     (downcase new-piece)) to)
-		(funcall chess-display-event-handler 'draw-square
-			 (chess-display-index-pos nil to)
-			 (chess-pos-piece position from) to)))
+	    (funcall chess-display-event-handler 'draw-square
+		     (chess-display-index-pos nil to)
+		     (or (let ((new-piece (chess-ply-keyword ply :promote)))
+			   (when new-piece
+			     (if (chess-pos-side-to-move position)
+				 new-piece (downcase new-piece))))
+			 (chess-pos-piece position from))
+		     to)
 	    (when (chess-ply-keyword ply :en-passant)
 	      (funcall chess-display-event-handler 'draw-square
 		       (chess-display-index-pos nil (chess-pos-en-passant position))
