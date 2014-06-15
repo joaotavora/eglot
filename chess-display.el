@@ -25,11 +25,13 @@
 
 ;;; Code:
 
+(require 'chess-fen)
+(require 'chess-input)
 (require 'chess-message)
 (require 'chess-module)
-(require 'chess-var)
-(require 'chess-input)
+(require 'chess-pgn)
 (require 'chess-random)
+(require 'chess-var)
 
 (defgroup chess-display nil
   "Options common to all chessboard displays."
