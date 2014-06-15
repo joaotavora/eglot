@@ -350,6 +350,14 @@ also view the same game."
 		  (point-min))))))
     (aref chess-display-index-positions index)))
 
+(defun chess-display-draw-square (display index piece &optional pos)
+  (cl-check-type display (or null buffer))
+  (cl-check-type index (integer 0 63))
+  (chess-with-current-buffer display
+    (cl-check-type pos (or null (number ((point-min)) ((point-max)))))
+    (funcall chess-display-event-handler 'draw-square
+	     (or pos (chess-display-index-pos nil index)) piece index)))
+
 (defun chess-display-paint-move (display ply)
   (chess-with-current-buffer display
     (if chess-display-highlight-last-move
@@ -361,20 +369,15 @@ also view the same game."
 	    (setq ch nil)
 	  (let ((from (car ch))
 		(to (cadr ch)))
-	    (funcall chess-display-event-handler 'draw-square
-		     (chess-display-index-pos nil from) ?  from)
-	    (funcall chess-display-event-handler 'draw-square
-		     (chess-display-index-pos nil to)
-		     (or (let ((new-piece (chess-ply-keyword ply :promote)))
-			   (when new-piece
-			     (if (chess-pos-side-to-move position)
-				 new-piece (downcase new-piece))))
-			 (chess-pos-piece position from))
-		     to)
+	    (chess-display-draw-square nil from ? )
+	    (chess-display-draw-square
+	     nil to (or (let ((new-piece (chess-ply-keyword ply :promote)))
+			  (when new-piece
+			    (if (chess-pos-side-to-move position)
+				new-piece (downcase new-piece))))
+			(chess-pos-piece position from)))
 	    (when (chess-ply-keyword ply :en-passant)
-	      (funcall chess-display-event-handler 'draw-square
-		       (chess-display-index-pos nil (chess-pos-en-passant position))
-		       ?  (chess-pos-en-passant position))))
+	      (chess-display-draw-square nil (chess-pos-en-passant position) ? )))
 	  (setq ch (cddr ch)))))
     (if chess-display-highlight-last-move
 	(chess-display-highlight-move display ply))))
@@ -1116,12 +1119,12 @@ to the end or beginning."
 (defun chess-display-set-piece (&optional piece)
   "Set the piece under point to command character, or space for clear."
   (interactive)
-  (if (or (null piece) (characterp piece))
-      (let ((index (get-text-property (point) 'chess-coord)))
-	(chess-pos-set-piece chess-display-edit-position index
-			     (or piece last-command-event))
-	(funcall chess-display-event-handler 'draw-square
-		 (point) (or piece last-command-event) index))))
+  (when (or (null piece) (characterp piece))
+    (let ((index (get-text-property (point) 'chess-coord)))
+      (chess-pos-set-piece chess-display-edit-position index
+			   (or piece last-command-event))
+      (chess-display-draw-square nil index
+				 (or piece last-command-event) (point)))))
 
 (unless (fboundp 'event-window)
   (defalias 'event-point 'ignore))

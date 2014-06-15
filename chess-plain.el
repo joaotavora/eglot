@@ -245,7 +245,8 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
   (cond
    ((eq event 'initialize) t)
    ((eq event 'popup) (funcall chess-plain-popup-function))
-   (t (apply (intern-soft (concat "chess-plain-" (symbol-name event))) args))))
+   (t (let ((handler (intern-soft (concat "chess-plain-" (symbol-name event)))))
+	(when handler (apply handler args))))))
 
 (defun chess-plain-popup ()
   (if chess-plain-separate-frame

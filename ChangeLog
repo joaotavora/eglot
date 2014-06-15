@@ -1,5 +1,11 @@
 2014-06-15  Mario Lang  <mlang@delysid.org>
 
+	* chess-display.el (chess-display-draw-square): New function.
+	(chess-display-paint-move, chess-display-set-piece): Use it.
+
+	* chess-plain.el (chess-plain-handler): Fix error if unknown event
+	is received.
+
 	* chess-display.el (chess-display-select-piece): Redraw legal targets
 	if a move is either accepted or the same piece is selected again.
 	This fixes ...
