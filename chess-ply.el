@@ -305,7 +305,7 @@ KEYWORDS allowed are:
   :any   return t if any piece can move at all
   :color <t or nil>
   :piece <piece character>
-  :file <number 0 to 7> [can only be used if :piece is present]
+  :file <number 0 to 7> [:piece or :color must be present]
   :index <coordinate index>
   :target <specific target index>
   :candidates <list of inddices>
@@ -358,7 +358,7 @@ position object passed in."
 		 (let (candidates)
 		   (dotimes (rank 8)
 		     (setq pos (chess-rf-to-index rank file))
-		     (if (chess-pos-piece-p position pos piece)
+		     (if (chess-pos-piece-p position pos (or piece color))
 			 (push pos candidates)))
 		   candidates))
 		(t

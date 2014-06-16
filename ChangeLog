@@ -1,5 +1,8 @@
 2014-06-16  Mario Lang  <mlang@delysid.org>
 
+	* chess-ply.el (chess-legal-plies): Make :file keyword usable if :color
+	is specified.
+
 	* chess-input.el (chess-input-display-moves): Highlight valid target
 	squares if `chess-display-highlight-legal' is non-nil.
 	(chess-input-shortcut): Redraw board to remove highlights if a ply
