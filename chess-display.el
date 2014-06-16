@@ -644,6 +644,7 @@ See `chess-display-type' for the different kinds of displays."
 		   ?o ?O ?x ?=))
       (define-key map (vector key) 'chess-input-shortcut))
     (define-key map [backspace] 'chess-input-shortcut-delete)
+    (define-key map "\d" 'chess-input-shortcut-delete)
 
     (define-key map [(control ?m)] 'chess-display-select-piece)
     (define-key map [return] 'chess-display-select-piece)

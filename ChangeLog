@@ -5,6 +5,8 @@
 	event by adding a `redisplay' call just before the `post-move' emision.
 	(chess-display-select-piece): Use `chess-display-draw-square'.
 	(chess-display-draw-square): Make PIECE argument optional.
+	(chess-display-mode-map): Bind DEL to `chess-input-shortcut-delete'
+	as intended.
 
 2014-06-15  Mario Lang  <mlang@delysid.org>
 
