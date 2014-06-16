@@ -1,5 +1,10 @@
 2014-06-16  Mario Lang  <mlang@delysid.org>
 
+	* chess-input.el (chess-input-notation-type): New variable.
+	(chess-input-test-move, chess-input-display-moves): Use it.
+	(chess-input-shortcut): Generate initial ply list for numeric
+	notation.
+
 	* chess-ply.el (chess-legal-plies): Make :file keyword usable if :color
 	is specified.
 

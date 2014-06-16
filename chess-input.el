@@ -48,9 +48,14 @@
 (make-variable-buffer-local 'chess-input-position-function)
 (make-variable-buffer-local 'chess-input-move-function)
 
+(defcustom chess-input-notation-type :san
+  "Define the notation type to use for move input."
+  :type '(choice (const :tag "Standard (short) algebraic notation" :san)
+		 (const :tag "Numeric notation" :numeric)))
+
 (defun chess-input-test-move (ply)
   "Return the given PLY if it matches the user's current input."
-  (let* ((move (chess-ply-to-algebraic ply))
+  (let* ((move (chess-ply-to-algebraic ply chess-input-notation-type))
 	 (i 0) (x 0) (l (length move))
 	 (xl (length chess-input-move-string)))
     (unless (or (and (equal (downcase chess-input-move-string) "ok")
@@ -71,7 +76,7 @@
 
 (defun chess-input-display-moves (&optional move-list)
   (unless move-list
-    (setq chess-input-test-move
+    (setq move-list
 	  (delq nil (mapcar #'chess-input-test-move (cdr chess-input-moves)))))
   (when chess-display-highlight-legal
     (chess-display-redraw nil))
@@ -80,7 +85,9 @@
       (apply #'chess-display-highlight
 	     nil (cl-delete-duplicates (mapcar #'chess-ply-target move-list))))
     (message "[%s] %s" chess-input-move-string
-	     (mapconcat #'chess-ply-to-algebraic move-list " "))))
+	     (mapconcat (lambda (ply)
+			  (chess-ply-to-algebraic ply chess-input-notation-type))
+			move-list " "))))
 
 (defun chess-input-shortcut-delete ()
   (interactive)
@@ -134,7 +141,18 @@
 		  (function
 		   (lambda (left right)
 		     (string-lessp (chess-ply-to-algebraic left)
-				   (chess-ply-to-algebraic right))))))))))
+				   (chess-ply-to-algebraic right)))))))
+	(if (and (>= char ?1) (<= char ?8))
+	    (setq chess-input-moves-pos position
+		  chess-input-moves
+		  (cons
+		   char
+		   (sort
+		    (chess-legal-plies position :color color :file (- char ?1))
+		    (function
+		     (lambda (left right)
+		       (string-lessp (chess-ply-to-algebraic left)
+				     (chess-ply-to-algebraic right)))))))))))
   (let ((moves (delq nil (mapcar 'chess-input-test-move
 				 (cdr chess-input-moves)))))
     (cond
