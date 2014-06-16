@@ -1,5 +1,10 @@
 2014-06-16  Mario Lang  <mlang@delysid.org>
 
+	* chess-input.el (chess-input-display-moves): Highlight valid target
+	squares if `chess-display-highlight-legal' is non-nil.
+	(chess-input-shortcut): Redraw board to remove highlights if a ply
+	was submitted and `chess-display-highlight-legal' is non-nil.
+
 	* chess-display.el (chess-display-move): Fix repainting when playing
 	against the internal engine (AI) which runs off the `post-move' game
 	event by adding a `redisplay' call just before the `post-move' emision.
