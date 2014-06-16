@@ -573,13 +573,29 @@ maneuver.
 Return a list of all legal plies in @var{position}.
 @var{keywords} allowed are:
 
-  :any   return t if any piece can move at all
-  :color <t or nil>
-  :piece <piece character>
-  :file <number 0 to 7> [can only be used if :piece is present]
-  :index <coordinate index>
-  :target <specific target index>
-  :candidates <list of indices>
+@table @code
+@item :any
+Return @code{t} if any piece can move at all.
+
+@item :color
+If @code{t}, return plies for white, if @code{nil}, return plies for black.
+
+@item :piece
+Return plies for a specific piece (a character).
+
+@item :file
+Given a file number (0-7), return plies for any piece or color
+present on that file.  @code{:piece} or @code{:color} must be present.
+
+@item :index
+Return plies for the piece at @var{index}.
+
+@item :target
+Return plies that go to a specific coordinate.
+
+@item :candidates
+If provided, only consider these source coordinates.
+@end table
 
 These will constrain the plies generated to those matching the above
 criteria.
@@ -1421,10 +1437,14 @@ Offer to draw the current game (@code{chess-display-draw}).
 Resign the current game (@code{chess-display-resign}).
 
 @kindex M-w
+@kindex C-u M-w
 @item M-w
+@itemx C-u M-w
 @findex chess-display-kill-board
 Copy the currently displayed position to the kill ring as a FEN string
 (@code{chess-display-kill-board}).
+
+With prefix argument, copy the current game in @acronym{PGN} to the kill ring.
 
 @kindex C-y
 @item C-y
@@ -1664,13 +1684,14 @@ For all customization options of @code{chess-images}, use
 @node Engines, Chess Session, Chessboard displays, Top
 @chapter Engines
 
-Engines are the representation of an opponent in Chess.  THe main type
+Engines are the representation of an opponent in Chess.  The main type
 of engine interfaces with an external chess program.  However, there
 can be other uses for engine objects, such as providing networked engined
 for playing with opponent over different types of transports.
 
 @menu
 * Common functions::
+* The Null Engine::
 * AI::
 * Crafty::
 * Fruit::
@@ -1681,7 +1702,7 @@ for playing with opponent over different types of transports.
 * Stockfish::
 @end menu
 
-@node Common functions, AI, Engines, Engines
+@node Common functions, The Null Engine, Engines, Engines
 @section Common functions
 
 @defun chess-engine-create module game &optional response-handler &rest handler-ctor-args
@@ -1727,7 +1748,20 @@ to submit the data.  Otherwise, the 'send event is triggered and the engine
 event handler can take care of the data.
 @end defun
 
-@node AI, Crafty, Common functions, Engines
+@node The Null Engine, AI, Common functions, Engines
+@section The Null Engine
+
+The most basic engine module is @code{chess-none}, a stub module that does
+nothing.  This is useful for a game of chess against another human, where
+both use the same computer to enter moves and display the current chess position.
+
+It can also be useful for creating @acronym{FEN} strings of specific positions.
+
+@kindex C-u M-x chess RET none RET
+To bring up a chessboard with no active engine attached, use
+@kbd{C-u M-x chess @key{RET} none @key{RET}}.
+
+@node AI, Crafty, The Null Engine, Engines
 @section AI
 
 The @acronym{AI} engine module defines a pure Emacs Lisp implementation

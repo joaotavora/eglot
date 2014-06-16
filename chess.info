@@ -529,10 +529,28 @@ File: chess.info,  Node: Creating plies,  Next: Ply details,  Prev: Plies,  Up: 
      Return a list of all legal plies in POSITION.  KEYWORDS allowed
      are:
 
-     :any return t if any piece can move at all :color <t or nil> :piece
-     <piece character> :file <number 0 to 7> [can only be used if :piece
-     is present] :index <coordinate index> :target <specific target
-     index> :candidates <list of indices>
+     ‘:any’
+          Return ‘t’ if any piece can move at all.
+
+     ‘:color’
+          If ‘t’, return plies for white, if ‘nil’, return plies for
+          black.
+
+     ‘:piece’
+          Return plies for a specific piece (a character).
+
+     ‘:file’
+          Given a file number (0-7), return plies for any piece or color
+          present on that file.  ‘:piece’ or ‘:color’ must be present.
+
+     ‘:index’
+          Return plies for the piece at INDEX.
+
+     ‘:target’
+          Return plies that go to a specific coordinate.
+
+     ‘:candidates’
+          If provided, only consider these source coordinates.
 
      These will constrain the plies generated to those matching the
      above criteria.
@@ -1332,8 +1350,12 @@ File: chess.info,  Node: Basic operations,  Next: Selecting pieces with the keyb
      Resign the current game (‘chess-display-resign’).
 
 ‘M-w’
+‘C-u M-w’
      Copy the currently displayed position to the kill ring as a FEN
      string (‘chess-display-kill-board’).
+
+     With prefix argument, copy the current game in PGN to the kill
+     ring.
 
 ‘C-y’
      Set the current display position via a FEN string from the kill
@@ -1532,7 +1554,7 @@ File: chess.info,  Node: Engines,  Next: Chess Session,  Prev: Chessboard displa
 4 Engines
 *********
 
-Engines are the representation of an opponent in Chess.  THe main type
+Engines are the representation of an opponent in Chess.  The main type
 of engine interfaces with an external chess program.  However, there can
 be other uses for engine objects, such as providing networked engined
 for playing with opponent over different types of transports.
@@ -1540,6 +1562,7 @@ for playing with opponent over different types of transports.
 * Menu:
 
 * Common functions::
+* The Null Engine::
 * AI::
 * Crafty::
 * Fruit::
@@ -1550,7 +1573,7 @@ for playing with opponent over different types of transports.
 * Stockfish::
 
 
-File: chess.info,  Node: Common functions,  Next: AI,  Prev: Engines,  Up: Engines
+File: chess.info,  Node: Common functions,  Next: The Null Engine,  Prev: Engines,  Up: Engines
 
 4.1 Common functions
 ====================
@@ -1577,9 +1600,25 @@ File: chess.info,  Node: Common functions,  Next: AI,  Prev: Engines,  Up: Engin
      handler can take care of the data.
 
 
-File: chess.info,  Node: AI,  Next: Crafty,  Prev: Common functions,  Up: Engines
+File: chess.info,  Node: The Null Engine,  Next: AI,  Prev: Common functions,  Up: Engines
 
-4.2 AI
+4.2 The Null Engine
+===================
+
+The most basic engine module is ‘chess-none’, a stub module that does
+nothing.  This is useful for a game of chess against another human,
+where both use the same computer to enter moves and display the current
+chess position.
+
+   It can also be useful for creating FEN strings of specific positions.
+
+   To bring up a chessboard with no active engine attached, use ‘C-u M-x
+chess <RET> none <RET>’.
+
+
+File: chess.info,  Node: AI,  Next: Crafty,  Prev: The Null Engine,  Up: Engines
+
+4.3 AI
 ======
 
 The AI engine module defines a pure Emacs Lisp implementation of an
@@ -1607,7 +1646,7 @@ entry point.
 
 File: chess.info,  Node: Crafty,  Next: Fruit,  Prev: AI,  Up: Engines
 
-4.3 Crafty
+4.4 Crafty
 ==========
 
 "Crafty" is a chess program written by Michael Byrne, UAB professor Dr.
@@ -1628,7 +1667,7 @@ play against Crafty by invoking ‘C-u M-x chess <RET> crafty <RET>’.
 
 File: chess.info,  Node: Fruit,  Next: Glaurung,  Prev: Crafty,  Up: Engines
 
-4.4 Fruit
+4.5 Fruit
 =========
 
 "Fruit" is a chess engine developed by Fabien Letouzey.  It was
@@ -1652,7 +1691,7 @@ play against Fruit by invoking ‘C-u M-x chess <RET> fruit <RET>’.
 
 File: chess.info,  Node: Glaurung,  Next: GNU Chess,  Prev: Fruit,  Up: Engines
 
-4.5 Glaurung
+4.6 Glaurung
 ============
 
 "Glaurung" is another freely distributed strong computer chess engine.
@@ -1670,7 +1709,7 @@ play against Glaurung by invoking ‘C-u M-x chess <RET> glaurung <RET>’.
 
 File: chess.info,  Node: GNU Chess,  Next: Phalanx,  Prev: Glaurung,  Up: Engines
 
-4.6 GNU Chess
+4.7 GNU Chess
 =============
 
 "GNU Chess" (http://gnu.org/software/chess/) is free software, licensed
@@ -1692,7 +1731,7 @@ play against GNU Chess by invoking ‘C-u M-x chess <RET> gnuchess <RET>’.
 
 File: chess.info,  Node: Phalanx,  Next: Sjeng,  Prev: GNU Chess,  Up: Engines
 
-4.7 Phalanx
+4.8 Phalanx
 ===========
 
 "Phalanx" is an old, popular chess engine, with an interesting history.
@@ -1710,7 +1749,7 @@ play against Phalanx by invoking ‘C-u M-x chess <RET> phalanx <RET>’.
 
 File: chess.info,  Node: Sjeng,  Next: Stockfish,  Prev: Phalanx,  Up: Engines
 
-4.8 Sjeng
+4.9 Sjeng
 =========
 
 "Sjeng" (http://sjeng.org/) is a championship-winner automated chess
@@ -1730,8 +1769,8 @@ play against Sjeng by invoking ‘C-u M-x chess <RET> sjeng <RET>’.
 
 File: chess.info,  Node: Stockfish,  Prev: Sjeng,  Up: Engines
 
-4.9 Stockfish
-=============
+4.10 Stockfish
+==============
 
 "Stockfish" (http://www.stockfishchess.org/) is one of the strongest
 chess engines in the world, appearing near or at the top of most chess
@@ -2224,7 +2263,7 @@ Function and Variable Index
 * chess-display-invert:                  Generic display manipulation functions.
                                                               (line  27)
 * chess-display-invert <1>:              Basic operations.    (line   8)
-* chess-display-kill-board:              Basic operations.    (line  39)
+* chess-display-kill-board:              Basic operations.    (line  40)
 * chess-display-move:                    Generic display manipulation functions.
                                                               (line  30)
 * chess-display-move-backward:           Basic operations.    (line  11)
@@ -2237,7 +2276,7 @@ Function and Variable Index
                                                               (line  37)
 * chess-display-quit:                    Generic display manipulation functions.
                                                               (line  40)
-* chess-display-quit <1>:                Basic operations.    (line  51)
+* chess-display-quit <1>:                Basic operations.    (line  55)
 * chess-display-resign:                  Basic operations.    (line  36)
 * chess-display-search-backward:         Basic operations.    (line  14)
 * chess-display-search-forward:          Basic operations.    (line  18)
@@ -2255,7 +2294,7 @@ Function and Variable Index
                                                               (line  56)
 * chess-display-update:                  Generic display manipulation functions.
                                                               (line  64)
-* chess-display-yank-board:              Basic operations.    (line  43)
+* chess-display-yank-board:              Basic operations.    (line  47)
 * chess-engine-command:                  Common functions.    (line  18)
 * chess-engine-create:                   Common functions.    (line   6)
 * chess-engine-position:                 Common functions.    (line  15)
@@ -2476,16 +2515,18 @@ Key Index
 * C-M-l:                                 Chess ICS Mode.       (line 62)
 * C-r:                                   Basic operations.     (line 13)
 * C-s:                                   Basic operations.     (line 17)
+* C-u M-w:                               Basic operations.     (line 38)
 * C-u M-x chess RET:                     Chess Session.        (line 35)
 * C-u M-x chess RET ai RET:              AI.                   (line 10)
 * C-u M-x chess RET crafty RET:          Crafty.               (line 18)
 * C-u M-x chess RET fruit RET:           Fruit.                (line 21)
 * C-u M-x chess RET glaurung RET:        Glaurung.             (line 15)
 * C-u M-x chess RET gnuchess RET:        GNU Chess.            (line 19)
+* C-u M-x chess RET none RET:            The Null Engine.      (line 13)
 * C-u M-x chess RET phalanx RET:         Phalanx.              (line 15)
 * C-u M-x chess RET sjeng RET:           Sjeng.                (line 17)
 * C-u M-x chess RET stockfish RET:       Stockfish.            (line 18)
-* C-y:                                   Basic operations.     (line 42)
+* C-y:                                   Basic operations.     (line 46)
 * d:                                     Entering moves with algebraic notation.
                                                                (line  6)
 * down-mouse-1:                          Selecting pieces with the mouse.
@@ -2529,7 +2570,7 @@ Key Index
 * RET <2>:                               The sought game display.
                                                                (line 24)
 * TAB:                                   Basic operations.     (line  6)
-* X:                                     Basic operations.     (line 50)
+* X:                                     Basic operations.     (line 54)
 * x:                                     Entering moves with algebraic notation.
                                                                (line  6)
 
@@ -2553,67 +2594,68 @@ Node: Opcode "am" avoid move(s)17228
 Node: Opcode "bm" best move(s)17669
 Node: Plies18064
 Node: Creating plies19207
-Node: Ply details20390
-Node: The "next" position21511
-Node: Algebraic notation21869
-Node: Variations23651
-Node: Creating variations24750
-Node: Variation positions25058
-Node: Variation plies25664
-Node: Making a move in a variation26110
-Node: Games26663
-Node: Creating games28245
-Node: Game tags28690
-Node: Game positions29299
-Node: Game plies29933
-Node: Making a move30202
-Node: PGN notation30633
-Node: PGN mode31367
-Node: Collections31628
-Node: Opening Databases32407
-Node: Querying Databases32902
-Node: Modifying Databases33528
-Node: Finalising Databases33800
-Node: Database Modules33975
-Node: chess-file34233
-Node: chess-scid34883
-Node: Chess Opening Books35122
-Node: ECO Classification35441
-Node: Polyglot opening book format support35884
-Node: Modules37752
-Node: Chessboard displays44528
-Node: Generic display manipulation functions45162
-Node: Chess display mode47960
-Node: Basic operations48895
-Node: Selecting pieces with the keyboard50511
-Node: Selecting pieces with the mouse51103
-Node: Entering moves with algebraic notation51669
-Node: Plain ASCII diagram displays52687
-Node: ICS1 style ASCII displays54572
-Node: Graphical displays55924
-Node: Engines56775
-Node: Common functions57291
-Node: AI58339
-Node: Crafty59318
-Node: Fruit60105
-Node: Glaurung61001
-Node: GNU Chess61641
-Node: Phalanx62566
-Node: Sjeng63198
-Node: Stockfish63937
-Node: Chess Session64752
-Node: Internet Chess Servers66519
-Node: Connecting to a server67676
-Node: Chess ICS Mode68232
-Node: Command History71745
-Node: ICS Command Ring72366
-Node: ICS History Copying75579
-Node: Seeking an opponent for a new game77097
-Node: The sought game display77746
-Node: Watching other games78774
-Node: Concept Index80256
-Node: Function and Variable Index82480
-Node: Key Index99949
+Node: Ply details20796
+Node: The "next" position21917
+Node: Algebraic notation22275
+Node: Variations24057
+Node: Creating variations25156
+Node: Variation positions25464
+Node: Variation plies26070
+Node: Making a move in a variation26516
+Node: Games27069
+Node: Creating games28651
+Node: Game tags29096
+Node: Game positions29705
+Node: Game plies30339
+Node: Making a move30608
+Node: PGN notation31039
+Node: PGN mode31773
+Node: Collections32034
+Node: Opening Databases32813
+Node: Querying Databases33308
+Node: Modifying Databases33934
+Node: Finalising Databases34206
+Node: Database Modules34381
+Node: chess-file34639
+Node: chess-scid35289
+Node: Chess Opening Books35528
+Node: ECO Classification35847
+Node: Polyglot opening book format support36290
+Node: Modules38158
+Node: Chessboard displays44934
+Node: Generic display manipulation functions45568
+Node: Chess display mode48366
+Node: Basic operations49301
+Node: Selecting pieces with the keyboard51011
+Node: Selecting pieces with the mouse51603
+Node: Entering moves with algebraic notation52169
+Node: Plain ASCII diagram displays53187
+Node: ICS1 style ASCII displays55072
+Node: Graphical displays56424
+Node: Engines57275
+Node: Common functions57811
+Node: The Null Engine58872
+Node: AI59415
+Node: Crafty60393
+Node: Fruit61180
+Node: Glaurung62076
+Node: GNU Chess62716
+Node: Phalanx63641
+Node: Sjeng64273
+Node: Stockfish65012
+Node: Chess Session65829
+Node: Internet Chess Servers67596
+Node: Connecting to a server68753
+Node: Chess ICS Mode69309
+Node: Command History72822
+Node: ICS Command Ring73443
+Node: ICS History Copying76656
+Node: Seeking an opponent for a new game78174
+Node: The sought game display78823
+Node: Watching other games79851
+Node: Concept Index81333
+Node: Function and Variable Index83557
+Node: Key Index101026
 
 End Tag Table
 
