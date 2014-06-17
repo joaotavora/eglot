@@ -438,10 +438,10 @@ that is supported by most displays, and is the default mode."
 	    (setq mode arg)
 	  (funcall chess-display-event-handler 'highlight arg mode))))))
 
-(defun chess-display-highlight-legal (display pos)
-  "Highlight all legal move targets from POS."
+(defun chess-display-highlight-legal (display index)
+  "Highlight all legal move targets from INDEX."
   (chess-with-current-buffer display
-    (dolist (ply (chess-legal-plies (chess-display-position nil) :index pos))
+    (dolist (ply (chess-legal-plies (chess-display-position nil) :index index))
       (chess-display-highlight nil "pale green"
 			       (chess-ply-target ply)))))
 
