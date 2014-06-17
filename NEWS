@@ -2,6 +2,43 @@ This is the NEWS file for Emacs Chess, a chess client and analysis library
 written in Emacs Lisp.
 
 
+* Release 2.0.2:
+
+** Major updates to the Info manual.
+
+** Algebraic move input:
+
+*** It is now possible to enter moves in numeric notation by
+    customizing `chess-input-notation-type'.
+
+*** Backspace (DEL) on terminals now deletes input as expected.
+
+*** If `chess-display-highlight-legal' is non-nil, target squares of
+    posssible moves are highlighted while you type.
+
+** The board and modeline is now correctly updated when making a move against
+   the internal engine (AI).
+
+** An error when editing positions with the `chess-plain' display has been fixed.
+
+** Legal move target highlights are now properly removed again once a move
+   has been selected, or the selected piece has been deselected.
+
+*** As a consequence of this fix, `chess-display-highlight-legal' is now
+    on by default.
+
+** `chess-ply-to-algebraic' can now generate figurine algebraic and
+   numeric notation.
+
+** `chess-algebraic-to-ply' can now handle figurine algebraic notation.
+
+** Several compiler warnings have been fixed.
+   
+** The `chess-autosave' module is disabled by default for now.
+
+** The incomplete and unused constant `chess-piece-name-table' has been removed.
+
+
 * Release 2.0.1:
 
 ** chess-polyglot now works on 32-bit platforms.
