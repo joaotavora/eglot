@@ -19,6 +19,8 @@
 
 ;;; Code:
 
+(require 'chess-algebraic)
+(require 'chess-fen)
 (require 'chess-module)
 
 (defgroup chess-engine nil

@@ -54,7 +54,6 @@
 
 ;;; Code:
 
-(require 'chess)
 (require 'chess-algebraic)
 (require 'chess-display)
 (require 'chess-fen)

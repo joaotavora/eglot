@@ -31,7 +31,6 @@
 
 ;;; Code:
 
-(require 'chess)
 (require 'chess-engine)
 (require 'chess-message)
 
@@ -56,6 +55,8 @@
     (draw-offer-declined   . "Your draw offer was declined")
     (illegal-move          . "Illegal move")
     (not-yet-implemented   . "This feature is not yet implemented")))
+
+(defvar chess-full-name)
 
 (defun chess-common-handler (game event &rest args)
   "Initialize the network chess engine."

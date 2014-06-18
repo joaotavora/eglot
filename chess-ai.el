@@ -30,11 +30,11 @@
 
 ;;; Code:
 
-(require 'chess)
+(require 'chess-algebraic)
 (require 'chess-common)
 (require 'chess-polyglot)
-(require 'chess-pos)
 (require 'chess-ply)
+(require 'chess-pos)
 (require 'cl-lib)
 
 (defgroup chess-ai ()
@@ -305,6 +305,8 @@ DEPTH defaults to the value of `chess-ai-depth'."
   (cdr (chess-ai-eval position (or depth chess-ai-depth)
 		      (1+ most-negative-fixnum) most-positive-fixnum
 		      (or eval-fn #'chess-ai-eval-static))))
+
+(defvar chess-full-name)
 
 (defun chess-ai-handler (game event &rest args)
   (unless chess-engine-handling-event

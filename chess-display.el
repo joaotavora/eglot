@@ -29,7 +29,6 @@
 (require 'chess-input)
 (require 'chess-message)
 (require 'chess-module)
-(require 'chess-pgn)
 (require 'chess-random)
 (require 'chess-var)
 
@@ -714,6 +713,8 @@ The key bindings available in this mode are:
   (interactive "sSet from FEN string: ")
   (chess-display-set-position nil (chess-fen-to-pos fen)))
 
+(declare-function chess-game-to-pgn "chess-pgn" (game &optional indented to-string))
+
 (defun chess-display-kill-board (&optional arg)
   "Send the current board configuration to the user."
   (interactive "P")
@@ -724,6 +725,8 @@ The key bindings available in this mode are:
 		    (chess-game-to-pgn game)
 		    (buffer-string)))
       (kill-new (chess-pos-to-fen (chess-display-position nil) t)))))
+
+(declare-function chess-pgn-to-game "chess-pgn" (&optional string))
 
 (defun chess-display-yank-board ()
   "Send the current board configuration to the user."
@@ -1042,7 +1045,7 @@ to the end or beginning."
 
     (define-key map [(control ?l)] 'chess-display-redraw)
     (define-key map [(control ?i)] 'chess-display-invert)
-    (define-key map [tab] 'chess-display-invert)
+    (define-key map "\t" 'chess-display-invert)
 
     (define-key map [??] 'describe-mode)
     (define-key map [?L] 'chess-display-list-buffers)
