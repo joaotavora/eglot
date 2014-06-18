@@ -235,6 +235,9 @@ Otherwise use `chess-default-engine' to determine the engine."
 (defalias 'chess-session 'chess)
 
 ;;;###autoload
+(define-key menu-bar-games-menu [chess] '(menu-item "Chess" chess :help "Play Chess"))
+
+;;;###autoload
 (defun chess-create-display (perspective &optional modules-too)
   "Create a display, letting the user's customization decide the style.
 If MODULES-TOO is non-nil, also create and associate the modules

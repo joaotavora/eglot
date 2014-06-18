@@ -827,6 +827,9 @@ This function should be put on `comint-preoutput-filter-functions'."
 	(accept-process-output (get-buffer-process (current-buffer)) 0 100)))
     (switch-to-buffer buf)))
 
+;;;###autoload
+(define-key menu-bar-games-menu [chess-ics] '(menu-item "Internet Chess Servers" chess-ics :help "Play Chess on the Internet"))
+
 ;;; ICC datagrams
 
 ;; See http://www.chessclub.com/resources/formats/formats.txt
