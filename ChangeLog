@@ -1,3 +1,9 @@
+2014-06-19  Eli Zaretskii  <eliz@gnu.org>
+
+	* chess.texi: Proofread and fix the manual.  All the Next, Prev,
+	Up pointers deleted.  Markup of 'nil' and other symbols fixed.
+	Typos and British spellings fixed.
+
 2014-06-16  Mario Lang  <mlang@delysid.org>
 
 	* chess-input.el (chess-input-notation-type): New variable.
