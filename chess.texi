@@ -1428,7 +1428,7 @@ variation that was passed in.
 
 @defun chess-display-update display &optional popup
 Update the chessboard @var{display}.  If @var{popup} is non-@code{nil},
-update it as well.
+make sure it is visible.
 @end defun
 
 @c lispfun chess-display-variation
