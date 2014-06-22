@@ -2,6 +2,14 @@ This is the NEWS file for Emacs Chess, a chess client and analysis library
 written in Emacs Lisp.
 
 
+* Release 2.0.3:
+
+This is a bugfix release which fixes a recursive dependency between
+`chess-display' and `chess-pgn' which was accidentally missed in 2.0.2.
+
+Also included is further proof-reading of the Info manual.
+
+
 * Release 2.0.2:
 
 ** Major updates to the Info manual.
