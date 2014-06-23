@@ -1,3 +1,13 @@
+2014-06-24  Mario Lang  <mlang@delysid.org>
+
+	* chess-ply.el (chess-ply-p): New function.
+	Change `cl-assert' to `cl-check-type' based on this predicate.
+	(chess-ply-final-p): Only call `chess-ply-any-keyword' if we actually
+	found a preceding ply.
+	(chess-ply--add): Remove obsolte and unused arguments RANK-ADJ and
+	FILE-ADJ.
+	(chess-legal-plies): Adjust for `chess-ply--add' argument removal.
+
 2014-06-19  Eli Zaretskii  <eliz@gnu.org>
 
 	* chess.texi: Proofread and fix the manual.  All the Next, Prev,
