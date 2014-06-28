@@ -287,7 +287,7 @@ color will do."
   (cl-check-type piece-or-color (member t nil ?  ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p))
   (let ((p (chess-pos-piece position index)))
     (cond
-     ((= p ? ) (eq p piece-or-color))
+     ((= p ? ) (and (numberp piece-or-color) (= p piece-or-color)))
      ((eq piece-or-color t) (< p ?a))
      ((eq piece-or-color nil) (> p ?a))
      (t (= p piece-or-color)))))
@@ -486,12 +486,12 @@ alist, but the `cdr' of their entries will be nil."
 			  (when ok
 			    (memq piece '(?P ?N ?B ?R ?Q ?K ?p ?n ?b ?r ?q ?k))))
 			pieces :initial-value t))
-  (cl-assert (= (length pieces) (length (cl-delete-duplicates pieces))))
+  (cl-assert (equal pieces (delete-dups pieces)))
   (let ((alist (mapcar #'list pieces)))
     (dotimes (index 64)
       (let ((piece (chess-pos-piece position index)))
-	(unless (eq piece ? )
-	  (let ((entry (assq piece alist)))
+	(unless (= piece ? )
+	  (let ((entry (assoc piece alist)))
 	    (when entry (push index (cdr entry)))))))
     alist))
 
@@ -911,7 +911,7 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 	  (let ((pos-piece (chess-pos-piece position (caar ray))))
 	    (setq ray (cond ((memq pos-piece (cdar ray))
 			     (chess--add-candidate (caar ray)) nil)
-			    ((eq pos-piece ? ) (cdr ray)))))))
+			    ((= pos-piece ? ) (cdr ray)))))))
 
       ;; test for knights and pawns
       (dolist (p (if piece '(?P ?N) '(?p ?n)))
@@ -943,10 +943,10 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 
      ;; pawn movement, which is diagonal 1 when taking, but forward
      ;; 1 or 2 when moving (the most complex piece, actually)
-     ((eq test-piece ?P)
+     ((= test-piece ?P)
       (let ((p (chess-pos-piece position target))
 	    (backward (if color chess-direction-south chess-direction-north)))
-	(if (if (eq p ? )
+	(if (if (= p ? )
 		;; check for en passant
 		(and (= (chess-index-rank target) (if color 2 5))
 		     (let ((ep (chess-pos-en-passant position)))
@@ -978,9 +978,9 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 		  (chess--add-candidate pos)))
 	  (if (setq pos (chess-next-index target backward))
 	      (let ((pos-piece (chess-pos-piece position pos)))
-		(if (eq pos-piece piece)
+		(if (= pos-piece piece)
 		    (chess--add-candidate pos)
-		  (if (and (eq pos-piece ? )
+		  (if (and (= pos-piece ? )
 			   (= (if color 4 3) (chess-index-rank target))
 			   (setq pos (funcall (if color #'+ #'-) pos 8))
 			   (chess-pos-piece-p position pos piece))
@@ -997,11 +997,11 @@ If NO-CASTLING is non-nil, do not consider castling moves."
 	(setq pos (chess-next-index target dir))
 	(while pos
 	  (let ((pos-piece (chess-pos-piece position pos)))
-	    (if (eq pos-piece piece)
+	    (if (= pos-piece piece)
 		(progn
 		  (chess--add-candidate pos)
 		  (setq pos nil))
-	      (setq pos (and (eq pos-piece ? ) (chess-next-index pos dir)))))))
+	      (setq pos (and (= pos-piece ? ) (chess-next-index pos dir)))))))
       ;; test whether the rook can move to the target by castling
       (if (and (= test-piece ?R) (not no-castling))
 	  (let (rook)

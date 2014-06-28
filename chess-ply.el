@@ -221,7 +221,7 @@ maneuver."
 							   (car changes))))
 		    (setcdr ply new-changes)))
 
-	    (when (eq piece (if color ?P ?p))
+	    (when (= piece (if color ?P ?p))
 	      ;; is this a pawn move to the ultimate rank?  if so, check
 	      ;; that the :promote keyword is present.
 	      (when (and (not (memq :promote changes))
@@ -345,7 +345,7 @@ position object passed in."
 	    (upcase (or piece
 			(chess-pos-piece position
 					 (cadr (memq :index keywords))))))
-	   (ep (when (eq test-piece ?P) (chess-pos-en-passant position)))
+	   (ep (when (= test-piece ?P) (chess-pos-en-passant position)))
 	   pos plies file)
       ;; since we're looking for moves of a particular piece, do a
       ;; more focused search

@@ -1233,7 +1233,7 @@ Clicking once on a piece selects it; then click on the target location."
 		    (setq chess-display-last-selected nil))
 		(let ((piece (chess-pos-piece position coord)))
 		  (cond
-		   ((eq piece ? )
+		   ((= piece ? )
 		    (throw 'message (chess-string 'selected-empty)))
 		   ((not (or chess-display-edit-mode
 			     (not (chess-display-active-p))

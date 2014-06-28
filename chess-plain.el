@@ -256,7 +256,7 @@ modify `chess-plain-piece-chars' to avoid real confusion.)"
 
 (defun chess-plain-piece-text (piece rank file)
   (let ((white-square (zerop (% (+ file rank) 2))))
-    (if (eq piece ? )
+    (if (= piece ? )
 	(if white-square
 	    chess-plain-white-square-char
 	  chess-plain-black-square-char)

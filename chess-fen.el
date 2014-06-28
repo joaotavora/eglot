@@ -145,11 +145,11 @@ If FULL is non-nil, represent trailing spaces as well."
       (if (and index
 	       (let ((pawn (if (chess-pos-side-to-move position) ?P ?p)))
 		 (or (and (chess-incr-index index 0 -1)
-			  (eq (chess-pos-piece position (chess-incr-index
-							 index 0 -1)) pawn))
+			  (chess-pos-piece-p position (chess-incr-index
+						       index 0 -1) pawn))
 		     (and (chess-incr-index index 0 1)
-			  (eq (chess-pos-piece position (chess-incr-index
-							 index 0 1)) pawn)))))
+			  (chess-pos-piece-p position (chess-incr-index
+						       index 0 1) pawn)))))
 	  (concat str (chess-index-to-coord
 		       (if (chess-pos-side-to-move position)
 			   (chess-incr-index index -1 0)

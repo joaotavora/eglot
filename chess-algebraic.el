@@ -102,7 +102,7 @@ This regexp matches short, long and figurine notation.")
 	    (mate (match-string 8 move))
 	    (piece (aref move 0))
 	    changes type)
-	(if (or (eq piece ?O) (eq piece ?0))
+	(if (or (= piece ?O) (= piece ?0))
 	    (setq changes (chess-ply-castling-changes
 			   position (= (length (match-string 1 move)) 5)))
 	  (let ((promotion (match-string 7 move)))

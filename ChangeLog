@@ -1,3 +1,18 @@
+2014-06-25  Mario Lang  <mlang@delysid.org>
+
+	* chess-pos.el (chess-pos-search*)
+	* chess-input.el (chess-input-display-moves): cl-delete-duplicates ->
+	delete-dups.
+
+	* chess-pos.el (chess-pos-piece-p, chess-pos-search*)
+	(chess-search-position)
+	* chess-ply.el (chess-ply-create, chess-legal-plies)
+	* chess-plain.el (chess-plain-piece-text)
+	* chess-fen.el (chess-pos-to-fen)
+	* chess-display.el (chess-display-select-piece)
+	* chess-algebraic.el (chess-algebraic-to-ply): Use `=' instead of `eq'
+	to compare pieces.
+
 2014-06-24  Mario Lang  <mlang@delysid.org>
 
 	* chess-ply.el (chess-ply-p): New function.

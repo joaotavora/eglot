@@ -83,7 +83,7 @@
   (when (> (length chess-input-move-string) 0)
     (when chess-display-highlight-legal
       (apply #'chess-display-highlight
-	     nil (cl-delete-duplicates (mapcar #'chess-ply-target move-list))))
+	     nil (delete-dups (mapcar #'chess-ply-target move-list))))
     (message "[%s] %s" chess-input-move-string
 	     (mapconcat (lambda (ply)
 			  (chess-ply-to-algebraic ply chess-input-notation-type))
