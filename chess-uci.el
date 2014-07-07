@@ -38,8 +38,8 @@
 
 (defun chess-uci-long-algebraic-to-ply (position move)
   "Convert the long algebraic notation MOVE for POSITION to a ply."
-  (cl-assert (vectorp position))
-  (cl-assert (stringp move))
+  (cl-check-type position chess-pos)
+  (cl-check-type move string)
   (let ((case-fold-search nil))
     (when (string-match chess-uci-long-algebraic-regexp move)
       (let ((color (chess-pos-side-to-move position))
@@ -54,9 +54,10 @@
 		   (chess-ply-castling-changes
 		    position
 		    (< (- (chess-index-file to) (chess-index-file from)) 0))
-		 (nconc (list from to)
-			(when promotion
-			  (list :promote (upcase (aref promotion 0)))))))))))
+		 (cons from (cons to
+				  (when promotion
+				    (list :promote
+					  (upcase (aref promotion 0))))))))))))
 
 (defsubst chess-uci-convert-long-algebraic (move)
   "Convert long algebraic MOVE to a ply in reference to the engine position.

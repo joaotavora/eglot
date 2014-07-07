@@ -118,63 +118,54 @@
 		     ?k
 		   last-command-event))
       (if (or (memq (upcase char) '(?K ?Q ?N ?B ?R ?P))
-	      (and (>= char ?a) (<= char ?h)))
+	      (and (>= char ?a) (<= char ?h))
+	      (and (>= char ?1) (<= char ?8)))
 	  (setq chess-input-moves-pos position
 		chess-input-moves
 		(cons
 		 char
 		 (sort
-		  (if (eq char ?b)
-		      (append (chess-legal-plies
-			       position :piece (if color ?P ?p) :file 1)
-			      (chess-legal-plies
-			       position :piece (if color ?B ?b)))
-		    (if (and (>= char ?a)
-			     (<= char ?h))
-			(chess-legal-plies position
-					   :piece (if color ?P ?p)
-					   :file (- char ?a))
-		      (chess-legal-plies position
-					 :piece (if color
-						    (upcase char)
-						  (downcase char)))))
-		  (function
-		   (lambda (left right)
-		     (string-lessp (chess-ply-to-algebraic left)
-				   (chess-ply-to-algebraic right)))))))
-	(if (and (>= char ?1) (<= char ?8))
-	    (setq chess-input-moves-pos position
-		  chess-input-moves
-		  (cons
-		   char
-		   (sort
-		    (chess-legal-plies position :color color :file (- char ?1))
-		    (function
-		     (lambda (left right)
-		       (string-lessp (chess-ply-to-algebraic left)
-				     (chess-ply-to-algebraic right)))))))))))
-  (let ((moves (delq nil (mapcar 'chess-input-test-move
+		  (cond ((eq char ?b)
+			 (nconc (chess-legal-plies
+				 position :piece (if color ?P ?p) :file 1)
+				(chess-legal-plies
+				 position :piece (if color ?B ?b))))
+			((and (>= char ?a) (<= char ?h))
+			 (chess-legal-plies
+			  position :piece (if color ?P ?p)
+			  :file (chess-file-from-char char)))
+			((and (>= char ?1) (<= char ?8))
+			 (chess-legal-plies
+			  position :color color :file (- char ?1)))
+			(t (chess-legal-plies
+			    position :piece (if color
+						(upcase char)
+					      (downcase char)))))
+		  (lambda (left right)
+		    (string-lessp (chess-ply-to-algebraic left)
+				  (chess-ply-to-algebraic right)))))))))
+  (let ((moves (delq nil (mapcar #'chess-input-test-move
 				 (cdr chess-input-moves)))))
-    (cond
-     ((or (= (length moves) 1)
-	  ;; if there is an exact match except for case, it must be an
-	  ;; abiguity between a bishop and a b-pawn move.  In this
-	  ;; case, always take the b-pawn move; to select the bishop
-	  ;; move, use B to begin the keyboard shortcut
-	  (and (= (length moves) 2)
-	       (string= (downcase (chess-ply-to-algebraic (car moves)))
-			(downcase (chess-ply-to-algebraic (cadr moves))))
-	       (setq moves (cdr moves))))
-      (funcall chess-input-move-function nil (car moves))
-      (when chess-display-highlight-legal
-	(chess-display-redraw nil))
-      (setq chess-input-move-string nil
-	    chess-input-moves nil
-	    chess-input-moves-pos nil))
-     ((null moves)
-      (chess-input-shortcut-delete))
-     (t
-      (chess-input-display-moves moves)))))
+    (cond ((or (= (length moves) 1)
+	       ;; if there is an exact match except for case, it must be an
+	       ;; abiguity between a bishop and a b-pawn move.  In this
+	       ;; case, always take the b-pawn move; to select the bishop
+	       ;; move, use B to begin the keyboard shortcut
+	       (and (= (length moves) 2)
+		    (string= (downcase (chess-ply-to-algebraic (car moves)))
+			     (downcase (chess-ply-to-algebraic (cadr moves))))
+		    (setq moves (cdr moves))))
+	   (funcall chess-input-move-function nil (car moves))
+	   (when chess-display-highlight-legal
+	     (chess-display-redraw nil))
+	   (setq chess-input-move-string nil
+		 chess-input-moves nil
+		 chess-input-moves-pos nil))
+
+	  ((null moves)
+	   (chess-input-shortcut-delete))
+
+	  (t (chess-input-display-moves moves)))))
 
 (provide 'chess-input)
 

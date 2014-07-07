@@ -395,35 +395,38 @@ also view the same game."
   "Return non-nil if the displayed chessboard reflects an active game.
 Basically, it means we are playing, not editing or reviewing."
   (and (chess-game-data chess-module-game 'active)
-       (= chess-display-index
-	  (chess-game-index chess-module-game))
+       (= chess-display-index (chess-game-index chess-module-game))
        (not (chess-game-over-p chess-module-game))
        (not chess-display-edit-mode)))
 
 (defun chess-display-move (display ply)
   "Move a piece on DISPLAY, by applying the given PLY.
-The position of PLY must match the currently displayed position."
+The position of PLY must match the currently displayed position.
+
+This adds PLY to the game associated with DISPLAY."
   (chess-with-current-buffer display
-    (if (and (chess-display-active-p)
-	     ;; `active' means we're playing against an engine
-	     (chess-game-data chess-module-game 'active)
-	     (not (eq (chess-game-data chess-module-game 'my-color)
-		      (chess-game-side-to-move chess-module-game))))
-	(chess-error 'not-your-move)
-      (if (and (= chess-display-index
-		  (chess-game-index chess-module-game))
-	       (chess-game-over-p chess-module-game))
-	  (chess-error 'game-is-over)))
-    (if (= chess-display-index (chess-game-index chess-module-game))
-	(let ((chess-display-handling-event t))
-	  (chess-game-move chess-module-game ply)
-	  (chess-display-paint-move nil ply)
-	  (chess-display-set-index* nil (chess-game-index chess-module-game))
-	  (redisplay)                   ; FIXME: This is clearly necessary, but why?
-	  (chess-game-run-hooks chess-module-game 'post-move))
-      ;; jww (2002-03-28): This should beget a variation within the
-      ;; game, or alter the game, just as SCID allows
-      (chess-error 'cannot-yet-add))))
+    (cond ((and (chess-display-active-p)
+		;; `active' means we're playing against an engine
+		(chess-game-data chess-module-game 'active)
+		(not (eq (chess-game-data chess-module-game 'my-color)
+			 (chess-game-side-to-move chess-module-game))))
+	   (chess-error 'not-your-move))
+
+	  ((and (= chess-display-index (chess-game-index chess-module-game))
+		(chess-game-over-p chess-module-game))
+	   (chess-error 'game-is-over))
+
+	  ((= chess-display-index (chess-game-index chess-module-game))
+	   (let ((chess-display-handling-event t))
+	     (chess-game-move chess-module-game ply)
+	     (chess-display-paint-move nil ply)
+	     (chess-display-set-index* nil (chess-game-index chess-module-game))
+	     (redisplay)                   ; FIXME: This is clearly necessary, but why?
+	     (chess-game-run-hooks chess-module-game 'post-move)))
+
+	  (t ;; jww (2002-03-28): This should beget a variation within the
+	     ;; game, or alter the game, just as SCID allows
+	     (chess-error 'cannot-yet-add)))))
 
 (defun chess-display-highlight (display &rest args)
   "Highlight the square at INDEX on the current position.
@@ -1109,7 +1112,7 @@ to the end or beginning."
 				 chess-display-edit-position))
 
 (defun chess-display-restore-board ()
-  "Setup the current board for editing."
+  "Cancel editing."
   (interactive)
   (chess-display-end-edit-mode)
   ;; reset the modeline

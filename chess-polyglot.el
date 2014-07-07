@@ -490,8 +490,8 @@ Returns a buffer object which contains the binary data."
 The resulting list is ordered, most interesting plies come first.
 The :polyglot-book-weight ply keyword is used to store the actual move weights.
 Use `chess-ply-keyword' on elements of the returned list to retrieve them."
-  (cl-assert (bufferp book))
-  (cl-assert (vectorp position))
+  (cl-check-type book buffer)
+  (cl-check-type position chess-pos)
   (let (plies)
     (dolist (move
 	     (with-current-buffer book

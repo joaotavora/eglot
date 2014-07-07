@@ -299,6 +299,9 @@ maneuver."
 	    (let ((ply (chess-ply-create position t candidate target)))
 	      (when ply (push ply plies)))))))))
 
+(defconst chess-white-pieces '(?P ?N ?B ?R ?Q ?K))
+(defconst chess-black-pieces '(?p ?n ?b ?r ?q ?k))
+
 (defun chess-legal-plies (position &rest keywords)
   "Return a list of all legal plies in POSITION.
 KEYWORDS allowed are:
@@ -350,20 +353,16 @@ position object passed in."
       ;; since we're looking for moves of a particular piece, do a
       ;; more focused search
       (dolist (candidate
-	       (cond
-		((cadr (memq :candidates keywords))
-		 (cadr (memq :candidates keywords)))
-		((setq pos (cadr (memq :index keywords)))
-		 (list pos))
-		((setq file (cadr (memq :file keywords)))
-		 (let (candidates)
-		   (dotimes (rank 8)
-		     (setq pos (chess-rf-to-index rank file))
-		     (if (chess-pos-piece-p position pos (or piece color))
-			 (push pos candidates)))
-		   candidates))
-		(t
-		 (chess-pos-search position piece))))
+	       (cond ((cadr (memq :candidates keywords)))
+		     ((setq pos (cadr (memq :index keywords))) (list pos))
+		     ((setq file (cadr (memq :file keywords)))
+		      (let (candidates)
+			(dotimes (rank 8)
+			  (setq pos (chess-rf-to-index rank file))
+			  (if (chess-pos-piece-p position pos (or piece color))
+			      (push pos candidates)))
+			candidates))
+		     (t (chess-pos-search position piece))))
 	(cond
 	 ;; pawn movement, which is diagonal 1 when taking, but forward
 	 ;; 1 or 2 when moving (the most complex piece, actually)

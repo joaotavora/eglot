@@ -308,16 +308,34 @@ color will do."
   (cl-check-type index (integer 0 63))
   (mod index 8))
 
+(defsubst chess-rank-to-char (rank)
+  (cl-check-type rank (integer 0 7))
+  (+ (- 7 rank) ?1))
+
+(defsubst chess-rank-from-char (character)
+  (cl-check-type character character)
+  (- 7 (- character ?1)))
+
+(defsubst chess-file-to-char (file)
+  (cl-check-type file (integer 0 7))
+  (+ file ?a))
+
+(defsubst chess-file-from-char (character)
+  (cl-check-type character character)
+  (- character ?a))
+
 (defsubst chess-coord-to-index (coord)
   "Convert a COORD string (such as \"e4\" into an index value."
   (cl-check-type coord string)
   (cl-assert (= (length coord) 2))
-  (chess-rf-to-index (- 7 (- (aref coord 1) ?1)) (- (aref coord 0) ?a)))
+  (chess-rf-to-index (chess-rank-from-char (aref coord 1))
+		     (chess-file-from-char (aref coord 0))))
 
 (defsubst chess-index-to-coord (index)
   "Convert the chess position INDEX into a coord string."
   (cl-check-type index (integer 0 63))
-  (string (+ (chess-index-file index) ?a) (+ (- 7 (chess-index-rank index)) ?1)))
+  (string (chess-file-to-char (chess-index-file index))
+	  (chess-rank-to-char (chess-index-rank index))))
 
 (defsubst chess-incr-index (index rank-move file-move)
   "Create a new INDEX from an old one, by adding RANK-MOVE and FILE-MOVE."
@@ -693,8 +711,8 @@ The current side-to-move is always white."
 
 (defun chess-pos-material-value (position color)
   "Return the aggregate material value in POSITION for COLOR."
-  (cl-assert (vectorp position))
-  (cl-assert (memq color '(nil t)))
+  (cl-check-type position chess-pos)
+  (cl-check-type color (member nil t))
   (let ((pieces (chess-pos-search position color))
 	(value 0))
     (dolist (index pieces)
@@ -889,9 +907,9 @@ indices which indicate where a piece may have moved from.
 If CHECK-ONLY is non-nil and PIECE is either t or nil, only consider
 pieces which can give check (not the opponents king).
 If NO-CASTLING is non-nil, do not consider castling moves."
-  (cl-assert (vectorp position))
-  (cl-assert (and (>= target 0) (< target 64)))
-  (cl-assert (memq piece '(t nil ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p)))
+  (cl-check-type position chess-pos)
+  (cl-check-type target (integer 0 63))
+  (cl-check-type piece (member t nil ?K ?Q ?N ?B ?R ?P ?k ?q ?n ?b ?r ?p))
   (let* ((color (if (characterp piece)
 		    (< piece ?a)
 		  piece))
