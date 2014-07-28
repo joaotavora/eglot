@@ -10,8 +10,10 @@ This is yet another bugfix release, no new features.
 
 ** Fix missing dependencies in the ECO module.
 
-** Make the third argument of `chess-display-redraw' optional, as expected
+** Make the third argument of `chess-display-draw-square' optional, as expected
    by the rest of the code.
+
+** Fix a bug where PGN mode could not load the `chess-file' module.
 
 
 * Release 2.0.3:
