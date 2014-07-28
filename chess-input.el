@@ -48,8 +48,13 @@
 (make-variable-buffer-local 'chess-input-position-function)
 (make-variable-buffer-local 'chess-input-move-function)
 
+(defgroup chess-input nil
+  "Move input related otpions."
+  :group 'chess)
+
 (defcustom chess-input-notation-type :san
   "Define the notation type to use for move input."
+  :group 'chess-input
   :type '(choice (const :tag "Standard (short) algebraic notation" :san)
 		 (const :tag "Numeric notation" :numeric)))
 
@@ -59,19 +64,20 @@
 	 (i 0) (x 0) (l (length move))
 	 (xl (length chess-input-move-string)))
     (unless (or (and (equal (downcase chess-input-move-string) "ok")
-		     (string-match "\\`O-O[+#]?\\'" move))
+		     (chess-ply-keyword ply :castle))
 		(and (equal (downcase chess-input-move-string) "oq")
-		     (string-match "\\`O-O-O[+#]?\\'" move)))
+		     (chess-ply-keyword ply :long-castle)))
       (while (and (< i l) (< x xl))
 	(let ((move-char (aref move i))
 	      (entry-char (aref chess-input-move-string x)))
-	  (cond
-	   ((or (and (= move-char ?x) (/= entry-char ?x))
-		(and (= move-char ?=) (/= entry-char ?=)))
-	    (setq i (1+ i)))
-	   ((/= entry-char (if (< entry-char ?a) move-char (downcase move-char)))
-	    (setq ply nil i l))
-	   (t (setq i (1+ i) x (1+ x)))))))
+	  (cond ((or (and (= move-char ?x) (/= entry-char ?x))
+		     (and (= move-char ?=) (/= entry-char ?=)))
+		 (setq i (1+ i)))
+		((/= entry-char (if (< entry-char ?a)
+				    move-char
+				  (downcase move-char)))
+		 (setq ply nil i l))
+		(t (setq i (1+ i) x (1+ x)))))))
     ply))
 
 (defun chess-input-display-moves (&optional move-list)

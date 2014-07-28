@@ -1,3 +1,19 @@
+2014-07-28  Mario Lang  <mlang@delysid.org>
+
+	* chess-ply.el (chess-ply-keyword): Add docstring.
+
+	* chess-input.el (chess-input): New custom group.
+	(chess-input-notation-type): Put into `chess-input' group.
+	(chess-input-test-move): Use `chess-ply-keyword' to check for
+	castling plies instead of doing a string-match on the algebraic
+	notation string.
+
+	* chess-images.el (chess-images-determine-size): Don't use
+	`x-display-pixel-height' and `x-display-pixel-width' directly.
+
+	* chess-display.el (chess-display-draw-square): Make third argument
+	PIECE optional.
+
 2014-06-29  Mario Lang  <mlang@delysid.org>
 
 	* chess-algebraic.el (chess-algebraic-to-ply): Remove dead code.

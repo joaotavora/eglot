@@ -212,16 +212,12 @@ called."
     (setq cursor-type nil
 	  chess-images-cache nil
 	  chess-images-size (chess-images-best-size
-			     (- (if display
-				    (x-display-pixel-height display)
-				  (display-pixel-height))
+			     (- (display-pixel-height display)
 				;; On Macs and Windows, account for
 				;; the Start/Status bar
 				(if (memq window-system '(mac windows w32))
 				    80 20))
-			     (- (if display
-				    (x-display-pixel-width display)
-				  (display-pixel-width)) 20)))))
+			     (- (display-pixel-width display) 20)))))
 
 (defun chess-images-initialize ()
   (let ((map (current-local-map)))

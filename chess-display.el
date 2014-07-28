@@ -351,7 +351,7 @@ also view the same game."
 		  (point-min))))))
     (aref chess-display-index-positions index)))
 
-(defun chess-display-draw-square (display index piece &optional pos)
+(defun chess-display-draw-square (display index &optional piece pos)
   (cl-check-type display (or null buffer))
   (cl-check-type index (integer 0 63))
   (cl-check-type piece (member nil ?  ?P ?N ?B ?R ?Q ?K ?p ?n ?b ?r ?q ?k))

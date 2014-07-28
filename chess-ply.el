@@ -104,11 +104,15 @@
 	  (throw 'found keyword)))))
 
 (defun chess-ply-keyword (ply keyword)
+  "Determine if PLY has KEYWORD.
+If KEYWORD can be found in the changes of PLY, the value
+directly following it is returned (as if it was part of a property list).
+If KEYWORD is the last element of the changes of ply, `t' is returned."
   (declare (side-effect-free t))
   (cl-check-type ply chess-ply)
   (cl-check-type keyword symbol)
   (let ((item (memq keyword (chess-ply-changes ply))))
-    (and item (if (not (cdr item)) t (cadr item)))))
+    (and item (if (cdr item) (cadr item) t))))
 
 (defun chess-ply-set-keyword (ply keyword &optional value)
   (cl-check-type ply chess-ply)
