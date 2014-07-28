@@ -18,9 +18,11 @@ chess-eco.fen: chess-eco.pos
 dir: chess.info
 	$(INSTALL_INFO) $< $@
 
+chess-algebraic.elc: chess-ply.elc chess-pos.elc
 chess-database.elc: chess-message.elc chess-file.elc chess-scid.elc
 chess-file.elc: chess-fen.elc chess-pgn.elc
 chess-perft.elc: chess-fen.elc chess-ply.elc chess-pos.elc
+chess-pgn.elc: chess-algebraic.elc chess-game.elc
 chess-test.elc: chess-database.elc chess-game.elc chess-perft.elc
 
 .el.elc:

@@ -146,7 +146,7 @@ PERSPECTIVE is t for white or nil for black."
 (defun chess-debug-position (&optional position)
   "This is a debugging function, and not meant from general use."
   (interactive)
-  (let ((pos (or position (chess-engine-position nil))))
+  (let ((pos (or position (chess-display-position nil))))
     (with-current-buffer (get-buffer-create "*scratch*")
       (chess-ics1-draw pos t)
       (funcall chess-ics1-popup-function))))

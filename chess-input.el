@@ -80,6 +80,10 @@
 		(t (setq i (1+ i) x (1+ x)))))))
     ply))
 
+(defvar chess-display-highlight-legal nil)
+(declare-function chess-display-redraw "chess-display" (&optional display))
+(declare-function chess-display-highlight "chess-display" (display &rest args))
+
 (defun chess-input-display-moves (&optional move-list)
   (unless move-list
     (setq move-list

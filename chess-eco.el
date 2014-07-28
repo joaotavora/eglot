@@ -20,10 +20,11 @@
 
 ;;; Code:
 
+(require 'chess-algebraic)
+(require 'chess-fen)
 (require 'chess-game)
 (require 'chess-ply)
 (require 'chess-pos)
-(require 'chess-fen)
 
 (defgroup chess-eco nil
   "Chess opening classification module."

@@ -92,6 +92,7 @@
 	    (unless ply
 	      (chess-error 'pgn-read-error move))
 	    (setq position (chess-ply-next-pos ply))
+	    (chess-pos-set-annotations position nil)
 	    (nconc plies (list ply))))
 
 	 ((and top-level
@@ -279,6 +280,8 @@ PGN text."
 
 (chess-message-catalog 'english
   '((could-not-read-pgn . "Could not read or find a PGN game")))
+
+(declare-function chess-create-display "chess.el" (perspective &optional modules-too))
 
 ;;;###autoload
 (defun chess-pgn-read (&optional file)

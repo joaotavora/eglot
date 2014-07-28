@@ -1,5 +1,22 @@
 2014-07-28  Mario Lang  <mlang@delysid.org>
 
+	* chess-database.el (chess-database-do-open): Require modules here.
+	(chess-database-open): Instead of only requiring modules from
+	`chess-database-modules'.
+
+	* chess-pgn.el (chess-pgn-read-plies): Avoid copying comments
+	(annotations in PGN-jargon) to all following positions in a game.
+	(chess-create-display): Declare.
+
+	* chess-ics1.el (chess-debug-position): Use `chess-display-position'
+	instead of `chess-engine-position'.
+
+	* chess-engine.el (chess-pgn): Require it.
+	* chess-eco.el (chess-algebraic): Same here.
+
+	* chess-input.el (chess-display-highlight-legal)
+	(chess-display-redraw, chess-display-highlight): Declare.
+
 	* chess-ply.el (chess-ply-keyword): Add docstring.
 
 	* chess-input.el (chess-input): New custom group.

@@ -2,6 +2,18 @@ This is the NEWS file for Emacs Chess, a chess client and analysis library
 written in Emacs Lisp.
 
 
+* Release 2.0.4:
+
+This is yet another bugfix release, no new features.
+
+** Fix a bug in PGN annotation parsing.
+
+** Fix missing dependencies in the ECO module.
+
+** Make the third argument of `chess-display-redraw' optional, as expected
+   by the rest of the code.
+
+
 * Release 2.0.3:
 
 This is a bugfix release which fixes a recursive dependency between

@@ -41,17 +41,18 @@
 
 (defun chess-database-do-open (module file)
   "Returns the opened database object, or nil."
-  (let* ((name (symbol-name module))
-	 (handler (intern-soft (concat name "-handler"))))
-    (unless handler
-      (chess-error 'no-such-database name))
-    (let ((buffer (funcall handler 'open file)))
-      (when buffer
-	(with-current-buffer buffer
-	  (setq chess-database-handler handler)
-	  (add-hook 'kill-buffer-hook 'chess-database-close nil t)
-	  (add-hook 'after-revert-hook 'chess-database-rescan nil t)
-	  (current-buffer))))))
+  (when (require module nil t)
+    (let* ((name (symbol-name module))
+	   (handler (intern-soft (concat name "-handler"))))
+      (unless handler
+	(chess-error 'no-such-database name))
+      (let ((buffer (funcall handler 'open file)))
+	(when buffer
+	  (with-current-buffer buffer
+	    (setq chess-database-handler handler)
+	    (add-hook 'kill-buffer-hook 'chess-database-close nil t)
+	    (add-hook 'after-revert-hook 'chess-database-rescan nil t)
+	    (current-buffer)))))))
 
 (defun chess-database-open (file &optional module)
   "Returns the opened database object, or nil."
@@ -60,8 +61,7 @@
     (let (result)
       (setq module chess-database-modules)
       (while module
-	(if (and (require (car module) nil t)
-		 (setq result (chess-database-do-open (car module) file)))
+	(if (setq result (chess-database-do-open (car module) file))
 	    (setq module nil)
 	  (setq module (cdr module))))
       result)))
