@@ -352,6 +352,13 @@ also view the same game."
     (aref chess-display-index-positions index)))
 
 (defun chess-display-draw-square (display index &optional piece pos)
+  "(Re)draw the square of DISPLAY indicated by INDEX.
+Optional argument PIECE indicates the piece (or blank) to draw.
+If it is not provided, `chess-display-position' is consulted.
+Optional argument POS indicates the buffer position to draw the square at.
+If that is not provided, `chess-display-index-pos' is called.
+
+This function is especially useful to clear a previously set highlight."
   (cl-check-type display (or null buffer))
   (cl-check-type index (integer 0 63))
   (cl-check-type piece (member nil ?  ?P ?N ?B ?R ?Q ?K ?p ?n ?b ?r ?q ?k))

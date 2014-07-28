@@ -1,5 +1,7 @@
 2014-07-28  Mario Lang  <mlang@delysid.org>
 
+	* chess-display.el (chess-display-draw-square): Add docstring.
+
 	* chess-database.el (chess-database-do-open): Require modules here.
 	(chess-database-open): Instead of only requiring modules from
 	`chess-database-modules'.
