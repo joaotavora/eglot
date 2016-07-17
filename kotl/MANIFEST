@@ -1,0 +1,17 @@
+--- HYPERBOLE KOUTLINER ---
+EXAMPLE.kotl              - Example koutline document explaining koutliner features
+kcell.el                  - Internal representation of koutline kcells used by kviews
+kexport.el                - Convert koutlines to other textual formats, including HTML
+kfile.el                  - Save and restore koutlines from files
+kfill.el		  - Fill and justify koutline cells
+kimport.el		  - Convert and insert other outline file formats into koutlines
+klabel.el                 - Display label handling for koutlines
+klink.el                  - Implicit reference to a kcell action type, for use in koutlines
+kmenu.el                  - Pulldown and popup menus for kotl-mode, the Koutliner mode
+knode.el                  - Generic nodes for use as elements in data structures
+kotl-mode.el              - Major mode for editing koutlines and associated commands
+kproperty.el              - Wrapper for koutline text property implementations
+kprop-em.el               - Koutline text property handling under GNU Emacs
+kprop-xe.el               - Koutline text property handling under XEmacs
+kview.el                  - Display handling of koutlines
+kvspec.el                 - Koutline view specification

@@ -1,0 +1,60 @@
+#!/bin/csh -f
+#
+# Summary:      Test whether symbol appears within a set of C libraries.
+# Usage:        <script-name> <symbol-string>
+#
+# Author:       Bob Weiner
+#
+# Orig-Date:     5-Oct-91 at 03:29:05
+#
+# Copyright (C) 1991-2016  Free Software Foundation, Inc.
+# See the "HY-COPY" file for license information.
+#
+# This file is part of GNU Hyperbole.
+#
+# Commentary:
+#
+#   Create the file given by the variable 'clib_list' below, and place in that
+#   file the full path for each C, C++ or Objective-C library that you want
+#   scanned for symbol names.  One filename per line.  Do not quote the
+#   filenames.
+#
+#   Handles exact name matches only.  Echos and exits with same output value.
+#   Either 1 if symbol is found or 0 if not.
+
+# Code:
+#
+# Perl script used to tell whether one file is newer than another.
+#
+set fn = "file-newer"
+
+# Create this file and place in the file the full path for each C, C++ or
+# Objective-C library that you want scanned for symbol names.  One filename
+# per line.  Do not quote the filenames.
+#
+set clib_list = "~/.CLIBS-LIST"
+
+
+# This file will automatically be created to cache the symbol names.
+# Remove it if you ever want to rebuild the symbol table.
+#
+set clib_symbols = "~/.clibs-symbols"
+
+# Try to locate 'perl' and 'file-newer' script for use.
+
+which perl >& /dev/null
+if ($status) unset fn
+
+set st = 0 rebuild = 0
+if (-e $clib_list) then
+   if (! -e $clib_symbols || -z $clib_symbols) set rebuild = 1
+   if (! $rebuild  && $?fn) @ rebuild = `perl $fn $clib_list $clib_symbols`
+   if ($rebuild) then
+      nm -g `cat $clib_list` | grep '^[0-9 ].* _[A-Za-z]' | sed -e 's/^[^_][^_]*_//g' | sort | uniq > $clib_symbols
+   endif
+   fgrep -sx $1 $clib_symbols >& /dev/null
+   @ st = ! $status
+endif
+
+echo $st
+exit $st

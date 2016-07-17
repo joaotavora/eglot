@@ -1,0 +1,1303 @@
+			  What's New in GNU Hyperbole
+				 by Bob Weiner
+
+        All version 5 and 6 features listed herein are new as of 2016.
+	   (See "ChangeLog" for more complete details of changes.)
+
+
+===========================================================================
+*				    V6.00
+===========================================================================
+
+NOTE: Version 6 is the first public release by the author since version 4.
+All version 5 releases were test releases, so you should look through all of
+the V5 news items to understand all that is new in V6.
+
+  HYROLO
+
+    - The Hyperbole contact manager has been renamed to HyRolo and all of its
+      identifiers now begin with hyrolo-.  If you had a custom value of
+      `rolo-file-list' in your ~/.emacs file, you should rename it to
+      `hyrolo-file-list'.
+
+  KEYS
+
+    - Removed the {RET} key bindings of the Action Key in read-only modes since
+      it was not consistent across all modes and probably was little used.  It
+      also could interfere with mode-specific usage of this key.  Just use the
+      standard Action Key bindings.
+
+  MAIL
+
+    - Implicit mail address buttons are recognized in many more programming
+      modes.  See the value of `mail-address-mode-list'.
+
+  VARIABLES
+
+    - Hyperbole is now integrated with the Emacs option customization system,
+      allowing for interactive editing and permanent setting of many Hyperbole
+      options.  Use {M-x customize-browse RET} and find the Hyperbole group
+      under Applications.  Hyperbole's options are divided into logical
+      subgroups such as Rolo and Koutliner.  See "(emacs)Easy Customization"
+      for details on the customization system and "(hyperbole)Configuration"
+      for Hyperbole specifics.
+
+    - Renamed any Hyperbole hook variables that had a colon in their names
+      to use a hyphen instead.
+
+  WINDOW CONFIGURATIONS
+
+    - Similarly, the commands from the Win/ menu from Wconfig have been
+      renamed to begin with hywconfig- and the library is now called
+      hywconfig.el.
+
+===========================================================================
+*				    V5.15
+===========================================================================
+
+  BUTTONS
+
+    - New Implicit Button Type, debbugs-gnu-mode: When on a GNU Debbugs listing
+      entry in debbugs-gnu-mode, an Action Key press displays the discussion of
+      the selected issue; an Assist Key press pretty prints the status of the
+      issue to a window below the listing window.  This augments the
+      debbugs-gnu-query implicit button type from V5.14 which recognizes
+      bug/issue ids and queries in any buffer.
+
+    - Initial Org Mode Support: The new implicit button type, org-mode, follows
+      Org mode hyperlinks and cycles display views of Org mode outline headings.
+      When on a heading, the Action Key cycles the view of the subtree at point
+      and the Assist Key cycles the view of all headings in the buffer.
+
+      Suggest other good ideas for Smart Key actions on Org entities and we'll
+      likely implement them.
+
+    - Links to Info Manual Index Items: You can now drag between windows with
+      the Action Mouse Key depressed to an Info Manual index menu entry to
+      create an explicit button link to it (or use {C-h h e c} with an action
+      type of link-to-Info-index-item).  Then the button will always take you
+      to the line in the manual referenced by that index item.  This also works
+      with other Info menu items and cross-references.  Implicit buttons that
+      reference index items work too, like "(hyperbole)C-c C-m"!  And when you
+      are creating the link, full completion of the file name (within
+      parentheses) and the index item name is provided; just type ? to list
+      completions after typing a few characters.  Since Emacs and most GNU
+      programs include Info manuals, you now ​have ​a simple way to link to and
+​      ​jump​ ​to any marked item within any manual.
+      
+      Previously, when creating a link to an Info manual node, Hyperbole
+      would ignore cross-references and menu items and just link directly
+      to the node rather than anything it referenced.  To get that behavior
+      now, simply link to a place in the node that does not reference another
+      place.
+
+    - Link Button Creation: Hyperbole now shows you what you linked to at
+      global or explicit link button creation time.  Previously, it showed you
+      only the type of the link.  So if you drag across windows from a button
+      label to an Info index item now, you will know that the link goes to the
+      index item entry and not to the index node containing the item reference.
+
+    - New Implicit Button Type, pathname-line-and-column: A whitespace or quote
+      delimited existing pathname followed by a :line-num and an optional
+      :column-num displays the path at line-num and column-num.  So
+      "~/.emacs:10:40" shows your Emacs initialization file at line 10 and
+      column 40.  The column number is optional.​
+
+    - GNU Info Manual Key Sequences: Previously, Hyperbole recognized​ ​key
+      sequences delimited by curly braces only, {}.  Now it recognizes​ the​
+      ​quotation ​marks used in GNU Info manuals as well and can execute them
+      with an Action Key press within Info buffers.
+
+    - Imenu Item Recognition: When the Emacs imenu library is in use and an
+      identifier menu has been generated for the current buffer, an Action Key
+      press on an identifier at point jumps to the identifier definition
+      within the current buffer; an Assist Key press prompts with completion
+      for an identifier defined within the buffer and then jumps to its
+      definition.
+
+  DOCUMENTATION
+
+    - Smart Key Debugging: Added a section, "(hyperbole)Smart Key Debugging",
+      to the Hyperbole Manual, documenting the usage of the Customize Menu
+      option, Toggle-Smart-Key-Debug (minibuffer menu Cust/Debug-Toggle,
+      {C-h h c d}).
+
+  KEYS
+
+    - Toggle Hyperbole Keys: The new command, {M-x hyperbole-toggle-bindings
+      RET}, toggles Hyperbole mouse and keyboard keys off and on.  This is not
+      bound to a key because it will make Hyperbole unusable until the keys are
+      re-established with another toggle.  This forces you to know what you are
+      doing before you utilize this feature.
+
+  MENUS
+
+    - Minibuffer Keyboard Direct Selection:  You have always been able to click
+      with your mouse on a minibuffer menu item to directly select it.  Now
+      Hyperbole has the keys {TAB} or {M-f} to move to the next menu item and
+      {Shift-TAB}, {M-TAB} or {M-b} to move to the previous item, with each
+      cycling back when it reaches the end or beginning of the menu.  The
+      fastest way to select minibuffer menu items from the keyboard remains
+      typing the first letter (case-insensitive) of the menu item.
+
+    - Minibuffer Menu Navigation Changes: A press of {RET} with point at the
+      end of a menu, quits from the menu.  {RET} with point in a menu prefix
+      (before the '>' character), returns to the top-level Hyperbole menu.
+      Clicks of the Action Mouse Key do the same thing, so now you can
+      navigate and quit from menus with just the Action Mouse Key.
+
+===========================================================================
+*  			        V5.13 and V5.14
+===========================================================================
+
+  BUTTONS
+
+    - Instant Bug Lookups and Queries: New Gnu Debbugs bug/issue tracking
+      implicit button type, debbugs-gnu-query, that jumps to the description
+      and discussion of issues by issue number and displays an issue's status.
+      This works for the GNU Hyperbole issue tracker as well as many other GNU
+      projects.  All of these button formats may be embedded within any text:
+
+	     #id-number
+	     bug#id-number, bug# id-number, bug #id-number or bug id-number
+	     bug?attr1=val1&attr2=val2&attr3=val3
+	     bug#id-number?attr1=val1&attr2=val2&attr3=val3
+
+      Note that `issue' or `debbugs' may be used in place of `bug'.
+
+      See the documentation at the start of "hib-debbugs.el" for more
+      information.
+
+    - During the creation of link-to-Info-node explicit buttons with an
+      argument of the type (filename)nodename, full completion is offered for
+      both the filename and the node name; just type ? to list completions
+      after typing a few characters.  You now can drop the .info suffix from
+      filenames as well, so "(hyperbole)Smart Keys" works fine as a node
+      reference.
+
+    - Implicit links from the output of the UNIX apropos command now work
+      properly in Emacs 25.
+
+    - Implicit pathname matches now handle compressed Emacs Lisp files found
+      anywhere within the directories of `load-path' and do not try to expand
+      paths that begin with a ~.
+
+    - New variable, `hpath:info-suffix', is a regular expression of Info
+      filename suffixes which may be ommitted when using parenthesized Info
+      filenames in links; this allows for compressed Info file matches and Info
+      pathnames of the form "(Hyperbole)" to work.  That displays the top node
+      of the Hyperbole Manual in the Info browser.
+
+    - Pathnames ending in .mp3, .wav or .ogg are played as music files rather
+      than displayed if your Emacs has support for this.  Modify the value of
+      the variable, `hpath:internal-display-alist' to add more formats.
+
+    - New per-window system association list variables determine what if any
+      file types within Hyperbole hyperlinks are displayed by external programs
+      outside of Emacs.  See the values of and documentation for:
+      `hpath:external-display-alist-macos', `hpath:external-display-alist-mswindows',
+      and `hpath:external-display-alist-x'.
+
+    - Added support for &, ~, and ^ as identifier characters in Lisp tags and
+      removed #.
+
+  DOCUMENTATION
+
+    - DEMO File: Major updates to reflect the latest Hyperbole features.  Added
+      sections on HyControl, Creating and Modifying Explicit Buttons and
+      Path Suffixes and Variables.  Try it out with {C-h h d d}.
+
+    - Hyperbole Manual
+        - Updated all screenshots in the manual; thanks to Mats L.
+        - In the "(hyperbole)Internal Viewers" section, added a description of
+          the file formats supported by the default setting of the
+          `hpath:internal-display-alist' variable.
+        - Added sections "(hyperbole)Smart Key Modifiers" and
+	  "(hyperbole)Smart Key Modeline".
+        - Added a "(hyperbole)Glossary" entry for Chord Keyboard.
+        - In "(hyperbole)Smart Key Thing Selection", added documentation of the
+          {C-c RET} key for syntactical region marking and the {C-c .} key for
+          delimited thing jumping between start and end.
+        - In the Cust/ menu section of "(hyperbole)Menus" which lists all
+	  Hyperbole key bindings, indicated which keys are bound only if not
+	  bound prior to loading Hyperbole.
+
+  HYCONTROL
+
+    - Frame placement calculations now account for window system decorations
+      around frame, leading to improved placement offsets around screen edges.
+      See the documentation for `hycontrol-set-screen-offsets'.
+
+  MENUS
+
+    - On the Hyperbole menubar menu, the Types submenu which shows
+      documentation for Hyperbole types has been moved below the Documentation
+      menu to match the Hyperbole minibuffer menu location.  Also added a Types
+      menu item under the Explicit-Button menu to match the one under the
+      Implicit-Button menu.
+
+    - On the Hyperbole Customize/Change-Key-Bindings menubar menu, renamed
+      these entries and added Mark-Think-Key.  Similar updates done to the
+      minibuffer menu.
+
+  MOUSE AND SMART KEY SUPPORT
+
+    - An Action Key press on a Hyperbole minibuffer menu key sequence now
+      invokes the associated menu action.  Try it with {C-h h d g} to see the
+      Hyperbole glossary.  An Assist Key press shows help for the menu item.
+
+    - Changed the `assist-key-default-function' which applies in an unrecognized
+      context to trigger an error by default to match the behavior of the
+      Action Key.  Its prior value, toggle display of or hide the Smart Key
+      summary, is performed by an Assist Key click in the right of a modeline
+      or via minibuffer menu with {C-h h d s}.
+
+    - Point is now left within the Smart Key summary by default and it is in
+      help mode so you can page through it with SPC and DEL keys and then quit
+      from it with {q}.
+
+    - A click of the Action Mouse Key within an inactive minibuffer menu
+      displays the Hyperbole minibuffer menu, allowing you to invoke menu
+      entries with the mouse.  A click of the Assist Key in the same place
+      displays the buffer, window and frame jump menu just as does a click
+      within the middle of a modeline since it is easy to miss by a little and
+      click on one or the other.  These behaviors are controlled by the new
+      variables, `action-key-minibuffer-function' and
+      `assist-key-minibuffer-function'.
+
+    - Distributed Window System Support: Previously, Hyperbole supported mouse
+      control only on the screen on which it was launched.  If you used
+      emacsclient or other means to create a frame on another screen or outside
+      of a terminal, that frame would not have Hyperbole mouse support even
+      though it was under a window system.  Now each frame receives mouse
+      support whenever its window system has mouse support.
+
+    - Improved support for using the Action and Assist Mouse Keys as Control-
+      and Meta- modifier keys, mainly for use with a chord keyboard or to
+      balance hand use to reduce carpal tunnel stress.  Made `hmouse-mod-mode'
+      a regular minor mode.  See "(hyperbole)Smart Key Modifiers" for more
+      details.
+
+  ROLO
+
+    - Fixed entry sorting to work with Emacs 25.
+
+
+===========================================================================
+*				    V5.12
+===========================================================================
+
+  BUTTONS
+
+    - Prevented keyword matches as identifiers in Java, C++, C, Objective-C
+      and Python. 
+
+    - Prevented @ annotation matches when matching to Java identifiers/tags.
+
+    - In Info documentation browsing mode, added support for index nodes and
+      for fixed header line and text-property-based breadcrumb header lines
+      now used in Emacs, so the Action Key can now follow links associated
+      with all of these entities.
+
+    - In compilation buffers, e.g. {M-x make RET}, if an error line has a
+      relative pathname which Hyperbole cannot resolve, it will prompt
+      for the directory in which to resolve the path.
+
+  DOCUMENTATION
+
+    - Added printable hyperbole.pdf version of the Hyperbole Manual.
+
+    - DEMO file: Updated horizontal and vertical drag exercises to
+      correspond to current Hyperbole behavior.
+
+    - Added chapter on HyControl, window, frame and buffer control.
+
+    - In the Hyperbole Manual Glossary, added Buffer, Frame, HyControl
+      and Window definitions. 
+
+    - Added additional Q&A in an appendix.
+
+    - Clarified and fixed Smart Key modeline behavior documentation.
+
+    - Made example text larger for easier reading.
+
+    - Added Screen definition to the Glossary.
+
+  EMACS SUPPORT
+
+    - Hyperbole now includes the fastest, easiest-to-use Emacs window and frame
+      management system available; we call it HyControl.  If you use a lot of
+      Emacs windows or frames (typically, window system windows), this is for
+      you.  HyControl lets you interactively adjust the current layout of your
+      windows and frames down to the pixel-level if desired.  You keep
+      adjusting the location, size and display elements of your windows and
+      frames until they look as you like and then you simply quit HyControl and
+      go back to work.
+
+    - Expanded Hyperbole menu of buffers by major mode to allow for
+      `hui-menu-max-list-length' number of buffers, by default, 24.
+
+    - Made a right to left horizontal drag from near a right-side window divider
+      properly shrink the window width under Emacs 25.
+
+  KEYS
+
+    - The Hyperbole Screen submenu provides access to HyControl as well as the
+      key binding {C-c \}.
+
+    - Removed {C-c C-t} hmouse-toggle-bindings key binding.  This
+      should be used rarely, so force use of {M-x hmouse-toggle-bindings RET). 
+
+    - Updated "hmouse-mod.el" library for Emacs 25; it allows using the Smart
+      Mouse Keys as Control and Meta modifiers when desired.
+
+  KOUTLINER
+
+    - Improved recognition of Klinks, preventing false matches.
+
+    - Added missing {C-c C-i}/{C-c TAB} binding mentioned in the EXAMPLE.kotl
+      file; sets cell attributes.
+
+    - {C=t} Transpose characters - Added error checks at the beginning of cells
+      and end of lines for times when there are not 2 chars to transpose.
+
+  ROLO
+  
+    - Improved {M-s} interactive string searching for rolo match buffer strings.
+      Made {C-u M-s} to a regexp search for rolo match buffer strings.
+
+    - Documented the {l} hyrolo-locate command in the Hyperbole manual.
+
+    - The format of the rolo entry date added to new entries is now configurable
+      via the variable, `hyrolo-date-format'.  It uses the formatting
+      strings listed in the documentation of the function `format-time-string'.
+
+    - All rolo find and search commands are now case-insensitive.
+
+    - Using a numeric prefix argument with rolo find commands now
+      properly limits the number of matches to a maximum of that number.
+
+    - If the Big Brother Database (BBDB) is loaded before the rolo, its
+      `bbdb-file' is added to the list of files searched by the rolo.
+      You can manually added this file to `hyrolo-file-list' as well and
+      its format will automatically be handled by the rolo.
+
+===========================================================================
+*				    V5.11
+===========================================================================
+
+  BUTTONS
+
+    - Improved support for remote pathname access (outside local
+      filesystems).
+
+  EMACS SUPPORT
+
+    - Much faster and better lookup of active Emacs Lisp identifiers
+      when the Action Key is pressed over one.  Face definitions are
+      also found now.  TAGS files are used only if the identifier has
+      not been loaded within the current Emacs session.
+
+  KOUTLINER
+
+    - Proper support for isearch temporary display of invisible text
+      when it contains a search match.  {C-s}, interactive search,
+      expands and contracts text dynamically to show any search
+      results, just as it does in the regular Emacs outline mode.  You
+      can toggle whether such searches include invisible/hidden text
+      (the default) or not.  Use the
+      Customize/Toggle-Isearch-Invisible-Text menubar item or the
+      Cust/Isearch-Invisible minibuffer menu item to toggle this
+      setting.
+
+  MAIL AND NEWS READERS
+
+    - New variable, `inhibit-hyperbole-messaging' with default value
+      of t inhibits Hyperbole's support for explicit buttons within
+      mail and news buffers.  When t, Hyperbole will not alter
+      messaging mode hooks nor overload functions from these packages,
+      preventing potential incompatibilities.
+
+      If you want to use Hyperbole buttons in mail and news buffers,
+      use the new Customize/Toggle-Messaging-Explicit-Buttons menubar
+      item or the minibuffer menu Cust/Msg-Toggle-Ebuts item.  These
+      not only change the variable value but also add or remove the
+      setup hooks as necessary.
+
+  ROLO
+  
+    - New {o} key binding for an overview of all Rolo matches at all
+      levels, one line per entry.
+
+    - {t} top-level cells command works in all cases now.
+
+    - {Shift-TAB} added as an additional key to move backwards one
+      Rolo match.
+
+    - Improved operation of {l} and {M-s C-s} commands that search for
+      occurrences of match strings and allow extending the search term.
+
+    - Support for looking up contacts in the Big Brother Database
+      (BBDB) file of email addresses, when that package is used.
+      The functions, hyrolo-grep-bbdb finds regular expression matches
+      and hyrolo-fgrep-bbdb finds string matches.  All regular Rolo
+      match buffer commands may then be applied. The {e} command for
+      editing an entry signals an error when applied to the BBDB file,
+      however.
+
+  SMART KEYS
+
+    - The Assist Key when pressed in the middle portion of a modeline
+      now pops up a very useful menu of display-oriented commands.
+      Jump to buffers categorized by major mode, to windows by buffer
+      name, or to frames by name.  Manage your windows and frames
+      quickly with this menu as well.  Another can't live without
+      feature.  This comes from the new file, hui-jmenu.el.
+
+    - Added Python etags support for jumping to Python definitions.
+      With the separate OO-Browser package, definition location is
+      much better than just with etags.
+      See "(hyperbole)Smart Key - Python Source Code" for help.
+
+    - The Hyperbole Manual Smart Key Reference appendix now has a
+      subsection for each context, allowing quick reference of a
+      particular Smart Key context.  Also, added documentation for
+      delimited thing selection, copying and moving.
+
+    - New function, hyperbole-popup-menu, to display the Hyperbole
+      menubar menu at the mouse point (or the left of the menubar when
+      running on a dumb terminal).  This is useful as a setting
+      of `action-key-default-function' if you want some undefined
+      Action Key context to popup this menu in order to use Hyperbole
+      commands.
+
+===========================================================================
+*				    V5.10
+===========================================================================
+
+  EMACS SUPPORT
+
+    - Hyperbole now downloads, builds and installs as a regular
+      Emacs package (but from a special archive location while pre-testing).
+
+    - Automatic time-zone handling under MS Windows (already existed
+      for UNIX-like operating systems).  Plus support for 3 mouse
+      buttons under Windows.
+
+  IMPLICIT BUTTON TYPES
+
+    - Updated the extended find-file commands which handle http (www) and ftp
+      URLs to support the Tramp library included with newer versions of Emacs.
+      Use the menu item Hyperbole/Customization/Find-File-Accepts-URLs to
+      enable or to disable this.  See "(hyperbole)Using URLs with Find-File"
+      for details.
+
+  KOUTLINER
+
+    - Editing commands that normally delete/replace an active region
+      now do this in the Koutline.  If a region extends beyond one
+      cell, an error is triggered or if `kotl-mode:shrink-region-flag'
+      is set to t, the Koutliner automatically shrinks the region to
+      the first cell within the region and then continues the editing
+      operation.
+
+    - Updated yanking and other editing commands for improved
+      compatibility with Emacs 25.
+
+    - Internal improvements to many tree handling, filling and view
+      changing commands.
+
+    - New Shift-TAB key binding to demote trees (shift them up a
+      level), for compatibility with other outliners.
+
+  MENUS
+
+    - The new Find/Locate-Files menu item (minibuffer menu
+      Find/LocateFiles) prompts for a pattern and displays a list of
+      all matching pathnames found throughout the file system.  On Mac
+      OS X, this uses Spotlight (the mdfind command); on UNIX, it uses
+      the `locate' command.  Within the result *Locate* buffer, you
+      can then use the Find/Grep-Files menu item to find matching
+      lines within only these paths (files and directories).
+
+  SMART KEYS
+
+    - Action Key now ignores JavaScript keywords when searching for
+      identifiers to match.
+
+    - Commands that interactively prompt for a Koutline cell label now
+      offer completion and require a match to a visible outline cell.
+      This helps prevent operating on an invisible cell unintentionally.
+
+  THING SELECTION
+
+    - Selection of open/close matched tag pairs and jumping between
+      them now works in web-mode, which supports multiple web
+      languages within one file (previously only html-mode was
+      supported).  Also, can now select chained identifiers like:
+      parent.child.subchild in html and web modes with the {C-c
+      RETURN} thing selection key.
+
+    - Can now select comments when at a comment start; try it with
+      the Action Key.
+
+    - Can now select Lisp symbols with colons in them within help
+      buffers since they often appear there.
+
+  VARIABLES
+
+    - hyperb:init-hook renamed to hyperbole-init-hook, a more standard name.
+      See the GNU Hyperbole Manual for its usage.
+
+===========================================================================
+*				    V5.09
+===========================================================================
+
+  FRAMES
+
+    - The Window-Configuration menu (minibuffer Win/ menu) now stores and
+      restores frame-specific window configurations, allowing each frame to be
+      dedicated to different types of work or groups of buffers.
+
+  INSTALLATION
+
+    - Installation is greatly simplified.  A single emacs initialization line
+      of the form:  
+
+        (require 'hyperbole (expand-file-name "hyperbole" "<HYPERBOLE-DIR>/")
+
+      loads and initializes Hyperbole.  Please change your site-wide or
+      personal initialization to this.  (No more setting of hyperb:dir and
+      load-path nor copying of hsite-ex.el to hsite.el is required; Hyperbole
+      does this for you).
+
+  KEYS
+
+    - A new Customize Menu option, Toggle-Smart-Key-Debug (minibuffer menu
+      Cust/Debug-Toggle, {C-h h c d}), displays a message in the minibuffer
+      every time the Action Key or Assist Key is pressed, showing the context
+      of the press and its associated action, allowing you to easily see
+      what is happening whenever you use a Smart Key.
+
+      These messages are all prefaced with "(HyDebug)" and are accumulated in
+      the *Messages* buffer for later viewing.
+
+    - Smart Keys work in any completion buffer now, e.g. the ido.el completion
+      buffer.
+
+    - Horizontal and vertical mouse drags within a single window, that do not
+      begin on a thing delimiter, are now simpler and more consistent.  An
+      Action Key drag splits the window either below (horizontal drag) or
+      side-by-side (vertical drag).  An Assist Key drag deletes the window.
+
+    - Hyperbole no longer uses the right mouse button, so it is free for popup menus.
+      The Assist Mouse Key is always on the Shift-Right mouse button as well as
+      on a C-u prefix to the Action Mouse Key.
+
+    - A new setting, `hmouse-middle-flag', when set to t (true) before Hyperbole
+      is loaded adds the middle mouse key as an Action Key.  InfoDock does this
+      by default.
+
+    - ibuffer-mode, the dired-like menu listing for buffers, is now supported
+      by the Smart Keys; it behaves similarly to that of Buffer-menu-mode.
+
+    - Xref item listing mode is now supported by the Smart Keys; The Action
+      Key displays an xref file line or just a file containing an xref.
+      The Assist Key displays the same but leaves point in the listing buffer.
+      Xref is a built-in Emacs package that displays definitions and
+      cross-references of identifier strings.  It is similar to etags, but
+      more general. 
+
+  KOUTLINER
+
+    - Now compatible with the latest version of outline.el (using invisible overlays).
+
+    - All menus for the Hyperbole auto-numbered outliner, called the Koutliner,
+      now begin with 'K'.  Some used to start with 'O'.  To edit the example
+      Koutline, use {C-h h k e}.
+
+    - {C-c C-a}  - Show-all, expand all cells nihe current view.
+      {C-c C-o}  - Overview, show only first line of outline cells.
+      {C-c C-t}  - Top-level, hide all cells below level 1 and show
+                   only the first line of each level 1 cell.
+
+      By default, these commands no longer affect the display of blank lines
+      between cells.  But if given a prefix argument, they toggle blank
+      lines display for quick view changes.
+
+    - Values of `user-mail-address' or `message-user-fqdn' are now
+      used to set the creator and modifier names in Koutline cells.
+
+  MAIL LISTS
+
+    - The menu item that composes mail to the bug-hyperbole mail list now
+      includes any (HyDebug) messages output when the Hyperbole configuration
+      option, hkey-debug is enabled (via the Customize Menu or via
+      {C-h h c d}).
+
+
+===========================================================================
+*				    V5.08
+===========================================================================
+
+  DOCUMENTATION
+
+    - Added web version of the Hyperbole Manual.
+
+  HYPERLINKS
+
+    - Action Key presses on Texinfo menu items and @node item references now
+      display the associated Texinfo node.  @code and @var references to Emacs
+      Lisp identifiers now show the documentation for the identifiers.  As
+      before, cross-references and file includes show the referenced items;
+      keyboard key sequences invoke their associated bindings.
+
+    - Action Key press on an Emacs push button activates the button.  An Assist
+      Key press shows help for the button.
+
+  KEYS
+
+    - Delimited things, including lists, comments, strings, arrays/vectors,
+      sets, functions and markup pair tags (e.g. <div> </div>), may now be
+      selected, copied or moved with the Action and Assist mouse and keyboard
+      keys whenever point is on the first character of the starting or ending
+      delimiter.  For strings and comments, point must be on the first line.
+
+    - New {C-c .} binding that jumps between the start and end delimiters of
+      delimited things.  Try it on matching markup tag pairs in HTML and SGML
+      modes.  If point is not immediately before or after a delimiter, this
+      generally does nothing.
+
+    - New {C-c RET} binding selects bigger and bigger syntactical units within
+      a buffer with each successive invocation.  Double clicks of the left
+      mouse button do the same thing.  Try it, you'll like it.
+
+===========================================================================
+*			            V5.07
+===========================================================================
+
+  EMACS VERSIONS
+
+    - Support for the latest pre-releases of Emacs 25 and new versions of
+      XEmacs.
+
+  HYPERLINKS
+
+    - URL handling updated along with customization menus to support most
+      popular web browsers in use.
+
+    - Action Key on a mailto: URI starts composing mail to that address.
+
+    - When testing file formats/suffixes for an external viewer in
+      which to display the file, as a fallback, a MIME system mailcap
+      file is used to find additional possible viewers.  See
+      "http://www.wikiwand.com/en/Mailcap" for information on mailcap files.
+
+    - Jump to JavaScript identifier definitions.
+
+    - History, {C-h h h}, now restores full multi-window and multi-frame display
+      configurations (within a single Emacs session), rather than just returning
+      to a prior location in a buffer.
+
+    - Type {q} in a Hyperbole Help buffer hide that buffer and return to your prior
+      location.
+
+  KEYS
+
+    - By default, Hyperbole now removes any mode-specific, local key
+      bindings that conflict with the global Smart Key bindings
+      (typically {Meta-Return}). Use the Customize/Toggle-Override-Local-Keys
+      to disable (or re-enable) this feature.
+
+  KOUTLINER
+
+    - When running under InfoDock, its Go and Options menus now appear within
+      the Koutliner menu.
+
+    - With a prefix argument, Koutlines are exported to HTML with soft newlines
+      rather than hard newlines, so text will flow based on browser window size.
+      This option will remove line-by-line formatting within a cell, however.
+
+  MENUS
+
+    - New Find menu which can reduce a buffer to just matching or non-matching
+      lines, run the 'grep' or 'fgrep' utilities on a file directory tree, or
+      list matching lines in the current buffer or across all buffers with
+      attached files.
+
+    - Renamed Customization menu to Customize.
+
+    - New Customize/Change-Key-Bindings menu lets you rebind any Hyperbole
+      keys for your current emacs session.
+
+===========================================================================
+*				    V4.18
+===========================================================================
+
+  ACTION AND ASSIST KEYS
+
+    - Default Action Key action is to signal an error (rather than display
+      the Hyperbole minibuffer menu) since it was too easy to confuse new
+      users with this behavior.  More skilled users can set
+      `action-key-default-function' to do what they would like.
+
+    - Fixed bug that caused proportional scrolling to not be the default when 
+      the Action Key is pressed at the end of a line.
+
+  KOUTLINER
+
+    - Fixed filling behavior when used with the `filladapt' package under
+      InfoDock.
+
+    - Improved text file importation process.
+
+===========================================================================
+*				    V4.17
+===========================================================================
+
+  IMPLICIT BUTTON TYPES
+
+    - The Action Key now recognizes existing local files without any
+      delimiters (aside from whitespace).  This allows you to display files
+      from directory listings or virtually anywhere within documents.
+      Relative pathnames are resolved relative to the directory associated
+      with the current buffer.
+
+    - Extended find-file commands to handle http (www) and ftp URLs
+      if the efs package is available and the
+      Hyperbole/Customization/Find-File-Accepts-URLs is enabled.
+      See "(hyperbole)Using URLs with Find-File" for details.
+
+    - Improved display of special files via external viewers.
+
+    - Added support for jumping to the source of errors from the Weblint Perl
+      package.
+
+    - The `make' error implicit button type now accounts for movement from
+      one directory to another within make output so that the right source
+      file is selected.
+
+  CONTACT MANAGER
+
+    - Default personal rolo file renamed to "~/.rolo.otl" ("C:_rolo.otl" on
+      Windows).  When the contact manager is loaded, it will automatically
+      prompt you to rename this file when necessary.  You should rename it
+      but if you choose not to the old rolo file will be searched.
+
+    - Added `rolo-display-format-function' which can be used to customize the
+      display of rolo search matches.  See the Info manual section,
+      "(hyperbole)HyRolo Settings" for details. 
+
+  KOUTLINER
+
+    - Fixed interaction problem with the standard editor autofilling
+      functions.
+
+===========================================================================
+*				    V4.16
+===========================================================================
+
+  This release fixes a number of small issues with tags table handling under
+  GNU Emacs and Koutline export to HTML.
+
+  ACTION AND ASSIST KEYS
+
+    - Added support for selection of function names from a buffer in
+      fume-list-mode created by the func-menu.el package.
+
+===========================================================================
+*				    V4.15
+===========================================================================
+
+  ACTION AND ASSIST KEYS
+
+    - Added support for the pop-tag-mark command {M-*} available in some
+      editors to move back to prior code locations displayed from clicking
+      the Action Key on an identifier or other cross-reference.  {C-u M-*}
+      moves forward (instead of back) through this location history list.
+
+    - Added support for multiple TAGS file searches when looking for an
+      identifier definition from an Action Key click.  Each TAG file found in 
+      an ancestor directory of the current directory is searched until an
+      exact match is found (otherwise, an error message is displayed).
+      This works only under newer editors whose tag support includes multiple
+      tag file searching.
+
+    - Added support for Action Key clicks on identifiers displayed in
+      `help-mode' by the emacs Lisp variable and function documentation
+      command under newer editor versions.
+
+    - On case-insensitive OSes, automatically load OO-Browser Environment
+      files named `oobr' instead of `OOBR'.
+
+===========================================================================
+*				 V4.11-4.14
+===========================================================================
+
+  CONTACT MANAGER
+
+    - Support for editing entries found from logical expression queries.
+
+  EMACS VERSIONS
+
+    - Support for XEmacs version 20 and above.
+
+    - Support for NT Emacs and XEmacs on NT.
+
+  KOUTLINER
+
+    - New Demote, Promote, Tab-Key-Inserts-Spaces and Tab-Key-Tabs-Over
+      items added to the Edit menu.
+
+    - Hyperbole/Koutliner menu items are now deactivated when the
+      current buffer is not a Koutline.
+
+    - Meta-Backspace under XEmacs now does the right thing (deletes a word
+      backwards by default).
+
+  HYPERLINKS
+
+    - An entry in (hpath:get-external-display-alist) used to externally display
+      special file types may now contain a list of executables, the first of 
+      which is found on a system is used to do the display.  The executable
+      to use is recomputed each time a file is displayed to account for any
+      changes in executables found in the search path.
+
+    - Abbreviated URLs of the form www.domain.com are now properly
+      recognized (there was a bug in earlier versions).
+
+    - Added support for CRLF line endings used under Microsoft OSes.
+
+    - Improved button highlighting initialization.
+
+  IMPLICIT BUTTON TYPES
+
+    - New type, gnus-push-button, for clicking on or pressing buttons
+      embedded in GNUS articles, e.g. to collapse and expand signatures.
+
+    - Improved debugger stack backtrace recognition and source line jumping.
+
+    - MANIFEST.suffix files are now recognized and treated like files named
+      MANIFEST (allowing you to browse the contents by pressing the Action
+      on entries within the file).
+
+    - URL browsing now uses the `browse-url-browser-function' variable to
+      determine which web browser to invoke.  The menus have been converted
+      to use this variable as well.  Hyperbole will automatically read
+      old settings of `action-key-url-function' and convert to this new
+      standard.
+
+      Additionally the Grail (Python-based) and Lynx (text-based) browsers
+      have been added to the Customization menu.
+
+    - Added initial point-and-click Python support.
+
+  MOUSE SUPPORT
+
+    - Better support for 2-button mice.
+
+===========================================================================
+*				    V4.10
+===========================================================================
+
+  ACTION AND ASSIST KEYS
+
+    - When a region is active within your editor, the Action Mouse Key pastes
+      the region within the window where it is clicked.
+
+    - Better handling of selection of C++ `operator' methods.
+
+    - An Action Key press on an entry in an OO-Browser OOBR-FTR feature tag
+      file jumps to the definition of the entry within the source code.
+
+    - Greatly improved selection of minibuffer arguments from completion
+      buffers with the Action Key.
+
+    - An Action Key click on any filename with OOBR (case-sensitive) within
+      its name will now load the file as an OO-Browser Environment and
+      display its classes within the OO-Browser.  (This used to work only for
+      Files whose exact name was OOBR or OOBR-FTR.)
+
+    - An Action Key press on a file whose suffix is .rdb now loads the file
+      as an InfoDock RDB in-memory relational database file.  The InfoDock
+      RDB package is available separately as part of InfoDock.
+
+    - Added support for sending a URL to another web browser with an Action
+      Key click when in a W3 web browser buffer.  Eliminated support for the
+      old Mosaic browser.
+
+  IMPLICIT BUTTON TYPES
+
+    - New type, id-cflow, used to browse C code call trees produced by
+      InfoDock's "id-cflow.el" module.  See that file for details if you have
+      InfoDock.
+
+    - grep-msg type that displays source lines associated with grep messages
+      and compiler error messages now supports Microsoft JVC error messages.
+
+    - Improved URL identification, including support for terse URLs that
+      contain no protocol prefix, e.g. www.gnu.org.
+
+  CONTACT MANAGER
+
+    - The Rolo/Search-for-String (rolo-fgrep) command can now do logical
+      searches using prefix logical expressions surrounded by parentheses:
+        (or string1 string2)
+	(xor string1 (and string2 string3)) ;; xor is exclusive-or
+	(not string1)
+
+    - Accelerated location of the alphabetized insertion point for a new
+      contact entry by 3-fold.
+
+  KOUTLINER
+
+    - Koutlines can now be converted to nice looking HTML documents with one
+      command, `kexport:html', on the menus as Koutline/Export-to-HTML.
+      Relative identifiers, hyperlinks and idstamps are all properly exported
+      to the HTML document.  Other cell attributes are not yet exported.
+
+    - Autonumber labels in new outlines are now terminated with a "."
+      rather than a space by default to better delimit labels.
+
+    - Added kotl-mode:tab-flag which can allow easy insertion of many tab
+      characters and can make the TAB key demote cells only when point is at
+      the beginning of the cell.
+
+    - Added support for indenting regions within a cell via the
+      kotl-mode:indent-region command.
+
+    - New menu item, Import-to-Koutline, for importing star-delimited
+      outlines, other koutlines and Augment-system post-numbered outlines
+      (ignore this if you don't know what the Augment system is).
+
+  EMACS VERSIONS
+
+    - Support for GNU Emacs version 20 and above.
+
+  DOCUMENTATION
+
+    - The Hyperbole online manual can now be browsed automatically from
+      within the Hyperbole distribution without the need to install it
+      separately within the editor.
+
+===========================================================================
+*				V4.024-V4.027
+===========================================================================
+
+  DOCUMENTATION
+
+    - Rewrote the Hyperbole manual for clarity and ease of reading.  Addded
+      a number of images.
+
+  ACTION AND ASSIST KEYS
+
+    - Improved recognition of local file URLs.
+
+    - Disabled the {C-c t} key which usually switches between Hyperbole
+      and personal mouse settings since this is too easy for novices to
+      press and then not know why their mouse keys have changed.
+
+    - Emacs Lisp filenames without any pathname information are
+      now properly displayed when the Action Key is depressed over
+      them and they are delimited by quotes.
+
+    - Action Key press over .dvi file names now invoke the Xdvi previewer
+      by default.
+
+    - Action Key press on Fortran90 identifiers now jump to their
+      definitions if a TAGS table has been built.
+
+    - Action Key press in a Texinfo file on an @xref, @pxref or @ref
+      keyword displays the associated node within the Texinfo file.  An
+      Action Key press within the braces of the cross-reference displays the
+      online Info node associated with the cross-reference, if the Info
+      manual has already been installed.
+
+    - Image files may be displayed within the editor if the editor supports
+      this and image-mode is available.
+
+    - The new variable, mail-address-mode-list, determines the major modes
+      in which Action Key presses on <delimited> mail addresses start
+      composing mail to that address.
+
+    - Action Key presses on lines in ctags files (tags) or etags files (TAGS)
+      jump to either the pathname on the line or the definition of the tag
+      on the current line.
+
+    - Eliminated trailing commas from inclusion in URLs sent to a browser.
+
+  KOUTLINER
+
+    - Improved paragraph filling even more under InfoDock.
+
+    - Eliminated local {M-BS} binding if it is already bound
+      when the Koutliner is invoked.
+
+    - Added +V interactive reading extension for reading a Koutliner View
+      Spec within a Lisp command.
+
+    - Added Label-Type/Set-Label-Separator menu item for changing the
+      separator between Koutline cell numbers and their body text.
+
+    - Added an `Example' menu item to the Koutliner menu to simplify
+      interactive editing of the EXAMPLE.kotl file.
+
+  BUTTONS
+
+    - Info-directory-list setting is now recognized during
+      link-to-Info-node button creations.
+
+  MENUS
+
+    - Added an item to add and remove the Hyperbole Menu from the menubar.
+
+  MAIL READERS
+
+    - Updated VM interface for version 6.19.
+
+
+===========================================================================
+*				   V4.023
+===========================================================================
+
+  ACTION AND ASSIST KEYS
+
+    - Action Key clicks on HTTP URLs use the Emacs internal web browser
+      if not running under a window system.
+
+  CONTACT MANAGER
+
+    - Date stamps are added to each rolo entry when created and updated
+      when edited.  This feature can be toggled on and off with: M-x
+      rolo-toggle-datestamps RET, or via the Toggle-Rolo-Dates menu
+      item on the Customization menu.
+
+    - wrolo-add-hook is called after a new entry is added.
+      wrolo-edit-hook is called after an entry is displayed for editing.
+
+===========================================================================
+*				    V4.02
+===========================================================================
+
+  ACTION AND ASSIST KEYS
+
+    - Support for new ID-edit mode (a part of InfoDock) that allows rapid,
+      cutting, copying and yanking of regions plus fast display management.
+      In this mode, the Action and Assist keys yank the previously selected
+      region at point.
+
+    - An Action Key press on a Java identifier jumps to its definition
+      (if an associated TAGS file or OO-Browser environment exists).  The
+      same is true for an `@see' cross-reference within a Java comment.  The
+      variable, `smart-java-package-path,' determines where Java
+      package source can be found when the OO-Browser is not in use.
+
+    - An Action Key press on a double or single quoted Emacs Lisp filename
+      (without any path) displays the file by looking for it among the
+      directories in the variable, `load-path'.
+
+    - If the Action Key is pressed on a function identifier that is defined
+      in the same buffer as the reference clicked upon, it will now be
+      displayed faster, since the func-menu package will be used.  The
+      reference identifier will also flash when pressed, if the display
+      device supports this.
+
+  EMACS VERSIONS
+
+    - Further support for MS-DOS, Windows NT Emacs, and Win-Emacs.
+
+    - Fixed configuration setup problem when running Emacs on a dumb
+      terminal.
+
+  KOUTLINER
+
+    - XEmacs 19.14 and above: Fixed display of current viewspec in the
+      modeline to accomodate modeline extents (specialized modeline regions).
+      This eliminated an error that occurred when reading in an Koutline file.
+
+    - Fixed bug that prevented installation of Koutliner mode-specific
+      menubar when running InfoDock.
+
+  MENUS
+
+    - New Hyperbole/About menu item added.  In minibuffer menus, this item is
+      found under the Doc/ menu.
+
+    - New window system menu, Hyperbole/Customization (and minibuffer menu,
+      Cust/) added to set Hyperbole options, including where Hyperbole link
+      referents are displayed, where URLs are displayed and whether to use
+      proportional or windowful scrolling when a Smart Key is pressed at the
+      end of a line.
+
+    - The default setting of where Hyperbole link references are displayed
+      may be set in "hsite.el" via the variable, `hpath:display-where'
+      (after Hyperbole has been installed using `make install').
+      See its documentation for detail.
+
+    - The Hyperbole/Global-Button menu now includes a menu item that will
+      activate each existing global button.  The Hyperbole/Explicit-Button
+      menu does the same thing for explicit buttons in the current buffer.
+
+  CONTACT MANAGER
+
+    - Rolo-edit, bound to {e} in the rolo match buffer, now works properly
+      if the rolo is loaded before the rest of the Hyperbole system.
+
+
+===========================================================================
+*			      V4.00 and V4.01
+===========================================================================
+
+  ACTION AND ASSIST KEYS
+
+    - New variable, action-key-url-function, sets the function used to
+      display URLs which are activated as implicit buttons with the Action
+      Key.
+
+    - Action or Assist Key presses at the end of a line now scroll
+      proportionally, by default.  See the documentation for the variable,
+      smart-scroll-proportional, and the Smart Scrolling section of the
+      Hyperbole DEMO file, for more information.
+
+    - Fixed bug that prevented browsing Info files in dired with the Action
+      Key.
+
+  BUTTON TYPES
+
+    - "hsys-w3.el" is now automatically loaded so that the Action Key can
+      follow URLs by default.  It defines the implicit button type, www-url. 
+
+    - New implicit button type, text-toc, makes table of contents entries in
+      README files jump to the associated section of the file.  Try it with
+      this file once you have loaded the current version of Hyperbole.
+
+  DOCUMENTATION
+
+    - A lot of work has gone into reorganizing and rewriting the Hyperbole
+      manual to improve its readability and completeness.  A full chapter on
+      the Koutliner has been added.  Please take some time to read the parts
+      of interest to you and send your feedback on what is good and what is
+      not to the mail list, <hyperbole@hub.ucsb.edu>.
+
+  EMACS VERSIONS
+
+    - MS-DOS and Windows NT Emacs 19 or Win-Emacs: Made Hyperbole work under
+      all of these PC Emacs versions.
+
+    - Emacs 19: Fixed bug that prevented Action Key selection of minibuffer
+      menu items.
+
+    - Emacs 19: Hyperbole menubar menus are now properly displayed.
+
+    - Emacs 19: Action Key press on a filename that has a .info suffix
+      displays the Top node for that info file in the Info browser.
+
+  KOUTLINER
+
+    - You can now view and edit koutlines with blank lines between cells
+      turned off.  {C-c b} now toggles between showing or hiding blank lines.
+
+    - Minibuffer menu item Otl/Below renamed to Otl/Downto so could add
+      Otl/Blanks which toggles blank lines on and off.
+
+    - {C-c C-o} which displays one line per cell, for an overview, now also
+      turns off blank lines.
+
+    - {C-c C-i} adds an attribute to the current cell.  It changes the
+      attribute's value if it already exists.  Completion on existing
+      attribute names from the cell is provided.
+
+    - {C-c h}, which displays cell attributes, when given "0" as the cell id
+      now displays the zero cell's attributes in addition to any other
+      attributes shown.
+
+    - By default, the Koutliner separates labels from cell contents by
+      two spaces.  If you want to change the separator for the current
+      outline, use {C-c M-l}.  {C-u C-c M-l} will additionally change
+      the default separator value used when new outlines are created.
+
+    - If you invoke {M-x kotl-mode RET} on a non-read-only, non-koutline
+      buffer, it converts each paragraph in the buffer into a level 1 cell,
+      and thereby creates a koutline buffer.  The conversion uses the
+      buffer-specific variable, `paragraph-start' to determine the paragraphs
+      in the buffer.
+
+    - If you save a koutline to a file whose name does not end in .kotl,
+      e.g. with {C-x C-w} (kfile:write), it will still be treated as a valid
+      koutline when you read it in again.  You can create a koutline file
+      without the standard suffix via {M-x kfile:find RET} or by converting a
+      buffer to a koutline via {M-x kotl-mode RET}.
+
+    - Each koutline now maintains a current view setting that is saved with
+      the outline and restored when it is first displayed.  View settings
+      include:  show/hide blank lines, show a fixed number of lines per cell,
+      show a fixed number of levels in the outline, show all lines and cells,
+      show/hide ellipses after truncated outline entries, set cell numbering
+      (label) types.
+
+    - View settings are controlled by single character codes called view
+      specs.  The current view spec setting for a koutline appears in the
+      modeline following the name of the outline.  The current view spec
+      setting may be changed interactively with {C-c C-v}.
+      See <${hyperb:dir}/kotl/EXAMPLE.kotl, 2b16=048> for details on valid
+      view specs.
+
+    - Minibuffer menu item Otl/View changed to Otl/Vspec to set a view
+      specification.  Use {C-x C-r} to view a Koutline in read-only mode.
+
+    - Added View menu to Koutliner popup and pulldown menus.  Moved
+      view-related tree operations from Tree menu to View menu.
+
+    - Fixed importation of star outline and Augment-style files.
+    
+    - The elements of a another buffer or file may be inserted into a
+      koutline as a set of cells by using the {C-x i} command. When prompted,
+      you may use a buffer name or file name from which to insert.
+
+      The cells will be inserted as the successors of the current cell unless
+      {C-u C-x i} is used and then they are inserted as the initial children
+      of the current cell.
+
+      See the documentation for the variables, kimport:mode-alist and
+      kimport:suffix-alist, for information on mode and suffix-specific
+      conversions performed on files before they are inserted.
+
+      Use {M-x kimport:insert-file-contents RET} to insert the entire
+      contents of a file into the current cell at the location of point.
+
+    - {M-x kimport:file RET} will prompt for a file and a new koutline file
+      to create and will insert the elements of the file in the new outline.
+      (You can also use buffer or buffer names as arguments instead of file
+      names.)  See the documentation for the variables, kimport:mode-alist
+      and kimport:suffix-alist, for information on how the importation type
+      is determined.
+
+    - {C-c +} appends the contents of one cell to the end of another.  Added
+      this as Append-Cell to popup and pulldown menus.
+    
+    - {M-w}, copy-region, now works properly in read-only outlines.
+
+  CONTACT MANAGER
+
+    - {e} within a rolo match buffer edits the associated entry within your
+      rolo source file.  Fixed bug that caused {e} to fail when entries
+      are collapsed within the match buffer.
+
+    - {C-h h r e}, rolo-edit, just displays your personal rolo file if you
+      hit {RET} without specifying an entry name to edit.
+
+    - {m} within a rolo match buffer composes mail to the the e-mail
+      address at point or the first address following point.  Also added as
+      Rolo/Mail minibuffer menu item and Rolo/Mail-to-Address for window
+      system menus.
+
+    - New variable, wrolo-yank-reformat-function permits reformatting of an
+      entry yanked into the current buffer with {C-h h r y}, rolo-yank.
+
+  WINDOW CONFIGURATIONS 
+
+    - The minibuffer menu items, Win/PopRing and Win/YankRing now redisplay
+      the Win menu after performing their actions.  This allows you to yank
+      or pop window configurations repeatedly until you get to the one you
+      want.
+

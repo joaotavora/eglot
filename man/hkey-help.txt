@@ -1,0 +1,91 @@
+========================================================================================
+                                              Smart Keys
+Context                         Action Key                 Assist Key
+========================================================================================
+Hyperbole
+  On a minibuffer menu item     Activates item             Item help
+  On an explicit button         Activates button           Button help
+  Reading argument
+    1st press at an arg value   Value copied to minibuffer <- same
+    2nd press at an arg value   Value used as argument     <- same
+    In minibuffer               Accepts minibuffer arg     Completion help
+  On an implicit button         Activates button           Button help
+  Within a koutline cell        Collapses and expands      Shows tree props
+  Left of a koutline cell       Creates a klink            Moves a tree
+  HyRolo Match Buffer           Edits entries and mails to e-mail addresses
+
+Mouse or Keyboard Display Control
+  Line end, not end of buffer
+    smart-scroll-proportional
+      = t   (default)           Makes curr line top line   Bottom line
+      = nil                     Scrolls up a windowful     Scrolls down
+  End of Any Help buffer        Restores screen to the previous state
+  Read-only View Mode           Scrolls up a windowful     Scrolls wind down
+
+Mouse-only Control
+  Drag from thing start or end  Yanks thing at release     Kills thing and yanks
+    A thing is a delimited                                 at release
+    expression, such as a
+    string, list or markup
+    language tag pair
+  Drag from shared window side
+    or from left of scroll bar  Resizes window width       <- same
+
+  Modeline press+wind release   Resizes window height      <- same
+  Click in modeline
+    Left modeline edge          Buries current buffer      Unburies bottom buffer
+    Right modeline edge         Info manual browser        Smart Key summary
+    Other blank area            Action Key modeline hook   Assist Key modeline hook
+                                  Show/Hide Buffer Menu      Popup Jump & Manage Menu
+
+  Drag between windows          Creates/modifies a link    Swaps wind buffers
+  Drag in window, region active Error, not allowed         Error, not allowed
+  Horizontal drag in a window   Splits window below        Deletes window
+  Vertical drag in a window     Splits window side-by-side Deletes window
+  Diagonal drag in a window     Saves wconfig              Restores wconfig from ring
+  Active region exists          Yanks sexp at release      Kills & yanks sexp at release
+
+Hyperbole Key Press/Click in Special Modes
+  Emacs push button             Activates button           Button help
+  Thing begin or end            Mark thing region          Mark & kill thing region
+  C,C++,Objective-C,Java Modes  Jumps to id/include def    Jumps to next def
+  Java Cross-reference Tag      Jumps to identifier def    Jumps to next def
+  JavaScript and Python Modes   Jumps to identifier def    Jumps to next def
+  Assembly Language Mode        Jumps to id/include def    Jumps to next def
+  Any Lisp or Fortran Mode      Jumps to id def            Jumps to next def
+  Emacs Lisp Compiler Error     Jumps to def with error    <- same
+  Grep or Occur Match           Jumps to match source line <- same
+  Multi-buffer Occur Match      Jumps to match source line <- same
+  Etags `TAGS' file entry       Jumps to source line       Button help
+  Ctags file entry              Jumps to source line       Button help
+  Texinfo Cross-reference
+    Before opening brace        Jumps to Texinfo referent  Button help
+    Within braces               Jumps to Info referent     Button help
+    Menu Item or node hdr       Jumps to Texinfo referent  Button help
+    Include file                Jumps to Texinfo referent  Button help
+    code/var reference          Displays doc for referent  Button help
+  Org Mode                      Follows links and cycles outline views
+  Outline Major/Minor Modes     Collapses, expands, and moves outline entries
+  Man Apropos                   Displays man page entry    <- same
+  Man Pages                     Follows cross refs, file refs and C code refs
+  I/Buffer Menu                 Saves, deletes and displays buffers
+
+Emacs Info Reader
+  Menu Entry or Cross Ref       To referent                <- same
+  Up, Next or Prev Header       To referent                To prior node
+  File entry of Header          To top node                To (DIR) node
+  End of current node           To next node               To previous node
+  Anywhere else                 Scrolls up a windowful     Scrolls wind down
+
+Subsystems
+  Calendar                      Scrolls or shows appts     Scrolls/marks date
+  GNU Debbugs Tracker           Displays issue discussion  Displays issue status
+  Dired Mode                    Views and deletes files from dir listing
+  GNUS News Reader              Toggles group subscriptions, gets new news,
+                                  and browses articles
+  Mail Reader and Summaries     Browses, deletes and expunges messages
+  OO-Browser                    Browses object classes and elements
+  Tar Mode                      Views and edits files from tar archive files
+
+Any other context (defaults)    Invalid context error      Invalid context error
+========================================================================================

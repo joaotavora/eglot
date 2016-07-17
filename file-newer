@@ -1,0 +1,9 @@
+#!/usr/local/bin/perl
+#file-newer: Return 1 if file 1 is newer than file 2, else 0
+
+$cmp = (stat($ARGV[0]))[9] - (stat($ARGV[1]))[9];
+if ($cmp > 0)
+   { print "1"; }
+else
+   { print "0"; }
+

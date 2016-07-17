@@ -1,0 +1,92 @@
+--- INTRODUCTION ---
+COPYING             - GNU General Public License
+DEMO                - Demonstration of basic GNU Hyperbole button capabilities
+HY-ABOUT            - Introductory description of GNU Hyperbole
+HY-COPY             - GNU Hyperbole Copyright
+HY-NEWS             - What's new in each release of GNU Hyperbole
+HY-README           - Information GNU Hyperbole users and maintainers should read
+HY-WHY.kotl         - Quick list of great reasons to use Hyperbole
+Makefile            - Build GNU Hyperbole directories and distributions
+hversion.el         - GNU Hyperbole version and system information setup
+hyperbole.el        - Loads and initializes GNU Hyperbole
+hyperbole-readme.txt- Description used by the Emacs package system
+ChangeLog           - Summary of changes in recent GNU Hyperbole releases
+
+--- DOCUMENTATION ---
+dir                 - GNU Hyperbole Info directory tree entry
+man/hyperbole.html  - The GNU Hyperbole Manual  (web version)
+man/hyperbole.info  - The GNU Hyperbole Manual  (GNU Info version)
+man/hyperbole.pdf   - The GNU Hyperbole Manual  (printable version)
+man/hyperbole.texi  - The GNU Hyperbole Manual  (GNU Texinfo source form)
+man/hkey-help.txt   - Summarizes Smart Key behaviors in different contexts
+
+--- USER INTERFACE ---
+hmouse-info.el      - Walks through Info networks using one key
+hmouse-drv.el       - Smart Key/Mouse driver functions
+hmouse-key.el       - Setup Smart Key mouse bindings
+hmouse-mod.el       - Action Key acts as CONTROL modifier and Assist Key as META modifier (Optional)
+hmouse-sh.el        - System-dependent Smart Mouse Key bindings
+hmouse-tag.el       - Smart Key support of programming language tags location
+hycontrol.el        - Interactive sizing, moving, replicating and deleting of windows and frames
+hyrolo-menu.el      - Pulldown and popup menus of HyRolo commands
+hui-em-but.el       - GNU Emacs button highlighting and flashing support
+hui-jmenu.el        - Popup menus for jumping to and managing buffers, frames, and windows
+hui-menu.el         - Menubar menu of GNU Hyperbole commands
+hui-mini.el         - Single line command menus for GNU Hyperbole
+hui-mouse.el        - Use key or mouse key for many functions, e.g. GNU Hyperbole menus
+hui-select.el       - Select delimited or larger and larger syntax-driven regions in a buffer
+hui-window.el       - Smart Mouse Key window and modeline depress/release actions
+hui-xe-but.el       - XEmacs button highlighting and flashing support
+hui.el              - GNU Hyperbole button and hyperlink user interface
+
+--- APPLICATION PROGRAMMING INTERFACE ---
+hact.el             - GNU Hyperbole button action handling
+hargs.el            - GNU Hyperbole user input functions
+hbmap.el            - GNU Hyperbole button map maintenance for queries and lookups
+hbut.el             - GNU Hyperbole button constructs
+hhist.el            - History of GNU Hyperbole buttons selected
+hmail.el            - GNU Hyperbole buttons embedded in e-mail messages
+hmoccur.el          - Multi-buffer or multi-file regexp occurrence location
+hpath.el            - GNU Hyperbole support routines for handling UNIX paths
+htz.el              - Timezone-based time and date support for GNU Hyperbole
+hypb.el             - Miscellaneous GNU Hyperbole support features
+hyrolo.el           - Hierarchical, multi-file, easy-to-use contact management system
+hyrolo-logic.el     - Logic functions for GNU Hyperbole Rolo files
+hywconfig.el        - Save ring of window configurations
+set.el              - General mathematical operators for unordered sets
+
+
+--- MAIL SYSTEM SUPPORT ---
+hmh.el              - GNU Hyperbole buttons in mail reader:   Mh
+hrmail.el           - GNU Hyperbole buttons in mail reader:   Rmail
+hsmail.el           - GNU Hyperbole buttons in mail composer: mail
+hvm.el              - GNU Hyperbole buttons in mail reader:   Vm
+
+--- HYPERBOLE KOUTLINER ---
+kotl/MANIFEST       - Summary of Koutliner files
+kotl/EXAMPLE.kotl   - Sample Koutline document explaining Koutliner features
+
+--- USENET NEWS SUPPORT ---
+hgnus.el            - GNU Hyperbole buttons in news reader/poster: GNUS
+
+--- HYPERBOLE INTERNALS ---
+file-newer          - Perl script which returns 1 if file 1 is newer than file 2
+hactypes.el         - Default action types for GNU Hyperbole
+hbdata.el           - GNU Hyperbole button attribute accessor functions
+hibtypes.el         - GNU Hyperbole default implicit button types
+hib-debbugs.el      - Implicit button type for browsing GNU debbugs issues
+hib-doc-id.el       - Implicit button type for document id index entries
+hib-kbd.el          - Implicit button type for key sequences delimited with {}
+hinit.el            - Standard initializations for GNU Hyperbole
+hload-path.el       - GNU Hyperbole load-path setup
+hlvar.el            - GNU Hyperbole variables in local variable lists
+hsite-ex.el         - Site-specific customizations template for GNU Hyperbole
+hvar.el             - Variable manipulation routines for GNU Hyperbole
+hyperbole-banner.png- Graphic of GNU Hyperbole for display with About Hyperbole
+smart-clib-sym      - Test whether symbol appears within a set of C libraries
+.hypb & _hypb       - Button data files used by the Hyperbole DEMO file
+
+--- EXTERNAL SYSTEM ENCAPSULATIONS ---
+hsys-org.el         - GNU Hyperbole support for Emacs Org mode links
+hsys-w3.el          - GNU Hyperbole support for Emacs W3 World-Wide Web (WWW) browsing
+
