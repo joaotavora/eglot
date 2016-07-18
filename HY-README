@@ -62,9 +62,10 @@ lines to your personal Emacs initialization file, typically "~/.emacs".
 (require 'package)
 (setq package-check-signature nil
       package-enable-at-startup nil) ;; Prevent double loading of libraries
-;; If this is a test release, uncomment the following line and comment the line after it.
-;; (add-to-list 'package-archives '("RSW-Packages" . "http://www.plasmas.biz/rswe/") t)
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")
+;; GNU Emacs now includes the Elpa package-archive setting but we include
+;; it here as a reference of how to do this.  add-to-list will do nothing
+;; it it is already in the list.
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
   (package-refresh-contents)	

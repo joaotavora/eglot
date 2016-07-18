@@ -141,8 +141,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.00
-Printed July 17, 2016.
+Edition 6.01
+Printed July 19, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -166,7 +166,7 @@ Printed July 17, 2016.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.00, July 17, 2016.
+@center Edition 6.01, July 19, 2016.
 
 @sp 2
 @noindent
@@ -260,11 +260,11 @@ years.  The Koutliner is dedicated to my lovely wife, Kathy.
 
 Introduction
 
+* Manual Overview::
 * Motivation::
 * Hyperbole Overview::
 * Hyperbole Buttons::
 * Mail Lists::
-* Manual Overview::
 
 Smart Keys
 
@@ -433,25 +433,89 @@ Smart Keyboard Keys
 @chapter Introduction
 
 This edition of the GNU Hyperbole Manual is for use with any version
-6.00 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.01 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 
-This chapter describes Hyperbole, lists some of its potential
-applications, explains how to subscribe to its mail lists, and then
-summarizes the structure of the rest of the manual.
+This chapter summarizes the structure of the rest of the manual,
+describes Hyperbole, lists some of its potential applications, and
+explains how to subscribe to its mail lists.
 
 Throughout this manual, sequences of keystrokes are delimited by curly
 braces @{ @}, function and variable names use this @code{typeface}.
 
 @menu
+* Manual Overview::
 * Motivation::
 * Hyperbole Overview::
 * Hyperbole Buttons::
 * Mail Lists::
-* Manual Overview::
 @end menu
 
-@node Motivation, Hyperbole Overview, Introduction, Introduction
+@node Manual Overview, Motivation, Introduction, Introduction
+@section   Manual Overview
+
+Remember that the @file{DEMO} file included in the Hyperbole
+distribution demonstrates many of Hyperbole's standard facilities
+without the need to read through this reference manual.
+
+@xref{Glossary}, for definitions of Hyperbole terms.  In some cases,
+terms are not precisely defined within the body of this manual since
+they are defined within the glossary.  Be sure to reference the
+glossary if a term is unclear to you.  Although you need not have a keen
+understanding of all of these terms, a quick scan of the glossary should
+help throughout Hyperbole use.
+
+@xref{Setup}, for explanations of how to obtain, install, configure
+and load Hyperbole for use.  This appendix includes information on
+user-level settings that you may want to modify after you understand
+Hyperbole's basic operation.
+
+@xref{Suggestion or Bug Reporting}, for instructions on how to ask a
+question, suggest a feature or report a bug in Hyperbole.  A few
+commonly asked questions are answered in this manual.  @xref{Questions
+and Answers}.  @xref{References}, if you are interested in classic
+articles on hypertext.
+
+@xref{Smart Keys}, for an explanation of the innovative, context-sensitive
+mouse and keyboard Action and Assist Keys offered by Hyperbole.
+@xref{Smart Key Reference}, for a complete reference on what the Action
+and Assist Keys do in each particular context that they recognize.
+@xref{Smart Key Argument Selection}, for special support that Hyperbole
+provides for entering arguments when prompted for them.
+
+Keep in mind as you read about using Hyperbole that in many cases, it
+provides a number of overlapping interaction methods that support
+differing work styles and hardware limitations.  In such instances,
+you need learn only one technique that suits you.
+
+@xref{Buttons}, for an overview of Hyperbole buttons and how to use them.
+
+@xref{Menus}, for summaries of Hyperbole menu commands and how to use
+the minibuffer-based menus that work on dumb terminals, PCs or workstations.
+
+@xref{HyControl}, for how to quickly and interactively control your Emacs
+windows and frames and what they display.
+
+@xref{Koutliner}, for concept and usage information on the
+autonumbered, hypertextual outliner.  @xref{Koutliner Keys}, for a full
+summary of the outliner commands that are bound to keys.
+
+@xref{HyRolo}, for concept and usage information on the
+rapid lookup, hierarchical, free text record management system included
+with Hyperbole.
+
+@xref{Window Configurations}, for instructions on how to save and restore
+the set of buffers and windows that appear within a frame.  This feature
+lets you switch among working contexts easily, even on a dumb terminal.
+Such configurations last only throughout a single session of editor
+usage.
+
+@xref{Developing with Hyperbole}, if you are a developer who is
+comfortable with Lisp.
+
+@xref{Future Work}, for future directions in Hyperbole's evolution.
+
+@node Motivation, Hyperbole Overview, Manual Overview, Introduction
 @section   Motivation
 
 Database vendors apply tremendous resources to help solve corporate
@@ -664,7 +728,7 @@ starting or communicating with external programs;
 
 @item
 A simple mouse drag from a button source location to its link
-destination is often all that is needed to create a new ling.
+destination is often all that is needed to create a new link.
 The keyboard can also be used to emulate such drags;
 
 @item
@@ -715,7 +779,7 @@ archive holdings.  Users can then search and create their own links to
 archive entries.
 @end table
 
-@node Mail Lists, Manual Overview, Hyperbole Buttons, Introduction
+@node Mail Lists,  , Hyperbole Buttons, Introduction
 @section   Mail Lists
 
 If you use Hyperbole, you may join the mailing list
@@ -760,70 +824,6 @@ with Hyperbole.  In this way, the list is not overrun by messages that
 ask for, but provide no information.
 @end itemize
 
-@node Manual Overview,  , Mail Lists, Introduction
-@section   Manual Overview
-
-Remember that the @file{DEMO} file included in the Hyperbole
-distribution demonstrates many of Hyperbole's standard facilities.
-@xref{Introduction}, for more details.
-
-@xref{Glossary}, for definitions of Hyperbole terms.  In some cases,
-terms are not precisely defined within the body of this manual since
-they are defined within the glossary.  Be sure to reference the
-glossary if a term is unclear to you.  Although you need not have a keen
-understanding of all of these terms, a quick scan of the glossary should
-help throughout Hyperbole use.
-
-@xref{Setup}, for explanations of how to obtain, install, configure
-and load Hyperbole for use.  This appendix includes information on
-user-level settings that you may want to modify after you understand
-Hyperbole's basic operation.
-
-@xref{Suggestion or Bug Reporting}, for instructions on how to ask a
-question, suggest a feature or report a bug in Hyperbole.  A few
-commonly asked questions are answered in this manual.  @xref{Questions
-and Answers}.  @xref{References}, if you are interested in classic
-articles on hypertext.
-
-@xref{Smart Keys}, for an explanation of the innovative, context-sensitive
-mouse and keyboard Action and Assist Keys offered by Hyperbole.
-@xref{Smart Key Reference}, for a complete reference on what the Action
-and Assist Keys do in each particular context that they recognize.
-@xref{Smart Key Argument Selection}, for special support that Hyperbole
-provides for entering arguments when prompted for them.
-
-Keep in mind as you read about using Hyperbole that in many cases, it
-provides a number of overlapping interaction methods that support
-differing work styles and hardware limitations.  In such instances,
-you need learn only one technique that suits you.
-
-@xref{Buttons}, for an overview of Hyperbole buttons and how to use them.
-
-@xref{Menus}, for summaries of Hyperbole menu commands and how to use
-the minibuffer-based menus that work on dumb terminals, PCs or workstations.
-
-@xref{HyControl}, for how to quickly and interactively control your Emacs
-windows and frames and what they display.
-
-@xref{Koutliner}, for concept and usage information on the
-autonumbered, hypertextual outliner.  @xref{Koutliner Keys}, for a full
-summary of the outliner commands that are bound to keys.
-
-@xref{HyRolo}, for concept and usage information on the
-rapid lookup, hierarchical, free text record management system included
-with Hyperbole.
-
-@xref{Window Configurations}, for instructions on how to save and restore
-the set of buffers and windows that appear within a frame.  This feature
-lets you switch among working contexts easily, even on a dumb terminal.
-Such configurations last only throughout a single session of editor
-usage.
-
-@xref{Developing with Hyperbole}, if you are a developer who is
-comfortable with Lisp.
-
-@xref{Future Work}, for future directions in Hyperbole's evolution.
-
 
 @node Smart Keys, Buttons, Introduction, Top
 @chapter Smart Keys
@@ -861,9 +861,9 @@ From the keyboard, @bkbd{M-@key{RET}} is the Action Key and @bkbd{C-u
 M-@key{RET}} is the Assist Key.  These keys allow context-sensitive
 operation from any keyboard.
 
-@c Removed the following in Hyperbole 6.00 since is not consistent across all
-@c read-only modes and the standard bindings are easy enough to use.
-
+@c Removed the following in Hyperbole 6.00 since it was not consistent
+@c across all read-only modes and the standard bindings are easy
+@c enough to use.
 @c
 @c In many read-only modes like Dired (the directory editor and file
 @c manager) and Rmail (the mail reader), @{@key{RET}@} also functions as
@@ -910,7 +910,7 @@ If you ever want to restore the mouse bindings that existed before
 Hyperbole was loaded, use the @code{hmouse-toggle-bindings} command.
 It switches between the Hyperbole mouse key bindings and those set
 prior to loading Hyperbole and then back again if invoked once more.
-There is no default key binding for this command; use @code{M-x
+There is no default key binding for this command; use @bkbd{M-x
 hmouse-toggle-bindings @key{RET}}.  Alternatively, you may select a
 key and bind it as part of any setting of @code{hyperbole-init-hook}
 within your personal @file{~/.emacs} file.  For example, @code{(add-hook
@@ -997,10 +997,10 @@ invoking help.
 @kindex C-h A
 @kindex C-u C-h A
 On the keyboard, @bkbd{C-h A} displays this same context-sensitive
-help for the Action Key while @bkbd{C-u C-h A} displays the help
-for the Assist Key.  Note that @bkbd{C-h a} performs a function
-unrelated to Hyperbole, so you must press the shift key when you type
-the @bkbd{A} character.
+help for the Action Key while @bkbd{C-u C-h A} displays the help for
+the Assist Key.  Note that @bkbd{C-h a} performs a function unrelated
+to Hyperbole, so you must press the shift key when you type
+the @key{A} character.
 
 @node Smart Key Modeline, Smart Key Thing Selection, Smart Key Operations, Smart Keys
 @section   Smart Key Modeline
@@ -1121,20 +1121,21 @@ Hyperbole also binds two convenience keys for working with things.
 @kindex C-c @key{RET}
 @findex hui-select-thing
 @findex hui-select-thing-with-mouse
-The first such key is @bkbd{C-c @key{RET}} @code{hui-select-thing} which
-selects bigger and bigger syntactic regions with each successive use.
-Double or triple clicks of the Selection Key (left mouse key) do the
-same thing.  The first press selects a region based upon the character
-at point.  For example, with point over an opening or closing grouping
-character, such as @{ or @}, the whole grouping is selected, e.g. a C
-function.  When on an _ or - within a programming language variable
-name, the whole name is selected.  The type of selection is displayed
-in the minibuffer as feedback.  When using a language based mainly on
-indenting, like Bourne shell, a double click on the first alpha
-character of a line, such as an if statement, selects the whole
-statement.  Use @bkbd{C-g} to unmark the region when done.  Use,
-@code{hui-select-thing-with-mouse} if you want to bind this to a
-different mouse key to use single clicks instead of double clicks.
+The first such key is @bkbd{C-c @key{RET}} @code{hui-select-thing}
+which selects bigger and bigger syntactic regions with each successive
+use.  Double or triple clicks of the Selection Key (left mouse key) do
+the same thing.  The first press selects a region based upon the
+character at point.  For example, with point over an opening or
+closing grouping character, such as @{ or @}, the whole grouping is
+selected, e.g. a C function.  When on an _ or - within a programming
+language identifier name, the whole name is selected.  The type of
+selection is displayed in the minibuffer as feedback.  When using a
+language in which indentation determines nesting level like Python, a
+double click on the first alpha character of a line, such as an if
+statement, selects the whole statement.  Use @bkbd{C-g} to unmark the
+region when done.  Use, @code{hui-select-thing-with-mouse} if you want
+to bind this to a different mouse key to use single clicks instead of
+double clicks.
 
 @kindex C-c .
 @findex hui-select-goto-matching-tag
@@ -1238,7 +1239,7 @@ should or if you want to test how the Smart Keys respond in a new
 context, then the Smart Key debugging flag may be of use.  You toggle
 it on and off with @bkbd{C-h h c d} (minibuffer menu
 Cust/Debug-Toggle).  Once enabled, this displays a message in the
-minibuffer each time the he Action or Assist Key is released, showing
+minibuffer each time the Action or Assist Key is released, showing
 the context of the press and its associated action, so you can see
 exactly what is happening whenever you use a Smart Key.  These
 messages are all prefaced with ``(HyDebug)'' and logged to the
@@ -1309,12 +1310,13 @@ should be added to your personal button file.  @xref{Button Files}.
 @cindex button attribute
 @vindex file, .hypb
 Hyperbole stores the @dfn{button data} that gives an explicit button its
-behavior, separately from the button label, in a file named @file{.hypb}
-within the same directory as the file in which the button is created.
-Thus, all files in the same directory share a common button data file.
-Button data is comprised of individual @dfn{button attribute} values.  A
-user never sees this data in its raw form but may see a formatted
-version by asking for help on a button.  @xref{Smart Keys}.
+behavior, separately from the button label, in a file named
+@file{.hypb} (@file{_hypb} under MS Windows) within the same directory
+as the file in which the button is created.  Thus, all files in the
+same directory share a common button data file.  Button data is
+comprised of individual @dfn{button attribute} values.  A user never
+sees this data in its raw form but may see a formatted version by
+asking for help on a button.  @xref{Smart Keys}.
 
 @cindex button, moving
 @cindex moving buttons
@@ -1407,7 +1409,8 @@ also the documentation for @code{actypes::hyp-config}.
 @findex ibtypes Info-node
 @cindex Info node
 Makes "(filename)nodename" buttons display the associated Info node.
-Also makes \"filename)itemname" buttons display the associated Info index item."
+Also makes "(filename)itemname" buttons display the associated Info
+index item.
 
 @item www-url
 @findex ibtypes www-url
@@ -1523,8 +1526,8 @@ RFCs."
 @cindex key sequence
 Executes the command binding or the Hyperbole minibuffer menu action
 for a key sequence delimited by curly braces.  Key sequences should
-be in human readable form, e.g.@: @bkbd{C-x C-b}.  Forms such
-as @{@}, @{@}, and @{^b@} will not be recognized.
+be in human readable form, e.g.@: @bkbd{C-x C-b}.  Formats such
+as @{^x^b@} will not be recognized.
 
 @item dir-summary
 @findex ibtypes dir-summary
@@ -5511,9 +5514,10 @@ typically @file{~/.emacs} or @file{~/.emacs.d/.emacs},
 (require 'package)
 (setq package-check-signature nil
       package-enable-at-startup nil) ;; Prevent double loading of libraries
-;; If this is a test release, uncomment the following line and comment the line after it.
-;; (add-to-list 'package-archives '("RSW-Packages" . "http://www.plasmas.biz/rswe/") t)
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")
+;; GNU Emacs now includes the Elpa package-archive setting but we include
+;; it here as a reference of how to do this.  add-to-list will do nothing
+;; it it is already in the list.
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
   (package-refresh-contents)	
@@ -5834,7 +5838,7 @@ addition to any non-mouse-sensitive button highlighting.
 @findex hproperty:but-create
 If you read in a file with explicit buttons before you load Hyperbole,
 these buttons won't be highlighted.  Load Hyperbole and then use
-@code{M-x hproperty:but-create @key{RET}} to highlight the buttons in
+@bkbd{M-x hproperty:but-create @key{RET}} to highlight the buttons in
 the current buffer.
 
 
@@ -5926,7 +5930,7 @@ If you ever have a need to temporarily disable the Hyperbole keyboard
 and mouse bindings, use the @code{hkey-toggle-bindings} command.  It
 switches between the Hyperbole key bindings and those set prior to
 loading Hyperbole and then back again if invoked once more.  There is
-no default key binding for this command; use @code{M-x
+no default key binding for this command; use @bkbd{M-x
 hkey-toggle-bindings @key{RET}}.  Alternatively, you may select a key
 and bind it as part of any setting of @code{hyperbole-init-hook}
 within your personal @file{~/.emacs} file.  For example, @code{(add-hook
@@ -5942,7 +5946,7 @@ Hyperbole keys, preventing you from using them in that mode.  By
 default, Hyperbole automatically prevents this by checking each time a
 major mode is invoked and unbinding any mode-specific keys that
 interfere with global Hyperbole keys.  If you prefer that this not
-happen permanently, use @kbd{M-x customize-variable @key{RET}
+happen permanently, use @bkbd{M-x customize-variable @key{RET}
 hkey-init-override-local-keys @key{RET}}.  Press the Toggle button to
 change the value to @code{nil}.  Then select ``Apply and Save''.
 

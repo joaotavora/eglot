@@ -1,20 +1,18 @@
 -- Almost all changes listed herein are new as of 2016. --
 
-<<<<<<< 83e2b8e588d13a9abe0e309169c60f944b6d9e30
 2016-07-19  Mats Lidell  <matsl@gnu.org>
 
-* .gitignore: Add git ignore file.
-
-2016-07-18  Mats Lidell  <matsl@gnu.org>
-
-* HY-README:
-  man/hyperbole.texi (Installation): Use gnu as elpa archive name.
+* .gitignore: Added git ignore file.
 
 2016-07-18  Mats Lidell  <matsl@gnu.org>
 
 * .hypb: Added. Lost during initial commit to git.
-=======
+
 2016-07-18  Bob Weiner  <rsw@gnu.org>
+
+* HY-README (Installation):
+* man/hyperbole.texi (Installation): Made elpa line match the default in Emacs
+    so if it is already there, it won't be added again.
 
 * hyperbole.el (hkey-override-local-bindings): Fixed case where an invalid
     key prefix is given and so local-key-binding returns a number rather than nil.
@@ -32,7 +30,6 @@
 ==============================================================================
 V6.01 changes ^^^^:
 ==============================================================================
->>>>>>> * hyperbole.el (hkey-override-local-bindings): Fixed case where an invalid
 
 2016-07-17  Bob Weiner  <rsw@gnu.org>
 
