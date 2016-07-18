@@ -1,5 +1,9 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-18  Mats Lidell  <matsl@gnu.org>
+
+* .hypb: Added. Lost during initial commit to git.
+
 2016-07-17  Bob Weiner  <rsw@gnu.org>
 
 * hyperbole.el (inhibit-hyperbole-messaging): Added :initialize function that skips more
