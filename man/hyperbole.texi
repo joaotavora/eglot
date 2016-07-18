@@ -5689,21 +5689,19 @@ find-file URLs.
 @node Internal Viewers, External Viewers, Using URLs with Find-File, Configuration
 @subsection  Internal Viewers
 @vindex hpath:internal-display-alist
-@vindex file, hsite.el
 @cindex file display function
 @cindex display function
 @cindex internal viewer
 @cindex link, display function
 When given a file name, Hyperbole will by default display the file for
-editing within an Emacs buffer.  The @code{hpath:internal-display-alist} variable
-can be used to specify file name patterns, such as matching suffixes,
-which will invoke a special Emacs Lisp function to display any matching
-files within Emacs.  This can be used to format raw data files for
-convenient display.
+editing within an Emacs buffer.  The @code{hpath:internal-display-alist}
+variable can be used to specify file name patterns, such as matching
+suffixes, which will invoke a special Emacs Lisp function to display
+any matching files within Emacs.  This can be used to format raw data
+files for convenient display.
 
-Use the @file{hsite.el} file to add a setting
-for @code{hpath:internal-display-alist} defined in @file{hpath.el}, if
-you want to modify this.  Its value is an association list whose
+For those who want to change this variable, @code{hpath:internal-display-alist}
+is defined in @file{hpath.el}.  Its value is an association list whose
 elements are (<file-name-regular-expression> . <function-of-one-arg>)
 pairs.  Any path whose name matches a <file-name-regular-expression>
 will be displayed by calling the associated <function-of-one-arg> with
@@ -5729,7 +5727,6 @@ external, window-system specific viewers.
 @vindex hpath:external-display-alist-macos
 @vindex hpath:external-display-alist-mswindows
 @vindex hpath:external-display-alist-x
-@vindex file, hsite.el
 @cindex window system
 @cindex external program
 @cindex external viewer
@@ -5815,6 +5812,7 @@ you in deciding whether or not to modify the value of
 @cindex button highlighting
 @cindex button flashing
 @vindex file, hui-ep*.el
+@vindex file, hsite.el
 @findex hproperty:cycle-but-color
 When Hyperbole is run under a window system together with InfoDock,
 Emacs, or XEmacs, it automatically highlights any explicit buttons in
@@ -5827,11 +5825,10 @@ changes the color used to highlight and flash explicit buttons.
 
 @cindex button emphasis
 @vindex hproperty:but-emphasize-p
-@vindex file, hsite.el
-Additionally, if @code{hproperty:but-emphasize-p} is set to @samp{t} in
-@file{hsite.el}, then whenever the mouse pointer moves over an explicit
-button, it will be emphasized in a different color or style.  This
-emphasis is in addition to any non-mouse-sensitive button highlighting.
+Additionally, if @code{hproperty:but-emphasize-p} is set to @samp{t},
+then whenever the mouse pointer moves over an explicit button, it will
+be emphasized in a different color or style.  This emphasis is in
+addition to any non-mouse-sensitive button highlighting.
 
 @cindex button highlighting, forcing
 @findex hproperty:but-create
@@ -5945,9 +5942,9 @@ Hyperbole keys, preventing you from using them in that mode.  By
 default, Hyperbole automatically prevents this by checking each time a
 major mode is invoked and unbinding any mode-specific keys that
 interfere with global Hyperbole keys.  If you prefer that this not
-happen permanently, add the following to your personal @file{~/.emacs}
-file and restart Emacs: @code{(add-hook 'hyperbole-init-hook
-(lambda () (setq hkey-init-override-local-keys nil)))}.
+happen permanently, use @kbd{M-x customize-variable @key{RET}
+hkey-init-override-local-keys @key{RET}}.  Press the Toggle button to
+change the value to @code{nil}.  Then select ``Apply and Save''.
 
 
 @node Koutliner Keys, Smart Key Reference, Global Key Bindings, Top
