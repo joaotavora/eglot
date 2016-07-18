@@ -1,0 +1,14 @@
+# Files that Git should ignore in the GNU Hyperbole source directory.
+
+# Copyright (C) 2016  Free Software Foundation, Inc.
+# See the "HY-COPY" file for license information.
+
+# This file is part of GNU Hyperbole.
+
+# Object files
+*.elc
+
+# Version control and locks.
+*.orig
+*.rej
+*~

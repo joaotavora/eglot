@@ -1,5 +1,9 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-19  Mats Lidell  <matsl@gnu.org>
+
+* .gitignore: Add git ignore file.
+
 2016-07-18  Mats Lidell  <matsl@gnu.org>
 
 * HY-README:
