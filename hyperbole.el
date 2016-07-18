@@ -371,11 +371,17 @@ bindings after load)."
     ;; its major mode is first used or loaded.
     ;; (hkey-read-only-bindings)
     (if hkey-init-override-local-keys
-       (let (hkey)
+	(let (hkey
+	      binding)
 	 (mapc (lambda (descrip-key-cmd)
 		 (and (setq hkey (cadr descrip-key-cmd))
 		      ;; To see the key name, use: (key-description hkey)
-		      (local-key-binding hkey) (local-unset-key hkey)))
+		      (setq binding (local-key-binding hkey))
+		      ;; A number indicates an invalid key prefix, so
+		      ;; there is not actually a local binding for
+		      ;; this key sequence.
+		      (not (numberp binding))
+		      (local-unset-key hkey)))
 	       hkey-previous-bindings)))))
 
 (defun hkey-install-override-local-bindings ()

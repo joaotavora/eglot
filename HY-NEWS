@@ -6,6 +6,16 @@
 
 
 ===========================================================================
+*				    V6.01
+===========================================================================
+
+  VARIABLES
+
+    - hsite.el is now included in the Hyperbole package rather than
+      generated.  Use the Hyperbole customization variables to change
+      anything in there rather than editing the file manually as before.
+
+===========================================================================
 *				    V6.00
 ===========================================================================
 

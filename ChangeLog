@@ -1,5 +1,6 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+<<<<<<< 83e2b8e588d13a9abe0e309169c60f944b6d9e30
 2016-07-19  Mats Lidell  <matsl@gnu.org>
 
 * .gitignore: Add git ignore file.
@@ -12,6 +13,26 @@
 2016-07-18  Mats Lidell  <matsl@gnu.org>
 
 * .hypb: Added. Lost during initial commit to git.
+=======
+2016-07-18  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (hkey-override-local-bindings): Fixed case where an invalid
+    key prefix is given and so local-key-binding returns a number rather than nil.
+
+* hui-window.el (hmouse-x-coord): Added support for a marker as `args'.
+  hypb.el (hypb:goto-marker): Added to jump to a marker in a different buffer.
+
+* man/hyperbole.texi (Global Key Bindings): Changed from setting the value of
+    hkey-init-override-local-keys in personal init file to using the
+    customize-variable interface.
+
+* MANIFEST: Eliminated hsite-ex.el and included hsite.el in distribution package.
+    Users will use customizations now rather than direct editing of this file.
+
+==============================================================================
+V6.01 changes ^^^^:
+==============================================================================
+>>>>>>> * hyperbole.el (hkey-override-local-bindings): Fixed case where an invalid
 
 2016-07-17  Bob Weiner  <rsw@gnu.org>
 
@@ -1398,7 +1419,7 @@ V5.10 changes ^^^^:
 
 * hyperbole.el: Moved complete hyperb:dir setup here from hversion.el.
     Moved Hyperbole initialization here from hsite-ex.el.  Changed so this
-    file req*shuires hsite rather than vice-versa, allowing for single file
+    file requires hsite rather than vice-versa, allowing for single file
     loading and initialization of Hyperbole, including adding it to the
     load-path.  Do not separately require or load hsite anymore.
 

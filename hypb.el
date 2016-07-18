@@ -308,6 +308,25 @@ are replaced.  Returns body of modified FUNC-SYM."
        body))
     body))
 
+;; Derived from pop-global-mark of "simple.el" in GNU Emacs.
+(defun hypb:goto-marker (marker)
+  "Make MARKER's buffer and position current."
+  (interactive)
+  (cond ((not (markerp marker))
+	 (error "Invalid marker: %s" marker))
+	((not (marker-buffer marker))
+	 (error "Invalid marker buffer: %s" marker))
+	(t (let* ((buffer (marker-buffer marker))
+		  (position (marker-position marker)))
+	     (set-buffer buffer)
+	     (or (and (>= position (point-min))
+		      (<= position (point-max)))
+		 (if widen-automatically
+		     (widen)
+		   (error "Marker position is outside accessible part of buffer: %s" marker)))
+	     (goto-char position)
+	     (switch-to-buffer buffer)))))
+
 (defun hypb:help-buf-name (&optional suffix)
   "Returns a Hyperbole help buffer name for current buffer.
 With optional SUFFIX string, uses it rather than buffer name."

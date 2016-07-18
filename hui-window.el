@@ -832,20 +832,24 @@ If optional arg ASSIST-FLAG is non-nil, uses Assist Key."
       )))
 
 (defun hmouse-x-coord (args)
-  "Returns x coordinate in chars from window system dependent ARGS."
-  (let ((x (eval (cdr (assoc (hyperb:window-system)
-			     '(("emacs" . (if (eventp args)
-					      (+ (car (posn-col-row
-						       (event-start args)))
-						 (nth 0 (window-edges
-							 (car (cadr args)))))
-					    (car args)))
-			       ("xemacs" .  (if (eventp args)
-						(event-x args)
+  "Returns x coordinate in characters from window system dependent ARGS."
+  (let ((x (if (markerp args)
+	       (save-excursion
+		 (hypb:goto-marker args)
+		 (current-column))
+	     (eval (cdr (assoc (hyperb:window-system)
+			       '(("emacs" . (if (eventp args)
+						(+ (car (posn-col-row
+							 (event-start args)))
+						   (nth 0 (window-edges
+							   (car (cadr args)))))
 					      (car args)))
-			       ("xterm"  .  (car args))
-			       ("next"   .  (nth 1 args))
-			       ))))))
+				 ("xemacs" .  (if (eventp args)
+						  (event-x args)
+						(car args)))
+				 ("xterm"  .  (car args))
+				 ("next"   .  (nth 1 args))
+				 )))))))
     (if (integerp x) x (error "(hmouse-x-coord): invalid X coord: %s" x))))
 
 (defun hmouse-y-coord (args)
