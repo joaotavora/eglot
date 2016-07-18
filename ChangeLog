@@ -2,6 +2,11 @@
 
 2016-07-18  Mats Lidell  <matsl@gnu.org>
 
+* HY-README:
+  man/hyperbole.texi (Installation): Use gnu as elpa archive name.
+
+2016-07-18  Mats Lidell  <matsl@gnu.org>
+
 * .hypb: Added. Lost during initial commit to git.
 
 2016-07-17  Bob Weiner  <rsw@gnu.org>
