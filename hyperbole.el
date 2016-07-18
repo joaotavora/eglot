@@ -86,23 +86,6 @@
 			    t)))
     (error "(Hyperbole): Startup failure: `hyperb:dir' must be manually added to `load-path' to fix.")))
 
-;; If site-specific customization file has not been installed and
-;; customized previously, then install it now.
-(let ((hsite (expand-file-name "hsite.el" hyperb:dir))
-      (hsite-ex (expand-file-name "hsite-ex.el" hyperb:dir)))
-  (if (file-exists-p hsite)
-      (cond ((not (file-readable-p hsite))
-	     (error "(hyperbole): \"hsite.el\" file cannot be read; add read permission to it"))
-	    ((file-newer-than-file-p hsite-ex hsite)
-	     (message "(hyperbole): WARNING \"hsite-ex.el\" is newer than \"hsite.el\"; compare them for new updates")
-	     (beep)
-	     (sit-for 3)))
-    (cond ((not (file-exists-p hsite-ex))
-	   (error "(hyperbole): \"hsite-ex.el\" file required by Hyperbole is missing"))
-	  ((not (file-readable-p hsite-ex))
-	   (error "(hyperbole): \"hsite-ex.el\" file cannot be read; add read permission to it"))
-	  (t (copy-file hsite-ex hsite nil t t t)))))
-
 ;; This must be defined before the defcustom `inhbit-hyperbole-messaging'.
 ;;;###autoload
 (defun hyperbole-toggle-messaging (&optional arg)
@@ -220,8 +203,7 @@ Entry format is: (key-description key-sequence key-binding)."
     ;;
     ;; Binds the Action Key to {M-RET} and the Assist Key to {C-u M-RET}
     ;; and loads the Hyperbole mouse key bindings.
-    (and (require 'hmouse-key)
-	 (not (where-is-internal 'hkey-either))
+    (and (not (where-is-internal 'hkey-either))
 	 (hkey-global-set-key "\M-\C-m" 'hkey-either))
     ;;
     ;; Bind a key, {C-h A}, for Action Key help and {C-u C-h A} for Assist key

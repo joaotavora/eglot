@@ -80,7 +80,7 @@ hib-kbd.el          - Implicit button type for key sequences delimited with {}
 hinit.el            - Standard initializations for GNU Hyperbole
 hload-path.el       - GNU Hyperbole load-path setup
 hlvar.el            - GNU Hyperbole variables in local variable lists
-hsite-ex.el         - Site-specific customizations template for GNU Hyperbole
+hsite.el            - Site-specific customizations template for GNU Hyperbole
 hvar.el             - Variable manipulation routines for GNU Hyperbole
 hyperbole-banner.png- Graphic of GNU Hyperbole for display with About Hyperbole
 smart-clib-sym      - Test whether symbol appears within a set of C libraries

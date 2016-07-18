@@ -53,9 +53,7 @@
 ;; If Hyperbole loads without error, then your system sets the
 ;; timezone properly and you need not do anything.  If you receive a
 ;; timezone error, simply follow the instructions below to set the
-;; timezone manually and then reload Hyperbole.  Be sure you are
-;; editing hsite.el (not hsite-ex.el) if you make changes here;
-;; hsite.el initially is just an exact copy of hsite-ex.el.
+;; timezone manually and then reload Hyperbole.
 (if (and hyperb:microcruft-os-p
 	 (require 'htz)
 	 (not (stringp htz:local)))

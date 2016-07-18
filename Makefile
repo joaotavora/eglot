@@ -130,14 +130,14 @@ BATCHFLAGS = -batch -nw -Q
 # explicitly to those files which need it.
 VPATH = kotl man
 
-EL_SRC = hsite.el hui-em-but.el hui-xe-but.el
+EL_SRC = hui-em-but.el hui-xe-but.el
 
 EL_COMPILE = hact.el hactypes.el hargs.el hbdata.el hbmap.el hbut.el \
 	     hgnus.el hhist.el hib-debbugs.el hib-doc-id.el hib-kbd.el hibtypes.el \
 	     hinit.el hload-path.el hlvar.el hmail.el hmh.el hmoccur.el hmouse-info.el \
-	     hmouse-drv.el hmouse-key.el hmouse-mod.el \
-	     hmouse-sh.el hmouse-tag.el hpath.el hrmail.el hsmail.el hsys-org.el hsys-w3.el \
-	     htz.el hycontrol.el hui-jmenu.el hui-menu.el hui-mini.el hui-mouse.el hui-select.el \
+	     hmouse-drv.el hmouse-key.el hmouse-mod.el hmouse-sh.el hmouse-tag.el \
+	     hpath.el hrmail.el hsite.el hsmail.el hsys-org.el hsys-w3.el htz.el \
+	     hycontrol.el hui-jmenu.el hui-menu.el hui-mini.el hui-mouse.el hui-select.el \
 	     hui-window.el hui.el hvar.el hversion.el hvm.el hypb.el hyperbole.el \
 	     hyrolo-logic.el hyrolo-menu.el hyrolo.el hywconfig.el set.el
 
@@ -149,9 +149,9 @@ EL_KOTL = kotl/kexport.el kotl/kfile.el kotl/kfill.el kotl/kimport.el kotl/klabe
 ELC_COMPILE =  hactypes.elc hibtypes.elc hib-debbugs.elc hib-kbd.elc hib-doc-id.elc hact.elc \
 	     hargs.elc hbdata.elc hbmap.elc hbut.elc hgnus.elc hhist.elc \
 	     hinit.elc hload-path.elc hlvar.elc hmail.elc hmh.elc hmoccur.elc hmouse-info.elc \
-	     hmouse-drv.elc hmouse-key.elc hmouse-mod.elc \
-	     hmouse-sh.elc hmouse-tag.elc hpath.elc hrmail.elc hsmail.elc hsys-org.elc hsys-w3.elc \
-	     htz.elc hycontrol.elc hui-jmenu.elc hui-menu.elc hui-mini.elc hui-mouse.elc hui-select.elc \
+	     hmouse-drv.elc hmouse-key.elc hmouse-mod.elc hmouse-sh.elc hmouse-tag.elc \
+	     hpath.elc hrmail.elc hsite.elc hsmail.elc hsys-org.elc hsys-w3.elc htz.elc \
+	     hycontrol.elc hui-jmenu.elc hui-menu.elc hui-mini.elc hui-mouse.elc hui-select.elc \
 	     hui-window.elc hui.elc hvar.elc hversion.elc hvm.elc hypb.elc hyperbole.elc \
 	     hyrolo-logic.elc hyrolo-menu.elc hyrolo.elc hywconfig.elc set.elc
 
@@ -196,7 +196,7 @@ $(data_dir)/hkey-help.txt: $(man_dir)/hkey-help.txt
 	@ echo $< >> $(ELISP_TO_COMPILE)
 
 # Compile all recorded .el files.
-elc: elc-init hsite.el $(ELC_KOTL) $(ELC_COMPILE)
+elc: elc-init $(ELC_KOTL) $(ELC_COMPILE)
 	@- \test ! -f $(ELISP_TO_COMPILE) \
             || (echo "These files will be compiled: " \
                  && echo "`cat $(ELISP_TO_COMPILE)`" \
@@ -209,13 +209,9 @@ elc-init:
 
 # Remove and then rebuild all byte-compiled .elc files, even those .elc files
 # which do not yet exist.
-all-elc: hsite.el
+all-elc:
 	$(RM) *.elc kotl/*.elc
 	$(EMACS) $(BATCHFLAGS) $(PRELOADS) -f batch-byte-compile $(EL_KOTL) $(EL_COMPILE)
-
-# This creates the site-specific hsite.el file from hsite-ex.el if necessary.
-hsite.el: hsite-ex.el
-	\test -f hsite.el || $(CP) hsite-ex.el hsite.el
 
 tags: TAGS
 TAGS: $(EL_TAGS)
@@ -258,7 +254,7 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 
 packageclean:
 	if [ -d $(pkg_hyperbole) ]; then \
-	  cd $(pkg_hyperbole) && $(RM) -r ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store hsite.el* \
+	  cd $(pkg_hyperbole) && $(RM) -r ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
 	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id; fi
 	if [ -d $(pkg_hyperbole)/kotl ]; then \
 	  cd $(pkg_hyperbole)/kotl && $(RM) -r *autoloads.* *.elc TAGS TODO* .DS_Store \
