@@ -826,7 +826,7 @@ GNUS is a news and mail reader."
 
 (defib Info-node ()
   "Makes \"(filename)nodename\" buttons display the associated Info node.
-Also makes \"filename)itemname\" buttons display the associated Info index item."
+Also makes \"(filename)itemname\" buttons display the associated Info index item."
   (let* ((node-ref-and-pos (or (hbut:label-p t "\"" "\"" t)
 			       ;; Typical GNU Info references; note
 			       ;; these are special quote marks, not the

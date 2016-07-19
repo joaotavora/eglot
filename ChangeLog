@@ -4,6 +4,12 @@
 
 * .gitignore: Added git ignore file.
 
+2016-07-19  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi: Fixed typos and improved explanations in parts.
+
+* Makefile (GPG): Added to digitally sign Hyperbole distributions.
+
 2016-07-18  Mats Lidell  <matsl@gnu.org>
 
 * .hypb: Added. Lost during initial commit to git.

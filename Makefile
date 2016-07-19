@@ -105,6 +105,7 @@ MKDIR = \mkdir -p
 MAKE = \make
 RM = \rm -f
 TAR = \tar
+GPG = \gpg
 ZIP = \zip -qry
 
 # Directory in which to create new package distributions of Hyperbole.
@@ -249,8 +250,9 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	cd $(pkg_dir) && $(RM) h.tar; \
 	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION)
 	$(INSTALL) HY-NEWS HY-README HY-WHY.kotl $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
+	$(GPG) -ba -o hyperbole-$(HYPB_VERSION).tar.sig hyperbole-$(HYPB_VERSION).tar
 	@ echo; echo "Hyperbole package built successfully:"
-	@ ls -l $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar
+	@ ls -l $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar*
 
 packageclean:
 	if [ -d $(pkg_hyperbole) ]; then \

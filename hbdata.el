@@ -35,7 +35,7 @@
 ;;
 ;;  which means:  button \<(alt.mouse.el)> found in file "TO-DO" in the current
 ;;  directory provides a link to the local file "./ell/alt-mouse.el".  It was
-;;  created and last modified by zzz@cs.brown.edu.
+;;  created and last modified by zzz@gnu.org.
 ;;
 ;;  All link entries that originate from the same source file are stored
 ;;  contiguously, one per line, in reverse order of creation.
