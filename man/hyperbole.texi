@@ -5516,7 +5516,7 @@ typically @file{~/.emacs} or @file{~/.emacs.d/.emacs},
       package-enable-at-startup nil) ;; Prevent double loading of libraries
 ;; GNU Emacs now includes the Elpa package-archive setting but we include
 ;; it here as a reference of how to do this.  add-to-list will do nothing
-;; it it is already in the list.
+;; if it is already in the list.
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
