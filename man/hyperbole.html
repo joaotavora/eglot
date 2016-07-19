@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 06.00, Published July 17, 2016).
+(Edition 06.01, Published July 19, 2016).
 
 Copyright (C) 1989-2016  Free Software Foundation, Inc.
 
@@ -119,11 +119,11 @@ ul.no-bullet {list-style: none}
 <li><a name="toc-GNU-Hyperbole" href="#Top">GNU Hyperbole</a></li>
 <li><a name="toc-Introduction-1" href="#Introduction">1 Introduction</a>
 <ul class="no-bullet">
-  <li><a name="toc-Motivation-1" href="#Motivation">1.1 Motivation</a></li>
-  <li><a name="toc-Hyperbole-Overview-1" href="#Hyperbole-Overview">1.2 Hyperbole Overview</a></li>
-  <li><a name="toc-Hyperbole-Buttons-1" href="#Hyperbole-Buttons">1.3 Hyperbole Buttons</a></li>
-  <li><a name="toc-Mail-Lists-1" href="#Mail-Lists">1.4 Mail Lists</a></li>
-  <li><a name="toc-Manual-Overview-1" href="#Manual-Overview">1.5 Manual Overview</a></li>
+  <li><a name="toc-Manual-Overview-1" href="#Manual-Overview">1.1 Manual Overview</a></li>
+  <li><a name="toc-Motivation-1" href="#Motivation">1.2 Motivation</a></li>
+  <li><a name="toc-Hyperbole-Overview-1" href="#Hyperbole-Overview">1.3 Hyperbole Overview</a></li>
+  <li><a name="toc-Hyperbole-Buttons-1" href="#Hyperbole-Buttons">1.4 Hyperbole Buttons</a></li>
+  <li><a name="toc-Mail-Lists-1" href="#Mail-Lists">1.5 Mail Lists</a></li>
 </ul></li>
 <li><a name="toc-Smart-Keys-1" href="#Smart-Keys">2 Smart Keys</a>
 <ul class="no-bullet">
@@ -319,8 +319,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.00
-Printed July 17, 2016.
+Edition 6.01
+Printed July 19, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -420,15 +420,15 @@ years.  The Koutliner is dedicated to my lovely wife, Kathy.
 
 Introduction
 
-</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Motivation">Motivation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Manual-Overview">Manual Overview</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Motivation">Motivation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Hyperbole-Overview">Hyperbole Overview</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Hyperbole-Buttons">Hyperbole Buttons</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Mail-Lists">Mail Lists</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
-</td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Manual-Overview">Manual Overview</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
 
@@ -732,37 +732,106 @@ Next: <a href="#Smart-Keys" accesskey="n" rel="next">Smart Keys</a>, Previous: <
 <h2 class="chapter">1 Introduction</h2>
 
 <p>This edition of the GNU Hyperbole Manual is for use with any version
-6.00 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.01 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 </p>
-<p>This chapter describes Hyperbole, lists some of its potential
-applications, explains how to subscribe to its mail lists, and then
-summarizes the structure of the rest of the manual.
+<p>This chapter summarizes the structure of the rest of the manual,
+describes Hyperbole, lists some of its potential applications, and
+explains how to subscribe to its mail lists.
 </p>
 <p>Throughout this manual, sequences of keystrokes are delimited by curly
 braces { }, function and variable names use this <code>typeface</code>.
 </p>
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="#Motivation" accesskey="1">Motivation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Manual-Overview" accesskey="1">Manual Overview</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Hyperbole-Overview" accesskey="2">Hyperbole Overview</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Motivation" accesskey="2">Motivation</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Hyperbole-Buttons" accesskey="3">Hyperbole Buttons</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Hyperbole-Overview" accesskey="3">Hyperbole Overview</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Mail-Lists" accesskey="4">Mail Lists</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Hyperbole-Buttons" accesskey="4">Hyperbole Buttons</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Manual-Overview" accesskey="5">Manual Overview</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Mail-Lists" accesskey="5">Mail Lists</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 </table>
 
 <hr>
+<a name="Manual-Overview"></a>
+<div class="header">
+<p>
+Next: <a href="#Motivation" accesskey="n" rel="next">Motivation</a>, Previous: <a href="#Introduction" accesskey="p" rel="prev">Introduction</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Manual-Overview-1"></a>
+<h3 class="section">1.1 Manual Overview</h3>
+
+<p>Remember that the <samp>DEMO</samp> file included in the Hyperbole
+distribution demonstrates many of Hyperbole&rsquo;s standard facilities
+without the need to read through this reference manual.
+</p>
+<p>See <a href="#Glossary">Glossary</a>, for definitions of Hyperbole terms.  In some cases,
+terms are not precisely defined within the body of this manual since
+they are defined within the glossary.  Be sure to reference the
+glossary if a term is unclear to you.  Although you need not have a keen
+understanding of all of these terms, a quick scan of the glossary should
+help throughout Hyperbole use.
+</p>
+<p>See <a href="#Setup">Setup</a>, for explanations of how to obtain, install, configure
+and load Hyperbole for use.  This appendix includes information on
+user-level settings that you may want to modify after you understand
+Hyperbole&rsquo;s basic operation.
+</p>
+<p>See <a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a>, for instructions on how to ask a
+question, suggest a feature or report a bug in Hyperbole.  A few
+commonly asked questions are answered in this manual.  See <a href="#Questions-and-Answers">Questions and Answers</a>.  See <a href="#References">References</a>, if you are interested in classic
+articles on hypertext.
+</p>
+<p>See <a href="#Smart-Keys">Smart Keys</a>, for an explanation of the innovative, context-sensitive
+mouse and keyboard Action and Assist Keys offered by Hyperbole.
+See <a href="#Smart-Key-Reference">Smart Key Reference</a>, for a complete reference on what the Action
+and Assist Keys do in each particular context that they recognize.
+See <a href="#Smart-Key-Argument-Selection">Smart Key Argument Selection</a>, for special support that Hyperbole
+provides for entering arguments when prompted for them.
+</p>
+<p>Keep in mind as you read about using Hyperbole that in many cases, it
+provides a number of overlapping interaction methods that support
+differing work styles and hardware limitations.  In such instances,
+you need learn only one technique that suits you.
+</p>
+<p>See <a href="#Buttons">Buttons</a>, for an overview of Hyperbole buttons and how to use them.
+</p>
+<p>See <a href="#Menus">Menus</a>, for summaries of Hyperbole menu commands and how to use
+the minibuffer-based menus that work on dumb terminals, PCs or workstations.
+</p>
+<p>See <a href="#HyControl">HyControl</a>, for how to quickly and interactively control your Emacs
+windows and frames and what they display.
+</p>
+<p>See <a href="#Koutliner">Koutliner</a>, for concept and usage information on the
+autonumbered, hypertextual outliner.  See <a href="#Koutliner-Keys">Koutliner Keys</a>, for a full
+summary of the outliner commands that are bound to keys.
+</p>
+<p>See <a href="#HyRolo">HyRolo</a>, for concept and usage information on the
+rapid lookup, hierarchical, free text record management system included
+with Hyperbole.
+</p>
+<p>See <a href="#Window-Configurations">Window Configurations</a>, for instructions on how to save and restore
+the set of buffers and windows that appear within a frame.  This feature
+lets you switch among working contexts easily, even on a dumb terminal.
+Such configurations last only throughout a single session of editor
+usage.
+</p>
+<p>See <a href="#Developing-with-Hyperbole">Developing with Hyperbole</a>, if you are a developer who is
+comfortable with Lisp.
+</p>
+<p>See <a href="#Future-Work">Future Work</a>, for future directions in Hyperbole&rsquo;s evolution.
+</p>
+<hr>
 <a name="Motivation"></a>
 <div class="header">
 <p>
-Next: <a href="#Hyperbole-Overview" accesskey="n" rel="next">Hyperbole Overview</a>, Previous: <a href="#Introduction" accesskey="p" rel="prev">Introduction</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Hyperbole-Overview" accesskey="n" rel="next">Hyperbole Overview</a>, Previous: <a href="#Manual-Overview" accesskey="p" rel="prev">Manual Overview</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Motivation-1"></a>
-<h3 class="section">1.1 Motivation</h3>
+<h3 class="section">1.2 Motivation</h3>
 
 <p>Database vendors apply tremendous resources to help solve corporate
 information management problems.  But the information that people deal
@@ -802,7 +871,7 @@ Hyperbole and start moving further, faster.
 Next: <a href="#Hyperbole-Buttons" accesskey="n" rel="next">Hyperbole Buttons</a>, Previous: <a href="#Motivation" accesskey="p" rel="prev">Motivation</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Hyperbole-Overview-1"></a>
-<h3 class="section">1.2 Hyperbole Overview</h3>
+<h3 class="section">1.3 Hyperbole Overview</h3>
 
 <a name="index-GNU-Hyperbole"></a>
 <a name="index-Hyperbole"></a>
@@ -906,7 +975,7 @@ if some emacs-related terms are unfamiliar to you.
 Next: <a href="#Mail-Lists" accesskey="n" rel="next">Mail Lists</a>, Previous: <a href="#Hyperbole-Overview" accesskey="p" rel="prev">Hyperbole Overview</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Hyperbole-Buttons-1"></a>
-<h3 class="section">1.3 Hyperbole Buttons</h3>
+<h3 class="section">1.4 Hyperbole Buttons</h3>
 
 <a name="index-button"></a>
 <p>A Hyperbole user works with chunks of information that need to
@@ -987,7 +1056,7 @@ information sources.  See <a href="#Koutliner">Koutliner</a>.
 starting or communicating with external programs;
 
 </li><li> A simple mouse drag from a button source location to its link
-destination is often all that is needed to create a new ling.
+destination is often all that is needed to create a new link.
 The keyboard can also be used to emulate such drags;
 
 </li><li> Buttons may be embedded within electronic mail messages;
@@ -1043,10 +1112,10 @@ archive entries.
 <a name="Mail-Lists"></a>
 <div class="header">
 <p>
-Next: <a href="#Manual-Overview" accesskey="n" rel="next">Manual Overview</a>, Previous: <a href="#Hyperbole-Buttons" accesskey="p" rel="prev">Hyperbole Buttons</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Previous: <a href="#Hyperbole-Buttons" accesskey="p" rel="prev">Hyperbole Buttons</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Mail-Lists-1"></a>
-<h3 class="section">1.4 Mail Lists</h3>
+<h3 class="section">1.5 Mail Lists</h3>
 
 <p>If you use Hyperbole, you may join the mailing list
 &lt;hyperbole-users@gnu.org&gt; to discuss Hyperbole with users and maintainers.
@@ -1086,75 +1155,6 @@ with Hyperbole.  In this way, the list is not overrun by messages that
 ask for, but provide no information.
 </li></ul>
 
-<hr>
-<a name="Manual-Overview"></a>
-<div class="header">
-<p>
-Previous: <a href="#Mail-Lists" accesskey="p" rel="prev">Mail Lists</a>, Up: <a href="#Introduction" accesskey="u" rel="up">Introduction</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
-</div>
-<a name="Manual-Overview-1"></a>
-<h3 class="section">1.5 Manual Overview</h3>
-
-<p>Remember that the <samp>DEMO</samp> file included in the Hyperbole
-distribution demonstrates many of Hyperbole&rsquo;s standard facilities.
-See <a href="#Introduction">Introduction</a>, for more details.
-</p>
-<p>See <a href="#Glossary">Glossary</a>, for definitions of Hyperbole terms.  In some cases,
-terms are not precisely defined within the body of this manual since
-they are defined within the glossary.  Be sure to reference the
-glossary if a term is unclear to you.  Although you need not have a keen
-understanding of all of these terms, a quick scan of the glossary should
-help throughout Hyperbole use.
-</p>
-<p>See <a href="#Setup">Setup</a>, for explanations of how to obtain, install, configure
-and load Hyperbole for use.  This appendix includes information on
-user-level settings that you may want to modify after you understand
-Hyperbole&rsquo;s basic operation.
-</p>
-<p>See <a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a>, for instructions on how to ask a
-question, suggest a feature or report a bug in Hyperbole.  A few
-commonly asked questions are answered in this manual.  See <a href="#Questions-and-Answers">Questions and Answers</a>.  See <a href="#References">References</a>, if you are interested in classic
-articles on hypertext.
-</p>
-<p>See <a href="#Smart-Keys">Smart Keys</a>, for an explanation of the innovative, context-sensitive
-mouse and keyboard Action and Assist Keys offered by Hyperbole.
-See <a href="#Smart-Key-Reference">Smart Key Reference</a>, for a complete reference on what the Action
-and Assist Keys do in each particular context that they recognize.
-See <a href="#Smart-Key-Argument-Selection">Smart Key Argument Selection</a>, for special support that Hyperbole
-provides for entering arguments when prompted for them.
-</p>
-<p>Keep in mind as you read about using Hyperbole that in many cases, it
-provides a number of overlapping interaction methods that support
-differing work styles and hardware limitations.  In such instances,
-you need learn only one technique that suits you.
-</p>
-<p>See <a href="#Buttons">Buttons</a>, for an overview of Hyperbole buttons and how to use them.
-</p>
-<p>See <a href="#Menus">Menus</a>, for summaries of Hyperbole menu commands and how to use
-the minibuffer-based menus that work on dumb terminals, PCs or workstations.
-</p>
-<p>See <a href="#HyControl">HyControl</a>, for how to quickly and interactively control your Emacs
-windows and frames and what they display.
-</p>
-<p>See <a href="#Koutliner">Koutliner</a>, for concept and usage information on the
-autonumbered, hypertextual outliner.  See <a href="#Koutliner-Keys">Koutliner Keys</a>, for a full
-summary of the outliner commands that are bound to keys.
-</p>
-<p>See <a href="#HyRolo">HyRolo</a>, for concept and usage information on the
-rapid lookup, hierarchical, free text record management system included
-with Hyperbole.
-</p>
-<p>See <a href="#Window-Configurations">Window Configurations</a>, for instructions on how to save and restore
-the set of buffers and windows that appear within a frame.  This feature
-lets you switch among working contexts easily, even on a dumb terminal.
-Such configurations last only throughout a single session of editor
-usage.
-</p>
-<p>See <a href="#Developing-with-Hyperbole">Developing with Hyperbole</a>, if you are a developer who is
-comfortable with Lisp.
-</p>
-<p>See <a href="#Future-Work">Future Work</a>, for future directions in Hyperbole&rsquo;s evolution.
-</p>
 
 <hr>
 <a name="Smart-Keys"></a>
@@ -1212,7 +1212,6 @@ M-<span class="key">RET</span>}</kbd> is the Assist Key.  These keys allow conte
 operation from any keyboard.
 </p>
 
-
 <a name="index-shift_002dmiddle-mouse-key"></a>
 <a name="index-shift_002dleft-mouse-key"></a>
 <a name="index-shift_002dright-mouse-key"></a>
@@ -1254,8 +1253,8 @@ has been built with support for any of these window systems.
 Hyperbole was loaded, use the <code>hmouse-toggle-bindings</code> command.
 It switches between the Hyperbole mouse key bindings and those set
 prior to loading Hyperbole and then back again if invoked once more.
-There is no default key binding for this command; use <code>M-x
-hmouse-toggle-bindings <span class="key">RET</span></code>.  Alternatively, you may select a
+There is no default key binding for this command; use <kbd>{M-x
+hmouse-toggle-bindings <span class="key">RET</span>}</kbd>.  Alternatively, you may select a
 key and bind it as part of any setting of <code>hyperbole-init-hook</code>
 within your personal <samp>~/.emacs</samp> file.  For example, <code>(add-hook
 'hyperbole-init-hook (lambda () (global-set-key &quot;\C-ct&quot;
@@ -1436,10 +1435,10 @@ invoking help.
 <a name="index-C_002dh-A"></a>
 <a name="index-C_002du-C_002dh-A"></a>
 <p>On the keyboard, <kbd>{C-h A}</kbd> displays this same context-sensitive
-help for the Action Key while <kbd>{C-u C-h A}</kbd> displays the help
-for the Assist Key.  Note that <kbd>{C-h a}</kbd> performs a function
-unrelated to Hyperbole, so you must press the shift key when you type
-the <kbd>{A}</kbd> character.
+help for the Action Key while <kbd>{C-u C-h A}</kbd> displays the help for
+the Assist Key.  Note that <kbd>{C-h a}</kbd> performs a function unrelated
+to Hyperbole, so you must press the shift key when you type
+the <tt class="key">A</tt> character.
 </p>
 <hr>
 <a name="Smart-Key-Modeline"></a>
@@ -1571,20 +1570,21 @@ how they can speed your editing.
 <a name="index-C_002dc-RET"></a>
 <a name="index-hui_002dselect_002dthing"></a>
 <a name="index-hui_002dselect_002dthing_002dwith_002dmouse"></a>
-<p>The first such key is <kbd>{C-c <span class="key">RET</span>}</kbd> <code>hui-select-thing</code> which
-selects bigger and bigger syntactic regions with each successive use.
-Double or triple clicks of the Selection Key (left mouse key) do the
-same thing.  The first press selects a region based upon the character
-at point.  For example, with point over an opening or closing grouping
-character, such as { or }, the whole grouping is selected, e.g. a C
-function.  When on an _ or - within a programming language variable
-name, the whole name is selected.  The type of selection is displayed
-in the minibuffer as feedback.  When using a language based mainly on
-indenting, like Bourne shell, a double click on the first alpha
-character of a line, such as an if statement, selects the whole
-statement.  Use <kbd>{C-g}</kbd> to unmark the region when done.  Use,
-<code>hui-select-thing-with-mouse</code> if you want to bind this to a
-different mouse key to use single clicks instead of double clicks.
+<p>The first such key is <kbd>{C-c <span class="key">RET</span>}</kbd> <code>hui-select-thing</code>
+which selects bigger and bigger syntactic regions with each successive
+use.  Double or triple clicks of the Selection Key (left mouse key) do
+the same thing.  The first press selects a region based upon the
+character at point.  For example, with point over an opening or
+closing grouping character, such as { or }, the whole grouping is
+selected, e.g. a C function.  When on an _ or - within a programming
+language identifier name, the whole name is selected.  The type of
+selection is displayed in the minibuffer as feedback.  When using a
+language in which indentation determines nesting level like Python, a
+double click on the first alpha character of a line, such as an if
+statement, selects the whole statement.  Use <kbd>{C-g}</kbd> to unmark the
+region when done.  Use, <code>hui-select-thing-with-mouse</code> if you want
+to bind this to a different mouse key to use single clicks instead of
+double clicks.
 </p>
 <a name="index-C_002dc-_002e"></a>
 <a name="index-hui_002dselect_002dgoto_002dmatching_002dtag"></a>
@@ -1706,7 +1706,7 @@ should or if you want to test how the Smart Keys respond in a new
 context, then the Smart Key debugging flag may be of use.  You toggle
 it on and off with <kbd>{C-h h c d}</kbd> (minibuffer menu
 Cust/Debug-Toggle).  Once enabled, this displays a message in the
-minibuffer each time the he Action or Assist Key is released, showing
+minibuffer each time the Action or Assist Key is released, showing
 the context of the press and its associated action, so you can see
 exactly what is happening whenever you use a Smart Key.  These
 messages are all prefaced with &ldquo;(HyDebug)&rdquo; and logged to the
@@ -1796,12 +1796,13 @@ should be added to your personal button file.  See <a href="#Button-Files">Butto
 <a name="index-button-attribute"></a>
 <a name="index-file_002c-_002ehypb"></a>
 <p>Hyperbole stores the <em>button data</em> that gives an explicit button its
-behavior, separately from the button label, in a file named <samp>.hypb</samp>
-within the same directory as the file in which the button is created.
-Thus, all files in the same directory share a common button data file.
-Button data is comprised of individual <em>button attribute</em> values.  A
-user never sees this data in its raw form but may see a formatted
-version by asking for help on a button.  See <a href="#Smart-Keys">Smart Keys</a>.
+behavior, separately from the button label, in a file named
+<samp>.hypb</samp> (<samp>_hypb</samp> under MS Windows) within the same directory
+as the file in which the button is created.  Thus, all files in the
+same directory share a common button data file.  Button data is
+comprised of individual <em>button attribute</em> values.  A user never
+sees this data in its raw form but may see a formatted version by
+asking for help on a button.  See <a href="#Smart-Keys">Smart Keys</a>.
 </p>
 <a name="index-button_002c-moving"></a>
 <a name="index-moving-buttons"></a>
@@ -1907,7 +1908,8 @@ also the documentation for <code>actypes::hyp-config</code>.
 <dd><a name="index-ibtypes-Info_002dnode"></a>
 <a name="index-Info-node"></a>
 <p>Makes &quot;(filename)nodename&quot; buttons display the associated Info node.
-Also makes \&quot;filename)itemname&quot; buttons display the associated Info index item.&quot;
+Also makes &quot;(filename)itemname&quot; buttons display the associated Info
+index item.
 </p>
 </dd>
 <dt><code>www-url</code></dt>
@@ -2035,8 +2037,8 @@ RFCs.&quot;
 <a name="index-key-sequence"></a>
 <p>Executes the command binding or the Hyperbole minibuffer menu action
 for a key sequence delimited by curly braces.  Key sequences should
-be in human readable form, e.g. <kbd>{C-x C-b}</kbd>.  Forms such
-as {}, {}, and {^b} will not be recognized.
+be in human readable form, e.g. <kbd>{C-x C-b}</kbd>.  Formats such
+as {^x^b} will not be recognized.
 </p>
 </dd>
 <dt><code>dir-summary</code></dt>
@@ -6708,7 +6710,7 @@ typically <samp>~/.emacs</samp> or <samp>~/.emacs.d/.emacs</samp>,
       package-enable-at-startup nil) ;; Prevent double loading of libraries
 ;; If this is a test release, uncomment the following line and comment the line after it.
 ;; (add-to-list 'package-archives '(&quot;RSW-Packages&quot; . &quot;http://www.plasmas.biz/rswe/&quot;) t)
-(add-to-list 'package-archives '(&quot;Elpa&quot; . &quot;http://elpa.gnu.org/packages/&quot;)
+(add-to-list 'package-archives '(&quot;gnu&quot; . &quot;http://elpa.gnu.org/packages/&quot;))
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
   (package-refresh-contents)	
@@ -6907,21 +6909,19 @@ Next: <a href="#External-Viewers" accesskey="n" rel="next">External Viewers</a>,
 <a name="Internal-Viewers-1"></a>
 <h4 class="subsection">B.3.2 Internal Viewers</h4>
 <a name="index-hpath_003ainternal_002ddisplay_002dalist"></a>
-<a name="index-file_002c-hsite_002eel"></a>
 <a name="index-file-display-function"></a>
 <a name="index-display-function"></a>
 <a name="index-internal-viewer"></a>
 <a name="index-link_002c-display-function"></a>
 <p>When given a file name, Hyperbole will by default display the file for
-editing within an Emacs buffer.  The <code>hpath:internal-display-alist</code> variable
-can be used to specify file name patterns, such as matching suffixes,
-which will invoke a special Emacs Lisp function to display any matching
-files within Emacs.  This can be used to format raw data files for
-convenient display.
+editing within an Emacs buffer.  The <code>hpath:internal-display-alist</code>
+variable can be used to specify file name patterns, such as matching
+suffixes, which will invoke a special Emacs Lisp function to display
+any matching files within Emacs.  This can be used to format raw data
+files for convenient display.
 </p>
-<p>Use the <samp>hsite.el</samp> file to add a setting
-for <code>hpath:internal-display-alist</code> defined in <samp>hpath.el</samp>, if
-you want to modify this.  Its value is an association list whose
+<p>For those who want to change this variable, <code>hpath:internal-display-alist</code>
+is defined in <samp>hpath.el</samp>.  Its value is an association list whose
 elements are (&lt;file-name-regular-expression&gt; . &lt;function-of-one-arg&gt;)
 pairs.  Any path whose name matches a &lt;file-name-regular-expression&gt;
 will be displayed by calling the associated &lt;function-of-one-arg&gt; with
@@ -6956,7 +6956,6 @@ Next: <a href="#Invisible-Text-Searches" accesskey="n" rel="next">Invisible Text
 <a name="index-hpath_003aexternal_002ddisplay_002dalist_002dmacos"></a>
 <a name="index-hpath_003aexternal_002ddisplay_002dalist_002dmswindows"></a>
 <a name="index-hpath_003aexternal_002ddisplay_002dalist_002dx"></a>
-<a name="index-file_002c-hsite_002eel-1"></a>
 <a name="index-window-system"></a>
 <a name="index-external-program"></a>
 <a name="index-external-viewer"></a>
@@ -7060,6 +7059,7 @@ Previous: <a href="#Link-Variable-Substitution" accesskey="p" rel="prev">Link Va
 <a name="index-button-highlighting-1"></a>
 <a name="index-button-flashing"></a>
 <a name="index-file_002c-hui_002dep_002a_002eel"></a>
+<a name="index-file_002c-hsite_002eel"></a>
 <a name="index-hproperty_003acycle_002dbut_002dcolor"></a>
 <p>When Hyperbole is run under a window system together with InfoDock,
 Emacs, or XEmacs, it automatically highlights any explicit buttons in
@@ -7072,17 +7072,16 @@ changes the color used to highlight and flash explicit buttons.
 </p>
 <a name="index-button-emphasis"></a>
 <a name="index-hproperty_003abut_002demphasize_002dp"></a>
-<a name="index-file_002c-hsite_002eel-2"></a>
-<p>Additionally, if <code>hproperty:but-emphasize-p</code> is set to &lsquo;<samp>t</samp>&rsquo; in
-<samp>hsite.el</samp>, then whenever the mouse pointer moves over an explicit
-button, it will be emphasized in a different color or style.  This
-emphasis is in addition to any non-mouse-sensitive button highlighting.
+<p>Additionally, if <code>hproperty:but-emphasize-p</code> is set to &lsquo;<samp>t</samp>&rsquo;,
+then whenever the mouse pointer moves over an explicit button, it will
+be emphasized in a different color or style.  This emphasis is in
+addition to any non-mouse-sensitive button highlighting.
 </p>
 <a name="index-button-highlighting_002c-forcing"></a>
 <a name="index-hproperty_003abut_002dcreate"></a>
 <p>If you read in a file with explicit buttons before you load Hyperbole,
 these buttons won&rsquo;t be highlighted.  Load Hyperbole and then use
-<code>M-x hproperty:but-create <span class="key">RET</span></code> to highlight the buttons in
+<kbd>{M-x hproperty:but-create <span class="key">RET</span>}</kbd> to highlight the buttons in
 the current buffer.
 </p>
 
@@ -7209,8 +7208,8 @@ that you want to use and bind those to keys.
 and mouse bindings, use the <code>hkey-toggle-bindings</code> command.  It
 switches between the Hyperbole key bindings and those set prior to
 loading Hyperbole and then back again if invoked once more.  There is
-no default key binding for this command; use <code>M-x
-hkey-toggle-bindings <span class="key">RET</span></code>.  Alternatively, you may select a key
+no default key binding for this command; use <kbd>{M-x
+hkey-toggle-bindings <span class="key">RET</span>}</kbd>.  Alternatively, you may select a key
 and bind it as part of any setting of <code>hyperbole-init-hook</code>
 within your personal <samp>~/.emacs</samp> file.  For example, <code>(add-hook
 'hyperbole-init-hook (lambda () (global-set-key &quot;\C-ch&quot;
@@ -7225,9 +7224,9 @@ Hyperbole keys, preventing you from using them in that mode.  By
 default, Hyperbole automatically prevents this by checking each time a
 major mode is invoked and unbinding any mode-specific keys that
 interfere with global Hyperbole keys.  If you prefer that this not
-happen permanently, add the following to your personal <samp>~/.emacs</samp>
-file and restart Emacs: <code>(add-hook 'hyperbole-init-hook
-(lambda () (setq hkey-init-override-local-keys nil)))</code>.
+happen permanently, use <kbd>{M-x customize-variable <span class="key">RET</span>
+hkey-init-override-local-keys <span class="key">RET</span>}</kbd>.  Press the Toggle button to
+change the value to <code>nil</code>.  Then select &ldquo;Apply and Save&rdquo;.
 </p>
 
 <hr>
@@ -10291,9 +10290,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-file_002c-hmail_002eel">file, hmail.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hmouse_002dkey_002eel">file, hmouse-key.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hmouse_002dsh_002eel">file, hmouse-sh.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-file_002c-hsite_002eel">file, hsite.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Internal-Viewers">Internal Viewers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-file_002c-hsite_002eel-1">file, hsite.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#External-Viewers">External Viewers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-file_002c-hsite_002eel-2">file, hsite.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-file_002c-hsite_002eel">file, hsite.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hsys_002d_002a">file, hsys-*</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Encapsulating-Systems">Encapsulating Systems</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hui_002dep_002a_002eel">file, hui-ep*.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hui_002dwindow_002eel">file, hui-window.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>

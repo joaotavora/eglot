@@ -50,7 +50,7 @@
 
 # This ver setup won't work under any make except GNU make, so set it manually.
 #HYPB_VERSION = "`head -3 hversion.el | tail -1 | sed -e 's/.*|\(.*\)|.*/\1/'`"
-HYPB_VERSION = 6.0
+HYPB_VERSION = 6.01
 
 # Emacs executable used to byte-compile .el files into .elc's.
 # Possibilities include: emacs, infodock, xemacs, etc.
@@ -241,7 +241,11 @@ $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(ma
 	cd $(man_dir) && $(TEXI2PDF) hyperbole.texi
 
 pkg: doc package
-package: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar
+package: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
+
+$(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar
+	cd $(pkg_dir) && $(GPG) -ba -o hyperbole-$(HYPB_VERSION).tar.sig hyperbole-$(HYPB_VERSION).tar
+
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	make version
 	$(RM) -r $(pkg_hyperbole)
@@ -250,13 +254,13 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	cd $(pkg_dir) && $(RM) h.tar; \
 	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION)
 	$(INSTALL) HY-NEWS HY-README HY-WHY.kotl $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
-	$(GPG) -ba -o hyperbole-$(HYPB_VERSION).tar.sig hyperbole-$(HYPB_VERSION).tar
 	@ echo; echo "Hyperbole package built successfully:"
 	@ ls -l $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar*
 
+pkgclean: packageclean
 packageclean:
 	if [ -d $(pkg_hyperbole) ]; then \
-	  cd $(pkg_hyperbole) && $(RM) -r ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
+	  cd $(pkg_hyperbole) && $(RM) -r .git ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
 	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id; fi
 	if [ -d $(pkg_hyperbole)/kotl ]; then \
 	  cd $(pkg_hyperbole)/kotl && $(RM) -r *autoloads.* *.elc TAGS TODO* .DS_Store \
