@@ -20,7 +20,7 @@
 #   may ignore it.
 #
 #   GNU Hyperbole is now installed for use via the Emacs package system; see
-#   the "HY-README" file for installation instructions and the Info node,
+#   the "INSTALL" file for installation instructions and the Info node,
 #   "(emacs)Packages", if you are unfamiliar with the Emacs package system.
 #
 #   **********
@@ -29,12 +29,12 @@
 #   Make any needed changes now and save the file.  Then select from the
 #   USAGE lines immediately following.
 #
-#   USAGE:      The following command line will configure Hyperbole for use,
-#               rebuild out-of-date Emacs Lisp .elc files and install it: 
-#                  make install
+#   USAGE:	For those installing GNU Hyperbole, use:
+#   	             make help
 #
-#               If you really want to rebuild all .elc files:
-#                  make all-elc
+#               For OO-Browser maintainers:
+#                 To assemble the Hyperbole Emacs package for release:
+#		     make pkg
 #
 #               The Hyperbole Manual is included in the package in four forms:
 #
@@ -50,7 +50,7 @@
 
 # This ver setup won't work under any make except GNU make, so set it manually.
 #HYPB_VERSION = "`head -3 hversion.el | tail -1 | sed -e 's/.*|\(.*\)|.*/\1/'`"
-HYPB_VERSION = 6.01
+HYPB_VERSION = 6.0.1
 
 # Emacs executable used to byte-compile .el files into .elc's.
 # Possibilities include: emacs, infodock, xemacs, etc.
@@ -172,8 +172,15 @@ EL_TAGS = $(EL_SRC) $(EL_COMPILE) $(EL_KOTL)
 .SUFFIXES:            # Delete the default suffixes
 .SUFFIXES: .el .elc   # Define the list of file suffixes to match to rules
 
-# Build Hyperbole for use in current directory.
-all: elc
+help: 
+	@ echo "Use the Emacs Package Manager to build and install GNU Hyperbole."
+	@ echo "See \"$(shell pwd)/INSTALL\" for installation instructions."
+	@ echo "For help with Emacs packages, see the GNU Emacs Info Manual section, \"(emacs)Packages\"."
+	@ echo ""
+	@ echo "For Hyperbole maintainers, the Hyperbole distribution package is built with:"
+	@ echo "     make pkg"
+
+all: help
 
 install: elc install-info install-html $(data_dir)/hkey-help.txt
 
@@ -245,6 +252,8 @@ package: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar
 	cd $(pkg_dir) && $(GPG) -ba -o hyperbole-$(HYPB_VERSION).tar.sig hyperbole-$(HYPB_VERSION).tar
+	@ echo; echo "Hyperbole package built successfully:"
+	@ ls -l $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar*
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	make version
@@ -254,13 +263,11 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	cd $(pkg_dir) && $(RM) h.tar; \
 	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION)
 	$(INSTALL) HY-NEWS HY-README HY-WHY.kotl $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
-	@ echo; echo "Hyperbole package built successfully:"
-	@ ls -l $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar*
 
 pkgclean: packageclean
 packageclean:
 	if [ -d $(pkg_hyperbole) ]; then \
-	  cd $(pkg_hyperbole) && $(RM) -r .git ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
+	  cd $(pkg_hyperbole) && $(RM) -r .git* ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
 	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id; fi
 	if [ -d $(pkg_hyperbole)/kotl ]; then \
 	  cd $(pkg_hyperbole)/kotl && $(RM) -r *autoloads.* *.elc TAGS TODO* .DS_Store \

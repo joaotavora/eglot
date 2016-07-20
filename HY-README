@@ -60,20 +60,17 @@ Otherwise, to download and install the Hyperbole package, add the following
 lines to your personal Emacs initialization file, typically "~/.emacs".
 
 (require 'package)
-(setq package-check-signature nil
-      package-enable-at-startup nil) ;; Prevent double loading of libraries
-;; GNU Emacs now includes the Elpa package-archive setting but we include
-;; it here as a reference of how to do this.  add-to-list will do nothing
-;; if it is already in the list.
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(setq package-enable-at-startup nil) ;; Prevent double loading of libraries
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
   (package-refresh-contents)	
   (package-install 'hyperbole))
 (require 'hyperbole)
 
-Then restart Emacs and if no errors occur, the latest version of Hyperbole
-will be downloaded, installed and available for use.
+Now restart Emacs and Hyperbole will be downloaded and compiled for
+use with your version of Emacs.  You may see a bunch of compilation
+warnings but these can be safely ignored.
+
 
 ===========================================================================
 *			    Invocation

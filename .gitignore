@@ -12,3 +12,15 @@
 *.orig
 *.rej
 *~
+\.#*
+
+# Texinfo formatting indices
+*.aux
+*.cps?
+*.fns?
+*.kys?
+*.toc
+*.vrs?
+
+# Todo working files
+TODO*

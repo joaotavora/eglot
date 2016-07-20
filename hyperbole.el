@@ -6,7 +6,7 @@
 ;; Package:          hyperbole
 ;; Package-Requires: ((emacs "24.4"))
 ;; URL:              http://www.gnu.org/software/hyperbole
-;; Version:          0.6.00
+;; Version:          6.0.1
 ;;
 ;; Orig-Date:     6-Oct-92 at 11:52:51
 ;;

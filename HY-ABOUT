@@ -25,35 +25,48 @@ explains the many ways it differs from and is complementary to Org mode.
 
 Hyperbole consists of five parts:
 
-   1.  Textual Information Management: an interactive textual
-       information management interface, including fast, flexible file
-       and text finding commands.  A powerful, hierarchical contact
-       manager, HyRolo, which anyone can use is also included.  It is
-       easy to learn to use since it introduces only a few new
-       mechanisms and has a menu interface, which may be operated from
-       the keyboard or the mouse.
+   1.  Buttons and Smart Keys: A set of hyperbutton types which supply
+       core hypertext and other behaviors.  Buttons may be added to
+       documents (explicit buttons) with a simple drag between windows,
+       no markup language needed.  Implicit buttons are patterns
+       automatically recognized within text that perform actions,
+       e.g. bug#24568 displays the bug status information for that bug
+       number.
+       
+       Buttons are accessed by clicking on them or referenced by name
+       (global buttons), so they can be activated regardless of what is
+       on screen.  Users can make simple changes to button types and
+       those familiar with Emacs Lisp can prototype and deliver new
+       types quickly with just a few lines of code.
 
-   2.  Screen Control: the fastest, easiest-to-use window and frame
+       Hyperbole includes two special `Smart Keys', the Action Key
+       and the Assist Key, that perform an extensive array of
+       context-sensitive operations across emacs usage, including
+       activating and showing help for Hyperbole buttons.  In many
+       popular Emacs modes, they allow you to perform common, sometimes
+       complex operations without having to a different key for each
+       operation.  Just press a Smart Key and the right thing happens;
+
+   2.  Contact and Text Finder: an interactive textual information
+       management interface, including fast, flexible file and text
+       finding commands.  A powerful, hierarchical contact manager,
+       HyRolo, which anyone can use is also included.  It is easy to
+       learn to use since it introduces only a few new mechanisms and
+       has a menu interface, which may be operated from the keyboard or
+       the mouse.
+
+   3.  Screen Control: the fastest, easiest-to-use window and frame
        control available for GNU Emacs.  With just a few keystrokes,
        you can shift from increasing a window's height by 5 lines
        to moving a frame by 220 pixels or immediately moving it to a
        screen corner.  Text in each window or frame may be enlarged
        or shrunk (zoomed) for easy viewing, plus many other features;
 
-   3.  The Koutliner: an advanced outliner with multi-level
+   4.  The Koutliner: an advanced outliner with multi-level
        autonumbering and permanent ids attached to each outline node for
        use as hypertext link anchors, per node properties and flexible
        view specifications that can be embedded within links or used
        interactively;
-
-   4.  Button Types: A set of hyperbutton types which supply core
-       hypertext and other behaviors.  Buttons may be added to documents
-       (explicit buttons) or recognized by context (implicit buttons).
-       Buttons are accessed by clicking on them or referenced by name
-       (global buttons), so they can be activated regardless of what is
-       on screen.  Users can make simple changes to button types and
-       those familiar with Emacs Lisp can prototype and deliver new
-       types quickly with just a few lines of code;
 
    5.  Programming Library: a set of programming library classes for
        system developers who want to integrate Hyperbole with another

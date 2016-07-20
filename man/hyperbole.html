@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 06.01, Published July 19, 2016).
+(Edition 6.0.1, Published July 20, 2016).
 
 Copyright (C) 1989-2016  Free Software Foundation, Inc.
 
@@ -319,8 +319,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.01
-Printed July 19, 2016.
+Edition 6.0.1
+Printed July 20, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -766,7 +766,8 @@ Next: <a href="#Motivation" accesskey="n" rel="next">Motivation</a>, Previous: <
 
 <p>Remember that the <samp>DEMO</samp> file included in the Hyperbole
 distribution demonstrates many of Hyperbole&rsquo;s standard facilities
-without the need to read through this reference manual.
+without the need to read through this reference manual.  It is a good
+way to rapidly understand some of what Hyperbole can do for you.
 </p>
 <p>See <a href="#Glossary">Glossary</a>, for definitions of Hyperbole terms.  In some cases,
 terms are not precisely defined within the body of this manual since
@@ -891,7 +892,29 @@ archives, and the World-Wide Web (WWW).
 <p>Hyperbole consists of five parts:
 </p>
 <dl compact="compact">
-<dt><em>Textual Information Management</em></dt>
+<dt><em>Buttons and Smart Keys</em></dt>
+<dd><p>a set of hyperbutton types that provides core hypertext and other
+behaviors, see <a href="#Buttons">Buttons</a>.  Buttons may be added to documents (explicit
+buttons) with a simple drag between windows, no markup language needed.
+Implicit buttons are patterns automatically recognized within
+text that perform actions, e.g. bug#24568 displays the bug status
+information for that bug number.
+</p>
+<p>Buttons are accessed by clicking on them or referenced by name (global
+buttons), so they can be activated regardless of what is on screen.
+Users can make simple changes to button types.  Emacs Lisp programmers
+can prototype and deliver new types quickly.
+</p>
+<p>Hyperbole includes two special <em>Smart Keys</em>, the Action Key and the
+Assist Key, that perform an extensive array of context-sensitive
+operations across emacs usage, including activating and showing help
+for Hyperbole buttons.  In many popular Emacs modes, they allow you
+to perform common, sometimes complex operations without having to a
+different key for each operation.  Just press a Smart Key and the
+right thing happens;
+</p>
+</dd>
+<dt><em>Contact and Text Finder</em></dt>
 <dd><p>an interactive, textual information management interface, including
 fast, flexible file and text finding commands.  A powerful, hierarchical
 contact manager, see <a href="#HyRolo">HyRolo</a>, which anyone can use, is also included.
@@ -917,22 +940,12 @@ view specifications that can be embedded within links or used
 interactively;
 </p>
 </dd>
-<dt><em>Button Types</em></dt>
-<dd><p>a set of hyperbutton types that provides core hypertext and other
-behaviors, see <a href="#Buttons">Buttons</a>.  Buttons may be added to documents (explicit
-buttons) or recognized by context (implicit buttons).  Buttons are
-accessed by clicking on them or referenced by name (global buttons),
-so they can be activated regardless of what is on screen.  Users can make
-simple changes to button types.  Emacs Lisp programmers can prototype
-and deliver new types quickly;
-</p>
-</dd>
 <dt><em>Programming Library</em></dt>
 <dd><p>a set of programming libraries, see <a href="#Developing-with-Hyperbole">Developing with Hyperbole</a>, for
 system developers who want to integrate Hyperbole with another user
 interface or as a back-end to a distinct system.  (All of Hyperbole is
-written in Emacs Lisp for ease of modification.  It has been
-engineered for real-world usage and is well structured).
+written in Emacs Lisp for ease of modification.  It has been engineered
+for real-world usage and is well structured).
 </p></dd>
 </dl>
 
@@ -964,7 +977,7 @@ e.g. create your own buttons.  The standard Hyperbole button editing
 user interface is Emacs-based, so a basic familiarity with the Emacs
 editing model is useful.  The material covered in the Emacs
 tutorial, normally bound to <kbd>{C-h t}</kbd>, is more than
-sufficient as background.  See <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Glossary">Glossary</a> in <cite>the Emacs Manual</cite>,
+sufficient as background.  See <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Glossary">Glossary</a> in <cite>the GNU Emacs Manual</cite>,
 if some emacs-related terms are unfamiliar to you.
 </p>
 
@@ -1123,39 +1136,6 @@ There is a separate mail list to report problems or bugs with
 Hyperbole, bug-hyperbole@gnu.org.  For more
 information, see <a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a>.
 </p>
-<p>Below are some tips on how to best structure requests and discussion
-messages.  If you share information about your use of Hyperbole with
-others, it will help promote broader use and development of Hyperbole.
-</p>
-<ul>
-<li> Always use your Subject lines to state the position that your message
-takes on the topic that it addresses.
-
-<div class="display">
-<pre class="display">For example, write: &ldquo;Subject: Typo in top-level Hyperbole minibuffer menu.&rdquo;
-
-rather than: &ldquo;Subject: Hyperbole bug&rdquo;
-</pre></div>
-
-</li><li> Statements end with periods, questions with question marks (typically),
-and high energy, high impact declarations with exclamation points.  These
-simple rules make all e-mail communication much easier for recipients to
-handle appropriately.
-
-</li><li> <a name="index-emacs_002dversion"></a>
-Question messages should normally include your Hyperbole and Emacs
-version numbers and should clearly explain your problem and surrounding
-issues.  Otherwise, it is difficult for anyone to answer your question.
-(Your top-level Hyperbole menu shows its version number and <kbd>{M-x
-emacs-version <span class="key">RET</span>}</kbd> gives the other.)
-
-</li><li> If you ask questions, you should consider adding to the discussion by
-telling people the kinds of work you are doing or contemplating doing
-with Hyperbole.  In this way, the list is not overrun by messages that
-ask for, but provide no information.
-</li></ul>
-
-
 <hr>
 <a name="Smart-Keys"></a>
 <div class="header">
@@ -1175,8 +1155,11 @@ Next: <a href="#Buttons" accesskey="n" rel="next">Buttons</a>, Previous: <a href
 <a name="index-Assist-Key-1"></a>
 <p>Hyperbole offers two special <em>Smart Keys</em>, the Action Key and the
 Assist Key, that perform an extensive array of context-sensitive
-operations across emacs usage.  This chapter explains their typical
-uses.  See <a href="#Smart-Key-Reference">Smart Key Reference</a>, for complete descriptions of their
+operations across emacs usage.  In many popular modes, they allow you
+to perform common, sometimes complex operations without having to a
+different key for each operation.  Just press a Smart Key and the
+right thing happens.  This chapter explains typical uses of the Smart
+Keys.  See <a href="#Smart-Key-Reference">Smart Key Reference</a>, for complete descriptions of their
 behavior in all contexts.
 </p>
 <table class="menu" border="0" cellspacing="0">
@@ -1215,7 +1198,7 @@ operation from any keyboard.
 <a name="index-shift_002dmiddle-mouse-key"></a>
 <a name="index-shift_002dleft-mouse-key"></a>
 <a name="index-shift_002dright-mouse-key"></a>
-<a name="index-middle-mouse-key-2"></a>
+<a name="index-middle-mouse-key-1"></a>
 <a name="index-hmouse_002dmiddle_002dflag-1"></a>
 <p>From the mouse, the <em>Action Key</em> is bound to your shift-middle
 mouse key (or shift-left on a 2-button mouse) and the <em>Assist Key</em>
@@ -1498,12 +1481,27 @@ to use that with the following in your Emacs initialization file:
 <code>(setq action-key-modeline-function #'hmouse-context-ibuffer-menu)</code>.
 To set it back to the default use:
 <code>(setq action-key-modeline-function #'hmouse-context-menu)</code>.
-The default <code>assist-key-modeline-function</code> is to pop up a menu of
+</p>
+<a name="index-dired_002djump"></a>
+<a name="index-hui_002dmenu_002dscreen_002dcommands"></a>
+<a name="index-directory-editor"></a>
+<a name="index-dired"></a>
+<a name="index-modeline_002c-screen-command-menu"></a>
+<p>The default <code>assist-key-modeline-function</code> is to pop up a menu of
 convenient screen commands that lets you select buffers grouped by
 major mode, use HyControl, or jump to specific windows, window
-configurations or frames.
+configurations or frames.  If you would prefer it runs the directory
+editor <code>dired</code> on the directory associated with the window of the
+modeline press, use this: <code>(setq assist-key-modeline-function #'dired-jump)</code>.
+To set it back to the default use:
+<code>(setq assist-key-modeline-function #'hui-menu-screen-commands)</code>.
 </p>
-
+<p>These variables may also be changed permanently with the Emacs
+interactive customization interface.  Use <kbd>{M-x customize-variable
+<span class="key">RET</span> assist-key-modeline-function <span class="key">RET</span>}</kbd>.  In the Assist
+Modeline Function text field that appears, change the value
+to <code>dired-jump</code>.  Then press the &ldquo;Apply and Save&rdquo; button.
+</p>
 <hr>
 <a name="Smart-Key-Thing-Selection"></a>
 <div class="header">
@@ -1635,7 +1633,7 @@ this direct selection technique.
 </p>
 <a name="index-completion"></a>
 <p>Wherever possible, standard Emacs completion is offered, as described in
-<a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Completion">Completion</a> in <cite>the Emacs Manual</cite>.  Remember to use <kbd>{?}</kbd>
+<a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Completion">Completion</a> in <cite>the GNU Emacs Manual</cite>.  Remember to use <kbd>{?}</kbd>
 to see what your possibilities for an argument are.  Once you have a
 list of possible completions on screen, press the Action Key twice on
 any item to enter it as the argument.
@@ -1854,22 +1852,32 @@ Next: <a href="#Action-Types" accesskey="n" rel="next">Action Types</a>, Previou
 
 <a name="index-button_002c-implicit-1"></a>
 <a name="index-implicit-button-1"></a>
-<p>Implicit buttons are those defined by the natural structure of a
-document.  They are identified by contextual patterns found within
-documents.  Their behavior is determined by one or more actions which
-they trigger when activated.  An action is derived from either a
-Hyperbole action type specification (see <a href="#Action-Types">Action Types</a>) or an Emacs
-Lisp function.  Implicit button types may use the same action types that
-explicit buttons use.
+<a name="index-action-type"></a>
+<p><em>Implicit buttons</em> are virtual buttons recognized within the
+natural structure of a document.  For example, a web URL button that
+displays its link or an email address button that starts a mail
+message to the associated address.  Implicit buttons are identified by
+contextual patterns found within documents.  An <em>Implicit button
+type</em> identifies a pattern or state that when matched triggers
+an <em>action</em> associated with the implicit button type.  The action
+is specified by either a Hyperbole action type (see <a href="#Action-Types">Action Types</a>)
+or an Emacs Lisp function.  Implicit button types may use the same
+action types that explicit buttons use.  As an example, a pathname
+implicit button type would match to any existing local filename or
+directory name and its action would be to display the associated file
+or directory, typically in another window.
 </p>
 <a name="index-file_002c-hibtypes_002eel"></a>
 <a name="index-context"></a>
-<p>Implicit buttons never have any button data associated with them.
-They are recognized in context based on predicate matches (boolean
-conditionals) defined within implicit button types.  For example,
-Hyperbole recognizes file names enclosed in double quotes and can
-display their associated files in response to Action Key presses, even
-if they are on off-site computers.
+<a name="index-boolean-expressions"></a>
+<a name="index-activating-implicit-button"></a>
+<p>Unlike explicit buttons, implicit buttons never have any button data
+associated with them.  They are recognized in context based on
+predicate matches (boolean expressions) defined within implicit button
+types.  Each time a Smart Key is pressed at a location, Hyperbole
+evaluates the predicates from the list of implicit button types and
+the first one that evaluates true is selected and its associated
+action is triggered.
 </p>
 <p>The Hyperbole Smart Keys offer extensive additional context-sensitive
 point-and-click type behavior beyond these standard implicit button
@@ -2247,7 +2255,7 @@ Next: <a href="#Button-Type-Precedence" accesskey="n" rel="next">Button Type Pre
 <a name="Action-Types-1"></a>
 <h3 class="section">3.4 Action Types</h3>
 
-<a name="index-action-type"></a>
+<a name="index-action-type-1"></a>
 <a name="index-argument_002c-use"></a>
 <a name="index-action"></a>
 <a name="index-button-action"></a>
@@ -2925,7 +2933,7 @@ minibuffer menu item to enable it.
 <a name="index-news"></a>
 <a name="index-file_002c-hmail_002eel"></a>
 <p>Hyperbole automatically supports the following mail readers: Rmail
-(see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Rmail">Reading Mail with Rmail</a> in <cite>the Emacs Manual</cite>), VM
+(see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Rmail">Reading Mail with Rmail</a> in <cite>the GNU Emacs Manual</cite>), VM
 (see <a href="vm.html#Introduction">Introduction</a> in <cite>the VM Manual</cite>) and MH-e.  Button inclusion
 and activation within USENET news articles is also supported in the
 same fashion via the Gnus news reader if available at your site
@@ -4242,8 +4250,8 @@ paragraphs.
 <p><kbd>{M-q}</kbd> or <kbd>{M-j}</kbd> refills a paragraph within a
 cell so that its lines wrap within the current margin settings.
 <kbd>{C-c M-q}</kbd> or <kbd>{C-c M-j}</kbd> refills all paragraphs within a
-cell.  <kbd>{C-M-q}</kbd> or <kbd>{C-M-j}</kbd> refills all cells within a
-tree.  See your InfoDock, XEmacs, or Emacs manual for information on how
+cell.  <kbd>{C-M-q}</kbd> or <kbd>{C-M-j}</kbd> refills all cells within a tree.
+See your InfoDock, XEmacs, or GNU Emacs manual for information on how
 to set the left and right margins.
 </p>
 <a name="index-kotl_002dmode_003arefill_002dflag"></a>
@@ -5079,7 +5087,7 @@ refer to each command.
 which contain matches for a given regular expression.  The regular
 expression syntax used is the same as the one used within Emacs
 and across the GNU set of tools.  See <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Regexps">Syntax of Regular
-Expressions</a> in <cite>the Emacs Manual</cite>, for full documentation on this
+Expressions</a> in <cite>the GNU Emacs Manual</cite>, for full documentation on this
 format.
 </p>
 <p>The <code>WordFind</code> menu item locates full-word matches so that if you
@@ -5460,7 +5468,7 @@ detail.
 </p>
 <a name="index-kill_002dring"></a>
 <p>HyWconfig creates a ring structure that operates just like the Emacs
-<code>kill-ring</code> (see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Kill-Ring">Kill Ring</a> in <cite>the Emacs Manual</cite>) but its
+<code>kill-ring</code> (see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Kill-Ring">Kill Ring</a> in <cite>the GNU Emacs Manual</cite>) but its
 elements are window configurations rather than text regions.  You can
 add an element to the ring to save the current window configuration in
 the selected frame.  After several elements are in the ring, you can
@@ -5750,12 +5758,12 @@ many examples of working action types.
 with the <code>(defact)</code> function (which is an alias for
 <code>(actype:create)</code>).  The calling signature for this function is
 given in its documentation; it is the same as that of <code>(defun)</code>
-except that a documentation string is required.  (An interactive calling
-form is also required if the action type has formal parameters and is to
-be used in explicit button definitions.  Implicit buttons never use an
-action type&rsquo;s interactive form.  It is good practice to include an
-interactive form since the type creator cannot know how users may choose
-to apply the type.)
+except that a documentation string is required.  An interactive
+calling form is also required if the action type has formal parameters
+and is to be used in explicit or global button definitions.  Implicit
+buttons never use an action type&rsquo;s interactive form; however, it is
+good practice to include an interactive form since the type creator
+cannot know how users may choose to apply the type.
 </p>
 <p>An action type&rsquo;s parameters are used differently than those of a
 function being called.  Its interactive calling form is used to prompt
@@ -5773,12 +5781,13 @@ Hyperbole functions.
 <a name="index-interactive-form"></a>
 <a name="index-interactive"></a>
 <p>The interactive calling form for an action type is of the same form as
-that of a regular Emacs Lisp function definition (see the documentation
-for the Emacs Lisp <code>(interactive)</code> form).  It may additionally use
+that of a regular Emacs Lisp function definition (see the
+documentation for the Emacs Lisp <code>(interactive)</code> form
+or see <a href="http://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Interactive-Codes">Code Characters for &rsquo;interactive&rsquo;</a> in <cite>the GNU Emacs Lisp Reference Manual</cite>.  It may additionally use
 Hyperbole command character extensions when the form is given as a
-string.  Each such extension character <em>must</em> be preceded by a plus
-sign, &lsquo;<samp>+</samp>&rsquo;, in order to be recognized, since such characters may also
-have standard interactive meanings.
+string.  Each such extension character <em>must</em> be preceded by a
+plus sign, &lsquo;<samp>+</samp>&rsquo;, in order to be recognized, since such characters
+may also have different standard interactive meanings.
 </p>
 <p>The present Hyperbole extension characters are:
 </p>
@@ -5916,13 +5925,14 @@ button&rsquo;s attributes in the same manner as is done for explicit buttons.
 For some implicit button types, other forms of help will be more
 appropriate.  If an Emacs Lisp function is defined whose name is formed
 from the concatenation of the type name followed by &lsquo;<samp>:help</samp>&rsquo;, e.g.
-<code>my-ibtype:help</code>, it is used to respond to requests for
-help on buttons of that type.  Any such function should take a single
-argument of an implicit button construct.  (This is what
+<code>my-ibtype:help</code>, it is used as the assist-action whenever the
+Assist Key is pressed, to respond to requests for help on buttons of
+that type.  Any such function should take a single argument of an
+implicit button construct.  (This is what
 <code>(ibut:at-p)</code> returns when point is within an implicit button
-context.)  The button may be queried for its attributes using functions
-from the &lsquo;<samp>hbut</samp>&rsquo; and &lsquo;<samp>hattr</samp>&rsquo; classes.  See the <samp>hib-kbd.el</samp>
-file for an example of a custom help function.
+context.)  The button may be queried for its attributes using
+functions from the &lsquo;<samp>hbut</samp>&rsquo; and &lsquo;<samp>hattr</samp>&rsquo; classes.  See
+the <samp>hib-kbd.el</samp> file for an example of a custom help function.
 </p>
 <hr>
 <a name="Explicit-Button-Technicalities"></a>
@@ -6138,7 +6148,7 @@ Next: <a href="#Setup" accesskey="n" rel="next">Setup</a>, Previous: <a href="#D
 <a name="index-glossary"></a>
 <a name="index-definitions"></a>
 <p>Concepts pertinent to operational usage of Hyperbole are defined here.
-See <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Glossary">Glossary</a> in <cite>the Emacs Manual</cite>,
+See <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Glossary">Glossary</a> in <cite>the GNU Emacs Manual</cite>,
 if any emacs-related terms are unfamiliar to you.
 </p>
 <dl compact="compact">
@@ -6423,7 +6433,7 @@ longer maintained.  An older version from 1999 may be found at
 infodock.sf.net.  InfoDock has all the power of emacs, but with an
 easier to use and more comprehensive menu-based user interface.  Most
 objections people raise to using emacs have already been addressed in
-InfoDock.  InfoDock is for those people who want a complete,
+InfoDock.  InfoDock was meant for people who wanted a complete,
 pre-customized environment in one package.
 </p>
 </dd>
@@ -6546,48 +6556,29 @@ multiple physical monitors arranged into a single virtual display.
 Screen edges are thus the outer borders of the virtual display.
 </p>
 <a name="index-Smart-Key-1"></a>
-<a name="index-smart_002dscroll_002dproportional"></a>
 <a name="index-proportional-scrolling"></a>
-<a name="index-middle-mouse-key-1"></a>
 <a name="index-scrolling"></a>
-<a name="index-hmouse_002dmiddle_002dflag-2"></a>
 </dd>
 <dt><b>Smart Key</b></dt>
 <dd><p>A context-sensitive key used within Hyperbole and beyond.  There are
-two Smart Keys, the Action Key and the Assist Key.  The Action Key,
-bound to the shift-middle mouse key (or shift-left mouse key on a
-2-button mouse), activates Hyperbole buttons and scrolls the current
-buffer line to the top of the window when pressed at the end of a
-line.  (InfoDock users or those who set the variable,
-<code>hmouse-middle-flag</code>, to &lsquo;<samp>t</samp>&rsquo;, may also use the middle mouse
-key as the Action Key).
+two Smart Keys, the Action Key and the Assist Key.  The Action Key
+activates Hyperbole buttons and scrolls the current buffer line to the
+top of the window when pressed at the end of a line.
 </p>
-
-<p>The Assist Key, bound to the shift-right mouse key, explains
-what a Hyperbole button does or scrolls the current line to the bottom
-of the window when pressed at the end of a line.  (Use the Hyperbole
-Cust menu or see the documentation for the variable,
-<code>smart-scroll-proportional</code>, for information on how to make these
-keys scroll forward and backward a windowful at a time).
+<p>The Assist Key shows help for Hyperbole buttons and scrolls the
+current line to the bottom of the window when pressed at the end of a
+line.
 </p>
-<p>To see what a Smart Key will do within a particular context, depress and
-hold the Smart Mouse Key at the point desired and depress the other
-Smart Mouse Key.  A buffer containing a description of its contextual
-function will then be displayed.  You may release the two keys in any
-order after you have depressed them both.
+<p>The <kbd>{C-h h d s}</kbd> Doc/SmartKeys menu item displays a full summary of
+Smart Key capabilities.  See <a href="#Smart-Keys">Smart Keys</a>, for complete details.
 </p>
-<a name="index-C_002dh-A-1"></a>
-<a name="index-C_002du-C_002dh-A-1"></a>
-<a name="index-key-binding_002c-C_002dh-A"></a>
-<a name="index-key-binding_002c-C_002du-C_002dh-A"></a>
-<p><kbd>{C-h A}</kbd> displays this same context-sensitive help for the
-Action Key while <kbd>{C-u C-h A}</kbd> displays the help for the Assist
-Key.  Note that <kbd>{C-h a}</kbd> performs a function unrelated to
-Hyperbole, so you must press the shift key when you type the <kbd>{A}</kbd>
-character.
-</p>
-<p>The Doc/SmartKeys menu item displays a summary of Smart Key functions in
-each context.
+</dd>
+<dt><b>Smart Menus</b></dt>
+<dd><p>Smart Menus are an older in-buffer menu system that worked on dumb
+terminals and pre-dated Emacs&rsquo; own dumb terminal menu support.  They
+are included with InfoDock (which is no longer maintained) and are not
+available separately.  They are not a part of Hyperbole and are not
+necesary for its use but are still supported by the Smart Keys.
 </p>
 </dd>
 <dt><b>Source Buffer / File</b></dt>
@@ -6690,9 +6681,8 @@ Next: <a href="#Invocation" accesskey="n" rel="next">Invocation</a>, Previous: <
 <a name="index-obtaining-Hyperbole"></a>
 <a name="index-Hyperbole_002c-obtaining-1"></a>
 <p>By far, the simplest and quickest way to install Hyperbole is to use
-the Emacs Package Manager.  If you are not familiar with it, see the
-Packages section of the GNU Emacs Manual, see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Packages">Packages</a> in <cite>the
-Emacs Manual</cite>.
+the Emacs Package Manager.  If you are not familiar with
+it, see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Packages">Packages</a> in <cite>the GNU Emacs Manual</cite>.
 </p>
 <p>If you have Hyperbole 5.10 or higher installed and simply want
 to upgrade it, invoke the Emacs Package Manager with <kbd>{M-x
@@ -6708,8 +6698,9 @@ typically <samp>~/.emacs</samp> or <samp>~/.emacs.d/.emacs</samp>,
 <pre class="smalllisp">(require 'package)
 (setq package-check-signature nil
       package-enable-at-startup nil) ;; Prevent double loading of libraries
-;; If this is a test release, uncomment the following line and comment the line after it.
-;; (add-to-list 'package-archives '(&quot;RSW-Packages&quot; . &quot;http://www.plasmas.biz/rswe/&quot;) t)
+;; GNU Emacs now includes the Elpa package-archive setting but we include
+;; it here as a reference of how to do this.  add-to-list will do nothing
+;; if it is already in the list.
 (add-to-list 'package-archives '(&quot;gnu&quot; . &quot;http://elpa.gnu.org/packages/&quot;))
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
@@ -6822,7 +6813,8 @@ below the Hyperbole menubar menu, as seen here.
 However, if you like to customize your environment extensively, there
 are many additional Hyperbole configuration options that may be 
 changed with the Emacs customization interface,
-see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Easy-Customization">Easy Customization Interface</a> in <cite>the Emacs Manual</cite>.
+see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Easy-Customization">Easy Customization Interface</a> in <cite>the GNU
+Emacs Manual</cite>.
 When you save any changes within this interface, the changes are saved
 permanently to your personal Emacs initialization file and are available
 in future Emacs sessions.
@@ -7150,16 +7142,16 @@ a window system.
 <dd><p>Hyperbole Mini Menu: Invoke the Hyperbole minibuffer menu, giving
 access to many Hyperbole commands.
 </p>
-<a name="index-key-binding_002c-C_002dh-A-1"></a>
-<a name="index-key-binding_002c-C_002du-C_002dh-A-1"></a>
+<a name="index-key-binding_002c-C_002dh-A"></a>
+<a name="index-key-binding_002c-C_002du-C_002dh-A"></a>
 </dd>
 <dt><kbd>C-h A</kbd>
-<a name="index-C_002dh-A-2"></a>
+<a name="index-C_002dh-A-1"></a>
 </dt>
 <dd><p>Action Key Help: Shows what the Action Key will do in the current context.
 </p></dd>
 <dt><kbd>C-u C-h A</kbd>
-<a name="index-C_002du-C_002dh-A-2"></a>
+<a name="index-C_002du-C_002dh-A-1"></a>
 </dt>
 <dd><p>Assist Key Help: Shows what the Assist Key will do in the same context.
 </p>
@@ -7226,9 +7218,9 @@ major mode is invoked and unbinding any mode-specific keys that
 interfere with global Hyperbole keys.  If you prefer that this not
 happen permanently, use <kbd>{M-x customize-variable <span class="key">RET</span>
 hkey-init-override-local-keys <span class="key">RET</span>}</kbd>.  Press the Toggle button to
-change the value to <code>nil</code>.  Then select &ldquo;Apply and Save&rdquo;.
+change the value to <code>nil</code>.  Then press the &ldquo;Apply and Save&rdquo;
+button.
 </p>
-
 <hr>
 <a name="Koutliner-Keys"></a>
 <div class="header">
@@ -8407,7 +8399,7 @@ Next: <a href="#Smart-Key-_002d-Smart-Menus" accesskey="n" rel="next">Smart Key 
 <a name="Smart-Key-_002d-Smart-Scrolling-1"></a>
 <h4 class="subsection">E.2.5 Smart Key - Smart Scrolling</h4>
 
-<a name="index-smart_002dscroll_002dproportional-1"></a>
+<a name="index-smart_002dscroll_002dproportional"></a>
 <a name="index-proportional-scrolling-1"></a>
 <a name="index-scrolling-1"></a>
 <a name="index-click_002c-end-of-line"></a>
@@ -9475,9 +9467,9 @@ Next: <a href="#Questions-and-Answers" accesskey="n" rel="next">Questions and An
 <a name="index-Hyperbole-version"></a>
 <p>If you find any errors in Hyperbole&rsquo;s operation or documentation, feel
 free to report them to &lt;bug-hyperbole@gnu.org&gt;.  Be sure to use the
-Msg/Report-Hypb-Bug minibuffer menu item whenever you send a message
-to this address since that command will insert important system version
-information for you.
+<kbd>{C-h h m r}</kbd> Msg/Report-Hypb-Bug minibuffer menu item whenever you send a message
+to this address since that command will insert important system
+version information for you.
 </p>
 <p>If you use Hyperbole mail or news support (see <a href="#Buttons-in-Mail">Buttons in Mail</a>), a
 press of your Action Key on the Hyperbole mail list address will
@@ -9487,14 +9479,41 @@ be sure to include the version numbers of your editor, Hyperbole and
 your window system.  Your Hyperbole version number can be found in the
 top-level Hyperbole menu.
 </p>
-<p>Please use your subject line to state the position that your message
-takes on the topic that it addresses, e.g. send &quot;Subject: Basic bug in
-top-level Hyperbole menu.&quot; rather than &quot;Subject: Hyperbole bug&quot;.  This
-simple rule makes all e-mail communication much easier.
+<p>Below are some tips on how best to structure requests and discussion
+messages.  If you share information about your use of Hyperbole with
+others, it will promote broader use and development of Hyperbole.
 </p>
+<ul>
+<li> Always use your Subject lines to state the position that your message
+takes on the topic that it addresses.
+
+<div class="display">
+<pre class="display">For example, write: &ldquo;Subject: Typo in top-level Hyperbole minibuffer menu.&rdquo;
+
+rather than: &ldquo;Subject: Hyperbole bug&rdquo;
+</pre></div>
+
+</li><li> Statements end with periods, questions with question marks (typically),
+and high energy, high impact declarations with exclamation points.  These
+simple rules make all e-mail communication much easier for recipients to
+handle appropriately.
+
+</li><li> <a name="index-emacs_002dversion"></a>
+Question messages should normally include your Hyperbole and Emacs
+version numbers and should clearly explain your problem and surrounding
+issues.  Otherwise, it is difficult for anyone to answer your question.
+(Your top-level Hyperbole menu shows its version number and <kbd>{M-x
+emacs-version <span class="key">RET</span>}</kbd> gives the other.)
+
+</li><li> If you ask questions, you should consider adding to the discussion by
+telling people the kinds of work you are doing or contemplating doing
+with Hyperbole.  In this way, the list is not overrun by messages that
+ask for, but provide no information.
+</li></ul>
+
 <p>If you have suggestions on how to improve Hyperbole, send them to
-&lt;hyperbole-users@gnu.com&gt; (minibuffer menu item Msg/Compose-Hypb-Mail).
-Here are some issues you might address:
+&lt;hyperbole-users@gnu.com&gt; (<kbd>{C-h h m c}</kbd> minibuffer menu item
+Msg/Compose-Hypb-Mail).  Here are some issues you might address:
 </p>
 <ul>
 <li> What did you like and dislike about the system?
@@ -9577,8 +9596,8 @@ types of implicit buttons, see <a href="#Implicit-Buttons">Implicit Buttons</a>.
 <samp>hui-mouse.el</samp> and <samp>hui-window.el</samp> must be altered if you want
 to change what the Smart Keys do in standard contexts.  You should
 then update the Smart Key summary documentation in the file,
-<samp>man/hkey-help.txt</samp>, and potentially the same summary in this
-manual.
+<samp>man/hkey-help.txt</samp>, and then regenerate the readable forms of
+this manual which includes that file.
 </p>
 </li><li> What if I get mail with a Hyperbole button type I don&rsquo;t have?
 
@@ -9975,8 +9994,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_005e"><code>C-c ^</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Moving-Around">Moving Around</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dg"><code>C-g</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-A"><code>C-h A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-C_002dh-A-1"><code>C-h A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-C_002dh-A-2"><code>C-h A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dh-A-1"><code>C-h A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h"><code>C-h h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-1"><code>C-h h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-c-d"><code>C-h h c d</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Debugging">Smart Key Debugging</a></td></tr>
@@ -9999,8 +10017,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-C_002du-C_002dc-M_002dl"><code>C-u C-c M-l</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Autonumbering">Autonumbering</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002du-C_002dc-s"><code>C-u C-c s</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Splitting-and-Appending">Splitting and Appending</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002du-C_002dh-A"><code>C-u C-h A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-C_002du-C_002dh-A-1"><code>C-u C-h A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-C_002du-C_002dh-A-2"><code>C-u C-h A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002du-C_002dh-A-1"><code>C-u C-h A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002du-c_002dj"><code>C-u c-j</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Adding-and-Killing">Adding and Killing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002du-C_002dx-i"><code>C-u C-x i</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Inserting-and-Importing">Inserting and Importing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002du-M_002do"><code>C-u M-o</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
@@ -10031,7 +10048,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-M_002dRET-2"><code>M-<span class="key">RET</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002dTAB"><code>M-<span class="key">TAB</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002dx-kotl_002dmode_003ashow_002dsubtree"><code>M-x kotl-mode:show-subtree</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-middle-mouse-key-2"><code>middle mouse key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-middle-mouse-key-1"><code>middle mouse key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-Q">Q</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-q"><code>q</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
@@ -10255,6 +10272,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-defact"><code>defact</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Type-Creation">Action Type Creation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-defib"><code>defib</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Button-Types">Implicit Button Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-dir_002c-_007e_002f_002ehyperb">dir, ~/.hyperb</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Files">Button Files</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-dired_002djump"><code>dired-jump</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline">Smart Key Modeline</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Function_fn_letter-E">E</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ebut_002dcreate_002dhook">ebut-create-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
@@ -10263,7 +10281,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-ebut_003acreate"><code>ebut:create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Programmatic-Button-Creation">Programmatic Button Creation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ebut_003amap"><code>ebut:map</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Programmatic-Button-Creation">Programmatic Button Creation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ebut_003amax_002dlen">ebut:max-len</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-emacs_002dversion">emacs-version</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Mail-Lists">Mail Lists</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-emacs_002dversion">emacs-version</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eval_002ddefun"><code>eval-defun</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-Types">Creating Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eval_002dlast_002dsexp"><code>eval-last-sexp</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-Types">Creating Types</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
@@ -10338,7 +10356,6 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dget_002dbindings-1"><code>hmouse-get-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dmiddle_002dflag">hmouse-middle-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Keys">Smart Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dmiddle_002dflag-1">hmouse-middle-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hmouse_002dmiddle_002dflag-2">hmouse-middle-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dmod_002dmode-1">hmouse-mod-mode</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dmod_002dmode"><code>hmouse-mod-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dsetup"><code>hmouse-setup</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
@@ -10363,6 +10380,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hproperty_003acycle_002dbut_002dcolor"><code>hproperty:cycle-but-color</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-htype_002dcreate_002dhook">htype-create-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-htype_002ddelete_002dhook">htype-delete-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hui_002dmenu_002dscreen_002dcommands"><code>hui-menu-screen-commands</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline">Smart Key Modeline</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_002dselect_002dgoto_002dmatching_002dtag"><code>hui-select-goto-matching-tag</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_002dselect_002dthing"><code>hui-select-thing</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_002dselect_002dthing_002dwith_002dmouse"><code>hui-select-thing-with-mouse</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
@@ -10610,8 +10628,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-smart_002dc_002duse_002dlib_002dman">smart-c-use-lib-man</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-C-Source-Code">Smart Key - C Source Code</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-smart_002djava_002dpackage_002dpath">smart-java-package-path</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Java-Source-Code">Smart Key - Java Source Code</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-smart_002dman_002dc_002droutine_002dref">smart-man-c-routine-ref</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Man-Pages">Smart Key - Man Pages</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-smart_002dscroll_002dproportional">smart-scroll-proportional</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-smart_002dscroll_002dproportional-1">smart-scroll-proportional</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-smart_002dscroll_002dproportional">smart-scroll-proportional</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Function_fn_letter-W">W</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-write_002dfile_002dhooks">write-file-hooks</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
@@ -10745,8 +10762,10 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Action-Key_002c-web-browsing">Action Key, web browsing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Mouse-Key">Action Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Mouse-Key-1">Action Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-action-type">action type</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-action-type">action type</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-action-type-1">action type</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action-type_002c-creation">action type, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Type-Creation">Action Type Creation</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-activating-implicit-button">activating implicit button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-activation">activation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-active-region">active region</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-_002d-Drags-between-Windows">Smart Mouse - Drags between Windows</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-active-region-1">active region</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-_002d-Drags-within-a-Window">Smart Mouse - Drags within a Window</a></td></tr>
@@ -10792,6 +10811,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-bibliography">bibliography</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Big-Brother-DataBase">Big Brother DataBase</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Settings">Rolo Settings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-blank-lines_002c-toggle">blank lines, toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-boolean-expressions">boolean expressions</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-breakpoint">breakpoint</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-browsing-URLs">browsing URLs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-browsing-URLs-in-find_002dfile">browsing URLs in find-file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
@@ -10949,6 +10969,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-digital-signature">digital signature</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-direct-link-creation">direct link creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-direct-selection">direct selection</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Argument-Selection">Smart Key Argument Selection</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-directory-editor">directory editor</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline">Smart Key Modeline</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-dired">dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline">Smart Key Modeline</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-dired-browsing">dired browsing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Dired-Mode">Smart Key - Dired Mode</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-disable-global-key-bindings">disable global key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-disable-Hyperbole">disable Hyperbole</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
@@ -11154,11 +11176,9 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002dc-C_002dr">key binding, C-c C-r</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002dc-RET">key binding, C-c <tt class="key">RET</tt></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002dc-_005c">key binding, C-c \</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002dh-A">key binding, C-h A</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002dh-A-1">key binding, C-h A</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002dh-A">key binding, C-h A</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002dh-h">key binding, C-h h</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002du-C_002dh-A">key binding, C-u C-h A</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002du-C_002dh-A-1">key binding, C-u C-h A</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-key-binding_002c-C_002du-C_002dh-A">key binding, C-u C-h A</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-M_002do">key binding, M-o</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-M_002dRET">key binding, M-<tt class="key">RET</tt></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-menu">key binding, menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
@@ -11295,7 +11315,6 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-meta-key-modifier">meta key modifier</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-MH_002de">MH-e</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-middle-mouse-key">middle mouse key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Keys">Smart Keys</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-middle-mouse-key-1">middle mouse key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-MIME">MIME</a>:</td><td>&nbsp;</td><td valign="top"><a href="#External-Viewers">External Viewers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-minibuffer-menu">minibuffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-minibuffer-menu-1">minibuffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
@@ -11308,6 +11327,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-modeline_002c-buffer-menu">modeline, buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline">Smart Key Modeline</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-modeline_002c-Info-Browser">modeline, Info Browser</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline">Smart Key Modeline</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-modeline_002c-jump-menu">modeline, jump menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline">Smart Key Modeline</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-screen-command-menu">modeline, screen command menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline">Smart Key Modeline</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-modeline_002c-Smart-Keys">modeline, Smart Keys</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-modeline_002c-view-spec">modeline, view spec</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-mouse">mouse</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>

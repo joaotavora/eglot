@@ -141,8 +141,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.01
-Printed July 19, 2016.
+Edition 6.0.1
+Printed July 20, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -166,7 +166,7 @@ Printed July 19, 2016.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.01, July 19, 2016.
+@center Edition 6.0.1, July 20, 2016.
 
 @sp 2
 @noindent
@@ -456,7 +456,8 @@ braces @{ @}, function and variable names use this @code{typeface}.
 
 Remember that the @file{DEMO} file included in the Hyperbole
 distribution demonstrates many of Hyperbole's standard facilities
-without the need to read through this reference manual.
+without the need to read through this reference manual.  It is a good
+way to rapidly understand some of what Hyperbole can do for you.
 
 @xref{Glossary}, for definitions of Hyperbole terms.  In some cases,
 terms are not precisely defined within the body of this manual since
@@ -571,7 +572,28 @@ archives, and the World-Wide Web (WWW).
 Hyperbole consists of five parts:
 
 @table @emph
-@item Textual Information Management
+@item Buttons and Smart Keys
+a set of hyperbutton types that provides core hypertext and other
+behaviors, @pxref{Buttons}.  Buttons may be added to documents (explicit
+buttons) with a simple drag between windows, no markup language needed.
+Implicit buttons are patterns automatically recognized within
+text that perform actions, e.g. bug#24568 displays the bug status
+information for that bug number.
+
+Buttons are accessed by clicking on them or referenced by name (global
+buttons), so they can be activated regardless of what is on screen.
+Users can make simple changes to button types.  Emacs Lisp programmers
+can prototype and deliver new types quickly.
+
+Hyperbole includes two special @dfn{Smart Keys}, the Action Key and the
+Assist Key, that perform an extensive array of context-sensitive
+operations across emacs usage, including activating and showing help
+for Hyperbole buttons.  In many popular Emacs modes, they allow you
+to perform common, sometimes complex operations without having to a
+different key for each operation.  Just press a Smart Key and the
+right thing happens;
+
+@item Contact and Text Finder
 an interactive, textual information management interface, including
 fast, flexible file and text finding commands.  A powerful, hierarchical
 contact manager, @pxref{HyRolo}, which anyone can use, is also included.
@@ -594,21 +616,12 @@ for use as hypertext link anchors, per node properties and flexible
 view specifications that can be embedded within links or used
 interactively;
 
-@item Button Types
-a set of hyperbutton types that provides core hypertext and other
-behaviors, @pxref{Buttons}.  Buttons may be added to documents (explicit
-buttons) or recognized by context (implicit buttons).  Buttons are
-accessed by clicking on them or referenced by name (global buttons),
-so they can be activated regardless of what is on screen.  Users can make
-simple changes to button types.  Emacs Lisp programmers can prototype
-and deliver new types quickly;
-
 @item Programming Library
 a set of programming libraries, @pxref{Developing with Hyperbole}, for
 system developers who want to integrate Hyperbole with another user
 interface or as a back-end to a distinct system.  (All of Hyperbole is
-written in Emacs Lisp for ease of modification.  It has been
-engineered for real-world usage and is well structured).
+written in Emacs Lisp for ease of modification.  It has been engineered
+for real-world usage and is well structured).
 @end table
 
 @kindex C-h h d d
@@ -640,7 +653,7 @@ e.g.@: create your own buttons.  The standard Hyperbole button editing
 user interface is Emacs-based, so a basic familiarity with the Emacs
 editing model is useful.  The material covered in the Emacs
 tutorial, normally bound to @bkbd{C-h t}, is more than
-sufficient as background.  @xref{Glossary,,,emacs,the Emacs Manual},
+sufficient as background.  @xref{Glossary,,,emacs,the GNU Emacs Manual},
 if some emacs-related terms are unfamiliar to you.
 
 
@@ -788,43 +801,6 @@ There is a separate mail list to report problems or bugs with
 Hyperbole, bug-hyperbole@@gnu.org.  For more
 information, @pxref{Suggestion or Bug Reporting}.
 
-Below are some tips on how to best structure requests and discussion
-messages.  If you share information about your use of Hyperbole with
-others, it will help promote broader use and development of Hyperbole.
-
-@itemize @bullet
-@item
-Always use your Subject lines to state the position that your message
-takes on the topic that it addresses.
-
-@display
-For example, write: ``Subject: Typo in top-level Hyperbole minibuffer menu.''
-
-rather than: ``Subject: Hyperbole bug''
-@end display
-
-@item
-Statements end with periods, questions with question marks (typically),
-and high energy, high impact declarations with exclamation points.  These
-simple rules make all e-mail communication much easier for recipients to
-handle appropriately.
-
-@vindex emacs-version
-@item
-Question messages should normally include your Hyperbole and Emacs
-version numbers and should clearly explain your problem and surrounding
-issues.  Otherwise, it is difficult for anyone to answer your question.
-(Your top-level Hyperbole menu shows its version number and @bkbd{M-x
-emacs-version @key{RET}} gives the other.)
-
-@item
-If you ask questions, you should consider adding to the discussion by
-telling people the kinds of work you are doing or contemplating doing
-with Hyperbole.  In this way, the list is not overrun by messages that
-ask for, but provide no information.
-@end itemize
-
-
 @node Smart Keys, Buttons, Introduction, Top
 @chapter Smart Keys
 
@@ -838,8 +814,11 @@ ask for, but provide no information.
 @kindex Assist Key
 Hyperbole offers two special @dfn{Smart Keys}, the Action Key and the
 Assist Key, that perform an extensive array of context-sensitive
-operations across emacs usage.  This chapter explains their typical
-uses.  @xref{Smart Key Reference}, for complete descriptions of their
+operations across emacs usage.  In many popular modes, they allow you
+to perform common, sometimes complex operations without having to a
+different key for each operation.  Just press a Smart Key and the
+right thing happens.  This chapter explains typical uses of the Smart
+Keys.  @xref{Smart Key Reference}, for complete descriptions of their
 behavior in all contexts.
 
 @menu
@@ -1054,11 +1033,26 @@ to use that with the following in your Emacs initialization file:
 @code{(setq action-key-modeline-function #'hmouse-context-ibuffer-menu)}.
 To set it back to the default use:
 @code{(setq action-key-modeline-function #'hmouse-context-menu)}.
+
+@findex dired-jump
+@findex hui-menu-screen-commands
+@cindex directory editor
+@cindex dired
+@cindex modeline, screen command menu
 The default @code{assist-key-modeline-function} is to pop up a menu of
 convenient screen commands that lets you select buffers grouped by
 major mode, use HyControl, or jump to specific windows, window
-configurations or frames.
+configurations or frames.  If you would prefer it runs the directory
+editor @code{dired} on the directory associated with the window of the
+modeline press, use this: @code{(setq assist-key-modeline-function #'dired-jump)}.
+To set it back to the default use:
+@code{(setq assist-key-modeline-function #'hui-menu-screen-commands)}.
 
+These variables may also be changed permanently with the Emacs
+interactive customization interface.  Use @bkbd{M-x customize-variable
+@key{RET} assist-key-modeline-function @key{RET}}.  In the Assist
+Modeline Function text field that appears, change the value
+to @code{dired-jump}.  Then press the ``Apply and Save'' button.
 
 @node Smart Key Thing Selection, Smart Key Argument Selection, Smart Key Modeline, Smart Keys
 @section   Smart Key Thing Selection
@@ -1180,7 +1174,7 @@ this direct selection technique.
 
 @cindex completion
 Wherever possible, standard Emacs completion is offered, as described in
-@ref{Completion,,,emacs,the Emacs Manual}.  Remember to use @bkbd{?}
+@ref{Completion,,,emacs,the GNU Emacs Manual}.  Remember to use @bkbd{?}
 to see what your possibilities for an argument are.  Once you have a
 list of possible completions on screen, press the Action Key twice on
 any item to enter it as the argument.
@@ -1279,7 +1273,7 @@ information source to another.
 @cindex explicit button
 @cindex button, explicit
 @cindex button label
-Hyperbole creates and manages @emph{explicit buttons} which execute
+Hyperbole creates and manages @dfn{explicit buttons} which execute
 specific actions when activated (typically through a button press).
 They look like this @samp{<(fake button)>} to a Hyperbole user.  They
 are quickly recognizable, yet relatively non-distracting as one scans
@@ -1356,22 +1350,32 @@ arises.
 
 @cindex button, implicit
 @cindex implicit button
-Implicit buttons are those defined by the natural structure of a
-document.  They are identified by contextual patterns found within
-documents.  Their behavior is determined by one or more actions which
-they trigger when activated.  An action is derived from either a
-Hyperbole action type specification (@pxref{Action Types}) or an Emacs
-Lisp function.  Implicit button types may use the same action types that
-explicit buttons use.
+@cindex action type
+@dfn{Implicit buttons} are virtual buttons recognized within the
+natural structure of a document.  For example, a web URL button that
+displays its link or an email address button that starts a mail
+message to the associated address.  Implicit buttons are identified by
+contextual patterns found within documents.  An @dfn{Implicit button
+type} identifies a pattern or state that when matched triggers
+an @emph{action} associated with the implicit button type.  The action
+is specified by either a Hyperbole action type (@pxref{Action Types})
+or an Emacs Lisp function.  Implicit button types may use the same
+action types that explicit buttons use.  As an example, a pathname
+implicit button type would match to any existing local filename or
+directory name and its action would be to display the associated file
+or directory, typically in another window.
 
 @vindex file, hibtypes.el
 @cindex context
-Implicit buttons never have any button data associated with them.
-They are recognized in context based on predicate matches (boolean
-conditionals) defined within implicit button types.  For example,
-Hyperbole recognizes file names enclosed in double quotes and can
-display their associated files in response to Action Key presses, even
-if they are on off-site computers.
+@cindex boolean expressions
+@cindex activating implicit button
+Unlike explicit buttons, implicit buttons never have any button data
+associated with them.  They are recognized in context based on
+predicate matches (boolean expressions) defined within implicit button
+types.  Each time a Smart Key is pressed at a location, Hyperbole
+evaluates the predicates from the list of implicit button types and
+the first one that evaluates true is selected and its associated
+action is triggered.
 
 The Hyperbole Smart Keys offer extensive additional context-sensitive
 point-and-click type behavior beyond these standard implicit button
@@ -2300,7 +2304,7 @@ minibuffer menu item to enable it.
 @cindex news
 @vindex file, hmail.el
 Hyperbole automatically supports the following mail readers: Rmail
-(@pxref{Rmail,,Reading Mail with Rmail,emacs, the Emacs Manual}), VM
+(@pxref{Rmail,,Reading Mail with Rmail,emacs, the GNU Emacs Manual}), VM
 (@pxref{Introduction,,,vm, the VM Manual}) and MH-e.  Button inclusion
 and activation within USENET news articles is also supported in the
 same fashion via the Gnus news reader if available at your site
@@ -3425,8 +3429,8 @@ paragraphs.
 @bkbd{M-q} or @bkbd{M-j} refills a paragraph within a
 cell so that its lines wrap within the current margin settings.
 @bkbd{C-c M-q} or @bkbd{C-c M-j} refills all paragraphs within a
-cell.  @bkbd{C-M-q} or @bkbd{C-M-j} refills all cells within a
-tree.  See your InfoDock, XEmacs, or Emacs manual for information on how
+cell.  @bkbd{C-M-q} or @bkbd{C-M-j} refills all cells within a tree.
+See your InfoDock, XEmacs, or GNU Emacs manual for information on how
 to set the left and right margins.
 
 @vindex kotl-mode:refill-flag
@@ -4145,7 +4149,7 @@ The @code{RegexFind} menu item searches the rolo list for all entries
 which contain matches for a given regular expression.  The regular
 expression syntax used is the same as the one used within Emacs
 and across the GNU set of tools.  @xref{Regexps,,Syntax of Regular
-Expressions,emacs, the Emacs Manual}, for full documentation on this
+Expressions, emacs, the GNU Emacs Manual}, for full documentation on this
 format.
 
 The @code{WordFind} menu item locates full-word matches so that if you
@@ -4488,7 +4492,7 @@ detail.
 
 @vindex kill-ring
 HyWconfig creates a ring structure that operates just like the Emacs
-@code{kill-ring} (@pxref{Kill Ring,,,emacs,the Emacs Manual}) but its
+@code{kill-ring} (@pxref{Kill Ring,,,emacs,the GNU Emacs Manual}) but its
 elements are window configurations rather than text regions.  You can
 add an element to the ring to save the current window configuration in
 the selected frame.  After several elements are in the ring, you can
@@ -4700,12 +4704,12 @@ An action type is created, i.e.@: loaded into the Hyperbole environment,
 with the @code{(defact)} function (which is an alias for
 @code{(actype:create)}).  The calling signature for this function is
 given in its documentation; it is the same as that of @code{(defun)}
-except that a documentation string is required.  (An interactive calling
-form is also required if the action type has formal parameters and is to
-be used in explicit button definitions.  Implicit buttons never use an
-action type's interactive form.  It is good practice to include an
-interactive form since the type creator cannot know how users may choose
-to apply the type.)
+except that a documentation string is required.  An interactive
+calling form is also required if the action type has formal parameters
+and is to be used in explicit or global button definitions.  Implicit
+buttons never use an action type's interactive form; however, it is
+good practice to include an interactive form since the type creator
+cannot know how users may choose to apply the type.
 
 An action type's parameters are used differently than those of a
 function being called.  Its interactive calling form is used to prompt
@@ -4723,12 +4727,14 @@ Hyperbole functions.
 @cindex interactive form
 @findex interactive
 The interactive calling form for an action type is of the same form as
-that of a regular Emacs Lisp function definition (see the documentation
-for the Emacs Lisp @code{(interactive)} form).  It may additionally use
+that of a regular Emacs Lisp function definition (see the
+documentation for the Emacs Lisp @code{(interactive)} form
+or @pxref{Interactive Codes,,Code Characters for 'interactive',elisp,
+the GNU Emacs Lisp Reference Manual}.  It may additionally use
 Hyperbole command character extensions when the form is given as a
-string.  Each such extension character @emph{must} be preceded by a plus
-sign, @samp{+}, in order to be recognized, since such characters may also
-have standard interactive meanings.
+string.  Each such extension character @emph{must} be preceded by a
+plus sign, @samp{+}, in order to be recognized, since such characters
+may also have different standard interactive meanings.
 
 @noindent
 The present Hyperbole extension characters are:
@@ -4854,13 +4860,14 @@ button's attributes in the same manner as is done for explicit buttons.
 For some implicit button types, other forms of help will be more
 appropriate.  If an Emacs Lisp function is defined whose name is formed
 from the concatenation of the type name followed by @samp{:help}, e.g.@:
-@code{my-ibtype:help}, it is used to respond to requests for
-help on buttons of that type.  Any such function should take a single
-argument of an implicit button construct.  (This is what
+@code{my-ibtype:help}, it is used as the assist-action whenever the
+Assist Key is pressed, to respond to requests for help on buttons of
+that type.  Any such function should take a single argument of an
+implicit button construct.  (This is what
 @code{(ibut:at-p)} returns when point is within an implicit button
-context.)  The button may be queried for its attributes using functions
-from the @samp{hbut} and @samp{hattr} classes.  See the @file{hib-kbd.el}
-file for an example of a custom help function.
+context.)  The button may be queried for its attributes using
+functions from the @samp{hbut} and @samp{hattr} classes.  See
+the @file{hib-kbd.el} file for an example of a custom help function.
 
 @node Explicit Button Technicalities, Encapsulating Systems, Creating Types, Developing with Hyperbole
 @section   Explicit Button Technicalities
@@ -5032,7 +5039,7 @@ You are welcome, however, to study its code, below the
 @cindex glossary
 @cindex definitions
 Concepts pertinent to operational usage of Hyperbole are defined here.
-@xref{Glossary,,,emacs,the Emacs Manual},
+@xref{Glossary,,,emacs,the GNU Emacs Manual},
 if any emacs-related terms are unfamiliar to you.
 
 @table @b
@@ -5277,7 +5284,7 @@ longer maintained.  An older version from 1999 may be found at
 infodock.sf.net.  InfoDock has all the power of emacs, but with an
 easier to use and more comprehensive menu-based user interface.  Most
 objections people raise to using emacs have already been addressed in
-InfoDock.  InfoDock is for those people who want a complete,
+InfoDock.  InfoDock was meant for people who wanted a complete,
 pre-customized environment in one package.
 
 @item Instance Number
@@ -5379,47 +5386,27 @@ multiple physical monitors arranged into a single virtual display.
 Screen edges are thus the outer borders of the virtual display.
 
 @cindex Smart Key
-@vindex smart-scroll-proportional
 @cindex proportional scrolling
-@cindex middle mouse key
 @cindex scrolling
-@vindex hmouse-middle-flag
 @item Smart Key
 A context-sensitive key used within Hyperbole and beyond.  There are
-two Smart Keys, the Action Key and the Assist Key.  The Action Key,
-bound to the shift-middle mouse key (or shift-left mouse key on a
-2-button mouse), activates Hyperbole buttons and scrolls the current
-buffer line to the top of the window when pressed at the end of a
-line.  (InfoDock users or those who set the variable,
-@code{hmouse-middle-flag}, to @samp{t}, may also use the middle mouse
-key as the Action Key).
+two Smart Keys, the Action Key and the Assist Key.  The Action Key
+activates Hyperbole buttons and scrolls the current buffer line to the
+top of the window when pressed at the end of a line.
 
+The Assist Key shows help for Hyperbole buttons and scrolls the
+current line to the bottom of the window when pressed at the end of a
+line.
 
-The Assist Key, bound to the shift-right mouse key, explains
-what a Hyperbole button does or scrolls the current line to the bottom
-of the window when pressed at the end of a line.  (Use the Hyperbole
-Cust menu or see the documentation for the variable,
-@code{smart-scroll-proportional}, for information on how to make these
-keys scroll forward and backward a windowful at a time).
+The @bkbd{C-h h d s} Doc/SmartKeys menu item displays a full summary of
+Smart Key capabilities.  @xref{Smart Keys}, for complete details.
 
-To see what a Smart Key will do within a particular context, depress and
-hold the Smart Mouse Key at the point desired and depress the other
-Smart Mouse Key.  A buffer containing a description of its contextual
-function will then be displayed.  You may release the two keys in any
-order after you have depressed them both.
-
-@kindex C-h A
-@kindex C-u C-h A
-@cindex key binding, C-h A
-@cindex key binding, C-u C-h A
-@bkbd{C-h A} displays this same context-sensitive help for the
-Action Key while @bkbd{C-u C-h A} displays the help for the Assist
-Key.  Note that @bkbd{C-h a} performs a function unrelated to
-Hyperbole, so you must press the shift key when you type the @bkbd{A}
-character.
-
-The Doc/SmartKeys menu item displays a summary of Smart Key functions in
-each context.
+@item Smart Menus
+Smart Menus are an older in-buffer menu system that worked on dumb
+terminals and pre-dated Emacs' own dumb terminal menu support.  They
+are included with InfoDock (which is no longer maintained) and are not
+available separately.  They are not a part of Hyperbole and are not
+necesary for its use but are still supported by the Smart Keys.
 
 @item Source Buffer / File
 The buffer or file within which a Hyperbole button is embedded.
@@ -5496,9 +5483,8 @@ invocation instructions in this appendix.
 @cindex obtaining Hyperbole
 @cindex Hyperbole, obtaining
 By far, the simplest and quickest way to install Hyperbole is to use
-the Emacs Package Manager.  If you are not familiar with it, see the
-Packages section of the GNU Emacs Manual, @pxref{Packages,,,emacs,the
-Emacs Manual}.
+the Emacs Package Manager.  If you are not familiar with
+it, @pxref{Packages,,,emacs,the GNU Emacs Manual}.
 
 If you have Hyperbole 5.10 or higher installed and simply want
 to upgrade it, invoke the Emacs Package Manager with @bkbd{M-x
@@ -5624,7 +5610,8 @@ Generally, you should not need to change anything other than these options.
 However, if you like to customize your environment extensively, there
 are many additional Hyperbole configuration options that may be 
 changed with the Emacs customization interface,
-@pxref{Easy Customization,,Easy Customization Interface,emacs, the Emacs Manual}.
+@pxref{Easy Customization,,Easy Customization Interface,emacs, the GNU
+Emacs Manual}.
 When you save any changes within this interface, the changes are saved
 permanently to your personal Emacs initialization file and are available
 in future Emacs sessions.
@@ -5948,8 +5935,8 @@ major mode is invoked and unbinding any mode-specific keys that
 interfere with global Hyperbole keys.  If you prefer that this not
 happen permanently, use @bkbd{M-x customize-variable @key{RET}
 hkey-init-override-local-keys @key{RET}}.  Press the Toggle button to
-change the value to @code{nil}.  Then select ``Apply and Save''.
-
+change the value to @code{nil}.  Then press the ``Apply and Save''
+button.
 
 @node Koutliner Keys, Smart Key Reference, Global Key Bindings, Top
 @appendix Koutliner Keys
@@ -7905,9 +7892,9 @@ Finally, if pressed within an unrecognized context:
 @cindex Hyperbole version
 If you find any errors in Hyperbole's operation or documentation, feel
 free to report them to <bug-hyperbole@@gnu.org>.  Be sure to use the
-Msg/Report-Hypb-Bug minibuffer menu item whenever you send a message
-to this address since that command will insert important system version
-information for you.
+@bkbd{C-h h m r} Msg/Report-Hypb-Bug minibuffer menu item whenever you send a message
+to this address since that command will insert important system
+version information for you.
 
 If you use Hyperbole mail or news support (@pxref{Buttons in Mail}), a
 press of your Action Key on the Hyperbole mail list address will
@@ -7917,14 +7904,45 @@ be sure to include the version numbers of your editor, Hyperbole and
 your window system.  Your Hyperbole version number can be found in the
 top-level Hyperbole menu.
 
-Please use your subject line to state the position that your message
-takes on the topic that it addresses, e.g.@: send "Subject: Basic bug in
-top-level Hyperbole menu." rather than "Subject: Hyperbole bug".  This
-simple rule makes all e-mail communication much easier.
+Below are some tips on how best to structure requests and discussion
+messages.  If you share information about your use of Hyperbole with
+others, it will promote broader use and development of Hyperbole.
+
+@itemize @bullet
+@item
+Always use your Subject lines to state the position that your message
+takes on the topic that it addresses.
+
+@display
+For example, write: ``Subject: Typo in top-level Hyperbole minibuffer menu.''
+
+rather than: ``Subject: Hyperbole bug''
+@end display
+
+@item
+Statements end with periods, questions with question marks (typically),
+and high energy, high impact declarations with exclamation points.  These
+simple rules make all e-mail communication much easier for recipients to
+handle appropriately.
+
+@vindex emacs-version
+@item
+Question messages should normally include your Hyperbole and Emacs
+version numbers and should clearly explain your problem and surrounding
+issues.  Otherwise, it is difficult for anyone to answer your question.
+(Your top-level Hyperbole menu shows its version number and @bkbd{M-x
+emacs-version @key{RET}} gives the other.)
+
+@item
+If you ask questions, you should consider adding to the discussion by
+telling people the kinds of work you are doing or contemplating doing
+with Hyperbole.  In this way, the list is not overrun by messages that
+ask for, but provide no information.
+@end itemize
 
 If you have suggestions on how to improve Hyperbole, send them to
-<hyperbole-users@@gnu.com> (minibuffer menu item Msg/Compose-Hypb-Mail).
-Here are some issues you might address:
+<hyperbole-users@@gnu.com> (@bkbd{C-h h m c} minibuffer menu item
+Msg/Compose-Hypb-Mail).  Here are some issues you might address:
 
 @itemize @bullet
 @item
@@ -8011,8 +8029,8 @@ The @code{hkey-alist} and @code{hmouse-alist} variables in
 @file{hui-mouse.el} and @file{hui-window.el} must be altered if you want
 to change what the Smart Keys do in standard contexts.  You should
 then update the Smart Key summary documentation in the file,
-@file{man/hkey-help.txt}, and potentially the same summary in this
-manual.
+@file{man/hkey-help.txt}, and then regenerate the readable forms of
+this manual which includes that file.
 
 @item What if I get mail with a Hyperbole button type I don't have?
 
