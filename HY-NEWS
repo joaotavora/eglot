@@ -9,6 +9,16 @@
 *				    V6.01
 ===========================================================================
 
+  BUTTONS
+
+    - New implicit button type for social media hashtag or username
+      references, social-reference.  Action key activation displays
+      the web page associated with the hashtag or username.  References
+      can look like #hashtag or @username for Twitter references.
+      fb#hashtag or facebook@username for Facebook references or
+      in#hashtag or instagram@username for Instagram references.
+      See the new file "hib-social.el" for more information.
+
   VARIABLES
 
     - hsite.el is now included in the Hyperbole package rather than

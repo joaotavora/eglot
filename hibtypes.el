@@ -22,6 +22,42 @@
 (require 'hactypes)
 
 ;;; ************************************************************************
+;;; Public variables
+;;; ************************************************************************
+
+(defconst mail-address-tld-regexp
+  (format "\\.%s\\'"
+	  (regexp-opt
+	   '("aero" "arpa" "asia" "biz" "cat" "com" "coop" "edu" "gov" "info"
+	     "int" "jobs" "mil" "mobi" "museum" "name" "net" "org" "pro" "tel"
+	     "travel" "uucp"
+	     "ac" "ad" "ae" "af" "ag" "ai" "al" "am" "an" "ao" "aq"
+	     "ar" "as" "at" "au" "aw" "ax" "az" "ba" "bb" "bd" "be" "bf" "bg" "bh"
+	     "bi" "bj" "bl" "bm" "bn" "bo" "br" "bs" "bt" "bv" "bw" "by" "bz" "ca"
+	     "cc" "cd" "cf" "cg" "ch" "ci" "ck" "cl" "cm" "cn" "co" "cr" "cu" "cv"
+	     "cx" "cy" "cz" "de" "dj" "dk" "dm" "do" "dz" "ec" "ee" "eg" "eh" "er"
+	     "es" "et" "eu" "fi" "fj" "fk" "fm" "fo" "fr" "ga" "gb" "gd" "ge" "gf"
+	     "gg" "gh" "gi" "gl" "gm" "gn" "gp" "gq" "gr" "gs" "gt" "gu" "gw" "gy"
+	     "hk" "hm" "hn" "hr" "ht" "hu" "id" "ie" "il" "im" "in" "io" "iq" "ir"
+	     "is" "it" "je" "jm" "jo" "jp" "ke" "kg" "kh" "ki" "km" "kn" "kp" "kr"
+	     "kw" "ky" "kz" "la" "lb" "lc" "li" "lk" "lr" "ls" "lt" "lu" "lv" "ly"
+	     "ma" "mc" "md" "me" "mf" "mg" "mh" "mk" "ml" "mm" "mn" "mo" "mp" "mq"
+	     "mr" "ms" "mt" "mu" "mv" "mw" "mx" "my" "mz" "na" "nc" "ne" "nf" "ng"
+	     "ni" "nl" "no" "np" "nr" "nu" "nz" "om" "pa" "pe" "pf" "pg" "ph" "pk"
+	     "pl" "pm" "pn" "pr" "ps" "pt" "pw" "py" "qa" "re" "ro" "rs" "ru" "rw"
+	     "sa" "sb" "sc" "sd" "se" "sg" "sh" "si" "sj" "sk" "sl" "sm" "sn" "so"
+	     "sr" "st" "su" "sv" "sy" "sz" "tc" "td" "tf" "tg" "th" "tj" "tk" "tl"
+	     "tm" "tn" "to" "tp" "tr" "tt" "tv" "tw" "tz" "ua" "ug" "uk" "um" "us"
+	     "uy" "uz" "va" "vc" "ve" "vg" "vi" "vn" "vu" "wf" "ws" "ye" "yt" "yu"
+	     "za" "zm" "zw")
+	   t))
+  "Regular expression of most common Internet top-level domain names.")
+
+(defconst mail-address-regexp
+  "\\([_a-zA-Z][-_a-zA-Z0-9.!@+%]*@[-_a-zA-Z0-9.!@+%]+\\.[a-zA-Z0-9][-_a-zA-Z0-9]+\\)\\($\\|[^a-zA-Z0-9@%]\\)"
+  "Regexp with group 1 matching an Internet email address.")
+
+;;; ************************************************************************
 ;;; Public implicit button types
 ;;; ************************************************************************
   
@@ -172,6 +208,12 @@ current major mode is one handled by func-menu."
 ;; 	    (when item-pos
 ;; 	      (ibut:label-set item-name start end)
 ;; 	      (hact 'imenu-display-item-where item-name item-pos)))))))
+
+;;; ========================================================================
+;;; Handles social media hashtag and username references, e.g. twitter#myhashtag
+;;; ========================================================================
+
+(require 'hib-social)
 
 ;;; ========================================================================
 ;;; Handles Gnu debbugs issue ids, e.g. bug#45678 or just 45678.
@@ -683,9 +725,9 @@ Patch applies diffs to source code."
 ;;; ========================================================================
 
 (defvar mail-address-mode-list
-  '(emacs-lisp-mode scheme-mode lisp-mode c-mode c++-mode html-mode
-    java-mode js2-mode objc-mode python-mode smalltalk-mode text-mode
-    indented-text-mode web-mode) 
+  '(emacs-lisp-mode lisp-interaction-mode lisp-mode scheme-mode c-mode
+    c++-mode html-mode java-mode js2-mode objc-mode python-mode
+    smalltalk-mode fundamental-mode text-mode indented-text-mode web-mode) 
   "List of major modes in which mail address implicit buttons are active.")
 
 (defib mail-address ()
@@ -717,17 +759,15 @@ any buffer attached to a file in `hyrolo-file-list', or any buffer with
 	      (ibut:label-set address (match-beginning 1) (match-end 1))
 	      (hact 'mail-other-window nil address))))))
 
-(defconst mail-address-regexp
-  "\\([_a-zA-Z][-_a-zA-Z0-9.!@+%]*@[-_a-zA-Z0-9.!@+%]+\\.[a-zA-Z][-_a-zA-Z][-_a-zA-Z]?\\|[a-zA-Z][-_a-zA-Z0-9.!+%]+@[-_a-zA-Z0-9@]+\\)\\($\\|[^a-zA-Z0-9.!@%]\\)"
-  "Regexp with group 1 matching an Internet email address.")
-
 (defun mail-address-at-p ()
   "Return e-mail address, a string, that point is within or nil."
   (save-excursion
     (skip-chars-backward "^ \t\n\r\f\"\'(){}[];:<>|")
-    (if (or (looking-at mail-address-regexp)
-	    (looking-at (concat "mailto:" mail-address-regexp)))
-	(match-string-no-properties 1))))
+    (and (or (looking-at mail-address-regexp)
+	     (looking-at (concat "mailto:" mail-address-regexp)))
+	 (save-match-data
+	   (string-match mail-address-tld-regexp (match-string-no-properties 1)))
+	 (match-string-no-properties 1))))
 
 ;;; ========================================================================
 ;;; Displays Texinfo or Info node associated with Texinfo @xref, @pxref or @ref at point.

@@ -1,6 +1,23 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-21  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (mail-address-regexp): Simplified and modernized address matching
+    to better distinguish from @username social media references.
+              (mail-address-mode-list): Added lisp-interaction-mode and fundamental-mode.
+              (mail-address-tld-regexp): Added to match most common top-level
+    domains to tell if a match is really an email address or not.
+              (mail-address-at-p): Tightened by using mail-address-tld-regexp.
+  DEMO (Email Addresses, Social Media Hashtags and Usernames): Added descriptions.
+
 2016-07-20  Bob Weiner  <rsw@gnu.org>
+
+* MANIFEST: 
+  Makefile:
+  hibtypes.el (hib-social): 
+  man/hyperbole.texi (Implicit Buttons): Added social-reference.
+  hib-social.el: Added this file to follow social media hashtag and username
+    references.
 
 * Makefile (help): Added as the default target, explaining major targets.
 

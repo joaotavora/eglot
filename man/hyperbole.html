@@ -320,7 +320,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.1
-Printed July 20, 2016.
+Printed July 21, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -2166,7 +2166,19 @@ any attribute):
 of <em>bug</em>.  See the documentation at the top of
 the <samp>hib-debbugs.el</samp> file for detailed query format information.
 </p>
-
+</dd>
+<dt><code>social-reference</code></dt>
+<dt><code>function-in-buffer</code></dt>
+<dd><a name="index-ibtypes-social_002dreference"></a>
+<a name="index-hashtag"></a>
+<a name="index-username"></a>
+<a name="index-social-media"></a>
+<a name="index-hibtypes_002dsocial_002ddefault_002dservice"></a>
+<p>Displays the web page associated with a social media hashtag or username reference at point.
+Reference format is: [facebook|instagram|twitter]?[#@]&lt;hashtag-or-username&gt; or
+[fb|in|tw]?[#@]&lt;hashtag-or-username&gt;.  Service defaults to the value of
+<code>hibtypes-social-default-service</code> when not given.
+</p>
 
 </dd>
 <dt><code>function-in-buffer</code></dt>
@@ -10340,6 +10352,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hbut_003alabel_002dto_002dkey">hbut:label-to-key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Label-Normalization">Button Label Normalization</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hibtypes_002dbegin_002dload_002dhook">hibtypes-begin-load-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hibtypes_002dend_002dload_002dhook">hibtypes-end-load-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hibtypes_002dsocial_002ddefault_002dservice">hibtypes-social-default-service</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dalist">hkey-alist</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dalways_002ddisplay_002dmenu">hkey-always-display-menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Menus">Smart Key - Smart Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dinit">hkey-init</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
@@ -10465,6 +10478,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-ibtypes-pathname_002dline_002dand_002dcolumn"><code>ibtypes pathname-line-and-column</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ibtypes-rfc"><code>ibtypes rfc</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ibtypes-rfc_002dtoc"><code>ibtypes rfc-toc</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-ibtypes-social_002dreference"><code>ibtypes social-reference</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ibtypes-texinfo_002dref"><code>ibtypes texinfo-ref</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ibtypes-text_002dtoc"><code>ibtypes text-toc</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ibtypes-www_002durl"><code>ibtypes www-url</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -11067,6 +11081,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-groupware">groupware</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-H">H</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hashtag">hashtag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-help-buffer">help buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Help-Buffers">Smart Key - Help Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-help_002c-menu-items">help, menu items</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-help_002c-Smart-Key">help, Smart Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
@@ -11503,6 +11518,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Smart-Mouse-Key-toggle">Smart Mouse Key toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Smart-Mouse-Keys">Smart Mouse Keys</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Keys">Smart Mouse Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-smart-selection">smart selection</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-social-media">social media</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-source-line">source line</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-splitting-a-cell">splitting a cell</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Splitting-and-Appending">Splitting and Appending</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-stack-frame">stack frame</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -11572,6 +11588,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-URLs_002c-using-with-find_002dfile">URLs, using with find-file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-USENET">USENET</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-USENET-1">USENET</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-News">Buttons in News</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-username">username</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-V">V</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-variable-setting">variable setting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Configuration">Configuration</a></td></tr>

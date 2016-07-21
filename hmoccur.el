@@ -214,15 +214,13 @@ Signal an error if not on a valid occurrence line."
 ;;; Private variables
 ;;; ************************************************************************
 
-(defvar moccur-mode-map ())
-(if moccur-mode-map
-    ()
-    (setq moccur-mode-map (make-sparse-keymap))
-    (define-key moccur-mode-map "\C-c\C-c" 'moccur-to)
-    (define-key moccur-mode-map "\C-o" 'moccur-mode-display-occurrence)
-    (define-key moccur-mode-map " " 'moccur-to)
-    (define-key moccur-mode-map "\C-m" 'moccur-to)
-)
+(defvar moccur-mode-map nil)
+(unless moccur-mode-map
+  (setq moccur-mode-map (make-sparse-keymap))
+  (define-key moccur-mode-map "\C-c\C-c" 'moccur-to)
+  (define-key moccur-mode-map "\C-o" 'moccur-mode-display-occurrence)
+  (define-key moccur-mode-map " " 'moccur-to)
+  (define-key moccur-mode-map "\C-m" 'moccur-to))
 
 (provide 'hmoccur)
 

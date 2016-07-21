@@ -142,7 +142,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.1
-Printed July 20, 2016.
+Printed July 21, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -166,7 +166,7 @@ Printed July 20, 2016.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.1, July 20, 2016.
+@center Edition 6.0.1, July 21, 2016.
 
 @sp 2
 @noindent
@@ -1642,6 +1642,17 @@ Note that @emph{issue} or @emph{debbugs} may be used as well in place
 of @emph{bug}.  See the documentation at the top of
 the @file{hib-debbugs.el} file for detailed query format information.
 
+@item social-reference
+@item function-in-buffer
+@findex ibtypes social-reference
+@cindex hashtag
+@cindex username
+@cindex social media
+@vindex hibtypes-social-default-service
+Displays the web page associated with a social media hashtag or username reference at point.
+Reference format is: [facebook|instagram|twitter]?[#@@]<hashtag-or-username> or
+[fb|in|tw]?[#@@]<hashtag-or-username>.  Service defaults to the value of
+@code{hibtypes-social-default-service} when not given.
 
 @c Handled instead by @xref{Smart Key - Identifier Menu Mode}.
 @c @item imenu-item

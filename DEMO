@@ -390,6 +390,32 @@ Try using the Action Key on:  "http://www.gnu.org".
 Full and abbreviated web and ftp URLs, e.g. www.gnu.org, are recognized with
 or without quotes.
 
+** Email Addresses
+
+An Action Key press on an email address of any common domain name will start
+composing an email message to that name within Emacs.  This is limited to
+major modes listed in the variable, mail-address-mode-list.  Try composing a
+message to <hyperbole-users@gnu.org> and tell us what you think of Hyperbole.
+Even better, a press of or on {C-h h m c} composes mail to the list that
+includes your system information.
+
+** Social Media Hashtags and Usernames
+
+An Action Key press a social media hashtag or username reference at point
+displays the web page associated with the reference at the associated
+service.  References are of the form:
+[facebook|instagram|twitter]?[#@]<hashtag-or-username> or
+[fb|in|tw]?[#@]<hashtag-or-username>.  If no service is given, it defaults to
+the value of @code{hibtypes-social-default-service} which is initially
+"twitter".
+
+So all of the following make the same hashtag reference: #gnu twitter#gnu
+tw#gnu and display the page for tweets with that hashtag.  Similarly,
+in@lostart or instagram@lostart would display the page for the user lostart
+at instagram.  Try pressing the Action Key on these if you like.
+
+The file "hib-social.el" has more details on this.
+
 ** Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer
    Lines
 
