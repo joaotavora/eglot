@@ -1,14 +1,13 @@
 ;;; htz.el ---  Timezone-based time and date support for GNU Hyperbole
 ;;
-;; Author:       Masanobu UMEDA             / Bob Weiner
+;; Author:       Masanobu Umeda             / Bob Weiner
 ;;
 ;; Orig-Date:    14-Oct-91 at 07:22:08
 ;;
 ;; Copyright (C) 1991-2016  Free Software Foundation, Inc.
 ;; See the "HY-COPY" file for license information.
 ;;
-;; Adapted from Timezone package for GNU Emacs
-;; Copyright(C) 1990 Masanobu UMEDA
+;; Derived from "timezone.el" in GNU Emacs.
 ;;
 ;; This file is part of GNU Hyperbole.
 ;;
@@ -21,8 +20,8 @@
 ;; turn of the century.
 ;;
 ;; Hyperbole uses this package to normalize all worldwide date times to
-;; Greenwich Mean Time, so that Hyperbole buttons created by users in
-;; different timezones will sort by time properly.
+;; Universal Time (Greenwich Mean Time), so that Hyperbole buttons
+;; created by users in different timezones will sort by time properly.
 
 ;;; Code:
 ;;; ************************************************************************
@@ -45,7 +44,7 @@ Optional 2nd argument TIMEZONE specifies a timezone to be represented in."
   (let* ((year   (string-to-number (aref date 0)))
 	 (month  (string-to-number (aref date 1)))
 	 (day    (string-to-number (aref date 2)))
-	 (time   (htz:time-parse (aref date 3)))
+	 (time   (htz:time-parse   (aref date 3)))
 	 (hour   (string-to-number (aref time 0)))
 	 (minute (string-to-number (aref time 1)))
 	 (second (string-to-number (aref time 2)))
@@ -165,7 +164,7 @@ Optional 2nd argument TIMEZONE specifies an output timezone to use."
   (let* ((year   (string-to-number (aref date 0)))
 	 (month  (string-to-number (aref date 1)))
 	 (day    (string-to-number (aref date 2)))
-	 (time   (htz:time-parse (aref date 3)))
+	 (time   (htz:time-parse   (aref date 3)))
 	 (hour   (string-to-number (aref time 0)))
 	 (minute (string-to-number (aref time 1)))
 	 (second (string-to-number (aref time 2)))
@@ -376,6 +375,7 @@ Optional argument TIMEZONE specifies a time zone."
     ("EDT" .  -400)
     ("AST" .  -400)
     ("NST" .  -330)
+    ("UT"  .  +000)
     ("GMT" .  +000)
     ("BST" .  +100)
     ("MET" .  +100)
@@ -389,7 +389,8 @@ Optional argument TIMEZONE specifies a time zone."
     ("GMT-4"  .  -400) ("GMT-5"  .  -500) ("GMT-6"  .  -600)
     ("GMT-7"  .  -700) ("GMT-8"  .  -800) ("GMT-9"  .  -900)
     ("GMT-10" . -1000) ("GMT-11" . -1100) ("GMT-12" . -1200))
-  "Time differentials of timezone from GMT in +-HHMM form.")
+  "Time differentials of timezone from GMT in +-HHMM form.
+Use `current-time-zone' instead where possible.")
 
 (defvar htz:months-assoc
   '(("JAN" .  1)("FEB" .  2)("MAR" .  3)

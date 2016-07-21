@@ -448,7 +448,7 @@ With optional HELP-STRING-FLAG, instead returns the one line help string for the
 	   (and (not (integerp input))
 		(eventp input)
 		(setq input (event-basic-type input))))
-	  (hyperb:xemacs-p
+	  ((featurep 'xemacs)
 	   (if (eventp input)
 	       (setq input (event-to-character input)))))
     (if (or (symbolp input)
@@ -660,7 +660,7 @@ constructs.  If not given, the top-level Hyperbole menu is used."
   ;;
   ;; This next binding is necessary since the default button1 binding under
   ;; XEmacs, mouse-track, is broken under XEmacs V19.8.
-  (and hyperb:xemacs-p window-system
+  (and (featurep 'xemacs) window-system
        (define-key hui:menu-mode-map 'button1 'mouse-set-point))
   (let ((i 32))
     (while (<= i 126)

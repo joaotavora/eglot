@@ -2,6 +2,15 @@
 
 2016-07-21  Bob Weiner  <rsw@gnu.org>
 
+* hib-social.el (social-reference): 
+  hibtypes.el (mail-address-at-p): Let case-fold-search be t since mail-addresses
+    are case-insensitive.
+
+* Various Files: Small copyright fixes and formatting adjustments.
+    Replaced hyperb:xemacs-p with (featurep 'xemacs) for byte-compiler
+    optimization purposes and made small fixes throughout suggested by Stefan
+    Monnier.
+
 * hibtypes.el (mail-address-regexp): Simplified and modernized address matching
     to better distinguish from @username social media references.
               (mail-address-mode-list): Added lisp-interaction-mode and fundamental-mode.

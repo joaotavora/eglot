@@ -260,8 +260,6 @@ With optional prefix arg INSERT-FLAG, inserts the pathname at point."
      exec-path)
     nil))
 
-;;; Next function is copied from a GPLed function:
-;;; Copyright (C) 1987, 1988 Kyle E. Jones
 (defun hui-menu-window-list-all-frames (&optional mini)
   "Returns a list of Lisp window objects for all Emacs windows in all frames.
 Optional first arg MINI t means include the minibuffer window in the list,

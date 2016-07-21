@@ -80,8 +80,9 @@ Reference format is: [facebook|instagram|twitter]?[#@]<hashtag-or-username> or
 		    (save-match-data
 		      ;; Heuristic to ensure this is not an email address
 		      (not (and (looking-at mail-address-regexp)
-				(string-match mail-address-tld-regexp
-					      (match-string-no-properties 1))))))))
+				(let ((case-fold-search t))
+				  (string-match mail-address-tld-regexp
+						(match-string-no-properties 1)))))))))
     (save-match-data
       (ibut:label-set (match-string-no-properties 0) (match-beginning 0) (match-end 0)))
     (hact 'social-reference (match-string-no-properties 1)
@@ -91,7 +92,8 @@ Reference format is: [facebook|instagram|twitter]?[#@]<hashtag-or-username> or
   "Display the web page at social media SERVICE for REF-TYPE-CHAR and HASHTAG-OR-USERNAME.
 REF-TYPE-CHAR is either \"#\" for a hashtag reference or \"@\" for a username reference."
   (if (or (null service) (equal service "")) (setq service hibtypes-social-default-service))
-  (let (url-to-format)
+  (let ((case-fold-search t)
+	url-to-format)
     (when (or (and (equal ref-type-char "#")
 		   (setq url-to-format
 			 (assoc-default service hibtypes-social-hashtag-alist #'string-match)))

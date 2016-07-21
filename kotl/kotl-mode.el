@@ -1261,7 +1261,7 @@ doc string for `insert-for-yank-1', which see."
 (defalias 'kotl-mode:scroll-up-command  'kotl-mode:scroll-up)
 
 ;;; Cursor and keypad key functions aliases for XEmacs.
-(if hyperb:xemacs-p
+(if (featurep 'xemacs)
     (progn
       (defalias 'kotl-mode:backward-char-command 'kotl-mode:backward-char)
       (defalias 'kotl-mode:forward-char-command  'kotl-mode:forward-char)

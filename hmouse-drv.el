@@ -559,7 +559,7 @@ Under InfoDock and XEmacs, `zmacs-region' must be t; under GNU Emacs,
     (setq hkey-region nil)))
 
 ;; Save any active region to `hkey-region' when the mouse is moved between frames or buffers.
-(if hyperb:xemacs-p
+(if (featurep 'xemacs)
     (add-hook 'mouse-leave-frame-hook #'hmouse-save-region)
   ;; GNU Emacs
   (add-hook 'mouse-leave-buffer-hook #'hmouse-save-region))
@@ -578,7 +578,7 @@ return current point as a marker."
   (and (car args) (listp (car args)) (setq args (car args)))
   (if (and args (hyperb:window-system))
       (progn (hmouse-set-point-at args)
-	     (cond (hyperb:xemacs-p
+	     (cond ((featurep 'xemacs)
 		    (if (eventp current-mouse-event)
 			(copy-event current-mouse-event)))
 		   ((equal (hyperb:window-system) "next")

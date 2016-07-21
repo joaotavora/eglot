@@ -1,14 +1,29 @@
 ;;; hmoccur.el --- Multi-buffer or multi-file regexp occurrence location.
 ;;
-;; Author:       Markus Freericks <mfx@cs.tu-berlin.de> / Bob Weiner
+;; Author:       Markus Freericks <Mfx@cs.tu-berlin.de> / Bob Weiner
 ;;
 ;; Orig-Date:     1-Aug-91
 ;;
-;; Copyright (C) 1991 Markus Freericks
 ;; Copyright (C) 1991-2016  Free Software Foundation, Inc.
 ;; See the "HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
+
+;; This file is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY.  No author or distributor accepts
+;; responsibility to anyone for the consequences of using it or for
+;; whether it serves any particular purpose or works at all, unless he
+;; says so in writing.  Refer to the GNU Emacs General Public License
+;; for full details. You should consider this code to be covered under
+;; the terms of the GPL.
+
+;; Everyone is granted permission to copy, modify and redistribute
+;; this file, but only under the conditions described in the GNU Emacs
+;; General Public License.  A copy of this license is supposed to have
+;; been given to you along with GNU Emacs so you can know your rights
+;; and responsibilities.  It should be in a file named COPYING.  Among
+;; other things, the copyright notice and this notice must be
+;; preserved on all copies.
 
 ;;; Commentary:
 ;;
@@ -59,11 +74,12 @@
 
 (defun moccur (regexp &optional file-regexp no-fold-search)
   "Show all lines of all buffers containing a match for REGEXP.
-With optional FILE-REGEXP, a pattern matching to files in a single
-directory, search matching files rather than current buffers.
-The lines are shown in a buffer named *Moccur* which serves as a menu to
-find any of the occurrences in this buffer.
-\\[describe-mode] in that buffer explains how."
+With optional FILE-REGEXP (a pattern which matches to files in a
+single directory), search matching files rather than current
+buffers.  The lines are shown in a buffer named *Moccur* which
+serves as a menu to find any of the occurrences in this buffer.
+
+\\{moccur-mode-map}"
   (interactive "sRegexp to find occurrences of: \nsFiles to search (default current file buffers): ")
   (if (equal file-regexp "") (setq file-regexp nil))
   (let*  ((buffers (if file-regexp (directory-files

@@ -117,7 +117,7 @@
   "Add a HyRolo menu to the rolo match buffer menubar."
   (cond ((fboundp 'popup-mode-menu)
 	 (setq mode-popup-menu id-popup-hyrolo-menu))
-	(hyperb:xemacs-p
+	((featurep 'xemacs)
 	 (define-key hyrolo-mode-map 'button3 'hyrolo-popup-menu))
 	(t ;; hyperb:emacs-p
 	 (define-key hyrolo-mode-map [down-mouse-3] 'hyrolo-popup-menu)
@@ -126,7 +126,7 @@
 		 (global-key-binding [menu-bar Rolo]))
 		((boundp 'current-menubar)
 		 (car (find-menu-item current-menubar '("Rolo")))))
-    (if hyperb:xemacs-p (set-buffer-menubar (copy-sequence current-menubar)))
+    (if (featurep 'xemacs) (set-buffer-menubar (copy-sequence current-menubar)))
     (easy-menu-define nil hyrolo-mode-map "Rolo Menubar Menu" id-popup-hyrolo-menu)
     ;; Force a menu-bar update.
     (force-mode-line-update)))
@@ -142,7 +142,7 @@
        ;; InfoDock under a window system
        (require 'id-menubars)
        (id-menubar-set 'hyrolo-mode 'id-menubar-hyrolo))
-      ((or hyperb:emacs-p hyperb:xemacs-p)
+      ((or hyperb:emacs-p (featurep 'xemacs))
        ;; Emacs or XEmacs under a window system
        (add-hook 'hyrolo-mode-hook #'hyrolo-menubar-menu)))
 

@@ -121,8 +121,6 @@ disables/inhibits support."
 
 (require 'hui-select)  ;; This requires 'hvar which defines the var:append function.
 
-(if (not (fboundp 'defalias)) (fset 'defalias 'fset))
-
 ;;; ************************************************************************
 ;;; Public Variables
 ;;; ************************************************************************
@@ -282,7 +280,7 @@ bindings after load)."
   (cond
     ;;
     ;; GNU Emacs, XEmacs or InfoDock
-    ((or hyperb:xemacs-p hyperb:emacs-p)
+    ((or (featurep 'xemacs) hyperb:emacs-p)
      (mapcar
        (lambda (key-and-binding)
 	 (global-set-key (cadr key-and-binding) (car (cddr key-and-binding))))

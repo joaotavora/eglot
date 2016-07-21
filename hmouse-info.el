@@ -170,7 +170,7 @@ Otherwise, return nil."
 		  (filep (concat "(" nodename ")" "Top"))
 		  (buffer-file-name (concat "(" buffer-file-name ")" nodename))
 		  (t nodename)))
-      (if hyperb:xemacs-p
+      (if (featurep 'xemacs)
 	  (Info-goto-node nodename nil t)
 	(Info-goto-node nodename))
       t)))
@@ -223,7 +223,7 @@ entry and returns t; otherwise returns nil."
 	  (forward-char 2)
 	  (setq node (Info-extract-menu-node-name nil (Info-index-node)))))
       (when node
-	(if hyperb:xemacs-p
+	(if (featurep 'xemacs)
 	    (Info-goto-node node nil t)
 	  (Info-goto-node node))
 	t))))

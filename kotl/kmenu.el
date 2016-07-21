@@ -193,7 +193,7 @@
   "Add a Koutline menu to the menubar for each koutline buffer."
   (cond ((fboundp 'popup-mode-menu)
 	 (setq mode-popup-menu id-popup-kotl-menu))
-	(hyperb:xemacs-p
+	((featurep 'xemacs)
 	 (define-key kotl-mode-map 'button3 'kotl-popup-menu))
 	(t ;; hyperb:emacs-p
 	 (define-key kotl-mode-map [down-mouse-3] 'kotl-popup-menu)
@@ -202,7 +202,7 @@
 		 (global-key-binding [menu-bar Koutline]))
 		((boundp 'current-menubar)
 		 (car (find-menu-item current-menubar '("Koutline")))))
-    (if hyperb:xemacs-p	(set-buffer-menubar (copy-sequence current-menubar)))
+    (if (featurep 'xemacs) (set-buffer-menubar (copy-sequence current-menubar)))
     (easy-menu-define nil kotl-mode-map "Koutline Menubar Menu" id-popup-kotl-menu)
     ;; Force a menu-bar update.
     (force-mode-line-update)))
@@ -218,7 +218,7 @@
        ;; InfoDock under a window system
        (require 'id-menubars)
        (id-menubar-set 'kotl-mode 'id-menubar-kotl))
-      ((or hyperb:emacs-p hyperb:xemacs-p)
+      ((or hyperb:emacs-p (featurep 'xemacs))
        ;; Emacs or XEmacs under a window system
        (add-hook 'kotl-mode-hook #'kotl-menubar-menu)))
 

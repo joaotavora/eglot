@@ -192,7 +192,7 @@ Optional DEFAULT-PROMPT is used to describe default value."
 
 (defun hargs:select-event-window ()
   "Select window, if any, that mouse was over during last event."
-  (if hyperb:xemacs-p
+  (if (featurep 'xemacs)
       (if current-mouse-event
 	  (select-window
 	   (or (event-window current-mouse-event)

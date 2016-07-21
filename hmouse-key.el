@@ -32,7 +32,7 @@
 ;;; Public variables
 ;;; ************************************************************************
 
-(unless (or hyperb:xemacs-p hyperb:emacs-p)
+(unless (or (featurep 'xemacs) hyperb:emacs-p)
   ;; XEmacs and Emacs pre-load their mouse libraries, so
   ;; we shouldn't have to require them here.
   (eval (cdr (assoc (hyperb:window-system)
@@ -55,7 +55,7 @@ bindings after Smart Key setup."
     (noninteractive)
     ;;
     ;; GNU Emacs, XEmacs or InfoDock
-    ((or hyperb:xemacs-p hyperb:emacs-p)
+    ((or (featurep 'xemacs) hyperb:emacs-p)
      (mapcar
        (lambda (key-and-binding)
 	 (global-set-key (car key-and-binding) (cdr key-and-binding)))

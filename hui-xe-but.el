@@ -17,8 +17,8 @@
 
 ;;; Code:
 
-(or hyperb:xemacs-p
-    (error "(hui-xe-but.el):  Load only when running XEmacs."))
+(unless (featurep 'xemacs)
+  (error "(hui-xe-but.el):  Load only when running XEmacs."))
 
 ;;; ************************************************************************
 ;;; Other required Elisp libraries

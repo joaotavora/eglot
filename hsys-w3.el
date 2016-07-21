@@ -28,6 +28,7 @@
 ;;; ************************************************************************
 
 (require 'browse-url)
+(require 'hbut)
 
 ;;; Does not load any particular web browser but requires a package like 'w3'
 ;;; to operate properly.

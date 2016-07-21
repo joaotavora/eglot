@@ -16,20 +16,11 @@
 ;;; Public variables
 ;;; ************************************************************************
 
-;;; Support button highlighting and flashing under XEmacs.
-;;;
-;;;###autoload
-(defvar hyperb:xemacs-p
-  (let ((case-fold-search t))
-    (if (string-match "XEmacs" emacs-version)
-	emacs-version))
-  "Version string under XEmacs or nil")
-
-;;; Support mouse handling under GNU Emacs V19 or higher.
+;;; Support mouse handling and Koutlines under GNU Emacs V19 or higher.
 ;;;
 ;;;###autoload
 (defvar hyperb:emacs-p
-  (and (not hyperb:xemacs-p)
+  (and (not (featurep 'xemacs))
        ;; Version 19 and above, the only ones supported.
        (string-lessp "19" emacs-version)
        emacs-version)
@@ -38,7 +29,7 @@
 ;;; Koutlines work only with specific versions of Emacs and XEmacs.
 ;;;###autoload
 (defconst hyperb:kotl-p
-  (if hyperb:xemacs-p
+  (if (featurep 'xemacs)
       ;; Only works for XEmacs 19.9 and above.
       (or (string-match "^19\\.9 \\|^19\\.[1-9][0-9]" emacs-version)
 	  ;; Version 20 and above.
@@ -50,17 +41,15 @@
 ;;; Hyperbole Directory Setting (dynamically computed)
 ;;; ************************************************************************
 
-(defconst hyperb:dir (file-name-directory
-		      (or (and (stringp load-file-name) load-file-name)
-			  (hyperb:path-being-loaded)
-			  (locate-file "hmouse-tag.el" load-path)
-			  ""))
+(defconst hyperb:dir (or (file-name-directory
+			  (or (and (stringp load-file-name) load-file-name)
+			      (hyperb:path-being-loaded)
+			      (locate-file "hmouse-tag.el" load-path)
+			      ""))
+			 (error
+			  "(Hyperbole): Failed to set hyperb:dir.  Try setting it manually."))
   "Directory where the Hyperbole executable code is kept.
 It must end with a directory separator character.")
-(if (stringp hyperb:dir)
-    (setq hyperb:dir (file-name-directory hyperb:dir))
-  (error
-   "(Hyperbole): Failed to set hyperb:dir.  Try setting it manually."))
 
 ;; Add hyperb:dir to load-path so other Hyperbole libraries can be found.
 (add-to-list 'load-path hyperb:dir)

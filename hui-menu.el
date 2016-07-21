@@ -205,7 +205,7 @@
   "Untitled menu of Hyperbole options.")
 
 ;; Force reinitialization whenever this file is reloaded.
-(defconst infodock-hyperbole-menu nil)
+(defvar infodock-hyperbole-menu nil)
 
 ;;; ************************************************************************
 ;;; Public functions
@@ -224,7 +224,7 @@
       (setq infodock-hyperbole-menu
 	    (delq nil
 		  (list
-		   (if hyperb:xemacs-p "%_Hyperbole" "Hyperbole")
+		   (if (featurep 'xemacs) "%_Hyperbole" "Hyperbole")
 		   :config 'Hyperbole
 		   hui-menu-about
 		   ["Demonstration"  (hypb:display-file-with-logo

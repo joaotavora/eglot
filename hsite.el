@@ -136,7 +136,7 @@ down a windowful."
        ;; or too fast, adjust it here.
        (setq hproperty:but-flash-time 1000))
 
-      ((and hyperb:xemacs-p (not noninteractive))
+      ((and (featurep 'xemacs) (not noninteractive))
        (require 'hui-xe-but)
        ;;
        ;; If running XEmacs 19.8 or below, don't highlight explicit buttons

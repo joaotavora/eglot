@@ -128,7 +128,7 @@ Where a part in the term-type is delimited by a `-' or  an `_'."
 			  (display-mouse-p))
 		      ;; X11, NEXTSTEP (DPS), or OS/2 Presentation Manager (PM)
 		      (cond (hyperb:emacs-p "emacs")
-			    (hyperb:xemacs-p  "xemacs")
+			    ((featurep 'xemacs)  "xemacs")
 			    (t                "xterm")))
 		     ((or (featurep 'eterm-fns)
 			  (equal (getenv "TERM") "NeXT")

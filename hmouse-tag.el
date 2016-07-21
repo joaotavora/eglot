@@ -20,7 +20,7 @@
   (mapc #'require '(find-func hpath hui-select))
   (cond ((or (featurep 'etags) (featurep 'tags))
 	 nil)
-	((or hyperb:xemacs-p hyperb:emacs-p)
+	((or (featurep 'xemacs) hyperb:emacs-p)
 	 ;; Force use of .elc file here since otherwise the bin/etags
 	 ;; executable might be found in a user's load-path by the load
 	 ;; command.

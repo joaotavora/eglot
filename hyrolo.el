@@ -1204,7 +1204,7 @@ Returns point where matching entry begins or nil if not found."
 
 (defun hyrolo-to-buffer (buffer &optional other-window-flag frame)
   "Pop to BUFFER."
-  (cond (hyperb:xemacs-p
+  (cond ((featurep 'xemacs)
 	 (pop-to-buffer buffer other-window-flag
 			;; default is to use selected frame
 			(or frame (selected-frame))))

@@ -244,7 +244,7 @@ Also, add language-specific syntax setups to aid in thing selection."
 	     (transient-mark-mode 1)
 	     (hkey-global-set-key [double-mouse-1] 'hui-select-thing-with-mouse)
 	     (hkey-global-set-key [triple-mouse-1] 'hui-select-thing-with-mouse))
-	    (hyperb:xemacs-p
+	    ((featurep 'xemacs)
 	     (add-hook 'mouse-track-click-hook #'hui-select-double-click-hook))))
   ;;
   ;; These hooks let you select C++ and Java methods and classes by

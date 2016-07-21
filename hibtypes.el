@@ -761,13 +761,14 @@ any buffer attached to a file in `hyrolo-file-list', or any buffer with
 
 (defun mail-address-at-p ()
   "Return e-mail address, a string, that point is within or nil."
-  (save-excursion
-    (skip-chars-backward "^ \t\n\r\f\"\'(){}[];:<>|")
-    (and (or (looking-at mail-address-regexp)
-	     (looking-at (concat "mailto:" mail-address-regexp)))
-	 (save-match-data
-	   (string-match mail-address-tld-regexp (match-string-no-properties 1)))
-	 (match-string-no-properties 1))))
+  (let ((case-fold-search t))
+    (save-excursion
+      (skip-chars-backward "^ \t\n\r\f\"\'(){}[];:<>|")
+      (and (or (looking-at mail-address-regexp)
+	       (looking-at (concat "mailto:" mail-address-regexp)))
+	   (save-match-data
+	     (string-match mail-address-tld-regexp (match-string-no-properties 1)))
+	   (match-string-no-properties 1)))))
 
 ;;; ========================================================================
 ;;; Displays Texinfo or Info node associated with Texinfo @xref, @pxref or @ref at point.

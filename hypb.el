@@ -415,7 +415,7 @@ then `locate-post-command-hook'."
 		     current-prefix-arg))
   (locate search-string filter arg))
 
-(if (or hyperb:xemacs-p hyperb:emacs-p)
+(if (or (featurep 'xemacs) hyperb:emacs-p)
     (defalias 'hypb:mark 'mark)
   (defun hypb:mark (inactive-p)
     "Return this buffer's mark value as integer, or nil if no mark.
@@ -425,7 +425,7 @@ If you are using this in an editing command, you are most likely making
 a mistake; see the documentation of `set-mark'."
     (mark)))
 
-(if hyperb:xemacs-p
+(if (featurep 'xemacs)
     (defalias 'hypb:mark-marker 'mark-marker)
   (defun hypb:mark-marker (inactive-p)
     "Return this buffer's mark as a marker object, or nil if no mark.
@@ -645,7 +645,7 @@ nor nil it means to not count the minibuffer window even if it is active."
 	   (define-key map [mouse-1]  'hypb:browse-home-page)
 	   (define-key map [mouse-2]  'hypb:browse-home-page)
 	   (define-key map "\C-m"     'hypb:browse-home-page))
-	  (hyperb:xemacs-p
+	  ((featurep 'xemacs)
 	   (define-key map 'button1  'hypb:browse-home-page)
 	   (define-key map 'button2  'hypb:browse-home-page)
 	   (define-key map '(return) 'hypb:browse-home-page)))

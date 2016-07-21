@@ -284,8 +284,8 @@ If NUM is greater than the number of lines available, the cell remains fully exp
 	  (setcdr elt (cons 'kvspec:string (cdr elt)))
 	;;
 	;; XEmacs 19.14 introduced extents into the modeline that we
-	;; must work around.
-	(if (and hyperb:xemacs-p (string-lessp "19.14" hyperb:xemacs-p))
+	;; must work around.  Assume any XEmacs is at least that new.
+	(if (featurep 'xemacs)
 	    (let ((mf modeline-format)
 		  elt)
 	      (while mf

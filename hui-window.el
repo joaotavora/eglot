@@ -149,7 +149,7 @@ part of InfoDock and not a part of Hyperbole)."
   (interactive)
   (if (and (fboundp 'smart-menu)
 	   (or (null window-system)
-	       (not (or hyperb:emacs-p hyperb:xemacs-p))))
+	       (not (or hyperb:emacs-p (featurep 'xemacs)))))
       (smart-menu)
     (let ((wind (get-buffer-window "*Buffer List*"))
 	  owind)
@@ -169,7 +169,7 @@ part of InfoDock and not a part of Hyperbole)."
   (interactive)
   (if (and (fboundp 'smart-menu)
 	   (or (null window-system)
-	       (not (or hyperb:emacs-p hyperb:xemacs-p))))
+	       (not (or hyperb:emacs-p (featurep 'xemacs)))))
       (smart-menu)
     (let ((wind (get-buffer-window "*Ibuffer*"))
 	  owind)
@@ -398,7 +398,7 @@ Value returned is nil if not a vertical line drag, 'up if drag moved up or
 (defun hmouse-drag-window-side ()
   "Returns non-nil if Action Key was dragged from a window side divider.
 If free variable `assist-flag' is non-nil, uses Assist Key."
-  (cond (hyperb:xemacs-p
+  (cond ((featurep 'xemacs)
 	 ;; Depress events in scrollbars or in non-text area of buffer are
 	 ;; not visible or identifiable at the Lisp-level, so always return
 	 ;; nil.
@@ -464,7 +464,7 @@ Beeps and prints message if the window cannot be split further."
   "Tests if COORDS are in WINDOW.  Returns WINDOW if they are, nil otherwise."
   (cond ((and hyperb:emacs-p (eventp coords))
 	 (eq (posn-window (event-start coords)) window))
-	((if hyperb:xemacs-p
+	((if (featurep 'xemacs)
 	     (if (eventp coords)
 		 (eq (event-window coords) window)
 	       (eq (car coords) window))))
@@ -487,7 +487,7 @@ Ignores minibuffer window."
 	 (marker-position coords))
 	((and hyperb:emacs-p (eventp coords))
 	 (posn-point (event-start coords)))
-	((and hyperb:xemacs-p (eventp coords))
+	((and (featurep 'xemacs) (eventp coords))
 	 (event-point coords))))
 
 (defun smart-window-of-coords (coords)
@@ -497,7 +497,7 @@ Ignores minibuffer window."
 	 (get-buffer-window (marker-buffer coords)))
 	((and hyperb:emacs-p (eventp coords))
 	 (posn-window (event-start coords)))
-	((if hyperb:xemacs-p
+	((if (featurep 'xemacs)
 	     (if (eventp coords)
 		 (event-window coords)
 	       (car coords))))
@@ -664,7 +664,7 @@ Resize amount depends upon the vertical difference between press and release
 of the Action Key.  Optional arg ASSIST-FLAG non-nil means use values from
 Assist Key instead."
   (cond ((not (hyperb:window-system)) nil)
-	((and hyperb:xemacs-p (not (fboundp 'window-edges)))
+	((and (featurep 'xemacs) (not (fboundp 'window-edges)))
 	 (error "Drag from a mode-line with button1 to resize windows."))
 	(t (let* ((owind (selected-window))
 		  (window (smart-window-of-coords
@@ -745,7 +745,7 @@ release must be."
 Resize amount depends upon the horizontal difference between press and release
 of the Action Key.  Optional arg ASSIST-FLAG non-nil means use values from
 Assist Key instead."
-  (cond (hyperb:xemacs-p
+  (cond ((featurep 'xemacs)
 	 ;; Depress events in scrollbars or in non-text area of buffer are
 	 ;; not visible or identifiable at the Lisp-level, so always return
 	 ;; nil.

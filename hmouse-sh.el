@@ -44,7 +44,7 @@ These may be the bindings prior to initializing Hyperbole or the Hyperbole bindi
 	    ;; Get mouse bindings under Emacs or XEmacs, even if not under a
 	    ;; window system since they can have frames on ttys and windowed
 	    ;; displays at the same time.
-	    (or (and hyperb:xemacs-p "xemacs")
+	    (or (and (featurep 'xemacs) "xemacs")
 		(and hyperb:emacs-p "emacs")
 		(hyperb:window-system))
 	    '(("emacs" .
@@ -141,7 +141,7 @@ These may be the bindings prior to initializing Hyperbole or the Hyperbole bindi
 	 ;; Get mouse bindings under Emacs or XEmacs, even if not under a
 	 ;; window system since they can have frames on ttys and windowed
 	 ;; displays at the same time.
-	 (or (and hyperb:xemacs-p "xemacs")
+	 (or (and (featurep 'xemacs) "xemacs")
 	     (and hyperb:emacs-p "emacs")
 	     (hyperb:window-system))
 	 '(("emacs" .
@@ -342,7 +342,7 @@ select the corresponding element around point."
 			       [mode-line S-mouse-3]))))
      ;;
      ;; XEmacs
-     (hyperb:xemacs-p
+     ((featurep 'xemacs)
       ;; Set mouse bindings under XEmacs, even if not under a window
       ;; system since it can have frames on ttys and windowed displays at
       ;; the same time.
@@ -446,7 +446,7 @@ select the corresponding element around point."
 	       )))
    ;;
    ;; XEmacs
-   (hyperb:xemacs-p
+   ((featurep 'xemacs)
     ;; Set mouse bindings under XEmacs, even if not under a window
     ;; system since it can have frames on ttys and windowed displays at
     ;; the same time.
