@@ -34,7 +34,7 @@
 #
 #               For OO-Browser maintainers:
 #                 To assemble the Hyperbole Emacs package for release:
-#		     make pkg
+#		     make pkg; git commit -a; git push
 #
 #               The Hyperbole Manual is included in the package in four forms:
 #
@@ -76,7 +76,6 @@ SITE_PRELOADS =
 TEXI2INFO = makeinfo --no-split
 
 # Command used to build the .html version of the user manual.
-# TEXI2HTML = id-texi2html -html_only -number -split_chapter # InfoDock-specific command
 # TEXI2HTML = makeinfo --html --split=chapter # Chapter splitting doesn't seem to work in 6.0
 TEXI2HTML = makeinfo --html --no-split
 
@@ -249,8 +248,12 @@ pdf: $(man_dir)/hyperbole.pdf
 $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt
 	cd $(man_dir) && $(TEXI2PDF) hyperbole.texi
 
-pkg: doc package
-package: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
+pkg: package
+package: doc release $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
+
+release: $(EL_KOTL)
+	# Generate kotl/kotl-autoloads.el in source directory for Elpa distribution.
+	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && rm kotl/kotl-autoloads.el~
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar
 	cd $(pkg_dir) && $(GPG) -ba -o hyperbole-$(HYPB_VERSION).tar.sig hyperbole-$(HYPB_VERSION).tar
@@ -262,7 +265,6 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	$(RM) -r $(pkg_hyperbole)
 	cd .. && COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/h.tar hyperbole-$(HYPB_VERSION)
 	cd $(pkg_dir) && COPYFILE_DISABLE=1 $(TAR) xf h.tar && cd $(pkg_hyperbole) && $(MAKE) packageclean
-	cd $(pkg_hyperbole) && $(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && \
 	cd $(pkg_dir) && $(RM) h.tar; \
 	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION) && \
 	$(INSTALL) HY-NEWS HY-README HY-WHY.kotl $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar

@@ -2,6 +2,8 @@
 
 2016-07-22  Bob Weiner  <rsw@gnu.org>
 
+* hmoccur.el: Normalized header to match other Hyperbole files.
+
 * hyperbole.el (hyperbole-koutliner group): Moved definition to ensure comes after
     hversion is loaded.
 
