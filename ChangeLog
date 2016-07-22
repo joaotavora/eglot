@@ -2,6 +2,11 @@
 
 2016-07-22  Bob Weiner  <rsw@gnu.org>
 
+* Makefile (release): Added this target to generate the kotl/kotl-autoloads.el file
+    within the source tree.
+
+* hmoccur.el: Normalized header to match other Hyperbole files.
+
 * hyperbole.el (hyperbole-koutliner group): Moved definition to ensure comes after
     hversion is loaded.
 
