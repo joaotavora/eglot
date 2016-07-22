@@ -69,9 +69,14 @@ See `ibtypes::social-reference' for format details.")
 
 (defib social-reference ()
   "Displays the web page associated with a social media hashtag or username reference at point.
-Reference format is: [facebook|instagram|twitter]?[#@]<hashtag-or-username> or
-\[fb|in|tw]?[#@]<hashtag-or-username>.  Service defaults to the value of
-`hibtypes-social-default-service' when not given."
+Reference format is:
+  [facebook|instagram|twitter]?[#@]<hashtag-or-username> or
+  [fb|in|tw]?[#@]<hashtag-or-username>.
+
+The first part of the label for a button of this type is the social
+media service name.  The service name defaults to the value of
+`hibtypes-social-default-service' (default value of \"twitter\")
+when not given, so #hashtag would be the same as twitter#hashtag."
   (when (and (not (memq major-mode '(texinfo-mode para-mode)))
 	     (save-excursion
 	       (if (looking-at "[#@._[:alnum:]]")

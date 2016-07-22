@@ -252,8 +252,10 @@ $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(ma
 pkg: package
 package: release $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
-release: doc $(EL_KOTL)
-	# Generate kotl/kotl-autoloads.el in source directory for Elpa distribution.
+# Generate kotl/kotl-autoloads.el in source directory for Elpa distribution.
+release: doc kotl/kotl-autoloads.el
+
+kotl/kotl-autoloads.el: $(EL_KOTL)
 	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && rm kotl/kotl-autoloads.el~
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar

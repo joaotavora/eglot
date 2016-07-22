@@ -6,7 +6,7 @@
 
 
 ===========================================================================
-*				    V6.01
+*				    V6.0.1
 ===========================================================================
 
   BUTTONS
@@ -19,6 +19,14 @@
       in#hashtag or instagram@username for Instagram references.
       See the new file "hib-social.el" for more information.
 
+  DOCUMENTATION
+
+    - The introductory parts of the manual have been improved and the flow
+      from section to section is better.  Added menu key sequences to
+      "(hyperbole)Suggestion or Bug Reporting".  Expanded and added
+      instructions on using the customize interface to change the functions
+      run by Smart Key modeline clicks.  See "(hyperbole)Smart Key Modeline".
+
   VARIABLES
 
     - hsettings.el is now included in the Hyperbole package rather than
@@ -27,7 +35,7 @@
       manually as before.
 
 ===========================================================================
-*				    V6.00
+*				    V6.0.0
 ===========================================================================
 
 NOTE: Version 6 is the first public release by the author since version 4.

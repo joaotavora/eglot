@@ -2,6 +2,12 @@
 
 2016-07-22  Bob Weiner  <rsw@gnu.org>
 
+* man/hyperbole.texi (Implicit Buttons):
+  hib-social.el (social-reference): Improved doc for this ibtype.
+
+* man/hyperbole.texi (Implicit Buttons, Explicit Buttons): Improved clarity.
+                     (Global Buttons): Explained how to use global buttons.
+
 * Makefile (release): Added this target to generate the kotl/kotl-autoloads.el file
     within the source tree.
 

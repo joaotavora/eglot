@@ -196,7 +196,7 @@ Signal an error if current buffer is not a Hyperbole outline, else return t.
 
 ;;;### (autoloads nil nil ("kcell.el" "kfill.el" "klabel.el" "kmenu.el"
 ;;;;;;  "knode.el" "kprop-em.el" "kprop-xe.el" "kproperty.el" "kview.el"
-;;;;;;  "kvspec.el") (22418 20601 979068))
+;;;;;;  "kvspec.el") (22418 26292 487576))
 
 ;;;***
 
