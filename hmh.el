@@ -11,8 +11,8 @@
 
 ;;; Commentary:
 ;; 
-;;   Automatically configured for use in "hsite.el".
-;;   If hsite loading fails prior to initializing Hyperbole Mh support,
+;;   Automatically configured for use in "hsettings.el".
+;;   If hsettings loading fails prior to initializing Hyperbole Mh support,
 ;;
 ;;       {M-x Mh-init RET}
 ;;

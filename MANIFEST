@@ -81,7 +81,7 @@ hib-social.el       - Implicit button type for social media hashtag and username
 hinit.el            - Standard initializations for GNU Hyperbole
 hload-path.el       - GNU Hyperbole load-path setup
 hlvar.el            - GNU Hyperbole variables in local variable lists
-hsite.el            - Site-specific customizations template for GNU Hyperbole
+hsettings.el        - Hyperbole settings which may require customization
 hvar.el             - Variable manipulation routines for GNU Hyperbole
 hyperbole-banner.png- Graphic of GNU Hyperbole for display with About Hyperbole
 smart-clib-sym      - Test whether symbol appears within a set of C libraries

@@ -16,7 +16,7 @@
 ;;   problems.
 ;;
 ;;   Automatically configured for use in "hyperbole.el".
-;;   If hsite loading fails prior to initializing Hyperbole Gnus support,
+;;   If hsettings loading fails prior to initializing Hyperbole Gnus support,
 ;;
 ;;       {M-x Gnus-init RET}
 ;;

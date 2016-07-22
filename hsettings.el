@@ -1,4 +1,4 @@
-;;; hsite.el --- Site-specific customizations template for GNU Hyperbole
+;;; hsettings.el --- Hyperbole settings which may require customization
 ;;
 ;; Author:       Bob Weiner
 ;;
@@ -13,8 +13,6 @@
 ;;
 ;;   See the "HY-README" file for installation instructions.
 ;;
-;;   "hsite.el" may be byte-compiled if you like but normally it is not.
-;;
 ;;   Be sure to have users load any personal mail/news personalizations
 ;;   before they load Hyperbole so that Hyperbole's mail or news
 ;;   support features work as desired.
@@ -25,16 +23,6 @@
 ;;; ************************************************************************
 
 (require 'hversion)
-
-;; Prevent user from manually loading hsite, as was done in V4 Hyperbole.
-;; The hyperbole library now loads it and loading manually will cause
-;; intialization errors.
-(unless (or (boundp 'hyperbole-loading)
-	    ;; The Emacs package installer might load this file during
-	    ;; package installation before hyperbole.el is loaded.
-	    ;; Test for this case and allow.
-	    (hyperb:stack-frame '(package-install)))
-  (error "(Hyperbole): Remove require/load of hsite.el from Emacs setup; require/load hyperbole instead."))
 
 ;;; Read the comments and modify as desired.
 
@@ -59,7 +47,7 @@
 	 (not (stringp htz:local)))
     (progn
       ;; Comment out the following `error' line...
-      (error "(hsite.el): Configure the TIMEZONE SETTING section in this file.")
+      (error "(hsettings.el): Configure the TIMEZONE SETTING section in this file.")
       ;; ... and uncomment the following line, substituting an appropriate
       ;;     timezone from the list in the variable, `htz:world-timezones'
       ;;     in the file, "htz.el".
@@ -186,6 +174,6 @@ down a windowful."
 ;;; END OF HYPERBOLE SITE-SPECIFIC CUSTOMIZATIONS
 ;;; ************************************************************************
 
-(provide 'hsite)
+(provide 'hsettings)
 
-;;; hsite.el ends here
+;;; hsettings.el ends here

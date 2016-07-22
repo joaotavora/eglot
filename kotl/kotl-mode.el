@@ -16,7 +16,7 @@
 ;;; Other required Lisp Libraries
 ;;; ************************************************************************
 
-(eval-and-compile (mapc #'require '(delsel hsite hmail kfile kvspec kcell)))
+(eval-and-compile (mapc #'require '(delsel hsettings hmail kfile kvspec kcell)))
 
 ;;; ************************************************************************
 ;;; Public variables

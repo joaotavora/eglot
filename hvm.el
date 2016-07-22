@@ -12,7 +12,7 @@
 ;;; Commentary:
 ;;
 ;;   Automatically configured for use in "hyperbole.el".
-;;   If hsite loading fails prior to initializing Hyperbole Vm support,
+;;   If hsettings loading fails prior to initializing Hyperbole Vm support,
 ;;
 ;;       {M-x Vm-init RET}
 ;;

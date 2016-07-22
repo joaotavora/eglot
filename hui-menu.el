@@ -174,7 +174,7 @@
 	  '(("Smart-Key-Press-at-Eol"
 	     "----"
 	     "----"
-	     ;; This menu may be loaded by InfoDock before hsite.el has
+	     ;; This menu may be loaded by InfoDock before hsettings.el has
 	     ;; defined `smart-scroll-proportional'.  Handle that case
 	     ;; with a conditional.
 	     ["Scrolls-a-Windowful"

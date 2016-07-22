@@ -24,7 +24,7 @@
 ;;   Action Mouse Key is bound to the middle mouse button.  (See the
 ;;   call of the function, `hmouse-install', below).
 ;;
-;;   Other site-specific customizations belong in "hsite.el".
+;;   Other site-specific customizations belong in "hsettings.el".
 
 ;;; Code:
 ;;; ************************************************************************
@@ -421,7 +421,9 @@ With optional ARG, override them iff ARG is positive."
 ;;; ************************************************************************
 
 ;; Ensure Koutliner autoloads in kotl/ subdirectory are generated and loaded.
-(unless (fboundp 'kotl-mode)
+(unless (or (fboundp 'kotl-mode)
+	    (and (load "hyperbole-autoloads" t t)
+		 (fboundp 'kotl-mode)))
   (defun hyperb:package-autoloads-subdirectories-p ()
     (require 'package)
     (let ((func (symbol-function 'package-generate-autoloads)))
@@ -612,7 +614,7 @@ If FLAG is nil then text is shown, while if FLAG is t the text is hidden."
 ;;; Load Site-specific Configurations and Initialize Hyperbole Package
 ;;; ************************************************************************
 
-(require 'hsite)
+(require 'hsettings)
 
 (defun hyperb:init ()
   "Standard configuration routine for Hyperbole."

@@ -2,6 +2,13 @@
 
 2016-07-21  Bob Weiner  <rsw@gnu.org>
 
+* hsettings.el: Renamed this from hsite.el to prevent Hyperbole V4 users from
+    accidentally loading it manually.
+
+* hyperbole.el (hyperbole-autoloads): If this exists and autoloads kotl-mode,
+    then skip setup to generate hyperbole-autoloads with autoloads from the kotl/
+    subdirectory.
+
 * hib-social.el (social-reference): 
   hibtypes.el (mail-address-at-p): Let case-fold-search be t since mail-addresses
     are case-insensitive.

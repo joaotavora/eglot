@@ -5814,7 +5814,7 @@ you in deciding whether or not to modify the value of
 @cindex button highlighting
 @cindex button flashing
 @vindex file, hui-ep*.el
-@vindex file, hsite.el
+@vindex file, hsettings.el
 @findex hproperty:cycle-but-color
 When Hyperbole is run under a window system together with InfoDock,
 Emacs, or XEmacs, it automatically highlights any explicit buttons in
@@ -5822,8 +5822,8 @@ a buffer and makes them flash when selected.  The main setting you may
 want change is the selection of a color (or style) for button
 highlighting and button flashing.  See the @file{hui-*-b*.el} files for
 lists of potential colors and the code which supports this behavior.  A
-call to @code{(hproperty:cycle-but-color)} in the @file{hsite.el} file
-changes the color used to highlight and flash explicit buttons.
+call to @code{(hproperty:cycle-but-color)} in the @file{hsettings.el}
+file changes the color used to highlight and flash explicit buttons.
 
 @cindex button emphasis
 @vindex hproperty:but-emphasize-p

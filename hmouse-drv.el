@@ -599,7 +599,7 @@ and returns nil."
 	    (funcall hmouse-set-point-command))
 	  t)))
 
-;; "hsite.el" contains documentation for this variable.
+;; "hsettings.el" contains documentation for this variable.
 (or (boundp 'smart-scroll-proportional)
     (defvar smart-scroll-proportional t
       "*Non-nil means Smart Keys should scroll relative to current line when pressed at the end of a line.
