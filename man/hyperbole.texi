@@ -798,8 +798,8 @@ archive entries.
 If you use Hyperbole, you may join the mailing list
 <hyperbole-users@@gnu.org> to discuss Hyperbole with users and maintainers.
 There is a separate mail list to report problems or bugs with
-Hyperbole, bug-hyperbole@@gnu.org.  For more
-information, @pxref{Suggestion or Bug Reporting}.
+Hyperbole, <bug-hyperbole@@gnu.org>.  For more details,
+@pxref{Suggestion or Bug Reporting}.
 
 @node Smart Keys, Buttons, Introduction, Top
 @chapter Smart Keys
@@ -1252,10 +1252,12 @@ with @bkbd{C-h h m c}, these messages are also included.
 @node Buttons, Menus, Smart Keys, Top
 @chapter Buttons
 
-This chapter explains the user-level notion of Hyperbole buttons.
-Hyperbole buttons which are stored in files persist across Emacs
-sessions, so they provide a convenient means of linking from one
-information source to another.
+This chapter explains use of Hyperbole buttons.  There are several
+kinds of Hyperbole buttons: buttons that are created one at a time and
+stored in files (@dfn{explicit buttons}); buttons that can be
+activated by name anytime (@dfn{global buttons}); and buttons defined
+by textual patterns where one definition can create an infinite number
+of buttons (@dfn{implicit buttons}).
 
 @menu
 * Explicit Buttons::
@@ -1275,18 +1277,18 @@ information source to another.
 @cindex button label
 Hyperbole creates and manages @dfn{explicit buttons} which execute
 specific actions when activated (typically through a button press).
-They look like this @samp{<(fake button)>} to a Hyperbole user.  They
-are quickly recognizable, yet relatively non-distracting as one scans
-the text in which they are embedded.  The text between the @samp{<(}
-and @samp{)>} delimiters is called the @dfn{button label}.  Spacing
-between words within a button label is irrelevant to Hyperbole.
-Button labels may wrap across several lines without causing a problem;
-just be sure to select the first line of the button to activate it.
+They look like this @samp{<(fake button)>}.  They are quickly
+recognizable, yet relatively non-distracting as you scan the text in
+which they are embedded.  The text between the @samp{<(} and @samp{)>}
+delimiters is called the @dfn{button label}.  Spacing between words
+within a button label is irrelevant to Hyperbole.  Button labels may
+wrap across several lines without causing a problem; just be sure to
+select the first line of the button to activate it.
 
 Each explicit button is assigned an action type that determines the
 actions it performs.  @dfn{Link action types} connect buttons to
-particular types of referents.  @dfn{Activation} of such buttons then
-displays the referents.
+particular types of referents.  The referents are displayed when
+such buttons are @dfn{activated} by pressing or clicking upon them.
 
 @cindex linking, in-place
 @cindex Hyperbole data model

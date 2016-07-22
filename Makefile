@@ -54,7 +54,7 @@ HYPB_VERSION = 6.0.1
 
 # Emacs executable used to byte-compile .el files into .elc's.
 # Possibilities include: emacs, infodock, xemacs, etc.
-EMACS = emacs
+EMACS = \emacs
 
 # Site-specific Emacs Lisp libraries to load before byte-compiling any files
 # from this package.  Typically the only reason to set this is to get Emacs
@@ -124,7 +124,7 @@ PRELOADS = $(SITE_PRELOADS) -l ./hload-path.el -l ./hversion.el -l ./hyperbole.e
 
 # Compile in batch mode. Under Emacs and XEmacs, load
 # site-lisp/site-start.el, which may set load-path.
-BATCHFLAGS = -batch -nw -Q
+BATCHFLAGS = -batch -Q
 
 # Directories other than the current directory in which to find files.
 # This doesn't seem to work in all versions of make, so we also add kotl/
@@ -262,8 +262,9 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	$(RM) -r $(pkg_hyperbole)
 	cd .. && COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/h.tar hyperbole-$(HYPB_VERSION)
 	cd $(pkg_dir) && COPYFILE_DISABLE=1 $(TAR) xf h.tar && cd $(pkg_hyperbole) && $(MAKE) packageclean
+	cd $(pkg_hyperbole) && $(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && \
 	cd $(pkg_dir) && $(RM) h.tar; \
-	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION)
+	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION) && \
 	$(INSTALL) HY-NEWS HY-README HY-WHY.kotl $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
 
 pkgclean: packageclean

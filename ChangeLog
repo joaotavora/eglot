@@ -1,5 +1,14 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-22  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (hyperbole-koutliner group): Moved definition to ensure comes after
+    hversion is loaded.
+
+* Makefile (pkg): Updated to build kotl/kotl-autoloads.el file because the Emacs
+    Lisp Package Manager (ELPA) does not yet handle generation of autoloads
+    for package subdirectories.
+
 2016-07-21  Bob Weiner  <rsw@gnu.org>
 
 * hsettings.el: Renamed this from hsite.el to prevent Hyperbole V4 users from

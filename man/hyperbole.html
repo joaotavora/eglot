@@ -1133,8 +1133,8 @@ Previous: <a href="#Hyperbole-Buttons" accesskey="p" rel="prev">Hyperbole Button
 <p>If you use Hyperbole, you may join the mailing list
 &lt;hyperbole-users@gnu.org&gt; to discuss Hyperbole with users and maintainers.
 There is a separate mail list to report problems or bugs with
-Hyperbole, bug-hyperbole@gnu.org.  For more
-information, see <a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a>.
+Hyperbole, &lt;bug-hyperbole@gnu.org&gt;.  For more details,
+see <a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a>.
 </p>
 <hr>
 <a name="Smart-Keys"></a>
@@ -1729,10 +1729,12 @@ Next: <a href="#Menus" accesskey="n" rel="next">Menus</a>, Previous: <a href="#S
 <a name="Buttons-1"></a>
 <h2 class="chapter">3 Buttons</h2>
 
-<p>This chapter explains the user-level notion of Hyperbole buttons.
-Hyperbole buttons which are stored in files persist across Emacs
-sessions, so they provide a convenient means of linking from one
-information source to another.
+<p>This chapter explains use of Hyperbole buttons.  There are several
+kinds of Hyperbole buttons: buttons that are created one at a time and
+stored in files (<em>explicit buttons</em>); buttons that can be
+activated by name anytime (<em>global buttons</em>); and buttons defined
+by textual patterns where one definition can create an infinite number
+of buttons (<em>implicit buttons</em>).
 </p>
 <table class="menu" border="0" cellspacing="0">
 <tr><td align="left" valign="top">&bull; <a href="#Explicit-Buttons" accesskey="1">Explicit Buttons</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
@@ -1765,18 +1767,18 @@ Next: <a href="#Global-Buttons" accesskey="n" rel="next">Global Buttons</a>, Pre
 <a name="index-button-label"></a>
 <p>Hyperbole creates and manages <em>explicit buttons</em> which execute
 specific actions when activated (typically through a button press).
-They look like this &lsquo;<samp>&lt;(fake button)&gt;</samp>&rsquo; to a Hyperbole user.  They
-are quickly recognizable, yet relatively non-distracting as one scans
-the text in which they are embedded.  The text between the &lsquo;<samp>&lt;(</samp>&rsquo;
-and &lsquo;<samp>)&gt;</samp>&rsquo; delimiters is called the <em>button label</em>.  Spacing
-between words within a button label is irrelevant to Hyperbole.
-Button labels may wrap across several lines without causing a problem;
-just be sure to select the first line of the button to activate it.
+They look like this &lsquo;<samp>&lt;(fake button)&gt;</samp>&rsquo;.  They are quickly
+recognizable, yet relatively non-distracting as you scan the text in
+which they are embedded.  The text between the &lsquo;<samp>&lt;(</samp>&rsquo; and &lsquo;<samp>)&gt;</samp>&rsquo;
+delimiters is called the <em>button label</em>.  Spacing between words
+within a button label is irrelevant to Hyperbole.  Button labels may
+wrap across several lines without causing a problem; just be sure to
+select the first line of the button to activate it.
 </p>
 <p>Each explicit button is assigned an action type that determines the
 actions it performs.  <em>Link action types</em> connect buttons to
-particular types of referents.  <em>Activation</em> of such buttons then
-displays the referents.
+particular types of referents.  The referents are displayed when
+such buttons are <em>activated</em> by pressing or clicking upon them.
 </p>
 <a name="index-linking_002c-in_002dplace"></a>
 <a name="index-Hyperbole-data-model"></a>
@@ -7063,7 +7065,7 @@ Previous: <a href="#Link-Variable-Substitution" accesskey="p" rel="prev">Link Va
 <a name="index-button-highlighting-1"></a>
 <a name="index-button-flashing"></a>
 <a name="index-file_002c-hui_002dep_002a_002eel"></a>
-<a name="index-file_002c-hsite_002eel"></a>
+<a name="index-file_002c-hsettings_002eel"></a>
 <a name="index-hproperty_003acycle_002dbut_002dcolor"></a>
 <p>When Hyperbole is run under a window system together with InfoDock,
 Emacs, or XEmacs, it automatically highlights any explicit buttons in
@@ -7071,8 +7073,8 @@ a buffer and makes them flash when selected.  The main setting you may
 want change is the selection of a color (or style) for button
 highlighting and button flashing.  See the <samp>hui-*-b*.el</samp> files for
 lists of potential colors and the code which supports this behavior.  A
-call to <code>(hproperty:cycle-but-color)</code> in the <samp>hsite.el</samp> file
-changes the color used to highlight and flash explicit buttons.
+call to <code>(hproperty:cycle-but-color)</code> in the <samp>hsettings.el</samp>
+file changes the color used to highlight and flash explicit buttons.
 </p>
 <a name="index-button-emphasis"></a>
 <a name="index-hproperty_003abut_002demphasize_002dp"></a>
@@ -10320,7 +10322,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-file_002c-hmail_002eel">file, hmail.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hmouse_002dkey_002eel">file, hmouse-key.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hmouse_002dsh_002eel">file, hmouse-sh.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-file_002c-hsite_002eel">file, hsite.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-file_002c-hsettings_002eel">file, hsettings.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hsys_002d_002a">file, hsys-*</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Encapsulating-Systems">Encapsulating Systems</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hui_002dep_002a_002eel">file, hui-ep*.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-hui_002dwindow_002eel">file, hui-window.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
