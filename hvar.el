@@ -60,7 +60,7 @@ Does nothing when `inhibit-hyperbole-messaging' is non-nil."
 			   (setq val (list val)))
 		       (set var-symbol (set:union val list-to-add)))
 	      (set var-symbol list-to-add)))
-      (add-to-list 'var::append-list (cons var-symbol result))
+      (add-to-list #'var::append-list (cons var-symbol result))
       (symbol-value var-symbol))))
 
 (defun var:remove (var-symbol list-to-remove)

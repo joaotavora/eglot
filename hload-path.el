@@ -19,7 +19,7 @@
 ;;; Support mouse handling and Koutlines under GNU Emacs V19 or higher.
 ;;;
 ;;;###autoload
-(defvar hyperb:emacs-p
+(defconst hyperb:emacs-p
   (and (not (featurep 'xemacs))
        ;; Version 19 and above, the only ones supported.
        (string-lessp "19" emacs-version)
@@ -52,7 +52,7 @@
 It must end with a directory separator character.")
 
 ;; Add hyperb:dir to load-path so other Hyperbole libraries can be found.
-(add-to-list 'load-path hyperb:dir)
+(add-to-list #'load-path hyperb:dir)
 
 ;;; ************************************************************************
 ;;; Koutliner mode and file suffix importation settings
@@ -62,7 +62,7 @@ It must end with a directory separator character.")
 ;; initializations.
 
 (if hyperb:kotl-p
-    (progn (add-to-list 'load-path (expand-file-name "kotl/" hyperb:dir))
+    (progn (add-to-list #'load-path (expand-file-name "kotl/" hyperb:dir))
 	   ;; Invoke kotl-mode for files ending in ".kotl".  Also
 	   ;; allow ".kot" for DOS and Windows users.
 	   (setq auto-mode-alist (cons '("\\.kotl$\\|\\.kot$" . kotl-mode)

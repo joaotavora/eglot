@@ -229,9 +229,12 @@
 		   hui-menu-about
 		   ["Demonstration"  (hypb:display-file-with-logo
 				       (expand-file-name "DEMO" hyperb:dir)) t]
-		   (if (and (boundp 'infodock-version) infodock-version)
-		       ["Manual"      (id-info "(infodock)Hyperbole Menu") t]
-		     ["Manual"      (id-info "(hyperbole)Top") t])
+		   ;; Comment InfoDock manual reference out until
+		   ;; InfoDock is modernized for Emacs 25.
+		   ;; (if (and (boundp 'infodock-version) infodock-version)
+		   ;;     ["Manual"      (id-info "(infodock)Hyperbole Menu") t]
+		   ;;   ["Manual"      (id-info "(hyperbole)Top") t])
+		   ["Manual"      (id-info "(hyperbole)Top") t]
 		   ["What-is-New?"  (hypb:display-file-with-logo
 				      (expand-file-name "HY-NEWS" hyperb:dir)) t]
 		   "----"

@@ -2,6 +2,9 @@
 
 2016-07-22  Bob Weiner  <rsw@gnu.org>
 
+* hui-menu.el (infodock-hyperbole-menu): Commented out InfoDock manual reference out until
+    InfoDock is modernized for Emacs 25.
+
 * man/hyperbole.texi (Implicit Buttons):
   hib-social.el (social-reference): Improved doc for this ibtype.
 
