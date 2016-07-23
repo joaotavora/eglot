@@ -252,11 +252,11 @@ $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(ma
 pkg: package
 package: release $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
-# Generate kotl/kotl-autoloads.el in source directory for Elpa distribution.
-release: doc kotl/kotl-autoloads.el
+# Generate kotl/kotl-loaddefs.el in source directory for Elpa distribution.
+release: doc kotl/kotl-loaddefs.el
 
-kotl/kotl-autoloads.el: $(EL_KOTL)
-	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && rm kotl/kotl-autoloads.el~
+kotl/kotl-loaddefs.el: $(EL_KOTL)
+	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-loaddefs.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && sed -i '3 i ;; Copyright (C) 2016  Free Software Foundation, Inc.\n;;' $@ && rm kotl/kotl-loaddefs.el~
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar
 	cd $(pkg_dir) && $(GPG) -ba -o hyperbole-$(HYPB_VERSION).tar.sig hyperbole-$(HYPB_VERSION).tar
@@ -268,7 +268,7 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	$(RM) -r $(pkg_hyperbole)
 	cd .. && COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/h.tar hyperbole-$(HYPB_VERSION)
 	cd $(pkg_dir) && COPYFILE_DISABLE=1 $(TAR) xf h.tar && cd $(pkg_hyperbole) && $(MAKE) packageclean
-	cd $(pkg_hyperbole) && $(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && \
+	cd $(pkg_hyperbole) && $(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-loaddefs.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && \
 	cd $(pkg_dir) && $(RM) h.tar; \
 	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION) && \
 	$(INSTALL) HY-NEWS HY-README HY-WHY.kotl $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
