@@ -1,20 +1,32 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-23  Bob Weiner  <rsw@gnu.org>
+
+* Makefile (hyperbole-$(HYPB_VERSION).tar): Added HY-ABOUT and HY-ANNOUNCE
+    to files installed outside the tar archive for reference.
+
+* man/hyperbole.texi (Installation): Updated to latest version.
+
 2016-07-23  Mats Lidell  <matsl@gnu.org>
 
 * kotl/kotl-loaddefs.el: Generated.
 
-2016-07-23  Mats Lidell  <matsl@gnu.org>
-
-* Makefile (kotl/kotl-loaddefs.el): Add copyright notice for satisfying
-	elpa copyright check.
-  (kotl/kotl-loaddefs.el): 
-  hyperbole.el: Rename kotl autoloads file.
+* Makefile (kotl/kotl-loaddefs.el): Added copyright notice for satisfying elpa
+    copyright check.
+  hyperbole.el: Changed to load kotl/kotl-loaddefs file.
 
 2016-07-22  Bob Weiner  <rsw@gnu.org>
 
-* hui-menu.el (infodock-hyperbole-menu): Commented out InfoDock manual reference out until
-    InfoDock is modernized for Emacs 25.
+* man/hyperbole.texi: Added new @kitem and @kitemx macros to surround keyboard
+    items in tables with braces.
+
+* Makefile (version): Added HY-ANNOUNCE.
+  HY-ANNOUNCE: Added release announcement.
+  INSTALL:
+  HY-NEWS: Small improvements.
+
+* hui-menu.el (infodock-hyperbole-menu): Commented out InfoDock manual reference
+    out until InfoDock is modernized for Emacs 25.
 
 * man/hyperbole.texi (Implicit Buttons):
   hib-social.el (social-reference): Improved doc for this ibtype.
@@ -62,9 +74,9 @@
 
 2016-07-20  Bob Weiner  <rsw@gnu.org>
 
-* MANIFEST: 
+* MANIFEST:
   Makefile:
-  hibtypes.el (hib-social): 
+  hibtypes.el (hib-social):
   man/hyperbole.texi (Implicit Buttons): Added social-reference.
   hib-social.el: Added this file to follow social media hashtag and username
     references.

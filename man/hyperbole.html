@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 6.0.1, Published July 20, 2016).
+(Edition 6.0.1, Published July 23, 2016).
 
 Copyright (C) 1989-2016  Free Software Foundation, Inc.
 
@@ -67,6 +67,8 @@ ul.no-bullet {list-style: none}
 
 <body lang="en">
 <h1 class="settitle" align="center">GNU Hyperbole Manual</h1>
+
+
 
 
 
@@ -319,7 +321,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.1
-Printed July 22, 2016.
+Printed July 23, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -3402,51 +3404,60 @@ and frame submodes.
 <dd>
 <a name="index-HyControl_002c-see-screen"></a>
 <a name="index-screen_002c-_002e"></a>
+<a name="index-_002e"></a>
 </dd>
-<dt><kbd>.</kbd></dt>
+<dt><kbd>{.}</kbd></dt>
 <dd><p>Clear the argument to a value of 0.
 </p>
 <a name="index-screen_002c-0_002d9"></a>
+<a name="index-0_002d9"></a>
 </dd>
-<dt><kbd>0-9</kbd></dt>
+<dt><kbd>{0-9}</kbd></dt>
 <dd><p>Multiply the argument by 10 and add the digit pressed.
 </p>
 <a name="index-screen_002c-h"></a>
+<a name="index-h"></a>
 </dd>
-<dt><kbd>h</kbd></dt>
+<dt><kbd>{h}</kbd></dt>
 <dd><p>Increase height by argument lines (line height determined by buffer
 character height).
 </p>
 <a name="index-screen_002c-s"></a>
+<a name="index-s"></a>
 </dd>
-<dt><kbd>s</kbd></dt>
+<dt><kbd>{s}</kbd></dt>
 <dd><p>Shorten height by argument lines.
 </p>
 <a name="index-screen_002c-w"></a>
+<a name="index-w"></a>
 </dd>
-<dt><kbd>w</kbd></dt>
+<dt><kbd>{w}</kbd></dt>
 <dd><p>Widen by argument characters.
 </p>
 <a name="index-screen_002c-n"></a>
+<a name="index-n"></a>
 </dd>
-<dt><kbd>n</kbd></dt>
+<dt><kbd>{n}</kbd></dt>
 <dd><p>Narrow by argument characters.
 </p>
 <a name="index-screen_002c-_0025"></a>
+<a name="index-_0025"></a>
 </dd>
-<dt><kbd>%</kbd></dt>
+<dt><kbd>{%}</kbd></dt>
 <dd><p>In FRAME mode, resize frame&rsquo;s height and width to about argument percent
 of the screen size.
 </p>
 <a name="index-screen_002c-H"></a>
+<a name="index-H"></a>
 </dd>
-<dt><kbd>H</kbd></dt>
+<dt><kbd>{H}</kbd></dt>
 <dd><p>In FRAME mode, resize frame&rsquo;s height to about argument percent of the
 screen size.
 </p>
 <a name="index-screen_002c-W"></a>
+<a name="index-W"></a>
 </dd>
-<dt><kbd>W</kbd></dt>
+<dt><kbd>{W}</kbd></dt>
 <dd><p>In FRAME mode, resize frame&rsquo;s width to about argument percent of the
 screen size.
 </p>
@@ -3454,24 +3465,33 @@ screen size.
 <a name="index-screen_002c-down"></a>
 <a name="index-screen_002c-left"></a>
 <a name="index-screen_002c-right"></a>
+<a name="index-up"></a>
 </dd>
-<dt><kbd>up</kbd></dt>
-<dt><kbd>down</kbd></dt>
-<dt><kbd>left</kbd></dt>
-<dt><kbd>right</kbd></dt>
+<dt><kbd>{up}</kbd></dt>
+<dd><a name="index-down"></a>
+</dd>
+<dt><kbd>{down}</kbd></dt>
+<dd><a name="index-left"></a>
+</dd>
+<dt><kbd>{left}</kbd></dt>
+<dd><a name="index-right"></a>
+</dd>
+<dt><kbd>{right}</kbd></dt>
 <dd><p>Move frame in the specified direction by argument pixels.
 </p>
 <a name="index-screen_002c-c"></a>
+<a name="index-c"></a>
 </dd>
-<dt><kbd>c</kbd></dt>
+<dt><kbd>{c}</kbd></dt>
 <dd><p>In FRAME mode, with each press, cycle the selected frame&rsquo;s position
 clockwise through the middle of edges and corners of the screen.  With
 an argument of 0, reset the cycle position to the upper left corner.
 Respects the pixel edge offsets returned by <code>hycontrol-get-screen-offsets</code>.
 </p>
 <a name="index-screen_002c-keypad-number"></a>
+<a name="index-keypad-number"></a>
 </dd>
-<dt><kbd>keypad number</kbd></dt>
+<dt><kbd>{keypad number}</kbd></dt>
 <dd><p>In FRAME mode, move the frame directly to the screen edge position given
 by the numeric keypad layout.  For example, 3 moves the frame to the
 bottom right corner and 8 moves it to the middle of the top edge.
@@ -3479,53 +3499,62 @@ Keypad numeric keys do not adjust the argument.  Respects the pixel edge
 offsets returned by <code>hycontrol-get-screen-offsets</code>.
 </p>
 <a name="index-screen_002c-d"></a>
+<a name="index-d"></a>
 </dd>
-<dt><kbd>d</kbd></dt>
+<dt><kbd>{d}</kbd></dt>
 <dd><p>Delete selected window or frame based on mode.
 <a name="index-screen_002c-D"></a>
+<a name="index-D"></a>
 </p></dd>
-<dt><kbd>D</kbd></dt>
+<dt><kbd>{D}</kbd></dt>
 <dd><p>Prompt for confirmation and then delete non-selected windows or frames
 based on mode.
 </p>
 <a name="index-screen_002c-o"></a>
+<a name="index-o"></a>
 </dd>
-<dt><kbd>o</kbd></dt>
+<dt><kbd>{o}</kbd></dt>
 <dd><p>Select the next window in the window list, across all visible frames.
 <a name="index-screen_002c-O"></a>
+<a name="index-O"></a>
 </p></dd>
-<dt><kbd>O</kbd></dt>
+<dt><kbd>{O}</kbd></dt>
 <dd><p>Select the next visible frame.
 </p>
 <a name="index-hycontrol_002dframe_002doffset"></a>
 <a name="index-screen_002c-_005b"></a>
+<a name="index-_005b"></a>
 </dd>
-<dt><kbd>[</kbd></dt>
+<dt><kbd>{[}</kbd></dt>
 <dd><p>Create a new atop window or frame depending on mode.  If a frame, it is
 sized to the same size as the selected window and offset from the
 selected frame by the pixel amounts given by
 <code>hycontrol-frame-offset</code>.
 <a name="index-screen_002c-_005d"></a>
+<a name="index-_005d"></a>
 </p></dd>
-<dt><kbd>]</kbd></dt>
+<dt><kbd>{]}</kbd></dt>
 <dd><p>Create a new sideways window or frame depending on mode.
 </p>
 <a name="index-screen_002c-_0028"></a>
+<a name="index-_0028"></a>
 </dd>
-<dt><kbd>(</kbd></dt>
+<dt><kbd>{(}</kbd></dt>
 <dd><p>Save the current window or frame configuration based on mode.  Whenever,
 HyControl is invoked, the current window and frame configurations are
 saved automatically.  So use this command only if you have changed the
 configuration and wish to save it temporarily.
 <a name="index-screen_002c-_0029"></a>
+<a name="index-_0029"></a>
 </p></dd>
-<dt><kbd>)</kbd></dt>
+<dt><kbd>{)}</kbd></dt>
 <dd><p>After confirmation, restore the last saved window or frame configuration
 based on mode.
 </p>
 <a name="index-screen_002c-f"></a>
+<a name="index-f"></a>
 </dd>
-<dt><kbd>f</kbd></dt>
+<dt><kbd>{f}</kbd></dt>
 <dd><p>In WINDOW mode, delete the selected window and redisplay its buffer in a
 new frame.
 </p>
@@ -3533,31 +3562,41 @@ new frame.
 <a name="index-screen_002c-j"></a>
 <a name="index-screen_002c-k"></a>
 <a name="index-screen_002c-m"></a>
+<a name="index-i"></a>
 </dd>
-<dt><kbd>i</kbd></dt>
-<dt><kbd>j</kbd></dt>
-<dt><kbd>k</kbd></dt>
-<dt><kbd>m</kbd></dt>
+<dt><kbd>{i}</kbd></dt>
+<dd><a name="index-j"></a>
+</dd>
+<dt><kbd>{j}</kbd></dt>
+<dd><a name="index-k"></a>
+</dd>
+<dt><kbd>{k}</kbd></dt>
+<dd><a name="index-m"></a>
+</dd>
+<dt><kbd>{m}</kbd></dt>
 <dd><p>In Frame mode, expand the selected frame to the associated screen edge
 based on key layout.  i=top, j=left, k=right and m=bottom screen edge.
 Respects the pixel edge offsets returned by
 <code>hycontrol-get-screen-offsets</code>.
 </p>
 <a name="index-screen_002c-_003d"></a>
+<a name="index-_003d"></a>
 </dd>
-<dt><kbd>=</kbd></dt>
+<dt><kbd>{=}</kbd></dt>
 <dd><p>Make the current frame&rsquo;s windows or all frames approximately the same
 size based on mode.  In FRAME mode, all visible frames are set to the
 size of the selected frame.
 </p>
 <a name="index-screen_002c-_002d"></a>
+<a name="index-_002d"></a>
 </dd>
-<dt><kbd>-</kbd></dt>
+<dt><kbd>{-}</kbd></dt>
 <dd><p>Make the selected window or frame (based on mode) as small as possible
 while still displaying it.
 <a name="index-screen_002c-_002b"></a>
+<a name="index-_002b"></a>
 </p></dd>
-<dt><kbd>+</kbd></dt>
+<dt><kbd>{+}</kbd></dt>
 <dd><p>Make the window or frame (based on mode) as large as possible.  In FRAME
 mode, a second press of this key restores its size to whatever it was
 prior to the first use of this command.
@@ -3565,20 +3604,23 @@ prior to the first use of this command.
 <a name="index-burying"></a>
 <a name="index-unburying"></a>
 <a name="index-screen_002c-b"></a>
+<a name="index-b"></a>
 </dd>
-<dt><kbd>b</kbd></dt>
+<dt><kbd>{b}</kbd></dt>
 <dd><p>Bury the selected buffer within the buffer list, displaying the next
 buffer.
 <a name="index-screen_002c-u"></a>
+<a name="index-u"></a>
 </p></dd>
-<dt><kbd>u</kbd></dt>
+<dt><kbd>{u}</kbd></dt>
 <dd><p>Unbury the bottom buffer in the buffer list and display it in the
 selected window.
 </p>
 <a name="index-swapping"></a>
 <a name="index-screen_002c-_007e"></a>
+<a name="index-_007e"></a>
 </dd>
-<dt><kbd>~</kbd></dt>
+<dt><kbd>{~}</kbd></dt>
 <dd><p>Swap two buffers between the selected window or frame and one other.
 In WINDOW mode, there must be precisely two windows in the selected
 frame.  In FRAME mode, the second frame mush have a single window.
@@ -3586,13 +3628,15 @@ frame.  In FRAME mode, the second frame mush have a single window.
 <a name="index-zoom_002dfrm_002eel"></a>
 <a name="index-zooming"></a>
 <a name="index-screen_002c-Z"></a>
+<a name="index-Z"></a>
 </dd>
-<dt><kbd>Z</kbd></dt>
+<dt><kbd>{Z}</kbd></dt>
 <dd><p>Zoom in selected window or frame text based on mode, increasing default
 face size.
 <a name="index-screen_002c-z"></a>
+<a name="index-z"></a>
 </p></dd>
-<dt><kbd>z</kbd></dt>
+<dt><kbd>{z}</kbd></dt>
 <dd><p>Zoom out selected window or frame text based on mode, increasing default
 face size.  Zooming supports an argument of between 1 and 9 (any other
 value sets the argument to 1).  The argument determines the number of
@@ -3602,13 +3646,15 @@ sizes by which to zoom.
 <samp>zoom-frm.el</samp> library.  WINDOW zooming works without this library.
 </p>
 <a name="index-screen_002c-t"></a>
+<a name="index-t"></a>
 </dd>
-<dt><kbd>t</kbd></dt>
+<dt><kbd>{t}</kbd></dt>
 <dd><p>Toggle between WINDOW and FRAME submodes.
 </p>
 <a name="index-screen_002c-q"></a>
+<a name="index-q-1"></a>
 </dd>
-<dt><kbd>q</kbd></dt>
+<dt><kbd>{q}</kbd></dt>
 <dd><p>Quit from HyControl mode and restore normal key bindings.
 </p></dd>
 </dl>
@@ -4083,47 +4129,40 @@ arguments changes each command&rsquo;s behavior from insertion at the sibling
 level to insertion at the child level.
 </p>
 <dl compact="compact">
-<dt><kbd>C-c c</kbd>
-<a name="index-C_002dc-c"></a>
-</dt>
+<dd><a name="index-C_002dc-c"></a>
+</dd>
+<dt><kbd>{C-c c}</kbd></dt>
 <dd><p>Copy &lt;tree&gt; to be the successor of &lt;cell&gt;.
-</p></dd>
-<dt><kbd>C-u C-c c</kbd>
 <a name="index-C_002du-C_002dc-c"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-u C-c c}</kbd></dt>
 <dd><p>Copy &lt;tree&gt; to follow as the first child of &lt;cell&gt;.
 </p>
-</dd>
-<dt><kbd>C-c C-c</kbd>
 <a name="index-C_002dc-C_002dc"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-c}</kbd></dt>
 <dd><p>Copy &lt;tree&gt; to be the predecessor of &lt;cell&gt;.
-</p></dd>
-<dt><kbd>C-u C-c C-c</kbd>
 <a name="index-C_002du-C_002dc-C_002dc"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-u C-c C-c}</kbd></dt>
 <dd><p>Copy &lt;tree&gt; to be the first child of the parent of &lt;cell&gt;.
 </p>
-</dd>
-<dt><kbd>C-c m</kbd>
 <a name="index-C_002dc-m"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c m}</kbd></dt>
 <dd><p>Move &lt;tree&gt; to be the successor of &lt;cell&gt;.
-</p></dd>
-<dt><kbd>C-u C-c m</kbd>
 <a name="index-C_002du-C_002dc-m"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-u C-c m}</kbd></dt>
 <dd><p>Move &lt;tree&gt; to follow as the first child of &lt;cell&gt;.
 </p>
-</dd>
-<dt><kbd>C-c C-m</kbd>
 <a name="index-C_002dc-C_002dm"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-m}</kbd></dt>
 <dd><p>Move &lt;tree&gt; to precede &lt;cell&gt;.
-</p></dd>
-<dt><kbd>C-u C-c C-m</kbd>
 <a name="index-C_002du-C_002dc-C_002dm"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-u C-c C-m}</kbd></dt>
 <dd><p>Move &lt;tree&gt; to be the first child of the parent of &lt;cell&gt;.
 </p></dd>
 </dl>
@@ -4147,14 +4186,13 @@ You can, however, copy an outline tree to a non-outline buffer with:
 <a name="index-exporting-an-outline"></a>
 <a name="index-mailing-an-outline"></a>
 <dl compact="compact">
-<dt><kbd>C-c M-c</kbd>
-<a name="index-C_002dc-M_002dc"></a>
-</dt>
+<dd><a name="index-C_002dc-M_002dc"></a>
+</dd>
+<dt><kbd>{C-c M-c}</kbd></dt>
 <dd><p>Copy a &lt;tree&gt; to a non-koutline buffer.
-</p></dd>
-<dt><kbd>C-c @</kbd>
 <a name="index-C_002dc-_0040"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c @ }</kbd></dt>
 <dd><p>Copy a &lt;tree&gt; to an outgoing mail message.
 </p></dd>
 </dl>
@@ -4180,69 +4218,58 @@ Next: <a href="#Filling" accesskey="n" rel="next">Filling</a>, Previous: <a href
 cell or from one cell or tree to another.
 </p>
 <dl compact="compact">
-<dt><kbd>C-c ,</kbd>
-<a name="index-C_002dc-_002c"></a>
-</dt>
+<dd><a name="index-C_002dc-_002c"></a>
+</dd>
+<dt><kbd>{C-c ,}</kbd></dt>
 <dd><p>Move to the beginning of the current cell.
-</p></dd>
-<dt><kbd>C-c .</kbd>
 <a name="index-C_002dc-_002e-1"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c .}</kbd></dt>
 <dd><p>Move to the end of the current cell.
 </p>
-</dd>
-<dt><kbd>C-c C-n</kbd>
 <a name="index-C_002dc-C_002dn"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-n}</kbd></dt>
 <dd><p>Move to the next visible cell, regardless of level.
-</p></dd>
-<dt><kbd>C-c C-p</kbd>
 <a name="index-C_002dc-C_002dp"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c C-p}</kbd></dt>
 <dd><p>Move to the previous visible cell, regardless of level.
 </p>
-</dd>
-<dt><kbd>C-c C-f</kbd>
 <a name="index-C_002dc-C_002df"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-f}</kbd></dt>
 <dd><p>Move forward to this cell&rsquo;s successor, if any.
-</p></dd>
-<dt><kbd>C-c C-b</kbd>
 <a name="index-C_002dc-C_002db"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c C-b}</kbd></dt>
 <dd><p>Move backward to this cell&rsquo;s predecessor, if any.
 </p>
-</dd>
-<dt><kbd>C-c C-d</kbd>
 <a name="index-C_002dc-C_002dd"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-d}</kbd></dt>
 <dd><p>Move to the first child of the current cell, if any.
-</p></dd>
-<dt><kbd>C-c C-u</kbd>
 <a name="index-C_002dc-C_002du"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c C-u}</kbd></dt>
 <dd><p>Move to the parent cell of the current cell, if any.
 </p>
-</dd>
-<dt><kbd>C-c &lt;</kbd>
 <a name="index-C_002dc-_003c"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c &lt;}</kbd></dt>
 <dd><p>Move to the first sibling at the current level within this tree.
-</p></dd>
-<dt><kbd>C-c &gt;</kbd>
 <a name="index-C_002dc-_003e"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c &gt;}</kbd></dt>
 <dd><p>Move to the last sibling at the current level within this tree.
 </p>
-</dd>
-<dt><kbd>C-c ^</kbd>
 <a name="index-C_002dc-_005e"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c ^}</kbd></dt>
 <dd><p>Move to the level 1 root cell of the current tree.
-</p></dd>
-<dt><kbd>C-c $</kbd>
 <a name="index-C_002dc-_0024"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c $}</kbd></dt>
 <dd><p>Move to the last cell in the tree rooted at point, regardless of level.
 </p></dd>
 </dl>
@@ -4525,34 +4552,30 @@ See <a href="#View-Specs">View Specs</a>.
 <dl compact="compact">
 <dd><a name="index-hide-tree"></a>
 <a name="index-tree_002c-show"></a>
-</dd>
-<dt><kbd>C-c C-h</kbd>
 <a name="index-C_002dc-C_002dh"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-h}</kbd></dt>
 <dd><p>Hide (collapse) the tree rooted at point.
 <a name="index-show-tree"></a>
 <a name="index-tree_002c-show-1"></a>
-</p></dd>
-<dt><kbd>C-c C-s</kbd>
 <a name="index-C_002dc-C_002ds"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c C-s}</kbd></dt>
 <dd><p>Show (expand) the tree rooted at point.
 </p>
 <a name="index-outline_002c-all-cells"></a>
 <a name="index-cell_002c-show-all"></a>
-</dd>
-<dt><kbd>C-c C-a</kbd>
 <a name="index-C_002dc-C_002da"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-a}</kbd></dt>
 <dd><p>Show (expand) all of the cells in the outline.  With a prefix arg,
 also toggle the display of blank lines between cells.
 <a name="index-level"></a>
 <a name="index-cell_002c-show-levels"></a>
 <a name="index-outline_002c-show-levels"></a>
-</p></dd>
-<dt><kbd>C-x $</kbd>
 <a name="index-C_002dx-_0024"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-x $}</kbd></dt>
 <dd><p>Show all of the cells down to a particular &lt;level&gt;.  You are prompted
 for the level or a prefix argument may be given.
 </p>
@@ -4560,38 +4583,34 @@ for the level or a prefix argument may be given.
 <a name="index-tree_002c-hide-subtree"></a>
 <a name="index-cell_002c-hide-subtree"></a>
 <a name="index-hide-subtree"></a>
-</dd>
-<dt><kbd>C-M-h</kbd>
 <a name="index-C_002dM_002dh"></a>
-</dt>
+</dd>
+<dt><kbd>{C-M-h}</kbd></dt>
 <dd><p>Hide the subtree at point, excluding the root cell.
 <a name="index-subtree_002c-show"></a>
 <a name="index-tree_002c-show-subtree"></a>
 <a name="index-cell_002c-show-subtree"></a>
 <a name="index-show-subtree"></a>
-</p></dd>
-<dt><kbd>M-x kotl-mode:show-subtree</kbd>
 <a name="index-M_002dx-kotl_002dmode_003ashow_002dsubtree"></a>
-</dt>
+</p></dd>
+<dt><kbd>{M-x kotl-mode:show-subtree}</kbd></dt>
 <dd><p>Show the subtree at point.  Use <kbd>{C-c C-s}</kbd> to achieve a similar
 effect; the only difference is that it will additionally expand the root
 cell.
 </p>
 <a name="index-overview"></a>
 <a name="index-outline_002c-overview"></a>
-</dd>
-<dt><kbd>C-c C-o</kbd>
 <a name="index-C_002dc-C_002do"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-o}</kbd></dt>
 <dd><p>Show an overview of the outline by showing only the first line of
 every cell.  With a prefix arg, also toggle the display of blank lines
 between cells.
 <a name="index-top_002dlevel-view"></a>
 <a name="index-outline_002c-top_002dlevel"></a>
-</p></dd>
-<dt><kbd>C-c C-t</kbd>
 <a name="index-C_002dc-C_002dt"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-c C-t}</kbd></dt>
 <dd><p>Show a top-level view of the outline by hiding all cells but those at
 level 1 and collapsing the visible cells so that only their first lines
 are visible.  With a prefix arg, also toggle the display of blank lines
@@ -5239,42 +5258,51 @@ to expand all entries in the buffer.
 <a name="index-rolo_002c-moving-to-entries"></a>
 <dl compact="compact">
 <dd><a name="index-rolo_002c-b"></a>
+<a name="index-b-1"></a>
 </dd>
-<dt><kbd>b</kbd></dt>
+<dt><kbd>{b}</kbd></dt>
 <dd><p>Move to the previous entry at the same level as the current entry.
 <a name="index-rolo_002c-f"></a>
+<a name="index-f-1"></a>
 </p></dd>
-<dt><kbd>f</kbd></dt>
+<dt><kbd>{f}</kbd></dt>
 <dd><p>Move to the next entry at the same level as the current entry.
 <a name="index-rolo_002c-n"></a>
+<a name="index-n-1"></a>
 </p></dd>
-<dt><kbd>n</kbd></dt>
+<dt><kbd>{n}</kbd></dt>
 <dd><p>Move to the next entry at any level.
 <a name="index-rolo_002c-p"></a>
+<a name="index-p"></a>
 </p></dd>
-<dt><kbd>p</kbd></dt>
+<dt><kbd>{p}</kbd></dt>
 <dd><p>Move to the previous entry at any level.
 <a name="index-rolo_002c-u"></a>
+<a name="index-u-1"></a>
 </p></dd>
-<dt><kbd>u</kbd></dt>
+<dt><kbd>{u}</kbd></dt>
 <dd><p>Move to the previous entry one level up.
 <a name="index-rolo_002c-_002e"></a>
 <a name="index-rolo_002c-_003c"></a>
+<a name="index-_002e-or-_003c"></a>
 </p></dd>
-<dt><kbd>. or &lt;</kbd></dt>
+<dt><kbd>{. or &lt;}</kbd></dt>
 <dd><p>Move to the beginning of the buffer.
 <a name="index-rolo_002c-_002c"></a>
 <a name="index-rolo_002c-_003e"></a>
+<a name="index-_002c-or-_003e"></a>
 </p></dd>
-<dt><kbd>, or &gt;</kbd></dt>
+<dt><kbd>{, or &gt;}</kbd></dt>
 <dd><p>Move to the end of the buffer.
 <a name="index-rolo_002c-DEL"></a>
+<a name="index-DEL"></a>
 </p></dd>
-<dt><kbd><span class="key">DEL</span></kbd></dt>
+<dt><kbd>{<span class="key">DEL</span>}</kbd></dt>
 <dd><p>Scroll backward a windowful.
 <a name="index-rolo_002c-SPC"></a>
+<a name="index-SPC"></a>
 </p></dd>
-<dt><kbd><span class="key">SPC</span></kbd></dt>
+<dt><kbd>{<span class="key">SPC</span>}</kbd></dt>
 <dd><p>Scroll forward a windowful.
 </p></dd>
 </dl>
@@ -6713,24 +6741,22 @@ Next: <a href="#Invocation" accesskey="n" rel="next">Invocation</a>, Previous: <
 the Emacs Package Manager.  If you are not familiar with
 it, see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Packages">Packages</a> in <cite>the GNU Emacs Manual</cite>.
 </p>
-<p>If you have Hyperbole 5.10 or higher installed and simply want
-to upgrade it, invoke the Emacs Package Manager with <kbd>{M-x
-list-packages <span class="key">RET</span>}</kbd>, then use the <kbd>{U}</kbd> followed by
-the <kbd>{x}</kbd> key to upgrade all out-of-date packages, Hyperbole
-among them.  Then skip the next section and see <a href="#Invocation">Invocation</a>.
+<p>If you have Hyperbole 5.10 or higher installed and simply want to
+upgrade it, invoke the Emacs Package Manager with <kbd>{M-x
+list-packages <span class="key">RET</span>}</kbd>, then use the <kbd>{U}</kbd> key followed by
+the <kbd>{x}</kbd> key to upgrade all out-of-date packages, Hyperbole among
+them.  Then skip the text below and move on to the next
+section, see <a href="#Invocation">Invocation</a>.
 </p>
-<p>Otherwise, to download and install the Hyperbole package, add the
-following lines to your personal Emacs initialization file,
-typically <samp>~/.emacs</samp> or <samp>~/.emacs.d/.emacs</samp>,
+<p>Otherwise, to download and install the Hyperbole package, you should add
+several lines to your personal Emacs initialization file, <samp>~/.emacs</samp>.
+(For further details, see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Init-File">The Emacs Initialization File</a> in <cite>the GNU Emacs Manual</cite>).
+</p>
+<p>Below are the lines to add:
 </p>
 <div class="smalllisp">
 <pre class="smalllisp">(require 'package)
-(setq package-check-signature nil
-      package-enable-at-startup nil) ;; Prevent double loading of libraries
-;; GNU Emacs now includes the Elpa package-archive setting but we include
-;; it here as a reference of how to do this.  add-to-list will do nothing
-;; if it is already in the list.
-(add-to-list 'package-archives '(&quot;gnu&quot; . &quot;http://elpa.gnu.org/packages/&quot;))
+(setq package-enable-at-startup nil) ;; Prevent double loading of libraries
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
   (package-refresh-contents)	
@@ -6738,8 +6764,10 @@ typically <samp>~/.emacs</samp> or <samp>~/.emacs.d/.emacs</samp>,
 (require 'hyperbole)
 </pre></div>
 
-<p>Then restart Emacs and if no errors occur, the latest version of
-Hyperbole will be downloaded, installed and available for use.
+<p>Now save the file and restart Emacs.  Hyperbole will then be
+downloaded and compiled for use with your version of Emacs; give it a
+minute or two.  You may see a bunch of compilation warnings but these
+can be safely ignored.
 </p>
 <p>Now read the next section on Invocation.
 </p>
@@ -7126,69 +7154,60 @@ global Hyperbole keys.
 </p>
 <dl compact="compact">
 <dd><a name="index-key-binding_002c-M_002dRET"></a>
-</dd>
-<dt><kbd>M-<span class="key">RET</span></kbd>
 <a name="index-M_002dRET-2"></a>
-</dt>
+</dd>
+<dt><kbd>{M-<span class="key">RET</span>}</kbd></dt>
 <dd><p>Action Key: Invoke the Action Key in the present context.
-</p></dd>
-<dt><kbd>C-u M-<span class="key">RET</span></kbd>
 <a name="index-C_002du-M_002dRET-1"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-u M-<span class="key">RET</span>}</kbd></dt>
 <dd><p>Assist Key: Invoke the Assist Key in the present context.
 </p>
 <a name="index-key-binding_002c-C_002dc-_005c"></a>
-</dd>
-<dt><kbd>C-c \</kbd>
 <a name="index-C_002dc-_005c-1"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c \}</kbd></dt>
 <dd><p>HyControl: Control windows, frames and buffer display.  This binding
 is made only if the key is not bound prior to loading Hyperbole.
 </p>
 <a name="index-key-binding_002c-C_002dc-C_002dr"></a>
-</dd>
-<dt><kbd>C-c C-r</kbd>
 <a name="index-C_002dc-C_002dr-1"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c C-r}</kbd></dt>
 <dd><p>Button Rename: Rename an explicit button. This binding is made only if
 the key is not bound prior to loading Hyperbole.
 </p>
 <a name="index-key-binding_002c-M_002do"></a>
-</dd>
-<dt><kbd>M-o</kbd>
 <a name="index-M_002do-1"></a>
-</dt>
+</dd>
+<dt><kbd>{M-o}</kbd></dt>
 <dd><p>Drag Operation: Keyboard emulation of the start and stop of mouse
 drags to invoke Smart Key actions.  This binding is made only if the
 key is not bound prior to loading Hyperbole and if Emacs is run under
 a window system.
 </p>
 <a name="index-key-binding_002c-C_002dh-h"></a>
-</dd>
-<dt><kbd>C-h h</kbd>
 <a name="index-C_002dh-h-1"></a>
-</dt>
+</dd>
+<dt><kbd>{C-h h}</kbd></dt>
 <dd><p>Hyperbole Mini Menu: Invoke the Hyperbole minibuffer menu, giving
 access to many Hyperbole commands.
 </p>
 <a name="index-key-binding_002c-C_002dh-A"></a>
 <a name="index-key-binding_002c-C_002du-C_002dh-A"></a>
-</dd>
-<dt><kbd>C-h A</kbd>
 <a name="index-C_002dh-A-1"></a>
-</dt>
+</dd>
+<dt><kbd>{C-h A}</kbd></dt>
 <dd><p>Action Key Help: Shows what the Action Key will do in the current context.
-</p></dd>
-<dt><kbd>C-u C-h A</kbd>
 <a name="index-C_002du-C_002dh-A-1"></a>
-</dt>
+</p></dd>
+<dt><kbd>{C-u C-h A}</kbd></dt>
 <dd><p>Assist Key Help: Shows what the Assist Key will do in the same context.
 </p>
 <a name="index-key-binding_002c-C_002dc-RET"></a>
-</dd>
-<dt><kbd>C-c <span class="key">RET</span></kbd>
 <a name="index-C_002dc-RET-1"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c <span class="key">RET</span>}</kbd></dt>
 <dd><p>Mark Things: Marks larger and larger synctactical units in a buffer
 when invoked repeatedly, showing in the minibuffer the type of unit
 marked each time.  For example, if on an opening brace at the start of
@@ -7197,10 +7216,9 @@ binding is made only if the key is not bound prior to loading
 Hyperbole.
 </p>
 <a name="index-key-binding_002c-C_002dc-_002e"></a>
-</dd>
-<dt><kbd>C-c .</kbd>
 <a name="index-C_002dc-_002e-2"></a>
-</dt>
+</dd>
+<dt><kbd>{C-c .}</kbd></dt>
 <dd><p>Delimited Thing Jump: Jumps between the start and end of a delimited
 thing, which may be an HTML tag pair.  This binding is made only if
 the key is not bound prior to loading Hyperbole.  See <a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a>, for more information.
@@ -9939,13 +9957,58 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <a name="Key-Index-1"></a>
 <h2 class="unnumbered">Key Index</h2>
 
-<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Key-Index_ky_letter-A"><b>A</b></a>
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Key-Index_ky_symbol-1"><b>%</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-2"><b>(</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-3"><b>)</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-4"><b>+</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-5"><b>,</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-6"><b>-</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-7"><b>.</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-8"><b>0</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-9"><b>=</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-10"><b>[</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>]</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>~</b></a>
+ &nbsp; 
+<br>
+<a class="summary-letter" href="#Key-Index_ky_letter-A"><b>A</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-B"><b>B</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-C"><b>C</b></a>
  &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-D"><b>D</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-F"><b>F</b></a>
+ &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-H"><b>H</b></a>
  &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-I"><b>I</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-J"><b>J</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-K"><b>K</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-L"><b>L</b></a>
+ &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-M"><b>M</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-N"><b>N</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-O"><b>O</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-P"><b>P</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-Q"><b>Q</b></a>
  &nbsp; 
@@ -9955,9 +10018,52 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-T"><b>T</b></a>
  &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-U"><b>U</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-W"><b>W</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-Z"><b>Z</b></a>
+ &nbsp; 
 </td></tr></table>
 <table class="index-ky" border="0">
 <tr><td></td><th align="left">Index Entry</th><td>&nbsp;</td><th align="left"> Section</th></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-1">%</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_0025"><code>%</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-2">(</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_0028"><code>(</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-3">)</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_0029"><code>)</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-4">+</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_002b"><code>+</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-5">,</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_002c-or-_003e"><code>, or &gt;</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-6">-</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_002d"><code>-</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-7">.</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_002e"><code>.</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_002e-or-_003c"><code>. or &lt;</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-8">0</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-0_002d9"><code>0-9</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-9">=</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_003d"><code>=</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-10">[</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_005b"><code>[</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-11">]</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_005d"><code>]</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-12">~</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_007e"><code>~</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-A">A</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Key-1"><code>Action Key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Keys">Smart Keys</a></td></tr>
@@ -9968,7 +10074,12 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-Assist-Key-1"><code>Assist Key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Keys">Smart Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Assist-Key_002c-listing-attributes-1"><code>Assist Key, listing attributes</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-B">B</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-b"><code>b</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-b-1"><code>b</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-C">C</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-c"><code>c</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_0024"><code>C-c $</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Moving-Around">Moving Around</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_002b"><code>C-c +</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Splitting-and-Appending">Splitting and Appending</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_002c"><code>C-c ,</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Moving-Around">Moving Around</a></td></tr>
@@ -10061,11 +10172,37 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-C_002dx-o"><code>C-x o</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dy"><code>C-y</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Adding-and-Killing">Adding and Killing</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-D">D</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-d"><code>d</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-D"><code>D</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-DEL"><code><span class="key">DEL</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-down"><code>down</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-F">F</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-f"><code>f</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-f-1"><code>f</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-H">H</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-h"><code>h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-H"><code>H</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-HyControl_002c-see-screen"><code>HyControl, see screen</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-HyRolo_002c-see-rolo"><code>HyRolo, see rolo</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-I">I</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-i"><code>i</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-J">J</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-j"><code>j</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-K">K</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-k"><code>k</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-keypad-number"><code>keypad number</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-L">L</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-left"><code>left</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-M">M</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-m"><code>m</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002d0-C_002dc-t"><code>M-0 C-c t</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Transposing">Transposing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002d1-TAB"><code>M-1 <span class="key">TAB</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002db"><code>M-b</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
@@ -10081,10 +10218,23 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-M_002dx-kotl_002dmode_003ashow_002dsubtree"><code>M-x kotl-mode:show-subtree</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-middle-mouse-key-1"><code>middle mouse key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-N">N</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-n"><code>n</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-n-1"><code>n</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-O">O</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-o"><code>o</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-O"><code>O</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-P">P</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-p"><code>p</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-Q">Q</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-q"><code>q</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-q-1"><code>q</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-R">R</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-right"><code>right</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-rolo_002c-_002c"><code>rolo, ,</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-rolo_002c-_002e"><code>rolo, .</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-rolo_002c-_003c"><code>rolo, &lt;</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
@@ -10113,6 +10263,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-rolo_002c-u"><code>rolo, u</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-S">S</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-s"><code>s</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-_0025"><code>screen, %</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-_0028"><code>screen, (</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-_0029"><code>screen, )</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -10156,19 +10307,79 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-shift_002dleft-mouse-key"><code>shift-left mouse key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-shift_002dmiddle-mouse-key"><code>shift-middle mouse key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-shift_002dright-mouse-key"><code>shift-right mouse key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-SPC"><code><span class="key">SPC</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-T">T</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-t"><code>t</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-TAB"><code><span class="key">TAB</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-TAB-1"><code><span class="key">TAB</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-U">U</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-u"><code>u</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-u-1"><code>u</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-up"><code>up</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-W">W</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-w"><code>w</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-W"><code>W</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_letter-Z">Z</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Z"><code>Z</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-z"><code>z</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
 </table>
-<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Key-Index_ky_letter-A"><b>A</b></a>
+<table><tr><th valign="top">Jump to: &nbsp; </th><td><a class="summary-letter" href="#Key-Index_ky_symbol-1"><b>%</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-2"><b>(</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-3"><b>)</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-4"><b>+</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-5"><b>,</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-6"><b>-</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-7"><b>.</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-8"><b>0</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-9"><b>=</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-10"><b>[</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>]</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>~</b></a>
+ &nbsp; 
+<br>
+<a class="summary-letter" href="#Key-Index_ky_letter-A"><b>A</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-B"><b>B</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-C"><b>C</b></a>
  &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-D"><b>D</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-F"><b>F</b></a>
+ &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-H"><b>H</b></a>
  &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-I"><b>I</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-J"><b>J</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-K"><b>K</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-L"><b>L</b></a>
+ &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-M"><b>M</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-N"><b>N</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-O"><b>O</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-P"><b>P</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-Q"><b>Q</b></a>
  &nbsp; 
@@ -10177,6 +10388,12 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <a class="summary-letter" href="#Key-Index_ky_letter-S"><b>S</b></a>
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_letter-T"><b>T</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-U"><b>U</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-W"><b>W</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_letter-Z"><b>Z</b></a>
  &nbsp; 
 </td></tr></table>
 

@@ -46,18 +46,24 @@ Various forms of the Hyperbole are below the "man/" subdirectory.
 *		           Installation
 ===========================================================================
 
-By far, the simplest and quickest way to obtain and to install Hyperbole is
-to use the Emacs Package Manager.  If you are not familiar with it, see the
-Packages section of the GNU Emacs Manual, "(emacs)Packages".
+Once you have Emacs set up at your site, GNU Hyperbole may be
+installed simply by using the Emacs Package Manager.  If you are not
+familiar with it, see the Packages section of the GNU Emacs Manual,
+"(emacs)Packages", or
+"https://www.gnu.org/software/emacs/manual/html_node/emacs/Packages.html". 
 
 If you have Hyperbole 5.10 or higher already installed and simply want to
 upgrade it, invoke the Emacs Package Manager with {M-x list-packages RET},
-then use the {U} followed by the {x} key to upgrade all out-of-date
-packages, Hyperbole among them.  Then skip the next section and move on to
-Invocation.
+then use the {U} key followed by the {x} key to upgrade all out-of-date
+packages, Hyperbole among them.  Then skip the text below and move on to
+the next section, Invocation.
 
-Otherwise, to download and install the Hyperbole package, add the following
-lines to your personal Emacs initialization file, typically "~/.emacs".
+Otherwise, to download and install the Hyperbole package, you should add
+several lines to your personal Emacs initialization file, typically "~/.emacs".
+(For further details, see "(emacs)Init File", or
+"https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-File.html").
+
+Below are the lines to add:
 
 (require 'package)
 (setq package-enable-at-startup nil) ;; Prevent double loading of libraries
@@ -67,10 +73,12 @@ lines to your personal Emacs initialization file, typically "~/.emacs".
   (package-install 'hyperbole))
 (require 'hyperbole)
 
-Now restart Emacs and Hyperbole will be downloaded and compiled for
-use with your version of Emacs.  You may see a bunch of compilation
-warnings but these can be safely ignored.
+----
 
+Now save the file and then restart Emacs.  Hyperbole will then be
+downloaded and compiled for use with your version of Emacs; give it a
+minute or two.  You may see a bunch of compilation warnings but these
+can be safely ignored.
 
 ===========================================================================
 *			    Invocation

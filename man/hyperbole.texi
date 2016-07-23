@@ -38,6 +38,16 @@
 @end macro
 @end ifinfo
 
+@macro kitem {key}
+@kindex \key\
+@item @bkbd{\key\}
+@end macro
+
+@macro kitemx {key}
+@kindex \key\
+@itemx @bkbd{\key\}
+@end macro
+
 @copying
 This manual is for GNU Hyperbole
 (Edition @value{EDITION}, Published @value{UPDATED}).
@@ -142,7 +152,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.1
-Printed July 22, 2016.
+Printed July 23, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -166,7 +176,7 @@ Printed July 22, 2016.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.1, July 22, 2016.
+@center Edition 6.0.1, July 23, 2016.
 
 @sp 2
 @noindent
@@ -2759,46 +2769,46 @@ The table below explains what each key does in HyControl mode.  If the
 explanation does not say otherwise, then the key applies in both window
 and frame submodes.
 
-@table @kbd
+@table @asis
 
 @kindex HyControl, see screen
 @kindex screen, .
-@item .
+@kitem .
 Clear the argument to a value of 0.
 
 @kindex screen, 0-9
-@item 0-9
+@kitem 0-9
 Multiply the argument by 10 and add the digit pressed.
 
 @kindex screen, h
-@item h
+@kitem h
 Increase height by argument lines (line height determined by buffer
 character height).
 
 @kindex screen, s
-@item s
+@kitem s
 Shorten height by argument lines.
 
 @kindex screen, w
-@item w
+@kitem w
 Widen by argument characters.
 
 @kindex screen, n
-@item n
+@kitem n
 Narrow by argument characters.
 
 @kindex screen, %
-@item %
+@kitem %
 In FRAME mode, resize frame's height and width to about argument percent
 of the screen size.
 
 @kindex screen, H
-@item H
+@kitem H
 In FRAME mode, resize frame's height to about argument percent of the
 screen size.
 
 @kindex screen, W
-@item W
+@kitem W
 In FRAME mode, resize frame's width to about argument percent of the
 screen size.
 
@@ -2806,21 +2816,21 @@ screen size.
 @kindex screen, down
 @kindex screen, left
 @kindex screen, right
-@item up
-@itemx down
-@itemx left
-@itemx right
+@kitem up
+@kitemx down
+@kitemx left
+@kitemx right
 Move frame in the specified direction by argument pixels.
 
 @kindex screen, c
-@item c
+@kitem c
 In FRAME mode, with each press, cycle the selected frame's position
 clockwise through the middle of edges and corners of the screen.  With
 an argument of 0, reset the cycle position to the upper left corner.
 Respects the pixel edge offsets returned by @code{hycontrol-get-screen-offsets}.
 
 @kindex screen, keypad number
-@item keypad number
+@kitem keypad number
 In FRAME mode, move the frame directly to the screen edge position given
 by the numeric keypad layout.  For example, 3 moves the frame to the
 bottom right corner and 8 moves it to the middle of the top edge.
@@ -2828,44 +2838,44 @@ Keypad numeric keys do not adjust the argument.  Respects the pixel edge
 offsets returned by @code{hycontrol-get-screen-offsets}.
 
 @kindex screen, d
-@item d
+@kitem d
 Delete selected window or frame based on mode.
 @kindex screen, D
-@item D
+@kitem D
 Prompt for confirmation and then delete non-selected windows or frames
 based on mode.
 
 @kindex screen, o
-@item o
+@kitem o
 Select the next window in the window list, across all visible frames.
 @kindex screen, O
-@item O
+@kitem O
 Select the next visible frame.
 
 @vindex hycontrol-frame-offset
 @kindex screen, [
-@item [
+@kitem [
 Create a new atop window or frame depending on mode.  If a frame, it is
 sized to the same size as the selected window and offset from the
 selected frame by the pixel amounts given by
 @code{hycontrol-frame-offset}.
 @kindex screen, ]
-@item ]
+@kitem ]
 Create a new sideways window or frame depending on mode.
 
 @kindex screen, (
-@item (
+@kitem (
 Save the current window or frame configuration based on mode.  Whenever,
 HyControl is invoked, the current window and frame configurations are
 saved automatically.  So use this command only if you have changed the
 configuration and wish to save it temporarily.
 @kindex screen, )
-@item )
+@kitem )
 After confirmation, restore the last saved window or frame configuration
 based on mode.
 
 @kindex screen, f
-@item f
+@kitem f
 In WINDOW mode, delete the selected window and redisplay its buffer in a
 new frame.
 
@@ -2873,27 +2883,27 @@ new frame.
 @kindex screen, j
 @kindex screen, k
 @kindex screen, m
-@item i
-@itemx j
-@itemx k
-@itemx m
+@kitem i
+@kitemx j
+@kitemx k
+@kitemx m
 In Frame mode, expand the selected frame to the associated screen edge
 based on key layout.  i=top, j=left, k=right and m=bottom screen edge.
 Respects the pixel edge offsets returned by
 @code{hycontrol-get-screen-offsets}.
 
 @kindex screen, =
-@item =
+@kitem =
 Make the current frame's windows or all frames approximately the same
 size based on mode.  In FRAME mode, all visible frames are set to the
 size of the selected frame.
 
 @kindex screen, -
-@item -
+@kitem -
 Make the selected window or frame (based on mode) as small as possible
 while still displaying it.
 @kindex screen, +
-@item +
+@kitem +
 Make the window or frame (based on mode) as large as possible.  In FRAME
 mode, a second press of this key restores its size to whatever it was
 prior to the first use of this command.
@@ -2901,17 +2911,17 @@ prior to the first use of this command.
 @cindex burying
 @cindex unburying
 @kindex screen, b
-@item b
+@kitem b
 Bury the selected buffer within the buffer list, displaying the next
 buffer.
 @kindex screen, u
-@item u
+@kitem u
 Unbury the bottom buffer in the buffer list and display it in the
 selected window.
 
 @cindex swapping
 @kindex screen, ~
-@item ~
+@kitem ~
 Swap two buffers between the selected window or frame and one other.
 In WINDOW mode, there must be precisely two windows in the selected
 frame.  In FRAME mode, the second frame mush have a single window.
@@ -2919,11 +2929,11 @@ frame.  In FRAME mode, the second frame mush have a single window.
 @findex zoom-frm.el
 @cindex zooming
 @kindex screen, Z
-@item Z
+@kitem Z
 Zoom in selected window or frame text based on mode, increasing default
 face size.
 @kindex screen, z
-@item z
+@kitem z
 Zoom out selected window or frame text based on mode, increasing default
 face size.  Zooming supports an argument of between 1 and 9 (any other
 value sets the argument to 1).  The argument determines the number of
@@ -2933,11 +2943,11 @@ FRAME mode zooming requires the separately available
 @file{zoom-frm.el} library.  WINDOW zooming works without this library.
 
 @kindex screen, t
-@item t
+@kitem t
 Toggle between WINDOW and FRAME submodes.
 
 @kindex screen, q
-@item q
+@kitem q
 Quit from HyControl mode and restore normal key bindings.
 @end table
 
@@ -3349,27 +3359,27 @@ arguments for which each command prompts.  Note how the use of prefix
 arguments changes each command's behavior from insertion at the sibling
 level to insertion at the child level.
 
-@ktable @kbd
-@item C-c c
+@table @asis
+@kitem C-c c
 Copy <tree> to be the successor of <cell>.
-@item C-u C-c c
+@kitem C-u C-c c
 Copy <tree> to follow as the first child of <cell>.
 
-@item C-c C-c
+@kitem C-c C-c
 Copy <tree> to be the predecessor of <cell>.
-@item C-u C-c C-c
+@kitem C-u C-c C-c
 Copy <tree> to be the first child of the parent of <cell>.
 
-@item C-c m
+@kitem C-c m
 Move <tree> to be the successor of <cell>.
-@item C-u C-c m
+@kitem C-u C-c m
 Move <tree> to follow as the first child of <cell>.
 
-@item C-c C-m
+@kitem C-c C-m
 Move <tree> to precede <cell>.
-@item C-u C-c C-m
+@kitem C-u C-c C-m
 Move <tree> to be the first child of the parent of <cell>.
-@end ktable
+@end table
 
 @cindex mouse, moving trees
 If you have mouse support under Hyperbole, you can move entire trees
@@ -3389,12 +3399,12 @@ You can, however, copy an outline tree to a non-outline buffer with:
 @cindex outline, mailing
 @cindex exporting an outline
 @cindex mailing an outline
-@ktable @kbd
-@item C-c M-c
+@table @asis
+@kitem C-c M-c
 Copy a <tree> to a non-koutline buffer.
-@item C-c @@
+@kitem C-c @@ 
 Copy a <tree> to an outgoing mail message.
-@end ktable
+@end table
 
 @cindex outline, importing
 @cindex copying
@@ -3410,37 +3420,37 @@ koutline with the @bkbd{M-x kimport:text @key{RET}} command.
 In addition to normal emacs movement commands, you can move within a
 cell or from one cell or tree to another.
 
-@ktable @kbd
-@item C-c ,
+@table @asis
+@kitem C-c ,
 Move to the beginning of the current cell.
-@item C-c .
+@kitem C-c .
 Move to the end of the current cell.
 
-@item C-c C-n
+@kitem C-c C-n
 Move to the next visible cell, regardless of level.
-@item C-c C-p
+@kitem C-c C-p
 Move to the previous visible cell, regardless of level.
 
-@item C-c C-f
+@kitem C-c C-f
 Move forward to this cell's successor, if any.
-@item C-c C-b
+@kitem C-c C-b
 Move backward to this cell's predecessor, if any.
 
-@item C-c C-d
+@kitem C-c C-d
 Move to the first child of the current cell, if any.
-@item C-c C-u
+@kitem C-c C-u
 Move to the parent cell of the current cell, if any.
 
-@item C-c <
+@kitem C-c <
 Move to the first sibling at the current level within this tree.
-@item C-c >
+@kitem C-c >
 Move to the last sibling at the current level within this tree.
 
-@item C-c ^
+@kitem C-c ^
 Move to the level 1 root cell of the current tree.
-@item C-c $
+@kitem C-c $
 Move to the last cell in the tree rooted at point, regardless of level.
-@end ktable
+@end table
 
 
 @node Filling, Transposing, Moving Around, Editing
@@ -3673,25 +3683,25 @@ system yet, so that you can get effective views of an outline without
 editing it.  Some of these commands affect the current view spec.
 @xref{View Specs}.
 
-@ktable @kbd
+@table @asis
 @cindex hide tree
 @cindex tree, show
-@item C-c C-h
+@kitem C-c C-h
 Hide (collapse) the tree rooted at point.
 @cindex show tree
 @cindex tree, show
-@item C-c C-s
+@kitem C-c C-s
 Show (expand) the tree rooted at point.
 
 @cindex outline, all cells
 @cindex cell, show all
-@item C-c C-a
+@kitem C-c C-a
 Show (expand) all of the cells in the outline.  With a prefix arg,
 also toggle the display of blank lines between cells.
 @cindex level
 @cindex cell, show levels
 @cindex outline, show levels
-@item C-x $
+@kitem C-x $
 Show all of the cells down to a particular <level>.  You are prompted
 for the level or a prefix argument may be given.
 
@@ -3699,31 +3709,31 @@ for the level or a prefix argument may be given.
 @cindex tree, hide subtree
 @cindex cell, hide subtree
 @cindex hide subtree
-@item C-M-h
+@kitem C-M-h
 Hide the subtree at point, excluding the root cell.
 @cindex subtree, show
 @cindex tree, show subtree
 @cindex cell, show subtree
 @cindex show subtree
-@item M-x kotl-mode:show-subtree
+@kitem M-x kotl-mode:show-subtree
 Show the subtree at point.  Use @bkbd{C-c C-s} to achieve a similar
 effect; the only difference is that it will additionally expand the root
 cell.
 
 @cindex overview
 @cindex outline, overview
-@item C-c C-o
+@kitem C-c C-o
 Show an overview of the outline by showing only the first line of
 every cell.  With a prefix arg, also toggle the display of blank lines
 between cells.
 @cindex top-level view
 @cindex outline, top-level
-@item C-c C-t
+@kitem C-c C-t
 Show a top-level view of the outline by hiding all cells but those at
 level 1 and collapsing the visible cells so that only their first lines
 are visible.  With a prefix arg, also toggle the display of blank lines
 between cells.
-@end ktable
+@end table
 
 @kindex Action Key, hide or show cell
 @cindex Action Key, hide or show cell
@@ -4308,35 +4318,35 @@ to expand all entries in the buffer.
 Many other keys are defined to help you move through matching entries.
 
 @cindex rolo, moving to entries
-@table @kbd
+@table @asis
 @kindex rolo, b
-@item b
+@kitem b
 Move to the previous entry at the same level as the current entry.
 @kindex rolo, f
-@item f
+@kitem f
 Move to the next entry at the same level as the current entry.
 @kindex rolo, n
-@item n
+@kitem n
 Move to the next entry at any level.
 @kindex rolo, p
-@item p
+@kitem p
 Move to the previous entry at any level.
 @kindex rolo, u
-@item u
+@kitem u
 Move to the previous entry one level up.
 @kindex rolo, .
 @kindex rolo, <
-@item . or <
+@kitem . or <
 Move to the beginning of the buffer.
 @kindex rolo, ,
 @kindex rolo, >
-@item , or >
+@kitem , or >
 Move to the end of the buffer.
 @kindex rolo, @key{DEL}
-@item @key{DEL}
+@kitem @key{DEL}
 Scroll backward a windowful.
 @kindex rolo, @key{SPC}
-@item @key{SPC}
+@kitem @key{SPC}
 Scroll forward a windowful.
 @end table
 
@@ -5525,24 +5535,24 @@ By far, the simplest and quickest way to install Hyperbole is to use
 the Emacs Package Manager.  If you are not familiar with
 it, @pxref{Packages,,,emacs,the GNU Emacs Manual}.
 
-If you have Hyperbole 5.10 or higher installed and simply want
-to upgrade it, invoke the Emacs Package Manager with @bkbd{M-x
-list-packages @key{RET}}, then use the @bkbd{U} followed by
-the @bkbd{x} key to upgrade all out-of-date packages, Hyperbole
-among them.  Then skip the next section and @pxref{Invocation}.
+If you have Hyperbole 5.10 or higher installed and simply want to
+upgrade it, invoke the Emacs Package Manager with @bkbd{M-x
+list-packages @key{RET}}, then use the @bkbd{U} key followed by
+the @bkbd{x} key to upgrade all out-of-date packages, Hyperbole among
+them.  Then skip the text below and move on to the next
+section, @pxref{Invocation}.
 
-Otherwise, to download and install the Hyperbole package, add the
-following lines to your personal Emacs initialization file,
-typically @file{~/.emacs} or @file{~/.emacs.d/.emacs},
+Otherwise, to download and install the Hyperbole package, you should add
+several lines to your personal Emacs initialization file, @file{~/.emacs}.
+(For further details, @pxref{Init File,,The Emacs Initialization File,emacs,
+the GNU Emacs Manual}).
+
+@noindent
+Below are the lines to add:
 
 @smalllisp
 (require 'package)
-(setq package-check-signature nil
-      package-enable-at-startup nil) ;; Prevent double loading of libraries
-;; GNU Emacs now includes the Elpa package-archive setting but we include
-;; it here as a reference of how to do this.  add-to-list will do nothing
-;; if it is already in the list.
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(setq package-enable-at-startup nil) ;; Prevent double loading of libraries
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
   (package-refresh-contents)	
@@ -5550,8 +5560,10 @@ typically @file{~/.emacs} or @file{~/.emacs.d/.emacs},
 (require 'hyperbole)
 @end smalllisp
 
-Then restart Emacs and if no errors occur, the latest version of
-Hyperbole will be downloaded, installed and available for use.
+Now save the file and restart Emacs.  Hyperbole will then be
+downloaded and compiled for use with your version of Emacs; give it a
+minute or two.  You may see a bunch of compilation warnings but these
+can be safely ignored.
 
 @noindent
 Now read the next section on Invocation.
@@ -5881,44 +5893,44 @@ global Hyperbole keys.
 
 Here are descriptions of Hyperbole's default keyboard key bindings:
 
-@ktable @kbd
+@table @asis
 @cindex key binding, M-@key{RET}
-@item M-@key{RET}
+@kitem M-@key{RET}
 Action Key: Invoke the Action Key in the present context.
-@item C-u M-@key{RET}
+@kitem C-u M-@key{RET}
 Assist Key: Invoke the Assist Key in the present context.
 
 @cindex key binding, C-c \
-@item C-c \
+@kitem C-c @backslashchar{}
 HyControl: Control windows, frames and buffer display.  This binding
 is made only if the key is not bound prior to loading Hyperbole.
 
 @cindex key binding, C-c C-r
-@item C-c C-r
+@kitem C-c C-r
 Button Rename: Rename an explicit button. This binding is made only if
 the key is not bound prior to loading Hyperbole.
 
 @cindex key binding, M-o
-@item M-o
+@kitem M-o
 Drag Operation: Keyboard emulation of the start and stop of mouse
 drags to invoke Smart Key actions.  This binding is made only if the
 key is not bound prior to loading Hyperbole and if Emacs is run under
 a window system.
 
 @cindex key binding, C-h h
-@item C-h h
+@kitem C-h h
 Hyperbole Mini Menu: Invoke the Hyperbole minibuffer menu, giving
 access to many Hyperbole commands.
 
 @cindex key binding, C-h A
 @cindex key binding, C-u C-h A
-@item C-h A
+@kitem C-h A
 Action Key Help: Shows what the Action Key will do in the current context.
-@item C-u C-h A
+@kitem C-u C-h A
 Assist Key Help: Shows what the Assist Key will do in the same context.
 
 @cindex key binding, C-c @key{RET}
-@item C-c @key{RET}
+@kitem C-c @key{RET}
 Mark Things: Marks larger and larger synctactical units in a buffer
 when invoked repeatedly, showing in the minibuffer the type of unit
 marked each time.  For example, if on an opening brace at the start of
@@ -5927,12 +5939,12 @@ binding is made only if the key is not bound prior to loading
 Hyperbole.
 
 @cindex key binding, C-c .
-@item C-c .
+@kitem C-c .
 Delimited Thing Jump: Jumps between the start and end of a delimited
 thing, which may be an HTML tag pair.  This binding is made only if
 the key is not bound prior to loading Hyperbole.  @xref{Smart Key
 Thing Selection}, for more information.
-@end ktable
+@end table
 
 @vindex hkey-init
 @cindex disable global key bindings
