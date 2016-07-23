@@ -2,6 +2,10 @@
 
 2016-07-23  Mats Lidell  <matsl@gnu.org>
 
+* kotl/kotl-loaddefs.el: Generated.
+
+2016-07-23  Mats Lidell  <matsl@gnu.org>
+
 * Makefile (kotl/kotl-loaddefs.el): Add copyright notice for satisfying
 	elpa copyright check.
   (kotl/kotl-loaddefs.el): 
