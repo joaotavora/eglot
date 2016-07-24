@@ -1,5 +1,14 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-24  Mats Lidell  <matsl@gnu.org>
+
+* Patch from Stefan Monnier. Thank you Stefan.
+
+  .gitignore: Add *-autoloads.el and *-pkg.el to ignored set.
+  hyperbole.el: Use autoload.
+  hload-path.el (load-path): Use regular quote.
+  hib-social.el (hbut): properly compile the defib.
+
 2016-07-23  Bob Weiner  <rsw@gnu.org>
 
 * Makefile (hyperbole-$(HYPB_VERSION).tar): Added HY-ABOUT and HY-ANNOUNCE
