@@ -10,6 +10,14 @@
    find-tag call to prevent obsolete warnings and removed setting of
    byte-compile-warnings.
 
+2016-07-24  Mats Lidell  <matsl@gnu.org>
+
+* Patch from Stefan Monnier. Thank you Stefan.
+  .gitignore: Added *-autoloads.el and *-pkg.el to ignored set.
+  hyperbole.el: Fixed autoload typo.
+  hload-path.el (load-path): Fixed to use regular quote.
+  hib-social.el (require 'hbut): Added to properly compile the defib.
+
 2016-07-23  Bob Weiner  <rsw@gnu.org>
 
 * Makefile (hyperbole-$(HYPB_VERSION).tar): Added HY-ABOUT and HY-ANNOUNCE

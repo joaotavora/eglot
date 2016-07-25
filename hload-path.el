@@ -52,7 +52,7 @@
 It must end with a directory separator character.")
 
 ;; Add hyperb:dir to load-path so other Hyperbole libraries can be found.
-(add-to-list #'load-path hyperb:dir)
+(add-to-list 'load-path hyperb:dir)
 
 ;;; ************************************************************************
 ;;; Koutliner mode and file suffix importation settings

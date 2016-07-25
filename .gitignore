@@ -1,5 +1,8 @@
 # Files that Git should ignore in the GNU Hyperbole source directory.
 
+*-autoloads.el
+*-pkg.el
+
 # Copyright (C) 2016  Free Software Foundation, Inc.
 # See the "HY-COPY" file for license information.
 
