@@ -5,9 +5,10 @@ HY-ABOUT            - Introductory description of GNU Hyperbole
 HY-ANNOUNCE         - GNU Hyperbole release announcement
 HY-COPY             - GNU Hyperbole Copyright
 HY-NEWS             - What's new in each release of GNU Hyperbole
-HY-README           - Information GNU Hyperbole users and maintainers should read
 HY-WHY.kotl         - Quick list of great reasons to use Hyperbole
+INSTALL             - GNU Hyperbole installation and invocation instructions
 Makefile            - Build GNU Hyperbole directories and distributions
+README              - Information GNU Hyperbole users and maintainers should read
 hversion.el         - GNU Hyperbole version and system information setup
 hyperbole.el        - Loads and initializes GNU Hyperbole
 hyperbole-readme.txt- Description used by the Emacs package system

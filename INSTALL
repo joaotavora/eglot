@@ -1,1 +1,99 @@
-HY-README
+# INSTALL --- GNU Hyperbole installation and invocation instructions
+#
+# See the "HY-ABOUT" file for a description of GNU Hyperbole.
+#
+# Author:       Bob Weiner
+#
+# Orig-Date:    25-Oct-16 at 09:10:12
+#
+# Copyright (C) 2016  Free Software Foundation, Inc.
+# See the "HY-COPY" file for license information.
+#
+# This file is part of GNU Hyperbole.
+
+===========================================================================
+*		           Installation
+===========================================================================
+
+Once you have Emacs set up at your site, GNU Hyperbole may be
+installed by using the Emacs Package Manager.  If you are not
+familiar with it, see the Packages section of the GNU Emacs Manual,
+"(emacs)Packages", or
+"https://www.gnu.org/software/emacs/manual/html_node/emacs/Packages.html". 
+
+If you have Hyperbole 5.10 or higher already installed and simply want to
+upgrade it, invoke the Emacs Package Manager with {M-x list-packages RET},
+then use the {U} key followed by the {x} key to upgrade all out-of-date
+packages, Hyperbole among them.  Then skip the text below and move on to
+the next section, Invocation.
+
+Otherwise, to download and install the Hyperbole package, you should add
+several lines to your personal Emacs initialization file, typically "~/.emacs".
+(For further details, see "(emacs)Init File", or
+"https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-File.html").
+
+Below are the lines to add:
+
+(require 'package)
+(setq package-enable-at-startup nil) ;; Prevent double loading of libraries
+(package-initialize)
+(unless (package-installed-p 'hyperbole)
+  (package-refresh-contents)	
+  (package-install 'hyperbole))
+(require 'hyperbole)
+
+----
+
+Now save the file and then restart Emacs.  Hyperbole will then be
+downloaded and compiled for use with your version of Emacs; give it a
+minute or two.  You may see a bunch of compilation warnings but these
+can be safely ignored.
+
+===========================================================================
+*			    Invocation
+===========================================================================
+
+Once Hyperbole has been installed for use at your site and loaded into your
+Emacs session, it is ready for use.  You will see a Hyperbole menu on your
+menubar and {C-h h} will display a Hyperbole menu in the minibuffer for
+quick keyboard-based selection.
+
+You can invoke Hyperbole commands in one of three ways:
+
+   use the Hyperbole menu on your menubar;
+
+   type {C-h h} or {M-x hyperbole RET} to bring up the Hyperbole main menu
+   in the minibuffer window, for fast keyboard or mouse-based selection;
+   select an item from this menu by typing the item's first letter; use {q}
+   to quit from the menu.
+
+   use a specific Hyperbole command such as an Action Key click {M-RET} on
+   a pathname to display the associated file or directory.
+
+Use {C-h h d d} for an interactive demonstration of standard Hyperbole
+button capabilities.
+
+{C-h h k e} offers a interactive demonstration of the Koutliner,
+Hyperbole's multi-level autonumbered hypertextual outliner.
+
+To try out HyControl, Hyperbole's interactive frame and window control
+system, use {C-h h s w} for window control or {C-h h s f} for frame
+control.  {t} switches between window and frame control once in one of
+them.
+
+The above are the best interactive ways to learn about Hyperbole.  The
+Hyperbole Manual is a reference manual, not a simple introduction.  It is
+included in the "man/" subdirectory of the Hyperbole package directory in
+four forms:
+
+"man/hyperbole.info"   - online Info browser version
+"man/hyperbole.html"   - web HTML version
+"man/hyperbole.pdf"    - printable version
+"man/hyperbole.texi"   - source form
+
+The Hyperbole package installation places the Info version of this manual
+where needed and adds an entry for Hyperbole into the Info directory under
+the Emacs category.  {C-h h d i} will let you browse the manual.  For web
+browsing, point your browser at "${hyperb:dir}/man/hyperbole.html",
+wherever the Hyperbole package directory is on your system; often this is:
+"~/.emacs.d/elpa/hyperbole-${hyperb:version}/".

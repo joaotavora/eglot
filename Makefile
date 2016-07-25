@@ -165,7 +165,7 @@ ELC_KOTL = kotl/kexport.elc kotl/kfile.elc kotl/kfill.elc kotl/kimport.elc kotl/
 
 HYPERBOLE_FILES = dir hyperbole-pkg.el info html $(EL_SRC) $(EL_COMPILE) $(EL_KOTL) \
 	$(ELC_COMPILE) ChangeLog COPYING Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS \
-	HY-README HY-WHY.kotl DEMO MANIFEST _hypb .hypb file-newer smart-clib-sym \
+	HY-WHY.kotl INSTALL DEMO MANIFEST README _hypb .hypb file-newer smart-clib-sym \
 	hyperbole-banner.png $(man_dir)/hkey-help.txt \
 	$(man_dir)/hyperbole.texi $(man_dir)/version.texi
 
@@ -230,8 +230,7 @@ TAGS: $(EL_TAGS)
 version: doc
 	@ echo ""
 	@ echo "Any fgrep output means the version number has not been updated in that file."
-	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS hversion.el \
-	  hyperbole-pkg.el $(man_dir)/hyperbole.texi $(man_dir)/version.texi
+	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS hversion.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
 	@ echo ""
 
 # Build the Info, HTML and Postscript versions of the user manual.
@@ -249,10 +248,12 @@ pdf: $(man_dir)/hyperbole.pdf
 $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt
 	cd $(man_dir) && $(TEXI2PDF) hyperbole.texi
 
+# Generate a Hyperbole package suitable for distribution via the Emacs package manager.
 pkg: package
 package: release $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
-# Generate kotl/kotl-loaddefs.el in source directory for Elpa distribution.
+# Generate a Hyperbole release suitable for distribution via GNU ELPA.
+# One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-loaddefs.el.
 release: doc kotl/kotl-loaddefs.el
 
 kotl/kotl-loaddefs.el: $(EL_KOTL)
@@ -268,10 +269,10 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	$(RM) -r $(pkg_hyperbole)
 	cd .. && COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/h.tar hyperbole-$(HYPB_VERSION)
 	cd $(pkg_dir) && COPYFILE_DISABLE=1 $(TAR) xf h.tar && cd $(pkg_hyperbole) && $(MAKE) packageclean
-	cd $(pkg_hyperbole) && $(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-loaddefs.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && \
+	cd $(pkg_hyperbole) && make kotl/kotl-loaddefs.el && \
 	cd $(pkg_dir) && $(RM) h.tar; \
 	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION)
-	$(INSTALL) HY-ABOUT HY-ANNOUNCE HY-NEWS HY-README HY-WHY.kotl $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
+	$(INSTALL) HY-ABOUT HY-ANNOUNCE HY-NEWS HY-WHY.kotl INSTALL README $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
 
 pkgclean: packageclean
 packageclean:

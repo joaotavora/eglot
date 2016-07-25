@@ -15,7 +15,7 @@ You should be looking at this file within Emacs and Hyperbole should already
 be installed within your copy of Emacs.  To be sure, press {C-h h} and you
 should see the Hyperbole menu in your minibuffer window at the bottom of
 your current Emacs frame.  Press {q} to quit out of this menu and we can
-begin.  If Hyperbole is not installed, see the file "HY-README" in the
+begin.  If Hyperbole is not installed, see the "INSTALL" file, in the
 same directory as this file, for instructions on installing it.
 
 This demo illustrates simple usage of the basic Hyperbole button-action types
@@ -373,9 +373,9 @@ file and you see that it is displayed as expected.  (Remember to use the
 Hyperbole history command to return here.)  You can get help on these buttons
 just like any others.
 
-In README files, such as Hyperbole's "HY-README", table of contents entries
-act similarly.  Click on "HY-README" to view that file and then click on a
-table of contents entry to jump to the associated section in the "HY-README"
+In README files, such as Hyperbole's "README", table of contents entries
+act similarly.  Click on "README" to view that file and then click on a
+table of contents entry to jump to the associated section in the "README"
 file.
 
 ** World Wide Web URL Buttons

@@ -5510,10 +5510,6 @@ Frames may contain many windows.
 @node Setup, Global Key Bindings, Glossary, Top
 @appendix Setup
 
-@vindex file, HY-README
-@cindex HY-README file
-@cindex README file
-@cindex installation
 Hyperbole must be obtained and setup at your site before you can
 use it.  Instructions are given below.  If you are using InfoDock
 version 4.0.7 or higher, Hyperbole is pre-installed so you may skip
@@ -5529,11 +5525,12 @@ invocation instructions in this appendix.
 @node Installation, Invocation, Setup, Setup
 @section   Installation
 
+@cindex installation
 @cindex obtaining Hyperbole
 @cindex Hyperbole, obtaining
-By far, the simplest and quickest way to install Hyperbole is to use
-the Emacs Package Manager.  If you are not familiar with
-it, @pxref{Packages,,,emacs,the GNU Emacs Manual}.
+Once you have Emacs set up at your site, GNU Hyperbole may be
+installed by using the Emacs Package Manager.  If you are not familiar
+with it, @pxref{Packages,,,emacs,the GNU Emacs Manual}.
 
 If you have Hyperbole 5.10 or higher installed and simply want to
 upgrade it, invoke the Emacs Package Manager with @bkbd{M-x

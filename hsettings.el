@@ -11,7 +11,8 @@
 
 ;;; Commentary:
 ;;
-;;   See the "HY-README" file for installation instructions.
+;;   See the "INSTALL" file for installation instructions and the
+;;   "README" file for general information.
 ;;
 ;;   Be sure to have users load any personal mail/news personalizations
 ;;   before they load Hyperbole so that Hyperbole's mail or news

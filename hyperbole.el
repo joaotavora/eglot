@@ -17,7 +17,8 @@
 
 ;;; Commentary:
 ;;
-;;   See the "HY-README" file for installation instructions.
+;;   See the "INSTALL" file for installation instructions and the
+;;   "README" file for general information.
 ;;
 ;;   There is no need to manually edit this file unless there are specific
 ;;   customizations you would like to make, such as whether a Hyperbole

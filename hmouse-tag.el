@@ -26,8 +26,7 @@
 	 ;; command.
 	 (or (load "etags.elc" t nil t)
 	     (load "tags-fix" t)))
-	((load "tags" t)))
-  (setq byte-compile-warnings '(not interactive-p find-tag)))
+	((load "tags" t))))
 
 ;; If etags utilizes the new xref.el library, define some helper
 ;; functions to simplify programming.
@@ -1231,10 +1230,10 @@ See the \"${hyperb:dir}/smart-clib-sym\" script for more information."
 	       ;; Emacs with some unknown version of tags.
 	       ;; Signals an error if tag is not found which is caught by
 	       ;; many callers of this function.
-	       (find-tag tag)))
+	       (with-no-warnings (find-tag tag))))
       ;; Signals an error if tag is not found which is caught by
       ;; many callers of this function.
-      (find-tag tag))))
+      (with-no-warnings	(find-tag tag)))))
 
 ;;;###autoload
 (defun smart-tags-file-path (file)
