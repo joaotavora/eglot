@@ -8,6 +8,10 @@
 * README.md: Added this, a markdown formatted introduction combining README,
     INSTALL and HY-ABOUT. 
 
+2016-07-26  Mats Lidell  <matsl@gnu.org>
+
+* MANIFEST: Removed hyperbole-readme.txt.
+
 2016-07-25  Bob Weiner  <rsw@gnu.org>
 
 * README: Renamed this file from HY-README.  Moved installation and invocation
