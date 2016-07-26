@@ -1,5 +1,10 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-26  Mats Lidell  <matsl@gnu.org>
+
+* hypb.el (hypb:rgrep-command): Removed -Z option.
+  Different meaning on OS X and GNU/Linux.
+
 2016-07-26  Bob Weiner  <rsw@gnu.org>
 
 * hypb.el (hypb:rgrep-command): Removed -S option not supported by GNU/Linux.
