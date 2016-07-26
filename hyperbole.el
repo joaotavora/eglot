@@ -7,8 +7,8 @@
 ;; Package-Requires: ((emacs "24.4"))
 ;; URL:              http://www.gnu.org/software/hyperbole
 ;; Version:          6.0.1
-;;
-;; Orig-Date:     6-Oct-92 at 11:52:51
+;; Orig-Date:        06-Oct-92 at 11:52:51
+;; Date:             27-Jul-16
 ;;
 ;; Copyright (C) 1992-2016  Free Software Foundation, Inc.
 ;; See the "HY-COPY" file for license information.

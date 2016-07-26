@@ -1,14 +1,22 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-26  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el: Added Date: header with release date and updated date in
+    man/version.texi used in hyperbole.texi.
+
+* README.md: Added this, a markdown formatted introduction combining README,
+    INSTALL and HY-ABOUT. 
+
 2016-07-25  Bob Weiner  <rsw@gnu.org>
 
 * README: Renamed this file from HY-README.  Moved installation and invocation
-   instructions to "INSTALL" file.  These changes were to eliminate release
-   problems with INSTALL and README being symbolic links.
+    instructions to "INSTALL" file.  These changes were to eliminate release
+    problems with INSTALL and README being symbolic links.
 
 * hmouse-tag.el (smart-tags-display): Added with-no-warnings around
-   find-tag call to prevent obsolete warnings and removed setting of
-   byte-compile-warnings.
+    find-tag call to prevent obsolete warnings and removed setting of
+    byte-compile-warnings.
 
 2016-07-24  Mats Lidell  <matsl@gnu.org>
 

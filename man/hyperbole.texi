@@ -152,7 +152,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.1
-Printed July 25, 2016.
+Printed July 27, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed July 25, 2016.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.1, July 25, 2016.
+@center Edition 6.0.1, July 27, 2016.
 
 @sp 2
 @noindent
