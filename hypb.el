@@ -26,7 +26,7 @@
   "Prefix attached to all native Hyperbole help buffer names.
 This should end with a space.")
 
-(defcustom hypb:rgrep-command "grep -insIHSZr "
+(defcustom hypb:rgrep-command "grep -insIHZr "
   "*Grep command string and initial arguments to send to `hypb:rgrep' command.
 It must end with a space."
   :type 'string

@@ -2,6 +2,8 @@
 
 2016-07-26  Bob Weiner  <rsw@gnu.org>
 
+* hypb.el (hypb:rgrep-command): Removed -S option not supported by GNU/Linux.
+
 * hyperbole.el: Added Date: header with release date and updated date in
     man/version.texi used in hyperbole.texi.
 
