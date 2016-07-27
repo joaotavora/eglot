@@ -2,6 +2,9 @@
 
 2016-07-27  Bob Weiner  <rsw@gnu.org>
 
+* hactypes.el (exec-shell-cmd): Replaced call to old function 'show-output-from-shell'
+    with 'comint-show-output'.  This fixed a failure when this action type is used.
+
 * HY-ANNOUNCE (About):
   README (Files): Added pointers to Hyperbole screenshot files.
 

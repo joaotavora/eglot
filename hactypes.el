@@ -138,7 +138,7 @@ kill the last output to the shell buffer before executing SHELL-CMD."
 	       (comint-delete-output))
 	  (insert shell-cmd)
 	  (comint-send-input)
-	  (show-output-from-shell)
+	  (comint-show-output)
 	  (or internal-cmd (scroll-down 1)))
       (select-window owind))))
 
