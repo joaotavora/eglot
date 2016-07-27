@@ -1,10 +1,14 @@
-	    ANNOUNCE: GNU Hyperbole 6.0.1 for Emacs 25 is released
+            ANNOUNCE: GNU Hyperbole 6.0.1 for Emacs 24.4 to 25 is released
 
 GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole, is an
 amazing programmable hypertextual information management system implemented as
-a GNU Emacs package.  It works well on GNU Emacs 24.4 or above.  People who get
-used to Hyperbole find it helps them so much that they prefer never to use
-Emacs without it.
+a GNU Emacs package.  This is the first public release in 2016.  Hyperbole has
+been greatly expanded and modernized for use with the latest Emacs 25
+releases; it supports GNU Emacs 24.4 or above.  It contains an extensive set
+of improvements that can greatly boost your day-to-day productivity with Emacs
+and your ability to manage information stored across many different machines
+on the internet.  People who get used to Hyperbole find it helps them so much
+that they prefer never to use Emacs without it.
 
 Hyperbole includes easy-to-use, powerful hypertextual button types and links
 that can be made without the need to learn a markup language.  without the need
@@ -21,12 +25,6 @@ point-and-click access to World-Wide Web URLs, Info manuals, ftp archives, etc.
 The Hyperbole wiki page, "https://www.emacswiki.org/emacs/Hyperbole", explains
 the many ways it differs from and is complementary to Org mode.
 
-Version 6.0.1 is the first public release for any modern version of Emacs and
-has been tested throughout its development with Emacs version 25.  It contains
-an extensive set of improvements that can greatly boost your day-to-day
-productivity with Emacs and your ability to manage information stored across
-many different machines on the internet.
-
 Instructions follow on how to download, install and utilize GNU Hyperbole as an
 Emacs package.  These are followed by What's New with Hyperbole in 2016.
 
@@ -35,8 +33,11 @@ it for the Free Software Foundation.  It includes an interactive demo to
 introduce you to its features and a detailed reference manual.
 
 ===========================================================================
-*			   About
+*                          About
 ===========================================================================
+
+http://git.savannah.gnu.org/cgit/hyperbole.git/tree/man/im contains a number
+of screenshots of Hyperbole and its menus.
 
 GNU Hyperbole consists of five parts:
 
@@ -95,7 +96,7 @@ The GNU Hyperbole project home page gives a more extensive description:
 "https://www.gnu.org/software/hyperbole/".
 
 ===========================================================================
-*			   Package Installation
+*                          Package Installation
 ===========================================================================
 
 Once you have Emacs set up at your site, GNU Hyperbole may be
@@ -117,7 +118,7 @@ lines to your personal Emacs initialization file, typically "~/.emacs".
 (setq package-enable-at-startup nil) ;; Prevent double loading of libraries
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
-  (package-refresh-contents)	
+  (package-refresh-contents)    
   (package-install 'hyperbole))
 (require 'hyperbole)
 
@@ -126,7 +127,7 @@ your version of Emacs.  You may see a bunch of compilation warnings but these
 can be safely ignored.
 
 ===========================================================================
-*			    Invocation
+*                           Invocation
 ===========================================================================
 
 Once Hyperbole has been installed for use at your site and loaded into your
@@ -175,21 +176,21 @@ wherever the Hyperbole package directory is on your system; often this is:
 "~/.emacs.d/elpa/hyperbole-${hyperb:version}/".
 
 ===========================================================================
-*			    User Quotes
+*                           User Quotes
 ===========================================================================
 
 
   *** MAN I love Hyperbole!!!  Wow! ***
 
-				    	-- Ken Olstad
-					   Cheyenne Software, Inc.
+                                        -- Ken Olstad
+                                           Cheyenne Software, Inc.
 
 -------
 
   I *love* koutlines.
 
-	   				-- Bob Glickstein
-					   Z-Code Software Corporation
+                                        -- Bob Glickstein
+                                           Z-Code Software Corporation
 
 -------
 
@@ -206,8 +207,8 @@ wherever the Hyperbole package directory is on your system; often this is:
   products I have ever come across.  It is certainly the one which has made
   the biggest improvement in my personal productivity.
 
-					-- Chris Nuzum
-					   Co-founder, Traction Software, Inc.
+                                        -- Chris Nuzum
+                                           Co-founder, Traction Software, Inc.
 
 -------
 
@@ -224,7 +225,7 @@ wherever the Hyperbole package directory is on your system; often this is:
   our internal web for others to see.
 
                                         -- Farzin Guilak
-		                           Protocol Systems, Inc., Engineer
+                                           Protocol Systems, Inc., Engineer
 
 -------
 
@@ -242,8 +243,8 @@ wherever the Hyperbole package directory is on your system; often this is:
     4) The Hyperbole Koutliner, which I find a very useful tool.  I've
        implemented Emacspeak extensions to support it.
 
-					-- TV Raman
-					   Google Inc.
+                                        -- TV Raman
+                                           Google Inc.
 
 -------
 
@@ -265,8 +266,8 @@ wherever the Hyperbole package directory is on your system; often this is:
   that do various little things, and I index saved mail messages by putting
   explicit link-to-mail buttons in an outline file.
 
-				    	-- Ken Olstad
-					   Cheyenne Software, Inc.
+                                        -- Ken Olstad
+                                           Cheyenne Software, Inc.
 
 -------
 
@@ -302,8 +303,8 @@ wherever the Hyperbole package directory is on your system; often this is:
     folders, saved newsgroup conversation threads, online note-taker,
     emacs-command invocations, etc.
 
-				    	-- Dadong Wan
-					   University of Hawaii
+                                        -- Dadong Wan
+                                           University of Hawaii
 
 -------
 
@@ -315,26 +316,26 @@ wherever the Hyperbole package directory is on your system; often this is:
   in it is a very powerful capability.  Using ange-ftp mode, one can make
   file references "across the world" as easily as normal file references.
 
-				        -- Mark Eichin
-					   Cygnus Support
+                                        -- Mark Eichin
+                                           Cygnus Support
 -------
 
    I just wanted to say how much I enjoy using the Hyperbole Koutliner.
    It is a great way to quickly construct very readable technical documents
    that I can pass around to others.   Thanks for the great work.  
 
-				        -- Jeff Fried
-					   Informix
+                                        -- Jeff Fried
+                                           Informix
 
 -------
 
    The Hyperbole system provides a nice interface to exploring corners of
    Unix that I didn't know existed before.
 
-					-- Craig Smith
+                                        -- Craig Smith
 
 ===========================================================================
-*		  What's New in GNU Hyperbole
+*                 What's New in GNU Hyperbole
 ===========================================================================
 
 NOTE: Version 6.0.1 is the first public release by the author, Bob Weiner,
@@ -344,8 +345,26 @@ new in V6 as well.  In other words, all news items listed below are new for
 2016.
 
 ===========================================================================
-*		             V6.0.0 - V6.0.1
+*                            V6.0.0 - V6.0.1
 ===========================================================================
+
+  BUTTONS
+
+    - New implicit button type for social media hashtag or username
+      references, social-reference.  Action key activation displays
+      the web page associated with the hashtag or username.  References
+      can look like #hashtag or @username for Twitter references.
+      fb#hashtag or facebook@username for Facebook references or
+      in#hashtag or instagram@username for Instagram references.
+      See the new file "hib-social.el" for more information.
+
+  DOCUMENTATION
+
+    - The introductory parts of the manual have been improved and the flow
+      from section to section is better.  Added menu key sequences to
+      "(hyperbole)Suggestion or Bug Reporting".  Expanded and added
+      instructions on using the customize interface to change the functions
+      run by Smart Key modeline clicks.  See "(hyperbole)Smart Key Modeline".
 
   HYROLO
 
@@ -376,6 +395,11 @@ new in V6 as well.  In other words, all news items listed below are new for
       for details on the customization system and "(hyperbole)Configuration"
       for Hyperbole specifics.
 
+    - hsettings.el is now included in the Hyperbole package rather than
+      generated (formerly called hsite.el).  Use the Hyperbole customization
+      variables to change anything in there rather than editing the file
+      manually as before.
+
     - Renamed any Hyperbole hook variables that had a colon in their names to
       use a hyphen instead.
 
@@ -389,7 +413,7 @@ new in V6 as well.  In other words, all news items listed below are new for
       to begin with hywconfig- and the library is now called hywconfig.el.
 
 ===========================================================================
-*				    V5.15
+*                                   V5.15
 ===========================================================================
 
   BUTTONS
@@ -484,7 +508,7 @@ new in V6 as well.  In other words, all news items listed below are new for
       navigate and quit from menus with just the Action Mouse Key.
 
 ===========================================================================
-*  			        V5.13 and V5.14
+*                               V5.13 and V5.14
 ===========================================================================
 
   BUTTONS
@@ -495,10 +519,10 @@ new in V6 as well.  In other words, all news items listed below are new for
       This works for the GNU Hyperbole issue tracker as well as many other GNU
       projects.  All of these button formats may be embedded within any text:
 
-	     #id-number
-	     bug#id-number, bug# id-number, bug #id-number or bug id-number
-	     bug?attr1=val1&attr2=val2&attr3=val3
-	     bug#id-number?attr1=val1&attr2=val2&attr3=val3
+             #id-number
+             bug#id-number, bug# id-number, bug #id-number or bug id-number
+             bug?attr1=val1&attr2=val2&attr3=val3
+             bug#id-number?attr1=val1&attr2=val2&attr3=val3
 
       Note that `issue' or `debbugs' may be used in place of `bug'.
 
@@ -550,14 +574,14 @@ new in V6 as well.  In other words, all news items listed below are new for
           the file formats supported by the default setting of the
           `hpath:internal-display-alist' variable.
         - Added sections "(hyperbole)Smart Key Modifiers" and
-	  "(hyperbole)Smart Key Modeline".
+          "(hyperbole)Smart Key Modeline".
         - Added a "(hyperbole)Glossary" entry for Chord Keyboard.
         - In "(hyperbole)Smart Key Thing Selection", added documentation of the
           {C-c RET} key for syntactical region marking and the {C-c .} key for
           delimited thing jumping between start and end.
         - In the Cust/ menu section of "(hyperbole)Menus" which lists all
-	  Hyperbole key bindings, indicated which keys are bound only if not
-	  bound prior to loading Hyperbole.
+          Hyperbole key bindings, indicated which keys are bound only if not
+          bound prior to loading Hyperbole.
 
   HYCONTROL
 
@@ -621,7 +645,7 @@ new in V6 as well.  In other words, all news items listed below are new for
 
 
 ===========================================================================
-*				    V5.12
+*                                   V5.12
 ===========================================================================
 
   BUTTONS
@@ -720,7 +744,7 @@ new in V6 as well.  In other words, all news items listed below are new for
       its format will automatically be handled by the rolo.
 
 ===========================================================================
-*				    V5.11
+*                                   V5.11
 ===========================================================================
 
   BUTTONS
@@ -809,7 +833,7 @@ new in V6 as well.  In other words, all news items listed below are new for
       commands.
 
 ===========================================================================
-*				    V5.10
+*                                   V5.10
 ===========================================================================
 
   EMACS SUPPORT
@@ -887,7 +911,7 @@ new in V6 as well.  In other words, all news items listed below are new for
       See the GNU Hyperbole Manual for its usage.
 
 ===========================================================================
-*				    V5.09
+*                                   V5.09
 ===========================================================================
 
   FRAMES
@@ -974,7 +998,7 @@ new in V6 as well.  In other words, all news items listed below are new for
 
 
 ===========================================================================
-*				    V5.08
+*                                   V5.08
 ===========================================================================
 
   DOCUMENTATION
@@ -1010,7 +1034,7 @@ new in V6 as well.  In other words, all news items listed below are new for
       mouse button do the same thing.  Try it, you'll like it.
 
 ===========================================================================
-*			            V5.07
+*                                   V5.07
 ===========================================================================
 
   EMACS VERSIONS

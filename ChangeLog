@@ -2,6 +2,14 @@
 
 2016-07-27  Bob Weiner  <rsw@gnu.org>
 
+* HY-ANNOUNCE (About):
+  README (Files): Added pointers to Hyperbole screenshot files.
+
+*  man/im/menu-hyperbole2.pdf: Removed this unneeded file.
+
+* HY-ANNOUNCE: Updated first section and used in sending 6.0.1 release announcements.
+    Added items from HY-NEWS for 6.0.1 that were unintentially left out of this file.
+
 * hload-path.el (hyperb:dir): If the Emacs Package Manager has already added this
     to load-path without a trailing directory separator, don't add it with one.
 
