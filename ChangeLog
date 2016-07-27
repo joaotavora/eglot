@@ -1,5 +1,14 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-27  Bob Weiner  <rsw@gnu.org>
+
+* hload-path.el (hyperb:dir): If the Emacs Package Manager has already added this
+    to load-path without a trailing directory separator, don't add it with one.
+
+==============================================================================
+V6.0.2 changes ^^^^:
+==============================================================================
+
 2016-07-26  Mats Lidell  <matsl@gnu.org>
 
 * hypb.el (hypb:rgrep-command): Removed -Z option.

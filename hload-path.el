@@ -51,8 +51,11 @@
   "Directory where the Hyperbole executable code is kept.
 It must end with a directory separator character.")
 
-;; Add hyperb:dir to load-path so other Hyperbole libraries can be found.
-(add-to-list 'load-path hyperb:dir)
+;; Add hyperb:dir to load-path so other Hyperbole libraries can be
+;; found unless it is already there since the Emacs Package Manager
+;; may have already added it.
+(unless (member (directory-file-name hyperb:dir) load-path)
+  (add-to-list 'load-path hyperb:dir))
 
 ;;; ************************************************************************
 ;;; Koutliner mode and file suffix importation settings
@@ -62,7 +65,7 @@ It must end with a directory separator character.")
 ;; initializations.
 
 (if hyperb:kotl-p
-    (progn (add-to-list #'load-path (expand-file-name "kotl/" hyperb:dir))
+    (progn (add-to-list 'load-path (expand-file-name "kotl/" hyperb:dir))
 	   ;; Invoke kotl-mode for files ending in ".kotl".  Also
 	   ;; allow ".kot" for DOS and Windows users.
 	   (setq auto-mode-alist (cons '("\\.kotl$\\|\\.kot$" . kotl-mode)
