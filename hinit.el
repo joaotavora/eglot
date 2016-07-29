@@ -29,26 +29,25 @@
 ;;; Public functions
 ;;; ************************************************************************
 
-(if (not (fboundp 'br-in-browser))
-    ;; Then the OO-Browser is not loaded, so we can never be within the
-    ;; browser.  Define this as a dummy function that always returns nil
-    ;; until the OO-Browser is ever loaded.
-    (defun br-in-browser ()
-      "Always returns nil since the OO-Browser is not loaded."
-      nil))
+(unless (fboundp 'br-in-browser)
+  ;; Then the OO-Browser is not loaded, so we can never be within the
+  ;; browser.  Define this as a dummy function that always returns nil
+  ;; until the OO-Browser is ever loaded.
+  (defun br-in-browser ()
+    "Always returns nil since the OO-Browser is not loaded."
+    nil))
 
 ;;;###autoload
 (defun hyperb:init-menubar ()
   "Add a pulldown menu for Hyperbole, if appropriate."
   (interactive)
-  (if (not (featurep 'infodock))
-      (progn
-	;; Initialize now for when this is loaded after startup.
-	(and (or hyperb:emacs-p (and (boundp 'current-menubar) current-menubar))
-	     after-init-time
-	     (hyperbole-menubar-menu))
-	;; Initialize at startup.  This really is needed.
-	(add-hook 'after-init-hook #'hyperbole-menubar-menu))))
+  (unless (featurep 'infodock)
+    ;; Initialize now for when this is loaded after startup.
+    (and (or hyperb:emacs-p (and (boundp 'current-menubar) current-menubar))
+	 after-init-time
+	 (hyperbole-menubar-menu))
+    ;; Initialize at startup.  This really is needed.
+    (add-hook 'after-init-hook #'hyperbole-menubar-menu)))
 
 ;;; ************************************************************************
 ;;; Menu Support Functions

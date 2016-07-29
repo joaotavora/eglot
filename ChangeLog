@@ -1,5 +1,10 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-28  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el: Updated the header fields to better match GNU standards for use
+    by the Lisp maintainer package, lisp-mnt.el.
+
 2016-07-27  Bob Weiner  <rsw@gnu.org>
 
 * hactypes.el (exec-shell-cmd): Replaced call to old function 'show-output-from-shell'
