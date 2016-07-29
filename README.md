@@ -20,7 +20,7 @@
 `Hyperbole`, is an efficient and programmable hypertextual information
 management system implemented as a GNU Emacs package.  It works well
 on GNU Emacs 24.4 or above.  It is designed and written by Bob Weiner.
-It's main distribution site is: <https://www.gnu.org/software/hyperbole/>.
+Its main distribution site is: <https://www.gnu.org/software/hyperbole/>.
 
 It includes easy-to-use, powerful hypertextual button types without
 the need to learn a markup language; a hierarchical, record-based
@@ -36,6 +36,8 @@ World-Wide Web URLs, Info manuals, ftp archives, etc.
 
 The [Hyperbole wiki page](https://www.emacswiki.org/emacs/Hyperbole)
 explains the many ways it differs from and is complementary to Org mode.
+
+![Hyperbole screenshot of the Koutliner, DEMO file and HyRolo](man/im/hyperbole-cv.png)
 
 ## Installation
 
@@ -83,6 +85,8 @@ You can invoke Hyperbole commands in one of three ways:
 
    use the Hyperbole menu on your menubar;
 
+   ![Hyperbole Menubar Menu](man/im/menu-hyperbole.png)
+
    type {C-h h} or {M-x hyperbole RET} to bring up the Hyperbole main menu
    in the minibuffer window, for fast keyboard or mouse-based selection;
    select an item from this menu by typing the item's first letter; use {q}
@@ -94,8 +98,12 @@ You can invoke Hyperbole commands in one of three ways:
 Use {C-h h d d} for an interactive demonstration of standard Hyperbole
 button capabilities.
 
+![Hyperbole screenshot of the DEMO](man/im/demo.png)
+
 {C-h h k e} offers a interactive demonstration of the Koutliner,
 Hyperbole's multi-level autonumbered hypertextual outliner.
+
+![Hyperbole screenshot of the Koutliner](man/im/koutliner.png)
 
 To try out HyControl, Hyperbole's interactive frame and window control
 system, use {C-h h s w} for window control or {C-h h s f} for frame
@@ -153,6 +161,8 @@ Hyperbole consists of five parts:
        learn to use since it introduces only a few new mechanisms and
        has a menu interface, which may be operated from the keyboard or
        the mouse.
+
+	   ![HyRolo Menubar Menu](man/im/menu-rolo.png)
 
    3.  **Screen Control**: the fastest, easiest-to-use window and frame
        control available for GNU Emacs.  With just a few keystrokes,

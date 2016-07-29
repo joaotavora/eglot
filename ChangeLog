@@ -1,5 +1,15 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-29  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (action-key-eol-function, assist-key-eol-function): Added these 2
+    options to control what the Action and Assist Keys do at the end of a line.
+    Default behaviors remain as before but now one can set these to `complete'
+    for example to mimic standard Emacs behavior at end of lines, rather than
+    scrolling, if desired.
+
+* README.md: Added menu images and screenshots for easy access.
+
 2016-07-28  Bob Weiner  <rsw@gnu.org>
 
 * hyperbole.el: Updated the header fields to better match GNU standards for use

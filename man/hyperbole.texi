@@ -200,7 +200,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 @end example
 
 @float Image,image:Sample
-@caption{Sample Hyperbole screenshot of the Koutliner, the DEMO file and the Rolo}
+@caption{Sample Hyperbole screenshot of the Koutliner, DEMO file and HyRolo}
 @center @image{im/hyperbole-cv,6in,,Sample Hyperbole Screenshot}
 @end float
 @sp 1

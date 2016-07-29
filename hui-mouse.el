@@ -63,6 +63,18 @@ Set it to #'hkey-summarize if you want it to display a summary of Smart Key beha
   :type 'function
   :group 'hyperbole-keys)
 
+(defcustom action-key-eol-function #'smart-scroll-up
+  "*Function run by the Action Key at the end of a line.
+Set it to #'complete if you want behavior similar to that of standard Emacs."
+  :type 'function
+  :group 'hyperbole-keys)
+
+(defcustom assist-key-eol-function #'smart-scroll-down
+  "*Function run by the Assist Key at the end of a line.
+Set it to #'complete if you want behavior similar to that of standard Emacs."
+  :type 'function
+  :group 'hyperbole-keys)
+
 ;;; ************************************************************************
 ;;; Hyperbole context-sensitive keys dispatch table
 ;;; ************************************************************************
@@ -108,7 +120,7 @@ Set it to #'hkey-summarize if you want it to display a summary of Smart Key beha
     ((if (eq major-mode 'kotl-mode)
 	(and (not (kotl-mode:eobp)) (kotl-mode:eolp))
       (and (not (eobp)) (or (eolp) (and selective-display (eq (following-char) ?\r))))) .
-     ((smart-scroll-up) . (smart-scroll-down)))
+     ((funcall action-key-eol-function) . (funcall assist-key-eol-function)))
     ;;
     ;; The Smart Menu system provides menus within Emacs on a dumb terminal.
     ;; It is a part of InfoDock, but may also be obtained as a separate
