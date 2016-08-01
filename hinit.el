@@ -39,15 +39,17 @@
 
 ;;;###autoload
 (defun hyperb:init-menubar ()
-  "Add a pulldown menu for Hyperbole, if appropriate."
+  "Add a pulldown menu for Hyperbole after Emacs is initialized."
   (interactive)
   (unless (featurep 'infodock)
-    ;; Initialize now for when this is loaded after startup.
-    (and (or hyperb:emacs-p (and (boundp 'current-menubar) current-menubar))
-	 after-init-time
-	 (hyperbole-menubar-menu))
-    ;; Initialize at startup.  This really is needed.
-    (add-hook 'after-init-hook #'hyperbole-menubar-menu)))
+    ;; Initialize now since Emacs startup has finished.
+    (if (and (or hyperb:emacs-p (and (boundp 'current-menubar) current-menubar))
+	     after-init-time)
+	(hyperbole-menubar-menu)
+      ;; Defer initialization until after Emacs startup.  This really is needed.
+      (add-hook 'after-init-hook #'hyperbole-menubar-menu))
+    ;; Avoid returning the large Hyperbole menu.
+    nil))
 
 ;;; ************************************************************************
 ;;; Menu Support Functions

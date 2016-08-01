@@ -1,14 +1,36 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-07-31  Bob Weiner  <rsw@gnu.org>
+
+* Changes: Renamed this file from ChangeLog since Elpa release builds
+    overwrite any file named ChangeLog with git log information which
+    has less history than Hyperbole's Changes.
+
+* hui-mini.el (hui-search-web): Added so can invoke the Hyperbole
+    Find/Web search menu directly.
+  hyperbole.el (hkey-initialize): Bound above command to {C-c /}.
+
+* hsettings.el (hyperbole-web-search-browser-function):
+               (hyperbole-web-search-alist):
+               (hyperbole-web-search):  Added.
+  hui-mini.el (hui:menu-web-search): Added and called within hui:menus.
+  hui-menu.el (hui-menu-web-search): Added and called in infodock-hyperbole-menu.
+
+* hinit.el (hyperb:init-menubar): Fixed so sets after-init-hook only
+    if not after-init-time.  Also forced a return value of nil.
+  hui-menu.el (hyperbole-menubar-menu): Changed so this always updates
+    the menubar with the latest version of the Hyperbole menu; previously
+    it only added the menu if it was not there.
+
 2016-07-29  Bob Weiner  <rsw@gnu.org>
+
+* README.md: Added menu images and screenshots for easy access.
 
 * hui-mouse.el (action-key-eol-function, assist-key-eol-function): Added these 2
     options to control what the Action and Assist Keys do at the end of a line.
     Default behaviors remain as before but now one can set these to `complete'
     for example to mimic standard Emacs behavior at end of lines, rather than
     scrolling, if desired.
-
-* README.md: Added menu images and screenshots for easy access.
 
 2016-07-28  Bob Weiner  <rsw@gnu.org>
 

@@ -24,30 +24,26 @@
 
 ;; Add Hyperbole menu to menubar.
 (defun hyperbole-menubar-menu ()
-  "Add the Hyperbole menu to the global menubar."
-  (cond ((and (boundp 'menubar-configuration)
-	      (not (memq 'Hyperbole menubar-configuration)))
-	 ;; Hyperbole may be included as part of the menubar but
-	 ;; may be invisible due to a menubar configuration
-	 ;; setting.  Make it visible here.
-	 (if (fboundp 'customize-set-variable)
-	     (customize-set-variable 'menubar-configuration
-				     (cons 'Hyperbole menubar-configuration))
-	   (setq menubar-configuration
-		 (cons 'Hyperbole menubar-configuration)))
+  "Add to or update the Hyperbole menu on the global menubar."
+  (cond ((boundp 'menubar-configuration)
+	 (unless (memq 'Hyperbole menubar-configuration)
+	   ;; Hyperbole may be included as part of the menubar but
+	   ;; may be invisible due to a menubar configuration
+	   ;; setting.  Make it visible here.
+	   (if (fboundp 'customize-set-variable)
+	       (customize-set-variable 'menubar-configuration
+				       (cons 'Hyperbole menubar-configuration))
+	     (setq menubar-configuration
+		   (cons 'Hyperbole menubar-configuration))))
 	 (set-menubar-dirty-flag))
-	((not (if hyperb:emacs-p
-		  (global-key-binding [menu-bar Hyperbole])
-		(and (boundp 'current-menubar)
-		     (car (find-menu-item current-menubar '("Hyperbole"))))))
-	 (let ((add-before (cond ((and (boundp 'infodock-menubar-type)
-				       (eq infodock-menubar-type 'menubar-infodock))
-				  "Key")
-				 ((global-key-binding [menu-bar Koutline])
-				  "Koutline")
-				 ((global-key-binding [menu-bar OO-Browser])
-				  "OO-Browser"))))
-	   (add-submenu nil (infodock-hyperbole-menu) add-before))))
+	(t (let ((add-before (cond ((and (boundp 'infodock-menubar-type)
+					 (eq infodock-menubar-type 'menubar-infodock))
+				    "Key")
+				   ((global-key-binding [menu-bar Koutline])
+				    "Koutline")
+				   ((global-key-binding [menu-bar OO-Browser])
+				    "OO-Browser"))))
+	     (add-submenu nil (infodock-hyperbole-menu) add-before))))
   ;; Force a menu-bar update.
   (force-mode-line-update))
 
@@ -300,22 +296,26 @@
 		     ["Types"
 		       (hui:htype-help-current-window 'actypes) t]
 		     )
-		   '("Find"
-		     ["Manual"   (id-info-item "menu, Find") t]
-		     "----"
-		     ;; Show numbered line matches in all specified files.
-		     ["Grep-Files"           hypb:rgrep t]
-		     ;; Show numbered line matches for regexp in all file-based buffers.
-		     ["Locate-Files"         locate t]
-		     ;; Show numbered line matches for regexp in all file-based buffers.
-		     ["Match-File-Buffers"   moccur t]
-		     ;; Show numbered line matches for regexp from this buffer.
-		     ["Occur-Here"           occur  t]
-		     ;; Following point, remove all lines that match regexp.
-		     ["Remove-Lines-Here"    hypb:remove-lines t]
-		     ;; Following point, keep only lines that match regexp.
-		     ["Save-Lines-Here"      hypb:save-lines t]
-		     )
+		   (nconc
+		    '("Find"
+		      ["Manual"   (id-info-item "menu, Find") t]
+		      "----"
+		      ;; Show numbered line matches in all specified files.
+		      ["Grep-Files"           hypb:rgrep t]
+		      ;; Show numbered line matches for regexp in all file-based buffers.
+		      ["Locate-Files"         locate t]
+		      ;; Show numbered line matches for regexp in all file-based buffers.
+		      ["Match-File-Buffers"   moccur t]
+		      ;; Show numbered line matches for regexp from this buffer.
+		      ["Occur-Here"           occur  t]
+		      ;; Following point, remove all lines that match regexp.
+		      ["Remove-Lines-Here"    hypb:remove-lines t]
+		      ;; Following point, keep only lines that match regexp.
+		      ["Save-Lines-Here"      hypb:save-lines t]
+		      "----"
+		      "Search-with:")
+		    (hui-menu-web-search)
+		      )
 		   '("Global-Button"
 		     :filter hui-menu-global-buttons
 		     ["Create" hui:gbut-create t]
@@ -460,6 +460,16 @@ Return t if cutoff, else nil."
    (hui-menu-of-buffers)
    (hui-menu-of-frames)
    (hui-menu-of-windows)))
+
+(defun hui-menu-web-search ()
+  ;; Pulldown menu
+  (let ((web-pulldown-menu
+	 (mapcar (lambda (service)
+		   (vector service
+			   (list #'hyperbole-web-search service nil)
+			   t))
+		 (mapcar 'car hyperbole-web-search-alist))))
+    web-pulldown-menu))
 
 ;;; ************************************************************************
 ;;; Private variables

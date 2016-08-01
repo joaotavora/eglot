@@ -154,9 +154,11 @@ Set it to #'complete if you want behavior similar to that of standard Emacs."
 	    (t (scroll-up))) .
 	    (scroll-down)))
     ;;
-    ;; Within an OO-Browser OOBR-FTR buffer, an *Implementors* listing
-    ;; buffer, or an Element signatures listing buffer of the
-    ;; OO-Browser.
+    ;; Support the OO-Browser when available.  It is a separate Emacs
+    ;; package not included with Hyperbole.  Within an OO-Browser
+    ;; OOBR-FTR buffer, an *Implementors* listing buffer, or an
+    ;; Element signatures listing buffer of the OO-Browser, display
+    ;; the associated element.
     ((or (string-equal (buffer-name) "*Implementors*")
 	 (string-match "-Elements\\'" (buffer-name))
 	 (and (boundp 'br-feature-tags-file)
@@ -309,8 +311,9 @@ Set it to #'complete if you want behavior similar to that of standard Emacs."
     ((eq major-mode 'gomoku-mode) . 
      ((gomoku-human-plays) . (gomoku-human-takes-back)))
     ;;
-    ;; Support the OO-Browser, a part of InfoDock and XEmacs, and an add on
-    ;; to Emacs.  It is not included with Hyperbole.
+    ;; Support the OO-Browser when available.  It is a separate Emacs
+    ;; package not included with Hyperbole.  Hyperbole supplies a stub
+    ;; `br-in-browser' test for use here.
     ((or (br-in-browser) (eq major-mode 'br-mode)) .
      ((smart-br-dispatch) . (smart-br-assist-dispatch)))
     ;;

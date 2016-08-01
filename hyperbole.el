@@ -247,6 +247,9 @@ Entry format is: (key-description key-sequence key-binding)."
     ;; Binds {C-c \} to interactively manage windows and frames.
     (hkey-maybe-global-set-key "\C-c\\" 'hycontrol-windows)
     ;;
+    ;; Binds {C-c /} to display the Hyperbole Find/Web search menu.
+    (hkey-maybe-global-set-key "\C-c/" 'hui-search-web)
+    ;;
     ;; Binds {C-c .} to jump between the start and end of an delimited thing.
     ;; Don't override local bindings of this key.
     (hkey-maybe-global-set-key "\C-c." 'hui-select-goto-matching-delimiter t)
