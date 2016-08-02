@@ -2640,12 +2640,17 @@ Below are each of the commands on the Find menu.
 @cindex remove lines
 @cindex save lines
 @cindex locate files
+@cindex grep files
 @cindex menu item, GrepFile
 @cindex menu item, LocateFiles
 @cindex menu item, MatchFileBuffers
 @cindex menu item, OccurHere
 @cindex menu item, RemoveLines
 @cindex menu item, SaveLines
+@cindex menu, Find/Web
+@cindex searching the web
+@cindex web search
+@kindex C-c /
 @vindex hypb:rgrep-command
 @vindex locate-command
 @itemize @bullet
@@ -2672,6 +2677,10 @@ OccurHere -        Show numbered line matches for regexp from this buffer.
 RemoveLines -      Following point, remove all lines that match regexp.
 @item
 SaveLines -        Following point, keep only lines that match regexp.
+@item
+Web/ -             Select a search engine and term and search with them.
+                   Hyperbole typically binds the key @bkbd{C-c /} for
+                   quick access to this menu.
 @end itemize
 
 @cindex menu, Global-Button
@@ -2743,8 +2752,9 @@ and then simply quit HyControl and go back to work.
 @kindex C-c \
 @kindex screen, C-c \
 @cindex menu item, WindowsControl
-Hyperbole typically binds the key @bkbd{C-c \\} to invoke HyControl
-window control; otherwise, the Screen/WindowsControl minibuffer menu
+Hyperbole binds the key @bkbd{C-c \\} for quick access to HyControl's
+window control menu, if it was not already bound prior to Hyperbole's
+initialization; otherwise, the Screen/WindowsControl minibuffer menu
 item, @bkbd{C-h h s w}, will do the same thing.
 
 @cindex submodes
@@ -2954,7 +2964,7 @@ Quit from HyControl mode and restore normal key bindings.
 @sp 1
 The rest of this section goes into some technicalities about HyControl
 settings.  You may ignore it if you are not familiar with Emacs
-variables and functions.
+variables and functions or with customized Emacs.
 
 @vindex hycontrol-screen-offset-alist
 @findex hycontrol-set-screen-offsets
@@ -5596,7 +5606,11 @@ Hyperbole's multi-level autonumbered hypertextual outliner.
 To try out HyControl, Hyperbole's interactive frame and window control
 system, use @bkbd{C-h h s w} for window control or @bkbd{C-h h s f}
 for frame control.  Pressing @bkbd{t} switches between window and
-frame control once in HyControl.
+frame control once in HyControl.  Hyperbole also binds @bkbd{C-c \\}
+for quick access to HyControl's window control menu if it was not
+already bound prior to Hyperbole's initialization.  A long video
+demonstrating most of HyControl's features is available at:
+@url{https://youtu.be/M3-aMh1ccJk}.
 
 @vindex Info-directory-list
 @vindex hyperb:dir
@@ -5934,6 +5948,16 @@ marked each time.  For example, if on an opening brace at the start of
 a C, Java or Javascript function, this marks the whole function.  This
 binding is made only if the key is not bound prior to loading
 Hyperbole.
+
+@kindex C-c /
+@cindex menu, Find/Web
+@cindex searching the web
+@cindex web search
+Search the Web: Displays a selectable list of web search engines, then
+prompts for a search term and performs the associated search.
+Hyperbole typically binds the key @bkbd{C-c /} for quick access to
+this list; otherwise, the Find/Web minibuffer menu item, @bkbd{C-h h f
+w}, will do the same thing.
 
 @cindex key binding, C-c .
 @kitem C-c .

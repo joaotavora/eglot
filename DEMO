@@ -150,9 +150,10 @@ alphabetical order the Koutliner commands which are bound to keys.
 * HyControl
 
 Hyperbole includes the fastest, easiest-to-use Emacs window and frame
-management system available, HyControl, found under the Hyperbole
-Screen menu.  If you use a lot of Emacs windows or frames (typically,
-window system windows) then this tool is for you.
+management system available, HyControl, found under the Hyperbole Screen
+menu.  If you use a lot of Emacs windows or frames (typically, window system
+windows) then this tool is for you.  A long video demonstrating most of
+HyControl's features is available at: https://youtu.be/M3-aMh1ccJk.
 
 HyControl interactively adjusts the layout of your windows and frames
 down to the pixel-level if desired.  You adjust the location, size and
@@ -162,9 +163,9 @@ avoid covering toolbars anchored at the edges of your screen and allows you
 to quickly set numeric arguments to apply to operations, like resizing a
 frame to a percentage of your screen size.
 
-Hyperbole typically binds the key {C-c \} to invoke HyControl window control;
-otherwise, the Screen/WindowsControl minibuffer menu item, {C-h h s w}, will
-do the same thing.
+Hyperbole binds {C-c \} to invoke HyControl window control; otherwise, the
+Hyperbole minibuffer menu item, Screen/WindowsControl {C-h h s w}, will do
+the same thing.
 
 Once in HyControl, your minibuffer window at the bottom of the selected frame
 will display a summary of keys you may use to adjust your windows until you

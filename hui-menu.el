@@ -18,34 +18,134 @@
 
 (eval-and-compile (mapc #'require '(hpath hui-jmenu hyrolo-menu browse-url easymenu)))
 
+
 ;;; ************************************************************************
-;;; Public functions
+;;; Private functions
 ;;; ************************************************************************
 
-;; Add Hyperbole menu to menubar.
-(defun hyperbole-menubar-menu ()
-  "Add to or update the Hyperbole menu on the global menubar."
-  (cond ((boundp 'menubar-configuration)
-	 (unless (memq 'Hyperbole menubar-configuration)
-	   ;; Hyperbole may be included as part of the menubar but
-	   ;; may be invisible due to a menubar configuration
-	   ;; setting.  Make it visible here.
-	   (if (fboundp 'customize-set-variable)
-	       (customize-set-variable 'menubar-configuration
-				       (cons 'Hyperbole menubar-configuration))
-	     (setq menubar-configuration
-		   (cons 'Hyperbole menubar-configuration))))
-	 (set-menubar-dirty-flag))
-	(t (let ((add-before (cond ((and (boundp 'infodock-menubar-type)
-					 (eq infodock-menubar-type 'menubar-infodock))
-				    "Key")
-				   ((global-key-binding [menu-bar Koutline])
-				    "Koutline")
-				   ((global-key-binding [menu-bar OO-Browser])
-				    "OO-Browser"))))
-	     (add-submenu nil (infodock-hyperbole-menu) add-before))))
-  ;; Force a menu-bar update.
-  (force-mode-line-update))
+(defmacro hui-menu-browser (title browser-option)
+  `(list
+    (list ,title
+	  ["Chrome (Google)"
+	   (setq ,browser-option #'browse-url-chrome)
+	   :style radio
+	   :selected (eq ,browser-option #'browse-url-chrome)]
+	  ["Chromium"
+	   (setq ,browser-option #'browse-url-chromium)
+	   :style radio
+	   :selected (eq ,browser-option #'browse-url-chromium)]
+	  ["Default (System wide)"
+	   (setq ,browser-option
+		(if (and (boundp 'browse-url-generic-program) (stringp browse-url-generic-program))
+		    #'browse-url-generic
+		  #'browse-url-default-browser))
+	   :style radio
+	   :selected (eq ,browser-option #'browse-url-default-browser)]
+	  ["EWW (Emacs)"
+	   (setq ,browser-option #'eww-browse-url)
+	   :style radio
+	   :selected (eq ,browser-option #'eww-browse-url)]
+	  ;; Whatever browse-url-text-browser is set to, default is Lynx
+	  ["Emacs Text Browser"
+	   (setq ,browser-option #'browse-url-text-emacs)
+	   :style radio
+	   :selected (eq ,browser-option #'browse-url-text-emacs)]
+	  ["Firefox"
+	   (setq ,browser-option #'browse-url-firefox)
+	   :style radio
+	   :selected (eq ,browser-option #'browse-url-firefox)]
+	  ["KDE"
+	   (setq ,browser-option #'browse-url-kde)
+	   :style radio
+	   :selected (eq ,browser-option #'browse-url-kde)]
+	  ["XTerm Text Browser"
+	   (setq ,browser-option #'browse-url-text-xterm)
+	   :style radio
+	   :selected (eq ,browser-option #'browse-text-xterm)]
+	  "----"
+	  ["Toggle-URLs-in-New-Window"
+	   (setq browse-url-new-window-flag (not browse-url-new-window-flag))
+	   :style toggle
+	   :selected browse-url-new-window-flag]
+	  )))
+
+;; List explicit buttons in the current buffer for menu activation.
+(defun hui-menu-explicit-buttons (rest-of-menu)
+  (delq nil
+	(append
+	 '(["Manual"   (id-info "(hyperbole)Explicit Buttons") t]
+	   "----")
+	 (let ((labels (ebut:list))
+	       (cutoff))
+	   (if labels
+	       (progn
+		 ;; Cutoff list if too long.
+		 (if (setq cutoff (nthcdr (1- hui-menu-max-list-length) labels))
+		     (setcdr cutoff nil))
+		 (delq nil
+		       (append
+			'("----"
+			  ["Alphabetize-List"
+			   (setq hui-menu-order-explicit-buttons 
+				 (not hui-menu-order-explicit-buttons))
+			   :style toggle :selected hui-menu-order-explicit-buttons]
+			  "Activate:")
+			(mapcar (lambda (label) (vector label `(ebut:act ,label) t))
+				(if hui-menu-order-explicit-buttons
+				    (sort labels 'string-lessp)
+				  labels))
+			(if cutoff '(". . ."))
+			'("----" "----"))))))
+	 rest-of-menu)))
+
+(defun hui-menu-cutoff-list (lst)
+  "If list LST is longer than, `hui-menu-max-list-length', then cut it off there.
+Return t if cutoff, else nil."
+  (let ((cutoff))
+    (if (setq cutoff (nthcdr (1- hui-menu-max-list-length) lst))
+	(setcdr cutoff nil))
+    (if cutoff t)))
+
+;; List existing global buttons for menu activation.
+(defun hui-menu-global-buttons (rest-of-menu)
+  (delq nil
+	(append
+	 '(["Manual" (id-info "(hyperbole)Global Buttons") t]
+	   "----")
+	 (let ((labels (gbut:label-list))
+	       (cutoff))
+	   (when labels
+	     ;; Cutoff list if too long.
+	     (setq cutoff (hui-menu-cutoff-list labels))
+	     (delq nil (append
+			'("----" "Activate:")
+			(mapcar (lambda (label) (vector label `(gbut:act ,label) t))
+				(sort labels 'string-lessp))
+			(if cutoff '(". . ."))
+			'("----" "----")))))
+	 rest-of-menu)))
+
+;; Dynamically compute submenus for Screen menu
+(defun hui-menu-screen (_ignored)
+  (list
+   ["Manual" (id-info "(hyperbole)HyControl") t]
+   "----"
+   ["Frames-Control"  hycontrol-frames t]
+   ["Windows-Control" hycontrol-windows t]
+   "----"
+   (hui-menu-of-buffers)
+   (hui-menu-of-frames)
+   (hui-menu-of-windows)))
+
+(defun hui-menu-web-search ()
+  ;; Pulldown menu
+  (let ((web-pulldown-menu
+	 (mapcar (lambda (service)
+		   (vector service
+			   (list #'hyperbole-web-search service nil)
+			   t))
+		 (mapcar 'car hyperbole-web-search-alist))))
+    web-pulldown-menu))
 
 ;;; ************************************************************************
 ;;; Public variables
@@ -64,54 +164,6 @@
 	  #'(hypb:display-file-with-logo
 	     (expand-file-name "HY-ABOUT" hyperb:dir))
 	  t))
-
-(defconst hui-menu-url-options
-  '("Display-URLs-in"
-    "----"
-    "----"
-    ["Chrome (Google)"
-     (setq browse-url-browser-function #'browse-url-chrome)
-     :style radio
-     :selected (eq browse-url-browser-function #'browse-url-chrome)]
-    ["Chromium"
-     (setq browse-url-browser-function #'browse-url-chromium)
-     :style radio
-     :selected (eq browse-url-browser-function #'browse-url-chromium)]
-    ["Default (System wide)"
-     (setq browse-url-browser-function
-	   (if (and (boundp 'browse-url-generic-program) (stringp browse-url-generic-program))
-	       #'browse-url-generic
-	     #'browse-url-default-browser))
-     :style radio
-     :selected (eq browse-url-browser-function #'browse-url-default-browser)]
-    ["EWW (Emacs)"
-     (setq browse-url-browser-function #'eww-browse-url)
-     :style radio
-     :selected (eq browse-url-browser-function #'eww-browse-url)]
-    ;; Whatever browse-url-text-browser is set to, default is Lynx
-    ["Emacs Text Browser"
-     (setq browse-url-browser-function #'browse-url-text-emacs)
-     :style radio
-     :selected (eq browse-url-browser-function #'browse-url-text-emacs)]
-    ["Firefox"
-     (setq browse-url-browser-function #'browse-url-firefox)
-     :style radio
-     :selected (eq browse-url-browser-function #'browse-url-firefox)]
-    ["KDE"
-     (setq browse-url-browser-function #'browse-url-kde)
-     :style radio
-     :selected (eq browse-url-browser-function #'browse-url-kde)]
-    ["XTerm Text Browser"
-     (setq browse-url-browser-function #'browse-url-text-xterm)
-     :style radio
-     :selected (eq browse-url-browser-function #'browse-text-xterm)]
-    "----"
-    ["Toggle-URLs-in-New-Window"
-     (setq browse-url-new-window-flag (not browse-url-new-window-flag))
-     :style toggle
-     :selected browse-url-new-window-flag]
-    )
-  "Menu of Hyperbole URL display options.")
 
 (defconst hui-menu-options
   (append '(["All-Hyperbole-Options" (customize-browse 'hyperbole) t]
@@ -160,12 +212,14 @@
 		      (mapcar (lambda (sym)
 				(vector
 				 (capitalize (symbol-name sym))
-				 `(setq hpath:display-where 'sym)
+				 `(setq hpath:display-where ',sym)
 				 :style 'radio
 				 :selected `(eq hpath:display-where ',sym)))
 			      (mapcar 'car hpath:display-where-alist))))
 	  '("----")
-	  (list hui-menu-url-options)
+	  (hui-menu-browser "Display-URLs-in" browse-url-browser-function)
+	  '("----")
+	  (hui-menu-browser "Display-Web-Searches-in" hyperbole-web-search-browser-function)
 	  '("----")
 	  '(("Smart-Key-Press-at-Eol"
 	     "----"
@@ -200,12 +254,36 @@
 	    ))
   "Untitled menu of Hyperbole options.")
 
-;; Force reinitialization whenever this file is reloaded.
 (defvar infodock-hyperbole-menu nil)
 
 ;;; ************************************************************************
 ;;; Public functions
 ;;; ************************************************************************
+
+;; Add Hyperbole menu to menubar.
+(defun hyperbole-menubar-menu ()
+  "Add to or update the Hyperbole menu on the global menubar."
+  (cond ((boundp 'menubar-configuration)
+	 (unless (memq 'Hyperbole menubar-configuration)
+	   ;; Hyperbole may be included as part of the menubar but
+	   ;; may be invisible due to a menubar configuration
+	   ;; setting.  Make it visible here.
+	   (if (fboundp 'customize-set-variable)
+	       (customize-set-variable 'menubar-configuration
+				       (cons 'Hyperbole menubar-configuration))
+	     (setq menubar-configuration
+		   (cons 'Hyperbole menubar-configuration))))
+	 (set-menubar-dirty-flag))
+	(t (let ((add-before (cond ((and (boundp 'infodock-menubar-type)
+					 (eq infodock-menubar-type 'menubar-infodock))
+				    "Key")
+				   ((global-key-binding [menu-bar Koutline])
+				    "Koutline")
+				   ((global-key-binding [menu-bar OO-Browser])
+				    "OO-Browser"))))
+	     (add-submenu nil (infodock-hyperbole-menu) add-before))))
+  ;; Force a menu-bar update.
+  (force-mode-line-update))
 
 (defun hyperbole-popup-menu ()
   "Popup the Hyperbole menubar menu."
@@ -382,7 +460,7 @@
 		   hui-menu-hywconfig)))))
 
 ;;; ************************************************************************
-;;; Private functions
+;;; Private variables
 ;;; ************************************************************************
 
 (defvar hui-menu-max-list-length 24
@@ -392,88 +470,6 @@
   "When non-nil (default), explicit button menu list is lexicographically ordered.
 Otherwise, explicit buttons are listed in their order of appearance within
 the current buffer.")
-
-;; List explicit buttons in the current buffer for menu activation.
-(defun hui-menu-explicit-buttons (rest-of-menu)
-  (delq nil
-	(append
-	 '(["Manual"   (id-info "(hyperbole)Explicit Buttons") t]
-	   "----")
-	 (let ((labels (ebut:list))
-	       (cutoff))
-	   (if labels
-	       (progn
-		 ;; Cutoff list if too long.
-		 (if (setq cutoff (nthcdr (1- hui-menu-max-list-length) labels))
-		     (setcdr cutoff nil))
-		 (delq nil
-		       (append
-			'("----"
-			  ["Alphabetize-List"
-			   (setq hui-menu-order-explicit-buttons 
-				 (not hui-menu-order-explicit-buttons))
-			   :style toggle :selected hui-menu-order-explicit-buttons]
-			  "Activate:")
-			(mapcar (lambda (label) (vector label `(ebut:act ,label) t))
-				(if hui-menu-order-explicit-buttons
-				    (sort labels 'string-lessp)
-				  labels))
-			(if cutoff '(". . ."))
-			'("----" "----"))))))
-	 rest-of-menu)))
-
-(defun hui-menu-cutoff-list (lst)
-  "If list LST is longer than, `hui-menu-max-list-length', then cut it off there.
-Return t if cutoff, else nil."
-  (let ((cutoff))
-    (if (setq cutoff (nthcdr (1- hui-menu-max-list-length) lst))
-	(setcdr cutoff nil))
-    (if cutoff t)))
-
-;; List existing global buttons for menu activation.
-(defun hui-menu-global-buttons (rest-of-menu)
-  (delq nil
-	(append
-	 '(["Manual" (id-info "(hyperbole)Global Buttons") t]
-	   "----")
-	 (let ((labels (gbut:label-list))
-	       (cutoff))
-	   (when labels
-	     ;; Cutoff list if too long.
-	     (setq cutoff (hui-menu-cutoff-list labels))
-	     (delq nil (append
-			'("----" "Activate:")
-			(mapcar (lambda (label) (vector label `(gbut:act ,label) t))
-				(sort labels 'string-lessp))
-			(if cutoff '(". . ."))
-			'("----" "----")))))
-	 rest-of-menu)))
-
-;; Dynamically compute submenus for Screen menu
-(defun hui-menu-screen (_ignored)
-  (list
-   ["Manual" (id-info "(hyperbole)HyControl") t]
-   "----"
-   ["Frames-Control"  hycontrol-frames t]
-   ["Windows-Control" hycontrol-windows t]
-   "----"
-   (hui-menu-of-buffers)
-   (hui-menu-of-frames)
-   (hui-menu-of-windows)))
-
-(defun hui-menu-web-search ()
-  ;; Pulldown menu
-  (let ((web-pulldown-menu
-	 (mapcar (lambda (service)
-		   (vector service
-			   (list #'hyperbole-web-search service nil)
-			   t))
-		 (mapcar 'car hyperbole-web-search-alist))))
-    web-pulldown-menu))
-
-;;; ************************************************************************
-;;; Private variables
-;;; ************************************************************************
 
 (provide 'hui-menu)
 

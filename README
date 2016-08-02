@@ -28,8 +28,16 @@ containing this file wherever it may be of use.
 
 See the "HY-ABOUT" file for a description and overview of Hyperbole.
 
+See "DEMO" for a demonstration of standard Hyperbole button capabilities.
+This is the best way to initially interactively learn about Hyperbole after
+installing it.
+
 "man/im/demo.png", "man/im/hyperbole-cv.png" and "koutline.png" are
 screenshots of Hyperbole in action.
+
+HyControl is Hyperbole's frame and window manager; a long video
+demonstrating most of HyControl's features is available at:
+https://youtu.be/M3-aMh1ccJk.
 
 See the "HY-NEWS" file for a summary of new features in this release.
 
@@ -39,11 +47,8 @@ See the "HY-COPY" and "COPYING" files for license information.
 
 See the "MANIFEST" file for summaries of Hyperbole distribution files.
 
-See "DEMO" for a demonstration of standard Hyperbole button capabilities.
-This is the best way to initially interactively learn about Hyperbole after
-installing it.
-
-Various forms of the Hyperbole are below the "man/" subdirectory.
+Various forms of the reference manual for Hyperbole are below the
+"man/" subdirectory.
 
 ===========================================================================
 *		     Programmer Quick Reference

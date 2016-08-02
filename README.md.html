@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<title>README</title>
+
+
+<style type="text/css">
+body {
+  font-family: Helvetica, arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: white;
+  padding: 30px; }
+
+body > *:first-child {
+  margin-top: 0 !important; }
+body > *:last-child {
+  margin-bottom: 0 !important; }
+
+a {
+  color: #4183C4; }
+a.absent {
+  color: #cc0000; }
+a.anchor {
+  display: block;
+  padding-left: 30px;
+  margin-left: -30px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0; }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+  cursor: text;
+  position: relative; }
+
+h1 tt, h1 code {
+  font-size: inherit; }
+
+h2 tt, h2 code {
+  font-size: inherit; }
+
+h3 tt, h3 code {
+  font-size: inherit; }
+
+h4 tt, h4 code {
+  font-size: inherit; }
+
+h5 tt, h5 code {
+  font-size: inherit; }
+
+h6 tt, h6 code {
+  font-size: inherit; }
+
+h1 {
+  font-size: 28px;
+  color: black; }
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #cccccc;
+  color: black; }
+
+h3 {
+  font-size: 18px; }
+
+h4 {
+  font-size: 16px; }
+
+h5 {
+  font-size: 14px; }
+
+h6 {
+  color: #777777;
+  font-size: 14px; }
+
+p, blockquote, ul, ol, dl, li, table, pre {
+  margin: 15px 0; }
+
+hr {
+  background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAYAAACtBE5DAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OENDRjNBN0E2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OENDRjNBN0I2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4Q0NGM0E3ODY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4Q0NGM0E3OTY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqqezsUAAAAfSURBVHjaYmRABcYwBiM2QSA4y4hNEKYDQxAEAAIMAHNGAzhkPOlYAAAAAElFTkSuQmCC) repeat-x 0 0;
+  border: 0 none;
+  color: #cccccc;
+  height: 4px;
+  padding: 0;
+}
+
+body > h2:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+body > h1:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+  body > h1:first-child + h2 {
+    margin-top: 0;
+    padding-top: 0; }
+body > h3:first-child, body > h4:first-child, body > h5:first-child, body > h6:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0; }
+
+h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
+  margin-top: 0; }
+
+li p.first {
+  display: inline-block; }
+li {
+  margin: 0; }
+ul, ol {
+  padding-left: 30px; }
+
+ul :first-child, ol :first-child {
+  margin-top: 0; }
+
+dl {
+  padding: 0; }
+  dl dt {
+    font-size: 14px;
+    font-weight: bold;
+    font-style: italic;
+    padding: 0;
+    margin: 15px 0 5px; }
+    dl dt:first-child {
+      padding: 0; }
+    dl dt > :first-child {
+      margin-top: 0; }
+    dl dt > :last-child {
+      margin-bottom: 0; }
+  dl dd {
+    margin: 0 0 15px;
+    padding: 0 15px; }
+    dl dd > :first-child {
+      margin-top: 0; }
+    dl dd > :last-child {
+      margin-bottom: 0; }
+
+blockquote {
+  border-left: 4px solid #dddddd;
+  padding: 0 15px;
+  color: #777777; }
+  blockquote > :first-child {
+    margin-top: 0; }
+  blockquote > :last-child {
+    margin-bottom: 0; }
+
+table {
+  padding: 0;border-collapse: collapse; }
+  table tr {
+    border-top: 1px solid #cccccc;
+    background-color: white;
+    margin: 0;
+    padding: 0; }
+    table tr:nth-child(2n) {
+      background-color: #f8f8f8; }
+    table tr th {
+      font-weight: bold;
+      border: 1px solid #cccccc;
+      margin: 0;
+      padding: 6px 13px; }
+    table tr td {
+      border: 1px solid #cccccc;
+      margin: 0;
+      padding: 6px 13px; }
+    table tr th :first-child, table tr td :first-child {
+      margin-top: 0; }
+    table tr th :last-child, table tr td :last-child {
+      margin-bottom: 0; }
+
+img {
+  max-width: 100%; }
+
+span.frame {
+  display: block;
+  overflow: hidden; }
+  span.frame > span {
+    border: 1px solid #dddddd;
+    display: block;
+    float: left;
+    overflow: hidden;
+    margin: 13px 0 0;
+    padding: 7px;
+    width: auto; }
+  span.frame span img {
+    display: block;
+    float: left; }
+  span.frame span span {
+    clear: both;
+    color: #333333;
+    display: block;
+    padding: 5px 0 0; }
+span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both; }
+  span.align-center > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px auto 0;
+    text-align: center; }
+  span.align-center span img {
+    margin: 0 auto;
+    text-align: center; }
+span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both; }
+  span.align-right > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px 0 0;
+    text-align: right; }
+  span.align-right span img {
+    margin: 0;
+    text-align: right; }
+span.float-left {
+  display: block;
+  margin-right: 13px;
+  overflow: hidden;
+  float: left; }
+  span.float-left span {
+    margin: 13px 0 0; }
+span.float-right {
+  display: block;
+  margin-left: 13px;
+  overflow: hidden;
+  float: right; }
+  span.float-right > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px auto 0;
+    text-align: right; }
+
+code, tt {
+  margin: 0 2px;
+  padding: 0 5px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px; }
+
+pre code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent; }
+
+.highlight pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px; }
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px; }
+  pre code, pre tt {
+    background-color: transparent;
+    border: none; }
+
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:0 auto;
+    }
+}
+@media print {
+	table, pre {
+		page-break-inside: avoid;
+	}
+	pre {
+		word-wrap: break-word;
+	}
+}
+</style>
+
+<style type="text/css">
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: black;
+	background: none;
+	text-shadow: 0 1px white;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
+code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
+code[class*="language-"]::selection, code[class*="language-"] ::selection {
+	text-shadow: none;
+	background: #b3d4fc;
+}
+
+@media print {
+	code[class*="language-"],
+	pre[class*="language-"] {
+		text-shadow: none;
+	}
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #f5f2f0;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: slategray;
+}
+
+.token.punctuation {
+	color: #999;
+}
+
+.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #905;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #690;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+	color: #a67f59;
+	background: hsla(0, 0%, 100%, .5);
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #07a;
+}
+
+.token.function {
+	color: #DD4A68;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+	color: #e90;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h1 id="toc_0">GNU Hyperbole</h1>
+
+<!-- START doctoc generated TOC -->
+
+<p><strong>Table of Contents</strong></p>
+
+<ul>
+<li><a href="#summary">Summary</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#invocation">Invocation</a></li>
+<li><a href="#details">Details</a></li>
+<li><a href="#files">Files</a></li>
+<li><a href="#programmer-quick-reference">Programmer Quick Reference</a></li>
+<li><a href="#user-quotes">User Quotes</a></li>
+<li><a href="#why-was-hyperbole-developed">Why was Hyperbole developed?</a></li>
+</ul>
+
+<!-- END doctoc generated TOC -->
+
+<h2 id="toc_1">Summary</h2>
+
+<p><code>GNU Hyperbole</code> (pronounced Ga-new Hi-per-bo-lee), or just
+<code>Hyperbole</code>, is an efficient and programmable hypertextual information
+management system implemented as a GNU Emacs package.  It works well
+on GNU Emacs 24.4 or above.  It is designed and written by Bob Weiner.
+Its main distribution site is: <a href="https://www.gnu.org/software/hyperbole/">https://www.gnu.org/software/hyperbole/</a>.</p>
+
+<p>It includes easy-to-use, powerful hypertextual button types without
+the need to learn a markup language; a hierarchical, record-based
+contact manager; a rapid window and frame control system; and a
+powerful multi-level auto-numbered outliner.  All features are aimed
+at making textual information management and display fast and easy.</p>
+
+<p>Hyperbole allows hypertext buttons to be embedded within unstructured
+and structured files, mail messages and news articles.  It offers
+intuitive keyboard and mouse-based control of information display
+within multiple windows.  It also provides point-and-click access to
+World-Wide Web URLs, Info manuals, ftp archives, etc.</p>
+
+<p>The <a href="https://www.emacswiki.org/emacs/Hyperbole">Hyperbole wiki page</a>
+explains the many ways it differs from and is complementary to Org mode.</p>
+
+<p><img src="man/im/hyperbole-cv.png" alt="Hyperbole screenshot of the Koutliner, DEMO file and HyRolo"></p>
+
+<h2 id="toc_2">Installation</h2>
+
+<p>Once you have Emacs set up at your site, GNU Hyperbole may be
+installed by using the Emacs Package Manager.  If you are not
+familiar with it, see the Packages section of the GNU Emacs Manual,
+<a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/Packages.html">Emacs Packages</a>. </p>
+
+<p>If you have Hyperbole 5.10 or higher already installed and simply want to
+upgrade it, invoke the Emacs Package Manager with {M-x list-packages RET},
+then use the {U} key followed by the {x} key to upgrade all out-of-date
+packages, Hyperbole among them.  Then skip the text below and move on to
+the next section, <a href="#invocation">Invocation</a>.</p>
+
+<p>Otherwise, to download and install the Hyperbole package, you should
+add several lines to your personal Emacs initialization file,
+typically &quot;~/.emacs&quot;.  For further details, see <a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-File.html">Emacs Init
+File</a>.</p>
+
+<p>Below are the lines to add:</p>
+
+<div><pre><code class="language-none">(require &#39;package)
+(setq package-enable-at-startup nil) ;; Prevent double loading of libraries
+(package-initialize)
+(unless (package-installed-p &#39;hyperbole)
+  (package-refresh-contents)
+  (package-install &#39;hyperbole))
+(require &#39;hyperbole)</code></pre></div>
+
+<hr>
+
+<p>Now save the file and then restart Emacs.  Hyperbole will then be
+downloaded and compiled for use with your version of Emacs; give it a
+minute or two.  You may see a bunch of compilation warnings but these
+can be safely ignored.</p>
+
+<h2 id="toc_3">Invocation</h2>
+
+<p>Once Hyperbole has been installed for use at your site and loaded into your
+Emacs session, it is ready for use.  You will see a Hyperbole menu on your
+menubar and {C-h h} will display a Hyperbole menu in the minibuffer for
+quick keyboard-based selection.</p>
+
+<p>You can invoke Hyperbole commands in one of three ways:</p>
+
+<p>use the Hyperbole menu on your menubar;</p>
+
+<p><img src="man/im/menu-hyperbole.png" alt="Hyperbole Menubar Menu"></p>
+
+<p>type {C-h h} or {M-x hyperbole RET} to bring up the Hyperbole main menu
+   in the minibuffer window, for fast keyboard or mouse-based selection;
+   select an item from this menu by typing the item&#39;s first letter; use {q}
+   to quit from the menu.</p>
+
+<p>use a specific Hyperbole command such as an Action Key click {M-RET} on
+   a pathname to display the associated file or directory.</p>
+
+<p>Use {C-h h d d} for an interactive demonstration of standard Hyperbole
+button capabilities.</p>
+
+<p><img src="man/im/demo.png" alt="Hyperbole screenshot of the DEMO"></p>
+
+<p>{C-h h k e} offers a interactive demonstration of the Koutliner,
+Hyperbole&#39;s multi-level autonumbered hypertextual outliner.</p>
+
+<p><img src="man/im/koutliner.png" alt="Hyperbole screenshot of the Koutliner"></p>
+
+<p>To try out HyControl, Hyperbole&#39;s interactive frame and window control
+system, use {C-h h s w} for window control or {C-h h s f} for frame
+control.  {t} switches between window and frame control once in one of
+them.  Hyperbole also binds {C-c } for quick access to HyControl&#39;s
+window control menu if it was not already bound prior to Hyperbole&#39;s
+initialization.  A long video demonstrating most of HyControl&#39;s
+features is available at: https://youtu.be/M3-aMh1ccJk.</p>
+
+<p>The above are the best interactive ways to learn about Hyperbole.
+Hyperbole also includes the Hyperbole Manual, a full reference manual,
+not a simple introduction.  It is included in the &quot;man/&quot; subdirectory
+of the Hyperbole package directory in four forms:</p>
+
+<p><a href="man/hyperbole.info">hyperbole.info</a>   - online Info browser version<br>
+<a href="man/hyperbole.html">hyperbole.html</a>   - web HTML version<br>
+<a href="man/hyperbole.pdf">hyperbole.pdf</a>     - printable version<br>
+<a href="man/hyperbole.texi">hyperbole.texi</a>   - source form  </p>
+
+<p>The Hyperbole package installation places the Info version of this manual
+where needed and adds an entry for Hyperbole into the Info directory under
+the Emacs category.  {C-h h d i} will let you browse the manual.  For web
+browsing, point your browser at &quot;${hyperb:dir}/man/hyperbole.html&quot;,
+wherever the Hyperbole package directory is on your system; often this is:
+&quot;~/.emacs.d/elpa/hyperbole-${hyperb:version}/&quot;.</p>
+
+<h2 id="toc_4">Details</h2>
+
+<p>Hyperbole consists of five parts:</p>
+
+<ol>
+<li><p><strong>Buttons and Smart Keys</strong>: A set of hyperbutton types which supply
+   core hypertext and other behaviors.  Buttons may be added to
+   documents (explicit buttons) with a simple drag between windows,
+   no markup language needed.  Implicit buttons are patterns
+   automatically recognized within text that perform actions,
+   e.g. bug#24568 displays the bug status information for that bug
+   number.</p>
+
+<p>Buttons are accessed by clicking on them or referenced by name
+   (global buttons), so they can be activated regardless of what is
+   on screen.  Users can make simple changes to button types and
+   those familiar with Emacs Lisp can prototype and deliver new
+   types quickly with just a few lines of code.</p>
+
+<p>Hyperbole includes two special `Smart Keys&#39;, the Action Key
+   and the Assist Key, that perform an extensive array of
+   context-sensitive operations across emacs usage, including
+   activating and showing help for Hyperbole buttons.  In many
+   popular Emacs modes, they allow you to perform common, sometimes
+   complex operations without having to a different key for each
+   operation.  Just press a Smart Key and the right thing happens;</p></li>
+<li><p><strong>Contact and Text Finder</strong>: an interactive textual information
+   management interface, including fast, flexible file and text
+   finding commands.  A powerful, hierarchical contact manager,
+   HyRolo, which anyone can use is also included.  It is easy to
+   learn to use since it introduces only a few new mechanisms and
+   has a menu interface, which may be operated from the keyboard or
+   the mouse.</p>
+
+<p><img src="man/im/menu-rolo.png" alt="HyRolo Menubar Menu"></p></li>
+<li><p><strong>Screen Control</strong>: the fastest, easiest-to-use window and frame
+   control available for GNU Emacs.  With just a few keystrokes,
+   you can shift from increasing a window&#39;s height by 5 lines
+   to moving a frame by 220 pixels or immediately moving it to a
+   screen corner.  Text in each window or frame may be enlarged
+   or shrunk (zoomed) for easy viewing, plus many other features;</p></li>
+<li><p><strong>The Koutliner</strong>: an advanced outliner with multi-level
+   autonumbering and permanent ids attached to each outline node for
+   use as hypertext link anchors, per node properties and flexible
+   view specifications that can be embedded within links or used
+   interactively;</p></li>
+<li><p><strong>Programming Library</strong>: a set of programming library classes for
+   system developers who want to integrate Hyperbole with another
+   user interface or as a back-end to a distinct system.  (All of
+   Hyperbole is written in Emacs Lisp for ease of modification.
+   Hyperbole has been engineered for real-world usage and is well
+   structured).</p></li>
+</ol>
+
+<p>A Hyperbole hypertext user works with buttons; he may create, modify, move
+or delete buttons.  Each button performs a specific action, such as linking
+to a file or executing a shell command.</p>
+
+<p>There are three categories of Hyperbole buttons:</p>
+
+<ol>
+<li><p><em>Explicit Buttons</em>
+      created by Hyperbole, accessible from within a single document; </p></li>
+<li><p><em>Global Buttons</em>
+      created by Hyperbole, accessible anywhere within a user&#39;s
+      network of documents;</p></li>
+<li><p><em>Implicit Buttons</em>
+      buttons created and managed by other programs or embedded
+      within the structure of a document, accessible from within a
+      single document.  Hyperbole recognizes implicit buttons by
+      contextual patterns given in their type specifications.</p></li>
+</ol>
+
+<p>Hyperbole buttons may be clicked upon with a mouse to activate them or to
+describe their actions.  Thus, a user can always check how a button will act
+before activating it.  Buttons may also be activated from a keyboard.  (In
+fact, virtually all Hyperbole operations, including menu usage, may be
+performed from any standard terminal interface, so one can use it on distant
+machines that provide limited display access).</p>
+
+<p>Hyperbole does not enforce any particular hypertext or information
+management model, but instead allows you to organize your information in
+large or small chunks as you see fit, organizing each bit as time allows.
+The Hyperbole Koutliner and HyRolo tools organize textual hierarchies and
+may also contain links to external information sources.</p>
+
+<p>Some of Hyperbole&#39;s most important features include:</p>
+
+<ul>
+<li><p>Buttons may link to information or may execute commands, such as
+computing a complex value or communicating with external programs;</p></li>
+<li><p>Buttons are quick and easy to create with no programming nor
+markup needed.  One simply drags between a button source location
+and a link destination to create or to modify a link button.  The
+same result can be achieved from the keyboard.</p></li>
+<li><p>Buttons may be embedded within email messages and activated from
+Emacs mail readers; hyperlinks may include variables so that they
+work at different locations where the variable settings differ;</p></li>
+<li><p>Koutlines allow rapid browsing, editing and movement of chunks of
+information organized into trees (hierarchies) and offer links
+that include viewspecs which determine how documents are to be
+displayed, e.g. show just the first two lines of all levels in a
+Koutline;</p></li>
+<li><p>Other hypertext and information retrieval systems may be
+encapsulated under a Hyperbole user interface very easily.</p></li>
+</ul>
+
+<p>Typical Hyperbole applications include:</p>
+
+<ul>
+<li><p><em>Personal Information Management</em><br>
+Overlapping link paths provide a variety of views into an
+information space.  A single key press activates buttons
+regardless of their types, making navigation easy.</p>
+
+<p>A search facility locates buttons in context and permits quick
+selection.</p></li>
+<li><p><em>Documentation Browsing</em><br>
+Embedding cross-references in a favorite documentation format.</p>
+
+<p>Addition of a point-and-click interface to existing documentation.</p>
+
+<p>Linkage of code and design documents.  Jumping to the definition
+of an identifier from its use within code or its reference within
+documentation.</p></li>
+<li><p><em>Brainstorming</em><br>
+Capture of ideas and then quick reorganization with the Hyperbole
+Koutliner.  Link to related ideas, eliminating the need to copy
+and paste information into a single place.</p></li>
+<li><p><em>Help/Training Systems</em><br>
+Creation of tutorials with embedded buttons that show students how
+things work while explaining the concepts, e.g. an introduction
+to UNIX commands.  This technique can be much more effective than
+descriptions alone.</p></li>
+<li><p><em>Archive Managers</em><br>
+Supplementation of programs that manage archives from incoming
+information stream, having them add topic-based buttons that
+link to the archive holdings.  Users can then search and create
+their own links to archive entries.</p></li>
+</ul>
+
+<h2 id="toc_5">Files</h2>
+
+<p>See the <a href="HY-ABOUT">HY-ABOUT</a> file for a description and overview of Hyperbole.</p>
+
+<p>See the <a href="HY-ABOUT">HY-NEWS</a> file for a summary of new features in this release.</p>
+
+<p>See the <a href="INSTALL">INSTALL</a> file for installation and invocation instructions.</p>
+
+<p>See the <a href="HY-COPY">HY-COPY</a> and <a href="COPYING">COPYING</a> files for license information.</p>
+
+<p>See the <a href="MANIFEST">MANIFEST</a> file for summaries of Hyperbole distribution files.</p>
+
+<p>See <a href="DEMO">DEMO</a> for a demonstration of standard Hyperbole button capabilities.
+This is the best way to initially interactively learn about Hyperbole after
+installing it.</p>
+
+<p>Various forms of the Hyperbole are below the &quot;man/&quot; subdirectory.</p>
+
+<h2 id="toc_6">Programmer Quick Reference</h2>
+
+<p><a href="MANIFEST">MANIFEST</a> summarizes most of the files in the distribution.</p>
+
+<p>See <a href="DEMO">DEMO</a> for a demonstration of standard Hyperbole button
+capabilities.  This is the best way to initially interactively learn
+about Hyperbole.  The Hyperbole Manual is a reference manual, not a
+simple introduction.</p>
+
+<p>Naming conventions:</p>
+
+<ul>
+<li><p>All Hyperbole-specific code files begin with an &#39;h&#39;, aside from the
+Koutliner files which are in the kotl/ subdirectory and begin with a &#39;k&#39;.</p></li>
+<li><p>Hyperbole user-interface files begin with &#39;hui-&#39; or &#39;hmous&#39;.</p></li>
+<li><p>Files that define implicit button types begin with &#39;hib&#39;.</p></li>
+<li><p>Encapsulations of foreign systems begin with &#39;hsys-&#39;.</p></li>
+</ul>
+
+<p>Most of the standard Emacs user interface for Hyperbole is located in
+<a href="hui.el">hui.el</a>.  Most of the Hyperbole application programming
+interface can be found in <a href="hbut.el">hbut.el</a>.  <a href="hbdata.el">hbdata.el</a>
+encapsulates the button attribute storage implemented by Hyperbole.
+<a href="hmail.el">hmail.el</a> provides a basic abstract interface for
+integrating mail readers other than Rmail into Hyperbole.</p>
+
+<p>See the <a href="man/hyperbole.html#Questions%0Aand%20Answers">Hyperbole Questions and Answers</a> appendix in the Hyperbole manual for information on how
+to alter the default context-sensitive Hyperbole key bindings (Smart
+Keys).</p>
+
+<h2 id="toc_7">User Quotes</h2>
+
+<p>*** MAN I love Hyperbole!!!  Wow! ***</p>
+
+<div><pre><code class="language-none">                    -- Ken Olstad  
+                       Cheyenne Software, Inc.</code></pre></div>
+
+<hr>
+
+<p>I <em>love</em> koutlines.</p>
+
+<div><pre><code class="language-none">                    -- Bob Glickstein  
+                       Z-Code Software Corporation</code></pre></div>
+
+<hr>
+
+<p>For me, Emacs isn&#39;t Emacs without Hyperbole.  I have depended on Hyperbole
+  daily since 1992, when I first started using it to manage my development
+  environment.  It didn&#39;t take long before I could summon almost any
+  information I needed directly from within my editing environment with an
+  implicit button. Since I almost never have to slow down to look for
+  things--one context-dependent button usually produces exactly what I need
+  --I am able to maintain focus on the task I am working on and complete it
+  more quickly.  With its gestural interface, seamless integration with other
+  Emacs packages and incredibly useful set of core features.  I think that
+  Hyperbole is one of the best designed and most easily extensible software
+  products I have ever come across.  It is certainly the one which has made
+  the biggest improvement in my personal productivity.</p>
+
+<div><pre><code class="language-none">                    -- Chris Nuzum  
+                       Co-founder, Traction Software, Inc.</code></pre></div>
+
+<hr>
+
+<p>I&#39;ve found Hyperbole (in conjunction with XEmacs) to be very useful
+  for signal processing algorithm development.</p>
+
+<p>For me, it has almost completely obsoleted the engineering notebook:
+  I keep a set of files with ideas, algorithms, and results, linked
+  together and to the implementation in C++ files.  Using XEmacs&#39;
+  support for embedding graphics, I&#39;ve written a mode that accepts
+  image tags (formatted like HTML), and reads in GIF files to display
+  plots.  I have another program that converts the file to HTML (not
+  perfect, but adequate), so I can put any aspect of development on
+  our internal web for others to see.</p>
+
+<div><pre><code class="language-none">                    -- Farzin Guilak  
+                       Protocol Systems, Inc., Engineer</code></pre></div>
+
+<hr>
+
+<p>I am blind and have been using Hyperbole since 1992.  I used to use a PC as
+  a talking terminal attached to a UNIX system, but then I developed
+  Emacspeak which lets me use Emacs and Hyperbole from standard UNIX
+  workstations with an attached voice synthesizer.</p>
+
+<p>My main uses are:</p>
+
+<ol>
+<li><p>Global and implicit buttons for jumping to ftp sites.</p></li>
+<li><p>The contact manager with Emacspeak support.</p></li>
+<li><p>Explicit buttons as part of comments made about a structured document.
+  Each button jumps to the document section referred to by the comment.
+  This is very, very useful.</p></li>
+<li><p>The Hyperbole Koutliner, which I find a very useful tool.  I&#39;ve
+  implemented Emacspeak extensions to support it.</p>
+
+<div><pre><code class="language-none">                -- TV Raman  
+                   Google Inc.</code></pre></div></li>
+</ol>
+
+<hr>
+
+<p>I&#39;ve been a grateful Hyperbole user for a few years now.  Hyperbole&#39;s
+  flexibility and ease of use is a marvel.</p>
+
+<p>Mainly, I write easy little implicit button types (and corresponding action
+  types) to make my life easier.  For example, I have an implicit button type
+  to bury certain buffers when I click at their bottoms, one that recognizes
+  a bug report record in various contexts and edits it, one that links pieces
+  of test output in a log file to the corresponding test case source code
+  (EXTREMELY helpful in interpreting test output), others that support our
+  homegrown test framework, one that handles tree dired mode the way I&#39;d
+  like, one that completely handles wico menus (I&#39;ve also overloaded the
+  wconfig actions triggered by diagonal mouse drags with wicos actions), and
+  a couple that support interaction with BBDB.</p>
+
+<p>Other than that, I keep a global button file with 30 or so explicit buttons
+  that do various little things, and I index saved mail messages by putting
+  explicit link-to-mail buttons in an outline file.</p>
+
+<div><pre><code class="language-none">                    -- Ken Olstad  
+                       Cheyenne Software, Inc.</code></pre></div>
+
+<hr>
+
+<p>In general, Hyperbole is an embeddable, highly extensible hypertext
+  tool.  As such, I find it very useful. As it stands now, Hyperbole is
+  particularly helpful for organizing ill-structured or loosely coupled
+  information, in part because there are few tools geared for this purpose.
+  Hyperbole also possesses a lot of potential in supporting a wider
+  spectrum of structuredness, ranging from unstructured to highly
+  structured environments, as well as structural changes over time.</p>
+
+<p>Major Uses:</p>
+
+<ul>
+<li><p>Menu interface to our own collaborative support environment called
+CoReView: This interface brings together all top-level user commands
+into a single partitioned screen, and allows the end user to interact
+with the system using simple mouse-clicking instead of the meta-x key.</p></li>
+<li><p>Gateway to internet resources: this includes links to major Internet
+archive sites of various types of information. Links are made at both
+directory and file levels.</p></li>
+<li><p>Alternative directory organizer: The hierarchical nature of the Unix
+file system sometimes makes it difficult to find things quickly and
+easily using directory navigational tools such as dired. Hyperbole
+enables me to create various &quot;profile&quot; views of my directory tree, with
+entries in these views referring to files anywhere in the hierarchy.</p></li>
+<li><p>Organizing and viewing online documentation: using Hyperbole along with
+Hyper-man and Info makes it truly easy to look up online documentation.</p></li>
+<li><p>Other desktop organization tasks: including links to various mail
+folders, saved newsgroup conversation threads, online note-taker,
+emacs-command invocations, etc.</p>
+
+<div><pre><code class="language-none">                -- Dadong Wan  
+                   University of Hawaii</code></pre></div></li>
+</ul>
+
+<hr>
+
+<p>Hyperbole is the first hyper-link system I&#39;ve run across that is
+  actually part of the environment I use regularly, namely Emacs. The
+  complete flexibility of the links is both impressive and expected -- the
+  idea of making the link itself programmable is clever, and given that one
+  assumes the full power of Emacs.  Being able to send email with buttons
+  in it is a very powerful capability.  Using ange-ftp mode, one can make
+  file references &quot;across the world&quot; as easily as normal file references.</p>
+
+<div><pre><code class="language-none">                    -- Mark Eichin  
+                       Cygnus Support</code></pre></div>
+
+<hr>
+
+<p>I just wanted to say how much I enjoy using the Hyperbole Koutliner.
+   It is a great way to quickly construct very readable technical documents
+   that I can pass around to others.   Thanks for the great work.  </p>
+
+<div><pre><code class="language-none">                    -- Jeff Fried  
+                       Informix</code></pre></div>
+
+<hr>
+
+<p>The Hyperbole system provides a nice interface to exploring corners of
+   Unix that I didn&#39;t know existed before.</p>
+
+<div><pre><code class="language-none">                    -- Craig Smith  </code></pre></div>
+
+<h2 id="toc_8">Why was Hyperbole developed?</h2>
+
+<p>Hyperbole was originally designed to aid in research aimed at Personalized
+Information production/retrieval Environments (PIEs).  Hyperbole was a
+PIE Manager that provided services to PIE Tools.  PIEmail, a mail reader was
+the only PIE Tool developed as part of this research but Hyperbole has
+greatly expanded since then and has long been a production quality toolset.</p>
+
+<p>An examination of many hypertext environments as background research did
+not turn up any that seemed suitable for the research envisioned, mainly
+due to the lack of rich, portable programmer and user environments.  We also
+tired of trying to manage our own distributed information pools with standard
+UNIX tools.  And so Hyperbole was conceived and raved about until it
+got its name.</p>
+
+<p>Since then Hyperbole has proved indispensible at improving information
+access and organization in daily use over many years.  Why not start
+improving your information handling efficiency today?</p>
+
+<p>-- The End --</p>
+
+</body>
+
+</html>

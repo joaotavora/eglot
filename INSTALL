@@ -79,7 +79,10 @@ Hyperbole's multi-level autonumbered hypertextual outliner.
 To try out HyControl, Hyperbole's interactive frame and window control
 system, use {C-h h s w} for window control or {C-h h s f} for frame
 control.  {t} switches between window and frame control once in one of
-them.
+them.  Hyperbole also binds {C-c \} for quick access to HyControl's
+window control menu if it was not already bound prior to Hyperbole's
+initialization.  A long video demonstrating most of HyControl's
+features is available at: https://youtu.be/M3-aMh1ccJk.
 
 The above are the best interactive ways to learn about Hyperbole.  The
 Hyperbole Manual is a reference manual, not a simple introduction.  It is

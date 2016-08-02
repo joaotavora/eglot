@@ -11,11 +11,11 @@ on the internet.  People who get used to Hyperbole find it helps them so much
 that they prefer never to use Emacs without it.
 
 Hyperbole includes easy-to-use, powerful hypertextual button types and links
-that can be made without the need to learn a markup language.  without the need
-to learn a markup language.  It also includes a hierarchical, record-based
-contact manager, a rapid window and frame control system and a powerful
-multi-level auto-numbered outliner.  All features are aimed at making textual
-information management and display fast and easy.
+that can be made without the need to learn a markup language.  It also
+includes a hierarchical, record-based contact manager, a rapid window and
+frame control system and a powerful multi-level auto-numbered outliner.  All
+features are aimed at making textual information management and display fast
+and easy.
 
 Hyperbole embeds hypertext buttons within unstructured and structured files,
 mail messages and news articles.  It offers intuitive keyboard and mouse-based
@@ -156,7 +156,10 @@ Hyperbole's multi-level autonumbered hypertextual outliner.
 To try out HyControl, Hyperbole's interactive frame and window control
 system, use {C-h h s w} for window control or {C-h h s f} for frame
 control.  {t} switches between window and frame control once in one of
-them.
+them.  Hyperbole also binds {C-c \} for quick access to HyControl's
+window control menu if it was not already bound prior to Hyperbole's
+initialization.  A long video demonstrating most of HyControl's features
+is available at: https://youtu.be/M3-aMh1ccJk.
 
 The above are the best interactive ways to learn about Hyperbole.  The
 Hyperbole Manual is a reference manual, not a simple introduction.  It is

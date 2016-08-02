@@ -127,8 +127,9 @@ down a windowful."
     ("Youtube" . "https://www.youtube.com/results?search_query=%s"))
   "*Alist of (web-service-name . url-with-%s-parameter) elements.
 The first character of each web-service-name must be unique.
-This is used in the Hyperbole Find/Web menu where the %s parameter is
-replaced with an interactively obtained search string."
+This custom option is used in the Hyperbole Find/Web menu where
+the %s in the url-with-%s-parameter is replaced with an interactively
+obtained search string."
   :type '(alist :key-type string :value-type string)
   :group 'hyperbole-commands)
 
@@ -138,10 +139,11 @@ Both arguments are optional and are prompted for when not given or when null.
 Uses `hyperbole-web-search-alist' to match each service to its search url.
 Uses `hyperbole-web-search-browser-function' and the `browse-url'
 package to display search results."
-  (interactive (list nil nil))
-  (while (or (not (stringp service-name)) (equal service-name ""))
-    (setq service-name (completing-read "Search service: " hyperbole-web-search-alist
-					nil t)))
+  (interactive)
+  (let ((completion-ignore-case t))
+    (while (or (not (stringp service-name)) (equal service-name ""))
+      (setq service-name (completing-read "Search service: " hyperbole-web-search-alist
+					  nil t))))
   (while (or (not (stringp search-term)) (equal search-term ""))
     (setq search-term (read-string (format "Search %s for: " service-name))))
   (if (assoc service-name hyperbole-web-search-alist)

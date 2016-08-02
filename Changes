@@ -1,5 +1,29 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-08-02  Bob Weiner  <rsw@gnu.org>
+
+* README.md.html - Added.
+
+2016-08-01  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el (hui-menu-browser): Added to allow setting of
+    hyperbole-web-search-browser-function.
+              (infodock-hyperbole-menu): Added missing quote in Display-Referents-in setq,
+    fixing invalid code generation.
+
+* README.md (Invocation):
+  HY-ANNOUNCE (Invocation):
+  INSTALL (Invocation):
+  README (Files):
+  DEMO (HyControl): Added pointer to HyControl video and {C-c \} binding.
+  hyperbole.texi (HyControl): Updated {C-c \} binding description.
+
+* hycontrol.el (hycontrol-frames, hycontrol-windows): Added ESC as an additional key
+    that quits form HyControl.
+
+* man/hyperbole.texi (Global Key Bindings): Documented {C-c /} prefix key.
+                     (Menus): Added Find/Web menu.
+
 2016-07-31  Bob Weiner  <rsw@gnu.org>
 
 * Changes: Renamed this file from ChangeLog since Elpa release builds

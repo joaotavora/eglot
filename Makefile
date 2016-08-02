@@ -277,7 +277,7 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 pkgclean: packageclean
 packageclean:
 	if [ -d $(pkg_hyperbole) ]; then \
-	  cd $(pkg_hyperbole) && $(RM) -r .git* ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
+	  cd $(pkg_hyperbole) && $(RM) -r .git* videos ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
 	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id; fi
 	if [ -d $(pkg_hyperbole)/kotl ]; then \
 	  cd $(pkg_hyperbole)/kotl && $(RM) -r *autoloads.* *.elc TAGS TODO* .DS_Store \
