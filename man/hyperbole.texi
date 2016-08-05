@@ -2588,11 +2588,12 @@ These are good places to begin experimenting with button creation.
 @cindex customize
 @cindex option settings
 @item Cust/
-Hyperbole option customization.  This includes whether ftp and www URLs
-are recognized by the @code{find-file} commands, where Hyperbole link
-referents are displayed, where URLs are displayed, whether date stamps
-are added to rolo entries, and whether to use proportional or windowful
-scrolling when a Smart Key is pressed at the end of a line.
+Hyperbole option customization.  This includes whether ftp and www
+URLs are recognized by the @code{find-file} commands, where Hyperbole
+link referents are displayed, where URLs are displayed, where web
+search results are displayed, whether date stamps are added to rolo
+entries, and whether to use proportional or windowful scrolling when a
+Smart Key is pressed at the end of a line.
 @xref{Configuration}.
 
 @cindex menu, KeyBindings
@@ -2627,12 +2628,13 @@ documentation on Hyperbole implicit button and action types.
 @cindex menu, Find
 @cindex search
 @item Find/
-Buffer and file line finding commands.  This menu brings together many
-existing line finding commands that are difficult to recall quickly
-when needed, simplifying finding and then jumping to matching lines by
-using the Action Key.  It includes commands for filtering a buffer to
-just those lines that either match or do not match a regular
-expression.
+Buffer and file line finding commands and web searching.  This menu
+brings together many existing line finding commands that are difficult
+to recall quickly when needed, simplifying finding and then jumping to
+matching lines by using the Action Key.  It includes commands for
+filtering a buffer to just those lines that either match or do not
+match a regular expression.  It also includes a submenu for quick
+access to popular web search engines.
 
 Below are each of the commands on the Find menu.
 
@@ -2648,9 +2650,12 @@ Below are each of the commands on the Find menu.
 @cindex menu item, RemoveLines
 @cindex menu item, SaveLines
 @cindex menu, Find/Web
+@cindex menu, Web
 @cindex searching the web
 @cindex web search
 @kindex C-c /
+@vindex hyperbole-web-search-browser-function
+@vindex hyperbole-web-search-alist
 @vindex hypb:rgrep-command
 @vindex locate-command
 @itemize @bullet
@@ -2679,8 +2684,19 @@ RemoveLines -      Following point, remove all lines that match regexp.
 SaveLines -        Following point, keep only lines that match regexp.
 @item
 Web/ -             Select a search engine and term and search with them.
-                   Hyperbole typically binds the key @bkbd{C-c /} for
-                   quick access to this menu.
+                   The option, @code{hyperbole-web-search-browser-function},
+                   determines whether results are displayed within Emacs or
+                   with an external web browser. Hyperbole binds
+                   the key @bkbd{C-c /} for quick access to this menu, if it
+                   is not already bound prior to Hyperbole's initialization.
+                   A short video introduction to the Find/Web menu may be found
+                   at @url{https://youtu.be/8lMlJed0-OM}. The Find/Web menu looks
+                   like this: 
+@smallexample
+@noindent
+Web>  Amazon Bing Dictionary Elisp Facebook Google Hub(git) Images
+      Maps RFCs StackOverflow Twitter Wikipedia Youtube
+@end smallexample
 @end itemize
 
 @cindex menu, Global-Button
@@ -2760,10 +2776,10 @@ item, @bkbd{C-h h s w}, will do the same thing.
 @cindex submodes
 Once in HyControl, your minibuffer window at the bottom of the
 selected frame will display a summary of keys you may use to adjust
-your windows until you press @bkbd{q} to quit from HyControl.  The
-key, @bkbd{t}, will always toggle between controlling frames and
-windows, the @dfn{submodes} of HyControl, with the upper left of the
-minibuffer prompt showing which type of control is active.
+your windows until you press @bkbd{q} or @bkbd{@key{ESC}} to quit from
+HyControl.  The key, @bkbd{t}, will always toggle between controlling
+frames and windows, the @dfn{submodes} of HyControl, with the upper
+left of the minibuffer prompt showing which type of control is active.
 
 @cindex numeric argument
 @cindex multiplier
@@ -2957,7 +2973,8 @@ FRAME mode zooming requires the separately available
 Toggle between WINDOW and FRAME submodes.
 
 @kindex screen, q
-@kitem q
+@kindex screen, @key{ESC}
+@kitem q or @key{ESC}
 Quit from HyControl mode and restore normal key bindings.
 @end table
 
@@ -5077,7 +5094,7 @@ considered the present Hyperbole API:
 @file{hact.el}, @file{hargs.el}, @file{hbmap.el}, @file{hbut.el},
 @file{hhist.el}, @file{hmail.el}, @file{hmoccur.el}, @file{hpath.el},
 @file{htz.el}, @file{hypb.el}, @file{hyrolo.el}, @file{hyrolo-logic.el},
-@file{hywconfig.el} andn @file{set.el}.
+@file{hywconfig.el} and @file{set.el}.
 
 
 @noindent
@@ -5086,7 +5103,7 @@ that separate one data abstraction (class) from another.  A line of
 dashes within a class separates public parts of the class from the
 private parts that follow the line.
 
-This API does not include the Hyperbole outliner, as it has been
+This API does not include the Hyperbole Koutliner, as it has been
 designed for interactive use, rather than programmatic extensibility.
 You are welcome, however, to study its code, below the
 @file{hyperbole-$@{hyperb:version@}/kotl/} directory.
@@ -5609,7 +5626,7 @@ for frame control.  Pressing @bkbd{t} switches between window and
 frame control once in HyControl.  Hyperbole also binds @bkbd{C-c \\}
 for quick access to HyControl's window control menu if it was not
 already bound prior to Hyperbole's initialization.  A long video
-demonstrating most of HyControl's features is available at:
+demonstrating most of HyControl's features is available at
 @url{https://youtu.be/M3-aMh1ccJk}.
 
 @vindex Info-directory-list
@@ -5916,6 +5933,19 @@ Assist Key: Invoke the Assist Key in the present context.
 HyControl: Control windows, frames and buffer display.  This binding
 is made only if the key is not bound prior to loading Hyperbole.
 
+@kindex C-c /
+@kindex C-h h f w
+@cindex menu, Find/Web
+@cindex menu, Web
+@cindex searching the web
+@cindex web search menu
+@kitem C-c /
+Search the Web: Display a minibuffer menu of web search engines.  Once
+an engine is selected, prompt for a search term and perform the
+associated search.  This binding is made only if the key is not bound
+prior to loading Hyperbole; otherwise, the Find/Web minibuffer menu
+item, @bkbd{C-h h f w}, will do the same thing.
+
 @cindex key binding, C-c C-r
 @kitem C-c C-r
 Button Rename: Rename an explicit button. This binding is made only if
@@ -5936,32 +5966,22 @@ access to many Hyperbole commands.
 @cindex key binding, C-h A
 @cindex key binding, C-u C-h A
 @kitem C-h A
-Action Key Help: Shows what the Action Key will do in the current context.
+Action Key Help: Show what the Action Key will do in the current context.
 @kitem C-u C-h A
-Assist Key Help: Shows what the Assist Key will do in the same context.
+Assist Key Help: Show what the Assist Key will do in the same context.
 
 @cindex key binding, C-c @key{RET}
 @kitem C-c @key{RET}
-Mark Things: Marks larger and larger synctactical units in a buffer
+Mark Things: Mark larger and larger synctactical units in a buffer
 when invoked repeatedly, showing in the minibuffer the type of unit
 marked each time.  For example, if on an opening brace at the start of
 a C, Java or Javascript function, this marks the whole function.  This
 binding is made only if the key is not bound prior to loading
 Hyperbole.
 
-@kindex C-c /
-@cindex menu, Find/Web
-@cindex searching the web
-@cindex web search
-Search the Web: Displays a selectable list of web search engines, then
-prompts for a search term and performs the associated search.
-Hyperbole typically binds the key @bkbd{C-c /} for quick access to
-this list; otherwise, the Find/Web minibuffer menu item, @bkbd{C-h h f
-w}, will do the same thing.
-
 @cindex key binding, C-c .
 @kitem C-c .
-Delimited Thing Jump: Jumps between the start and end of a delimited
+Delimited Thing Jump: Jump between the start and end of a delimited
 thing, which may be an HTML tag pair.  This binding is made only if
 the key is not bound prior to loading Hyperbole.  @xref{Smart Key
 Thing Selection}, for more information.

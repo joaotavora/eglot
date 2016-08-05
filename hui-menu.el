@@ -281,7 +281,7 @@ Return t if cutoff, else nil."
 				    "Koutline")
 				   ((global-key-binding [menu-bar OO-Browser])
 				    "OO-Browser"))))
-	     (add-submenu nil (infodock-hyperbole-menu) add-before))))
+	     (add-submenu nil (infodock-hyperbole-menu t) add-before))))
   ;; Force a menu-bar update.
   (force-mode-line-update))
 
@@ -292,172 +292,174 @@ Return t if cutoff, else nil."
 
 ;;; Don't change this name; doing so will break the way InfoDock
 ;;; initializes the Hyperbole menu.
-(defun infodock-hyperbole-menu ()
-  "Hyperbole menu for the global InfoDock menubar"
-  (or infodock-hyperbole-menu
-      (setq infodock-hyperbole-menu
-	    (delq nil
-		  (list
-		   (if (featurep 'xemacs) "%_Hyperbole" "Hyperbole")
-		   :config 'Hyperbole
-		   hui-menu-about
-		   ["Demonstration"  (hypb:display-file-with-logo
-				       (expand-file-name "DEMO" hyperb:dir)) t]
-		   ;; Comment InfoDock manual reference out until
-		   ;; InfoDock is modernized for Emacs 25.
-		   ;; (if (and (boundp 'infodock-version) infodock-version)
-		   ;;     ["Manual"      (id-info "(infodock)Hyperbole Menu") t]
-		   ;;   ["Manual"      (id-info "(hyperbole)Top") t])
+(defun infodock-hyperbole-menu (&optional rebuild-flag)
+  "Return the Hyperbole menu for the global InfoDock menubar.
+Uses any non-nil existing value of the menu unless optional
+REBUILD-FLAG is non-nil, in which case the menu is rebuilt."
+  (when (or rebuild-flag (null infodock-hyperbole-menu))
+    (setq infodock-hyperbole-menu
+	  (delq nil
+		(list
+		 (if (featurep 'xemacs) "%_Hyperbole" "Hyperbole")
+		 :config 'Hyperbole
+		 hui-menu-about
+		 ["Demonstration"  (hypb:display-file-with-logo
+				    (expand-file-name "DEMO" hyperb:dir)) t]
+		 ;; Comment InfoDock manual reference out until
+		 ;; InfoDock is modernized for Emacs 25.
+		 ;; (if (and (boundp 'infodock-version) infodock-version)
+		 ;;     ["Manual"      (id-info "(infodock)Hyperbole Menu") t]
+		 ;;   ["Manual"      (id-info "(hyperbole)Top") t])
+		 ["Manual"      (id-info "(hyperbole)Top") t]
+		 ["What-is-New?"  (hypb:display-file-with-logo
+				   (expand-file-name "HY-NEWS" hyperb:dir)) t]
+		 "----"
+		 ["Remove-This-Menu"
+		  (progn
+		    ;; Delete Hyperbole menu from all menubars.
+		    (hui-menu-remove Hyperbole)
+		    ;;
+		    ;; Remove Hyperbole button comment from future
+		    ;; outgoing mail.
+		    (if (boundp 'smail:comment) (setq smail:comment nil)))
+		  t]
+		 "----"
+		 ["Activate-Button-at-Point" hui:hbut-current-act
+		  (hbut:is-p (hbut:at-p))]
+		 ["Back-to-Prior-Location" (hhist:remove current-prefix-arg)
+		  (and (boundp '*hhist*) *hhist*)]
+		 '("Button-File"
+		   ["Manual"  (id-info "(hyperbole)Button Files") t]
+		   "----"
+		   ["Edit-Per-Directory-File" (find-file hbmap:filename) t]
+		   ["Edit-Personal-File" (find-file
+					  (expand-file-name
+					   hbmap:filename hbmap:dir-user)) t]
+		   )
+		 (cons "Customize" hui-menu-options)
+		 '("Documentation"
 		   ["Manual"      (id-info "(hyperbole)Top") t]
-		   ["What-is-New?"  (hypb:display-file-with-logo
-				      (expand-file-name "HY-NEWS" hyperb:dir)) t]
 		   "----"
-		   ["Remove-This-Menu"
-		     (progn
-		       ;; Delete Hyperbole menu from all menubars.
-		       (hui-menu-remove Hyperbole)
-		       ;;
-		       ;; Remove Hyperbole button comment from future
-		       ;; outgoing mail.
-		       (if (boundp 'smail:comment) (setq smail:comment nil)))
-		     t]
+		   ["Demonstration"  (hypb:display-file-with-logo
+				      (expand-file-name "DEMO" hyperb:dir)) t]
+		   ["Glossary"    (id-info "(hyperbole)Glossary") t]
+		   ["Manifest"    (find-file-read-only
+				   (expand-file-name "MANIFEST" hyperb:dir)) t]
+		   ["Smart-Key-Summary" (id-browse-file (hypb:hkey-help-file)) t]
+		   ("Types"
+		    ["Action-Types-Manual"
+		     (id-info "(hyperbole)Action Types") t]
+		    ["Implicit-Button-Types-Manual"
+		     (id-info "(hyperbole)Implicit Buttons") t]
+		    "----"
+		    ["Show-Action-Types"
+		     (hui:htype-help-current-window 'actypes) t]
+		    ["Show-Implicit-Button-Types"
+		     (hui:htype-help-current-window 'ibtypes 'no-sort) t]
+		    ))
+		 '("Explicit-Button"
+		   :filter hui-menu-explicit-buttons
+		   ["Activate" hui:hbut-act t]
+		   ["Create" hui:ebut-create t]
+		   ["Delete" hui:ebut-delete t]
+		   ["Edit"   hui:ebut-modify t]
+		   ("Help"  
+		    ["Manual"   (id-info "(hyperbole)Location") t]
+		    "----"
+		    ["Buffer-Buttons"   (hui:hbut-report -1) t]
+		    ["Current-Button"   (hui:hbut-report)    t]
+		    ["Ordered-Buttons"  (hui:hbut-report 1)  t]
+		    )
+		   ["Modify" hui:ebut-modify t]
+		   ["Rename" hui:ebut-rename t]
+		   ["Search" hui:ebut-search t]
+		   ["Types"
+		    (hui:htype-help-current-window 'actypes) t]
+		   )
+		 (nconc
+		  '("Find"
+		    ["Manual"   (id-info-item "menu, Find") t]
+		    "----"
+		    ;; Show numbered line matches in all specified files.
+		    ["Grep-Files"           hypb:rgrep t]
+		    ;; Show numbered line matches for regexp in all file-based buffers.
+		    ["Locate-Files"         locate t]
+		    ;; Show numbered line matches for regexp in all file-based buffers.
+		    ["Match-File-Buffers"   moccur t]
+		    ;; Show numbered line matches for regexp from this buffer.
+		    ["Occur-Here"           occur  t]
+		    ;; Following point, remove all lines that match regexp.
+		    ["Remove-Lines-Here"    hypb:remove-lines t]
+		    ;; Following point, keep only lines that match regexp.
+		    ["Save-Lines-Here"      hypb:save-lines t]
+		    "----"
+		    "Web-Search:")
+		  (hui-menu-web-search)
+		  )
+		 '("Global-Button"
+		   :filter hui-menu-global-buttons
+		   ["Create" hui:gbut-create t]
+		   ["Edit"   hui:gbut-modify t]
+		   ["Help"   gbut:help t]
+		   ["Modify" hui:gbut-modify t]
+		   )
+		 '("Implicit-Button"
+		   ["Manual"   (id-info "(hyperbole)Implicit Buttons") t]
 		   "----"
-		   ["Activate-Button-at-Point" hui:hbut-current-act
-		     (hbut:is-p (hbut:at-p))]
-		   ["Back-to-Prior-Location" (hhist:remove current-prefix-arg)
-		     (and (boundp '*hhist*) *hhist*)]
-		   '("Button-File"
-		     ["Manual"  (id-info "(hyperbole)Button Files") t]
-		     "----"
-		     ["Edit-Per-Directory-File" (find-file hbmap:filename) t]
-		     ["Edit-Personal-File" (find-file
-					    (expand-file-name
-					     hbmap:filename hbmap:dir-user)) t]
-		     )
-		   (cons "Customize" hui-menu-options)
-		   '("Documentation"
-		     ["Manual"      (id-info "(hyperbole)Top") t]
-		     "----"
-		     ["Demonstration"  (hypb:display-file-with-logo
-					(expand-file-name "DEMO" hyperb:dir)) t]
-		     ["Glossary"    (id-info "(hyperbole)Glossary") t]
-		     ["Manifest"    (find-file-read-only
-				     (expand-file-name "MANIFEST" hyperb:dir)) t]
-		     ["Smart-Key-Summary" (id-browse-file (hypb:hkey-help-file)) t]
-		     ("Types"
-		      ["Action-Types-Manual"
-		       (id-info "(hyperbole)Action Types") t]
-		      ["Implicit-Button-Types-Manual"
-		       (id-info "(hyperbole)Implicit Buttons") t]
-		      "----"
-		      ["Show-Action-Types"
-		       (hui:htype-help-current-window 'actypes) t]
-		      ["Show-Implicit-Button-Types"
-		       (hui:htype-help-current-window 'ibtypes 'no-sort) t]
-		      ))
-		   '("Explicit-Button"
-		     :filter hui-menu-explicit-buttons
-		     ["Activate" hui:hbut-act t]
-		     ["Create" hui:ebut-create t]
-		     ["Delete" hui:ebut-delete t]
-		     ["Edit"   hui:ebut-modify t]
-		     ("Help"  
-		      ["Manual"   (id-info "(hyperbole)Location") t]
-		      "----"
-		      ["Buffer-Buttons"   (hui:hbut-report -1) t]
-		      ["Current-Button"   (hui:hbut-report)    t]
-		      ["Ordered-Buttons"  (hui:hbut-report 1)  t]
-		      )
-		     ["Modify" hui:ebut-modify t]
-		     ["Rename" hui:ebut-rename t]
-		     ["Search" hui:ebut-search t]
-		     ["Types"
-		       (hui:htype-help-current-window 'actypes) t]
-		     )
-		   (nconc
-		    '("Find"
-		      ["Manual"   (id-info-item "menu, Find") t]
-		      "----"
-		      ;; Show numbered line matches in all specified files.
-		      ["Grep-Files"           hypb:rgrep t]
-		      ;; Show numbered line matches for regexp in all file-based buffers.
-		      ["Locate-Files"         locate t]
-		      ;; Show numbered line matches for regexp in all file-based buffers.
-		      ["Match-File-Buffers"   moccur t]
-		      ;; Show numbered line matches for regexp from this buffer.
-		      ["Occur-Here"           occur  t]
-		      ;; Following point, remove all lines that match regexp.
-		      ["Remove-Lines-Here"    hypb:remove-lines t]
-		      ;; Following point, keep only lines that match regexp.
-		      ["Save-Lines-Here"      hypb:save-lines t]
-		      "----"
-		      "Search-with:")
-		    (hui-menu-web-search)
-		      )
-		   '("Global-Button"
-		     :filter hui-menu-global-buttons
-		     ["Create" hui:gbut-create t]
-		     ["Edit"   hui:gbut-modify t]
-		     ["Help"   gbut:help t]
-		     ["Modify" hui:gbut-modify t]
-		     )
-		   '("Implicit-Button"
-		     ["Manual"   (id-info "(hyperbole)Implicit Buttons") t]
-		     "----"
-		     ["Activate-at-Point"    hui:hbut-current-act t]
-		     ["Delete-Type"         (hui:htype-delete 'ibtypes) t]
-		     ["Help"   hui:hbut-help t]
-		     ["Types"  (hui:htype-help 'ibtypes 'no-sort) t]
-		     )
-		   (if hyperb:kotl-p
-		       '("Koutliner"
-			 ["Manual" (id-info "(hyperbole)Koutliner") t]
-			 ["Example"   kotl-mode:example                 t]
-			 "----"
-			 ["Create-File"    kfile:find t]
-			 ["View-File"      kfile:view t]
-			 "----"
-			 ["Collapse-Tree" (progn (kotl-mode:is-p)
-						 (kotl-mode:hide-tree
-						  (kcell-view:label)))
-			  (eq major-mode 'kotl-mode)]
-			 ["Create-Link" klink:create
-			  (eq major-mode 'kotl-mode)]
-			 ["Expand-All-Trees" kotl-mode:show-all
-			  (eq major-mode 'kotl-mode)]
-			 ["Expand-Tree" (progn (kotl-mode:is-p)
-					       (kotl-mode:show-tree
+		   ["Activate-at-Point"    hui:hbut-current-act t]
+		   ["Delete-Type"         (hui:htype-delete 'ibtypes) t]
+		   ["Help"   hui:hbut-help t]
+		   ["Types"  (hui:htype-help 'ibtypes 'no-sort) t]
+		   )
+		 (if hyperb:kotl-p
+		     '("Koutliner"
+		       ["Manual" (id-info "(hyperbole)Koutliner") t]
+		       ["Example"   kotl-mode:example                 t]
+		       "----"
+		       ["Create-File"    kfile:find t]
+		       ["View-File"      kfile:view t]
+		       "----"
+		       ["Collapse-Tree" (progn (kotl-mode:is-p)
+					       (kotl-mode:hide-tree
 						(kcell-view:label)))
-			  (eq major-mode 'kotl-mode)]
-			 ["Show-Top-Level-Only" kotl-mode:hide-body
-			  (eq major-mode 'kotl-mode)]
-			 ))
-		   '("Mail-Lists"
-		     ["Manual" (id-info "(hyperbole)Suggestion or Bug Reporting")
-		      t]
-		     "----"
-		     ["Mail-to-Hyperbole-Users-List"
-		      (hmail:compose "hyperbole-users@gnu.org" '(hact 'hyp-config)) t]
-		     ["Mail-to-Hyperbole-Bug-Report-List"
-		      (hmail:compose "bug-hyperbole@gnu.org" '(hact 'hyp-config)) t]
-		     "----"
-		     ["Join-Hyperbole-Users-List"
-		      (hmail:compose "hyperbole-users-join@gnu.org" nil
-				     "Just send the message; subject and body are ignored.") t]
-		     ["Join-Hyperbole-Bug-Report-List"
-		      (hmail:compose "bug-hyperbole-join@gnu.org" nil
-				     "Just send the message; subject and body are ignored.") t]
-		     "----"
-		     ["Leave-Hyperbole-Users-List"
-		      (hmail:compose "hyperbole-users-leave@gnu.org" nil
-				     "Just send the message; subject and body are ignored.") t]
-		     ["Leave-Hyperbole-Bug-Report-List"
-		      (hmail:compose "bug-hyperbole-leave@gnu.org" nil
-				     "Just send the message; subject and body are ignored.") t]
-		     )
-		   infodock-hyrolo-menu
-		   '("Screen (HyControl)" :filter hui-menu-screen)
-		   hui-menu-hywconfig)))))
+			(eq major-mode 'kotl-mode)]
+		       ["Create-Link" klink:create
+			(eq major-mode 'kotl-mode)]
+		       ["Expand-All-Trees" kotl-mode:show-all
+			(eq major-mode 'kotl-mode)]
+		       ["Expand-Tree" (progn (kotl-mode:is-p)
+					     (kotl-mode:show-tree
+					      (kcell-view:label)))
+			(eq major-mode 'kotl-mode)]
+		       ["Show-Top-Level-Only" kotl-mode:hide-body
+			(eq major-mode 'kotl-mode)]
+		       ))
+		 '("Mail-Lists"
+		   ["Manual" (id-info "(hyperbole)Suggestion or Bug Reporting")
+		    t]
+		   "----"
+		   ["Mail-to-Hyperbole-Users-List"
+		    (hmail:compose "hyperbole-users@gnu.org" '(hact 'hyp-config)) t]
+		   ["Mail-to-Hyperbole-Bug-Report-List"
+		    (hmail:compose "bug-hyperbole@gnu.org" '(hact 'hyp-config)) t]
+		   "----"
+		   ["Join-Hyperbole-Users-List"
+		    (hmail:compose "hyperbole-users-join@gnu.org" nil
+				   "Just send the message; subject and body are ignored.") t]
+		   ["Join-Hyperbole-Bug-Report-List"
+		    (hmail:compose "bug-hyperbole-join@gnu.org" nil
+				   "Just send the message; subject and body are ignored.") t]
+		   "----"
+		   ["Leave-Hyperbole-Users-List"
+		    (hmail:compose "hyperbole-users-leave@gnu.org" nil
+				   "Just send the message; subject and body are ignored.") t]
+		   ["Leave-Hyperbole-Bug-Report-List"
+		    (hmail:compose "bug-hyperbole-leave@gnu.org" nil
+				   "Just send the message; subject and body are ignored.") t]
+		   )
+		 infodock-hyrolo-menu
+		 '("Screen (HyControl)" :filter hui-menu-screen)
+		 hui-menu-hywconfig)))))
 
 ;;; ************************************************************************
 ;;; Private variables

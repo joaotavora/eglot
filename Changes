@@ -1,5 +1,37 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-08-05  Bob Weiner  <rsw@gnu.org>
+
+* hib-social.el (social-reference): Disabled this implicit button type in html and related modes so
+    in-file link references are not matched as social hash tags and made the list of modes a variable,
+
+  hpath.el (hpath:to-html-anchor): Added.
+           (hpath:find): Rewrote to follow HTML in-file anchor references.
+
+2016-08-04  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:html-suffix-regexp, hpath:html-anchor-id-pattern, hpath:html-link-anchor-regexp): Added.
+
+* README, README.md, README.md.html: Added a new testimonial.
+
+* Makefile (elpa, ftp): Added these targets to install Hyperbole releases for ELPA or ftp download.
+    Changed so release target depends on package target so you can build a package prior to a release.
+
+* hpath.el (hpath:remote-available-p): Fixed tramp package check prior to loading by adding a test for
+    tramp-autoload-file-name-handler.
+
+* README.md.html: Fixed bookmarks/in-file link ids.
+
+2016-08-03  Bob Weiner  <rsw@gnu.org>
+
+* hsettings.el (hyperbole-web-search-alist): Made any edit update all Hyperbole menus with the new value.
+  DEMO (Hyperbole Menus): Added description and exercise using the new Find/Web menu.
+  hui-mini.el (Cust/Web-Search): Added to allow setting of hyperbole-web-search-browser-function.
+  hui-menu.el (infodock-hyperbole-menu): Added optional rebuild-flag to force rebuilding of the
+    Hyperbole menubar menu.
+
+* man/hyperbole.texi (HyControl): Documented ESC as a way to quit from HyControl.
+
 2016-08-02  Bob Weiner  <rsw@gnu.org>
 
 * README.md.html - Added.

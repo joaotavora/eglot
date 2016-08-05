@@ -36,7 +36,7 @@ installing it.
 screenshots of Hyperbole in action.
 
 HyControl is Hyperbole's frame and window manager; a long video
-demonstrating most of HyControl's features is available at:
+demonstrating most of HyControl's features is available at
 https://youtu.be/M3-aMh1ccJk.
 
 See the "HY-NEWS" file for a summary of new features in this release.
@@ -98,6 +98,25 @@ Hyperbole key bindings (Smart Keys).
 	   				-- Bob Glickstein
 					   Z-Code Software Corporation
 
+-------
+
+  One of the nicest things about Hyperbole is that it's available
+  everywhere. Org-mode is a mode and its features are only available in
+  *.org files. For instance if you dropped into `eshell' or `ansi-term' and
+  did `ls', you can move point to any of the directory's contents, do M-RET
+  (or Shift-Button2) and jump to that file.  And that's just one example.
+  Note that this means that all Hyperbole functionality is available in
+  *.org files as well.  To me, except for the Hyperbole outliner, that means
+  complementary not conflicting. It's Hyperbole *and* org-mode, not
+  Hyperbole vs. org-mode.
+
+  Additionally, off the bat, I found it very well documented and for me
+  that's a proxy for the quality of a package.  The maintainers are quite
+  responsive.  There's plenty more functionality that I haven't uncovered yet
+  but due to the ease of installation and the quality of the documentation,
+  digging into it is actually fun.
+
+					-- Aditya Siram
 -------
 
   For me, Emacs isn't Emacs without Hyperbole.  I have depended on Hyperbole

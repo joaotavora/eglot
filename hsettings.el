@@ -102,6 +102,33 @@ down a windowful."
 ;; Web search setttings for Hyperbole Find/Web menu.
 (require 'browse-url)
 
+(defun hyperbole-update-menus ()
+  "Rebuild all Hyperbole menus with any updated settings."
+  (hyperbole-menubar-menu)
+  (hyperbole-minibuffer-menu))
+
+(defun hyperbole-web-search (&optional service-name search-term)
+  "Search web SERVICE-NAME for SEARCH-TERM.
+Both arguments are optional and are prompted for when not given or when null.
+Uses `hyperbole-web-search-alist' to match each service to its search url.
+Uses `hyperbole-web-search-browser-function' and the `browse-url'
+package to display search results."
+  (interactive)
+  (let ((completion-ignore-case t))
+    (while (or (not (stringp service-name)) (equal service-name ""))
+      (setq service-name (completing-read "Search service: " hyperbole-web-search-alist
+					  nil t))))
+  (while (or (not (stringp search-term)) (equal search-term ""))
+    (setq search-term (read-string (format "Search %s for: " service-name))))
+  (if (assoc service-name hyperbole-web-search-alist)
+      (let ((browse-url-browser-function
+	     hyperbole-web-search-browser-function))
+	(browse-url
+	 (format (cdr (assoc service-name hyperbole-web-search-alist))
+		 search-term)))
+    (user-error "(Hyperbole): Invalid web search service `%s' or search term `%s'"
+		service-name search-term)))
+
 (defcustom hyperbole-web-search-browser-function browse-url-browser-function
   "*Function of one url argument called by any Hyperbole Find/Web search."
   :type 'boolean
@@ -130,30 +157,12 @@ The first character of each web-service-name must be unique.
 This custom option is used in the Hyperbole Find/Web menu where
 the %s in the url-with-%s-parameter is replaced with an interactively
 obtained search string."
+  :initialize 'custom-initialize-default
+  :set (lambda (_option value)
+	 (setq hyperbole-web-search-alist value)
+	 (hyperbole-update-menus))
   :type '(alist :key-type string :value-type string)
   :group 'hyperbole-commands)
-
-(defun hyperbole-web-search (&optional service-name search-term)
-  "Search web SERVICE-NAME for SEARCH-TERM.
-Both arguments are optional and are prompted for when not given or when null.
-Uses `hyperbole-web-search-alist' to match each service to its search url.
-Uses `hyperbole-web-search-browser-function' and the `browse-url'
-package to display search results."
-  (interactive)
-  (let ((completion-ignore-case t))
-    (while (or (not (stringp service-name)) (equal service-name ""))
-      (setq service-name (completing-read "Search service: " hyperbole-web-search-alist
-					  nil t))))
-  (while (or (not (stringp search-term)) (equal search-term ""))
-    (setq search-term (read-string (format "Search %s for: " service-name))))
-  (if (assoc service-name hyperbole-web-search-alist)
-      (let ((browse-url-browser-function
-	     hyperbole-web-search-browser-function))
-	(browse-url
-	 (format (cdr (assoc service-name hyperbole-web-search-alist))
-		 search-term)))
-    (user-error "(Hyperbole): Invalid web search service `%s' or search term `%s'"
-		service-name search-term)))
 
 ;;; ************************************************************************
 ;;; GNU EMACS AND XEMACS CONFIGURATION

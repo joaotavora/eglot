@@ -392,6 +392,8 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 ;;; Hyperbole Minibuffer Menus
 ;;; ************************************************************************
 
+(defun hyperbole-minibuffer-menu ()
+  "Rebuilds and returns the entire Hyperbole minibuffer menu structure."
 (setq
  hui:menus
  (delq nil
@@ -466,7 +468,8 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	   "Sets how scrolling via end of line presses works.")
 	  ("Toggle-Rolo-Dates" hyrolo-toggle-datestamps
 	   "Toggle whether date stamps are updated when rolo entries are edited.")
-	  ("URL-Display/" (menu . cust-urls) "Sets where URLs are displayed.")))
+	  ("URL-Display/" (menu . cust-urls) "Sets where URLs are displayed.")
+	  ("Web-Search/" (menu . cust-web) "Sets where Web Searches are displayed.")))
        '(cust-eol .
          (("Smart Key press at eol scrolls>")
 	  ("Proportionally" (setq smart-scroll-proportional t))
@@ -482,7 +485,7 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("WinControl"  (hui:bind-key #'hycontrol-windows))      ;; {C-c \}
 	  )) 
        '(cust-referents .
-         (("Ref display>")
+         (("Ref Display>")
 	  ("Any-Frame" (setq hpath:display-where 'other-frame))
 	  ("Current-Win" (setq hpath:display-where 'this-window))
 	  ("Diff-Frame-One-Win"
@@ -491,7 +494,7 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("Other-Win" (setq hpath:display-where 'other-window))
 	  ("Single-Win" (setq hpath:display-where 'one-window))))
        '(cust-urls .
-         (("URL display>")
+         (("URL Display>")
 	  ("Chrome" (setq browse-url-browser-function #'browse-url-chrome))
 	  ("Default" (setq browse-url-browser-function
 			   (if (and (boundp 'browse-url-generic-program) (stringp browse-url-generic-program))
@@ -501,6 +504,18 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("Firefox" (setq browse-url-browser-function #'browse-url-firefox))
 	  ("KDE" (setq browse-url-browser-function #'browse-url-kde))
 	  ("XTerm" (setq browse-url-browser-function #'browse-url-text-xterm))
+	  ))
+       '(cust-web .
+         (("Web Search>")
+	  ("Chrome" (setq hyperbole-web-search-browser-function #'browse-url-chrome))
+	  ("Default" (setq hyperbole-web-search-browser-function
+			   (if (and (boundp 'browse-url-generic-program) (stringp browse-url-generic-program))
+			       #'browse-url-generic
+			     #'browse-url-default-browser)))
+	  ("EWW" (setq hyperbole-web-search-browser-function #'eww-browse-url))
+	  ("Firefox" (setq hyperbole-web-search-browser-function #'browse-url-firefox))
+	  ("KDE" (setq hyperbole-web-search-browser-function #'browse-url-kde))
+	  ("XTerm" (setq hyperbole-web-search-browser-function #'browse-url-text-xterm))
 	  ))
        '(doc .
 	 (("Doc>")
@@ -688,7 +703,10 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	   "Restores next window configuration from ring.")
 	  ))
        (hui:menu-web-search)
-       )))
+       ))))
+
+;; Always rebuild the Hyperbole minibuffer menu when this file is loaded. 
+(hyperbole-minibuffer-menu)
 
 (provide 'hui-mini)
 

@@ -33,8 +33,10 @@
 #   	             make help
 #
 #               For OO-Browser maintainers:
-#                 To assemble the Hyperbole Emacs package for release:
+#                 To assemble a Hyperbole Emacs package for testing:
 #		     make pkg
+#                 To release a Hyperbole Emacs package to ELPA and ftp.gnu.org:
+#		     make release
 #
 #               The Hyperbole Manual is included in the package in four forms:
 #
@@ -97,16 +99,19 @@ html_dir = $(id_dir)/id-html
 # Shell used to process this Makefile.  Bourne shell syntax is required.
 SHELL = /bin/sh
 
-# UNIX commands you may want to change for your particular system.
+# Shell commands you may want to change for your particular system.
 CP = \cp -p
 ETAGS = \etags
+GNUFTP = \gnupload --to ftp.gnu.org:hyperbole
+GPG = \gpg
+GZIP = \gzip -c
 INSTALL = \install -m 644 -c
 MKDIR = \mkdir -p
 MAKE = \make
 RM = \rm -f
 TAR = \tar
-GPG = \gpg
 ZIP = \zip -qry
+
 
 # Directory in which to create new package distributions of Hyperbole.
 pkg_dir = /tmp
@@ -250,14 +255,29 @@ $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(ma
 
 # Generate a Hyperbole package suitable for distribution via the Emacs package manager.
 pkg: package
-package: release $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
+package: doc kotl/kotl-loaddefs.el $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
-# Generate a Hyperbole release suitable for distribution via GNU ELPA.
+# Generate and distribute a Hyperbole release to GNU ELPA and ftp.gnu.org.
 # One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-loaddefs.el.
-release: doc kotl/kotl-loaddefs.el
+release: package $(pkg_dir)/hyperbole-$(hypb_version).tar.gz elpa ftp
+
+# Once the release version number is updated in hyperbole.el and the release is pushed to
+# git, ELPA will automatically check and build its Hyperbole archive, allowing users to
+# update their packages of Hyperbole.  ELPA does this twice a day now.
+elpa: package
+	git tag -s hyperbole-$(HYPB_VERSION) && git push
+
+# Send compressed tarball for uploading to GNU ftp site; this must be done from the directory
+# containing the tarball to upload.
+ftp: package
+	cd $(pkg_dir) && $(GNUFTP) hyperbole-$(HYPB_VERSION).tar.gz
 
 kotl/kotl-loaddefs.el: $(EL_KOTL)
 	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-loaddefs.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && sed -i '3 i ;; Copyright (C) 2016  Free Software Foundation, Inc.\n;;' $@ && $(RM) kotl/kotl-loaddefs.el~
+
+# Used for ftp.gnu.org tarball distributions.
+$(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.gz:
+	cd $(pkg_dir) && $(GZIP) hyperbole-$(HYPB_VERSION).tar > hyperbole-$(HYPB_VERSION).tar.gz
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar
 	cd $(pkg_dir) && $(GPG) -ba -o hyperbole-$(HYPB_VERSION).tar.sig hyperbole-$(HYPB_VERSION).tar

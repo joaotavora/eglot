@@ -51,9 +51,8 @@ Valid values of this variable include `browse-url-default-browser' and
 
 (defact www-url (url)
   "Follow a link given by URL.
-The variable, `browse-url-browser-function,' customizes the url browser that
-is used.
-Valid values of this variable include `browse-url-default-browser' and
+The variable, `browse-url-browser-function', customizes the url browser that
+is used.  Valid values of this variable include `browse-url-default-browser' and
 `browse-url-generic'."
   (interactive "sURL to follow: ")
   (or (stringp url)

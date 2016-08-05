@@ -104,6 +104,16 @@ Let's try a menu item that displays the Hyperbole Glossary of terms.  Use
 glossary.  {C-h h d RET} would simply exit the menu and {C-h h d C-t} would
 redisplay the top Hyperbole menu.
 
+What if we want to do a web search for GNU Hyperbole?  Then we use the
+Find/Web menu, typically bound to {C-c /} or if not, then use {C-h h f w}.
+Then type {g} for Google and enter "GNU Hyperbole", including the quote marks
+so that it is searched for as a phrase.  Your standard web browser will be
+used to return the search results.
+
+You can change which browser is used with {C-h h c w}, the Cust/Web-Search
+menu.  Advanced users can change the search engines listed by editing the
+option, hyperbole-web-search-alist.
+
 ** Help Buffers
 
 Since the Smart Keys do so many things, it is helpful to see what they will
@@ -153,7 +163,7 @@ Hyperbole includes the fastest, easiest-to-use Emacs window and frame
 management system available, HyControl, found under the Hyperbole Screen
 menu.  If you use a lot of Emacs windows or frames (typically, window system
 windows) then this tool is for you.  A long video demonstrating most of
-HyControl's features is available at: https://youtu.be/M3-aMh1ccJk.
+HyControl's features is available at https://youtu.be/M3-aMh1ccJk.
 
 HyControl interactively adjusts the layout of your windows and frames
 down to the pixel-level if desired.  You adjust the location, size and

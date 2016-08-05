@@ -3208,11 +3208,12 @@ These are good places to begin experimenting with button creation.
 <a name="index-option-settings"></a>
 </dd>
 <dt><strong>Cust/</strong></dt>
-<dd><p>Hyperbole option customization.  This includes whether ftp and www URLs
-are recognized by the <code>find-file</code> commands, where Hyperbole link
-referents are displayed, where URLs are displayed, whether date stamps
-are added to rolo entries, and whether to use proportional or windowful
-scrolling when a Smart Key is pressed at the end of a line.
+<dd><p>Hyperbole option customization.  This includes whether ftp and www
+URLs are recognized by the <code>find-file</code> commands, where Hyperbole
+link referents are displayed, where URLs are displayed, where web
+search results are displayed, whether date stamps are added to rolo
+entries, and whether to use proportional or windowful scrolling when a
+Smart Key is pressed at the end of a line.
 See <a href="#Configuration">Configuration</a>.
 </p>
 <a name="index-menu_002c-KeyBindings"></a>
@@ -3250,12 +3251,12 @@ documentation on Hyperbole implicit button and action types.
 <a name="index-search"></a>
 </dd>
 <dt><strong>Find/</strong></dt>
-<dd><p>Buffer and file line finding commands.  This menu brings together many
-existing line finding commands that are difficult to recall quickly
-when needed, simplifying finding and then jumping to matching lines by
-using the Action Key.  It includes commands for filtering a buffer to
-just those lines that either match or do not match a regular
-expression.
+<dd><p>Buffer and file line finding commands and web searching.  This menu
+brings together many existing line finding commands that are difficult
+to recall quickly when needed, simplifying finding and then jumping to
+matching lines by using the Action Key.  It includes commands for
+filtering a buffer to just those lines that either match or do not
+match a regular expression.
 </p>
 <p>Below are each of the commands on the Find menu.
 </p>
@@ -3263,12 +3264,19 @@ expression.
 <a name="index-remove-lines"></a>
 <a name="index-save-lines"></a>
 <a name="index-locate-files"></a>
+<a name="index-grep-files"></a>
 <a name="index-menu-item_002c-GrepFile"></a>
 <a name="index-menu-item_002c-LocateFiles"></a>
 <a name="index-menu-item_002c-MatchFileBuffers"></a>
 <a name="index-menu-item_002c-OccurHere"></a>
 <a name="index-menu-item_002c-RemoveLines"></a>
 <a name="index-menu-item_002c-SaveLines"></a>
+<a name="index-menu_002c-Find_002fWeb"></a>
+<a name="index-menu_002c-Web"></a>
+<a name="index-searching-the-web"></a>
+<a name="index-web-search"></a>
+<a name="index-C_002dc-_002f"></a>
+<a name="index-hyperbole_002dweb_002dsearch_002dbrowser_002dfunction"></a>
 <a name="index-hypb_003argrep_002dcommand"></a>
 <a name="index-locate_002dcommand"></a>
 <ul>
@@ -3289,6 +3297,16 @@ expression.
 </li><li> OccurHere -        Show numbered line matches for regexp from this buffer.
 </li><li> RemoveLines -      Following point, remove all lines that match regexp.
 </li><li> SaveLines -        Following point, keep only lines that match regexp.
+</li><li> Web/ -             Select a search engine and term and search with them.
+                   The option, <code>hyperbole-web-search-browser-function</code>,
+                   determines whether results are displayed within Emacs or
+                   with an external web browser. Hyperbole typically binds
+                   the key <kbd>{C-c /}</kbd> for quick access to this menu.  It
+                   looks like this:
+<div class="smallexample">
+<pre class="smallexample">Web&gt;  Amazon Bing Dictionary Elisp Facebook Google Hub(git) Images
+      Maps RFCs StackOverflow Twitter Wikipedia Youtube
+</pre></div>
 </li></ul>
 
 <a name="index-menu_002c-Global_002dButton-1"></a>
@@ -3375,17 +3393,18 @@ and then simply quit HyControl and go back to work.
 <a name="index-C_002dc-_005c"></a>
 <a name="index-screen_002c-C_002dc-_005c"></a>
 <a name="index-menu-item_002c-WindowsControl"></a>
-<p>Hyperbole typically binds the key <kbd>{C-c \}</kbd> to invoke HyControl
-window control; otherwise, the Screen/WindowsControl minibuffer menu
+<p>Hyperbole binds the key <kbd>{C-c \}</kbd> for quick access to HyControl&rsquo;s
+window control menu, if it was not already bound prior to Hyperbole&rsquo;s
+initialization; otherwise, the Screen/WindowsControl minibuffer menu
 item, <kbd>{C-h h s w}</kbd>, will do the same thing.
 </p>
 <a name="index-submodes"></a>
 <p>Once in HyControl, your minibuffer window at the bottom of the
 selected frame will display a summary of keys you may use to adjust
-your windows until you press <kbd>{q}</kbd> to quit from HyControl.  The
-key, <kbd>{t}</kbd>, will always toggle between controlling frames and
-windows, the <em>submodes</em> of HyControl, with the upper left of the
-minibuffer prompt showing which type of control is active.
+your windows until you press <kbd>{q}</kbd> or <kbd>{<span class="key">ESC</span>}</kbd> to quit from
+HyControl.  The key, <kbd>{t}</kbd>, will always toggle between controlling
+frames and windows, the <em>submodes</em> of HyControl, with the upper
+left of the minibuffer prompt showing which type of control is active.
 </p>
 <a name="index-numeric-argument"></a>
 <a name="index-multiplier"></a>
@@ -3652,9 +3671,10 @@ sizes by which to zoom.
 <dd><p>Toggle between WINDOW and FRAME submodes.
 </p>
 <a name="index-screen_002c-q"></a>
-<a name="index-q-1"></a>
+<a name="index-screen_002c-ESC"></a>
+<a name="index-q-or-ESC"></a>
 </dd>
-<dt><kbd>{q}</kbd></dt>
+<dt><kbd>{q or <span class="key">ESC</span>}</kbd></dt>
 <dd><p>Quit from HyControl mode and restore normal key bindings.
 </p></dd>
 </dl>
@@ -3662,7 +3682,7 @@ sizes by which to zoom.
 <br>
 <p>The rest of this section goes into some technicalities about HyControl
 settings.  You may ignore it if you are not familiar with Emacs
-variables and functions.
+variables and functions or with customized Emacs.
 </p>
 <a name="index-hycontrol_002dscreen_002doffset_002dalist"></a>
 <a name="index-hycontrol_002dset_002dscreen_002doffsets"></a>
@@ -6179,7 +6199,7 @@ considered the present Hyperbole API:
 <p><samp>hact.el</samp>, <samp>hargs.el</samp>, <samp>hbmap.el</samp>, <samp>hbut.el</samp>,
 <samp>hhist.el</samp>, <samp>hmail.el</samp>, <samp>hmoccur.el</samp>, <samp>hpath.el</samp>,
 <samp>htz.el</samp>, <samp>hypb.el</samp>, <samp>hyrolo.el</samp>, <samp>hyrolo-logic.el</samp>,
-<samp>hywconfig.el</samp> andn <samp>set.el</samp>.
+<samp>hywconfig.el</samp> and <samp>set.el</samp>.
 </p>
 
 <p>Note when looking at these files, that they are divided into sections
@@ -6187,7 +6207,7 @@ that separate one data abstraction (class) from another.  A line of
 dashes within a class separates public parts of the class from the
 private parts that follow the line.
 </p>
-<p>This API does not include the Hyperbole outliner, as it has been
+<p>This API does not include the Hyperbole Koutliner, as it has been
 designed for interactive use, rather than programmatic extensibility.
 You are welcome, however, to study its code, below the
 <samp>hyperbole-${hyperb:version}/kotl/</samp> directory.
@@ -6804,7 +6824,11 @@ Hyperbole&rsquo;s multi-level autonumbered hypertextual outliner.
 <p>To try out HyControl, Hyperbole&rsquo;s interactive frame and window control
 system, use <kbd>{C-h h s w}</kbd> for window control or <kbd>{C-h h s f}</kbd>
 for frame control.  Pressing <kbd>{t}</kbd> switches between window and
-frame control once in HyControl.
+frame control once in HyControl.  Hyperbole also binds <kbd>{C-c \}</kbd>
+for quick access to HyControl&rsquo;s window control menu if it was not
+already bound prior to Hyperbole&rsquo;s initialization.  A long video
+demonstrating most of HyControl&rsquo;s features is available at:
+<a href="https://youtu.be/M3-aMh1ccJk">https://youtu.be/M3-aMh1ccJk</a>.
 </p>
 <a name="index-Info_002ddirectory_002dlist"></a>
 <a name="index-hyperb_003adir"></a>
@@ -7167,6 +7191,22 @@ global Hyperbole keys.
 <dd><p>HyControl: Control windows, frames and buffer display.  This binding
 is made only if the key is not bound prior to loading Hyperbole.
 </p>
+<a name="index-C_002dc-_002f-1"></a>
+<a name="index-C_002dh-h-f-w"></a>
+<a name="index-menu_002c-Find_002fWeb-1"></a>
+<a name="index-menu_002c-Web-1"></a>
+<a name="index-searching-the-web-1"></a>
+<a name="index-web-search-menu"></a>
+<a name="index-C_002dc-_002f-2"></a>
+</dd>
+<dt><kbd>{C-c /}</kbd></dt>
+<dd><p>Search the Web: Display a minibuffer menu of web search engines.
+Once an engine is selected, prompt for a search term and
+perform the associated search.  Hyperbole typically binds the
+key <kbd>{C-c /}</kbd> for quick access to this list; otherwise, the
+Find/Web minibuffer menu item, <kbd>{C-h h f w}</kbd>, will do the same
+thing.
+</p>
 <a name="index-key-binding_002c-C_002dc-C_002dr"></a>
 <a name="index-C_002dc-C_002dr-1"></a>
 </dd>
@@ -7195,17 +7235,17 @@ access to many Hyperbole commands.
 <a name="index-C_002dh-A-1"></a>
 </dd>
 <dt><kbd>{C-h A}</kbd></dt>
-<dd><p>Action Key Help: Shows what the Action Key will do in the current context.
+<dd><p>Action Key Help: Show what the Action Key will do in the current context.
 <a name="index-C_002du-C_002dh-A-1"></a>
 </p></dd>
 <dt><kbd>{C-u C-h A}</kbd></dt>
-<dd><p>Assist Key Help: Shows what the Assist Key will do in the same context.
+<dd><p>Assist Key Help: Show what the Assist Key will do in the same context.
 </p>
 <a name="index-key-binding_002c-C_002dc-RET"></a>
 <a name="index-C_002dc-RET-1"></a>
 </dd>
 <dt><kbd>{C-c <span class="key">RET</span>}</kbd></dt>
-<dd><p>Mark Things: Marks larger and larger synctactical units in a buffer
+<dd><p>Mark Things: Mark larger and larger synctactical units in a buffer
 when invoked repeatedly, showing in the minibuffer the type of unit
 marked each time.  For example, if on an opening brace at the start of
 a C, Java or Javascript function, this marks the whole function.  This
@@ -7216,7 +7256,7 @@ Hyperbole.
 <a name="index-C_002dc-_002e-2"></a>
 </dd>
 <dt><kbd>{C-c .}</kbd></dt>
-<dd><p>Delimited Thing Jump: Jumps between the start and end of a delimited
+<dd><p>Delimited Thing Jump: Jump between the start and end of a delimited
 thing, which may be an HTML tag pair.  This binding is made only if
 the key is not bound prior to loading Hyperbole.  See <a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a>, for more information.
 </p></dd>
@@ -10083,6 +10123,9 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_002e"><code>C-c .</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_002e-1"><code>C-c .</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Moving-Around">Moving Around</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_002e-2"><code>C-c .</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dc-_002f"><code>C-c /</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dc-_002f-1"><code>C-c /</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dc-_002f-2"><code>C-c /</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_003c"><code>C-c &lt;</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Moving-Around">Moving Around</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_003e"><code>C-c &gt;</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Moving-Around">Moving Around</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_0040"><code>C-c @</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
@@ -10136,6 +10179,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-1"><code>C-h h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-c-d"><code>C-h h c d</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Debugging">Smart Key Debugging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-d-d"><code>C-h h d d</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hyperbole-Overview">Hyperbole Overview</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dh-h-f-w"><code>C-h h f w</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-g"><code>C-h h g</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Buttons">Global Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-i-a"><code>C-h h i a</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-m-c"><code>C-h h m c</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Debugging">Smart Key Debugging</a></td></tr>
@@ -10228,7 +10272,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-Q">Q</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-q"><code>q</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-q-1"><code>q</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-q-or-ESC"><code>q or <span class="key">ESC</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-R">R</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-right"><code>right</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -10275,6 +10319,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-screen_002c-d"><code>screen, d</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-D"><code>screen, D</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-down"><code>screen, down</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-screen_002c-ESC"><code>screen, <span class="key">ESC</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-f"><code>screen, f</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-h"><code>screen, h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-H"><code>screen, H</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -10643,6 +10688,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hyperbole-1"><code>hyperbole</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dinit_002dhook">hyperbole-init-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dpopup_002dmenu"><code>hyperbole-popup-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyperbole_002dweb_002dsearch_002dbrowser_002dfunction">hyperbole-web-search-browser-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dadd"><code>hyrolo-add</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Menu">Rolo Menu</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dadd_002dhook">hyrolo-add-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dadd_002dhook-1">hyrolo-add-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
@@ -11310,6 +11356,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-gomoku">gomoku</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Gomoku-Game">Smart Key - Gomoku Game</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-grep">grep</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Grep">Grep</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-grep-files">grep files</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-groupware">groupware</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-H">H</a></th><td></td><td></td></tr>
@@ -11539,6 +11586,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-menu_002c-EBut">menu, EBut</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Explicit_002dButton">menu, Explicit-Button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Find">menu, Find</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-menu_002c-Find_002fWeb">menu, Find/Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-menu_002c-Find_002fWeb-1">menu, Find/Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Gbut">menu, Gbut</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Buttons">Global Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Gbut-1">menu, Gbut</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Global_002dButton">menu, Global-Button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Buttons">Global Buttons</a></td></tr>
@@ -11560,6 +11609,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-menu_002c-top_002dlevel">menu, top-level</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-top_002dlevel-1">menu, top-level</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Types">menu, Types</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-menu_002c-Web">menu, Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-menu_002c-Web-1">menu, Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-WinConfig">menu, WinConfig</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Window_002dConfigurations">menu, Window-Configurations</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menubar_002c-Hyperbole-menu">menubar, Hyperbole menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
@@ -11721,6 +11772,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-scrolling-1">scrolling</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-search">search</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-search-1">search</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invisible-Text-Searches">Invisible Text Searches</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-searching-the-web">searching the web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-searching-the-web-1">searching the web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-searching_002c-rolo">searching, rolo</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Searching">Rolo Searching</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-selection">selection</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-selection_002c-menu-items">selection, menu items</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
@@ -11854,6 +11907,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-W3">W3</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-WWW-URLs">Smart Key - WWW URLs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-wconfig-commands">wconfig commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-web-pages_002c-displaying">web pages, displaying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-web-search">web search</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-web-search-menu">web search menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration-commands">window configuration commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration-ring">window configuration ring</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configurations">window configurations</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
