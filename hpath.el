@@ -281,14 +281,25 @@ use with string-match.")
 ;;; Private variables
 ;;; ************************************************************************
 
-(defconst hpath:html-suffix-regexp "\\.[a-z]*htm[a-z0-9]*"
-  "Regexp that matches to any common html file suffix.")
-
 (defconst hpath:html-anchor-id-pattern "\\(id\\|name\\)=['\"]%s['\"]?"
   "Regexp matching an html anchor id definition and containing a %s for replacement of a specific anchor id.")
 
-(defconst hpath:html-link-anchor-regexp (concat "\\(" hpath:html-file-suffix "\\)\\(#\\)\\([^\]\[#^{}<>\"\\ \n\t\f\r]*\\)")
-  "Regexp that matches an html filename followed by a hash (#) and an optional in-file anchor name.")
+(defconst hpath:html-suffix-regexp "\\.[a-zA-Z]*[hH[tT][mM][a-zA-Z0-9]*"
+  "Regexp that matches to any common html file suffix.")
+
+(defconst hpath:markdown-anchor-id-pattern "^[ ]*%s: "
+  "Regexp matching a Markdown anchor id definition and containing a %s for replacement of a specific anchor id.")
+
+(defconst hpath:markdown-section-pattern "^#+[ \t]+%s\\([ \t[:punct:]]*\\)$"
+  "Regexp matching a Markdown section header and containing a %s for replacement of a specific section name.")
+
+(defconst hpath:markdown-suffix-regexp "\\.[mM][dD]"
+  "Regexp that matches to a Markdown file suffix.")
+
+(defconst hpath:markup-link-anchor-regexp
+ (concat "\\(" hpath:html-file-suffix "\\|" hpath:markdown-suffix-regexp
+	 "\\)\\(#\\)\\([^\]\[#^{}<>\"\\ \n\t\f\r]*\\)")
+  "Regexp that matches an markup filename followed by a hash (#) and an optional in-file anchor name.")
 
 (defvar hpath:prefix-regexp "\\`[-!&][ ]*"
   "Regexp matching command characters which may precede a pathname.
@@ -569,7 +580,7 @@ program)."
 	       ;; Loc may be a buffer without a file
 	       (if (stringp loc) loc default-directory))
 	  filename (hpath:absolute-to filename dir)
-	  path (if (string-match hpath:html-link-anchor-regexp filename)
+	  path (if (string-match hpath:markup-link-anchor-regexp filename)
 		   (progn (setq hash t
 				anchor (match-string 3 filename))
 			  (substring filename 0 (match-end 1)))
@@ -628,20 +639,37 @@ program)."
 				       (assq 'other-window
 					     hpath:display-where-alist))))
 			 path)
-			(if (or hash anchor) (hpath:to-html-anchor hash anchor))
+			(if (or hash anchor) (hpath:to-markup-anchor hash anchor))
 			t)))))))
 
-(defun hpath:to-html-anchor (hash anchor)
+(defun hpath:to-markup-anchor (hash anchor)
   "Move point to the definition of ANCHOR if found or if only HASH is non-nil, move to the beginning of the buffer."
   (cond ((and (stringp anchor) (not (string-empty-p anchor)))
-	 (let ((point (point)))
-	   (goto-char (point-min))
-	   (if (re-search-forward (format hpath:html-anchor-id-pattern (regexp-quote anchor)) nil t)
-	       (progn (forward-line 0)
-		      (recenter 0))
-	     (goto-char point)
-	     (error "(hpath:to-html-anchor): Anchor `%s' not found in the visible buffer portion"
-		    anchor))))
+	 (cond ((string-match hpath:html-suffix-regexp buffer-file-name)
+		;; HTML link ids are case-sensitive.
+		(let ((opoint (point))
+		      (case-fold-search))
+		  (goto-char (point-min))
+		  (if (re-search-forward (format hpath:html-anchor-id-pattern (regexp-quote anchor)) nil t)
+		      (progn (forward-line 0)
+			     (recenter 0))
+		    (goto-char opoint)
+		    (error "(hpath:to-markup-anchor): Anchor `%s' not found in the visible buffer portion"
+			   anchor))))
+	       ((string-match hpath:markdown-suffix-regexp buffer-file-name)
+		(let ((opoint (point))
+		      ;; Markdown link ids are case insensitive and -
+		      ;; characters may be converted to spaces at the
+		      ;; point of definition.
+		      (case-fold-search t)
+		      (anchor-name (subst-char-in-string ?- ?\  anchor)))
+		  (goto-char (point-min))
+		  (if (re-search-forward (format hpath:markdown-section-pattern (regexp-quote anchor-name)) nil t)
+		      (progn (forward-line 0)
+			     (recenter 0))
+		    (goto-char opoint)
+		    (error "(hpath:to-markup-anchor): Section `%s' not found in the visible buffer portion"
+			   anchor-name))))))
 	(hash (goto-char (point-min)))))
 
 (defun hpath:find-executable (executable-list)
@@ -993,7 +1021,7 @@ to it."
 (defun hpath:handle-urls ()
   (let ((remote-fs-package (hpath:remote-available-p)))
       (progn
-	;; www-url functions are defined in "hsys-w3.el".
+	;; www-url functions are defined in "hsys-www.el".
 	(put 'expand-file-name   remote-fs-package   'www-url-expand-file-name)
 	(put 'find-file-noselect remote-fs-package   'www-url-find-file-noselect)
 	;; Necessary since Dired overrides other file-name-handler-alist
@@ -1062,7 +1090,7 @@ If `/~' appears, all of FILENAME through that `/' is discarded."
     (remove-hook 'file-name-handler-alist
 		 (cons hpath:remote-regexp 'tramp-file-name-handler))
 
-    ;; www-url functions are defined in "hsys-w3.el".
+    ;; www-url functions are defined in "hsys-www.el".
     (put 'expand-file-name   'tramp nil)
     (put 'find-file-noselect 'tramp nil)
     ;; Necessary since Dired overrides other file-name-handler-alist

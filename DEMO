@@ -112,7 +112,7 @@ used to return the search results.
 
 You can change which browser is used with {C-h h c w}, the Cust/Web-Search
 menu.  Advanced users can change the search engines listed by editing the
-option, hyperbole-web-search-alist.
+option, <(hyperbole-web-search-alist)>.
 
 ** Help Buffers
 
@@ -251,13 +251,29 @@ operates upon the path.  These are `pathname' implicit buttons.  For example,
 activate "HY-ABOUT".  HY-ABOUT or `HY-ABOUT' would work as well or
 "~/.emacs".
 
-** Paths with Line and Column Numbers
+*** Paths with Line and Column Numbers
 
 If you want to display a path at a specific line number and optionally column
 number, then add each number preceded by a colon at the end of the path.
 For example, "HY-ABOUT:10" displays HY-ABOUT at line 10, the second
 paragraph, with point at the start of the line.  "HY-ABOUT:18:7" shows the
 first numbered item on line 18 at column 7, where the text starts.
+
+*** HTML and Markdown Hash Links
+
+Often links to HTML and Markdown files use a hash mark (#) plus an identifier
+to refer to a section of such files.  When the Action Key is pressed on any
+such reference, it jumps to the section referenced by the link.
+
+For example, "man/hyperbole.html#Smart-Keys" will take you to the Smart Keys
+description in the HTML version of the Hyperbole manual.  Inside that manual
+in HTML form, "#Smart-Keys" would do the same thing.  Similarly,
+"README.md#why-was-hyperbole-developed" jumps to the referenced section of
+that Markdown file, while accounting for the difference in case, whitespace
+and trailing punctuation between the identifier and the section header.
+(Inline Markdown links surrounded by parentheses and square bracketed
+reference links work similarly but are handled specifically as Markdown
+links, not as pathnames).
 
 *** Path Suffixes and Variables
 

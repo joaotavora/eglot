@@ -75,10 +75,10 @@
 
 (defib pathname ()
   "Makes a valid pathname display the path entry.
-Also works for delimited and non-delimited remote pathnames and
-Texinfo @file{} entries.  Emacs Lisp library files (filenames
-without any directory component that end in .el and .elc) are
-looked up using the `load-path' directory list.
+Also works for delimited and non-delimited remote pathnames, Texinfo @file{}
+entries, HTML # link references and Markdown # section link references.
+Emacs Lisp library files (filenames without any directory component that end
+in .el and .elc) are looked up using the `load-path' directory list.
 
 See `hpath:at-p' function documentation for possible delimiters.
 See `hpath:suffixes' variable documentation for suffixes that are added to or
@@ -234,14 +234,49 @@ constituent character, and must not be in buffers whose names begin with a
        buffer-file-name
        (let ((chr (aref (buffer-name) 0)))
 	 (not (or (eq chr ?\ ) (eq chr ?*))))
-       (not (memq major-mode '(c-mode objc-mode c++-mode java-mode)))
-       ;; Force [PPG-sw-process-id], if defined, to take precedence.
-       (not (htype:names 'ibtypes 'ppg-sw-process))
+       (not (memq major-mode '(c-mode objc-mode c++-mode java-mode markdown-mode)))
        (let* ((ref-and-pos (hbut:label-p t "[" "]" t))
 	      (ref (car ref-and-pos)))
 	 (and ref (eq ?w (char-syntax (aref ref 0)))
 	      (progn (ibut:label-set ref-and-pos)
 		     (hact 'annot-bib ref))))))
+
+;;; ========================================================================
+;;; Displays in-file Markdown link referents.
+;;; ========================================================================
+
+(defib markdown-link ()
+  "Displays any in-file Markdown link referent.  Pathnames and urls are handled elsewhere."
+  (when (and (eq major-mode 'markdown-mode)
+	     (not (hpath:www-at-p)))
+    (let ((opoint (point))
+	  npoint)
+      (cond ((markdown-link-p) 
+	     (condition-case ()
+		 ;; Follows a reference link to its referent.
+		 (progn (markdown-jump)
+			(when (/= opoint (point))
+			  (setq npoint (point))
+			  (goto-char opoint)
+			  (hact 'link-to-file buffer-file-name npoint)))
+	       ;; May be on the name of an inline link, so move to the
+	       ;; link itself and follow that.
+	       (error 
+		(skip-chars-forward "^\]\[()")
+		(if (looking-at "\][\[\(]")
+		    (progn (skip-chars-forward "\]\[\(")
+			   ;; Leave point on the link even if not activated
+			   ;; here, so that code elsewhere activates it.
+			   (if (and (markdown-link-p)
+				    (not (or (hpath:www-at-p) (hpath:at-p))))
+			       (progn (hpath:display-buffer (current-buffer))
+				      (hact 'markdown-follow-link-at-point))))
+		  (goto-char opoint)
+		  nil))))
+	    ((markdown-wiki-link-p)
+	     (hpath:display-buffer (current-buffer))
+	     (hact 'markdown-follow-wiki-link-at-point))))))
+	     
 
 ;;; ========================================================================
 ;;; Summarizes an Internet rfc for random access browsing by section.
@@ -859,7 +894,7 @@ GNUS is a news and mail reader."
 ;;; Follows URLs by invoking a web browser.
 ;;; ========================================================================
 
-(require 'hsys-w3)
+(require 'hsys-www)
 
 ;;; ========================================================================
 ;;; Displays Info nodes when double quoted "(file)node" button is activated.

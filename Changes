@@ -2,9 +2,31 @@
 
 2016-08-05  Bob Weiner  <rsw@gnu.org>
 
+* hibtypes.el (annot-bib): Added markdown-mode to the excluded list to avoid conflict with its links.
+              (markdown-internal-link): Added to follow internal Markdown links.
+  man/hyperbole.texi: (Implicit Buttons): Added markdown-internal-link.
+
+* hsys-www.el: Renamed from hsys-w3.el since it is not related to the Emacs W3 web browser any longer.
+
+* Demo (HTML and Markdown Hash Links): Added this section.
+  hib-social.el (social-reference): Changed so disabled this implicit button type in html and related modes
+    only if within double or single quotes.
+  hibtypes.el (pathname):
+  hpath.el (hpath:to-markup-anchor): Renamed from hpath:to-html-anchor and generalized for use with Markdown as well.
+    Added recognition of section links like: 
+        - [Why was Hyperbole developed?](#why-was-hyperbole-developed)
+      so the pathname implicit button type matches when the Action Key is pressed anywhere on or after the
+      hash character and jumps to the section:
+        ## Why was Hyperbole developed?
+      accounting for any trailing punctuation and differences in case.
+           (hpath:markdown-suffix-regexp, hpath:markdown-anchor-id-pattern, hpath:markdown-section-pattern): Added.
+           (hpath:markup-link-anchor-regexp): Renamed from hpath:html-link-anchor-regexp.
+
+* hib-social.el (social-reference): Disabled this implicit button type within quoted strings and within
+    parentheses when in Markdown mode.
+
 * hib-social.el (social-reference): Disabled this implicit button type in html and related modes so
     in-file link references are not matched as social hash tags and made the list of modes a variable,
-
   hpath.el (hpath:to-html-anchor): Added.
            (hpath:find): Rewrote to follow HTML in-file anchor references.
 

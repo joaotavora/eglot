@@ -3256,7 +3256,8 @@ brings together many existing line finding commands that are difficult
 to recall quickly when needed, simplifying finding and then jumping to
 matching lines by using the Action Key.  It includes commands for
 filtering a buffer to just those lines that either match or do not
-match a regular expression.
+match a regular expression.  It also includes a submenu for quick
+access to popular web search engines.
 </p>
 <p>Below are each of the commands on the Find menu.
 </p>
@@ -3277,6 +3278,7 @@ match a regular expression.
 <a name="index-web-search"></a>
 <a name="index-C_002dc-_002f"></a>
 <a name="index-hyperbole_002dweb_002dsearch_002dbrowser_002dfunction"></a>
+<a name="index-hyperbole_002dweb_002dsearch_002dalist"></a>
 <a name="index-hypb_003argrep_002dcommand"></a>
 <a name="index-locate_002dcommand"></a>
 <ul>
@@ -3300,9 +3302,12 @@ match a regular expression.
 </li><li> Web/ -             Select a search engine and term and search with them.
                    The option, <code>hyperbole-web-search-browser-function</code>,
                    determines whether results are displayed within Emacs or
-                   with an external web browser. Hyperbole typically binds
-                   the key <kbd>{C-c /}</kbd> for quick access to this menu.  It
-                   looks like this:
+                   with an external web browser. Hyperbole binds
+                   the key <kbd>{C-c /}</kbd> for quick access to this menu, if it
+                   is not already bound prior to Hyperbole&rsquo;s initialization.
+                   A short video introduction to the Find/Web menu may be found
+                   at <a href="https://youtu.be/8lMlJed0-OM">https://youtu.be/8lMlJed0-OM</a>. The Find/Web menu looks
+                   like this: 
 <div class="smallexample">
 <pre class="smallexample">Web&gt;  Amazon Bing Dictionary Elisp Facebook Google Hub(git) Images
       Maps RFCs StackOverflow Twitter Wikipedia Youtube
@@ -6827,7 +6832,7 @@ for frame control.  Pressing <kbd>{t}</kbd> switches between window and
 frame control once in HyControl.  Hyperbole also binds <kbd>{C-c \}</kbd>
 for quick access to HyControl&rsquo;s window control menu if it was not
 already bound prior to Hyperbole&rsquo;s initialization.  A long video
-demonstrating most of HyControl&rsquo;s features is available at:
+demonstrating most of HyControl&rsquo;s features is available at
 <a href="https://youtu.be/M3-aMh1ccJk">https://youtu.be/M3-aMh1ccJk</a>.
 </p>
 <a name="index-Info_002ddirectory_002dlist"></a>
@@ -7200,12 +7205,11 @@ is made only if the key is not bound prior to loading Hyperbole.
 <a name="index-C_002dc-_002f-2"></a>
 </dd>
 <dt><kbd>{C-c /}</kbd></dt>
-<dd><p>Search the Web: Display a minibuffer menu of web search engines.
-Once an engine is selected, prompt for a search term and
-perform the associated search.  Hyperbole typically binds the
-key <kbd>{C-c /}</kbd> for quick access to this list; otherwise, the
-Find/Web minibuffer menu item, <kbd>{C-h h f w}</kbd>, will do the same
-thing.
+<dd><p>Search the Web: Display a minibuffer menu of web search engines.  Once
+an engine is selected, prompt for a search term and perform the
+associated search.  This binding is made only if the key is not bound
+prior to loading Hyperbole; otherwise, the Find/Web minibuffer menu
+item, <kbd>{C-h h f w}</kbd>, will do the same thing.
 </p>
 <a name="index-key-binding_002c-C_002dc-C_002dr"></a>
 <a name="index-C_002dc-C_002dr-1"></a>
@@ -10688,6 +10692,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hyperbole-1"><code>hyperbole</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dinit_002dhook">hyperbole-init-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dpopup_002dmenu"><code>hyperbole-popup-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyperbole_002dweb_002dsearch_002dalist">hyperbole-web-search-alist</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dweb_002dsearch_002dbrowser_002dfunction">hyperbole-web-search-browser-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dadd"><code>hyrolo-add</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Menu">Rolo Menu</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dadd_002dhook">hyrolo-add-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Rolo-Keys">Rolo Keys</a></td></tr>

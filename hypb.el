@@ -671,7 +671,7 @@ Without file, the banner is prepended to the current buffer."
 (defun hypb:browse-home-page ()
   "Visit the web home page for Hyperbole."
   (interactive)
-  (require 'hsys-w3)
+  (require 'hsys-www)
   (hact 'www-url hypb:home-page))
 
 ;;; ************************************************************************

@@ -92,5 +92,5 @@ smart-clib-sym      - Test whether symbol appears within a set of C libraries
 
 --- EXTERNAL SYSTEM ENCAPSULATIONS ---
 hsys-org.el         - GNU Hyperbole support for Emacs Org mode links
-hsys-w3.el          - GNU Hyperbole support for Emacs W3 World-Wide Web (WWW) browsing
+hsys-www.el         - GNU Hyperbole support for Emacs W3 World-Wide Web (WWW) browsing
 
