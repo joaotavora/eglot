@@ -245,7 +245,7 @@ constituent character, and must not be in buffers whose names begin with a
 ;;; Displays in-file Markdown link referents.
 ;;; ========================================================================
 
-(defib markdown-link ()
+(defib markdown-internal-link ()
   "Displays any in-file Markdown link referent.  Pathnames and urls are handled elsewhere."
   (when (and (eq major-mode 'markdown-mode)
 	     (not (hpath:www-at-p)))
