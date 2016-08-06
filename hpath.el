@@ -297,7 +297,7 @@ use with string-match.")
   "Regexp that matches to a Markdown file suffix.")
 
 (defconst hpath:markup-link-anchor-regexp
- (concat "\\(" hpath:html-file-suffix "\\|" hpath:markdown-suffix-regexp
+ (concat "\\(" hpath:html-suffix-regexp "\\|" hpath:markdown-suffix-regexp
 	 "\\)\\(#\\)\\([^\]\[#^{}<>\"\\ \n\t\f\r]*\\)")
   "Regexp that matches an markup filename followed by a hash (#) and an optional in-file anchor name.")
 
