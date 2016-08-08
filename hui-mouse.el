@@ -20,7 +20,7 @@
 ;;  items and Hyperbole buttons, follow these instructions.
 ;;
 ;;  If you plan to use a mouse only with X windows (XEmacs, GNU Emacs
-;;  19, or InfoDock), Mac OS X, or NeXTSTEP, and you want to use the
+;;  19, or InfoDock), Mac OS X, or NEXTSTEP, and you want to use the
 ;;  shift-middle and shift-right buttons, you need not do any mouse
 ;;  configuration.  Your Emacs executable must have been built so as to
 ;;  include the mouse support files for your window system, however.  These

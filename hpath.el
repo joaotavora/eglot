@@ -17,6 +17,7 @@
 ;;; ************************************************************************
 
 (require 'hversion) ;; for (hyperb:window-system) definition
+(require 'hui-select) ;; for `hui-select-markup-modes'
 
 (unless (fboundp 'br-in-browser)
     ;; Then the OO-Browser is not loaded, so we can never be within the
@@ -283,9 +284,6 @@ use with string-match.")
 
 (defconst hpath:html-anchor-id-pattern "\\(id\\|name\\)=['\"]%s['\"]?"
   "Regexp matching an html anchor id definition and containing a %s for replacement of a specific anchor id.")
-
-(defconst hpath:html-suffix-regexp "\\.[a-zA-Z]*[hH[tT][mM][a-zA-Z0-9]*"
-  "Regexp that matches to any common html file suffix.")
 
 (defconst hpath:markdown-anchor-id-pattern "^[ ]*%s: "
   "Regexp matching a Markdown anchor id definition and containing a %s for replacement of a specific anchor id.")
@@ -651,8 +649,8 @@ program)."
 (defun hpath:to-markup-anchor (hash anchor)
   "Move point to the definition of ANCHOR if found or if only HASH is non-nil, move to the beginning of the buffer."
   (cond ((and (stringp anchor) (not (string-empty-p anchor)))
-	 (cond ((string-match hpath:html-suffix-regexp buffer-file-name)
-		;; HTML link ids are case-sensitive.
+	 (cond ((memq major-mode hui-select-markup-modes)
+		;; In HTML-like mode where link ids are case-sensitive.
 		(let ((opoint (point))
 		      (case-fold-search))
 		  (goto-char (point-min))
@@ -780,12 +778,12 @@ nonexistent local paths are allowed."
 	 ;; Path may be a link reference with components other than a
 	 ;; pathname.  These components always follow a comma or # symbol, so
 	 ;; strip them, if any, before checking path.
-	 (if (string-match "[ \t\n\r]*," path)
-	     (setq rtn-path (concat (substring path 0 (match-beginning 0))
-				     "%s" (substring path (match-beginning 0)))
-		   path (substring path 0 (match-beginning 0)))
+	 (if (string-match "\\`[^#][^#,]*\\([ \t\n\r]*[#,]\\)" path)
+	     (setq rtn-path (concat (substring path 0 (match-beginning 1))
+				     "%s" (substring path (match-beginning 1)))
+		   path (substring path 0 (match-beginning 1)))
 	   (setq rtn-path (concat rtn-path "%s")))
-	 ;; If path is just a local HTML reference that begins with #,
+	 ;; If path is just a local reference that begins with #,
 	 ;; prepend the file name to it.
 	 (cond ((and buffer-file-name
 		     ;; ignore HTML color strings
@@ -841,13 +839,14 @@ nonexistent local paths are allowed."
 			     (file-directory-p path))
 			    (t))))
 	       (progn
-		 ;; Quote any but last %s within rtn-path.
+		 ;; Quote any %s except for one at the end of the path
+		 ;; part of rtn-path (immediately preceding a # or ,
+		 ;; character or the end of string).
 		 (setq rtn-path (hypb:replace-match-string "%s" rtn-path "%%s")
-		       rtn-path (hypb:replace-match-string "%%s\\'" rtn-path "%s"))
+		       rtn-path (hypb:replace-match-string "%%s\\([#,]\\|\\'\\)" rtn-path "%s\\1"))
 		 ;; Return path if non-nil return value.
-		 (if (stringp suffix);; suffix could = t, which we ignore
-		     (if (string-match
-			  (concat (regexp-quote suffix) "%s") rtn-path)
+		 (if (stringp suffix) ;; suffix could = t, which we ignore
+		     (if (string-match (concat (regexp-quote suffix) "%s") rtn-path)
 			 ;; remove suffix
 			 (concat (substring rtn-path 0 (match-beginning 0))
 				 (substring rtn-path (match-end 0)))

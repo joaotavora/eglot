@@ -35,6 +35,9 @@
       hash link references are not matched as social hash tags.  Made the list
       of modes a variable, hibtypes-social-inhibit-modes.
 
+    - org-mode Implicit Button Type: Improved to invoke org-meta-return when
+      not on an Org link or outline heading.
+
   DOCUMENTATION
 
     - Added pointer to HyControl video and {C-c \} binding which invokes

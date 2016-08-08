@@ -2,6 +2,12 @@
 
 2016-08-08  Bob Weiner  <rsw@gnu.org>
 
+* hys-org.el (defib org-mode, org-mode:help): Ensured trigger only in org-mode and simplified logic.
+             (org-heading-at-p): Deleted and used org-at-heading-p instead.
+
+* hpath.el (hpath:to-markup-anchor): Generalized to work in any HTML buffer based on major mode, not file suffix.
+           (hpath:html-suffix-regexp): Removed, no longer used.
+
 * hmouse-tag.el (smart-asm-include-file, smart-c-include-file): Simplified conditionals a bit.
 
 * hpath.el (hpath:is-p): Fixed improper parsing issue with hash links that included commas such as:
