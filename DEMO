@@ -233,14 +233,17 @@ remember, just surround them with curly braces and you'll always be able to
 try them out with a simple click or press.  You can even create your own
 demonstrations and tours with this and other implicit button types.
 
-** Org mode
+** Org Mode
 
-For users of Emacs Org mode, Hyperbole does two basic things.  First, the
+For users of Emacs Org mode, Hyperbole does a few things.  First, the
 Action Key will follow and execute links in Org mode files.  Second, when
 point is on an outline heading in Org mode, the Action Key cycles the view
 of the subtree at point and the Assist Key cycles the view of all headings
 in the buffer.  The Assist Key will also display help when pressed on an Org
 mode link.
+
+In any other context besides the end of a line, the Action Key will invoke
+the Org mode standard binding of {M-RET}, (org-meta-return).
 
 ** Implicit Path Links
 
@@ -259,7 +262,7 @@ For example, "HY-ABOUT:10" displays HY-ABOUT at line 10, the second
 paragraph, with point at the start of the line.  "HY-ABOUT:18:7" shows the
 first numbered item on line 18 at column 7, where the text starts.
 
-*** HTML and Markdown Hash Links
+*** HTML Markdown and Emacs Outline Hash Links
 
 Often links to HTML and Markdown files use a hash mark (#) plus an identifier
 to refer to a section of such files.  When the Action Key is pressed on any
@@ -274,6 +277,18 @@ and trailing punctuation between the identifier and the section header.
 (Inline Markdown links surrounded by parentheses and square bracketed
 reference links work similarly but are handled specifically as Markdown
 links, not as pathnames).
+
+Hyperbole allows hash-style links to Emacs outline files (including Org-mode
+files); they work just like the Markdown section links but match to section
+headings preceded by asterisks rather than hash marks.  So to jump back to
+the Org Mode section in this file, press the Action Key on "#Org-Mode".
+
+HTML hash-links are case-sensitive; other hash-links are not.  Hash links
+typically use dashes in place of the spaces that referents may contain but if
+the link is enclosed in quotes, Hyperbole allows spaces to be used as well.
+In fact, it is best practice to always enclose hash-style links in quotes so
+Hyperbole can distinguish them from other similar looking constructs, such as
+social media hashtags (see "#Social Media Hashtags and Usernames").
 
 *** Path Suffixes and Variables
 

@@ -1,5 +1,35 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-08-08  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-tag.el (smart-asm-include-file, smart-c-include-file): Simplified conditionals a bit.
+
+* hpath.el (hpath:is-p): Fixed improper parsing issue with hash links that included commas such as:
+    "DEMO#Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer".
+
+* Demo (Org Mode):
+  man/hyperbole.texi (Implicit Buttons):
+  hsys-org.el (org-mode): Changed so if not at an end of line, on an org mode link or on an existing heading,
+    then invokes the Org mode standard binding of M-RET, (org-meta-return).
+
+2016-08-07  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:markup-link-anchor-regexp, hpath:to-markup-anchor): Modified to support hash-style links
+    to Emacs outline file section headlines, matching as is done with Github-style Markdown section links.
+  DEMO:
+  man/hyperbole.texi: Updated to document the above change.
+
+* hypb.el (hypb:file-major-mode): Added.
+
+2016-08-06  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Customization): Renamed from Configuration.
+                     (Web Search Engines): Added this section under Customization.
+                     (HyControl): Added FramesControl key sequence.
+                     (Smart Key - Smart Scrolling): Documented {action,assist}-key-eol-function variables.
+
+* hsmail.el (mail-indent-citation, mail-yank-original): Updated for Emacs 25 compatibility.
+
 2016-08-05  Bob Weiner  <rsw@gnu.org>
 
 * hibtypes.el (annot-bib): Added markdown-mode to the excluded list to avoid conflict with its links.
@@ -9,8 +39,6 @@
 * hsys-www.el: Renamed from hsys-w3.el since it is not related to the Emacs W3 web browser any longer.
 
 * Demo (HTML and Markdown Hash Links): Added this section.
-  hib-social.el (social-reference): Changed so disabled this implicit button type in html and related modes
-    only if within double or single quotes.
   hibtypes.el (pathname):
   hpath.el (hpath:to-markup-anchor): Renamed from hpath:to-html-anchor and generalized for use with Markdown as well.
     Added recognition of section links like: 
@@ -18,15 +46,13 @@
       so the pathname implicit button type matches when the Action Key is pressed anywhere on or after the
       hash character and jumps to the section:
         ## Why was Hyperbole developed?
-      accounting for any trailing punctuation and differences in case.
+      accounting for any trailing punctuation, whitespace and differences in case.
            (hpath:markdown-suffix-regexp, hpath:markdown-anchor-id-pattern, hpath:markdown-section-pattern): Added.
            (hpath:markup-link-anchor-regexp): Renamed from hpath:html-link-anchor-regexp.
 
-* hib-social.el (social-reference): Disabled this implicit button type within quoted strings and within
-    parentheses when in Markdown mode.
-
-* hib-social.el (social-reference): Disabled this implicit button type in html and related modes so
-    in-file link references are not matched as social hash tags and made the list of modes a variable,
+* hib-social.el (social-reference): Disabled this implicit button type within quoted strings (all modes) and within
+    parentheses (markdown-mode), so in-file hash link references are not matched as social hash tags.  Made the list
+    of modes a variable, hibtypes-social-inhibit-modes.
   hpath.el (hpath:to-html-anchor): Added.
            (hpath:find): Rewrote to follow HTML in-file anchor references.
 
@@ -73,7 +99,7 @@
   hyperbole.texi (HyControl): Updated {C-c \} binding description.
 
 * hycontrol.el (hycontrol-frames, hycontrol-windows): Added ESC as an additional key
-    that quits form HyControl.
+    that quits from HyControl.
 
 * man/hyperbole.texi (Global Key Bindings): Documented {C-c /} prefix key.
                      (Menus): Added Find/Web menu.
@@ -106,9 +132,8 @@
 
 * hui-mouse.el (action-key-eol-function, assist-key-eol-function): Added these 2
     options to control what the Action and Assist Keys do at the end of a line.
-    Default behaviors remain as before but now one can set these to `complete'
-    for example to mimic standard Emacs behavior at end of lines, rather than
-    scrolling, if desired.
+    Default behaviors remain as before but now one can set these to do something
+    other than scrolling, if desired.
 
 2016-07-28  Bob Weiner  <rsw@gnu.org>
 

@@ -297,9 +297,11 @@ use with string-match.")
   "Regexp that matches to a Markdown file suffix.")
 
 (defconst hpath:markup-link-anchor-regexp
- (concat "\\(" hpath:html-suffix-regexp "\\|" hpath:markdown-suffix-regexp
-	 "\\)\\(#\\)\\([^\]\[#^{}<>\"\\ \n\t\f\r]*\\)")
+ (concat "\\`\\(#?[^#]+\\)\\(#\\)\\([^\]\[#^{}<>\"`'\\\n\t\f\r]*\\)")
   "Regexp that matches an markup filename followed by a hash (#) and an optional in-file anchor name.")
+
+(defconst hpath:outline-section-pattern "^\*+[ \t]+%s\\([ \t[:punct:]]*\\)$"
+  "Regexp matching an Emacs outline section header and containing a %s for replacement of a specific section name.")
 
 (defvar hpath:prefix-regexp "\\`[-!&][ ]*"
   "Regexp matching command characters which may precede a pathname.
@@ -566,6 +568,10 @@ display function to use.  If no matches are found there,
 `hpath:display-where-alist' is consulted using the optional argument,
 DISPLAY-WHERE (a symbol) or if that is nil, the value of
 `hpath:display-where', and the matching display function is used.
+
+Allows for hash-style link references to HTML, Markdown or Emacs outline
+headings of the form, <file>#<anchor-name>.
+
 Returns non-nil iff file is displayed within a buffer (not with an external
 program)."
   (interactive "FFind file: ")
@@ -656,15 +662,19 @@ program)."
 		    (goto-char opoint)
 		    (error "(hpath:to-markup-anchor): Anchor `%s' not found in the visible buffer portion"
 			   anchor))))
-	       ((string-match hpath:markdown-suffix-regexp buffer-file-name)
+	       (t 
 		(let ((opoint (point))
-		      ;; Markdown link ids are case insensitive and -
-		      ;; characters may be converted to spaces at the
-		      ;; point of definition.
+		      ;; Markdown or outline link ids are case
+		      ;; insensitive and - characters are converted to
+		      ;; spaces at the point of definition.
 		      (case-fold-search t)
 		      (anchor-name (subst-char-in-string ?- ?\  anchor)))
 		  (goto-char (point-min))
-		  (if (re-search-forward (format hpath:markdown-section-pattern (regexp-quote anchor-name)) nil t)
+		  (if (re-search-forward (format 
+					  (if (string-match hpath:markdown-suffix-regexp buffer-file-name)
+					      hpath:markdown-section-pattern
+					    hpath:outline-section-pattern)
+					  (regexp-quote anchor-name)) nil t)
 		      (progn (forward-line 0)
 			     (recenter 0))
 		    (goto-char opoint)
@@ -767,7 +777,7 @@ nonexistent local paths are allowed."
   (let ((rtn-path path)
 	(suffix))
     (and (stringp path)
-	 ;; Path may be a link reference with other components other than a
+	 ;; Path may be a link reference with components other than a
 	 ;; pathname.  These components always follow a comma or # symbol, so
 	 ;; strip them, if any, before checking path.
 	 (if (string-match "[ \t\n\r]*," path)

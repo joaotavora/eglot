@@ -3,23 +3,102 @@
 
 	   (See "ChangeLog" for more complete details of changes.)
 
-NOTE: Version 6.0.1 is the first public release by the author since version
-4.18.  All version 5 releases were test releases, so all V5 and V6 features
-are new in 2016 and you should look through them all.
+===========================================================================
+*				    V6.0.2
+===========================================================================
+
+  BUTTONS
+
+    - pathname Implicit Button Type: generalized to handle hash-style links to
+      HTML files, to Github Markdown # sections and to Emacs outline *
+      sections.  So an Action Key on any of the following links displays the
+      link referent:
+            "man/hyperbole.html#Questions-and-Answers"
+	    "README.md#why-was-hyperbole-developed"
+	    "DEMO#HTML Markdown and Emacs Outline Hash Links"
+      Within HTML and Markdown files, in-file hash links without any file name
+      prefix work as well.
+
+      HTML hash-links are case-sensitive; other hash-links are not.  Hash links
+      typically use dashes in place of the spaces that referents may contain,
+      but if the link is enclosed in quotes, Hyperbole allows spaces to be used
+      as well.  In fact, it is best practice to always enclose hash-style links
+      in quotes so Hyperbole can distinguish them from other similar looking
+      constructs, such as social media hashtags (see "(hyperbole)Social Media").
+
+    - New Implicit Button Type, markdown-internal-link, displays any in-file
+      Markdown link referent, aside from pathnames and urls.  Together with
+      other types, all Markdown links can now be followed by the Action Key.
+
+    - social-reference Implicit Button Type: Disabled this type within quoted
+      strings (all modes) and within parentheses (markdown-mode), so in-file
+      hash link references are not matched as social hash tags.  Made the list
+      of modes a variable, hibtypes-social-inhibit-modes.
+
+  DOCUMENTATION
+
+    - Added pointer to HyControl video and {C-c \} binding which invokes
+      HyControl window control.
+
+    - README File: New Org-mode user testimonial.
+
+    - DEMO File: Added description and exercise using the new Find/Web menu.
+
+    - Added README.md.html introduction with images combining README, INSTALL
+      and HY-ABOUT information.
+
+    - Full set of hand-written changes are now in the file "Changes".  The
+      former name, ChangeLog, is now auto-generated from the version controlled
+      'git log' but not as complete.
+
+  KEYS
+
+    - New variables, action-key-eol-function and assist-key-eol-function, used
+      to control what the Action and Assist Keys do at the end of a line.
+      Default behaviors remain as before but now one can set these to do
+      something other than scrolling, if desired.  See "(hyperbole)Smart Key -
+      Smart Scrolling"
+
+    - When in HyControl, pressing {ESC} now quits in addition to {q}.
+
+  MENUS
+
+    - New submenu, Find/Web, for quick access to major web search engines.
+      The Find/Web menu looks like this:
+        Web> Amazon Bing Dictionary Elisp Facebook Google Hub(git) Images Maps RFCs StackOverflow Twitter Wikipedia Youtube
+
+      Hyperbole binds the key {C-c /} for quick access to this menu, if it is
+      not already bound prior to Hyperbole's initialization. The
+      Cust/Web-Search menu, {C-h h c w}, sets the option,
+      hyperbole-web-search-browser-function, which determines whether web
+      search results are displayed within Emacs or with an external web
+      browser.  A short video introduction to the Find/Web menu may be found at
+      https://youtu.be/8lMlJed0-OM.
+
+      Advanced users can change the search engines listed in the Find/Web menu
+      with M-x customize-variable RET hyperbole-web-search-alist RET.  Changes
+      are automatically reflected in the Hyperbole menus once applied.
+      Remember each search engine name must begin with a unique letter and each
+      URL must have a %s format field indicating where to place the web search
+      term when a search is performed.  See "(hyperbole)Web Search Engines".
 
 ===========================================================================
 *				    V6.0.1
 ===========================================================================
 
+NOTE: Version 6.0.1 is the first public release by the author since version
+4.18.  All version 5 releases were test releases, so all V5 and V6 features
+are new in 2016 and you should look through them all.
+
   BUTTONS
 
-    - New implicit button type for social media hashtag or username
-      references, social-reference.  Action key activation displays
-      the web page associated with the hashtag or username.  References
-      can look like #hashtag or @username for Twitter references.
-      fb#hashtag or facebook@username for Facebook references or
-      in#hashtag or instagram@username for Instagram references.
-      See the new file "hib-social.el" for more information.
+    - New Implicit Button Type, social-reference: for social media hashtag or
+      username references, social-reference.  Action key activation
+      displays the web page associated with the hashtag or username.
+      References can look like #hashtag or @username for Twitter
+      references.  fb#hashtag or facebook@username for Facebook references
+      or in#hashtag or instagram@username for Instagram references.  See
+      the new file "hib-social.el" for more information.
 
   DOCUMENTATION
 
@@ -66,7 +145,7 @@ are new in 2016 and you should look through them all.
       options.  Use {M-x customize-browse RET} and find the Hyperbole group
       under Applications.  Hyperbole's options are divided into logical
       subgroups such as Rolo and Koutliner.  See "(emacs)Easy Customization"
-      for details on the customization system and "(hyperbole)Configuration"
+      for details on the customization system and "(hyperbole)Customization"
       for Hyperbole specifics.
 
     - Renamed any Hyperbole hook variables that had a colon in their names

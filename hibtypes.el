@@ -76,9 +76,9 @@
 (defib pathname ()
   "Makes a valid pathname display the path entry.
 Also works for delimited and non-delimited remote pathnames, Texinfo @file{}
-entries, HTML # link references and Markdown # section link references.
-Emacs Lisp library files (filenames without any directory component that end
-in .el and .elc) are looked up using the `load-path' directory list.
+entries, and hash-style link references to HTML, Markdown or Emacs outline
+headings.  Emacs Lisp library files (filenames without any directory component
+that end in .el and .elc) are looked up using the `load-path' directory list.
 
 See `hpath:at-p' function documentation for possible delimiters.
 See `hpath:suffixes' variable documentation for suffixes that are added to or

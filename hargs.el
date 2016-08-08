@@ -301,7 +301,7 @@ Handles all of the interactive argument types that `hargs:iform-read' does."
 	       ((hpath:at-p 'file))
 	       ;; Unquoted remote file name.
 	       ((hpath:is-p (hpath:remote-at-p) 'file))
-	       ;; Possibly non-existant file name
+	       ;; Possibly non-existent file name
 	       ((hpath:at-p nil 'non-exist))
 	       (no-default nil)
 	       ((buffer-file-name))

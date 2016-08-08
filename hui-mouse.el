@@ -65,13 +65,13 @@ Set it to #'hkey-summarize if you want it to display a summary of Smart Key beha
 
 (defcustom action-key-eol-function #'smart-scroll-up
   "*Function run by the Action Key at the end of a line.
-Set it to #'complete if you want behavior similar to that of standard Emacs."
+Its default value is #'smart-scroll-up."
   :type 'function
   :group 'hyperbole-keys)
 
 (defcustom assist-key-eol-function #'smart-scroll-down
   "*Function run by the Assist Key at the end of a line.
-Set it to #'complete if you want behavior similar to that of standard Emacs."
+Its default value is #'smart-scroll-down."
   :type 'function
   :group 'hyperbole-keys)
 

@@ -11,8 +11,13 @@
 
 ;;; Commentary:
 ;;
-;;   This defines an implicit button type, org-link, that displays Org
-;;   mode links in a web browser.
+;;   This defines a context-sensitive implicit button type, org-mode, triggered
+;;   when the major mode is org-mode and point is anywhere other than
+;;   the end of a line.  When:
+;;     on an Org mode link - displays the link referent
+;;     on an Org mode heading - cycles through the available display
+;;       views for that heading
+;;     anywhere else - executes `org-meta-return'.
 
 ;;; Code:
 ;;; ************************************************************************
@@ -34,13 +39,7 @@ and `browse-url-generic'."
 	 (hact 'org-link nil))
 	((org-heading-at-p)
 	 (hact 'org-cycle nil))
-	;;
-	;; Uncomment the following only if you want this type to display
-	;; help in org-mode even when there is no matching context.
-	;; That can be a bit confusing.
-	;;   (t (and (boundp 'assist-flag) assist-flag
-	;;      (hact 'org-mode:help)))
-	))
+	(t (hact 'org-meta-return))))
 
 (defun org-mode:help (&optional _but)
   "If on an Org mode heading, cycles through views of the whole buffer outline.

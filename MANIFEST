@@ -13,7 +13,7 @@ README.md           - Markdown formatted introduction combining README, INSTALL 
 README.md.html      - HTML formatted introduction combining README, INSTALL and HY-ABOUT
 hversion.el         - GNU Hyperbole version and system information setup
 hyperbole.el        - Loads and initializes GNU Hyperbole
-ChangeLog           - Summary of changes in recent GNU Hyperbole releases
+Changes             - Summary of changes in recent GNU Hyperbole releases
 
 --- DOCUMENTATION ---
 dir                 - GNU Hyperbole Info directory tree entry
