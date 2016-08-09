@@ -259,7 +259,7 @@ package: git-pull doc kotl/kotl-loaddefs.el $(pkg_dir)/hyperbole-$(HYPB_VERSION)
 
 # Generate and distribute a Hyperbole release to GNU ELPA and ftp.gnu.org.
 # One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-loaddefs.el.
-release: package git-push $(pkg_dir)/hyperbole-$(hypb_version).tar.gz elpa ftp
+release: package git-push $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.gz elpa ftp
 	@ echo; echo "Hyperbole $(HYPB_VERSION) released to elpa and ftp.gnu.org successfully."
 
 # Ensure local hyperbole directory is synchronized with master before building a release.
