@@ -169,7 +169,7 @@ ELC_KOTL = kotl/kexport.elc kotl/kfile.elc kotl/kfill.elc kotl/kimport.elc kotl/
 	   kotl/kprop-xe.elc kotl/kview.el kotl/kvspec.elc
 
 HYPERBOLE_FILES = dir hyperbole-pkg.el info html $(EL_SRC) $(EL_COMPILE) $(EL_KOTL) \
-	$(ELC_COMPILE) ChangeLog COPYING Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS \
+	$(ELC_COMPILE) Changes COPYING Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS \
 	HY-WHY.kotl INSTALL DEMO MANIFEST README _hypb .hypb file-newer smart-clib-sym \
 	hyperbole-banner.png $(man_dir)/hkey-help.txt \
 	$(man_dir)/hyperbole.texi $(man_dir)/version.texi
@@ -255,17 +255,25 @@ $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(ma
 
 # Generate a Hyperbole package suitable for distribution via the Emacs package manager.
 pkg: package
-package: doc kotl/kotl-loaddefs.el $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
+package: git-pull doc kotl/kotl-loaddefs.el $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
 # Generate and distribute a Hyperbole release to GNU ELPA and ftp.gnu.org.
 # One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-loaddefs.el.
-release: package $(pkg_dir)/hyperbole-$(hypb_version).tar.gz elpa ftp
+release: package git-push $(pkg_dir)/hyperbole-$(hypb_version).tar.gz elpa ftp
+	@ echo; echo "Hyperbole $(HYPB_VERSION) released to elpa and ftp.gnu.org successfully."
+
+# Ensure local hyperbole directory is synchronized with master before building a release.
+git-pull:
+	git pull
+git-push:
+	git push
 
 # Once the release version number is updated in hyperbole.el and the release is pushed to
 # git, ELPA will automatically check and build its Hyperbole archive, allowing users to
 # update their packages of Hyperbole.  ELPA does this twice a day now.
 elpa: package
-	git tag -s hyperbole-$(HYPB_VERSION) && git push
+	cd ../elpa/package/hyperbole && git pull http://git.savannah.gnu.org/r/hyperbole.git master \
+	&& git tag -s hyperbole-$(HYPB_VERSION) && git push
 
 # Send compressed tarball for uploading to GNU ftp site; this must be done from the directory
 # containing the tarball to upload.

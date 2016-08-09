@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 6.0.2, Published August 8, 2016).
+(Edition 6.0.2, Published August 9, 2016).
 
 Copyright (C) 1989-2016  Free Software Foundation, Inc.
 
@@ -322,7 +322,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2
-Printed August 8, 2016.
+Printed August 9, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -734,7 +734,7 @@ Next: <a href="#Buttons" accesskey="n" rel="next">Buttons</a>, Previous: <a href
 <h2 class="chapter">1 Introduction</h2>
 
 <p>This edition of the GNU Hyperbole Manual is for use with any version
-6.01 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.0.2 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 </p>
 <p>This chapter summarizes the structure of the rest of the manual,
@@ -1973,6 +1973,15 @@ Returns &lsquo;<samp>t</samp>&rsquo; if found, &lsquo;<samp>nil</samp>&rsquo; if
 </dd>
 <dt><code>link-to-texinfo-node</code></dt>
 <dd><p>Displays the Texinfo node with NODENAME (a string) from the current buffer.
+</p>
+<a name="index-actypes-link_002dto_002dweb_002dsearch"></a>
+<a name="index-link_002c-web-search"></a>
+<a name="index-web-search-link"></a>
+</dd>
+<dt><code>link-to-web-search</code></dt>
+<dd><p>Searches web SERVICE-NAME for SEARCH-TERM.  Uses <code>hyperbole-web-search-alist</code>
+to match each service to its search url.  Uses <code>hyperbole-web-search-browser-function</code>
+and the <code>browse-url</code> package to display search results.
 </p>
 <a name="index-actypes-man_002dshow"></a>
 <a name="index-sm_002dnotify"></a>
@@ -10620,6 +10629,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-actypes-link_002dto_002drfc"><code>actypes link-to-rfc</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-actypes-link_002dto_002dstring_002dmatch"><code>actypes link-to-string-match</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-actypes-link_002dto_002dtexinfo_002dnode"><code>actypes link-to-texinfo-node</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-actypes-link_002dto_002dweb_002dsearch"><code>actypes link-to-web-search</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-actypes-man_002dshow"><code>actypes man-show</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-actypes-rfc_002dtoc"><code>actypes rfc-toc</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-actypes-text_002dtoc"><code>actypes text-toc</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
@@ -11622,6 +11632,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-link_002c-pathname">link, pathname</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link_002c-pathname-line-and-column">link, pathname line and column</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link_002c-viewer-program">link, viewer program</a>:</td><td>&nbsp;</td><td valign="top"><a href="#External-Viewers">External Viewers</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-link_002c-web-search">link, web search</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-linking_002c-in_002dplace">linking, in-place</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Lisp-variables">Lisp variables</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Link-Variable-Substitution">Link Variable Substitution</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-list">list</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
@@ -12016,6 +12027,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-wconfig-commands">wconfig commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-web-pages_002c-displaying">web pages, displaying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-web-search">web search</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-web-search-link">web search link</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-web-search-menu">web search menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Web-Search-Engines">Web Search Engines</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-web-search-menu-1">web search menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration-commands">window configuration commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
