@@ -275,6 +275,9 @@ elpa: package
 	cd ../elpa/package/hyperbole && git pull http://git.savannah.gnu.org/r/hyperbole.git master \
 	&& git tag -s hyperbole-$(HYPB_VERSION) && git push
 
+elpa-test: package
+	cd ../elpa/package/hyperbole && git pull http://git.savannah.gnu.org/r/hyperbole.git master
+
 # Send compressed tarball for uploading to GNU ftp site; this must be done from the directory
 # containing the tarball to upload.
 ftp: package
