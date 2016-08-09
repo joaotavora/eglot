@@ -29,6 +29,7 @@
 
 (eval-when-compile (require 'browse-url))
 (require 'hbut)
+(require 'hargs)
 
 ;;; ************************************************************************
 ;;; Public variables
@@ -64,6 +65,9 @@
   "Regular expression that matches a social media hashtag or username reference.
 See `ibtypes::social-reference' for format details.")
 
+(defvar hibtypes-social-inhibit-modes '(texinfo-mode para-mode)
+  "*List of major modes in which to inhibit any possible social media tag matches.")
+
 ;;; ************************************************************************
 ;;; Public Button Types
 ;;; ************************************************************************
@@ -77,8 +81,17 @@ Reference format is:
 The first part of the label for a button of this type is the social
 media service name.  The service name defaults to the value of
 `hibtypes-social-default-service' (default value of \"twitter\")
-when not given, so #hashtag would be the same as twitter#hashtag."
-  (when (and (not (memq major-mode '(texinfo-mode para-mode)))
+when not given, so #hashtag would be the same as twitter#hashtag.
+
+This will not match within any single line, single or
+double-quoted strings or within any buffer whose major mode is
+listed in `hibtypes-social-inhibit-modes'."
+  (when (and (not (or (memq major-mode hibtypes-social-inhibit-modes)
+		      (hargs:delimited "\"" "\"")
+		      (hargs:delimited "[\`\']" "\'" t)
+		      ;; Avoid Markdown parenthesized hash links
+		      (and (eq major-mode 'markdown-mode)
+			   (hargs:delimited "(" ")"))))
 	     (save-excursion
 	       (if (looking-at "[#@._[:alnum:]]")
 		   (skip-chars-backward "#@._[:alnum:]"))

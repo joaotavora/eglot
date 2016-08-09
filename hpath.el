@@ -17,6 +17,7 @@
 ;;; ************************************************************************
 
 (require 'hversion) ;; for (hyperb:window-system) definition
+(require 'hui-select) ;; for `hui-select-markup-modes'
 
 (unless (fboundp 'br-in-browser)
     ;; Then the OO-Browser is not loaded, so we can never be within the
@@ -278,6 +279,40 @@ See the documentation for `hpath:url-regexp' for match groupings to
 use with string-match.")
 
 ;;; ************************************************************************
+;;; Private variables
+;;; ************************************************************************
+
+(defconst hpath:html-anchor-id-pattern "\\(id\\|name\\)=['\"]%s['\"]?"
+  "Regexp matching an html anchor id definition and containing a %s for replacement of a specific anchor id.")
+
+(defconst hpath:markdown-anchor-id-pattern "^[ ]*%s: "
+  "Regexp matching a Markdown anchor id definition and containing a %s for replacement of a specific anchor id.")
+
+(defconst hpath:markdown-section-pattern "^#+[ \t]+%s\\([ \t[:punct:]]*\\)$"
+  "Regexp matching a Markdown section header and containing a %s for replacement of a specific section name.")
+
+(defconst hpath:markdown-suffix-regexp "\\.[mM][dD]"
+  "Regexp that matches to a Markdown file suffix.")
+
+(defconst hpath:markup-link-anchor-regexp
+ (concat "\\`\\(#?[^#]+\\)\\(#\\)\\([^\]\[#^{}<>\"`'\\\n\t\f\r]*\\)")
+  "Regexp that matches an markup filename followed by a hash (#) and an optional in-file anchor name.")
+
+(defconst hpath:outline-section-pattern "^\*+[ \t]+%s\\([ \t[:punct:]]*\\)$"
+  "Regexp matching an Emacs outline section header and containing a %s for replacement of a specific section name.")
+
+(defvar hpath:prefix-regexp "\\`[-!&][ ]*"
+  "Regexp matching command characters which may precede a pathname.
+These are used to indicate how to display or execute the pathname.
+  - means evaluate it as Emacs Lisp;
+  ! means execute it as a shell script
+  & means run it under the current window system.")
+
+(defvar hpath:remote-regexp
+  "\\`/[^/:]+:\\|\\`ftp[:.]\\|\\`www\\.\\|\\`https?:"
+  "Regexp matching remote pathnames and urls which invoke remote file handlers.")
+
+;;; ************************************************************************
 ;;; Public functions
 ;;; ************************************************************************
 
@@ -459,7 +494,7 @@ double quotes, open and close single quote, whitespace, or Texinfo file referenc
 With optional NON-EXIST, nonexistent local paths are allowed.  Absolute pathnames must begin with a `/' or `~'."
   (or (hargs:delimited "\"" "\"") 
       ;; Filenames in Info docs or Python files
-      (hargs:delimited "[\`\']" "\'" t)
+      (hargs:delimited "[`'‘]" "[`'’]" t t)
       ;; Filenames in TexInfo docs
       (hargs:delimited "@file{" "}")
       ;; Any existing whitespace delimited filename at point.
@@ -531,12 +566,15 @@ display function to use.  If no matches are found there,
 `hpath:display-where-alist' is consulted using the optional argument,
 DISPLAY-WHERE (a symbol) or if that is nil, the value of
 `hpath:display-where', and the matching display function is used.
+
+Allows for hash-style link references to HTML, Markdown or Emacs outline
+headings of the form, <file>#<anchor-name>.
+
 Returns non-nil iff file is displayed within a buffer (not with an external
 program)."
   (interactive "FFind file: ")
-  (let (modifier
-	loc
-	dir)
+  (let ((case-fold-search t)
+	modifier loc dir anchor hash path)
     (if (string-match hpath:prefix-regexp filename)
 	(setq modifier (aref filename 0)
 	      filename (substring filename (match-end 0))))
@@ -545,24 +583,31 @@ program)."
 	  dir (file-name-directory
 	       ;; Loc may be a buffer without a file
 	       (if (stringp loc) loc default-directory))
-	  filename (hpath:absolute-to filename dir))
-    (let ((remote-filename (hpath:remote-p filename)))
+	  filename (hpath:absolute-to filename dir)
+	  path (if (string-match hpath:markup-link-anchor-regexp filename)
+		   (progn (setq hash t
+				anchor (match-string 3 filename))
+			  (substring filename 0 (match-end 1)))
+		 filename))
+    (let ((remote-filename (hpath:remote-p path)))
       (or modifier remote-filename
-	  (file-exists-p filename)
+	  (file-exists-p path)
 	  (error "(hpath:find): \"%s\" does not exist"
 		 (file-relative-name filename)))
       (or modifier remote-filename
-	  (file-readable-p filename)
+	  (file-readable-p path)
 	  (error "(hpath:find): \"%s\" is not readable"
 		 (file-relative-name filename)))
       ;; If filename is a remote file (not a directory, we have to copy it to
       ;; a temporary local file and then display that.
-      (if (and remote-filename (not (file-directory-p remote-filename)))
-	  (copy-file remote-filename
-		     (setq filename
-			   (concat hpath:tmp-prefix
-				   (file-name-nondirectory remote-filename)))
-		     t t)))
+      (when (and remote-filename (not (file-directory-p remote-filename)))
+	(copy-file remote-filename
+		   (setq path (concat hpath:tmp-prefix
+				      (file-name-nondirectory remote-filename)))
+		   t t)
+	(setq filename (cond (anchor (concat remote-filename "#" anchor))
+			     (hash   (concat remote-filename "#"))
+			     (t path)))))
     (cond (modifier (cond ((eq modifier ?!)
 			   (hact 'exec-shell-cmd filename))
 			  ((eq modifier ?&)
@@ -570,7 +615,7 @@ program)."
 			  ((eq modifier ?-)
 			   (load filename)))
 		    nil)
-	  (t (let ((display-executables (hpath:find-program filename))
+	  (t (let ((display-executables (hpath:find-program path))
 		   executable)
 	       (cond ((stringp display-executables)
 		      (hact 'exec-window-cmd
@@ -589,7 +634,7 @@ program)."
 						      filename))
 			(error "(hpath:find): No available executable from: %s"
 			       display-executables)))
-		     (t (setq filename (hpath:validate filename))
+		     (t (setq path (hpath:validate path))
 			(if (null display-where)
 			    (setq display-where hpath:display-where))
 			(funcall
@@ -597,8 +642,43 @@ program)."
 					     hpath:display-where-alist)
 				       (assq 'other-window
 					     hpath:display-where-alist))))
-			 filename)
+			 path)
+			(if (or hash anchor) (hpath:to-markup-anchor hash anchor))
 			t)))))))
+
+(defun hpath:to-markup-anchor (hash anchor)
+  "Move point to the definition of ANCHOR if found or if only HASH is non-nil, move to the beginning of the buffer."
+  (cond ((and (stringp anchor) (not (string-empty-p anchor)))
+	 (cond ((memq major-mode hui-select-markup-modes)
+		;; In HTML-like mode where link ids are case-sensitive.
+		(let ((opoint (point))
+		      (case-fold-search))
+		  (goto-char (point-min))
+		  (if (re-search-forward (format hpath:html-anchor-id-pattern (regexp-quote anchor)) nil t)
+		      (progn (forward-line 0)
+			     (recenter 0))
+		    (goto-char opoint)
+		    (error "(hpath:to-markup-anchor): Anchor `%s' not found in the visible buffer portion"
+			   anchor))))
+	       (t 
+		(let ((opoint (point))
+		      ;; Markdown or outline link ids are case
+		      ;; insensitive and - characters are converted to
+		      ;; spaces at the point of definition.
+		      (case-fold-search t)
+		      (anchor-name (subst-char-in-string ?- ?\  anchor)))
+		  (goto-char (point-min))
+		  (if (re-search-forward (format 
+					  (if (string-match hpath:markdown-suffix-regexp buffer-file-name)
+					      hpath:markdown-section-pattern
+					    hpath:outline-section-pattern)
+					  (regexp-quote anchor-name)) nil t)
+		      (progn (forward-line 0)
+			     (recenter 0))
+		    (goto-char opoint)
+		    (error "(hpath:to-markup-anchor): Section `%s' not found in the visible buffer portion"
+			   anchor-name))))))
+	(hash (goto-char (point-min)))))
 
 (defun hpath:find-executable (executable-list)
   "Return the first executable string from EXECUTABLE-LIST found within `exec-path'."
@@ -695,15 +775,15 @@ nonexistent local paths are allowed."
   (let ((rtn-path path)
 	(suffix))
     (and (stringp path)
-	 ;; Path may be a link reference with other components other than a
+	 ;; Path may be a link reference with components other than a
 	 ;; pathname.  These components always follow a comma or # symbol, so
 	 ;; strip them, if any, before checking path.
-	 (if (string-match "[ \t\n\r]*," path)
-	     (setq rtn-path (concat (substring path 0 (match-beginning 0))
-				     "%s" (substring path (match-beginning 0)))
-		   path (substring path 0 (match-beginning 0)))
+	 (if (string-match "\\`[^#][^#,]*\\([ \t\n\r]*[#,]\\)" path)
+	     (setq rtn-path (concat (substring path 0 (match-beginning 1))
+				     "%s" (substring path (match-beginning 1)))
+		   path (substring path 0 (match-beginning 1)))
 	   (setq rtn-path (concat rtn-path "%s")))
-	 ;; If path is just a local HTML reference that begins with #,
+	 ;; If path is just a local reference that begins with #,
 	 ;; prepend the file name to it.
 	 (cond ((and buffer-file-name
 		     ;; ignore HTML color strings
@@ -712,7 +792,7 @@ nonexistent local paths are allowed."
 		     (string-match "\\`#[^\'\"<>#]+\\'" path))
 		(setq rtn-path (concat "file://" buffer-file-name rtn-path)
 		      path buffer-file-name))
-	       ((string-match "\\`[^#]+\\(#[^#]+\\)\\'" path)
+	       ((string-match "\\`[^#]+\\(#[^#]*\\)\\'" path)
 		;; file and # reference
 		(setq path (substring path 0 (match-beginning 1)))
 		(if (memq (aref path 0) '(?/ ?~))
@@ -759,13 +839,14 @@ nonexistent local paths are allowed."
 			     (file-directory-p path))
 			    (t))))
 	       (progn
-		 ;; Quote any but last %s within rtn-path.
+		 ;; Quote any %s except for one at the end of the path
+		 ;; part of rtn-path (immediately preceding a # or ,
+		 ;; character or the end of string).
 		 (setq rtn-path (hypb:replace-match-string "%s" rtn-path "%%s")
-		       rtn-path (hypb:replace-match-string "%%s\\'" rtn-path "%s"))
+		       rtn-path (hypb:replace-match-string "%%s\\([#,]\\|\\'\\)" rtn-path "%s\\1"))
 		 ;; Return path if non-nil return value.
-		 (if (stringp suffix);; suffix could = t, which we ignore
-		     (if (string-match
-			  (concat (regexp-quote suffix) "%s") rtn-path)
+		 (if (stringp suffix) ;; suffix could = t, which we ignore
+		     (if (string-match (concat (regexp-quote suffix) "%s") rtn-path)
 			 ;; remove suffix
 			 (concat (substring rtn-path 0 (match-beginning 0))
 				 (substring rtn-path (match-end 0)))
@@ -949,7 +1030,7 @@ to it."
 (defun hpath:handle-urls ()
   (let ((remote-fs-package (hpath:remote-available-p)))
       (progn
-	;; www-url functions are defined in "hsys-w3.el".
+	;; www-url functions are defined in "hsys-www.el".
 	(put 'expand-file-name   remote-fs-package   'www-url-expand-file-name)
 	(put 'find-file-noselect remote-fs-package   'www-url-find-file-noselect)
 	;; Necessary since Dired overrides other file-name-handler-alist
@@ -1018,7 +1099,7 @@ If `/~' appears, all of FILENAME through that `/' is discarded."
     (remove-hook 'file-name-handler-alist
 		 (cons hpath:remote-regexp 'tramp-file-name-handler))
 
-    ;; www-url functions are defined in "hsys-w3.el".
+    ;; www-url functions are defined in "hsys-www.el".
     (put 'expand-file-name   'tramp nil)
     (put 'find-file-noselect 'tramp nil)
     ;; Necessary since Dired overrides other file-name-handler-alist
@@ -1113,7 +1194,8 @@ in which case, it is loaded here."
 	((featurep 'efs) 'efs)
 	((featurep 'ange-ftp) 'ange-ftp)
 	((boundp 'file-name-handler-alist) ; GNU Emacs
-	 (cond ((rassq 'tramp-file-name-handler file-name-handler-alist)
+	 (cond ((or (rassq 'tramp-file-name-handler file-name-handler-alist)
+		    (rassq 'tramp-autoload-file-name-handler file-name-handler-alist))
 		(require 'tramp))
 	       ((rassq 'efs-file-handler-function file-name-handler-alist)
 		(require 'efs))
@@ -1135,10 +1217,10 @@ Returns \"anonymous\" if no default user is set."
 	(t "anonymous")))
 
 (defun hpath:delete-trailer (string)
-  "Return string minus any trailing .?#!*() characters."
+  "Return string minus any trailing .?#!*() or quoting characters."
   (save-match-data
     (if (and (stringp string) (> (length string) 0)
-	     (string-match "[.?#!*()]+\\'" string))
+	     (string-match "[.?#!*()`'\"]+\\'" string))
 	(substring string 0 (match-beginning 0))
       string)))
 
@@ -1260,21 +1342,6 @@ If PATH is modified, returns PATH, otherwise returns nil."
 			t)))
 	(if (equal new-path path) nil new-path))))
 
-
-;;; ************************************************************************
-;;; Private variables
-;;; ************************************************************************
-
-(defvar hpath:prefix-regexp "\\`[-!&][ ]*"
-  "Regexp matching command characters which may precede a pathname.
-These are used to indicate how to display or execute the pathname.
-  - means evaluate it as Emacs Lisp;
-  ! means execute it as a shell script
-  & means run it under the current window system.")
-
-(defvar hpath:remote-regexp
-  "\\`/[^/:]+:\\|\\`ftp[:.]\\|\\`www\\.\\|\\`https?:"
-  "Regexp matching remote pathnames and urls which invoke remote file handlers.")
 
 (provide 'hpath)
 

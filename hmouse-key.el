@@ -36,9 +36,8 @@
   ;; XEmacs and Emacs pre-load their mouse libraries, so
   ;; we shouldn't have to require them here.
   (eval (cdr (assoc (hyperb:window-system)
-		    '(
-		      ("xterm"   . (require 'x-mouse))	 ; X
-		      ("next"    . (load "eterm-fns" t)) ; NeXTstep
+		    '(("xterm"   . (require 'x-mouse))	 ; X
+		      ("next"    . (load "eterm-fns" t)) ; NEXTSTEP
 		      )))))
 
 ;;; ************************************************************************

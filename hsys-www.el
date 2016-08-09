@@ -1,4 +1,4 @@
-;;; hsys-w3.el ---  GNU Hyperbole support for Emacs World-Wide Web (WWW) browsing
+;;; hsys-www.el ---  GNU Hyperbole support for Emacs World-Wide Web (WWW) browsing
 ;;
 ;; Author:       Bob Weiner
 ;;
@@ -27,11 +27,9 @@
 ;;; Other required Elisp libraries
 ;;; ************************************************************************
 
+;;; This does not require any particular web browser.
 (require 'browse-url)
 (require 'hbut)
-
-;;; Does not load any particular web browser but requires a package like 'w3'
-;;; to operate properly.
 
 ;;; ************************************************************************
 ;;; Public functions and types
@@ -51,9 +49,8 @@ Valid values of this variable include `browse-url-default-browser' and
 
 (defact www-url (url)
   "Follow a link given by URL.
-The variable, `browse-url-browser-function,' customizes the url browser that
-is used.
-Valid values of this variable include `browse-url-default-browser' and
+The variable, `browse-url-browser-function', customizes the url browser that
+is used.  Valid values of this variable include `browse-url-default-browser' and
 `browse-url-generic'."
   (interactive "sURL to follow: ")
   (or (stringp url)
@@ -113,6 +110,6 @@ Valid values of this variable include `browse-url-default-browser' and
 	       (current-buffer))
       (apply 'find-file-noselect path args))))
 
-(provide 'hsys-w3)
+(provide 'hsys-www)
 
-;;; hsys-w3.el ends here
+;;; hsys-www.el ends here

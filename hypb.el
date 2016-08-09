@@ -198,6 +198,15 @@ Global keymap is used unless optional KEYMAP is given."
     (put 'error 'error-message msg)
     (error msg)))
 
+(defun hypb:file-major-mode (file)
+  "Return the major mode used by FILE.
+FILE is temporarily read into a buffer to determine the major mode if necessary."
+  (let ((existing-flag (get-file-buffer file))
+	(buf (find-file-noselect file)))
+    (prog1 (if buf (save-excursion (set-buffer buf) major-mode))
+      (unless (or existing-flag (null buf))
+	(kill-buffer buf)))))
+
 (defun hypb:format-quote (string)
   "Replace all single % with %% in STRING so a call to `format' or `message' ignores them."
   (if (stringp string)
@@ -671,7 +680,7 @@ Without file, the banner is prepended to the current buffer."
 (defun hypb:browse-home-page ()
   "Visit the web home page for Hyperbole."
   (interactive)
-  (require 'hsys-w3)
+  (require 'hsys-www)
   (hact 'www-url hypb:home-page))
 
 ;;; ************************************************************************

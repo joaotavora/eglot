@@ -20,7 +20,7 @@
 ;;  items and Hyperbole buttons, follow these instructions.
 ;;
 ;;  If you plan to use a mouse only with X windows (XEmacs, GNU Emacs
-;;  19, or InfoDock), Mac OS X, or NeXTSTEP, and you want to use the
+;;  19, or InfoDock), Mac OS X, or NEXTSTEP, and you want to use the
 ;;  shift-middle and shift-right buttons, you need not do any mouse
 ;;  configuration.  Your Emacs executable must have been built so as to
 ;;  include the mouse support files for your window system, however.  These
@@ -60,6 +60,18 @@ Set it to #'hyperbole if you want it to display the Hyperbole minibuffer menu."
 (defcustom assist-key-default-function #'assist-key-error
   "*Function run by the Assist Key in an unspecified context.
 Set it to #'hkey-summarize if you want it to display a summary of Smart Key behavior."
+  :type 'function
+  :group 'hyperbole-keys)
+
+(defcustom action-key-eol-function #'smart-scroll-up
+  "*Function run by the Action Key at the end of a line.
+Its default value is #'smart-scroll-up."
+  :type 'function
+  :group 'hyperbole-keys)
+
+(defcustom assist-key-eol-function #'smart-scroll-down
+  "*Function run by the Assist Key at the end of a line.
+Its default value is #'smart-scroll-down."
   :type 'function
   :group 'hyperbole-keys)
 
@@ -108,7 +120,7 @@ Set it to #'hkey-summarize if you want it to display a summary of Smart Key beha
     ((if (eq major-mode 'kotl-mode)
 	(and (not (kotl-mode:eobp)) (kotl-mode:eolp))
       (and (not (eobp)) (or (eolp) (and selective-display (eq (following-char) ?\r))))) .
-     ((smart-scroll-up) . (smart-scroll-down)))
+     ((funcall action-key-eol-function) . (funcall assist-key-eol-function)))
     ;;
     ;; The Smart Menu system provides menus within Emacs on a dumb terminal.
     ;; It is a part of InfoDock, but may also be obtained as a separate
@@ -142,9 +154,11 @@ Set it to #'hkey-summarize if you want it to display a summary of Smart Key beha
 	    (t (scroll-up))) .
 	    (scroll-down)))
     ;;
-    ;; Within an OO-Browser OOBR-FTR buffer, an *Implementors* listing
-    ;; buffer, or an Element signatures listing buffer of the
-    ;; OO-Browser.
+    ;; Support the OO-Browser when available.  It is a separate Emacs
+    ;; package not included with Hyperbole.  Within an OO-Browser
+    ;; OOBR-FTR buffer, an *Implementors* listing buffer, or an
+    ;; Element signatures listing buffer of the OO-Browser, display
+    ;; the associated element.
     ((or (string-equal (buffer-name) "*Implementors*")
 	 (string-match "-Elements\\'" (buffer-name))
 	 (and (boundp 'br-feature-tags-file)
@@ -297,8 +311,9 @@ Set it to #'hkey-summarize if you want it to display a summary of Smart Key beha
     ((eq major-mode 'gomoku-mode) . 
      ((gomoku-human-plays) . (gomoku-human-takes-back)))
     ;;
-    ;; Support the OO-Browser, a part of InfoDock and XEmacs, and an add on
-    ;; to Emacs.  It is not included with Hyperbole.
+    ;; Support the OO-Browser when available.  It is a separate Emacs
+    ;; package not included with Hyperbole.  Hyperbole supplies a stub
+    ;; `br-in-browser' test for use here.
     ((or (br-in-browser) (eq major-mode 'br-mode)) .
      ((smart-br-dispatch) . (smart-br-assist-dispatch)))
     ;;

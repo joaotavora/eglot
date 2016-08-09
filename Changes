@@ -1,5 +1,186 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-08-08  Bob Weiner  <rsw@gnu.org>
+
+* hactypes.el (link-to-web-search): Added so Hyperbole global and explicit buttons can execute web searches.
+  hsettings.el (hyperbole-read-web-search-arguments): Added and used in hyperbole-web-search and link-to-web-search.
+  DEMO (Sample Explicit Buttons and Types):
+  man/hyperbole.texi (Action Types): Documented link-to-web-search.
+
+* INSTALL, README, README.md, README.md.html: Added Browsing the Source section with ftp tarball download information.
+
+* hpath.el (hpath:delimited-possible-path): Added non-ascii quote characters to possible delimiters.
+           (hpath:delete-trailer): Added quoting characters to deletion to fix bug where remote pathname retrieval
+    would include a trailing quote mark.
+
+* hargs.el (hargs:delimited): Added support for up to 2-line delimited regions as long as point is on the first line.
+    Normalized any newline followed by whitespace to a single space in the string returned.
+    Added (require 'hypb).
+
+* hys-org.el (defib org-mode, org-mode:help): Ensured trigger only in org-mode and simplified logic.
+             (org-heading-at-p): Deleted and used org-at-heading-p instead.
+
+* hpath.el (hpath:to-markup-anchor): Generalized to work in any HTML buffer based on major mode, not file suffix.
+           (hpath:html-suffix-regexp): Removed, no longer used.
+
+* hmouse-tag.el (smart-asm-include-file, smart-c-include-file): Simplified conditionals a bit.
+
+* hpath.el (hpath:is-p): Fixed improper parsing issue with hash links that included commas such as:
+    "DEMO#Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer".
+
+* Demo (Org Mode):
+  man/hyperbole.texi (Implicit Buttons):
+  hsys-org.el (org-mode): Changed so if not at an end of line, on an org mode link or on an existing heading,
+    then invokes the Org mode standard binding of M-RET, (org-meta-return).
+
+2016-08-07  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:markup-link-anchor-regexp, hpath:to-markup-anchor): Modified to support hash-style links
+    to Emacs outline file section headlines, matching as is done with Github-style Markdown section links.
+  DEMO:
+  man/hyperbole.texi: Updated to document the above change.
+
+* hypb.el (hypb:file-major-mode): Added.
+
+2016-08-06  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Customization): Renamed from Configuration.
+                     (Web Search Engines): Added this section under Customization.
+                     (HyControl): Added FramesControl key sequence.
+                     (Smart Key - Smart Scrolling): Documented {action,assist}-key-eol-function variables.
+
+* hsmail.el (mail-indent-citation, mail-yank-original): Updated for Emacs 25 compatibility.
+
+2016-08-05  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (annot-bib): Added markdown-mode to the excluded list to avoid conflict with its links.
+              (markdown-internal-link): Added to follow internal Markdown links.
+  man/hyperbole.texi: (Implicit Buttons): Added markdown-internal-link.
+
+* hsys-www.el: Renamed from hsys-w3.el since it is not related to the Emacs W3 web browser any longer.
+
+* Demo (HTML and Markdown Hash Links): Added this section.
+  hibtypes.el (pathname):
+  hpath.el (hpath:to-markup-anchor): Renamed from hpath:to-html-anchor and generalized for use with Markdown as well.
+    Added recognition of section links like: 
+        - [Why was Hyperbole developed?](#why-was-hyperbole-developed)
+      so the pathname implicit button type matches when the Action Key is pressed anywhere on or after the
+      hash character and jumps to the section:
+        ## Why was Hyperbole developed?
+      accounting for any trailing punctuation, whitespace and differences in case.
+           (hpath:markdown-suffix-regexp, hpath:markdown-anchor-id-pattern, hpath:markdown-section-pattern): Added.
+           (hpath:markup-link-anchor-regexp): Renamed from hpath:html-link-anchor-regexp.
+
+* hib-social.el (social-reference): Disabled this implicit button type within quoted strings (all modes) and within
+    parentheses (markdown-mode), so in-file hash link references are not matched as social hash tags.  Made the list
+    of modes a variable, hibtypes-social-inhibit-modes.
+  hpath.el (hpath:to-html-anchor): Added.
+           (hpath:find): Rewrote to follow HTML in-file anchor references.
+
+2016-08-04  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:html-suffix-regexp, hpath:html-anchor-id-pattern, hpath:html-link-anchor-regexp): Added.
+
+* README, README.md, README.md.html: Added a new testimonial.
+
+* Makefile (elpa, ftp): Added these targets to install Hyperbole releases for ELPA or ftp download.
+    Changed so release target depends on package target so you can build a package prior to a release.
+
+* hpath.el (hpath:remote-available-p): Fixed tramp package check prior to loading by adding a test for
+    tramp-autoload-file-name-handler.
+
+* README.md.html: Fixed bookmarks/in-file link ids.
+
+2016-08-03  Bob Weiner  <rsw@gnu.org>
+
+* hsettings.el (hyperbole-web-search-alist): Made any edit update all Hyperbole menus with the new value.
+  DEMO (Hyperbole Menus): Added description and exercise using the new Find/Web menu.
+  hui-mini.el (Cust/Web-Search): Added to allow setting of hyperbole-web-search-browser-function.
+  hui-menu.el (infodock-hyperbole-menu): Added optional rebuild-flag to force rebuilding of the
+    Hyperbole menubar menu.
+
+* man/hyperbole.texi (HyControl): Documented ESC as a way to quit from HyControl.
+
+2016-08-02  Bob Weiner  <rsw@gnu.org>
+
+* README.md.html - Added.
+
+2016-08-01  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el (hui-menu-browser): Added to allow setting of
+    hyperbole-web-search-browser-function.
+              (infodock-hyperbole-menu): Added missing quote in Display-Referents-in setq,
+    fixing invalid code generation.
+
+* README.md (Invocation):
+  HY-ANNOUNCE (Invocation):
+  INSTALL (Invocation):
+  README (Files):
+  DEMO (HyControl): Added pointer to HyControl video and {C-c \} binding.
+  hyperbole.texi (HyControl): Updated {C-c \} binding description.
+
+* hycontrol.el (hycontrol-frames, hycontrol-windows): Added ESC as an additional key
+    that quits from HyControl.
+
+* man/hyperbole.texi (Global Key Bindings): Documented {C-c /} prefix key.
+                     (Menus): Added Find/Web menu.
+
+2016-07-31  Bob Weiner  <rsw@gnu.org>
+
+* Changes: Renamed this file from ChangeLog since Elpa release builds
+    overwrite any file named ChangeLog with git log information which
+    has less history than Hyperbole's Changes.
+
+* hui-mini.el (hui-search-web): Added so can invoke the Hyperbole
+    Find/Web search menu directly.
+  hyperbole.el (hkey-initialize): Bound above command to {C-c /}.
+
+* hsettings.el (hyperbole-web-search-browser-function):
+               (hyperbole-web-search-alist):
+               (hyperbole-web-search):  Added.
+  hui-mini.el (hui:menu-web-search): Added and called within hui:menus.
+  hui-menu.el (hui-menu-web-search): Added and called in infodock-hyperbole-menu.
+
+* hinit.el (hyperb:init-menubar): Fixed so sets after-init-hook only
+    if not after-init-time.  Also forced a return value of nil.
+  hui-menu.el (hyperbole-menubar-menu): Changed so this always updates
+    the menubar with the latest version of the Hyperbole menu; previously
+    it only added the menu if it was not there.
+
+2016-07-29  Bob Weiner  <rsw@gnu.org>
+
+* README.md: Added menu images and screenshots for easy access.
+
+* hui-mouse.el (action-key-eol-function, assist-key-eol-function): Added these 2
+    options to control what the Action and Assist Keys do at the end of a line.
+    Default behaviors remain as before but now one can set these to do something
+    other than scrolling, if desired.
+
+2016-07-28  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el: Updated the header fields to better match GNU standards for use
+    by the Lisp maintainer package, lisp-mnt.el.
+
+2016-07-27  Bob Weiner  <rsw@gnu.org>
+
+* hactypes.el (exec-shell-cmd): Replaced call to old function 'show-output-from-shell'
+    with 'comint-show-output'.  This fixed a failure when this action type is used.
+
+* HY-ANNOUNCE (About):
+  README (Files): Added pointers to Hyperbole screenshot files.
+
+*  man/im/menu-hyperbole2.pdf: Removed this unneeded file.
+
+* HY-ANNOUNCE: Updated first section and used in sending 6.0.1 release announcements.
+    Added items from HY-NEWS for 6.0.1 that were unintentially left out of this file.
+
+* hload-path.el (hyperb:dir): If the Emacs Package Manager has already added this
+    to load-path without a trailing directory separator, don't add it with one.
+
+==============================================================================
+V6.0.2 changes ^^^^:
+==============================================================================
+
 2016-07-26  Mats Lidell  <matsl@gnu.org>
 
 * hypb.el (hypb:rgrep-command): Removed -Z option.

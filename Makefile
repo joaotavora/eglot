@@ -33,8 +33,10 @@
 #   	             make help
 #
 #               For OO-Browser maintainers:
-#                 To assemble the Hyperbole Emacs package for release:
+#                 To assemble a Hyperbole Emacs package for testing:
 #		     make pkg
+#                 To release a Hyperbole Emacs package to ELPA and ftp.gnu.org:
+#		     make release
 #
 #               The Hyperbole Manual is included in the package in four forms:
 #
@@ -50,7 +52,7 @@
 
 # This ver setup won't work under any make except GNU make, so set it manually.
 #HYPB_VERSION = "`head -3 hversion.el | tail -1 | sed -e 's/.*|\(.*\)|.*/\1/'`"
-HYPB_VERSION = 6.0.1
+HYPB_VERSION = 6.0.2
 
 # Emacs executable used to byte-compile .el files into .elc's.
 # Possibilities include: emacs, infodock, xemacs, etc.
@@ -97,16 +99,19 @@ html_dir = $(id_dir)/id-html
 # Shell used to process this Makefile.  Bourne shell syntax is required.
 SHELL = /bin/sh
 
-# UNIX commands you may want to change for your particular system.
+# Shell commands you may want to change for your particular system.
 CP = \cp -p
 ETAGS = \etags
+GNUFTP = \gnupload --to ftp.gnu.org:hyperbole
+GPG = \gpg
+GZIP = \gzip -c
 INSTALL = \install -m 644 -c
 MKDIR = \mkdir -p
 MAKE = \make
 RM = \rm -f
 TAR = \tar
-GPG = \gpg
 ZIP = \zip -qry
+
 
 # Directory in which to create new package distributions of Hyperbole.
 pkg_dir = /tmp
@@ -138,7 +143,7 @@ EL_COMPILE = hact.el hactypes.el hargs.el hbdata.el hbmap.el hbut.el \
 	     hib-social.el hibtypes.el \
 	     hinit.el hload-path.el hlvar.el hmail.el hmh.el hmoccur.el hmouse-info.el \
 	     hmouse-drv.el hmouse-key.el hmouse-mod.el hmouse-sh.el hmouse-tag.el \
-	     hpath.el hrmail.el hsettings.el hsmail.el hsys-org.el hsys-w3.el htz.el \
+	     hpath.el hrmail.el hsettings.el hsmail.el hsys-org.el hsys-www.el htz.el \
 	     hycontrol.el hui-jmenu.el hui-menu.el hui-mini.el hui-mouse.el hui-select.el \
 	     hui-window.el hui.el hvar.el hversion.el hvm.el hypb.el hyperbole.el \
 	     hyrolo-logic.el hyrolo-menu.el hyrolo.el hywconfig.el set.el
@@ -153,7 +158,7 @@ ELC_COMPILE =  hactypes.elc hibtypes.elc hib-debbugs.elc hib-doc-id.elc hib-kbd.
 	     hargs.elc hbdata.elc hbmap.elc hbut.elc hgnus.elc hhist.elc \
 	     hinit.elc hload-path.elc hlvar.elc hmail.elc hmh.elc hmoccur.elc hmouse-info.elc \
 	     hmouse-drv.elc hmouse-key.elc hmouse-mod.elc hmouse-sh.elc hmouse-tag.elc \
-	     hpath.elc hrmail.elc hsettings.elc hsmail.elc hsys-org.elc hsys-w3.elc htz.elc \
+	     hpath.elc hrmail.elc hsettings.elc hsmail.elc hsys-org.elc hsys-www.elc htz.elc \
 	     hycontrol.elc hui-jmenu.elc hui-menu.elc hui-mini.elc hui-mouse.elc hui-select.elc \
 	     hui-window.elc hui.elc hvar.elc hversion.elc hvm.elc hypb.elc hyperbole.elc \
 	     hyrolo-logic.elc hyrolo-menu.elc hyrolo.elc hywconfig.elc set.elc
@@ -250,14 +255,29 @@ $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(ma
 
 # Generate a Hyperbole package suitable for distribution via the Emacs package manager.
 pkg: package
-package: release $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
+package: doc kotl/kotl-loaddefs.el $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
-# Generate a Hyperbole release suitable for distribution via GNU ELPA.
+# Generate and distribute a Hyperbole release to GNU ELPA and ftp.gnu.org.
 # One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-loaddefs.el.
-release: doc kotl/kotl-loaddefs.el
+release: package $(pkg_dir)/hyperbole-$(hypb_version).tar.gz elpa ftp
+
+# Once the release version number is updated in hyperbole.el and the release is pushed to
+# git, ELPA will automatically check and build its Hyperbole archive, allowing users to
+# update their packages of Hyperbole.  ELPA does this twice a day now.
+elpa: package
+	git tag -s hyperbole-$(HYPB_VERSION) && git push
+
+# Send compressed tarball for uploading to GNU ftp site; this must be done from the directory
+# containing the tarball to upload.
+ftp: package
+	cd $(pkg_dir) && $(GNUFTP) hyperbole-$(HYPB_VERSION).tar.gz
 
 kotl/kotl-loaddefs.el: $(EL_KOTL)
 	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-loaddefs.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && sed -i '3 i ;; Copyright (C) 2016  Free Software Foundation, Inc.\n;;' $@ && $(RM) kotl/kotl-loaddefs.el~
+
+# Used for ftp.gnu.org tarball distributions.
+$(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.gz:
+	cd $(pkg_dir) && $(GZIP) hyperbole-$(HYPB_VERSION).tar > hyperbole-$(HYPB_VERSION).tar.gz
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar
 	cd $(pkg_dir) && $(GPG) -ba -o hyperbole-$(HYPB_VERSION).tar.sig hyperbole-$(HYPB_VERSION).tar
@@ -277,7 +297,7 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 pkgclean: packageclean
 packageclean:
 	if [ -d $(pkg_hyperbole) ]; then \
-	  cd $(pkg_hyperbole) && $(RM) -r .git* ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
+	  cd $(pkg_hyperbole) && $(RM) -r .git* videos ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
 	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id; fi
 	if [ -d $(pkg_hyperbole)/kotl ]; then \
 	  cd $(pkg_hyperbole)/kotl && $(RM) -r *autoloads.* *.elc TAGS TODO* .DS_Store \

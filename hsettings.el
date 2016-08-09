@@ -99,6 +99,75 @@ down a windowful."
 ;;
 ;; and Hyperbole should be loaded after this setting is made.
 
+;; Web search setttings for Hyperbole Find/Web menu.
+(require 'browse-url)
+
+(defun hyperbole-update-menus ()
+  "Rebuild all Hyperbole menus with any updated settings."
+  (hyperbole-menubar-menu)
+  (hyperbole-minibuffer-menu))
+
+(defun hyperbole-read-web-search-arguments (&optional service-name search-term)
+  "Read from the keyboard a list of (web-search-service-string search-term-string) if not given as arguments."
+  (let ((completion-ignore-case t))
+    (while (or (not (stringp service-name)) (equal service-name ""))
+      (setq service-name (completing-read "Search service: " hyperbole-web-search-alist
+					  nil t)))
+    (while (or (not (stringp search-term)) (equal search-term ""))
+     (setq search-term (read-string (format "Search %s for: " service-name))))
+    (list service-name search-term)))
+
+(defun hyperbole-web-search (&optional service-name search-term)
+  "Search web SERVICE-NAME for SEARCH-TERM.
+Both arguments are optional and are prompted for when not given or when null.
+Uses `hyperbole-web-search-alist' to match each service to its search url.
+Uses `hyperbole-web-search-browser-function' and the `browse-url'
+package to display search results."
+  (interactive)
+  (cl-multiple-value-bind (service-name search-term)
+      (hyperbole-read-web-search-arguments service-name search-term)
+    (if (assoc service-name hyperbole-web-search-alist)
+	(let ((browse-url-browser-function
+	       hyperbole-web-search-browser-function))
+	  (browse-url (format (cdr (assoc service-name hyperbole-web-search-alist))
+			      search-term)))
+      (user-error "(Hyperbole): Invalid web search service `%s'" service-name))))
+
+(defcustom hyperbole-web-search-browser-function browse-url-browser-function
+  "*Function of one url argument called by any Hyperbole Find/Web search."
+  :type 'boolean
+  :group 'hyperbole-commands)
+
+(defcustom hyperbole-web-search-alist
+  '(("Amazon" . "http://www.amazon.com/s/field-keywords=%s")
+    ("Bing" . "http://www.bing.com/search?q=%s")
+    ;; Wikipedia Dictionary
+    ("Dictionary" . "https://en.wiktionary.org/wiki/%s")
+    ("Elisp" . "http://www.google.com/search?q=%s+filetype:el")
+    ;; Facebook Hashtags
+    ("Facebook" . "https://www.facebook.com/hashtag/%s")
+    ;; To search for a Facebook user, use "https://www.facebook.com/%s".
+    ("Google" . "http://www.google.com/search?q=%s")
+    ("Hub(git)" . "https://github.com/search?ref=simplesearch&q=%s")
+    ("Images" . "http://www.google.com/images?hl=en&q=%s")
+    ("Maps" . "http://maps.google.com/maps?q=%s")
+    ("RFCs" . "https://tools.ietf.org/html/rfc%s")
+    ("StackOverflow" . "https://stackoverflow.com/search?q=%s")
+    ("Twitter" . "https://twitter.com/search?q=%s")
+    ("Wikipedia" . "https://en.wikipedia.org/wiki/%s")
+    ("Youtube" . "https://www.youtube.com/results?search_query=%s"))
+  "*Alist of (web-service-name . url-with-%s-parameter) elements.
+The first character of each web-service-name must be unique.
+This custom option is used in the Hyperbole Find/Web menu where
+the %s in the url-with-%s-parameter is replaced with an interactively
+obtained search string."
+  :initialize 'custom-initialize-default
+  :set (lambda (_option value)
+	 (setq hyperbole-web-search-alist value)
+	 (hyperbole-update-menus))
+  :type '(alist :key-type string :value-type string)
+  :group 'hyperbole-commands)
+
 ;;; ************************************************************************
 ;;; GNU EMACS AND XEMACS CONFIGURATION
 ;;; ************************************************************************

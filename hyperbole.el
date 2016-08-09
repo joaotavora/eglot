@@ -1,18 +1,20 @@
 ;;; hyperbole.el --- GNU Hyperbole: The Everyday Hypertextual Information Manager
-;;
+
+;; Copyright (C) 1992-2016  Free Software Foundation, Inc.
+
 ;; Author:           Bob Weiner
-;; Maintainer:       Bob Weiner <rsw@gnu.org> and Mats Lidell <matsl@gnu.org>
+;; Maintainer:       Bob Weiner <rsw@gnu.org>
+;;		     Mats Lidell <matsl@gnu.org>
+;; Created:          06-Oct-92 at 11:52:51
+;; Released:         09-Aug-16
+;; Version:          6.0.2
 ;; Keywords:         comm, convenience, files, frames, hypermedia, languages, mail, matching, mouse, multimedia, outlines, tools, wp
 ;; Package:          hyperbole
 ;; Package-Requires: ((emacs "24.4"))
 ;; URL:              http://www.gnu.org/software/hyperbole
-;; Version:          6.0.1
-;; Orig-Date:        06-Oct-92 at 11:52:51
-;; Date:             27-Jul-16
-;;
-;; Copyright (C) 1992-2016  Free Software Foundation, Inc.
+
 ;; See the "HY-COPY" file for license information.
-;;
+
 ;; This file is part of GNU Hyperbole.
 
 ;;; Commentary:
@@ -203,8 +205,8 @@ Entry format is: (key-description key-sequence key-binding)."
     ;;
     ;; Binds the Action Key to {M-RET} and the Assist Key to {C-u M-RET}
     ;; and loads the Hyperbole mouse key bindings.
-    (and (not (where-is-internal 'hkey-either))
-	 (hkey-global-set-key "\M-\C-m" 'hkey-either))
+    (unless (where-is-internal 'hkey-either)
+      (hkey-global-set-key "\M-\C-m" 'hkey-either))
     ;;
     ;; Bind a key, {C-h A}, for Action Key help and {C-u C-h A} for Assist key
     ;; help.
@@ -244,6 +246,9 @@ Entry format is: (key-description key-sequence key-binding)."
     ;;
     ;; Binds {C-c \} to interactively manage windows and frames.
     (hkey-maybe-global-set-key "\C-c\\" 'hycontrol-windows)
+    ;;
+    ;; Binds {C-c /} to display the Hyperbole Find/Web search menu.
+    (hkey-maybe-global-set-key "\C-c/" 'hui-search-web)
     ;;
     ;; Binds {C-c .} to jump between the start and end of an delimited thing.
     ;; Don't override local bindings of this key.

@@ -857,18 +857,12 @@ Look for include file in `smart-asm-include-path' and add suffix \".ins\" or
 	     ;; If path exists, display file
 	     ;;
 	     (if path
-		 (if (and (file-readable-p path)
-			  (progn
-			    (hpath:find path)
-			    (cond ((featurep 'asm-mode) t)
-				  ((load "asm-mode" nil 'nomessage)
-				   (provide 'asm-mode))
-				  (t
-				   (beep)
-				   (message
-				    "(smart-asm-include-file):  asm-mode undefined")
-				   nil))))
-		     nil
+		 (unless (and (file-readable-p path)
+			      (progn
+				(hpath:find path)
+				(or (require 'asm-mode nil t)
+				    (progn (message "(smart-asm-include-file):  asm-mode undefined")
+					   nil))))
 		   (beep)
 		   (message "(smart-asm-include-file):  `%s' unreadable" path))
 	       (beep)
@@ -877,7 +871,6 @@ Look for include file in `smart-asm-include-path' and add suffix \".ins\" or
 	  ;; not on an include file line
 	  (t (goto-char opoint)
 	     nil))))
-
 
 (defun smart-c-include-file ()
   "If point is on an include file line, tries to display file.
@@ -911,18 +904,10 @@ Look for include file in `smart-c-cpp-include-path' and in directory list
 	      (if (and (file-readable-p path)
 		       (progn
 			 (hpath:find path)
-			 (cond ((or (featurep 'cc-mode)
-				    (featurep 'c-mode))
-				t)
-			       ((or (load "cc-mode" 'missing-ok 'nomessage)
-				    (load "c-mode" 'missing-ok 'nomessage))
-				(provide 'c-mode))
-			       (t
-				(beep)
-				(message
-				 "(smart-c-include-file):  c-mode undefined")
-				nil
-				))))
+			 (or (require 'cc-mode nil t)
+			     (progn (beep)
+				    (message "(smart-c-include-file):  c-mode undefined")
+				    nil))))
 		  (smart-cc-mode-initialize)
 		(beep)
 		(message "(smart-c-include-file):  `%s' unreadable" path))

@@ -181,8 +181,7 @@ Returns t if successful, else nil."
     ;; Adjust the marker that points to the end of this message.
     (set-marker (aref rmail-message-vector (1+ rmail-current-message))
 		(point))
-    (hmail:msg-narrow)
-    )
+    (hmail:msg-narrow))
   (let ((old rmail-old-text))
     ;; Update the mode line.
     (set-buffer-modified-p (buffer-modified-p))

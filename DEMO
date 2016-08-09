@@ -104,6 +104,16 @@ Let's try a menu item that displays the Hyperbole Glossary of terms.  Use
 glossary.  {C-h h d RET} would simply exit the menu and {C-h h d C-t} would
 redisplay the top Hyperbole menu.
 
+What if we want to do a web search for GNU Hyperbole?  Then we use the
+Find/Web menu, typically bound to {C-c /} or if not, then use {C-h h f w}.
+Then type {g} for Google and enter "GNU Hyperbole", including the quote marks
+so that it is searched for as a phrase.  Your standard web browser will be
+used to return the search results.
+
+You can change which browser is used with {C-h h c w}, the Cust/Web-Search
+menu.  Advanced users can change the search engines listed by editing the
+option, <(hyperbole-web-search-alist)>.
+
 ** Help Buffers
 
 Since the Smart Keys do so many things, it is helpful to see what they will
@@ -150,9 +160,10 @@ alphabetical order the Koutliner commands which are bound to keys.
 * HyControl
 
 Hyperbole includes the fastest, easiest-to-use Emacs window and frame
-management system available, HyControl, found under the Hyperbole
-Screen menu.  If you use a lot of Emacs windows or frames (typically,
-window system windows) then this tool is for you.
+management system available, HyControl, found under the Hyperbole Screen
+menu.  If you use a lot of Emacs windows or frames (typically, window system
+windows) then this tool is for you.  A long video demonstrating most of
+HyControl's features is available at https://youtu.be/M3-aMh1ccJk.
 
 HyControl interactively adjusts the layout of your windows and frames
 down to the pixel-level if desired.  You adjust the location, size and
@@ -162,9 +173,9 @@ avoid covering toolbars anchored at the edges of your screen and allows you
 to quickly set numeric arguments to apply to operations, like resizing a
 frame to a percentage of your screen size.
 
-Hyperbole typically binds the key {C-c \} to invoke HyControl window control;
-otherwise, the Screen/WindowsControl minibuffer menu item, {C-h h s w}, will
-do the same thing.
+Hyperbole binds {C-c \} to invoke HyControl window control; otherwise, the
+Hyperbole minibuffer menu item, Screen/WindowsControl {C-h h s w}, will do
+the same thing.
 
 Once in HyControl, your minibuffer window at the bottom of the selected frame
 will display a summary of keys you may use to adjust your windows until you
@@ -222,14 +233,17 @@ remember, just surround them with curly braces and you'll always be able to
 try them out with a simple click or press.  You can even create your own
 demonstrations and tours with this and other implicit button types.
 
-** Org mode
+** Org Mode
 
-For users of Emacs Org mode, Hyperbole does two basic things.  First, the
+For users of Emacs Org mode, Hyperbole does a few things.  First, the
 Action Key will follow and execute links in Org mode files.  Second, when
 point is on an outline heading in Org mode, the Action Key cycles the view
 of the subtree at point and the Assist Key cycles the view of all headings
 in the buffer.  The Assist Key will also display help when pressed on an Org
 mode link.
+
+In any other context besides the end of a line, the Action Key will invoke
+the Org mode standard binding of {M-RET}, (org-meta-return).
 
 ** Implicit Path Links
 
@@ -240,13 +254,41 @@ operates upon the path.  These are `pathname' implicit buttons.  For example,
 activate "HY-ABOUT".  HY-ABOUT or `HY-ABOUT' would work as well or
 "~/.emacs".
 
-** Paths with Line and Column Numbers
+*** Paths with Line and Column Numbers
 
 If you want to display a path at a specific line number and optionally column
 number, then add each number preceded by a colon at the end of the path.
 For example, "HY-ABOUT:10" displays HY-ABOUT at line 10, the second
 paragraph, with point at the start of the line.  "HY-ABOUT:18:7" shows the
 first numbered item on line 18 at column 7, where the text starts.
+
+*** HTML Markdown and Emacs Outline Hash Links
+
+Often links to HTML and Markdown files use a hash mark (#) plus an identifier
+to refer to a section of such files.  When the Action Key is pressed on any
+such reference, it jumps to the section referenced by the link.
+
+For example, "man/hyperbole.html#Smart-Keys" will take you to the Smart Keys
+description in the HTML version of the Hyperbole manual.  Inside that manual
+in HTML form, "#Smart-Keys" would do the same thing.  Similarly,
+"README.md#why-was-hyperbole-developed" jumps to the referenced section of
+that Markdown file, while accounting for the difference in case, whitespace
+and trailing punctuation between the identifier and the section header.
+(Inline Markdown links surrounded by parentheses and square bracketed
+reference links work similarly but are handled specifically as Markdown
+links, not as pathnames).
+
+Hyperbole allows hash-style links to Emacs outline files (including Org-mode
+files); they work just like the Markdown section links but match to section
+headings preceded by asterisks rather than hash marks.  So to jump back to
+the Org Mode section in this file, press the Action Key on "#Org-Mode".
+
+HTML hash-links are case-sensitive; other hash-links are not.  Hash links
+typically use dashes in place of the spaces that referents may contain but if
+the link is enclosed in quotes, Hyperbole allows spaces to be used as well.
+In fact, it is best practice to always enclose hash-style links in quotes so
+Hyperbole can distinguish them from other similar looking constructs, such as
+social media hashtags (see "#Social Media Hashtags and Usernames").
 
 *** Path Suffixes and Variables
 
@@ -332,8 +374,8 @@ files and directories, then remote pathnames of the form:
 will be recognized by Hyperbole.
 
 Once you have Tramp configured for loading and are on the Internet, you can
-click on any of the following to browse the contents of the Hyperbole
-distribution:
+click on any of the following to jump to the ftp site of Hyperbole tarball
+distributions:
 
         "/anonymous@ftp.gnu.org:/pub/gnu/hyperbole/"
 	 ftp.gnu.org:/pub/gnu/hyperbole/
@@ -635,7 +677,7 @@ remember a Hyperbole term?  Check out the Hyperbole Manual <(glossary)>.
 
 Here is a <(keyboard macro)> button.  It displays documentation for the
 first Emacs Lisp function that follows it, e.g. (hbut:report).  You can see
-that a button label can consist of a number of words, up to a set <(maximum
+that a button label may consist of many characters, up to a set <(maximum
 length)>.
 
 A <(shell command)> button can do many things, such as display the length of
@@ -652,6 +694,9 @@ always jump there, so position point within the referent file to take
 advantage of this feature.  Note how a separate window is used when you
 activate file link buttons.  Most basic Hyperbole action types display their
 results in this manner.
+
+You can create buttons that run specific web searches such as a Wikipedia
+query on an <(electric car)> with the `link-to-web-search' action type.
 
 You can make a button an alias for another by using the `link-to-ebut'
 action type.  This <(factorial alias)> button does whatever the earlier
