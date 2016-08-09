@@ -87,6 +87,9 @@ TEXI2PDF = makeinfo --pdf --no-split
 
 # Where to find the parent tree of the Hyperbole source directory.
 id_dir = $(HOME)/sw-dev/emacs
+# Where to find the local clone of the Elpa Hyperbole package repository
+elpa_hypb_dir = $(id_dir)/elpa/packages/hyperbole
+id_dir = $(HOME)/sw-dev/emacs
 # Where to find the .texi source of the user manual.
 man_dir := $(shell pwd)/man
 # Where to install the Hyperbole mouse key help file
@@ -272,11 +275,11 @@ git-push:
 # git, ELPA will automatically check and build its Hyperbole archive, allowing users to
 # update their packages of Hyperbole.  ELPA does this twice a day now.
 elpa: package
-	cd ../elpa/package/hyperbole && git pull http://git.savannah.gnu.org/r/hyperbole.git master \
+	cd $(elpa_hypb_dir) && git pull http://git.savannah.gnu.org/r/hyperbole.git master \
 	&& git tag -s hyperbole-$(HYPB_VERSION) && git push
 
 elpa-test: package
-	cd ../elpa/package/hyperbole && git pull http://git.savannah.gnu.org/r/hyperbole.git master
+	cd $(elpa_hypb_dir) && git pull http://git.savannah.gnu.org/r/hyperbole.git master
 
 # Send compressed tarball for uploading to GNU ftp site; this must be done from the directory
 # containing the tarball to upload.
