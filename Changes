@@ -2,6 +2,21 @@
 
 2016-08-08  Bob Weiner  <rsw@gnu.org>
 
+* hactypes.el (link-to-web-search): Added so Hyperbole global and explicit buttons can execute web searches.
+  hsettings.el (hyperbole-read-web-search-arguments): Added and used in hyperbole-web-search and link-to-web-search.
+  DEMO (Sample Explicit Buttons and Types):
+  man/hyperbole.texi (Action Types): Documented link-to-web-search.
+
+* INSTALL, README, README.md, README.md.html: Added Browsing the Source section with ftp tarball download information.
+
+* hpath.el (hpath:delimited-possible-path): Added non-ascii quote characters to possible delimiters.
+           (hpath:delete-trailer): Added quoting characters to deletion to fix bug where remote pathname retrieval
+    would include a trailing quote mark.
+
+* hargs.el (hargs:delimited): Added support for up to 2-line delimited regions as long as point is on the first line.
+    Normalized any newline followed by whitespace to a single space in the string returned.
+    Added (require 'hypb).
+
 * hys-org.el (defib org-mode, org-mode:help): Ensured trigger only in org-mode and simplified logic.
              (org-heading-at-p): Deleted and used org-at-heading-p instead.
 

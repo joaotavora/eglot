@@ -374,8 +374,8 @@ files and directories, then remote pathnames of the form:
 will be recognized by Hyperbole.
 
 Once you have Tramp configured for loading and are on the Internet, you can
-click on any of the following to browse the contents of the Hyperbole
-distribution:
+click on any of the following to jump to the ftp site of Hyperbole tarball
+distributions:
 
         "/anonymous@ftp.gnu.org:/pub/gnu/hyperbole/"
 	 ftp.gnu.org:/pub/gnu/hyperbole/
@@ -677,7 +677,7 @@ remember a Hyperbole term?  Check out the Hyperbole Manual <(glossary)>.
 
 Here is a <(keyboard macro)> button.  It displays documentation for the
 first Emacs Lisp function that follows it, e.g. (hbut:report).  You can see
-that a button label can consist of a number of words, up to a set <(maximum
+that a button label may consist of many characters, up to a set <(maximum
 length)>.
 
 A <(shell command)> button can do many things, such as display the length of
@@ -694,6 +694,9 @@ always jump there, so position point within the referent file to take
 advantage of this feature.  Note how a separate window is used when you
 activate file link buttons.  Most basic Hyperbole action types display their
 results in this manner.
+
+You can create buttons that run specific web searches such as a Wikipedia
+query on an <(electric car)> with the `link-to-web-search' action type.
 
 You can make a button an alias for another by using the `link-to-ebut'
 action type.  This <(factorial alias)> button does whatever the earlier

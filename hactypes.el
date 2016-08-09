@@ -16,7 +16,7 @@
 ;;; ************************************************************************
 
 (eval-and-compile (mapc #'require '(hbut hpath hargs hmail)))
-(eval-when-compile (require 'comint))
+(eval-when-compile (mapc #'require '(comint hsettings)))
 
 ;;; ************************************************************************
 ;;; Standard Hyperbole action types
@@ -453,6 +453,14 @@ Returns t if found, nil if not."
 	(hypb:error "(link-to-texinfo-node): Non-existent node: `%s'"
 		    nodename)))
     (hact 'link-to-file buffer-file-name node-point)))
+
+(defact link-to-web-search (service-name search-term)
+  "Searches web SERVICE-NAME for SEARCH-TERM.
+Uses `hyperbole-web-search-alist' to match each service to its search url.
+Uses `hyperbole-web-search-browser-function' and the `browse-url'
+package to display search results."
+  (interactive (hyperbole-read-web-search-arguments))
+  (hyperbole-web-search service-name search-term))
 
 (defact man-show (topic)
   "Displays man page on TOPIC, which may be of the form <command>(<section>).

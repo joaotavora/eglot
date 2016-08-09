@@ -107,6 +107,16 @@ down a windowful."
   (hyperbole-menubar-menu)
   (hyperbole-minibuffer-menu))
 
+(defun hyperbole-read-web-search-arguments (&optional service-name search-term)
+  "Read from the keyboard a list of (web-search-service-string search-term-string) if not given as arguments."
+  (let ((completion-ignore-case t))
+    (while (or (not (stringp service-name)) (equal service-name ""))
+      (setq service-name (completing-read "Search service: " hyperbole-web-search-alist
+					  nil t)))
+    (while (or (not (stringp search-term)) (equal search-term ""))
+     (setq search-term (read-string (format "Search %s for: " service-name))))
+    (list service-name search-term)))
+
 (defun hyperbole-web-search (&optional service-name search-term)
   "Search web SERVICE-NAME for SEARCH-TERM.
 Both arguments are optional and are prompted for when not given or when null.
@@ -114,20 +124,14 @@ Uses `hyperbole-web-search-alist' to match each service to its search url.
 Uses `hyperbole-web-search-browser-function' and the `browse-url'
 package to display search results."
   (interactive)
-  (let ((completion-ignore-case t))
-    (while (or (not (stringp service-name)) (equal service-name ""))
-      (setq service-name (completing-read "Search service: " hyperbole-web-search-alist
-					  nil t))))
-  (while (or (not (stringp search-term)) (equal search-term ""))
-    (setq search-term (read-string (format "Search %s for: " service-name))))
-  (if (assoc service-name hyperbole-web-search-alist)
-      (let ((browse-url-browser-function
-	     hyperbole-web-search-browser-function))
-	(browse-url
-	 (format (cdr (assoc service-name hyperbole-web-search-alist))
-		 search-term)))
-    (user-error "(Hyperbole): Invalid web search service `%s' or search term `%s'"
-		service-name search-term)))
+  (cl-multiple-value-bind (service-name search-term)
+      (hyperbole-read-web-search-arguments service-name search-term)
+    (if (assoc service-name hyperbole-web-search-alist)
+	(let ((browse-url-browser-function
+	       hyperbole-web-search-browser-function))
+	  (browse-url (format (cdr (assoc service-name hyperbole-web-search-alist))
+			      search-term)))
+      (user-error "(Hyperbole): Invalid web search service `%s'" service-name))))
 
 (defcustom hyperbole-web-search-browser-function browse-url-browser-function
   "*Function of one url argument called by any Hyperbole Find/Web search."

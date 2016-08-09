@@ -4,13 +4,17 @@
    1. Create a library of documents, link them on-the-fly and retrieve
       any one at the touch of a button containing its short id.
 
-   2. Display and edit local or remote files and directories simply by
+   2. Utilize a single key to follow URLs with section links, Markdown
+      links, Emacs outline heading links, Org mode links, file and
+      directory links and program identifier references.
+
+   3. Display and edit local or remote files and directories simply by
       pressing on their names.  Hyperbole will automatically embed
       certain key variables in link pathnames so that as these links
       are moved from site to site and the variable values change at
       each site, the links automatically maintain proper linkages.
 
-   3. Full-text search for any contact-related information across
+   4. Full-text search for any contact-related information across
       thousands of contacts in under a second.  The fastest contact
       manager you have ever used, with hierarchical entries so you can
       easily find everyone on a particular team or within an
@@ -18,42 +22,42 @@
       while still seeing name, phone number and email information.
       Edit entries with a single key press.
 
-   4. Hyperbole has some radically cool ways to select regions of
+   5. Hyperbole has some radically cool ways to select regions of
       structured text or source code and to copy or move them between
       buffers with a single mouse drag or two key presses.  These
       selectable things include: delimited pairs of (), @{@}, <>, []
       and quote marks, source code functions, source code comments and
       matching tag pairs in HTML and SGML modes.
 
-   5. Use the fantastic, auto-numbered Koutliner with per-item links
+   6. Use the fantastic, auto-numbered Koutliner with per-item links
       and rapidly changeable views.
 
-   6. Rapid control over what is displayed where in multiple windows
-      and frames with Hyperbole' HyControl module.
+   7. Rapid control over what is displayed where in multiple windows
+      and frames with the Hyperbole HyControl system.
 
-     6a. Use a quick mouse key press to scroll any window line to the
+     7a. Use a quick mouse key press to scroll any window line to the
          top or bottom of a window, to see exactly what you want on
          screen.
 
-     6b. For each frame, store a series of window configurations
+     7b. For each frame, store a series of window configurations
          (layouts) that each allow for working with a set of specific
          buffers, rapidly moving among them.
 
-     6c. Easily adjust the height and width of windows as needed.
+     7c. Easily adjust the height and width of windows as needed.
 
-     6d. Quick clicks on different areas of a buffer's modeline will
+     7d. Quick clicks on different areas of a buffer's modeline will
          rotate through your working list of buffers, changing what
          each window displays.  A popup menu gives you quick access to
          Hyperbole commands plus frame, window and buffer selection
          and management commands.  GNU documentation manuals may be
          shown and navigated with a single mouse key.
 
-     6e. A single mouse drag swaps what is displayed in each of two
+     7e. A single mouse drag swaps what is displayed in each of two
          windows, even across frames.
 
 
 "ben" ;; kvspec:current
-16 ;; id-counter
+18 ;; id-counter
 alpha ;; label-type
 4 ;; label-min-width
 ". " ;; label-separator
@@ -61,9 +65,11 @@ alpha ;; label-type
 
 ;; depth-first kcell attributes
 [[0
-  (creator "rsw@gnu.org" create-time "20160613:15:02:38" id-counter 16 file "/Users/bk/sw-dev/emacs/hyperbole-5.12/HY-WHY.kotl")]
+  (creator nil create-time "20160806:03:21:53" id-counter 18 file "/Users/bk/sw-dev/emacs/hyperbole-6.0.1/HY-WHY.kotl")]
  [1
   (creator "rsw@gnu.org" create-time "20160524:15:04:17" no-fill t)]
+ [17
+  (creator "rsw@gnu.org" create-time "20160809:03:31:21" no-fill t)]
  [2
   (creator "rsw@gnu.org" create-time "20160524:15:04:24" no-fill t)]
  [9
@@ -84,4 +90,4 @@ alpha ;; label-type
   (creator "rsw@gnu.org" create-time "20160530:15:10:41" no-fill t)]
  [12
   (creator "rsw@gnu.org" create-time "20160530:15:14:46" no-fill t)]
- nil nil nil nil nil]
+ nil nil nil nil nil nil]

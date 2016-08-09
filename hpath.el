@@ -494,7 +494,7 @@ double quotes, open and close single quote, whitespace, or Texinfo file referenc
 With optional NON-EXIST, nonexistent local paths are allowed.  Absolute pathnames must begin with a `/' or `~'."
   (or (hargs:delimited "\"" "\"") 
       ;; Filenames in Info docs or Python files
-      (hargs:delimited "[\`\']" "\'" t)
+      (hargs:delimited "[`'‘]" "[`'’]" t t)
       ;; Filenames in TexInfo docs
       (hargs:delimited "@file{" "}")
       ;; Any existing whitespace delimited filename at point.
@@ -1217,10 +1217,10 @@ Returns \"anonymous\" if no default user is set."
 	(t "anonymous")))
 
 (defun hpath:delete-trailer (string)
-  "Return string minus any trailing .?#!*() characters."
+  "Return string minus any trailing .?#!*() or quoting characters."
   (save-match-data
     (if (and (stringp string) (> (length string) 0)
-	     (string-match "[.?#!*()]+\\'" string))
+	     (string-match "[.?#!*()`'\"]+\\'" string))
 	(substring string 0 (match-beginning 0))
       string)))
 

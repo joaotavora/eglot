@@ -11,11 +11,14 @@
 
     - pathname Implicit Button Type: generalized to handle hash-style links to
       HTML files, to Github Markdown # sections and to Emacs outline *
-      sections.  So an Action Key on any of the following links displays the
-      link referent:
+      sections.  So an Action Key press on any of the following links displays
+      the link referent:
             "man/hyperbole.html#Questions-and-Answers"
 	    "README.md#why-was-hyperbole-developed"
 	    "DEMO#HTML Markdown and Emacs Outline Hash Links"
+      Even links split across 2 lines like this now work: "DEMO#Social Media
+      Hashtags and Usernames", as long as point is on the first line.
+
       Within HTML and Markdown files, in-file hash links without any file name
       prefix work as well.
 
@@ -26,6 +29,9 @@
       in quotes so Hyperbole can distinguish them from other similar looking
       constructs, such as social media hashtags (see "(hyperbole)Social Media").
 
+      Pathnames surrounded by literal non-ASCII quote marks now work as well.
+      For example, ‘http://ftp.gnu.org/gnu/hyperbole/’.
+
     - New Implicit Button Type, markdown-internal-link, displays any in-file
       Markdown link referent, aside from pathnames and urls.  Together with
       other types, all Markdown links can now be followed by the Action Key.
@@ -34,6 +40,9 @@
       strings (all modes) and within parentheses (markdown-mode), so in-file
       hash link references are not matched as social hash tags.  Made the list
       of modes a variable, hibtypes-social-inhibit-modes.
+
+    - New link-to-web-search Action Type: Allows global and explicit buttons
+      to link to specific web term searches from `hyperbole-web-search-alist'.
 
     - org-mode Implicit Button Type: Improved to invoke org-meta-return when
       not on an Org link or outline heading.

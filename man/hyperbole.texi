@@ -152,7 +152,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2
-Printed August 8, 2016.
+Printed August 9, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed August 8, 2016.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.2, August 8, 2016.
+@center Edition 6.0.2, August 9, 2016.
 
 @sp 2
 @noindent
@@ -443,7 +443,7 @@ Smart Keyboard Keys
 @chapter Introduction
 
 This edition of the GNU Hyperbole Manual is for use with any version
-6.01 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.0.2 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 
 This chapter summarizes the structure of the rest of the manual,
@@ -1565,6 +1565,14 @@ Returns @samp{t} if found, @samp{nil} if not.
 @findex actypes link-to-texinfo-node
 @item link-to-texinfo-node
 Displays the Texinfo node with NODENAME (a string) from the current buffer.
+
+@findex actypes link-to-web-search
+@cindex link, web search
+@cindex web search link
+@item link-to-web-search
+Searches web SERVICE-NAME for SEARCH-TERM.  Uses @code{hyperbole-web-search-alist}
+to match each service to its search url.  Uses @code{hyperbole-web-search-browser-function}
+and the @code{browse-url} package to display search results.
 
 @findex actypes man-show
 @vindex sm-notify

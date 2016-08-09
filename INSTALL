@@ -12,6 +12,21 @@
 # This file is part of GNU Hyperbole.
 
 ===========================================================================
+*		         Browsing the Source
+===========================================================================
+
+To explore the Hyperbole source code rather than installing it for use,
+download a tar.gz source archive from either:
+
+    ftp://ftp.gnu.org/gnu/hyperbole/
+
+or
+
+    http://ftpmirror.gnu.org/hyperbole/
+
+which will find the closest mirror of the GNU ftp site and show it to you.
+
+===========================================================================
 *		           Installation
 ===========================================================================
 

@@ -26,6 +26,7 @@
 ;;; ************************************************************************
 
 (require 'hpath)
+(require 'hypb)
 (require 'set)
 
 ;;; ************************************************************************
@@ -91,7 +92,7 @@ interactive form or takes no arguments."
 
 (defun hargs:delimited (start-delim end-delim
 			&optional start-regexp-flag end-regexp-flag list-positions-flag)
-  "Returns a single line, delimited string that point is within, or nil.
+  "Returns a normalized, single line, delimited string that point is within, or nil.
 START-DELIM and END-DELIM are strings that specify the argument
 delimiters.  With optional START-REGEXP-FLAG non-nil, START-DELIM is
 treated as a regular expression.  END-REGEXP-FLAG is similar.
@@ -115,7 +116,8 @@ With optional LIST-POSITIONS-FLAG, return list of (string-matched start-pos end 
 		  (funcall end-search-func end-delim opoint t))
 	(setq start nil))
       (when start
-	(end-of-line) (setq limit (1+ (point)))
+	(forward-line 2)
+	(setq limit (point))
 	(goto-char opoint)
 	(and (funcall end-search-func end-delim limit t)
 	     (setq end (match-beginning 0))
@@ -126,9 +128,10 @@ With optional LIST-POSITIONS-FLAG, return list of (string-matched start-pos end 
 		 (setq end (1- end))
 	       t)
 	     (< start end)
-	     (if list-positions-flag
-		 (list (buffer-substring start end) start end)
-	       (buffer-substring start end)))))))
+	     (let ((string (hypb:replace-match-string "[\n\r]\\s-*" (buffer-substring start end) " " t)))
+	       (if list-positions-flag
+		   (list string start end)
+		 string)))))))
 
 (defun hargs:get (interactive-entry &optional default prior-arg)
   "Prompts for an argument, if need be, from INTERACTIVE-ENTRY, a string.

@@ -1,4 +1,4 @@
-# GNU Hyperbole - Version 6.0.1
+# GNU Hyperbole - Version 6.0.2
 
 <!-- START doctoc generated TOC -->
 **Table of Contents**
@@ -38,6 +38,19 @@ The [Hyperbole wiki page](https://www.emacswiki.org/emacs/Hyperbole)
 explains the many ways it differs from and is complementary to Org mode.
 
 ![Hyperbole screenshot of the Koutliner, DEMO file and HyRolo](man/im/hyperbole-cv.png)
+
+## Browsing the Source
+
+To explore the Hyperbole source code rather than installing it for use,
+download a tar.gz source archive from either:
+
+  - <ftp://ftp.gnu.org/gnu/hyperbole/>
+
+or
+
+  - <http://ftpmirror.gnu.org/hyperbole/>
+
+which will find the closest mirror of the GNU ftp site and show it to you.
 
 ## Installation
 
