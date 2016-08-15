@@ -1,7 +1,10 @@
-            ANNOUNCE: GNU Hyperbole 6.0.2 for Emacs 24.4 to 25 is released
+ANNOUNCE: GNU Hyperbole 6.0.2 for Emacs 24.4 or newer is released
+
+The GNU Hyperbole home page, https://www.gnu.org/software/hyperbole, contains a
+number of screenshots of Hyperbole and its menus and links to useful resources.
 
 GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole, is an
-amazing programmable hypertextual information management system implemented as
+amazing, programmable hypertextual information management system implemented as
 a GNU Emacs package.  This is the second public release in 2016.  Hyperbole has
 been greatly expanded and modernized for use with the latest Emacs 25
 releases; it supports GNU Emacs 24.4 or above.  It contains an extensive set
@@ -36,9 +39,6 @@ introduce you to its features and a detailed reference manual.
 *                          About
 ===========================================================================
 
-http://git.savannah.gnu.org/cgit/hyperbole.git/tree/man/im contains a number
-of screenshots of Hyperbole and its menus.
-
 GNU Hyperbole consists of five parts:
 
 * Buttons and Smart Keys
@@ -59,7 +59,7 @@ GNU Hyperbole consists of five parts:
      operations across emacs usage, including activating and showing
      help for Hyperbole buttons.  In many popular Emacs modes, they
      allow you to perform common, sometimes complex operations without
-     having to a different key for each operation.  Just press a Smart
+     having to use a different key for each operation.  Just press a Smart
      Key and the right thing happens;
 
 * Contact and Text Finder

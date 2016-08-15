@@ -3,8 +3,7 @@
 ;; Copyright (C) 1992-2016  Free Software Foundation, Inc.
 
 ;; Author:           Bob Weiner
-;; Maintainer:       Bob Weiner <rsw@gnu.org>
-;;		     Mats Lidell <matsl@gnu.org>
+;; Maintainer:       Bob Weiner <rsw@gnu.org> and Mats Lidell <matsl@gnu.org>
 ;; Created:          06-Oct-92 at 11:52:51
 ;; Released:         09-Aug-16
 ;; Version:          6.0.2
@@ -196,7 +195,7 @@ Entry format is: (key-description key-sequence key-binding)."
 	  (hkey-bindings-keys hkey-previous-bindings)))
 
 (defun hkey-global-set-key (key command &optional no-add)
-  (or no-add (add-to-list #'hkey-previous-bindings (hkey-binding-entry key)))
+  (or no-add (add-to-list 'hkey-previous-bindings (hkey-binding-entry key)))
   (global-set-key key command))
 
 (defun hkey-initialize ()
@@ -344,7 +343,7 @@ bindings after load)."
   #'(if (boundp 'hyperb:dir)
 	(let ((info-dir (expand-file-name "man/" hyperb:dir)))
 	  (if (file-exists-p info-dir)
-	      (add-to-list #'Info-directory-list info-dir)))))
+	      (add-to-list 'Info-directory-list info-dir)))))
 
 ;;; ************************************************************************
 ;;; Prevent local key maps from hiding the Action Key (overriding it)

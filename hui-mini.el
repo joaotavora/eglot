@@ -161,7 +161,8 @@ With optional HELP-STRING-FLAG, instead returns the one line help string for the
 		 (= input ?\r)))
 	(setq input (hargs:at-p)))
     (erase-buffer)
-    (or (symbolp input) (null input) (insert input)))
+    (when (or (characterp input) (stringp input))
+      (insert input)))
   (exit-minibuffer))
 
 (defun hui:menu-forward-item ()

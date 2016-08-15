@@ -443,7 +443,7 @@ pre[class*="language-"] {
 
 <body>
 
-<h1 id="toc_0">GNU Hyperbole</h1>
+<h1 id="toc_0">GNU Hyperbole 6.0.2 - The Everyday Hypertextual Information Manager</h1>
 
 <!-- START doctoc generated TOC -->
 
@@ -451,7 +451,8 @@ pre[class*="language-"] {
 
 <ul>
 <li><a href="#summary">Summary</a></li>
-<li><a href="#browsing-the-source">Browsing the Source</a></li>
+<li><a href="#mailing-lists">Mailing Lists</a></li>
+<li><a href="#ftp-and-git">Ftp and Git Source Code-only Downloads</a></li>
 <li><a href="#installation">Installation</a></li>
 <li><a href="#invocation">Invocation</a></li>
 <li><a href="#details">Details</a></li>
@@ -469,7 +470,8 @@ pre[class*="language-"] {
 <code>Hyperbole</code>, is an efficient and programmable hypertextual information
 management system implemented as a GNU Emacs package.  It works well
 on GNU Emacs 24.4 or above.  It is designed and written by Bob Weiner.
-Its main distribution site is: <a href="https://www.gnu.org/software/hyperbole/">https://www.gnu.org/software/hyperbole/</a>.</p>
+It is maintained by him and Mats Lidell.  Its main distribution site is:
+<a href="https://www.gnu.org/software/hyperbole/">https://www.gnu.org/software/hyperbole/</a>.</p>
 
 <p>It includes easy-to-use, powerful hypertextual button types without
 the need to learn a markup language; a hierarchical, record-based
@@ -486,12 +488,32 @@ World-Wide Web URLs, Info manuals, ftp archives, etc.</p>
 <p>The <a href="https://www.emacswiki.org/emacs/Hyperbole">Hyperbole wiki page</a>
 explains the many ways it differs from and is complementary to Org mode.</p>
 
+Hyperbole is now available for <a href="#installation">download and installation</a>
+through the GNU Emacs package manager.
+
 <p><img src="man/im/hyperbole-cv.png" alt="Hyperbole screenshot of the Koutliner, DEMO file and HyRolo"></p>
 
-<h2 id="browsing-the-source">Browsing the Source</h2>
+<h2 id="mailing-lists">Mailing Lists</h2>
 
-<p>To explore the Hyperbole source code rather than installing it for use,
-    download a tar.gz source archive from either:</p>
+<dl>
+    <dt><strong>hyperbole-users@gnu.org</strong></dt>
+    <dd>User list for GNU Hyperbole
+	(<a href="http://lists.gnu.org/mailman/listinfo/hyperbole-users">info
+	and subscription</a>,
+	<a href="http://lists.gnu.org/pipermail/hyperbole-users/">web archive</a>).
+    </dd>
+    <dt><strong>bug-hyperbole@gnu.org</strong></dt>
+    <dd>List for bug reporting
+	(<a href="http://lists.gnu.org/mailman/listinfo/bug-hyperbole">info
+	and subscription</a>,
+	<a href="http://lists.gnu.org/archive/html/bug-hyperbole/">web archive</a>).
+    </dd>
+</dl>
+
+<h2 id="ftp-and-git">Ftp and Git Source Code-only Downloads</h2>
+
+<p>To explore the released Hyperbole source code rather than installing it for use,
+   download a tar.gz source archive from either:</p>
 
 <ul><li><a href="ftp://ftp.gnu.org/gnu/hyperbole/">ftp://ftp.gnu.org/gnu/hyperbole/</a></li></ul>
 
@@ -500,6 +522,11 @@ explains the many ways it differs from and is complementary to Org mode.</p>
 <ul><li><a href="http://ftpmirror.gnu.org/hyperbole/">http://ftpmirror.gnu.org/hyperbole/</a></li></ul>
 
 <p>which will find the closest mirror of the GNU ftp site and show it to you.</p>
+
+<p>If you want to follow along with Hyperbole development and
+    maintain a copy/clone of the current version-controlled git tree,
+    use the <a href="https://savannah.gnu.org/git/?group=hyperbole">command listed here</a>
+    to clone the Hyperbole project tree.</p>
 
 <h2 id="installation">Installation</h2>
 
@@ -616,7 +643,7 @@ wherever the Hyperbole package directory is on your system; often this is:
    context-sensitive operations across emacs usage, including
    activating and showing help for Hyperbole buttons.  In many
    popular Emacs modes, they allow you to perform common, sometimes
-   complex operations without having to a different key for each
+   complex operations without having to use a different key for each
    operation.  Just press a Smart Key and the right thing happens;</p></li>
 <li><p><strong>Contact and Text Finder</strong>: an interactive textual information
    management interface, including fast, flexible file and text
@@ -799,11 +826,11 @@ Keys).</p>
 
 <p>One of the nicest things about Hyperbole is that it's available
    everywhere. Org-mode is a mode and its features are only available in
-   *.org files. For instance if you dropped into `eshell' or `ansi-term' and
+   Org files. For instance if you dropped into `eshell' or `ansi-term' and
    did `ls', you can move point to any of the directory's contents, do M-RET
    (or Shift-Button2) and jump to that file.  And that's just one example.
    Note that this means that all Hyperbole functionality is available in
-   *.org files as well.  To me, except for the Hyperbole outliner, that means
+   Org files as well.  To me, except for the Hyperbole outliner, that means
    complementary not conflicting. It's Hyperbole *and* org-mode, not
    Hyperbole vs. org-mode.
 

@@ -169,7 +169,7 @@ severity, and package."
   (require 'debbugs-gnu)
   (setq debbugs-gnu-current-query nil)
   (dolist (attr query-attribute-list)
-    (add-to-list #'debbugs-gnu-current-query
+    (add-to-list 'debbugs-gnu-current-query
 		 (cons (if (symbolp (car attr)) (car attr) (intern (car attr)))
 		       (cdr attr))))
   (debbugs-gnu-show-reports))

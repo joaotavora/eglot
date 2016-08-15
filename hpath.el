@@ -43,22 +43,34 @@ Default is `nil' since this can slow down normal file finding."
 ;;; FILE VIEWER COMMAND SETTINGS
 ;;; ************************************************************************
 
-(defcustom hpath:external-display-alist-macos '(("\\.\\(adaptor\\|app\\|bshlf\\|clr\\|concur\\|create\\|diagram\\|dp\\|e?ps\\|frame\\|gif\\|locus\\|Mesa\\|nib\\|pdf\\|project\\|rtf\\|sense\\|tiff\\|tree\\)$" . "open"))
-  "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST) elements for the Macintosh window system.
+(defcustom hpath:external-open-office-suffixes "doc[mx]?\\|ods\\|ppsx?\\|ppt[mx]?\\|xls[mx]?"
+  "*Regexp of Open Office document suffix alternatives to display externally.
+See http://www.openwith.org/programs/openoffice for a full list of
+possible suffixes."
+  :type 'string
+  :group 'hyperbole-commands)
+
+(defcustom hpath:external-display-alist-macos (list (cons (format "\\.\\(%s\\|adaptor\\|app\\|bshlf\\|clr\\|concur\\|create\\|diagram\\|dp\\|e?ps\\|frame\\|gif\\|locus\\|Mesa\\|nib\\|pdf\\|project\\|rtf\\|sense\\|tiff\\|tree\\)$"
+								  hpath:external-open-office-suffixes)
+							  "open"))
+  "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST)
+  elements for the Macintosh os x window system.
 See the function `hpath:get-external-display-alist' for detailed format documentation."
   :type 'regexp
   :group 'hyperbole-commands)
 
-(defvar hpath:external-display-alist-mswindows nil
+(defvar hpath:external-display-alist-mswindows (list (cons (format "\\.\\(%s\\)$" hpath:external-open-office-suffixes)
+							   "openoffice.exe"))
     "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST) elements for MS Windows.
 See the function `hpath:get-external-display-alist' for detailed format documentation.")
 
-(defvar hpath:external-display-alist-x '(("\\.e?ps$" . "ghostview")
-					  ("\\.dvi$"  . "xdvi")
-					  ("\\.pdf$"  . ("xpdf" "acroread"))
-					  ("\\.ps\\.g?[zZ]$" . "zcat %s | ghostview -")
-					  ("\\.\\(gif\\|tiff?\\|xpm\\|xbm\\|xwd\\|pm\\|pbm\\|jpe?g\\)"  . "xv")
-					  ("\\.ra?s$" . "snapshot -l"))
+(defvar hpath:external-display-alist-x (list '("\\.e?ps$" . "ghostview")
+					     '("\\.dvi$"  . "xdvi")
+					     (cons (format "\\.\\(%s\\)$" hpath:external-open-office-suffixes) "openoffice")
+					     '("\\.pdf$"  . ("xpdf" "acroread"))
+					     '("\\.ps\\.g?[zZ]$" . "zcat %s | ghostview -")
+					     '("\\.\\(gif\\|tiff?\\|xpm\\|xbm\\|xwd\\|pm\\|pbm\\|jpe?g\\)"  . "xv")
+					     '("\\.ra?s$" . "snapshot -l"))
   "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST) elements for the X Window System.
 See the function `hpath:get-external-display-alist' for detailed format documentation.")
 
@@ -1181,7 +1193,7 @@ be integrated, otherwise the filename is appended as an argument."
   ;; Permit %s substitution of filename within program.
   (if (string-match "[^%]%s" cmd)
       (format cmd filename)
-    (concat cmd " " filename)))
+    (format "%s \"%s\"" cmd filename)))
 
 (defun hpath:remote-available-p ()
   "Return non-nil if a remote file access package is available, nil otherwise.

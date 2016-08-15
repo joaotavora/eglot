@@ -1,9 +1,11 @@
-# GNU Hyperbole - Version 6.0.2
+# GNU Hyperbole 6.0.2 - The Everyday Hypertextual Information Manager
 
 <!-- START doctoc generated TOC -->
 **Table of Contents**
 
 - [Summary](#summary)
+- [Mailing Lists](#mailing-lists)
+- [Ftp and Git Source Code-only Downloads](#ftp-and-git)
 - [Installation](#installation)
 - [Invocation](#invocation)
 - [Details](#details)
@@ -20,7 +22,8 @@
 `Hyperbole`, is an efficient and programmable hypertextual information
 management system implemented as a GNU Emacs package.  It works well
 on GNU Emacs 24.4 or above.  It is designed and written by Bob Weiner.
-Its main distribution site is: <https://www.gnu.org/software/hyperbole/>.
+It is maintained by him and Mats Lidell.  Its main distribution site is:
+<https://www.gnu.org/software/hyperbole/>.
 
 It includes easy-to-use, powerful hypertextual button types without
 the need to learn a markup language; a hierarchical, record-based
@@ -37,20 +40,38 @@ World-Wide Web URLs, Info manuals, ftp archives, etc.
 The [Hyperbole wiki page](https://www.emacswiki.org/emacs/Hyperbole)
 explains the many ways it differs from and is complementary to Org mode.
 
+Hyperbole is now available for [download and installation](#installation)
+through the GNU Emacs package manager.
+
 ![Hyperbole screenshot of the Koutliner, DEMO file and HyRolo](man/im/hyperbole-cv.png)
 
-## Browsing the Source
+## Mailing Lists
 
-To explore the Hyperbole source code rather than installing it for use,
-download a tar.gz source archive from either:
+    - **hyperbole-users@gnu.org** - User list for GNU Hyperbole
 
-  - <ftp://ftp.gnu.org/gnu/hyperbole/>
+  	    [info and subscription](http://lists.gnu.org/mailman/listinfo/hyperbole-users)
+        [web archive](http://lists.gnu.org/pipermail/hyperbole-users/)
 
-or
+    - **bug-hyperbole@gnu.org** - List for bug reporting
 
-  - <http://ftpmirror.gnu.org/hyperbole/>
+        [info and subscription](http://lists.gnu.org/mailman/listinfo/bug-hyperbole)
+        [web archive](http://lists.gnu.org/archive/html/bug-hyperbole/)
+
+## Ftp and Git Source Code-only Downloads
+
+To explore the released Hyperbole source code rather than installing it for use,
+download a tar.gz source archive from either:</p>
+
+    - [ftp://ftp.gnu.org/gnu/hyperbole/]()
+
+    - [http://ftpmirror.gnu.org/hyperbole/]()
 
 which will find the closest mirror of the GNU ftp site and show it to you.
+
+If you want to follow along with Hyperbole development and maintain a
+copy/clone of the current version-controlled git tree, use the
+[command listed here](https://savannah.gnu.org/git/?group=hyperbole)
+to clone the Hyperbole project tree.
 
 ## Installation
 
@@ -167,7 +188,7 @@ Hyperbole consists of five parts:
        context-sensitive operations across emacs usage, including
        activating and showing help for Hyperbole buttons.  In many
        popular Emacs modes, they allow you to perform common, sometimes
-       complex operations without having to a different key for each
+       complex operations without having to use a different key for each
        operation.  Just press a Smart Key and the right thing happens;
 
    2.  **Contact and Text Finder**: an interactive textual information
@@ -361,11 +382,11 @@ Keys).
 
   One of the nicest things about Hyperbole is that it's available
   everywhere. Org-mode is a mode and its features are only available in
-  *.org files. For instance if you dropped into `eshell' or `ansi-term' and
+  Org files. For instance if you dropped into `eshell' or `ansi-term' and
   did `ls', you can move point to any of the directory's contents, do M-RET
   (or Shift-Button2) and jump to that file.  And that's just one example.
   Note that this means that all Hyperbole functionality is available in
-  *.org files as well.  To me, except for the Hyperbole outliner, that means
+  Org files as well.  To me, except for the Hyperbole outliner, that means
   complementary not conflicting. It's Hyperbole *and* org-mode, not
   Hyperbole vs. org-mode.
 

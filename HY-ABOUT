@@ -44,7 +44,7 @@ Hyperbole consists of five parts:
        context-sensitive operations across emacs usage, including
        activating and showing help for Hyperbole buttons.  In many
        popular Emacs modes, they allow you to perform common, sometimes
-       complex operations without having to a different key for each
+       complex operations without having to use a different key for each
        operation.  Just press a Smart Key and the right thing happens;
 
    2.  Contact and Text Finder: an interactive textual information

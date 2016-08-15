@@ -12,7 +12,8 @@
 # This file is part of GNU Hyperbole.
 
 We hope you enjoy using GNU Hyperbole.  Feel free to mail or post news
-containing this file wherever it may be of use.
+containing this file wherever it may be of use.  Hyperbole is designed and
+written by Bob Weiner.  It is maintained by him and Mats Lidell.
 
 ===========================================================================
 *			Table of Contents
@@ -26,7 +27,10 @@ containing this file wherever it may be of use.
 *			   Files
 ===========================================================================
 
-See the "HY-ABOUT" file for a description and overview of Hyperbole.
+For a summary of Hyperbole with text and images, see the Hyperbole home
+page: https://www.gnu.org/software/hyperbole.  If you have already
+downloaded Hyperbole, see the "HY-ABOUT" file for a text-only description
+and overview of Hyperbole.
 
 See "DEMO" for a demonstration of standard Hyperbole button capabilities.
 This is the best way to initially interactively learn about Hyperbole after

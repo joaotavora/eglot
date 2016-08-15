@@ -1,6 +1,36 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-08-12  Bob Weiner  <rsw@gnu.org>
+
+* hui-mini.el (hui:menu-enter): Fixed potential error of (wrong-type-argument char-or-string-p 134217741)
+    when insert was called with a non-character code integer.
+
+2016-08-10  Bob Weiner  <rsw@gnu.org>
+
+* HY-ANNOUNCE-SHORT - Added as a shorter release announcement.
+
+* HY-ABOUT, README, README.md, README.md.html - Synchronized with Hyperbole web home page
+    and typo fixes.
+
+* hpath.el (hpath:external-open-office-suffixes): Added external display of
+    Open Office documents based on this new option.
+           (hpath:command-string): Quoted filename argument to allow spaces in filenames.
+    This fixed an issue when an external viewer such as `open' was called under OS X
+    and the filename to be opened contained spaces.
+
+* hyperbole.el (Maintainer): Changed back to single line so ELPA parses it correctly.
+
+* hib-debbugs.el (debbugs-gnu-query:list): 
+  hyperbole.el (hkey-global-set-key, Info-directory-list): 
+  hvar.el (var:append): Removed improper function quoting of variable.
+
+==============================================================================
+V6.0.3 changes ^^^^:
+==============================================================================
+
 2016-08-08  Bob Weiner  <rsw@gnu.org>
+
+* Makefile (release, elpa, ftp): Updated to work better.
 
 * hactypes.el (link-to-web-search): Added so Hyperbole global and explicit buttons can execute web searches.
   hsettings.el (hyperbole-read-web-search-arguments): Added and used in hyperbole-web-search and link-to-web-search.
