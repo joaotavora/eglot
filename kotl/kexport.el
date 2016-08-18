@@ -50,7 +50,7 @@
 		 (string))
   :group 'hyperbole-koutliner)
 
-(defvar kexport:label-html-font-attributes
+(defcustom kexport:label-html-font-attributes
   "COLOR=\"#C100C1\" SIZE=\"-1\""
   "*String of HTML font attributes attached to kcell labels when exported."
   :type 'string

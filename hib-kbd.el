@@ -57,9 +57,9 @@ Forms such as {\C-b}, {\^b}, and {^b} will not be recognized."
 		 (not (eq key-sequence "")))
 	(setq key-sequence (kbd-key:normalize key-sequence)
 	      binding (key-binding key-sequence)))
-      (and (if binding
-	       (not (integerp binding))
-	     (kbd-key:hyperbole-mini-menu-key-p key-sequence))
+      (and (cond (binding (not (integerp binding)))
+		 ((kbd-key:hyperbole-mini-menu-key-p key-sequence))
+		 ((kbd-key:extended-command-p key-sequence)))
 	   (ibut:label-set seq-and-pos)
 	   (hact 'kbd-key key-sequence)))))
 
@@ -74,10 +74,12 @@ Returns t if KEY-SEQUENCE has a binding, else nil."
   (setq current-prefix-arg nil) ;; kbd-key:normalize below sets it.
   (let ((binding (key-binding key-sequence)))
     (cond ((null binding)
-	   ;; If this is a Hyperbole minibuffer menu item key sequence, execute it
-	   ;; by adding its keys to the stream of unread command events.
-	   (if (kbd-key:hyperbole-mini-menu-key-p key-sequence)
-	       (setq unread-command-events (nconc unread-command-events (mapcar 'identity key-sequence)))))
+	   ;; If this is a Hyperbole minibuffer menu item key sequence
+	   ;; or a M-x extended command, execute it by adding its keys
+	   ;; to the stream of unread command events.
+	   (when (or (kbd-key:hyperbole-mini-menu-key-p key-sequence)
+		     (kbd-key:extended-command-p key-sequence))
+	     (setq unread-command-events (nconc unread-command-events (mapcar 'identity key-sequence)))))
 	  ((memq binding '(action-key action-mouse-key hkey-either))
 	   (beep)
 	   (message "(kbd-key:act): This key does what the Action Key does.")
@@ -109,6 +111,10 @@ With optional prefix arg FULL, displays full documentation for command."
 	     (message doc)))
 	  (t (error "(kbd-key:doc): No binding found for keys {%s}" key-sequence)))))
 
+(defun kbd-key:extended-command-p (key-sequence)
+  "Returns non-nil if the string KEY-SEQUENCE is a normalized extended command invocation, i.e. M-x command."
+  (and (stringp key-sequence) (string-match kbd-key:extended-command-prefix key-sequence)))
+  
 (defun kbd-key:help (but)
   "Display documentation for binding of keyboard key given by BUT's label."
   (let ((kbd-key (hbut:key-to-label (hattr:get but 'lbl-key))))
@@ -126,7 +132,6 @@ With optional prefix arg FULL, displays full documentation for command."
   (if (stringp key-sequence)
       (let ((norm-key-seq (copy-sequence key-sequence))
 	    (case-fold-search nil) (case-replace t))
-	;; Quote Control and Meta key names
 	(setq norm-key-seq (hypb:replace-match-string
 			    "[ \t\n\r]+" norm-key-seq "" t)
 	      norm-key-seq (hypb:replace-match-string
@@ -140,6 +145,8 @@ With optional prefix arg FULL, displays full documentation for command."
 			    "ESCESC" norm-key-seq "\233" t)
 	      norm-key-seq (hypb:replace-match-string
 			    "@key{ESC}\\|<ESC>\\|ESC" norm-key-seq "M-" t)
+	      norm-key-seq (hypb:replace-match-string
+			    "C-M-" norm-key-seq "M-C-" t)
 	      ;; Unqote special {} chars.
 	      norm-key-seq (hypb:replace-match-string "\\\\\\([{}]\\)"
 						      norm-key-seq "\\1"))
@@ -157,6 +164,7 @@ With optional prefix arg FULL, displays full documentation for command."
 	    (setq arg-val (* arg-val 4)
 		  current-prefix-arg (cons arg-val nil)
 		  norm-key-seq (substring norm-key-seq (match-end 0)))))
+	;; Quote Control and Meta key names
 	(setq norm-key-seq (hypb:replace-match-string
 			    "C-\\(.\\)" norm-key-seq
 			    (lambda (str)
@@ -169,11 +177,17 @@ With optional prefix arg FULL, displays full documentation for command."
 	      norm-key-seq (hypb:replace-match-string
 			    "M-\\(.\\)" norm-key-seq
 			    (lambda (str)
-			      (char-to-string (+ (downcase (string-to-char
-							    (substring str (match-beginning 1)
-								       (1+ (match-beginning 1)))))
-						 128))))))
+			      (concat "" (substring str (match-beginning 1)
+						      (1+ (match-beginning 1))))))))
     (error "(kbd-key:normalize): requires a string argument, not `%s'" key-sequence)))
+
+;;; ************************************************************************
+;;; Private variables
+;;; ************************************************************************
+
+(defconst kbd-key:extended-command-prefix
+  (kbd-key:normalize (key-description (where-is-internal 'execute-extended-command (current-global-map) t)))
+  "Normalized prefix string that invokes an extended command; typically ESC x.")
 
 (provide 'hib-kbd)
 

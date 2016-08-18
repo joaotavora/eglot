@@ -1,7 +1,5 @@
 # README --- Information GNU Hyperbole users and maintainers should read
 #
-# See the "HY-ABOUT" file for a description of GNU Hyperbole.
-#
 # Author:       Bob Weiner
 #
 # Orig-Date:    19-Oct-91 at 03:27:47
@@ -18,19 +16,62 @@ written by Bob Weiner.  It is maintained by him and Mats Lidell.
 ===========================================================================
 *			Table of Contents
 ===========================================================================
+			* Summary
 			* Files
 			* Programmer Quick Reference
 			* User Quotes
 			* Why was Hyperbole developed?
 
 ===========================================================================
-*			   Files
+*			   Summary
 ===========================================================================
 
-For a summary of Hyperbole with text and images, see the Hyperbole home
-page: https://www.gnu.org/software/hyperbole.  If you have already
-downloaded Hyperbole, see the "HY-ABOUT" file for a text-only description
-and overview of Hyperbole.
+GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole, is an
+efficient and programmable hypertextual information management system
+implemented as a GNU Emacs package. It is a toolkit and user interface for
+viewing, retrieving and interlinking all kinds of textual information,
+utilizing Emacs for editing most of that information. Thus, you can build
+new classes of applications with it, but most people will just use it to
+speed their day-to-day information management needs.
+
+Hyperbole works well on GNU Emacs 24.4 or above. It is designed and written
+by Bob Weiner. It is maintained by him and Mats Lidell. Its main
+distribution site is: https://www.gnu.org/software/hyperbole/. If any term
+in here is new or unfamiliar to you, you can look it up in the Hyperbole
+Glossary.
+
+Hyperbole lets you:
+
+1. Create your own button types and use buttons of those types to launch
+arbitrary actions. One action type is a link to a file;
+
+2. Build outlines with multi-level numbered outline nodes, e.g. 1.4.8.6,
+that all renumber automatically as any node or tree is moved in the
+outline. Each node also has a permanent hyperlink anchor that you can
+reference from any other node;
+
+3. Manage all your contacts quickly with hierarchical categories and embed
+hyperlinks within each entry. Or create an archive of documents with
+hierarchical entries and use the same search mechanism to quickly find any
+matching entry;
+
+4. Use single keys to easily manage your Emacs windows or frames and quickly
+retrieve saved window and frame configurations;
+
+5. Search for things in your current buffers, in a directory tree or across
+major web search engines with the touch of a few keys.
+
+The common thread in all these features is making retrieval, management and
+display of information fast and easy. That is Hyperbole's purpose.
+
+For a more extensive summary of Hyperbole with text and images, see the
+Hyperbole home page: https://www.gnu.org/software/hyperbole.  If you have
+already downloaded Hyperbole, see the "HY-ABOUT" file for a text-only
+description and overview of Hyperbole.
+
+===========================================================================
+*			   Files
+===========================================================================
 
 See "DEMO" for a demonstration of standard Hyperbole button capabilities.
 This is the best way to initially interactively learn about Hyperbole after

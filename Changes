@@ -1,5 +1,29 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-08-17  Bob Weiner  <rsw@gnu.org>
+
+* README: Added Summary section with a description of Hyperbole since this file may be shown prior to
+    download in the Emacs package manager. 
+
+* kotl/kexport.el (kexport:label-html-font-attributes): Fixed improper 'defvar' definition which should
+    have been a 'defcustom'. 
+
+2016-08-16  Bob Weiner  <rsw@gnu.org>
+
+* hib-kbd.el (kbd-key:normalize): Fixed so C-M-<char> is normalized the same way as M-C-<char>.
+             (kbd-key:extended-command-prefix): Added.
+             (kbd-key, kbd-key:act): Added kbd-key:extended-command-p test and used in this implicit button
+    type and action type to support Action Key presses on M-x extended commands like {M-x occur RET} since
+    these are included in the Hyperbole DEMO.
+
+2016-08-15  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:substitute-dir): Added support for environment variables including those with PATH
+    in their name (colon-separated paths) that should have been there.
+    Added call to hpath:exists-p to test path with hpath:suffixes added to fix bug where
+    "${load-path}/simple.el" did not resolve properly when the file was stored compressed
+    as simple.el.gz, for example.
+
 2016-08-12  Bob Weiner  <rsw@gnu.org>
 
 * hui-mini.el (hui:menu-enter): Fixed potential error of (wrong-type-argument char-or-string-p 134217741)

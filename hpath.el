@@ -220,7 +220,7 @@ When embedded within a path, the format is ${variable}."
 to create a path to the RFC document for `rfc-num'.")
 
 (defcustom hpath:suffixes '(".gz" ".Z")
-  "*List of filename suffixes to add or remove within (hpath:exists-p) calls."
+  "*List of filename suffixes to add or remove within `hpath:exists-p' and `hpath:substitute-dir' calls."
   :type '(repeat string)
   :group 'hyperbole-commands)
 
@@ -1319,28 +1319,41 @@ list, the first directory prepended to REST-OF-PATH which produces a valid
 local pathname is returned."
   (let (sym val)
     (cond ((not (stringp var-name))
-	   (error "(hpath:substitute-dir): VAR-NAME arg, `%s', must be a string" var-name))
-	  ((not (and (setq sym (intern-soft var-name))
-		     (boundp sym)))
-	   (error "(hpath:substitute-dir): VAR-NAME arg, \"%s\", is not a bound variable"
+	   (error "(hpath:substitute-dir): VAR-NAME, `%s', must be a string" var-name))
+	  ((not (or (and (setq sym (intern-soft var-name))
+			 (boundp sym))
+		    (getenv var-name)))
+	   (error "(hpath:substitute-dir): VAR-NAME, \"%s\", is not a bound variable nor a set environment variable"
 		  var-name))
-	  ((stringp (setq val (symbol-value sym)))
+	  ((let ((case-fold-search t))
+	     (stringp (setq val (cond (sym (symbol-value sym))
+				      ((string-match "path" var-name)
+				       (split-string (getenv var-name) ":"))
+				      (t (getenv var-name))))))
 	   (if (hpath:validate (expand-file-name rest-of-path val))
 	       val))
 	  ((listp val)
-	   (let ((dir))
-	     (while (and val (not dir))
-	       (setq dir (car val) val (cdr val))
-	       (or (and (stringp dir)
-			(file-name-absolute-p dir)
-			(file-readable-p (expand-file-name rest-of-path dir)))
-		   (setq dir nil)))
-	     (if dir (hpath:validate (directory-file-name dir))
+	   (let* ((path (locate-file rest-of-path val (cons "" hpath:suffixes)))
+		  (dir (if path (file-name-directory path))))
+	     (if dir
+		 (hpath:validate (directory-file-name dir))
 	       (error "(hpath:substitute-dir): Can't find match for \"%s\""
-		      (concat "$\{" var-name "\}/" rest-of-path))
-	       )))
-	  (t (error "(hpath:substitute-dir): Value of VAR-NAME, \"%s\", must be a string or list" var-name))
-	  )))
+		      (concat "$\{" var-name "\}/" rest-of-path))))
+	   ;; Code prior to utilizing locate-file.
+;; 	   (let (dir path)
+;; 	     (while (and val (not dir))
+;; 	       (setq dir (car val) val (cdr val))
+;; 	       (or (and (stringp dir)
+;; 			(file-name-absolute-p dir)
+;; 			(setq path (hpath:exists-p (expand-file-name rest-of-path dir)))
+;; 			(file-readable-p path))
+;; 		   (setq dir nil)))
+;; 	     (if dir
+;; 		 (hpath:validate (directory-file-name dir))
+;; 	       (error "(hpath:substitute-dir): Can't find match for \"%s\""
+;; 		      (concat "$\{" var-name "\}/" rest-of-path))))
+	   )
+	  (t (error "(hpath:substitute-dir): Value of VAR-NAME, \"%s\", must be a string or list" var-name)))))
 
 (defun hpath:substitute-var-name (var-symbol var-dir-val path)
   "Replaces with VAR-SYMBOL any occurrences of VAR-DIR-VAL in PATH.
