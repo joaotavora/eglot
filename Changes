@@ -1,5 +1,20 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-08-26  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (hkey-help-show): Modified to invoke help-mode only if buffer name includes 'Help' to
+    support other specialized modes that use temp buffers.
+
+2016-08-25  Bob Weiner  <rsw@gnu.org>
+
+* README.md, README.md.html: Updated to match Hyperbole home page.
+
+2016-08-18  Bob Weiner  <rsw@gnu.org>
+
+* DEMO: Wrote small textual updates.
+
+* hib-debbugs.el: Added a note about bug-reference-mode.el and the differences.
+
 2016-08-17  Bob Weiner  <rsw@gnu.org>
 
 * README: Added Summary section with a description of Hyperbole since this file may be shown prior to

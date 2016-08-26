@@ -12,6 +12,11 @@
 ;;
 ;;; Commentary:
 ;;
+;;   NOTE: Although Emacs now comes with the library "bug-reference-mode.el"
+;;         which displays bug numbers, this library provides a much broader
+;;         set of facilities and is activated via the Smart Keys, so no
+;;         new key bindings are necessary.
+;;
 ;;   Debbugs is a client-server issue tracker used by Gnu projects
 ;;   to manage issues and maintain threads of discussion around them.
 ;;

@@ -252,7 +252,8 @@ acts as an implicit button that either displays the referenced path within a
 buffer, passes it to an external viewer program, or runs a function that
 operates upon the path.  These are `pathname' implicit buttons.  For example,
 activate "HY-ABOUT".  HY-ABOUT or `HY-ABOUT' would work as well or
-"~/.emacs".
+"~/.emacs".  Pathname implicit buttons provide one example of how Hyperbole
+can improve your working environment without requiring any work from you.
 
 *** Paths with Line and Column Numbers
 
@@ -303,13 +304,13 @@ to know whether the file is compressed or not or what values are set for
 load-path at your particular location.  Thus, you can provide path links that
 vary from site to site, especially handy if you email Hyperbole buttons to
 your associates.  Shell environment variables also work.  To see your home
-directory, try "${HOME}".  Press the Action Key within "(hyperbole)Link
-Variable Substitution" for a bit more on this topic.
+directory, try "${HOME}".  Press the Action Key within the quoted text of
+"(hyperbole)Link Variable Substitution" for a bit more on this topic.
 
-For the special cases of Emacs Lisp files and Info manual files, you don't
-even need to give the variable of directories to search since Hyperbole knows
-them already.  Thus an Action Key press on "simple.el", "hyperbole.info"
-or even "(hyperbole)" will display these properly as well.
+For the special cases of Emacs Lisp files and Info manual files, you can omit
+the variable of directories to search since Hyperbole knows them already.
+Thus an Action Key press on "simple.el", "hyperbole.info" or even
+"(hyperbole)" will display these properly as well.
 
 Some file types require external programs to view them, such as pdf files.
 The function (hpath:get-external-display-alist) determines the file
@@ -321,11 +322,10 @@ hpath:external-display-alist-macos, hpath:external-display-alist-mswindows,
 and hpath:external-display-alist-x.  Examine and modify these
 values to suit your needs.
 
-Under the X WINDOW SYSTEM, if you have the `xv' program, all of the
-following file formats may be displayed as images: gif, tiff, xbm, pm, pbm,
+Under the X Window System, if you have the `xv' program, all of the following
+file formats may be displayed externally as images: gif, tiff, xbm, pm, pbm,
 and jpeg.  Under X or Mac OS, try a press of the Action Key on
-"man/hyperbole.pdf" to browse the printable version of the Hyperbole
-Manual.
+"man/hyperbole.pdf" to browse the printable version of the Hyperbole Manual.
 
 *** Path Prefixes
 
@@ -360,9 +360,7 @@ If you want to learn a rapid way to create explicit buttons, see "(hyperbole)By
 Dragging".
 
 Since Emacs and most GNU programs include Info manuals, you now a simple way to
-link to and jump to any marked item within any manual.  Pathname implicit buttons
-provide one example of how Hyperbole can improve your working environment without
-requiring any work from you.
+link to and jump to any marked item within any manual.
 
 *** Remote Paths
 

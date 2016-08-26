@@ -429,7 +429,8 @@ the current window.  By default, it is displayed according to the setting of
 	  ;; selection.
 	  (unless (or (where-is-internal 'quit-window (current-local-map))
 		      (where-is-internal 'hkey-help-hide (current-local-map)))
-	    (help-mode)
+	    (if (string-match "^\\*Help\\|Help\\*$" (buffer-name))
+		(help-mode))
 	    (local-set-key "q" #'hkey-help-hide))))
     ;; If in a *Completions* buffer, re-select the window that
     ;; generated the completions.
