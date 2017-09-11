@@ -200,6 +200,10 @@ Its default value is #'smart-scroll-down."
 	 (string-match "^\\*Help\\|Help\\*$" (buffer-name))) .
 	 ((hkey-help-hide) . (hkey-help-hide)))
     ;;
+    ;; Pages directory listing mode (page-ext.el)
+    ((eq major-mode 'pages-directory-mode) .
+     ((pages-directory-goto) . (pages-directory-goto)))
+    ;;
     ;; Imenu listing in GNU Emacs
     ((smart-imenu-item-at-p) .
      ((smart-imenu-display-item-where (car hkey-value) (cdr hkey-value)) .

@@ -151,8 +151,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.0.2
-Printed August 9, 2016.
+Edition 6.0.3
+Printed September 8, 2016.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed August 9, 2016.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.2, August 9, 2016.
+@center Edition 6.0.8, September 8, 2016.
 
 @sp 2
 @noindent
@@ -410,6 +410,7 @@ Smart Keyboard Keys
 * Smart Key - The Koutliner::
 * Smart Key - RDB Mode::
 * Smart Key - Help Buffers::
+* Smart Key - Pages Directory Mode::
 * Smart Key - Identifier Menu Mode ::
 * Smart Key - C Source Code::
 * Smart Key - C++ Source Code::
@@ -443,7 +444,7 @@ Smart Keyboard Keys
 @chapter Introduction
 
 This edition of the GNU Hyperbole Manual is for use with any version
-6.0.2 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.0.3 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 
 This chapter summarizes the structure of the rest of the manual,
@@ -6978,6 +6979,7 @@ the minimal diagonal movements which register a drag):
 * Smart Key - The Koutliner::
 * Smart Key - RDB Mode::
 * Smart Key - Help Buffers::
+* Smart Key - Pages Directory Mode::
 * Smart Key - Identifier Menu Mode ::
 * Smart Key - C Source Code::
 * Smart Key - C++ Source Code::
@@ -7296,7 +7298,7 @@ relational databases (part of InfoDock):
 @end group
 @end format
 
-@node Smart Key - Help Buffers, Smart Key - Identifier Menu Mode , Smart Key - RDB Mode, Smart Keyboard Keys
+@node Smart Key - Help Buffers, Smart Key - Pages Directory Mode, Smart Key - RDB Mode, Smart Keyboard Keys
 @subsection Smart Key - Help Buffers
 @cindex help buffer
 @format
@@ -7308,7 +7310,23 @@ When pressed at the end of a Help buffer:
 @end group
 @end format
 
-@node Smart Key - Identifier Menu Mode , Smart Key - C Source Code, Smart Key - Help Buffers, Smart Keyboard Keys
+@node Smart Key - Pages Directory Mode, Smart Key - Identifier Menu Mode , Smart Key - Help Buffers, Smart Keyboard Keys
+@subsection Smart Key - Pages Directory Mode
+
+@format
+@group
+Pages-directory-mode is used in special buffers that contain title lines extracted from files consisting of titled, page-delimited contents, e.g. Info files.
+
+@noindent
+When pressed on a pages-directory-mode entry line:
+  ACTION KEY
+     Jumps to the associated line in the pages file that contains the entry.
+  ASSIST KEY
+     Jumps to the associated line in the pages file that contains the entry.
+@end group
+@end format
+
+@node Smart Key - Identifier Menu Mode , Smart Key - C Source Code, Smart Key - Pages Directory Mode, Smart Keyboard Keys
 @subsection Smart Key - Identifier Menu Mode 
 
 @format

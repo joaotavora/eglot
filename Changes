@@ -1,6 +1,15 @@
 -- Almost all changes listed herein are new as of 2016. --
 
+2016-09-08  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi: Documented Pages Directory Listing handling.
+
+* kotl/klink.el: (require 'hbut): Added to define defib when compiled.
+
 2016-08-26  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (hkey-alist): Added Smart Key jump to associated page in pages-directory-mode (page-ext.el).
+  man/hkey-help.txt: Documented Pages Directory Listing and Imenu Programming Identifier handling.
 
 * hmouse-drv.el (hkey-help-show): Modified to invoke help-mode only if buffer name includes 'Help' to
     support other specialized modes that use temp buffers.

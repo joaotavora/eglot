@@ -46,8 +46,10 @@ Mouse-only Control
   Active region exists          Yanks sexp at release      Kills & yanks sexp at release
 
 Hyperbole Key Press/Click in Special Modes
-  Emacs push button             Activates button           Button help
-  Thing begin or end            Mark thing region          Mark & kill thing region
+  Emacs Push Button             Activates button           Button help
+  Thing Begin or End            Mark thing region          Mark & kill thing region
+  Page Directory Listing        Jumps to page              <- same
+  Imenu Programming Identifier  Jumps to in-buffer def     Prompts for identifier to jump to
   C,C++,Objective-C,Java Modes  Jumps to id/include def    Jumps to next def
   Java Cross-reference Tag      Jumps to identifier def    Jumps to next def
   JavaScript and Python Modes   Jumps to identifier def    Jumps to next def
