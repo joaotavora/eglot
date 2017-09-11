@@ -58,7 +58,6 @@ hyrolo-logic.el     - Logic functions for GNU Hyperbole Rolo files
 hywconfig.el        - Save ring of window configurations
 set.el              - General mathematical operators for unordered sets
 
-
 --- MAIL SYSTEM SUPPORT ---
 hmh.el              - GNU Hyperbole buttons in mail reader:   Mh
 hrmail.el           - GNU Hyperbole buttons in mail reader:   Rmail

@@ -35,10 +35,7 @@
 	   :style radio
 	   :selected (eq ,browser-option #'browse-url-chromium)]
 	  ["Default (System wide)"
-	   (setq ,browser-option
-		(if (and (boundp 'browse-url-generic-program) (stringp browse-url-generic-program))
-		    #'browse-url-generic
-		  #'browse-url-default-browser))
+	   (setq ,browser-option #'browse-url-default-browser)
 	   :style radio
 	   :selected (eq ,browser-option #'browse-url-default-browser)]
 	  ["EWW (Emacs)"

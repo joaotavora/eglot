@@ -346,7 +346,7 @@ bindings after load)."
 	      (add-to-list 'Info-directory-list info-dir)))))
 
 ;;; ************************************************************************
-;;; Prevent local key maps from hiding the Action Key (overriding it)
+;;; Prevent local key maps from hiding/overriding the Action and Assist Keys
 ;;; ************************************************************************
 
 ;; (defun hkey-read-only-bindings ()
@@ -377,16 +377,16 @@ bindings after load)."
     (if hkey-init-override-local-keys
 	(let (hkey
 	      binding)
-	 (mapc (lambda (descrip-key-cmd)
-		 (and (setq hkey (cadr descrip-key-cmd))
-		      ;; To see the key name, use: (key-description hkey)
-		      (setq binding (local-key-binding hkey))
-		      ;; A number indicates an invalid key prefix, so
-		      ;; there is not actually a local binding for
-		      ;; this key sequence.
-		      (not (numberp binding))
-		      (local-unset-key hkey)))
-	       hkey-previous-bindings)))))
+	  (mapc (lambda (descrip-key-cmd)
+		  (and (setq hkey (cadr descrip-key-cmd))
+		       ;; To see the key name, use: (key-description hkey)
+		       (setq binding (local-key-binding hkey))
+		       ;; A number indicates an invalid key prefix, so
+		       ;; there is not actually a local binding for
+		       ;; this key sequence.
+		       (not (numberp binding))
+		       (local-unset-key hkey)))
+		hkey-previous-bindings)))))
 
 (defun hkey-install-override-local-bindings ()
   ;; Run after any major-mode change within any buffer.

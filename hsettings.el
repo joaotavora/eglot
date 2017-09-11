@@ -56,8 +56,16 @@
       ))
 
 ;;; ************************************************************************
-;;; SMART SETTINGS
+;;; SMART SETTINGS FOR THE ACTION AND ASSIST KEYS AND SMART MENUS
 ;;; ************************************************************************
+
+;; The following setting allows direct selection of Helm completion
+;; entries with the Smart Mouse Keys.  Otherwise, by default, helm
+;; disables all mouse keys while completing.  If you change this
+;; setting (simply comment it out), you must restart Emacs for it to
+;; take full effect.  Setting this to 't' or 'nil' will not provide
+;; Hyperbole support.
+(eval-after-load "helm" '(setq helm-allow-mouse 'no-mode-bindings))
 
 ;; The Smart Menu system is an attractive in-buffer menu system that
 ;; predates Emacs menu systems; it is included in InfoDock.

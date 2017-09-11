@@ -229,6 +229,7 @@ to create a path to the RFC document for `rfc-num'.")
 
 ;; WWW URL format:  [URL[:=]]<protocol>:/[<user>@]<domain>[:<port>][/<path>]
 ;;             or   [URL[:=]]<protocol>://[<user>@]<domain>[:<port>][<path>]
+;;             or   URL[:=][<user>@]<domain>[:<port>][<path>]  (no protocol specified)
 ;; Avoid [a-z]:/path patterns since these may be disk paths on OS/2, DOS or
 ;; Windows.
 (defvar hpath:url-regexp "<?\\(URL[:=]\\)?\\(\\([a-zA-Z][a-zA-Z]+\\)://?/?\\([^/:@ \t\n\r\"`'|]+@\\)?\\([^/:@ \t\n\r\"`'|]+\\)\\(\\)\\(:[0-9]+\\)?\\([/~]\\([^\]\[@ \t\n\r\"`'|(){}<>]+[^\]\[@ \t\n\r\"`'|(){}<>.,?#!*]\\)*\\)?\\)>?"
@@ -262,23 +263,39 @@ Its match groupings and their names are:
   7 = hpath:portnumber-grpn  = optional port number to use
   8 = hpath:pathname-grpn    = optional pathname to access.")
 
+(defvar hpath:url-regexp3
+  (concat
+   "<?\\(URL[:=]\\)\\(\\(\\)\\(\\)"
+   "\\([a-zA-Z0-9][^/:@ \t\n\r\"`'|]*\\.[^/:@ \t\n\r\"`'|]+\\)"
+   ":?\\([0-9]+\\)?\\([/~]\\([^\]\[@ \t\n\r\"`'|(){}<>]+[^\]\[@ \t\n\r\"`'|(){}<>.,?#!*]\\)*\\)?\\)>?")
+  "Regular expression which matches a Url in a string or buffer.
+  Its match groupings and their names are:
+  1 = hpath:url-keyword-grpn = required `URL:' or `URL=' literal
+  2 = hpath:url-grpn         = the whole URL
+  3 = unused                 = for compatibility with hpath:url-regexp
+  4 = unused                 = for compatibility with hpath:url-regexp
+  5 = hpath:sitename-grpn    = URL site to connect to
+  6 = hpath:hostname-grpn    = hostname used to determine the access protocol, e.g. ftp.domain.com
+  7 = hpath:portnumber-grpn  = optional port number to use
+  8 = hpath:pathname-grpn    = optional pathname to access.")
+
 (defconst hpath:url-keyword-grpn 1
-  "Optional `URL:' or `URL=' literal.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Optional `URL:' or `URL=' literal.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:url-grpn 2
-  "The whole URL.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "The whole URL.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:protocol-grpn 3
-  "Access protocol.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Access protocol.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:username-grpn 4
-  "Optional username.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Optional username.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:sitename-grpn 5
-  "URL site to connect to.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "URL site to connect to.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:hostname-grpn 6
   "Hostname used to determine the access protocol, e.g. ftp.domain.com.
-See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:portnumber-grpn 7
-  "Optional port number to use.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Optional port number to use.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:pathname-grpn 8
-  "Optional pathname to access.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Optional pathname to access.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 
 (defvar hpath:string-url-regexp (concat "\\`" hpath:url-regexp "\\'")
   "Regular expression that matches to a string that contains a possibly delimited Url and nothing else.
@@ -286,6 +303,11 @@ See the documentation for `hpath:url-regexp' for match groupings to
 use with string-match.")
 
 (defvar hpath:string-url-regexp2 (concat "\\`" hpath:url-regexp2 "\\'")
+  "Regular expression that matches to a string that contains a possibly delimited terse Url and nothing else.
+See the documentation for `hpath:url-regexp' for match groupings to
+use with string-match.")
+
+(defvar hpath:string-url-regexp3 (concat "\\`" hpath:url-regexp3 "\\'")
   "Regular expression that matches to a string that contains a possibly delimited terse Url and nothing else.
 See the documentation for `hpath:url-regexp' for match groupings to
 use with string-match.")
@@ -307,7 +329,7 @@ use with string-match.")
   "Regexp that matches to a Markdown file suffix.")
 
 (defconst hpath:markup-link-anchor-regexp
- (concat "\\`\\(#?[^#]+\\)\\(#\\)\\([^\]\[#^{}<>\"`'\\\n\t\f\r]*\\)")
+  (concat "\\`\\(#?[^#]+\\)\\(#\\)\\([^\]\[#^{}<>\"`'\\\n\t\f\r]*\\)")
   "Regexp that matches an markup filename followed by a hash (#) and an optional in-file anchor name.")
 
 (defconst hpath:outline-section-pattern "^\*+[ \t]+%s\\([ \t[:punct:]]*\\)$"
@@ -365,7 +387,9 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 	      (cond
 	       ((and (eq remote-package 'tramp)
 		     ;; Remove match to bol in this regexp before testing.
-		     (looking-at (substring-no-properties (car tramp-file-name-structure) 1)))
+		     (looking-at (substring-no-properties (car (if (fboundp 'tramp-file-name-structure)
+								   (tramp-file-name-structure)
+								 tramp-file-name-structure)) 1)))
 		(match-string-no-properties 0))
 	       ((looking-at hpath:url-regexp)
 		(if (string-equal (match-string-no-properties hpath:protocol-grpn) "ftp")
@@ -384,7 +408,8 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 			 (match-string-no-properties hpath:pathname-grpn)))
 		  ;; else ignore this other type of WWW path
 		  ))
-	       ((looking-at hpath:url-regexp2)
+	       ((or (looking-at hpath:url-regexp2)
+		    (looking-at hpath:url-regexp3))
 		(if (string-equal (match-string-no-properties hpath:hostname-grpn) "ftp")
 		    (concat
 		     "/" user "@"
@@ -446,7 +471,8 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 			  (match-string-no-properties hpath:pathname-grpn path)))
 		   ;; else ignore this other type of WWW path
 		   ))
-		((string-match hpath:string-url-regexp2 path)
+		((or (string-match hpath:string-url-regexp2 path)
+		     (string-match hpath:string-url-regexp3 path))
 		 (if (string-equal "ftp" (match-string-no-properties hpath:hostname-grpn path))
 		     (concat
 		      "/" user "@"
@@ -459,30 +485,30 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 			  (match-string-no-properties hpath:pathname-grpn path)))
 		   ;; else ignore this other type of WWW path
 		   ))
-		 ;; user, site and path
-		 ((string-match "/?[^/:@ \t\n\r\"`'|]+@[^/:@ \t\n\r\"`'|]+:[^]@ \t\n\r\"`'|\)\}]*"
-				path)
-		  (match-string-no-properties 0 path))
-		 ;; @site and path
-		 ((string-match "@[^/:@ \t\n\r\"`'|]+:[^]@ \t\n\r\"`'|\)\}]*"
-				path)
-		  (concat "/" user (match-string-no-properties 0 path)))
-		 ;; site and path
-		 ((and (string-match
-			 "/?\\(\\([^/:@ \t\n\r\"`'|]+\\):[^]@:, \t\n\r\"`'|\)\}]*\\)"
-			 path)
-		       (setq result (match-string-no-properties 1 path))
-		       (string-match "[^.]\\.[^.]"
-				     (match-string-no-properties 2 path)))
-		  (concat "/" user "@" result))
-		 ;; host and path
-		 ((and (string-match
-			 "/\\([^/:@ \t\n\r\"`'|]+:[^]@:, \t\n\r\"`'|\)\}]*\\)"
-			 path)
-		       (setq result (match-string-no-properties 1 path)))
-		  (concat "/" user "@" result))
-		 ))
-	(hpath:delete-trailer result))))
+		;; user, site and path
+		((string-match "/?[^/:@ \t\n\r\"`'|]+@[^/:@ \t\n\r\"`'|]+:[^]@ \t\n\r\"`'|\)\}]*"
+			       path)
+		 (match-string-no-properties 0 path))
+		;; @site and path
+		((string-match "@[^/:@ \t\n\r\"`'|]+:[^]@ \t\n\r\"`'|\)\}]*"
+			       path)
+		 (concat "/" user (match-string-no-properties 0 path)))
+		;; site and path
+		((and (string-match
+		       "/?\\(\\([^/:@ \t\n\r\"`'|]+\\):[^]@:, \t\n\r\"`'|\)\}]*\\)"
+		       path)
+		      (setq result (match-string-no-properties 1 path))
+		      (string-match "[^.]\\.[^.]"
+				    (match-string-no-properties 2 path)))
+		 (concat "/" user "@" result))
+		;; host and path
+		((and (string-match
+		       "/\\([^/:@ \t\n\r\"`'|]+:[^]@:, \t\n\r\"`'|\)\}]*\\)"
+		       path)
+		      (setq result (match-string-no-properties 1 path)))
+		 (concat "/" user "@" result))
+		))
+	 (hpath:delete-trailer result))))
 
 (defun hpath:at-p (&optional type non-exist)
   "Returns delimited path or non-delimited remote path at point, if any.
@@ -792,7 +818,7 @@ nonexistent local paths are allowed."
 	 ;; strip them, if any, before checking path.
 	 (if (string-match "\\`[^#][^#,]*\\([ \t\n\r]*[#,]\\)" path)
 	     (setq rtn-path (concat (substring path 0 (match-beginning 1))
-				     "%s" (substring path (match-beginning 1)))
+				    "%s" (substring path (match-beginning 1)))
 		   path (substring path 0 (match-beginning 1)))
 	   (setq rtn-path (concat rtn-path "%s")))
 	 ;; If path is just a local reference that begins with #,
@@ -851,6 +877,12 @@ nonexistent local paths are allowed."
 			     (file-directory-p path))
 			    (t))))
 	       (progn
+		 ;; Might be an encoded URL with % characters, so
+		 ;; decode it before calling format below.
+		 (when (string-match "%" rtn-path)
+		   (let (decoded-path)
+		     (while (not (equal rtn-path (setq decoded-path (hypb:decode-url rtn-path))))
+		       (setq rtn-path decoded-path))))
 		 ;; Quote any %s except for one at the end of the path
 		 ;; part of rtn-path (immediately preceding a # or ,
 		 ;; character or the end of string).
@@ -866,19 +898,19 @@ nonexistent local paths are allowed."
 		       (format rtn-path suffix))
 		   (format rtn-path ""))))))))
 
-(defun hpath:push-tag-mark ()
-  "Add a tag return marker at point if within a programming language file buffer.
+	 (defun hpath:push-tag-mark ()
+	   "Add a tag return marker at point if within a programming language file buffer.
 Is a no-op if the function `push-tag-mark' is not available."
-  (and buffer-file-name
-       comment-start
-       (not (memq last-command
-		  '(xref-find-definitions find-tag find-tag-other-window tags-loop-continue)))
-       (or (and (fboundp 'xref-push-marker-stack)
-		;; push old position
-		(xref-push-marker-stack))
-	   (and (fboundp 'push-tag-mark)
-		;; push old position
-		(push-tag-mark)))))
+	   (and buffer-file-name
+		comment-start
+		(not (memq last-command
+			   '(xref-find-definitions find-tag find-tag-other-window tags-loop-continue)))
+		(or (and (fboundp 'xref-push-marker-stack)
+			 ;; push old position
+			 (xref-push-marker-stack))
+		    (and (fboundp 'push-tag-mark)
+			 ;; push old position
+			 (push-tag-mark)))))
 
 (defun hpath:relative-to (path &optional default-dir)
   "Returns PATH relative to optional DEFAULT-DIR or `default-directory'.
@@ -1148,7 +1180,8 @@ off otherwise."
 (defun hpath:url-at-p ()
   "Return world-wide-web universal resource locator (url) that point immediately precedes or nil.
 See the documentation for `hpath:url-regexp' for match-string groupings."
-  (if (or (looking-at hpath:url-regexp) (looking-at hpath:url-regexp2))
+  (if (or (looking-at hpath:url-regexp) (looking-at hpath:url-regexp2)
+	  (looking-at hpath:url-regexp3))
       (save-excursion
 	(goto-char (match-end hpath:url-grpn))
 	(skip-chars-backward ".,?#!*()")
@@ -1160,7 +1193,8 @@ See the documentation for `hpath:url-regexp' for match groupings to
 use with string-match."
   (and (stringp obj)
        (or (string-match hpath:string-url-regexp obj)
-	   (string-match hpath:string-url-regexp2 obj))
+	   (string-match hpath:string-url-regexp2 obj)
+	   (string-match hpath:string-url-regexp3 obj))
        t))
 
 (defun hpath:www-at-p (&optional include-start-and-end-p)
@@ -1171,7 +1205,8 @@ With optional INCLUDE-START-AND-END-P non-nil, returns list of:
     (skip-chars-backward "^\[ \t\n\r\f\"`'|\(\{<")
     (cond ((not include-start-and-end-p)
 	   (hpath:url-at-p))
-	  ((or (looking-at hpath:url-regexp) (looking-at hpath:url-regexp2))
+	  ((or (looking-at hpath:url-regexp) (looking-at hpath:url-regexp2)
+	       (looking-at hpath:url-regexp3))
 	   (goto-char (match-end hpath:url-grpn))
 	   (skip-chars-backward ".,?#!*()")
 	   (list (buffer-substring-no-properties (match-beginning hpath:url-grpn) (point))

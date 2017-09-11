@@ -86,8 +86,9 @@ removed from pathname when searching for a valid match.
 See `hpath:find' function documentation for special file display options."
   ;;
   ;; Ignore paths in Buffer menu and dired modes.
-  (unless (delq nil (mapcar (lambda (substring) (string-match substring mode-name))
-		     '("Buffer Menu" "IBuffer" "Dired")))
+  (unless (delq nil (mapcar (lambda (substring) (string-match
+						 substring (format-mode-line mode-name)))
+			    '("Buffer Menu" "IBuffer" "Dired")))
     (let ((path (hpath:at-p))
 	  full-path)
       (if path
@@ -605,74 +606,89 @@ Messages are recognized in any buffer."
 
 (defib debugger-source ()
   "Jumps to source line associated with stack frame or breakpoint lines.
-This works with JavaScript traces, gdb, dbx, and xdb.  Such lines are recognized in any buffer."
+This works with JavaScript and Python tracebacks, gdb, dbx, and xdb.  Such lines are recognized in any buffer."
   (save-excursion
     (beginning-of-line)
-    (cond  ((or (looking-at "[a-zA-Z0-9-:.()? ]+? +at \\([^() \t]+\\) (\\([^:, \t()]+\\):\\([0-9]+\\):\\([0-9]+\\))$")
-		(looking-at "[a-zA-Z0-9-:.()? ]+? +at\\( \\)\\([^:, \t()]+\\):\\([0-9]+\\):\\([0-9]+\\)$")
-		(looking-at "[a-zA-Z0-9-:.()? ]+?\\( \\)\\([^:, \t()]+\\):\\([0-9]+\\)\\(\\)$"))
-	   ;; JavaScript traceback
-	   (let* ((file (match-string-no-properties 2))
-		  (line-num (match-string-no-properties 3))
-		  (col-num (match-string-no-properties 4))
-		  but-label)
+    (cond
+     ;; Python pdb
+     ((looking-at ".+ File \"\\([^\"\n\r]+\\)\", line \\([0-9]+\\)")
+      (let* ((file (match-string-no-properties 1))
+	     (line-num (match-string-no-properties 2))
+	     (but-label (concat file ":" line-num)))
+	(setq line-num (string-to-number line-num))
+	(ibut:label-set but-label (match-beginning 1) (match-end 1))
+	(hact 'link-to-file-line file line-num)))
 
-	     ;; For Meteor app errors, remove the "app/" prefix which
-	     ;; is part of the build subdirectory and not part of the
-	     ;; source tree.
-	     (if (and (not (eq col-num "")) (string-match "^app/" file))
-		 (setq file (substring file (match-end 0))))
+     ;; JavaScript traceback
+     ((or (looking-at "[a-zA-Z0-9-:.()? ]+? +at \\([^() \t]+\\) (\\([^:, \t()]+\\):\\([0-9]+\\):\\([0-9]+\\))$")
+	  (looking-at "[a-zA-Z0-9-:.()? ]+? +at\\( \\)\\([^:, \t()]+\\):\\([0-9]+\\):\\([0-9]+\\)$")
+	  (looking-at "[a-zA-Z0-9-:.()? ]+?\\( \\)\\([^:, \t()]+\\):\\([0-9]+\\)\\(\\)$"))
+      (let* ((file (match-string-no-properties 2))
+	     (line-num (match-string-no-properties 3))
+	     (col-num (match-string-no-properties 4))
+	     but-label)
 
-	     (setq but-label (concat file ":" line-num)
-		   line-num (string-to-number line-num))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num)))
-	   ((looking-at
-	     ".+ \\(at\\|file\\) \\([^ :,]+\\)\\(:\\|, line \\)\\([0-9]+\\)\\.?$")
-	   ;; GDB or WDB
-	   (let* ((file (match-string-no-properties 2))
-		  (line-num (match-string-no-properties 4))
-		  (but-label (concat file ":" line-num))
-		  (gdb-last-file (or (and (boundp 'gud-last-frame)
-					  (stringp (car gud-last-frame))
-					  (car gud-last-frame))
-				     (and (boundp 'gdb-last-frame)
-					  (stringp (car gdb-last-frame))
-					  (car gdb-last-frame)))))
-	     (setq line-num (string-to-number line-num))
-	     ;; The `file' typically has no directory component and so may
-	     ;; not be resolvable.  `gdb-last-file' is the last file
-	     ;; displayed by gdb.  Use its directory if available as a best
-	     ;; guess.
-	     (if gdb-last-file
-		 (setq file (expand-file-name
-			     file (file-name-directory gdb-last-file))))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num)))
-	   ((looking-at ".+ (file=[^\"\n\r]+\"\\([^\"\n\r]+\\)\", line=\\([0-9]+\\),")
-	   ;; XEmacs assertion failure
-	   (let* ((file (match-string-no-properties 1))
-		  (line-num (match-string-no-properties 2))
-		  (but-label (concat file ":" line-num)))
-	     (setq line-num (string-to-number line-num))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num)))
-	  ((looking-at ".+ line \\([0-9]+\\) in \"\\([^\"]+\\)\"$")
-	   ;; New DBX
-	   (let* ((file (match-string-no-properties 2))
-		  (line-num (match-string-no-properties 1))
-		  (but-label (concat file ":" line-num)))
-	     (setq line-num (string-to-number line-num))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num)))
-	  ((or (looking-at ".+ \\[\"\\([^\"]+\\)\":\\([0-9]+\\),") ;; Old DBX
-	       (looking-at ".+ \\[\\([^: ]+\\): \\([0-9]+\\)\\]")) ;; HP-UX xdb
-	   (let* ((file (match-string-no-properties 1))
-		  (line-num (match-string-no-properties 2))
-		  (but-label (concat file ":" line-num)))
-	     (setq line-num (string-to-number line-num))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num))))))
+	;; For Meteor app errors, remove the "app/" prefix which
+	;; is part of the build subdirectory and not part of the
+	;; source tree.
+	(if (and (not (eq col-num "")) (string-match "^app/" file))
+	    (setq file (substring file (match-end 0))))
+
+	(setq but-label (concat file ":" line-num)
+	      line-num (string-to-number line-num))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num)))
+
+     ;; GDB or WDB
+     ((looking-at
+       ".+ \\(at\\|file\\) \\([^ :,]+\\)\\(:\\|, line \\)\\([0-9]+\\)\\.?$")
+      (let* ((file (match-string-no-properties 2))
+	     (line-num (match-string-no-properties 4))
+	     (but-label (concat file ":" line-num))
+	     (gdb-last-file (or (and (boundp 'gud-last-frame)
+				     (stringp (car gud-last-frame))
+				     (car gud-last-frame))
+				(and (boundp 'gdb-last-frame)
+				     (stringp (car gdb-last-frame))
+				     (car gdb-last-frame)))))
+	(setq line-num (string-to-number line-num))
+	;; The `file' typically has no directory component and so may
+	;; not be resolvable.  `gdb-last-file' is the last file
+	;; displayed by gdb.  Use its directory if available as a best
+	;; guess.
+	(if gdb-last-file
+	    (setq file (expand-file-name
+			file (file-name-directory gdb-last-file))))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num)))
+
+     ;; XEmacs assertion failure
+     ((looking-at ".+ (file=[^\"\n\r]+\"\\([^\"\n\r]+\\)\", line=\\([0-9]+\\),")
+      (let* ((file (match-string-no-properties 1))
+	     (line-num (match-string-no-properties 2))
+	     (but-label (concat file ":" line-num)))
+	(setq line-num (string-to-number line-num))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num)))
+
+     ;; New DBX
+     ((looking-at ".+ line \\([0-9]+\\) in \"\\([^\"]+\\)\"$")
+      (let* ((file (match-string-no-properties 2))
+	     (line-num (match-string-no-properties 1))
+	     (but-label (concat file ":" line-num)))
+	(setq line-num (string-to-number line-num))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num)))
+
+     ;; Old DBX and HP-UX xdb
+     ((or (looking-at ".+ \\[\"\\([^\"]+\\)\":\\([0-9]+\\),") ;; Old DBX
+	  (looking-at ".+ \\[\\([^: ]+\\): \\([0-9]+\\)\\]")) ;; HP-UX xdb
+      (let* ((file (match-string-no-properties 1))
+	     (line-num (match-string-no-properties 2))
+	     (but-label (concat file ":" line-num)))
+	(setq line-num (string-to-number line-num))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num))))))
 
 ;;; ========================================================================
 ;;; Jumps to source of Emacs Lisp byte-compiler error messages.
@@ -903,13 +919,13 @@ GNUS is a news and mail reader."
 (defib Info-node ()
   "Makes \"(filename)nodename\" buttons display the associated Info node.
 Also makes \"(filename)itemname\" buttons display the associated Info index item."
-  (let* ((node-ref-and-pos (or (hbut:label-p t "\"" "\"" t)
+  (let* ((node-ref-and-pos (or (hbut:label-p t "\"" "\"" t t)
 			       ;; Typical GNU Info references; note
 			       ;; these are special quote marks, not the
 			       ;; standard ASCII characters.
-			       (hbut:label-p t "‘" "’" t)
+			       (hbut:label-p t "‘" "’" t t)
 			       ;; Regular open and close quotes
-			       (hbut:label-p t "`" "'" t)))
+			       (hbut:label-p t "`" "'" t t)))
 	 (node-ref (hpath:is-p (car node-ref-and-pos) nil t)))
     (and node-ref (string-match "\\`([^\):]+)" node-ref)
 	 (ibut:label-set node-ref-and-pos)

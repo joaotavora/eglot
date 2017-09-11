@@ -255,19 +255,21 @@ represent the output of particular document formatters."
 		pos (1+ pos)))
 	lbl)))
 
-(defun    ebut:label-p (&optional as-label start-delim end-delim pos-flag)
+(defun    ebut:label-p (&optional as-label start-delim end-delim pos-flag one-line-flag)
   "Returns key for Hyperbole button label that point is within.
-Returns nil if not within a label.
-Assumes point is within first line of button label, if at all.
-If optional AS-LABEL is non-nil, label is returned rather than the key
-derived from the label.  Optional START-DELIM and END-DELIM are strings
-that override default button delimiters.  With optional POS-FLAG non-nil,
-returns list of label-or-key, but-start-position, but-end-position.
-Positions include delimiters."
+Returns nil if not within a label.  Assumes point is within first line
+  of button label, if at all.
+All following arguments are optional.  If AS-LABEL is non-nil, label
+is returned rather than the key derived from the label.  START-DELIM
+and END-DELIM are strings that override default button delimiters.
+With POS-FLAG non-nil, returns list of label-or-key,
+but-start-position, but-end-position.  Positions include delimiters.
+With ONE-LINE-FLAG non-nil, constrains label search to a single line."
   (let ((opoint (point))
 	(npoint)
 	(quoted "\\(^\\|[^\\{]\\)")
 	(start)
+	(ebut:max-len ebut:max-len)
 	lbl-key end but-start but-end)
     (or start-delim (setq start-delim ebut:start))
     (or end-delim (setq end-delim ebut:end))
@@ -295,6 +297,10 @@ Positions include delimiters."
 		  (forward-char -2))
 	      (error (goto-char (1- opoint))))
 	  (goto-char (1- opoint)))
+	(if one-line-flag
+	    (save-excursion
+	      (end-of-line)
+	      (setq ebut:max-len (- (point) start))))
 	(and (< (point) (+ start ebut:max-len))
 	     (re-search-forward (concat quoted (regexp-quote end-delim))
 				(+ start ebut:max-len) t)
@@ -386,7 +392,7 @@ expression which matches an entire button string."
   (let* ((regexp (symbolp end-delim))
 	 (end-sym (or regexp (substring end-delim -1)))
 	 (rtn)
-	 (quoted)
+	 (ignore)
 	 start end but lbl)
     (save-excursion
       (goto-char (point-min))
@@ -400,13 +406,16 @@ expression which matches an entire button string."
 	(setq start (match-beginning include-delims)
 	      end (match-end include-delims)
 	      but (buffer-substring (match-beginning 0) (match-end 0))
-	      lbl (buffer-substring (match-beginning 1) (match-end 1)))
+	      lbl (buffer-substring (match-beginning 1) (match-end 1))
+	      ;; If within a programming language buffer, ignore matches outside comments.
+	      ignore (and (derived-mode-p 'prog-mode)
+			  ;; Match is outside of a programming language comment
+			  (not (nth 4 (syntax-ppss)))))
 	(save-excursion
 	  (goto-char start)
-	  (if (or (eq (preceding-char) ?\\) (eq (preceding-char) ?\{))
-	      ;; Ignore matches with quoted delimiters.
-	      (setq quoted t)))
-	(cond (quoted (setq quoted nil))
+	  ;; Ignore matches with quoted delimiters.
+	  (or ignore (setq ignore (memq (preceding-char) '(?\\ ?\{)))))
+	(cond (ignore (setq ignore nil))
 	      ((or (not regexp-match)
 		   (string-match regexp-match but))
 	       (setq rtn (cons (funcall but-func lbl start end) rtn))))))
@@ -993,7 +1002,7 @@ Returns number of buttons reported on or nil if none."
   "Returns Hyperbole source buffer or file given at point.
 If a file, always returns a full path if optional FULL is non-nil."
   (goto-char (match-end 0))
-  (cond ((looking-at "#<buffer \"?\\([^ \n\"]+\\)\"?>")
+  (cond ((looking-at "#<buffer \"?\\([^\n\"]+\\)\"?>")
 	 (get-buffer (buffer-substring (match-beginning 1)
 				       (match-end 1))))
 	((looking-at "\".+\"")

@@ -88,6 +88,10 @@ Its default value is #'smart-scroll-down."
     ((and (fboundp 'button-at) (button-at (point))) .
      ((push-button) . (smart-push-button-help)))
     ;;
+    ;; Direct access selection of helm-major-mode completions
+    ((and (eq major-mode 'helm-major-mode) (smart-helm-line-has-action)) .
+     ((smart-helm) . (smart-helm-assist)))
+    ;;
     ;; If click in the minibuffer and reading an argument,
     ;; accept argument or give completion help.
     ((and (> (minibuffer-depth) 0)
@@ -118,9 +122,9 @@ Its default value is #'smart-scroll-down."
      ((xref-goto-xref) . (xref-show-location-at-point)))
     ;;
     ((if (eq major-mode 'kotl-mode)
-	(and (not (kotl-mode:eobp)) (kotl-mode:eolp))
-      (and (not (eobp)) (or (eolp) (and selective-display (eq (following-char) ?\r))))) .
-     ((funcall action-key-eol-function) . (funcall assist-key-eol-function)))
+	 (and (not (kotl-mode:eobp)) (kotl-mode:eolp))
+       (and (not (eobp)) (or (eolp) (and selective-display (eq (following-char) ?\r))))) .
+       ((funcall action-key-eol-function) . (funcall assist-key-eol-function)))
     ;;
     ;; The Smart Menu system provides menus within Emacs on a dumb terminal.
     ;; It is a part of InfoDock, but may also be obtained as a separate
@@ -244,17 +248,18 @@ Its default value is #'smart-scroll-down."
 	  (smart-javascript-at-tag-p)) .
      ((smart-javascript) . (smart-javascript nil 'next-tag)))
     ;;
-    ((and (eq major-mode 'python-mode) buffer-file-name
+    ((and (or (and (eq major-mode 'python-mode) buffer-file-name)
+	      (string-match "^Pydoc:\\|\\*?Python" (buffer-name)))
 	  (smart-python-at-tag-p)) .
-	  ((smart-python) . (smart-python nil 'next-tag)))
+     ((smart-python) . (smart-python nil 'next-tag)))
     ;;
     ((and (eq major-mode 'objc-mode) buffer-file-name
 	  (smart-objc-at-tag-p)) .
-	  ((smart-objc) . (smart-objc nil 'next-tag)))
+     ((smart-objc) . (smart-objc nil 'next-tag)))
     ;;
     ((and (memq major-mode '(fortran-mode f90-mode))
 	  buffer-file-name (smart-fortran-at-tag-p)) .
-	  ((smart-fortran) . (smart-fortran nil 'next-tag)))
+     ((smart-fortran) . (smart-fortran nil 'next-tag)))
     ;;
     ((eq major-mode 'occur-mode) .
      ((occur-mode-goto-occurrence) . (occur-mode-goto-occurrence)))
@@ -279,7 +284,7 @@ Its default value is #'smart-scroll-down."
     ((if (boundp 'hmail:reader)
 	 (or (eq major-mode hmail:reader)
 	     (eq major-mode hmail:lister))) .
-	     ((smart-hmail) . (smart-hmail-assist)))
+     ((smart-hmail) . (smart-hmail-assist)))
     ;;
     ((eq major-mode 'gnus-group-mode)
      (smart-gnus-group) . (smart-gnus-group-assist))
@@ -301,15 +306,13 @@ Its default value is #'smart-scroll-down."
     ;;
     ;; Follow references in man pages.
     ((setq hkey-value (smart-man-entry-ref)) .
-     ((smart-man-display hkey-value) .
-      (smart-man-display hkey-value)))
+     ((smart-man-display hkey-value) . (smart-man-display hkey-value)))
     ;;
     ((eq major-mode 'w3-mode) . 
      ((w3-follow-link) . (w3-goto-last-buffer)))
     ;;
-    ((if (boundp 'hyrolo-display-buffer)
-	 (equal (buffer-name) hyrolo-display-buffer)) .
-	 ((smart-hyrolo) . (smart-hyrolo-assist)))
+    ((and (boundp 'hyrolo-display-buffer) (equal (buffer-name) hyrolo-display-buffer)) .
+     ((smart-hyrolo) . (smart-hyrolo-assist)))
     ;;
     ;; Gomoku game
     ((eq major-mode 'gomoku-mode) . 
@@ -325,10 +328,13 @@ Its default value is #'smart-scroll-down."
     ((and (boundp 'outline-minor-mode) outline-minor-mode) .
      ((smart-outline) . (smart-outline-assist)))
     )
-  "Alist of predicates and form-conses for Action and Assist Keys.
+  "Alist of predicates and form-conses for the Action and Assist Keyboard Keys.
 Each element is: (predicate-form . (action-key-form . assist-key-form)).
 When the Action or Assist Key is pressed, the first or second form,
-respectively, associated with the first non-nil predicate is evaluated.")
+respectively, associated with the first non-nil predicate is evaluated.
+
+See also `hmouse-alist' for a superset of this list utilized by the
+Action and Assist Mouse Keys.")
 
 ;;; ************************************************************************
 ;;; driver code
@@ -341,10 +347,13 @@ respectively, associated with the first non-nil predicate is evaluated.")
 (require 'hargs)
 (require 'hmouse-key)
 (defvar hmouse-alist hkey-alist
-  "Alist of predicates and form-conses for context-sensitive smart key mouse actions.
-When the action-key or the assist-key is pressed, the first or second
+  "Alist of predicates and form-conses for the Action and Assist Mouse Keys.
+When the Action Mouse Key or Assist Mouse Key is pressed, the first or second
 form, respectively, associated with the first non-nil predicate is
-evaluated.")
+evaluated.
+
+The `hkey-alist' variable is the subset of this alist used by the
+smart keyboard keys.")
 (load "hui-window")
 
 ;;; ************************************************************************
@@ -385,6 +394,43 @@ evaluated.")
       ref)))
 
 ;;; ************************************************************************
+;;; smart-helm functions
+;;; ************************************************************************
+
+(defun smart-helm-line-has-action ()
+  "Return the current helm selection item or nil if line lacks an associated action.
+Assume Hyperbole has already checked that point is in a helm completion buffer."
+  (let* ((helm-buffer (buffer-name))
+	 (selection (helm-get-selection)))
+    (and (listp selection) selection)))
+
+(defun smart-helm()
+  "Selects and executes the helm line at point."
+  (let ((helm-buffer (buffer-name))
+	(helm-alive-p t))
+    (with-helm-window
+      (setq cursor-type t)
+      (helm-mark-current-line)
+      ;; Hyperbole has checked that this line has an action prior
+      ;; to invoking this function.
+      (helm-execute-persistent-action))
+    (if (> (minibuffer-depth) 0)
+	(select-window (minibuffer-window)))))
+
+(defun smart-helm-assist()
+  "Displays the selected item (including its action for the helm line at point."
+  (let* ((helm-buffer (buffer-name))
+	 (selection (helm-get-selection)))
+    (with-helm-window
+      (setq cursor-type t)
+      (helm-mark-current-line)
+      (with-help-window "*Helm Help*"
+	(princ "The current helm selection item is:\n")
+	(print selection)))
+    (if (> (minibuffer-depth) 0)
+	(select-window (minibuffer-window)))))
+
+;;; ************************************************************************
 ;;; smart-buffer-menu functions
 ;;; ************************************************************************
 
@@ -410,7 +456,7 @@ If key is pressed:
   (cond ((last-line-p) (Buffer-menu-execute))
 	((bolp) (Buffer-menu-mark))
         ((save-excursion
-             (goto-char (1- (point)))
+	     (goto-char (1- (point)))
 	     (bolp))
 	 (Buffer-menu-save))
 	((br-in-browser) (br-buffer-menu-select))
@@ -466,7 +512,7 @@ If key is pressed:
 	((or (bolp) (save-excursion
 		      (goto-char (1- (point)))
 		      (bolp)))
-	 (ibuffer-mark-forward 1))
+	 (ibuffer-mark-forward nil nil 1))
 	((br-in-browser) (br-buffer-menu-select))  
 	(t (ibuffer-do-view))))
 
@@ -487,12 +533,14 @@ If assist-key is pressed:
 
   (interactive)
   (cond ((or (first-line-p) (last-line-p))
-	 (ibuffer-unmark-all 0))
+	 (if (fboundp 'ibuffer-unmark-all-marks)
+	     (ibuffer-unmark-all-marks)
+	   (ibuffer-unmark-all 0)))
 	((or (bolp) (save-excursion
 		      (goto-char (1- (point)))
 		      (bolp)))
-	 (ibuffer-unmark-forward 1))
-	(t (ibuffer-mark-for-delete 1))))
+	 (ibuffer-unmark-forward nil nil 1))
+	(t (ibuffer-mark-for-delete nil nil 1))))
 
 ;;; ************************************************************************
 ;;; smart-calendar functions

@@ -795,16 +795,29 @@ If key is pressed:
 (defun smart-python-at-tag-p (&optional no-flash)
   "Return Python tag name that point is within, else nil."
   (let* ((identifier-chars "a-zA-Z0-9_")
-	 (identifier (concat "[a-zA-Z_][" identifier-chars "]*")))
+	 (identifier-fragment (concat "[a-zA-Z_][" identifier-chars "]*"))
+	 (identifier (concat identifier-fragment "\\(\\."
+			     identifier-fragment "\\)*"))
+	 start end tag)
     (save-excursion
-      (skip-chars-backward identifier-chars)
+      ;; Allow for name1.name2.module tags.
+      (while (and (/= (skip-chars-backward identifier-chars) 0)
+		  (/= (skip-chars-backward "\.") 0)))
+      (when (= (following-char) ?.)
+	(forward-char 1))
+      (setq start (point))
+      (while (and (/= (skip-chars-forward identifier-chars) 0)
+		  (/= (skip-chars-forward "\.") 0)))
+      (when (= (preceding-char) ?.)
+	(backward-char 1))
+      (setq end (point))
+      (goto-char start)
+      (setq tag (buffer-substring-no-properties start end))
       (if (and (looking-at identifier)
-	       (not (member (downcase (match-string 0)) smart-python-keywords)))
+	       (not (member (downcase tag) smart-python-keywords)))
 	  (if no-flash
-	      (buffer-substring-no-properties (point) (match-end 0))
-	    (smart-flash-tag
-	     (buffer-substring-no-properties (point) (match-end 0))
-	     (point) (match-end 0)))))))
+	      tag
+	    (smart-flash-tag tag start end))))))
 
 ;;; ************************************************************************
 ;;; Private functions

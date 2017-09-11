@@ -46,6 +46,11 @@
 ;;; Public variables
 ;;; ************************************************************************
 
+(defcustom hproperty:but-highlight-p t
+  "*Non-nil (default value) means highlight all explict buttons with `hproperty:but-face'."
+  :type 'boolean
+  :group 'hyperbole-buttons)
+
 (defcustom hproperty:but-emphasize-p nil
   "*Non-nil means visually emphasize that button under mouse cursor is selectable."
   :type 'boolean
@@ -118,9 +123,10 @@ If END-DELIM is a symbol, e.g. t, then START-DELIM is taken as a regular
 expression which matches an entire button string.
 If REGEXP-MATCH is non-nil, only buttons matching this argument are
 highlighted."
-  (ebut:map (lambda (lbl start end)
-	      (hproperty:but-add start end hproperty:but-face))
-	    start-delim end-delim regexp-match 'include-delims))
+  (when hproperty:but-highlight-p
+    (ebut:map (lambda (lbl start end)
+		(hproperty:but-add start end hproperty:but-face))
+	      start-delim end-delim regexp-match 'include-delims)))
 	       
 (defun hproperty:but-delete (&optional pos)
   (let ((but (hproperty:but-get pos)))

@@ -1,4 +1,89 @@
--- Almost all changes listed herein are new as of 2016. --
+2017-09-10  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-helm, smart-helm-assist, smart-helm-line-has-action):
+  hsettings.el (helm-allow-mouse): Set to t.
+    New helm completion activation support.
+    Added to allow mouse direct selection of helm completion items.  The
+    smart-helm function behaves similarly to the {C-j} and {C-z} key bindings
+    that helm mode provides when a helm completion is active but the Smart
+    Keys work in the completions buffer regardless of whether a helm
+    completion is active or not.
+
+* hsys-www.el (www-url): Added Action and Assist Key support for browsing
+    links in eww (the Emacs web browser) and for activating history links
+    in the eww history buffer.
+
+2017-09-08  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:url-regexp3): Added a third pattern match for URLs,
+   allowing for partial http urls with non-www site names preceded by the
+   literal url or URL followed by a : or =.  For example:
+   url:photos.google.com or url=calendar.google.com
+
+2017-09-07  Bob Weiner  <rsw@gnu.org>
+
+* hui-menu.el (hui-menu-browser): Changed the Default setting to always
+    use the current setting of browse-url-default-browser since that is the
+    default in browse-url (eliminated use of browse-url-generic).
+
+* hypb.el (hypb:decode-url): Added.
+  hpath.el (hpath:is-p): Fixed to handle and decode encoded URL paths before
+    returning the path.
+
+2017-09-06  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (hkey-alist): Changed Python predicate to match more
+broadly, namely in any non-file buffer whose name includes Pydoc: or
+Python (case-sensitive).
+
+* hmouse-tag.el (smart-python-at-tag-p): Expanded to handle tags with
+   periods embedded such as `sys.path'.
+
+2017-09-04  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (debugger-source): Added support for Python pdb stack trace lines.
+
+2017-08-31  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (pathname): Wrapped mode-name reference in format-mode-line
+    call since mode-name is not always a string.
+
+* hui-em-but.el (hproperty:but-highlight-p): Added to allow disabling of explicit button highlighting.
+                (hproperty:but-create-all):  Used this new flag.
+  hui-xe-but.el (hproperty:but-highlight-p): Added to allow disabling of explicit button highlighting.
+                (hproperty:but-create-all):  Used this new flag.
+
+* hbut.el (ebut:map): Changed to ignore explicit button matches in
+    programming languages when outside of a comment.  For example, syntax like
+    this in a Rust buffer had been improperly matched: fn parse_kv(kv_list:
+    Vec<(syn::Ident, syn::StrLit)>, function: &Function) -> LispFnArgs 
+
+2017-08-25  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-ibuffer-menu): Ibuffer calling conventions have
+    changed across time (as of Emacs25) to allow for regional arguments;
+    updated to account for these.
+
+* hpath.el (hpath:remote-at-p): For Emacs 26 where
+    tramp-file-name-structure is now a function instead of a variable, call
+    the function. 
+
+* hyrolo.el (hyrolo-kill): Triggered error if FILE contains a '*' character,
+    mainly in case a buffer name is passed as an argument.
+            (hyrolo-file-list-initialize): Added this function so can
+    re-initialize the hyrolo-file-list later if BBDB or Google Contacts
+    support is loaded after the Hyperbole Rolo is initialized. 
+
+* hbut.el (hbut:source): Allowed for spaces in buffer names.
+
+* hyrolo.el (hyrolo-edit-entry): Avoided error if bbdb-file is nil.
+
+* hbut.el (ebut:label-p): Added one-line-flag to constrain label search to a single line.
+  hibtypes.el (Info-node): Constrained Info-node hyper-button matches to a single line.
+
+* hyrolo.el: Added support for Google Contacts when the google-contacts
+    package is in use and a public key package is available for Google
+    authorization.
 
 2016-09-08  Bob Weiner  <rsw@gnu.org>
 
