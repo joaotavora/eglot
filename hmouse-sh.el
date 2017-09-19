@@ -25,12 +25,229 @@
 ;;; ************************************************************************
 
 ;; Other mouse event location prefixes to possibly handle:
-;;   header-line
 ;;   vertical-scroll-bar
 ;;   horizontal-scroll-bar
 ;;   right-divider
 ;;   bottom-divider
 
+(defun hmouse-bind-key (mouse-key-number depress-cmd release-cmd)
+  "Ensure MOUSE-KEY-NUMBER (1-5), e.g. 1 for [mouse-1], is globally bound to DEPRESS-CMD and RELEASE-CMD (includes depresses and drags).
+Use nil as cmd values to unbind a key."
+  ;; Works under GNU Emacs only.
+  (hmouse-set-key-list
+   depress-cmd
+   (nth (1- mouse-key-number)
+	'(
+	  ([down-mouse-1] [header-line down-mouse-1]
+	   [left-fringe down-mouse-1]
+	   [right-fringe down-mouse-1]
+	   [vertical-line down-mouse-1]
+	   [mode-line down-mouse-1])
+
+	  ([down-mouse-2] [header-line down-mouse-2]
+	   [left-fringe down-mouse-2]
+	   [right-fringe down-mouse-2]
+	   [vertical-line down-mouse-2]
+	   [mode-line down-mouse-2])
+
+	  ([down-mouse-3] [header-line down-mouse-3]
+	   [left-fringe down-mouse-3]
+	   [right-fringe down-mouse-3]
+	   [vertical-line down-mouse-3]
+	   [mode-line down-mouse-3])
+	  
+	  ([down-mouse-4] [header-line down-mouse-4]
+	   [left-fringe down-mouse-4]
+	   [right-fringe down-mouse-4]
+	   [vertical-line down-mouse-4]
+	   [mode-line down-mouse-4])
+
+	  ([down-mouse-5] [header-line down-mouse-5]
+	   [left-fringe down-mouse-5]
+	   [right-fringe down-mouse-5]
+	   [vertical-line down-mouse-5]
+	   [mode-line down-mouse-5])
+	  )))
+	   
+  (hmouse-set-key-list
+   release-cmd
+   (nth (1- mouse-key-number)
+	'(
+	  ([drag-mouse-1] [mouse-1]
+	   [double-mouse-1] [triple-mouse-1]
+	   [header-line drag-mouse-1]
+	   [header-line mouse-1]
+	   [left-fringe drag-mouse-1]
+	   [left-fringe mouse-1]
+	   [right-fringe drag-mouse-1]
+	   [right-fringe mouse-1]
+	   [vertical-line drag-mouse-1]
+	   [vertical-line mouse-1]
+	   [mode-line drag-mouse-1]
+	   [mode-line mouse-1])
+
+	  ([drag-mouse-2] [mouse-2]
+	   [double-mouse-2] [triple-mouse-2]
+	   [header-line drag-mouse-2]
+	   [header-line mouse-2]
+	   [left-fringe drag-mouse-2]
+	   [left-fringe mouse-2]
+	   [right-fringe drag-mouse-2]
+	   [right-fringe mouse-2]
+	   [vertical-line drag-mouse-2]
+	   [vertical-line mouse-2]
+	   [mode-line drag-mouse-2]
+	   [mode-line mouse-2])
+
+	  ([drag-mouse-3] [mouse-3]
+	   [double-mouse-3] [triple-mouse-3]
+	   [header-line drag-mouse-3]
+	   [header-line mouse-3]
+	   [left-fringe drag-mouse-3]
+	   [left-fringe mouse-3]
+	   [right-fringe drag-mouse-3]
+	   [right-fringe mouse-3]
+	   [vertical-line drag-mouse-3]
+	   [vertical-line mouse-3]
+	   [mode-line drag-mouse-3]
+	   [mode-line mouse-3])
+
+	  ([drag-mouse-4] [mouse-4]
+	   [double-mouse-4] [triple-mouse-4]
+	   [header-line drag-mouse-4]
+	   [header-line mouse-4]
+	   [left-fringe drag-mouse-4]
+	   [left-fringe mouse-4]
+	   [right-fringe drag-mouse-4]
+	   [right-fringe mouse-4]
+	   [vertical-line drag-mouse-4]
+	   [vertical-line mouse-4]
+	   [mode-line drag-mouse-4]
+	   [mode-line mouse-4])
+
+	  ([drag-mouse-5] [mouse-5]
+	   [double-mouse-5] [triple-mouse-5]
+	   [header-line drag-mouse-5]
+	   [header-line mouse-5]
+	   [left-fringe drag-mouse-5]
+	   [left-fringe mouse-5]
+	   [right-fringe drag-mouse-5]
+	   [right-fringe mouse-5]
+	   [vertical-line drag-mouse-5]
+	   [vertical-line mouse-5]
+	   [mode-line drag-mouse-5]
+	   [mode-line mouse-5])
+	  ))))
+
+(defun hmouse-bind-shifted-key (shifted-mouse-key-number depress-cmd release-cmd)
+  "Ensure shifted MOUSE-KEY-NUMBER (1-5), e.g. 1 for [Smouse-1], is globally bound to DEPRESS-CMD and RELEASE-CMD (includes depresses and drags).
+Use nil as CMD value to unbind the key."
+  ;; Works under GNU Emacs only.
+  (hmouse-set-key-list
+   depress-cmd
+   (nth (1- shifted-mouse-key-number)
+	'(
+	  ([S-down-mouse-1] [header-line S-down-mouse-1]
+	   [left-fringe S-down-mouse-1]
+	   [right-fringe S-down-mouse-1]
+	   [vertical-line S-down-mouse-1]
+	   [mode-line S-down-mouse-1])
+
+	  ([S-down-mouse-2] [header-line S-down-mouse-2]
+	   [left-fringe S-down-mouse-2]
+	   [right-fringe S-down-mouse-2]
+	   [vertical-line S-down-mouse-2]
+	   [mode-line S-down-mouse-2])
+
+	  ([S-down-mouse-3] [header-line S-down-mouse-3]
+	   [left-fringe S-down-mouse-3]
+	   [right-fringe S-down-mouse-3]
+	   [vertical-line S-down-mouse-3]
+	   [mode-line S-down-mouse-3])
+	  
+	  ([S-down-mouse-4] [header-line S-down-mouse-4]
+	   [left-fringe S-down-mouse-4]
+	   [right-fringe S-down-mouse-4]
+	   [vertical-line S-down-mouse-4]
+	   [mode-line S-down-mouse-4])
+
+	  ([S-down-mouse-5] [header-line S-down-mouse-5]
+	   [left-fringe S-down-mouse-5]
+	   [right-fringe S-down-mouse-5]
+	   [vertical-line S-down-mouse-5]
+	   [mode-line S-down-mouse-5])
+	  )))
+	  
+  (hmouse-set-key-list
+   release-cmd
+   (nth (1- shifted-mouse-key-number)
+	'(
+	  ([S-drag-mouse-1] [S-mouse-1]
+	   [S-double-mouse-1] [S-triple-mouse-1]
+	   [header-line S-drag-mouse-1]
+	   [header-line S-mouse-1]
+	   [left-fringe S-drag-mouse-1]
+	   [left-fringe S-mouse-1]
+	   [right-fringe S-drag-mouse-1]
+	   [right-fringe S-mouse-1]
+	   [vertical-line S-drag-mouse-1]
+	   [vertical-line S-mouse-1]
+	   [mode-line S-drag-mouse-1]
+	   [mode-line S-mouse-1])
+
+	  ([S-drag-mouse-2] [S-mouse-2]
+	   [S-double-mouse-2] [S-triple-mouse-2]
+	   [header-line S-drag-mouse-2]
+	   [header-line S-mouse-2]
+	   [left-fringe S-drag-mouse-2]
+	   [left-fringe S-mouse-2]
+	   [right-fringe S-drag-mouse-2]
+	   [right-fringe S-mouse-2]
+	   [vertical-line S-drag-mouse-2]
+	   [vertical-line S-mouse-2]
+	   [mode-line S-drag-mouse-2]
+	   [mode-line S-mouse-2])
+
+	  ([S-drag-mouse-3] [S-mouse-3]
+	   [S-double-mouse-3] [S-triple-mouse-3]
+	   [header-line S-drag-mouse-3]
+	   [header-line S-mouse-3]
+	   [left-fringe S-drag-mouse-3]
+	   [left-fringe S-mouse-3]
+	   [right-fringe S-drag-mouse-3]
+	   [right-fringe S-mouse-3]
+	   [vertical-line S-drag-mouse-3]
+	   [vertical-line S-mouse-3]
+	   [mode-line S-drag-mouse-3]
+	   [mode-line S-mouse-3])
+
+	  ([S-drag-mouse-4] [S-mouse-4]
+	   [S-double-mouse-4] [S-triple-mouse-4]
+	   [header-line S-drag-mouse-4]
+	   [header-line S-mouse-4]
+	   [left-fringe S-drag-mouse-4]
+	   [left-fringe S-mouse-4]
+	   [right-fringe S-drag-mouse-4]
+	   [right-fringe S-mouse-4]
+	   [vertical-line S-drag-mouse-4]
+	   [vertical-line S-mouse-4]
+	   [mode-line S-drag-mouse-4]
+	   [mode-line S-mouse-4])
+
+	  ([S-drag-mouse-5] [S-mouse-5]
+	   [S-double-mouse-5] [S-triple-mouse-5]
+	   [header-line S-drag-mouse-5]
+	   [header-line S-mouse-5]
+	   [left-fringe S-drag-mouse-5]
+	   [left-fringe S-mouse-5]
+	   [right-fringe S-drag-mouse-5]
+	   [right-fringe S-mouse-5]
+	   [vertical-line S-drag-mouse-5]
+	   [vertical-line S-mouse-5]
+	   [mode-line S-drag-mouse-5]
+	   [mode-line S-mouse-5])
+	  ))))
+	   
 (defun hmouse-get-bindings (hmouse-middle-flag)
   "Returns the list of current bindings of mouse keys used by Hyperbole.
 If HMOUSE-MIDDLE-FLAG is non-nil, includes the middle mouse key binding as well.
@@ -149,9 +366,9 @@ These may be the bindings prior to initializing Hyperbole or the Hyperbole bindi
 		    (if (not (eq window-system 'dps))
 			;; X, OS X or MS Windows
 			'([down-mouse-2] [drag-mouse-2] [mouse-2]
-			  ;; [down-mouse-3] [drag-mouse-3] [mouse-3]
+			  [down-mouse-3] [drag-mouse-3] [mouse-3]
 			  [double-mouse-2] [triple-mouse-2]
-			  ;; [double-mouse-3] [triple-mouse-3]
+			  [double-mouse-3] [triple-mouse-3]
 			  [header-line down-mouse-2] [header-line drag-mouse-2]
 			  [header-line mouse-2]
 			  [left-fringe down-mouse-2] [left-fringe drag-mouse-2]
@@ -160,34 +377,34 @@ These may be the bindings prior to initializing Hyperbole or the Hyperbole bindi
 			  [right-fringe mouse-2]
 			  [vertical-line down-mouse-2] [vertical-line drag-mouse-2]
 			  [vertical-line mouse-2]
-			  ;; [left-fringe down-mouse-3] [left-fringe drag-mouse-3]
-			  ;; [left-fringe mouse-3]
-			  ;; [right-fringe down-mouse-3] [right-fringe drag-mouse-3]
-			  ;; [right-fringe mouse-3]
-			  ;; [vertical-line down-mouse-3] [vertical-line drag-mouse-3]
-			  ;; [vertical-line mouse-3]
+			  [left-fringe down-mouse-3] [left-fringe drag-mouse-3]
+			  [left-fringe mouse-3]
+			  [right-fringe down-mouse-3] [right-fringe drag-mouse-3]
+			  [right-fringe mouse-3]
+			  [vertical-line down-mouse-3] [vertical-line drag-mouse-3]
+			  [vertical-line mouse-3]
 			  [mode-line down-mouse-2] [mode-line drag-mouse-2]
 			  [mode-line mouse-2]
-			  ;; [mode-line down-mouse-3] [mode-line drag-mouse-3]
-			  ;; [mode-line mouse-3]
+			  [mode-line down-mouse-3] [mode-line drag-mouse-3]
+			  [mode-line mouse-3]
 			  ))))
 	   ("xemacs" .
 	    (nconc
 	     (mapcar (lambda (key)
 		       (cons key (global-key-binding key)))
 		     '([button2] [button2up]
-		       ;; [button3] [button3up]
+		       [button3] [button3up]
 		       ))
-	     ;; (if (boundp 'mode-line-map)
-	     ;;   (mapcar (function
-	     ;;	    (lambda (key)
-	     ;;	      (cons key (lookup-key mode-line-map key))))
-	     ;;	   '([button3] [button3up])))
+	     (if (boundp 'mode-line-map)
+		 (mapcar (function
+			  (lambda (key)
+			    (cons key (lookup-key mode-line-map key))))
+			 '([button3] [button3up])))
 	     ))
 	   ("xterm" .
 	    (mapcar (lambda (key) (cons key (lookup-key mouse-map key)))
 		    (list x-button-middle x-button-middle-up
-			  ;; x-button-right  x-button-right-up
+			  x-button-right  x-button-right-up
 			  )))
 	   )))))
 
@@ -258,88 +475,13 @@ select the corresponding element around point."
      (hyperb:emacs-p
       (setq hmouse-set-point-command 'hmouse-move-point-emacs)
       (if (eq window-system 'dps)
-	  ;; NEXTSTEP offers only 2 shift-mouse buttons which we use
-	  ;; as the Smart Keys.
+	  ;; NEXTSTEP offers only 2 shift-mouse buttons which we use as the Smart Keys.
 	  (progn
-	    (hmouse-set-key-list #'action-key-depress-emacs
-				 '([S-down-mouse-1] [header-line S-down-mouse-1]
-				   [left-fringe S-down-mouse-1]
-				   [right-fringe S-down-mouse-1]
-				   [vertical-line S-down-mouse-1]
-				   [mode-line S-down-mouse-1]))
-	    (hmouse-set-key-list #'action-mouse-key-emacs
-				 '([S-drag-mouse-1] [S-mouse-1]
-				   [S-double-mouse-1] [S-triple-mouse-1]
-				   [header-line S-drag-mouse-1]
-				   [header-line S-mouse-1]
-				   [left-fringe S-drag-mouse-1]
-				   [left-fringe S-mouse-1]
-				   [right-fringe S-drag-mouse-1]
-				   [right-fringe S-mouse-1]
-				   [vertical-line S-drag-mouse-1]
-				   [vertical-line S-mouse-1]
-				   [mode-line S-drag-mouse-1]
-				   [mode-line S-mouse-1]))
-
-	    (hmouse-set-key-list #'assist-key-depress-emacs
-				 '([S-down-mouse-2] [header-line S-down-mouse-2]
-				   [left-fringe S-down-mouse-2]
-				   [right-fringe S-down-mouse-2]
-				   [vertical-line S-down-mouse-2]
-				   [mode-line S-down-mouse-2]))
-	    (hmouse-set-key-list #'assist-mouse-key-emacs
-				 '([S-drag-mouse-2] [S-mouse-2]
-				   [S-double-mouse-2] [S-triple-mouse-2]
-				   [header-line S-drag-mouse-2]
-				   [header-line S-mouse-2]
-				   [left-fringe S-drag-mouse-2]
-				   [left-fringe S-mouse-2]
-				   [right-fringe S-drag-mouse-2]
-				   [right-fringe S-mouse-2]
-				   [vertical-line S-drag-mouse-2]
-				   [vertical-line S-mouse-2]
-				   [mode-line S-drag-mouse-2]
-				   [mode-line S-mouse-2])))
+	    (hmouse-bind-shifted-key 1 #'action-key-depress-emacs #'action-mouse-key-emacs)
+	    (hmouse-bind-shifted-key 2 #'assist-key-depress-emacs #'assist-mouse-key-emacs))
 	;; X, OS X or MS Windows
-	(hmouse-set-key-list #'action-key-depress-emacs
-			     '([S-down-mouse-2] [header-line S-down-mouse-2]
-			       [left-fringe S-down-mouse-2]
-			       [right-fringe S-down-mouse-2]
-			       [vertical-line S-down-mouse-2]
-			       [mode-line S-down-mouse-2]))
-	(hmouse-set-key-list #'action-mouse-key-emacs
-			     '([S-drag-mouse-2] [S-mouse-2]
-			       [S-double-mouse-2] [S-triple-mouse-2]
-			       [header-line S-drag-mouse-2]
-			       [header-line S-mouse-2]
-			       [left-fringe S-drag-mouse-2]
-			       [left-fringe S-mouse-2]
-			       [right-fringe S-drag-mouse-2]
-			       [right-fringe S-mouse-2]
-			       [vertical-line S-drag-mouse-2]
-			       [vertical-line S-mouse-2]
-			       [mode-line S-drag-mouse-2]
-			       [mode-line S-mouse-2]))
-
-	(hmouse-set-key-list #'assist-key-depress-emacs
-			     '([S-down-mouse-3] [header-line S-down-mouse-3]
-			       [left-fringe S-down-mouse-3]
-			       [right-fringe S-down-mouse-3]
-			       [vertical-line S-down-mouse-3]
-			       [mode-line S-down-mouse-3]))
-	(hmouse-set-key-list #'assist-mouse-key-emacs
-			     '([S-drag-mouse-3] [S-mouse-3]
-			       [S-double-mouse-3] [S-triple-mouse-3]
-			       [header-line S-drag-mouse-3]
-			       [left-fringe S-drag-mouse-3]
-			       [left-fringe S-mouse-3]
-			       [right-fringe S-drag-mouse-3]
-			       [right-fringe S-mouse-3]
-			       [header-line S-mouse-3]
-			       [vertical-line S-drag-mouse-3]
-			       [vertical-line S-mouse-3]
-			       [mode-line S-drag-mouse-3]
-			       [mode-line S-mouse-3]))))
+	(hmouse-bind-shifted-key 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
+	(hmouse-bind-shifted-key 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs)))
      ;;
      ;; XEmacs
      ((featurep 'xemacs)
@@ -367,25 +509,18 @@ select the corresponding element around point."
       (define-key mouse-map x-button-s-middle-up 'action-mouse-key)
       (define-key mouse-map x-button-s-right 'assist-key-depress)
       (define-key mouse-map x-button-s-right-up 'assist-mouse-key)
-      ;; Use these instead of the above for a true META-BUTTON binding.
-      ;; (define-key mouse-map x-button-m-middle 'assist-key-depress)
-      ;; (define-key mouse-map x-button-m-middle-up 'assist-mouse-key)
       )
      ;;
      ;; NeXT
      ((equal (hyperb:window-system) "next")
       (setq hmouse-set-point-command 'hmouse-move-point-eterm)
-      ;; Use left button to set point.
-      ;; Use shift-left button instead of non-existent middle as Action Key.
+      ;; NEXTSTEP offers only 2 shift-mouse buttons which we use as the Smart Keys.
       (mapc
        (lambda (region)
 	 (global-set-mouse (cons region '(shift left))     'action-key-depress)
 	 (global-set-mouse (cons region '(shift up left))  'action-mouse-key)
 	 (global-set-mouse (cons region '(shift right))    'assist-key-depress)
 	 (global-set-mouse (cons region '(shift up right)) 'assist-mouse-key)
-	 ;; Use these instead of the above for a true META-BUTTON binding.
-	 ;; (global-set-mouse (cons region '(meta    right))  'assist-key-depress)
-	 ;; (global-set-mouse (cons region '(meta up right))  'assist-mouse-key)
 	 )
        '(text scrollbar modeline minibuffer))
       ))
@@ -404,45 +539,8 @@ select the corresponding element around point."
     ;;
     (if (not (eq window-system 'dps))
 	;; X, OS X or MS Windows
-	(progn (hmouse-set-key-list #'action-key-depress-emacs
-				    '([down-mouse-2] [header-line down-mouse-2]
-				      [left-fringe down-mouse-2]
-				      [right-fringe down-mouse-2]
-				      [vertical-line down-mouse-2]
-				      [mode-line down-mouse-2]))
-	       (hmouse-set-key-list #'action-mouse-key-emacs
-				    '([drag-mouse-2] [mouse-2]
-				      [double-mouse-2] [triple-mouse-2]
-				      [header-line drag-mouse-2]
-				      [header-line mouse-2]
-				      [left-fringe drag-mouse-2]
-				      [left-fringe mouse-2]
-				      [right-fringe drag-mouse-2]
-				      [right-fringe mouse-2]
-				      [vertical-line drag-mouse-2]
-				      [vertical-line mouse-2]
-				      [mode-line drag-mouse-2]
-				      [mode-line mouse-2]))
-
-	       ;; (hmouse-set-key-list #'assist-key-depress-emacs
-	       ;; 		     '([down-mouse-3] [header-line down-mouse-3]
-	       ;;		       [left-fringe down-mouse-3]
-	       ;;		       [right-fringe down-mouse-3]
-	       ;;                      [vertical-line down-mouse-3]
-	       ;; 		       [mode-line down-mouse-3]))
-	       ;; (hmouse-set-key-list #'assist-mouse-key-emacs
-	       ;; 		     '([drag-mouse-3] [mouse-3]
-	       ;; 		       [double-mouse-3] [triple-mouse-3]
-	       ;; 		       [header-line drag-mouse-3]
-	       ;; 		       [header-line mouse-3]
-	       ;;		       [left-fringe drag-mouse-3]
-	       ;;		       [left-fringe mouse-3]
-	       ;;		       [right-fringe drag-mouse-3]
-	       ;;		       [right-fringe mouse-3]
-	       ;; 		       [vertical-line drag-mouse-3]
-	       ;; 		       [vertical-line mouse-3]
-	       ;; 		       [mode-line drag-mouse-3]
-	       ;; 		       [mode-line mouse-3]))
+	(progn (hmouse-bind-key 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
+	       ;; (hmouse-bind-key 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs)
 	       )))
    ;;
    ;; XEmacs
@@ -474,9 +572,6 @@ select the corresponding element around point."
     (define-key mouse-map x-button-middle-up 'action-mouse-key)
     ;; (define-key mouse-map x-button-right 'assist-key-depress)
     ;; (define-key mouse-map x-button-right-up 'assist-mouse-key)
-    ;; Use these instead of the above for a true META-BUTTON binding.
-    ;; (define-key mouse-map x-button-m-middle 'assist-key-depress)
-    ;; (define-key mouse-map x-button-m-middle-up 'assist-mouse-key)
     )))
 
 (provide 'hmouse-sh)

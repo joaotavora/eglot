@@ -152,7 +152,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.3
-Printed September 8, 2016.
+Printed September 17, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -2097,11 +2097,21 @@ operation from any keyboard.
 @kindex middle mouse key
 @vindex hmouse-middle-flag
 From the mouse, the @dfn{Action Key} is bound to your shift-middle
-mouse key (or shift-left on a 2-button mouse) and the @dfn{Assist Key}
+mouse key (or shift-left on a 2-button mouse).  The @dfn{Assist Key}
 is bound to your shift-right mouse key, assuming Hyperbole is run
 under an external window system.  (InfoDock users or those who set the
 variable, @code{hmouse-middle-flag}, to @samp{t} before loading
 Hyperbole, may also use the middle mouse key as the Action Key).
+
+@findex hmouse-add-unshifted-keys
+@cindex unshifted mouse bindings
+@cindex unshifted mouse keys
+@cindex mouse keys, unshifted
+@cindex smart keys, unshifted
+If you want the middle mouse key as the Action Key and the right mouse
+key as the Assist Key for ease of use,  then within your personal
+@file{~/.emacs} file, add:
+  @code{(add-hook 'hyperbole-init-hook 'hmouse-add-unshifted-keys)}.
 
 @cindex key binding, smart keys
 @cindex smart key commands

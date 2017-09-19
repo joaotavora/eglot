@@ -208,16 +208,17 @@
   "Return non-nil if the character after optional POS (or point) matches a syntax entry in `hui-select-syntax-alist'.
 The non-nil value returned is the function to call to select that syntactic unit."
   (interactive "d")
-  (or (numberp pos) (setq pos (point)))
-  (setq hui-select-previous 'char)
-  (let* ((syntax (char-syntax (or (char-after pos) (char-before pos))))
-	 (pair (assq syntax hui-select-syntax-alist)))
-    (and pair (or hui-select-whitespace (not (eq (cdr pair) 'thing-whitespace)))
-	 ;; Ignore matches that are preceded by '\' as a quote, e.g. ?\'
-	 (or (not (char-after pos))
-	     (= pos (point-min))
-	     (and (char-before pos) (/= ?\\ (char-before pos))))
-	 (cdr pair))))
+  (unless (and (bobp) (eobp))
+    (or (numberp pos) (setq pos (point)))
+    (setq hui-select-previous 'char)
+    (let* ((syntax (char-syntax (or (char-after pos) (char-before pos))))
+	   (pair (assq syntax hui-select-syntax-alist)))
+      (and pair (or hui-select-whitespace (not (eq (cdr pair) 'thing-whitespace)))
+	   ;; Ignore matches that are preceded by '\' as a quote, e.g. ?\'
+	   (or (not (char-after pos))
+	       (= pos (point-min))
+	       (and (char-before pos) (/= ?\\ (char-before pos))))
+	   (cdr pair)))))
 
 ;;;###autoload
 (defun hui-select-goto-matching-delimiter ()

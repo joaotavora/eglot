@@ -51,11 +51,12 @@ Hyperbole Key Press/Click in Special Modes
   Page Directory Listing        Jumps to page              <- same
   Imenu Programming Identifier  Jumps to in-buffer def     Prompts for identifier to jump to
   C,C++,Objective-C,Java Modes  Jumps to id/include def    Jumps to next def
+  Assembly Language Mode        Jumps to id/include def    Jumps to next def
   Java Cross-reference Tag      Jumps to identifier def    Jumps to next def
   JavaScript and Python Modes   Jumps to identifier def    Jumps to next def
-  Assembly Language Mode        Jumps to id/include def    Jumps to next def
-  Any Lisp or Fortran Mode      Jumps to id def            Jumps to next def
+  Any Lisp or Fortran Mode      Jumps to identifier def    Jumps to next def
   Emacs Lisp Compiler Error     Jumps to def with error    <- same
+  Other Compiler Error          Jumps to src error line    <- same
   Grep or Occur Match           Jumps to match source line <- same
   Multi-buffer Occur Match      Jumps to match source line <- same
   Etags `TAGS' file entry       Jumps to source line       Button help

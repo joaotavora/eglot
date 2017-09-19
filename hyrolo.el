@@ -10,6 +10,14 @@
 ;; This file is part of GNU Hyperbole.
 
 ;;; Commentary:
+;;
+;;  This is Hyperbole's advanced rolo system, HyRolo, for convenient
+;;  management of hierarchical, record-oriented information.  Most
+;;  often this is used for contact management but it can quickly be
+;;  adapted to most any record-oriented lookup task, for fast retrieval.
+;;
+;;  See all the autoloaded functions herein for interactive commands.
+;;  See the Info manual entry "(hyperbole)HyRolo" for usage information.
 
 ;;; Code:
 ;;; ************************************************************************

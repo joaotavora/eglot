@@ -1,13 +1,64 @@
+2017-09-18  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-helm): Finalized and added doc. of contexts and actions.
+
+* hui-window.el (smart-coords-in-window-p):
+                (hmouse-drag-window-side): Handled null value of coords.
+
+2017-09-17  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (hkey-alist): Changed minibuffer handling to support Helm.
+
+* man/hkey-help.txt: Small updates to Special Mode doc.
+
+* hmouse-key.el (hmouse-add-unshifted-keys): Added to allow user init
+    of unshifted Smart Keys.  For GNU Emacs only, this binds
+    [mouse-2] to the Action Key and [mouse-3] to the Assist Key.
+  man/hyperbole.texi (Smart Key Bindings): Added doc for hmouse-add-unshifted-keys.
+
+* hmouse-sh.el (hmouse-get-unshifted-bindings): Uncommented inclusion of
+   mouse-3 for times when user manually sets mouse-3 as the Assist Key.
+   Otherwise, hmouse-toggle-bindings will never change its value.
+               (hmouse-bind-key, hmouse-bind-shifted-key): Added and used
+   these to ensure depress and release bindings are wholly reset before
+   rebinding them under GNU Emacs.
+
+2017-09-14  Bob Weiner  <rsw@gnu.org>
+
+* hpath.el (hpath:external-open-office-suffixes): Added .odt suffix.
+
+* hui-select.el (hui-select-at-p): Protect against empty buffer error.
+
+2017-09-12  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (grep-msg):
+              (pathname): Don't match in helm completion buffers.
+
+* hui-mouse.el (smart-helm-line-has-action): Ignore any actions helm
+    imputes to header lines and candidate separator lines in helm
+    completion buffers, as they are non-actionable lines.  Also, ignore
+    if at the end of the buffer.
+               (hkey-alist): Lowered smart-helm priority so can use Smart
+    Key end-of-line functions in such buffers.
+
+* hsys-www.el (eww-link-at-point): Basic stylistic improvements.
+
+2017-09-11  Bob Weiner  <rsw@gnu.org>
+
+hyrolo.el: Added basic commentary to the file header.
+
 2017-09-10  Bob Weiner  <rsw@gnu.org>
 
 * hui-mouse.el (smart-helm, smart-helm-assist, smart-helm-line-has-action):
   hsettings.el (helm-allow-mouse): Set to t.
     New helm completion activation support.
-    Added to allow mouse direct selection of helm completion items.  The
-    smart-helm function behaves similarly to the {C-j} and {C-z} key bindings
-    that helm mode provides when a helm completion is active but the Smart
-    Keys work in the completions buffer regardless of whether a helm
-    completion is active or not.
+    Added to allow mouse direct selection of helm completion items and to see
+    match item actions prior to invoking them.  The smart-helm function
+    behaves similarly to the {C-j} and {C-z} key bindings that helm mode
+    provides when a helm completion is active. If helm is not active,
+    Hyperbole resumes the prior helm session before triggering the action. 
+    The smart-helm-assist function displays the match item and its associated
+    action.
 
 * hsys-www.el (www-url): Added Action and Assist Key support for browsing
     links in eww (the Emacs web browser) and for activating history links

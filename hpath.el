@@ -43,7 +43,7 @@ Default is `nil' since this can slow down normal file finding."
 ;;; FILE VIEWER COMMAND SETTINGS
 ;;; ************************************************************************
 
-(defcustom hpath:external-open-office-suffixes "doc[mx]?\\|ods\\|ppsx?\\|ppt[mx]?\\|xls[mx]?"
+(defcustom hpath:external-open-office-suffixes "doc[mx]?\\|od[st]\\|ppsx?\\|ppt[mx]?\\|xls[mx]?"
   "*Regexp of Open Office document suffix alternatives to display externally.
 See http://www.openwith.org/programs/openoffice for a full list of
 possible suffixes."

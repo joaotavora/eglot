@@ -307,7 +307,8 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
       (and assist-key-depress-window assist-key-release-window
 	   (not (eq assist-key-depress-window
 		    assist-key-release-window)))
-    (and action-key-depress-window action-key-release-window
+    (and (not (smart-helm-alive-p)) ;; Ignore Action Key drag if helm is active.
+	 action-key-depress-window action-key-release-window
 	 (not (eq action-key-depress-window action-key-release-window)))))
 
 (defun hmouse-drag-diagonally ()
@@ -462,7 +463,8 @@ Beeps and prints message if the window cannot be split further."
 
 (defun smart-coords-in-window-p (coords window)
   "Tests if COORDS are in WINDOW.  Returns WINDOW if they are, nil otherwise."
-  (cond ((and hyperb:emacs-p (eventp coords))
+  (cond ((null coords) nil)
+	((and hyperb:emacs-p (eventp coords))
 	 (eq (posn-window (event-start coords)) window))
 	((if (featurep 'xemacs)
 	     (if (eventp coords)

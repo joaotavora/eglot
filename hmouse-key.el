@@ -98,6 +98,11 @@ Assist Key = shift-right mouse key."
 	       (if hmouse-middle-flag "{Mouse-2} and {Shift Mouse-2} invoke"
 		 "{Shift-Mouse-2} invokes"))))
 
+(defun hmouse-add-unshifted-keys ()
+  "GNU Emacs only: binds [mouse-2] to the Action Key and [mouse-3] to the Assist Key."
+     (hmouse-install t)
+     (hmouse-bind-key 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs))
+
 (defun hmouse-toggle-bindings ()
   "Toggles between Smart Mouse Key settings and their prior bindings.
 Under InfoDock, the first invocation of this command will make the middle

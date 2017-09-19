@@ -88,16 +88,13 @@ Its default value is #'smart-scroll-down."
     ((and (fboundp 'button-at) (button-at (point))) .
      ((push-button) . (smart-push-button-help)))
     ;;
-    ;; Direct access selection of helm-major-mode completions
-    ((and (eq major-mode 'helm-major-mode) (smart-helm-line-has-action)) .
-     ((smart-helm) . (smart-helm-assist)))
-    ;;
     ;; If click in the minibuffer and reading an argument,
     ;; accept argument or give completion help.
     ((and (> (minibuffer-depth) 0)
 	  (eq (selected-window) (minibuffer-window))
-	  (not (eq hargs:reading-p 'hmenu))) .
-     ((exit-minibuffer) . (smart-completion-help)))
+	  (not (eq hargs:reading-p 'hmenu))
+	  (not (smart-helm-alive-p))) .
+	  ((funcall (key-binding (kbd "RET"))) . (smart-completion-help)))
     ;;
     ;; If reading a Hyperbole menu item or a Hyperbole completion-based
     ;; argument, allow selection of an item at point.
@@ -109,14 +106,15 @@ Its default value is #'smart-scroll-down."
     ((and (> (minibuffer-depth) 0)
 	  (eq (selected-window) (minibuffer-window))
 	  (eq hargs:reading-p 'hmenu)) .
-     ((exit-minibuffer) . (exit-minibuffer)))
+	  ((funcall (key-binding (kbd "RET"))) . (funcall (key-binding (kbd "RET")))))
     ;;
     ;; The ID-edit package supports rapid killing, copying, yanking and
     ;; display management. It is available only as a part of InfoDock.
     ;; It is not included with Hyperbole.
     ((and (boundp 'id-edit-mode) id-edit-mode
-	  (not buffer-read-only)) .
-     ((id-edit-yank) . (id-edit-yank)))
+	  (not buffer-read-only)
+	  (not (smart-helm-alive-p))) .
+	  ((id-edit-yank) . (id-edit-yank)))
     ;;
     ((and (fboundp 'xref--item-at-point) (xref--item-at-point)) .
      ((xref-goto-xref) . (xref-show-location-at-point)))
@@ -157,6 +155,14 @@ Its default value is #'smart-scroll-down."
 	     (goto-char (point-max)))
 	    (t (scroll-up))) .
 	    (scroll-down)))
+    ;;
+    ;; Direct access selection of helm-major-mode completions
+    ((setq hkey-value (and (or (eq major-mode 'helm-major-mode)
+			       (and (featurep 'helm) (equal helm-action-buffer (buffer-name))))
+			   (or (eobp)
+			       (smart-helm-at-header)
+			       (smart-helm-line-has-action)))) .
+     ((smart-helm) . (smart-helm-assist)))
     ;;
     ;; Support the OO-Browser when available.  It is a separate Emacs
     ;; package not included with Hyperbole.  Within an OO-Browser
@@ -246,20 +252,20 @@ Its default value is #'smart-scroll-down."
     ((and (memq major-mode '(js2-mode js-mode js3-mode javascript-mode html-mode web-mode))
 	  buffer-file-name
 	  (smart-javascript-at-tag-p)) .
-     ((smart-javascript) . (smart-javascript nil 'next-tag)))
+	  ((smart-javascript) . (smart-javascript nil 'next-tag)))
     ;;
     ((and (or (and (eq major-mode 'python-mode) buffer-file-name)
 	      (string-match "^Pydoc:\\|\\*?Python" (buffer-name)))
 	  (smart-python-at-tag-p)) .
-     ((smart-python) . (smart-python nil 'next-tag)))
+	  ((smart-python) . (smart-python nil 'next-tag)))
     ;;
     ((and (eq major-mode 'objc-mode) buffer-file-name
 	  (smart-objc-at-tag-p)) .
-     ((smart-objc) . (smart-objc nil 'next-tag)))
+	  ((smart-objc) . (smart-objc nil 'next-tag)))
     ;;
     ((and (memq major-mode '(fortran-mode f90-mode))
 	  buffer-file-name (smart-fortran-at-tag-p)) .
-     ((smart-fortran) . (smart-fortran nil 'next-tag)))
+	  ((smart-fortran) . (smart-fortran nil 'next-tag)))
     ;;
     ((eq major-mode 'occur-mode) .
      ((occur-mode-goto-occurrence) . (occur-mode-goto-occurrence)))
@@ -284,7 +290,7 @@ Its default value is #'smart-scroll-down."
     ((if (boundp 'hmail:reader)
 	 (or (eq major-mode hmail:reader)
 	     (eq major-mode hmail:lister))) .
-     ((smart-hmail) . (smart-hmail-assist)))
+	     ((smart-hmail) . (smart-hmail-assist)))
     ;;
     ((eq major-mode 'gnus-group-mode)
      (smart-gnus-group) . (smart-gnus-group-assist))
@@ -378,7 +384,7 @@ smart keyboard keys.")
   (save-excursion (end-of-line) (eobp)))
 
 (defun smart-completion-help ()
-  "Offer completion help for current minibuffer argument, if any."
+  "Offers completion help for current minibuffer argument, if any."
   (if (where-is-internal 'minibuffer-completion-help (current-local-map))
       (minibuffer-completion-help)))
 
@@ -397,36 +403,88 @@ smart keyboard keys.")
 ;;; smart-helm functions
 ;;; ************************************************************************
 
+(defun smart-helm-at-header ()
+  "Return t iff Action Mouse Key depress was on the first header line of the current buffer."
+  (or (helm-pos-header-line-p)
+      (and (eventp action-key-depress-args)
+	   (eq (posn-area (event-start action-key-depress-args))
+	       'header-line))))
+
 (defun smart-helm-line-has-action ()
-  "Return the current helm selection item or nil if line lacks an associated action.
-Assume Hyperbole has already checked that point is in a helm completion buffer."
-  (let* ((helm-buffer (buffer-name))
-	 (selection (helm-get-selection)))
-    (and (listp selection) selection)))
+  "Marks and returns the actions for the helm selection item at point, or nil if line lacks any action.
+Assumes Hyperbole has already checked that point is in a helm buffer."
+  (if hkey-debug (setq cursor-type t))
+  (let ((helm-buffer (if (equal helm-action-buffer (buffer-name)) helm-buffer (buffer-name))))
+    (save-excursion
+      (with-helm-buffer
+	(when (not (or (eobp)
+		       (smart-helm-at-header)
+		       (helm-pos-candidate-separator-p)))
+	  (helm-mark-current-line)
+	  (helm-get-current-action))))))
+
+(defun smart-helm-alive-p ()
+  ;; Handles case where helm-action-buffer is visible but helm-buffer
+  ;; is not, which (helm-alive-p) doesn't handle.
+  (and (featurep 'helm)
+       helm-alive-p
+       (window-live-p (helm-window))
+       (minibuffer-window-active-p (minibuffer-window))))
+
+(defun smart-helm-resume-helm ()
+  "Resumes helm session for the current buffer if not already active."
+  (unless (smart-helm-alive-p)
+    (unless (equal helm-action-buffer (buffer-name))
+      ;; helm-resume doesn't seem to set this properly.
+      (setq helm-buffer (buffer-name)))
+    (helm-resume helm-buffer)
+    (sit-for 0.2)))
 
 (defun smart-helm()
-  "Selects and executes the helm line at point."
-  (let ((helm-buffer (buffer-name))
-	(helm-alive-p t))
-    (with-helm-window
-      (setq cursor-type t)
-      (helm-mark-current-line)
-      ;; Hyperbole has checked that this line has an action prior
-      ;; to invoking this function.
-      (helm-execute-persistent-action))
+  "Executes helm actions based on Action Key click locations:
+  On a candidate line, performs the candidate's first action and remains in the minibuffer;
+  On the first header line, displays a list of actions available for the selected candidate;
+  On an action list line, performs the action after exiting the minibuffer;
+  At the end of the buffer, quits from helm and exits the minibuffer."
+  (let ((non-text-area-p (and (eventp action-key-depress-args)
+			      (posn-area (event-start action-key-depress-args))))
+	(eob (eobp)))
+    (smart-helm-resume-helm)
     (if (> (minibuffer-depth) 0)
-	(select-window (minibuffer-window)))))
+	(select-window (minibuffer-window)))
+    (when (smart-helm-alive-p)
+      (let* ((key (kbd (cond
+			(eob "C-g")
+			;; If line of the key press is the first /
+			;; header line in the window or outside the
+			;; buffer area, then use {TAB} command to
+			;; switch between match list and action list.
+			(non-text-area-p "TAB")
+			;; RET: Performs action of selection and exits the minibuffer.
+			;; C-j: Performs action of selection and stays in minibuffer.
+			(hkey-value
+			 (if (helm-action-window) "RET" "C-j"))
+			(t "RET"))))
+	     (binding (key-binding key)))
+	(if hkey-debug
+	    (message "(HyDebug): In smart-helm, key to execute is: {%s}; binding is: %s"
+		     (key-description key) binding))
+	(call-interactively binding)
+	))))
 
 (defun smart-helm-assist()
   "Displays the selected item (including its action for the helm line at point."
-  (let* ((helm-buffer (buffer-name))
-	 (selection (helm-get-selection)))
-    (with-helm-window
-      (setq cursor-type t)
-      (helm-mark-current-line)
+  (smart-helm-resume-helm)
+  ;; Hyperbole has checked that this line has an action prior
+  ;; to invoking this function.
+  (unwind-protect
       (with-help-window "*Helm Help*"
-	(princ "The current helm selection item is:\n")
-	(print selection)))
+	(let ((helm-buffer (if (equal helm-action-buffer (buffer-name)) helm-buffer (buffer-name))))
+	    (with-helm-buffer
+	      (princ "The current helm selection item is:\n\t")
+	      (princ (helm-get-selection (helm-buffer-get)))
+	      (princ "\nwith an action of:\n\t")
+	      (princ (helm-get-current-action)))))
     (if (> (minibuffer-depth) 0)
 	(select-window (minibuffer-window)))))
 
@@ -455,9 +513,9 @@ If key is pressed:
   (interactive)
   (cond ((last-line-p) (Buffer-menu-execute))
 	((bolp) (Buffer-menu-mark))
-        ((save-excursion
-	     (goto-char (1- (point)))
-	     (bolp))
+	((save-excursion
+	   (goto-char (1- (point)))
+	   (bolp))
 	 (Buffer-menu-save))
 	((br-in-browser) (br-buffer-menu-select))
 	(t (Buffer-menu-select))))
@@ -481,8 +539,8 @@ If assist-key is pressed:
   (cond ((last-line-p) (progn (list-buffers) (forward-line 3)))
 	((bolp) (Buffer-menu-unmark))
         ((save-excursion
-             (goto-char (1- (point)))
-	     (bolp))
+	   (goto-char (1- (point)))
+	   (bolp))
 	 (Buffer-menu-unmark))
 	(t (Buffer-menu-delete))))
 
@@ -716,7 +774,7 @@ If key is pressed within:
 	 (if gnus-current-article
 	     (progn (goto-char (point-min))
 		    (re-search-forward
-		      (format "^.[ ]+%d:" gnus-current-article) nil t)
+		     (format "^.[ ]+%d:" gnus-current-article) nil t)
 		    (setq this-command 'gnus-summary-next-page)
 		    (call-interactively 'gnus-summary-next-page))
 	   (goto-char (point-min))
@@ -913,20 +971,20 @@ If INDEX-ITEM is both a function and a variable, the function
 definition is used by default; in such a case, when optional
 VARIABLE-FLAG is non-nil, the variable definition is used instead."
   (when (stringp index-item)
-      ;; Convert a string to an alist element.
-      (if variable-flag
-	  ;; Match to variable definitions only.
-	  (setq index-item (assoc index-item
-				  (cdr (assoc "Variables" (imenu--make-index-alist)))))
-	;; First try to match a function definition and if that fails,
-	;; then allow variable definitions and other types of matches as well.
-	(let ((alist (imenu--make-index-alist)))
-	  (setq index-item (or (assoc index-item alist)
-			       ;; Does nothing unless the dash Emacs Lisp
-			       ;; library is available for the -flatten function.
-			       (and (require 'dash nil t)
-				    (assoc index-item (-flatten alist)))))))
-      (if index-item (cdr index-item))))
+    ;; Convert a string to an alist element.
+    (if variable-flag
+	;; Match to variable definitions only.
+	(setq index-item (assoc index-item
+				(cdr (assoc "Variables" (imenu--make-index-alist)))))
+      ;; First try to match a function definition and if that fails,
+      ;; then allow variable definitions and other types of matches as well.
+      (let ((alist (imenu--make-index-alist)))
+	(setq index-item (or (assoc index-item alist)
+			     ;; Does nothing unless the dash Emacs Lisp
+			     ;; library is available for the -flatten function.
+			     (and (require 'dash nil t)
+				  (assoc index-item (-flatten alist)))))))
+    (if index-item (cdr index-item))))
 
 ;;; ************************************************************************
 ;;; smart-info functions

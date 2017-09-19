@@ -37,18 +37,23 @@
 
 ;; eww-mode should define these next functions but presently does not,
 ;; so define them here when needed.
-(unless (fboundp 'eww-at-link)
-  (defun eww-at-link ()
-    "Return any eww web page hyperlink url at point or nil if none."
+(unless (fboundp 'eww-link-at-point)
+  (defun shr-link-at-point ()
+    "Return any shr hyperlink url at point or nil if none."
     (get-text-property (point) 'shr-url))
+  (defun eww-link-at-point ()
+    "Return any eww web page hyperlink url at point or nil if none."
+    (shr-link-at-point))
   (defun eww-bookmark-property (property)
-    "Return the value of PROPERTY, a symbol, for the current eww bookmark line or nil."
+    "Return value of PROPERTY, a symbol, for current eww bookmark line or nil."
     (if (eq major-mode 'eww-bookmark-mode)
-	(plist-get (get-text-property (line-beginning-position) 'eww-bookmark) property)))
+	(plist-get (get-text-property (line-beginning-position) 'eww-bookmark)
+		   property)))
   (defun eww-history-property (property)
-    "Return the value of PROPERTY, a symbol, for the current eww history line or nil."
+    "Return value of PROPERTY, a symbol, for current eww history line or nil."
     (if (eq major-mode 'eww-history-mode)
-	(plist-get (get-text-property (line-beginning-position) 'eww-history) property))))
+	(plist-get (get-text-property (line-beginning-position) 'eww-history)
+		   property))))
 
 (defib www-url ()
   "Follow any non-ftp url (link) at point.
@@ -60,8 +65,8 @@ Valid values of this variable include `browse-url-default-browser' and
 	 ;; Don't match if at the end of the buffer; end of line is
 	 ;; handled elsewhere.
 	 nil)
-	((and (eq major-mode 'eww-mode) (eww-at-link))
-	 (ibut:label-set (eww-at-link))
+	((and (eq major-mode 'eww-mode) (eww-link-at-point))
+	 (ibut:label-set (eww-link-at-point))
 	 (hact 'eww-follow-link))
 	((eq major-mode 'eww-bookmark-mode)
 	 (ibut:label-set (concat (eww-bookmark-property :title)

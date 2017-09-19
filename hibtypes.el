@@ -85,10 +85,11 @@ See `hpath:suffixes' variable documentation for suffixes that are added to or
 removed from pathname when searching for a valid match.
 See `hpath:find' function documentation for special file display options."
   ;;
-  ;; Ignore paths in Buffer menu and dired modes.
-  (unless (delq nil (mapcar (lambda (substring) (string-match
-						 substring (format-mode-line mode-name)))
-			    '("Buffer Menu" "IBuffer" "Dired")))
+  ;; Ignore paths in Buffer menu, dired and helm modes.
+  (unless (or (eq major-mode 'helm-major-mode)
+	      (delq nil (mapcar (lambda (substring) (string-match
+						     substring (format-mode-line mode-name)))
+				'("Buffer Menu" "IBuffer" "Dired"))))
     (let ((path (hpath:at-p))
 	  full-path)
       (if path
@@ -103,7 +104,7 @@ See `hpath:find' function documentation for special file display options."
 		   (if full-path
 		       (hact 'link-to-file full-path)
 		     (hact 'error "(pathname): \"%s\" not found in `load-path'"
-				  path)))
+			   path)))
 		  ;; Match only if "(filename)" references a valid Info file
 		  ;; and point is within the filename, not on any delimiters
 		  ;; so that delimited thing matches trigger later.
@@ -559,34 +560,35 @@ location from which to retrieve RFCs."
 (defib grep-msg ()
   "Jumps to line associated with grep or compilation error msgs.
 Messages are recognized in any buffer."
-  (progn
-    ;; Locate and parse grep messages found in any buffer.
+  ;; Locate and parse grep messages found in any buffer other than a
+  ;; helm completion buffer.
+  (unless (eq major-mode 'helm-major-mode)
     (save-excursion
       (beginning-of-line)
       (if (or
-	    ;; UNIX C compiler and Introl 68HC11 C compiler errors
-	    (looking-at "\\([^ \t\n\r:]+\\): ?\\([0-9]+\\)[ :]")
-	    ;; HP C compiler errors
-	    (looking-at
-	     "[a-zA-Z0-9]+: \"\\([^\t\n\r\",]+\\)\", line \\([0-9]+\\):")
-	    ;; BSO/Tasking 68HC08 C compiler errors
-	    (looking-at
-	     "[a-zA-Z 0-9]+: \\([^ \t\n\r\",]+\\) line \\([0-9]+\\)[ \t]*:")
-	    ;; UNIX Lint errors
-	    (looking-at "[^:]+: \\([^ \t\n\r:]+\\): line \\([0-9]+\\):")
-	    ;; SparcWorks C compiler errors (ends with :)
-	    ;; IBM AIX xlc C compiler errors (ends with .)
-	    (looking-at "\"\\([^\"]+\\)\", line \\([0-9]+\\)[:.]")
-	    ;; Introl as11 assembler errors
-	    (looking-at " \\*+ \\([^ \t\n\r]+\\) - \\([0-9]+\\) ")
-	    ;; perl5: ... at file.c line 10
-	    (looking-at ".+ at \\([^ \t\n\r]+\\) line +\\([0-9]+\\)")
-	    ;; Weblint
-	    (looking-at "\\([^ \t\n\r:()]+\\)(\\([0-9]+\\)): ")
-	    ;; Microsoft JVC
-	    ;; file.java(6,1) : error J0020: Expected 'class' or 'interface'
-	    (looking-at
-	     "^\\(\\([a-zA-Z]:\\)?[^:\( \t\n\r-]+\\)[:\(][ \t]*\\([0-9]+\\),"))
+	   ;; UNIX C compiler and Introl 68HC11 C compiler errors
+	   (looking-at "\\([^ \t\n\r:]+\\): ?\\([0-9]+\\)[ :]")
+	   ;; HP C compiler errors
+	   (looking-at
+	    "[a-zA-Z0-9]+: \"\\([^\t\n\r\",]+\\)\", line \\([0-9]+\\):")
+	   ;; BSO/Tasking 68HC08 C compiler errors
+	   (looking-at
+	    "[a-zA-Z 0-9]+: \\([^ \t\n\r\",]+\\) line \\([0-9]+\\)[ \t]*:")
+	   ;; UNIX Lint errors
+	   (looking-at "[^:]+: \\([^ \t\n\r:]+\\): line \\([0-9]+\\):")
+	   ;; SparcWorks C compiler errors (ends with :)
+	   ;; IBM AIX xlc C compiler errors (ends with .)
+	   (looking-at "\"\\([^\"]+\\)\", line \\([0-9]+\\)[:.]")
+	   ;; Introl as11 assembler errors
+	   (looking-at " \\*+ \\([^ \t\n\r]+\\) - \\([0-9]+\\) ")
+	   ;; perl5: ... at file.c line 10
+	   (looking-at ".+ at \\([^ \t\n\r]+\\) line +\\([0-9]+\\)")
+	   ;; Weblint
+	   (looking-at "\\([^ \t\n\r:()]+\\)(\\([0-9]+\\)): ")
+	   ;; Microsoft JVC
+	   ;; file.java(6,1) : error J0020: Expected 'class' or 'interface'
+	   (looking-at
+	    "^\\(\\([a-zA-Z]:\\)?[^:\( \t\n\r-]+\\)[:\(][ \t]*\\([0-9]+\\),"))
 	  (let* ((file (match-string-no-properties 1))
 		 (line-num  (match-string-no-properties 2))
 		 (but-label (concat file ":" line-num))
