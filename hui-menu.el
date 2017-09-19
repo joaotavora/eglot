@@ -246,7 +246,7 @@ Return t if cutoff, else nil."
 	     :style toggle :selected (and (boundp 'hyrolo-add-hook)
 					  (listp hyrolo-add-hook)
 					  (memq 'hyrolo-set-date hyrolo-add-hook))]
-	    ["Toggle-Smart-Key-Debug" hkey-toggle-debug
+	    ["Toggle-Smart-Key-Debug (HyDebug)" hkey-toggle-debug
 	     :style toggle :selected hkey-debug]
 	    ))
   "Untitled menu of Hyperbole options.")

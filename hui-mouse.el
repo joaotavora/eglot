@@ -103,9 +103,11 @@ Its default value is #'smart-scroll-down."
       (hargs:select-p hkey-value 'assist)))
     ;;
     ;; If reading a Hyperbole menu item and nothing is selected, just return.
+    ;; If in a helm session, quit the session and activate the selected item.
     ((and (> (minibuffer-depth) 0)
 	  (eq (selected-window) (minibuffer-window))
-	  (eq hargs:reading-p 'hmenu)) .
+	  (or (eq hargs:reading-p 'hmenu)
+	      (smart-helm-alive-p))) .
 	  ((funcall (key-binding (kbd "RET"))) . (funcall (key-binding (kbd "RET")))))
     ;;
     ;; The ID-edit package supports rapid killing, copying, yanking and
@@ -446,7 +448,8 @@ Assumes Hyperbole has already checked that point is in a helm buffer."
   On the first header line, displays a list of actions available for the selected candidate;
   On an action list line, performs the action after exiting the minibuffer;
   At the end of the buffer, quits from helm and exits the minibuffer.
-  On a candidate separator line, does nothing."
+  On a candidate separator line, does nothing.
+  In the minibuffer window, ends the helm session and performs the selected item's action."
   (let ((non-text-area-p (and (eventp action-key-depress-args)
 			      (posn-area (event-start action-key-depress-args))))
 	(separator (helm-pos-candidate-separator-p))

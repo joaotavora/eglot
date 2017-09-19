@@ -212,6 +212,28 @@ current major mode is one handled by func-menu."
 ;; 	      (hact 'imenu-display-item-where item-name item-pos)))))))
 
 ;;; ========================================================================
+;;; Handles internal references within an annotated bibliography, delimiters=[]
+;;; ========================================================================
+
+(defib annot-bib ()
+  "Displays annotated bibliography entries referenced internally.
+References must be delimited by square brackets, must begin with a word
+constituent character, not contain @ or # characters, must not be
+in buffers whose names begin with a space or asterisk character, and
+must have an attached file."
+  (and (not (bolp))
+       buffer-file-name
+       (let ((chr (aref (buffer-name) 0)))
+	 (not (or (eq chr ?\ ) (eq chr ?*))))
+       (not (memq major-mode '(c-mode objc-mode c++-mode java-mode markdown-mode)))
+       (let* ((ref-and-pos (hbut:label-p t "[" "]" t))
+	      (ref (car ref-and-pos)))
+	 (and ref (eq ?w (char-syntax (aref ref 0)))
+	      (not (string-match "[#@]" ref))
+	      (progn (ibut:label-set ref-and-pos)
+		     (hact 'annot-bib ref))))))
+
+;;; ========================================================================
 ;;; Handles social media hashtag and username references, e.g. twitter#myhashtag
 ;;; ========================================================================
 
@@ -222,26 +244,6 @@ current major mode is one handled by func-menu."
 ;;; ========================================================================
 
 (require 'hib-debbugs)
-
-;;; ========================================================================
-;;; Handles internal references within an annotated bibliography, delimiters=[]
-;;; ========================================================================
-
-(defib annot-bib ()
-  "Displays annotated bibliography entries referenced internally.
-References must be delimited by square brackets, must begin with a word
-constituent character, and must not be in buffers whose names begin with a
-` ' or `*' character or which do not have an attached file."
-  (and (not (bolp))
-       buffer-file-name
-       (let ((chr (aref (buffer-name) 0)))
-	 (not (or (eq chr ?\ ) (eq chr ?*))))
-       (not (memq major-mode '(c-mode objc-mode c++-mode java-mode markdown-mode)))
-       (let* ((ref-and-pos (hbut:label-p t "[" "]" t))
-	      (ref (car ref-and-pos)))
-	 (and ref (eq ?w (char-syntax (aref ref 0)))
-	      (progn (ibut:label-set ref-and-pos)
-		     (hact 'annot-bib ref))))))
 
 ;;; ========================================================================
 ;;; Displays in-file Markdown link referents.

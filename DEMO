@@ -1,3 +1,6 @@
+
+ 
+
 * GNU Hyperbole Demonstration and Introduction by Bob Weiner
 
 Welcome to GNU Hyperbole.  Hyperbole will super-charge your GNU Emacs
@@ -441,7 +444,7 @@ includes your system information.
 
 ** Social Media Hashtags and Usernames
 
-An Action Key press a social media hashtag or username reference at point
+An Action Key press on a social media hashtag or username reference at point
 displays the web page associated with the reference at the associated
 service.  References are of the form:
 [facebook|instagram|twitter]?[#@]<hashtag-or-username> or
@@ -455,6 +458,26 @@ in@lostart or instagram@lostart would display the page for the user lostart
 at instagram.  Try pressing the Action Key on these if you like.
 
 The file "hib-social.el" has more details on this.
+
+** Github Commit Hashtags and Usernames
+
+For software developers who use Github for publishing and version control,
+Github links are similar to social media links but reference specific Github
+web pages.
+
+Press the Action Key on github@rswgnu to go to RSW's gihub home page.
+gh@rswgnu works too. 
+
+References to specific commits use the # hash symbol and short versions
+of the git commit hash code:
+  gh#rswgnu/hyperbole/5ae3550 (if include user, must include project)
+  github#hyperbole/5ae3550    (project can be given with user default)
+  gh#5ae3550                  (user and project defaults are used)
+
+An Action Key presses on the first one will work because user, project
+and commit hash code are all included.  The second and third versions
+require the setup of default values as explained in
+"(hyperbole)github-reference".
 
 ** Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer
    Lines

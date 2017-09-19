@@ -1,6 +1,36 @@
+2017-09-19  Bob Weiner  <rsw@gnu.org>
+
+* hib-social.el (hibtypes-social-default-service): Changed to use a radio
+    button choice when customizing this.
+                (hibtypes-social-hashtag-alist, hibtypes-social-username-alist): Added
+    github user and commit lookup via social link syntax.
+                (hibtypes-social-github-default-user): 
+                (hibtypes-social-github-default-project)
+                (github-commit-reference): Added this new action and its
+    above default values.
+                (hibtypes-social-regexp): Updated to allow
+    github#user/project/commit-hashtag references.  So now all of the
+    following are recognized as github commit links if the default user
+    and project settings are set up:
+      gh#rswgnu/hyperbole/5ae3550 (if include user must include project)
+      github#hyperbole/5ae3550    (project can be given with user default)
+      gh#5ae3550                  (user and project defaults are used)
+
+    Additionally, gh@rswgnu can be used to jump to user rswgnu's github
+    home page.
+  DEMO (Github): Added to demonstrate github references.
+
+* hibtypes.el (annot-bib): Moved in priority below social hashtags and
+    denied matching to anything containing a # or @ character so
+    [twitter@someuser] doesn't match as an annot-bib entry.
+
+* hui-mouse.el (hkey-alist): Added helm support for Smart Key presses in
+   the minibuffer window (runs the standard RET command).
+
 2017-09-18  Bob Weiner  <rsw@gnu.org>
 
 * hui-mouse.el (smart-helm): Finalized and added doc. of contexts and actions.
+    Made smart-helm ignore helm candidate separator lines.
 
 * hui-window.el (smart-coords-in-window-p):
                 (hmouse-drag-window-side): Handled null value of coords.
