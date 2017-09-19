@@ -411,8 +411,8 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
 				action-key-release-args))
 		(w (smart-window-of-coords depress-args))
 		(right-side-ln (and w (1- (nth 2 (window-edges w)))))
-		(last-press-x   (hmouse-x-coord depress-args))
-		(last-release-x (hmouse-x-coord release-args)))
+		(last-press-x   (and depress-args (hmouse-x-coord depress-args)))
+		(last-release-x (and release-args (hmouse-x-coord release-args))))
 	   (and last-press-x last-release-x right-side-ln
 		(/= last-press-x last-release-x)
 		(not (<= (abs (- right-side-ln (frame-width))) 5))
