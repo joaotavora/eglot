@@ -445,14 +445,16 @@ Assumes Hyperbole has already checked that point is in a helm buffer."
   On a candidate line, performs the candidate's first action and remains in the minibuffer;
   On the first header line, displays a list of actions available for the selected candidate;
   On an action list line, performs the action after exiting the minibuffer;
-  At the end of the buffer, quits from helm and exits the minibuffer."
+  At the end of the buffer, quits from helm and exits the minibuffer.
+  On a candidate separator line, does nothing."
   (let ((non-text-area-p (and (eventp action-key-depress-args)
 			      (posn-area (event-start action-key-depress-args))))
+	(separator (helm-pos-candidate-separator-p))
 	(eob (eobp)))
     (smart-helm-resume-helm)
     (if (> (minibuffer-depth) 0)
 	(select-window (minibuffer-window)))
-    (when (smart-helm-alive-p)
+    (when (and (smart-helm-alive-p) (not separator))
       (let* ((key (kbd (cond
 			(eob "C-g")
 			;; If line of the key press is the first /
@@ -469,8 +471,7 @@ Assumes Hyperbole has already checked that point is in a helm buffer."
 	(if hkey-debug
 	    (message "(HyDebug): In smart-helm, key to execute is: {%s}; binding is: %s"
 		     (key-description key) binding))
-	(call-interactively binding)
-	))))
+	(call-interactively binding)))))
 
 (defun smart-helm-assist()
   "Displays the selected item (including its action for the helm line at point."
