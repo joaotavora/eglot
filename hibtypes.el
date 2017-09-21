@@ -234,16 +234,16 @@ must have an attached file."
 		     (hact 'annot-bib ref))))))
 
 ;;; ========================================================================
-;;; Handles social media hashtag and username references, e.g. twitter#myhashtag
-;;; ========================================================================
-
-(require 'hib-social)
-
-;;; ========================================================================
 ;;; Handles Gnu debbugs issue ids, e.g. bug#45678 or just 45678.
 ;;; ========================================================================
 
 (require 'hib-debbugs)
+
+;;; ========================================================================
+;;; Handles social media hashtag and username references, e.g. twitter#myhashtag
+;;; ========================================================================
+
+(require 'hib-social)
 
 ;;; ========================================================================
 ;;; Displays in-file Markdown link referents.
@@ -568,11 +568,10 @@ Messages are recognized in any buffer."
     (save-excursion
       (beginning-of-line)
       (if (or
-	   ;; UNIX C compiler and Introl 68HC11 C compiler errors
-	   (looking-at "\\([^ \t\n\r:]+\\): ?\\([0-9]+\\)[ :]")
+	   ;; Grep matches, UNIX C compiler and Introl 68HC11 C compiler errors
+	   (looking-at "\\([^ \t\n\r:]+\\): ?\\([1-9][0-9]*\\)[ :]")
 	   ;; HP C compiler errors
-	   (looking-at
-	    "[a-zA-Z0-9]+: \"\\([^\t\n\r\",]+\\)\", line \\([0-9]+\\):")
+	   (looking-at "[a-zA-Z0-9]+: \"\\([^\t\n\r\",]+\\)\", line \\([0-9]+\\):")
 	   ;; BSO/Tasking 68HC08 C compiler errors
 	   (looking-at
 	    "[a-zA-Z 0-9]+: \\([^ \t\n\r\",]+\\) line \\([0-9]+\\)[ \t]*:")
@@ -589,8 +588,10 @@ Messages are recognized in any buffer."
 	   (looking-at "\\([^ \t\n\r:()]+\\)(\\([0-9]+\\)): ")
 	   ;; Microsoft JVC
 	   ;; file.java(6,1) : error J0020: Expected 'class' or 'interface'
-	   (looking-at
-	    "^\\(\\([a-zA-Z]:\\)?[^:\( \t\n\r-]+\\)[:\(][ \t]*\\([0-9]+\\),"))
+	   (looking-at "^\\(\\([a-zA-Z]:\\)?[^:\( \t\n\r-]+\\)[:\(][ \t]*\\([0-9]+\\),")
+	   ;; Grep match context lines (-A<num> option)
+	   (and (string-match "grep\\|shell" (buffer-name))
+		(looking-at "\\([^ \t\n\r:]+\\)-\\([1-9][0-9]*\\)-")))
 	  (let* ((file (match-string-no-properties 1))
 		 (line-num  (match-string-no-properties 2))
 		 (but-label (concat file ":" line-num))

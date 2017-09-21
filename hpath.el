@@ -686,7 +686,7 @@ program)."
 
 (defun hpath:to-markup-anchor (hash anchor)
   "Move point to the definition of ANCHOR if found or if only HASH is non-nil, move to the beginning of the buffer."
-  (cond ((and (stringp anchor) (not (string-empty-p anchor)))
+  (cond ((and (stringp anchor) (not (equal anchor "")))
 	 (cond ((memq major-mode hui-select-markup-modes)
 		;; In HTML-like mode where link ids are case-sensitive.
 		(let ((opoint (point))

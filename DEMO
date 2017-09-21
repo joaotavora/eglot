@@ -459,14 +459,19 @@ at instagram.  Try pressing the Action Key on these if you like.
 
 The file "hib-social.el" has more details on this.
 
-** Github Commit Hashtags and Usernames
+** Github (Remote) References
 
 For software developers who use Github for publishing and version control,
 Github links are similar to social media links but reference specific Github
-web pages.
+web pages.  Hyperbole automatically locates all your local git repository
+directories and indexes them for later use.
 
 Press the Action Key on github@rswgnu to go to RSW's gihub home page.
 gh@rswgnu works too. 
+
+References to project home pages look like this (the / is required):
+  github#/hyperbole           (uses user default setting)
+  github#/rswgnu/hyperbole
 
 References to specific commits use the # hash symbol and short versions
 of the git commit hash code:
@@ -474,10 +479,24 @@ of the git commit hash code:
   github#hyperbole/5ae3550    (project can be given with user default)
   gh#5ae3550                  (user and project defaults are used)
 
-An Action Key presses on the first one will work because user, project
-and commit hash code are all included.  The second and third versions
-require the setup of default values as explained in
-"(hyperbole)github-reference".
+An Action Key presses on the first commit reference above will work
+because user, project and commit hash code are all included.  The
+second and third versions require the setup of default values as
+explained in "(hyperbole)github-reference".
+
+** Git (Local) References
+
+Similarly, again for software developers, git references work on local
+git repositories.
+
+  git#/hyperbole         (displays the top directory of the hyperbole repository)
+  git#/hyperbole/55a1f0  (displays hyperbole git commit diff)
+  gt#55a1f0              (when within a git repo, displays its commit diff)
+
+The first two examples work anywhere regardless of the buffer since Hyperbole
+locates all git repositories for you by repository/project name.  If you set a
+default project (see "(hyperbole)git-reference"), then the third example will
+work anywhere as well.
 
 ** Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer
    Lines

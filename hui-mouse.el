@@ -322,6 +322,9 @@ Its default value is #'smart-scroll-down."
     ((and (boundp 'hyrolo-display-buffer) (equal (buffer-name) hyrolo-display-buffer)) .
      ((smart-hyrolo) . (smart-hyrolo-assist)))
     ;;
+    ((eq major-mode 'image-dired-thumbnail-mode) .
+     ((smart-image-dired-thumbnail) . (smart-image-dired-thumbnail-assist)))
+    ;;
     ;; Gomoku game
     ((eq major-mode 'gomoku-mode) . 
      ((gomoku-human-plays) . (gomoku-human-takes-back)))
@@ -400,97 +403,6 @@ smart keyboard keys.")
 			   (substring path start (setq start (match-end 0))))
 	      ref (symlink-referent part)))
       ref)))
-
-;;; ************************************************************************
-;;; smart-helm functions
-;;; ************************************************************************
-
-(defun smart-helm-at-header ()
-  "Return t iff Action Mouse Key depress was on the first header line of the current buffer."
-  (or (helm-pos-header-line-p)
-      (and (eventp action-key-depress-args)
-	   (eq (posn-area (event-start action-key-depress-args))
-	       'header-line))))
-
-(defun smart-helm-line-has-action ()
-  "Marks and returns the actions for the helm selection item at point, or nil if line lacks any action.
-Assumes Hyperbole has already checked that point is in a helm buffer."
-  (if hkey-debug (setq cursor-type t))
-  (let ((helm-buffer (if (equal helm-action-buffer (buffer-name)) helm-buffer (buffer-name))))
-    (save-excursion
-      (with-helm-buffer
-	(when (not (or (eobp)
-		       (smart-helm-at-header)
-		       (helm-pos-candidate-separator-p)))
-	  (helm-mark-current-line)
-	  (helm-get-current-action))))))
-
-(defun smart-helm-alive-p ()
-  ;; Handles case where helm-action-buffer is visible but helm-buffer
-  ;; is not, which (helm-alive-p) doesn't handle.
-  (and (featurep 'helm)
-       helm-alive-p
-       (window-live-p (helm-window))
-       (minibuffer-window-active-p (minibuffer-window))))
-
-(defun smart-helm-resume-helm ()
-  "Resumes helm session for the current buffer if not already active."
-  (unless (smart-helm-alive-p)
-    (unless (equal helm-action-buffer (buffer-name))
-      ;; helm-resume doesn't seem to set this properly.
-      (setq helm-buffer (buffer-name)))
-    (helm-resume helm-buffer)
-    (sit-for 0.2)))
-
-(defun smart-helm()
-  "Executes helm actions based on Action Key click locations:
-  On a candidate line, performs the candidate's first action and remains in the minibuffer;
-  On the first header line, displays a list of actions available for the selected candidate;
-  On an action list line, performs the action after exiting the minibuffer;
-  At the end of the buffer, quits from helm and exits the minibuffer.
-  On a candidate separator line, does nothing.
-  In the minibuffer window, ends the helm session and performs the selected item's action."
-  (let ((non-text-area-p (and (eventp action-key-depress-args)
-			      (posn-area (event-start action-key-depress-args))))
-	(separator (helm-pos-candidate-separator-p))
-	(eob (eobp)))
-    (smart-helm-resume-helm)
-    (if (> (minibuffer-depth) 0)
-	(select-window (minibuffer-window)))
-    (when (and (smart-helm-alive-p) (not separator))
-      (let* ((key (kbd (cond
-			(eob "C-g")
-			;; If line of the key press is the first /
-			;; header line in the window or outside the
-			;; buffer area, then use {TAB} command to
-			;; switch between match list and action list.
-			(non-text-area-p "TAB")
-			;; RET: Performs action of selection and exits the minibuffer.
-			;; C-j: Performs action of selection and stays in minibuffer.
-			(hkey-value
-			 (if (helm-action-window) "RET" "C-j"))
-			(t "RET"))))
-	     (binding (key-binding key)))
-	(if hkey-debug
-	    (message "(HyDebug): In smart-helm, key to execute is: {%s}; binding is: %s"
-		     (key-description key) binding))
-	(call-interactively binding)))))
-
-(defun smart-helm-assist()
-  "Displays the selected item (including its action for the helm line at point."
-  (smart-helm-resume-helm)
-  ;; Hyperbole has checked that this line has an action prior
-  ;; to invoking this function.
-  (unwind-protect
-      (with-help-window "*Helm Help*"
-	(let ((helm-buffer (if (equal helm-action-buffer (buffer-name)) helm-buffer (buffer-name))))
-	    (with-helm-buffer
-	      (princ "The current helm selection item is:\n\t")
-	      (princ (helm-get-selection (helm-buffer-get)))
-	      (princ "\nwith an action of:\n\t")
-	      (princ (helm-get-current-action)))))
-    (if (> (minibuffer-depth) 0)
-	(select-window (minibuffer-window)))))
 
 ;;; ************************************************************************
 ;;; smart-buffer-menu functions
@@ -861,6 +773,97 @@ If assist-key is pressed within:
 	(t (smart-scroll-down))))
 
 ;;; ************************************************************************
+;;; smart-helm functions
+;;; ************************************************************************
+
+(defun smart-helm-at-header ()
+  "Return t iff Action Mouse Key depress was on the first header line of the current buffer."
+  (or (helm-pos-header-line-p)
+      (and (eventp action-key-depress-args)
+	   (eq (posn-area (event-start action-key-depress-args))
+	       'header-line))))
+
+(defun smart-helm-line-has-action ()
+  "Marks and returns the actions for the helm selection item at point, or nil if line lacks any action.
+Assumes Hyperbole has already checked that point is in a helm buffer."
+  (if hkey-debug (setq cursor-type t))
+  (let ((helm-buffer (if (equal helm-action-buffer (buffer-name)) helm-buffer (buffer-name))))
+    (save-excursion
+      (with-helm-buffer
+	(when (not (or (eobp)
+		       (smart-helm-at-header)
+		       (helm-pos-candidate-separator-p)))
+	  (helm-mark-current-line)
+	  (helm-get-current-action))))))
+
+(defun smart-helm-alive-p ()
+  ;; Handles case where helm-action-buffer is visible but helm-buffer
+  ;; is not; fixed in helm with commit gh#emacs-helm/helm/cc15f73.
+  (and (featurep 'helm)
+       helm-alive-p
+       (window-live-p (helm-window))
+       (minibuffer-window-active-p (minibuffer-window))))
+
+(defun smart-helm-resume-helm ()
+  "Resumes helm session for the current buffer if not already active."
+  (unless (smart-helm-alive-p)
+    (unless (equal helm-action-buffer (buffer-name))
+      ;; helm-resume doesn't seem to set this properly.
+      (setq helm-buffer (buffer-name)))
+    (helm-resume helm-buffer)
+    (sit-for 0.2)))
+
+(defun smart-helm()
+  "Executes helm actions based on Action Key click locations:
+  On a candidate line, performs the candidate's first action and remains in the minibuffer;
+  On the first header line, displays a list of actions available for the selected candidate;
+  On an action list line, performs the action after exiting the minibuffer;
+  At the end of the buffer, quits from helm and exits the minibuffer.
+  On a candidate separator line, does nothing.
+  In the minibuffer window, ends the helm session and performs the selected item's action."
+  (let ((non-text-area-p (and (eventp action-key-depress-args)
+			      (posn-area (event-start action-key-depress-args))))
+	(separator (helm-pos-candidate-separator-p))
+	(eob (eobp)))
+    (smart-helm-resume-helm)
+    (if (> (minibuffer-depth) 0)
+	(select-window (minibuffer-window)))
+    (when (and (smart-helm-alive-p) (not separator))
+      (let* ((key (kbd (cond
+			(eob "C-g")
+			;; If line of the key press is the first /
+			;; header line in the window or outside the
+			;; buffer area, then use {TAB} command to
+			;; switch between match list and action list.
+			(non-text-area-p "TAB")
+			;; RET: Performs action of selection and exits the minibuffer.
+			;; C-j: Performs action of selection and stays in minibuffer.
+			(hkey-value
+			 (if (helm-action-window) "RET" "C-j"))
+			(t "RET"))))
+	     (binding (key-binding key)))
+	(if hkey-debug
+	    (message "(HyDebug): In smart-helm, key to execute is: {%s}; binding is: %s"
+		     (key-description key) binding))
+	(call-interactively binding)))))
+
+(defun smart-helm-assist()
+  "Displays the selected item (including its action for the helm line at point."
+  (smart-helm-resume-helm)
+  ;; Hyperbole has checked that this line has an action prior
+  ;; to invoking this function.
+  (unwind-protect
+      (with-help-window "*Helm Help*"
+	(let ((helm-buffer (if (equal helm-action-buffer (buffer-name)) helm-buffer (buffer-name))))
+	    (with-helm-buffer
+	      (princ "The current helm selection item is:\n\t")
+	      (princ (helm-get-selection (helm-buffer-get)))
+	      (princ "\nwith an action of:\n\t")
+	      (princ (helm-get-current-action)))))
+    (if (> (minibuffer-depth) 0)
+	(select-window (minibuffer-window)))))
+
+;;; ************************************************************************
 ;;; smart-hmail functions
 ;;; ************************************************************************
 
@@ -945,6 +948,20 @@ buffer and has moved the cursor to the selected buffer."
   (hyrolo-edit-entry))
 
 (defalias 'smart-hyrolo-assist 'smart-hyrolo)
+
+;;; ************************************************************************
+;;; smart-image-dired functions
+;;; ************************************************************************
+
+(defun smart-image-dired-thumbnail ()
+  "Selects thumbnail and scales its image for display in another Emacs window."
+  (image-dired-mouse-select-thumbnail action-key-release-args)
+  (image-dired-display-thumbnail-original-image))
+
+(defun smart-image-dired-thumbnail-assist ()
+  "Selects thumbnail and uses the external viewer named by `image-dired-external-viewer' to display it."
+  (image-dired-mouse-select-thumbnail assist-key-release-args)
+  (image-dired-thumbnail-display-external))
 
 ;;; ************************************************************************
 ;;; smart-imenu functions

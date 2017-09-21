@@ -1,3 +1,35 @@
+2017-09-20  Bob Weiner  <rsw@gnu.org>
+
+* DEMO (Git References): Added.
+  hib-social.el (hibtypes-github-default-project): Renamed from hibtypes-social-github-default-project.
+                (hibtypes-github-default-user): Renamed from hibtypes-social-githbu-default-user.
+		(hibtypes-git-default-project): Added.
+		(hibtypes-git-*, git-reference): Updated to allow
+    git#project/commit-hashtag references.  So now all of the
+    following are recognized as local git references if the default
+    project setting is set up:
+      git#hyperbole/5ae3550    (project name and commit hashtag can be given; commit diff displayed)
+      gt#5ae3550               (project default is used; commit diff displayed)
+      gt#/hyperbole            (project home directory is displayed)
+                (github-reference): Renamed from github-commit-reference.  Also added support for syntax:
+      gh#/hyperbole            (project home directory is displayed; uses default user setting)
+      gh#/rswgnu/hyperbole     (project home directory is displayed)
+
+    Requires GNU locate for finding all local git repositories.
+
+* hibtypes.el (grep-msg): Added match to context lines produced by 'grep -A<num>'
+    which use '-' around the line number rather than ':'.
+    (hib-debbugs): Lowered priority below hib-social so it doesn't shadow valid
+       social references since it matching is broad.
+
+* hib-social.el (social-reference, hibtypes-social-regexp): Added missing '-'
+    character in social-reference matches.
+
+* hui-mouse.el (smart-image-dired-thumbnail, smart-image-dired-thumbnail-assist):
+    Added to support browsing of directories of images via thumbnails.
+    Action Key displays a scaled version of the original image in an Emacs window.
+    Assist Key displays the original image in an external viewer.
+
 2017-09-19  Bob Weiner  <rsw@gnu.org>
 
 * hib-social.el (hibtypes-social-default-service): Changed to use a radio
