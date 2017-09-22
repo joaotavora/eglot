@@ -64,7 +64,7 @@ non-nil means show documentation for any item that is selected by the
 user.  HELP-STRING-FLAG non-nil means show only the first line of the
 documentation, not the full text."
 
-  (interactive (list nil nil (if current-prefix-arg t) (if current-prefix-arg t)))
+  (interactive (list nil nil nil nil))
   (if (and hui:menu-p (> (minibuffer-depth) 0))
       (progn (beep) nil)
     (unwind-protect

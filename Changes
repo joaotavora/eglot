@@ -1,3 +1,31 @@
+2017-09-22  Bob Weiner  <rsw@gnu.org>
+
+* hact.el (actype:act): Expand arguments as pathnames only in functions
+    defined with defact (actions may be regular defuns as well).
+
+* hib-social.el (github-reference): Added support for listing all active or showing
+    individual branches, issues, pull requests and commit tags.  See the
+    doc string for this function and the examples in the file commentary.
+                (git-reference): Added support for listing all active or showing
+    individual branches and commit tags.  See the doc string for this function and
+    the examples in the file commentary.
+                (defact*): Changed all these to regular functions to
+    prevent Hyperbole from trying to expand their arguments as pathnames.
+
+2017-09-21  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-helm): Added: On a source section header, moves to the next source
+    section or first if on last.  But this doesn't yet work properly (helm is scrolling
+    the buffer and not leaving point in the proper location).
+
+* hui-mini.el (hyperbole): Removed interactive use of prefix argument to set doc-flag and
+    help-string-flag parameters since this didn't interactively display doc.  Instead,
+    this change lets the prefix arg flow through to any menu commands that can use it.
+
+* hib-social.el: Added full Commentary with implicit link examples.
+
+----
+
 2017-09-20  Bob Weiner  <rsw@gnu.org>
 
 * DEMO (Git References): Added.

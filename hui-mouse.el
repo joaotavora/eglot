@@ -816,9 +816,10 @@ Assumes Hyperbole has already checked that point is in a helm buffer."
 (defun smart-helm()
   "Executes helm actions based on Action Key click locations:
   On a candidate line, performs the candidate's first action and remains in the minibuffer;
-  On the first header line, displays a list of actions available for the selected candidate;
+  On the top, fixed header line, displays a list of actions available for the selected candidate;
   On an action list line, performs the action after exiting the minibuffer;
   At the end of the buffer, quits from helm and exits the minibuffer.
+  On a source section header, moves to the next source section or first if on last.
   On a candidate separator line, does nothing.
   In the minibuffer window, ends the helm session and performs the selected item's action."
   (let ((non-text-area-p (and (eventp action-key-depress-args)
@@ -830,6 +831,10 @@ Assumes Hyperbole has already checked that point is in a helm buffer."
 	(select-window (minibuffer-window)))
     (when (and (smart-helm-alive-p) (not separator))
       (let* ((key (kbd (cond
+			;; Move to next source section or first
+			;; if on last.
+			((helm-pos-header-line-p) "C-o")
+			;; Exit
 			(eob "C-g")
 			;; If line of the key press is the first /
 			;; header line in the window or outside the
