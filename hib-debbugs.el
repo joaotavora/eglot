@@ -8,7 +8,8 @@
 ;; See the "HY-COPY" file for license information.
 ;;
 ;; This file is part of Hyperbole.  It requires the Emacs package
-;; Debbugs 0.9.7 or higher.
+;; Debbugs 0.9.7 or higher; there were bugs in earlier versions
+;; that made it incompatible with the queries Hyperbole issues.
 ;;
 ;;; Commentary:
 ;;
@@ -67,7 +68,7 @@
 ;;; Other required Elisp libraries
 ;;; ************************************************************************
 
-(eval-and-compile (mapc #'require '(hactypes package)))
+(eval-and-compile (mapc #'require '(hactypes)))
 (eval-when-compile (require 'debbugs-gnu nil t))
 
 ;;; ************************************************************************
@@ -94,7 +95,7 @@ attribute):
    bug#id-number?attr1=val1&attr2=val2&attr3=val3
 
 Note that `issue' or `debbugs' may be used as well in place of `bug'."
-  (when (package-installed-p 'debbugs (version-to-list "0.9.7"))
+  (when (debbugs-version-sufficient-p)
     (if (debbugs-query:at-p)
 	(cond ((and (match-beginning 3) (string-equal "?" (match-string 3)))
 	       (hact 'debbugs-gnu-query:string (buffer-substring-no-properties
@@ -112,7 +113,7 @@ Note that `issue' or `debbugs' may be used as well in place of `bug'."
 (defun debbugs-gnu-query:help (but)
   "Makes a Gnu debbugs id number at point (optionally prefixed with a # sign) display the pretty pretted status of the bug id.
 Ignores other types of Gnu debbugs query strings."
-  (if (and (package-installed-p 'debbugs (version-to-list "0.9.7"))
+  (if (and (debbugs-version-sufficient-p)
 	   (debbugs-query:at-p)
 	   (match-beginning 2))
       (debbugs-query:status (string-to-number (match-string 2)))
@@ -233,6 +234,15 @@ Ignores nil valued attributes.  Returns t unless no attributes are printed."
 		  len (number-to-string (max (- 16 (length (symbol-name attr))) 1)))
 	    (princ (format (concat "   %s:%" len "s%S\n") attr " " val))))
 	has-attr))))
+
+(defun debbugs-version-sufficient-p ()
+  "Return t iff debbugs version is sufficient for use with Hyperbole (greater than equal to 0.9.7)."
+  (let ((debbugs-src (locate-file "debbugs" load-path '(".el")))
+	version)
+    (when debbugs-src
+      (setq version (shell-command-to-string (format "fgrep -m1 Version: %s | sed -e 's/[^.0-9]//g' | tr -d '\n'" debbugs-src)))
+      (when (not (equal version ""))
+	(version-list-<= (version-to-list "0.9.7") (version-to-list version))))))
 
 (provide 'hib-debbugs)
 

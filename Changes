@@ -1,3 +1,10 @@
+2017-09-23  Bob Weiner  <rsw@gnu.org>
+
+* hib-debbugs.el (debbugs-version-sufficient-p): Added to eliminate use of version testing
+    function from package.el which some people prefer not to load.
+
+----
+
 2017-09-22  Bob Weiner  <rsw@gnu.org>
 
 * hib-social.el (hibtypes-git-add-project-to-repos-cache)
