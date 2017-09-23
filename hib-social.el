@@ -361,6 +361,36 @@ Return t if built, nil otherwise."
     (message "Please wait while all local git repositories are found...Done")
     t))
 
+(defun hibtypes-git-add-project-to-repos-cache (project)
+  "Locate PROJECT directory and add to the cache of local git repo directories in `hibtypes-git-repos-cache'.
+Return the project directory found or nil if none."
+  (message "Please wait while %s's local git repository is found..." project)
+  (let ((project-dir (shell-command-to-string
+		      (format "%s -l1 /%s/.git | sed -e 's+/.git++' | tr -d '\n'"
+			      (if (and (boundp 'locate-command) (string-match "locate" locate-command))
+				  locate-command
+				"locate")
+			      project
+			      hibtypes-git-repos-cache))))
+    (message "")
+    (when (and (> (length project-dir) 0) (= ?/ (aref project-dir 0)))
+      ;; project-dir a directory, prepend it to the cache file...
+      (shell-command-to-string (format "echo -e \"%s\n$(cat %s)\" > %s"
+				       project-dir hibtypes-git-repos-cache
+				       hibtypes-git-repos-cache))
+      ;; ...and return it.
+      project-dir)))
+
+(defun hibtypes-git-build-or-add-to-repos-cache (project &optional prompt-flag)
+  "Store cache of local git repo directories in `hibtypes-git-repos-cache'.
+With optional prompt-flag non-nil, prompt user whether to build the cache before building.
+Return t if built, nil otherwise."
+  (if (and (file-readable-p hibtypes-git-repos-cache)
+	   ;; Non-zero file size
+	   (not (zerop (nth 7 (file-attributes hibtypes-git-repos-cache)))))
+      (hibtypes-git-add-project-to-repos-cache project)
+    (hibtypes-git-build-repos-cache t)))
+
 (defun hibtypes-git-project-directory (project)
   "Given git PROJECT name, return local git repository directory or nil if none found."
   (if (or (and (file-readable-p hibtypes-git-repos-cache)
@@ -368,7 +398,7 @@ Return t if built, nil otherwise."
 	       (not (zerop (nth 7 (file-attributes hibtypes-git-repos-cache)))))
 	  (hibtypes-git-build-repos-cache t))
       ;; echo -n deletes trailing newline
-      (shell-command-to-string (format "echo -n `grep -m1 '/%s$' %s`" project hibtypes-git-repos-cache))
+      (shell-command-to-string (format "grep -m1 '/%s$' %s | tr -d '\n'" project hibtypes-git-repos-cache))
     (message "")
     nil))
 
@@ -456,9 +486,10 @@ PROJECT value is provided, it defaults to the value of
 	  (if (or (null project-dir) (equal project-dir ""))
 	      (if (and project
 		       ;; Maybe the Hyperbole git project cache is
-		       ;; out-of-date and needs to be rebuilt.  Prompt
-		       ;; user and if rebuilt, continue.
-		       (hibtypes-git-build-repos-cache t))
+		       ;; out-of-date and needs to be rebuilt or added
+		       ;; to.  Prompt user and if rebuilt or added to,
+		       ;; continue.
+		       (hibtypes-git-build-or-add-to-repos-cache project t))
 		  (setq project-dir (and project (hibtypes-git-project-directory project)))
 		(error "(git-reference): No git directory found for project `%s'" project)))
 	  (if (equal project-dir "") (setq project-dir nil))

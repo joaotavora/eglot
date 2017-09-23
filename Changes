@@ -1,5 +1,9 @@
 2017-09-22  Bob Weiner  <rsw@gnu.org>
 
+* hib-social.el (hibtypes-git-add-project-to-repos-cache)
+                (hibtypes-git-build-or-add-to-repos-cache): Added to allow
+    for adding a single new project to the cache.
+
 * hact.el (actype:act): Expand arguments as pathnames only in functions
     defined with defact (actions may be regular defuns as well).
 
@@ -23,8 +27,6 @@
     this change lets the prefix arg flow through to any menu commands that can use it.
 
 * hib-social.el: Added full Commentary with implicit link examples.
-
-----
 
 2017-09-20  Bob Weiner  <rsw@gnu.org>
 
