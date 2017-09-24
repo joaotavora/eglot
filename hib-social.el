@@ -345,6 +345,13 @@ PROJECT value is provided, it defaults to the value of
   (expand-file-name "Local-Git-Repos" hbmap:dir-user)
   "Filename of cache of local git repository directories found by `locate-command'.")
 
+(defun hibtypes-git-get-locate-command ()
+  (require 'locate)
+  (let ((cmd (if (string-match "locate" locate-command) locate-command "locate")))
+    (if (executable-find cmd)
+	cmd
+      (error "(git-reference): \"locate\" command required but not found; see its man page for setup instructions"))))
+
 (defun hibtypes-git-build-repos-cache (&optional prompt-flag)
   "Store cache of local git repo directories in `hibtypes-git-repos-cache'.
 With optional prompt-flag non-nil, prompt user whether to build the cache before building.
@@ -353,9 +360,7 @@ Return t if built, nil otherwise."
 	    (y-or-n-p "Find all local git repositories (will take some time)?"))
     (message "Please wait while all local git repositories are found...")
     (unless (zerop (shell-command (format "%s -r \.git$ | sed -e 's+/.git$++' > %s"
-					  (if (and (boundp 'locate-command) (string-match "locate" locate-command))
-					      locate-command
-					    "locate")
+					  (hibtypes-git-get-locate-command)
 					  hibtypes-git-repos-cache)))
       (error "(hibtypes-git-build-repos-cache): Cache build failed; `locate-command' must accept `-r' argument for regexp matching"))
     (message "Please wait while all local git repositories are found...Done")
@@ -367,11 +372,8 @@ Return the project directory found or nil if none."
   (message "Please wait while %s's local git repository is found..." project)
   (let ((project-dir (shell-command-to-string
 		      (format "%s -l1 /%s/.git | sed -e 's+/.git++' | tr -d '\n'"
-			      (if (and (boundp 'locate-command) (string-match "locate" locate-command))
-				  locate-command
-				"locate")
-			      project
-			      hibtypes-git-repos-cache))))
+			      (hibtypes-git-get-locate-command)
+			      project))))
     (message "")
     (when (and (> (length project-dir) 0) (= ?/ (aref project-dir 0)))
       ;; project-dir a directory, prepend it to the cache file...
