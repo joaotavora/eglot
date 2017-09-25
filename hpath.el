@@ -898,19 +898,19 @@ nonexistent local paths are allowed."
 		       (format rtn-path suffix))
 		   (format rtn-path ""))))))))
 
-	 (defun hpath:push-tag-mark ()
-	   "Add a tag return marker at point if within a programming language file buffer.
+(defun hpath:push-tag-mark ()
+  "Add a tag return marker at point if within a programming language file buffer.
 Is a no-op if the function `push-tag-mark' is not available."
-	   (and buffer-file-name
-		comment-start
-		(not (memq last-command
-			   '(xref-find-definitions find-tag find-tag-other-window tags-loop-continue)))
-		(or (and (fboundp 'xref-push-marker-stack)
-			 ;; push old position
-			 (xref-push-marker-stack))
-		    (and (fboundp 'push-tag-mark)
-			 ;; push old position
-			 (push-tag-mark)))))
+  (and buffer-file-name
+       comment-start
+       (not (memq last-command
+		  '(xref-find-definitions find-tag find-tag-other-window tags-loop-continue)))
+       (or (and (fboundp 'xref-push-marker-stack)
+		;; push old position
+		(xref-push-marker-stack))
+	   (and (fboundp 'push-tag-mark)
+		;; push old position
+		(push-tag-mark)))))
 
 (defun hpath:relative-to (path &optional default-dir)
   "Returns PATH relative to optional DEFAULT-DIR or `default-directory'.

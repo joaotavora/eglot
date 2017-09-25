@@ -1,6 +1,9 @@
 
  
 
+
+ 
+
 * GNU Hyperbole Demonstration and Introduction by Bob Weiner
 
 Welcome to GNU Hyperbole.  Hyperbole will super-charge your GNU Emacs
@@ -463,8 +466,7 @@ The file "hib-social.el" has more details on this.
 
 For software developers who use Github for publishing and version control,
 Github links are similar to social media links but reference specific Github
-web pages.  Hyperbole automatically locates all your local git repository
-directories and indexes them for later use.
+web pages.
 
 Press the Action Key on github@rswgnu to go to RSW's gihub home page.
 gh@rswgnu works too. 
@@ -479,10 +481,10 @@ of the git commit hash code:
   github#hyperbole/5ae3550    (project can be given with user default)
   gh#5ae3550                  (user and project defaults are used)
 
-An Action Key presses on the first commit reference above will work
-because user, project and commit hash code are all included.  The
-second and third versions require the setup of default values as
-explained in "(hyperbole)github-reference".
+An Action Key press on the first commit reference above works because
+user, project and commit hash code are all included.  The second and
+third versions require the setup of default values, as explained in
+"(hyperbole)github-reference".
 
 ** Git (Local) References
 

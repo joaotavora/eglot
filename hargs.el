@@ -260,7 +260,7 @@ If optional argument NO-DEFAULT is non-nil, nil is returned instead of any
 default values.
 
 Caller should have checked whether an argument is presently being read
-and set `hargs:reading-p' to an appropriate argument type.
+and has set `hargs:reading-p' to an appropriate argument type.
 Handles all of the interactive argument types that `hargs:iform-read' does."
   (cond ((and (eq hargs:reading-p 'kcell)
 	      (eq major-mode 'kotl-mode)
@@ -305,7 +305,7 @@ Handles all of the interactive argument types that `hargs:iform-read' does."
 	       ;; Unquoted remote file name.
 	       ((hpath:is-p (hpath:remote-at-p) 'file))
 	       ;; Possibly non-existent file name
-	       ((hpath:at-p nil 'non-exist))
+	       ((if no-default (hpath:at-p 'file 'non-exist)))
 	       (no-default nil)
 	       ((buffer-file-name))
 	       ))
@@ -322,8 +322,8 @@ Handles all of the interactive argument types that `hargs:iform-read' does."
 	       ((hpath:at-p 'directory))
 	       ;; Unquoted remote directory name.
 	       ((hpath:is-p (hpath:remote-at-p) 'directory))
-	       ;; Possibly non-existant directory name
-	       ((hpath:at-p 'directory 'non-exist))
+	       ;; Possibly non-existent directory name
+	       ((if no-default (hpath:at-p 'directory 'non-exist)))
 	       (no-default nil)
 	       (default-directory)
 	       ))

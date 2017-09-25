@@ -32,8 +32,7 @@
 
 (defun hmouse-bind-key (mouse-key-number depress-cmd release-cmd)
   "Ensure MOUSE-KEY-NUMBER (1-5), e.g. 1 for [mouse-1], is globally bound to DEPRESS-CMD and RELEASE-CMD (includes depresses and drags).
-Use nil as cmd values to unbind a key."
-  ;; Works under GNU Emacs only.
+Use nil as cmd values to unbind a key.  Works under GNU Emacs only."
   (hmouse-set-key-list
    depress-cmd
    (nth (1- mouse-key-number)
@@ -141,8 +140,7 @@ Use nil as cmd values to unbind a key."
 
 (defun hmouse-bind-shifted-key (shifted-mouse-key-number depress-cmd release-cmd)
   "Ensure shifted MOUSE-KEY-NUMBER (1-5), e.g. 1 for [Smouse-1], is globally bound to DEPRESS-CMD and RELEASE-CMD (includes depresses and drags).
-Use nil as CMD value to unbind the key."
-  ;; Works under GNU Emacs only.
+Use nil as CMD value to unbind the key.  Works under GNU Emacs only."
   (hmouse-set-key-list
    depress-cmd
    (nth (1- shifted-mouse-key-number)

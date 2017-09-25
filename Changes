@@ -1,3 +1,41 @@
+2017-09-25  Bob Weiner  <rsw@gnu.org>
+
+* hui-mini.el (hui:menu-item): Improved so that if menu item has no help string but its action is a
+    function with a doc string, then it will use the first line of the action doc string for displaying
+    help on the item.
+
+* hmouse-key.el (hmouse-check-action-key, hmouse-check-assist-key): Added to check that both depress
+    and release events are set to Smart Mouse Keys.  Mainly for use with helm.  Called from smart-helm
+    and smart-helm-assist respectively.
+
+* hui-mouse.el (action-key-error, assist-key-error): Maded explicit these are messages from Hyperbole.
+               (smart-helm-at-header): Corrected doc string.
+	       (smart-helm-at): Added to test type of helm thing point is at.
+	       (smart-helm, smart-helm-assist): Updated to complement each other better; made section header
+    clicks work.
+
+* hmouse-key.el (hmouse-add-unshifted-smart-keys): Renamed from hmouse-add-unshifted-keys.
+    Made interactive and added error if invoked under something other than GNU Emacs 19 or higher.
+                (hmouse-update-smart-keys): Added to provide interactive updating of Smart Keys
+      whenever a matching context or action has been changed in the source code; reloads any
+      changes to "hui-mouse", "hui-window", "hibtypes" or "hactypes", most notably changes to
+      hkey-alist and hmouse-alist.
+
+* hui-mouse.el (hkey-alist, smart-outline-char-invisible-p, smart-eolp): 
+    Added and used to improve and narrow matching of end-of-lines.  Previously, did not handle
+    new-style Emacs outlines properly nor helm section header lines.
+
+* kotl/kotl-mode.el (kotl-mode:action-key, kotl-mode:assist-key): 
+  hui-mouse.el (smart-outline, smart-outline-assist): Changed to invoke action/assist-key-eol-function
+    for end-of-line scrolling, eliminating hard-coded call.
+  man/hyperbole.texi (Smart Key - Emacs Outline Mode): Documented this change.
+
+* hargs.el (hargs:at-p): Fixed bug when linking to files or directories, would choose
+    symbol at Action Key release point rather than the file or directory containing
+    that symbol.  This was caused by allowing matches to non-existent files and dirs
+    when the 'no-default' argument was t.  Now prevented such matching.  This could
+    occur when creating or editing explicit button links.
+
 2017-09-24  Bob Weiner  <rsw@gnu.org>
 
 * hib-social.el (hibtypes-git-get-locate-command): Added this function to trigger an

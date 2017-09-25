@@ -320,8 +320,12 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 		  (and doc-flag
 		       ;; Not another menu to display
 		       (not (and (listp act-form) (atom (car act-form)) (atom (cdr act-form))))))
-	      (let ((help-str (or (car (cdr (cdr label-act-help-list)))
-				  "No help documentation for this item.")))
+	      (let* ((help-str (car (cdr (cdr label-act-help-list))))
+		     (cmd (if help-str nil (car (cdr label-act-help-list))))
+		     (doc-str (if help-str nil (and (functionp cmd) (documentation cmd)))))
+		(and doc-str (string-match "\n" doc-str)
+		     (setq doc-str (substring doc-str 0 (match-beginning 0))))
+		(setq help-str (or help-str doc-str "No help documentation for this item."))
 		(if help-string-flag
 		    help-str
 		  (concat (car label-act-help-list) "\n  "

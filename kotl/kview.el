@@ -525,10 +525,10 @@ level."
 (defun kview:char-invisible-p (&optional pos)
   "Return t if the character after point is invisible/hidden, else nil."
   (or pos (setq pos (point)))
-  (if (or (kproperty:get pos 'invisible)
-	  (delq nil (mapcar (lambda (o) (overlay-get o 'invisible))
-			    (overlays-at (or pos (point))))))
-      t))
+  (when (or (kproperty:get pos 'invisible)
+	    (delq nil (mapcar (lambda (o) (overlay-get o 'invisible))
+			      (overlays-at (or pos (point))))))
+    t))
 
 (defun kview:char-visible-p (&optional pos)
   "Return t if the character after point is visible, else nil."

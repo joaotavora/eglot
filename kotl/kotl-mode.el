@@ -1967,10 +1967,11 @@ If key is pressed:
      a cell, then move point to prior location and begin creation of a
      klink to some other outline cell; hit the Action Key twice to select the
      link referent cell;
- (4) anywhere else, scroll up a windowful."
+ (4) anywhere else, invoke `action-key-eol-function', typically to scroll up
+     a windowful."
   (interactive)
   (cond	((kotl-mode:eobp) (kotl-mode:show-all))
-	((kotl-mode:eolp) (smart-scroll-up))
+	((kotl-mode:eolp) (funcall action-key-eol-function))
 	((not (kview:valid-position-p))
 	 (if (markerp action-key-depress-prev-point)
 	     (progn (select-window
@@ -2001,10 +2002,11 @@ If assist-key is pressed:
      a cell, then move point to prior location and prompt to move one tree to
      a new location in the outline; hit the Action Key twice to select the
      tree to move and where to move it;
- (4) anywhere else, scroll down a windowful."
+ (4) anywhere else, invoke `assist-key-eol-function', typically to scroll down
+     a windowful."
   (interactive)
   (cond ((kotl-mode:eobp) (kotl-mode:overview))
-	((kotl-mode:eolp) (smart-scroll-down))
+	((kotl-mode:eolp) (funcall assist-key-eol-function))
 	((not (kview:valid-position-p))
 	 (if (markerp assist-key-depress-prev-point)
 	     (progn (select-window

@@ -7695,7 +7695,8 @@ and outline-minor-mode is enabled:
      (4) on a header line but not at the beginning or end of the line,
          if the headings subtree is hidden, shows it, otherwise hides
          it;
-     (5) anywhere else, scrolls up a windowful.
+     (5) anywhere else, invokes @code{action-key-eol-function}, typically
+         to scroll up a windowful.
   ASSIST KEY
      (1) after an outline heading has been cut via the Action Key,
          allows multiple pastes throughout the buffer (the last paste
@@ -7705,7 +7706,8 @@ and outline-minor-mode is enabled:
          (sans subtree) from the buffer;
      (4) on a header line but not at the beginning or end, if the
          heading body is hidden, shows it, otherwise hides it;
-     (5) anywhere else, scrolls down a windowful.
+     (5) anywhere else, invokes @code{assist-key-eol-function}, typically
+         to scroll down a windowful.
 @end group
 @end format
 
