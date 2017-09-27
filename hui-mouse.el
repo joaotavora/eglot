@@ -367,6 +367,8 @@ evaluated.
 
 The `hkey-alist' variable is the subset of this alist used by the
 smart keyboard keys.")
+
+;; This next library adds drag actions to `hmouse-alist'.
 (load "hui-window")
 
 ;;; ************************************************************************
@@ -410,6 +412,18 @@ smart keyboard keys.")
 ;;; smart-buffer-menu functions
 ;;; ************************************************************************
 
+(defun smart-buffer-menu-no-marks ()
+  "Display this line's buffer in this window and bury the buffer menu unless other buffers are marked.
+If buffer menu items are marked, return nil, else t."
+  (let* ((this-buffer (Buffer-menu-buffer t))
+	 (menu-buffer (current-buffer))
+	 (others (delq this-buffer (Buffer-menu-marked-buffers t))))
+    (unless others
+      (switch-to-buffer this-buffer)
+      (unless (eq menu-buffer this-buffer)
+	(bury-buffer menu-buffer))
+      t)))
+
 (defun smart-buffer-menu ()
   "Uses a single key or mouse key to manipulate buffer-menu entries.
 
@@ -436,6 +450,7 @@ If key is pressed:
 	   (bolp))
 	 (Buffer-menu-save))
 	((br-in-browser) (br-buffer-menu-select))
+	((smart-buffer-menu-no-marks))
 	(t (Buffer-menu-select))))
 
 (defun smart-buffer-menu-assist ()
@@ -466,6 +481,18 @@ If assist-key is pressed:
 ;;; smart-ibuffer-menu functions
 ;;; ************************************************************************
 
+(defun smart-ibuffer-menu-no-marks ()
+  "Display this line's buffer in this window and bury the buffer menu unless other buffers are marked.
+If buffer menu items are marked, return nil, else t."
+  (let* ((this-buffer (ibuffer-current-buffer t))
+	 (menu-buffer (current-buffer))
+	 (others (delq this-buffer (ibuffer-get-marked-buffers))))
+    (unless others
+      (switch-to-buffer this-buffer)
+      (unless (eq menu-buffer this-buffer)
+	(bury-buffer menu-buffer))
+      t)))
+
 (defun smart-ibuffer-menu ()
   "Uses a single key or mouse key to manipulate ibuffer entries.
 
@@ -490,6 +517,7 @@ If key is pressed:
 		      (bolp)))
 	 (ibuffer-mark-forward nil nil 1))
 	((br-in-browser) (br-buffer-menu-select))  
+	((smart-ibuffer-menu-no-marks))
 	(t (ibuffer-do-view))))
 
 (defun smart-ibuffer-menu-assist ()

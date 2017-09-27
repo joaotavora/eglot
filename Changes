@@ -1,5 +1,11 @@
 2017-09-27  Bob Weiner  <rsw@gnu.org>
 
+* hui-mouse.el (smart-buffer-menu-no-marks): Added and called in smart-buffer-menu.
+               (smart-ibuffer-menu-no-marks): Added and called in smart-ibuffer-menu.
+    Makes Action Key display the selected buffer in the buffer menu window (like RET does)
+    rather than restoring previous window configuration and then displaying buffer.  This
+    works better with the new buffer item drag to display in a window feature.
+
 * hui-window.el (pulse): Added require for momentary highlighting of buffer/file
     item lines.
                 (hmouse-pulse-line): Added.
