@@ -43,6 +43,8 @@
 ;;; ************************************************************************
 
 (eval-when-compile (defvar assist-flag nil)) ;; Silences free variable compiler warnings
+;; For momentary highlighting of buffer/file item lines.
+(require 'pulse nil t)
 
 ;;; ************************************************************************
 ;;; Public variables
@@ -589,15 +591,21 @@ Ignores minibuffer window."
   ;; (if (fboundp 'fill-region-and-align) (fill-region-and-align (mark) (point)))
   )
 
+(defsubst hmouse-pulse-line ()
+  (when (and (featurep 'pulse) (pulse-available-p))
+    (pulse-momentary-highlight-one-line (point) 'next-error)
+    (sit-for 0.3)))
+
 (defun hmouse-item-to-window ()
   "Displays buffer or file menu item at Action Key depress in window of Action Key release."
   (let* ((w1 action-key-depress-window)
 	 (w2 action-key-release-window)
 	 (buf-name)
-	 (w1-ref (when (and w1 w2)
-		   (unwind-protect
-		       (progn (select-window w1)
-			      (cond ((eq major-mode 'Buffer-menu-mode)
+	 (w1-ref))
+    (when (and w1 w2)
+      (unwind-protect
+	  (progn (select-window w1)
+		 (setq w1-ref (cond ((eq major-mode 'Buffer-menu-mode)
 				     (Buffer-menu-buffer t))
 				    ((eq major-mode 'ibuffer-mode)
 				     (ibuffer-current-buffer t))
@@ -605,14 +613,17 @@ Ignores minibuffer window."
 				     ;; Returns item string
 				     (helm-get-selection (current-buffer)))
 				    (t nil)))
-		     (select-window w2)))))
+		 (when w1-ref (hmouse-pulse-line)))
+	(select-window w2)))
     (unwind-protect
 	(cond ((not w1-ref)
 	       (error "(hmouse-item-to-window): Last depress was not within a window."))
 	      ((buffer-live-p w1-ref)
-	       (set-window-buffer w2 w1-ref))
+	       (set-window-buffer w2 w1-ref)
+	       (hmouse-pulse-line))
 	      ((and (stringp w1-ref) (file-readable-p w1-ref))
-	       (set-window-buffer w2 (find-file-noselect w1-ref)))
+	       (set-window-buffer w2 (find-file-noselect w1-ref))
+	       (hmouse-pulse-line))
 	      (t (error "(hmouse-item-to-window): Cannot find or read `%s'." w1-ref)))
       ;; If helm is active, end in the minibuffer window.
       (if (smart-helm-alive-p)

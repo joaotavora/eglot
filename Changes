@@ -1,3 +1,10 @@
+2017-09-27  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (pulse): Added require for momentary highlighting of buffer/file
+    item lines.
+                (hmouse-pulse-line): Added.
+                (hmouse-item-to-window): Added pulses to source and dest. lines.
+
 2017-09-26  Bob Weiner  <rsw@gnu.org>
 
 * hmouse-drv.el (action-key-depress): Added action-key-depress-hook.
@@ -27,7 +34,6 @@
   hmouse-drv.el (hmouse-depress-inactive-minibuffer-p): 
   hargs.el (hargs:select-event-window): Updated to handle multiple frames and minibuffers.
 
-
 * hui-window.el (hmouse-alist): Extended hmouse-drag-between-windows to
     allow dragging items from a buffer menu or file menu buffer to a destination
     window for display.  Helm buffer items are supported as well.
@@ -37,8 +43,6 @@
 
 * hversion.el (hyperb:version): Start adding a letter at the end of the version number for
     significant pre-releases published to git, so we know which version is in use.
-
-----
 
 2017-09-25  Bob Weiner  <rsw@gnu.org>
 
