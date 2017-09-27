@@ -198,13 +198,12 @@ Optional DEFAULT-PROMPT is used to describe default value."
   (if (featurep 'xemacs)
       (if current-mouse-event
 	  (select-window
-	   (or (event-window current-mouse-event)
-	       (selected-window))))
-    (let* ((event last-command-event)
-	   (window (posn-window (event-start event))))
-      (if (and (eq window (minibuffer-window))
-	       (not (minibuffer-window-active-p
-		     (minibuffer-window))))
+	   (or (event-window current-mouse-event) (selected-window))))
+    (let ((window (posn-window (event-start last-command-event))))
+      (if (framep window)
+	  (setq window (frame-selected-window window)))
+      (if (and (window-minibuffer-p window)
+	       (not (minibuffer-window-active-p window)))
 	  (error "Attempt to select inactive minibuffer window")
 	(select-window (or window (selected-window)))))))
 

@@ -779,24 +779,27 @@ If assist-key is pressed within:
 ;;; ************************************************************************
 
 (defun smart-helm-at-header ()
-  "Return t iff Action Mouse Key depress was on the first fixed header line or a helm section header of the current buffer."
+  "Returns t iff Action Key depress was on the first fixed header line or a helm section header of the current buffer."
   (or (helm-pos-header-line-p)
       (and (eventp action-key-depress-args)
 	   (eq (posn-area (event-start action-key-depress-args))
 	       'header-line))))
 
 (defun smart-helm-line-has-action ()
-  "Marks and returns the actions for the helm selection item at point, or nil if line lacks any action.
+  "Marks and returns the actions for the helm selection item at the point of Action Key depress, or nil if line lacks any action.
 Assumes Hyperbole has already checked that helm is active."
   (let ((helm-buffer (if (equal helm-action-buffer (buffer-name)) helm-buffer (buffer-name))))
     (save-excursion
       (with-helm-buffer
-	(if hkey-debug (setq cursor-type t)) ; For testing where mouse presses set point.
+	(setq cursor-type hkey-debug) ; For testing where mouse presses set point.
+	(and (eventp action-key-depress-args)
+	     (goto-char (posn-point (event-start action-key-depress-args))))
 	(when (not (or (eobp)
 		       (smart-helm-at-header)
 		       (helm-pos-candidate-separator-p)))
-	  (helm-mark-current-line)
-	  (helm-get-current-action))))))
+	  (let ((helm-selection-point (point)))
+	    (helm-mark-current-line)
+	    (helm-get-current-action)))))))
 
 (defun smart-helm-alive-p ()
   ;; Handles case where helm-action-buffer is visible but helm-buffer
@@ -816,7 +819,7 @@ Assumes Hyperbole has already checked that helm is active."
     (sit-for 0.2)))
 
 (defun smart-helm-at (depress-event)
-  "Return non-nil iff Smart Mouse DEPRESS-EVENT was on a helm section header, candidate separator or at eob or eol.
+  "Returns non-nil iff Smart Mouse DEPRESS-EVENT was on a helm section header, candidate separator or at eob or eol.
 If non-nil, returns a property list of the form: (section-header <bool> separator <bool> eob <bool> or eol <bool>).
 If a section-header or separator, selects the first following candidate line.
 Assumes Hyperbole has already checked that helm is active."
@@ -843,6 +846,11 @@ Assumes Hyperbole has already checked that helm is active."
 		  (goto-char opoint)
 		  nil))))))
 
+(defun smart-helm-to-minibuffer ()
+  "Selects minibuffer window when it is active."
+  (if (> (minibuffer-depth) 0)
+      (select-window (minibuffer-window))))
+
 (defun smart-helm()
   "Executes helm actions based on Action Key click locations:
   At the end of the buffer, quits from helm and exits the minibuffer.
@@ -865,10 +873,8 @@ Assumes Hyperbole has already checked that helm is active."
     ;; Handle end-of-line clicks.
     (if (and eol (not eob) (not non-text-area-p))
 	(progn (with-helm-buffer (funcall action-key-eol-function))
-	       (if (> (minibuffer-depth) 0)
-		   (select-window (minibuffer-window))))
-      (if (> (minibuffer-depth) 0)
-	  (select-window (minibuffer-window)))
+	       (smart-helm-to-minibuffer))
+      (smart-helm-to-minibuffer)
       (when (and (smart-helm-alive-p) (not separator))
 	(let* ((key (kbd (cond
 			  ;; Exit
@@ -942,8 +948,7 @@ Assumes Hyperbole has already checked that helm is active."
 	     (if hkey-debug
 		 (message "(HyDebug): In smart-helm-assist, key to execute is: {%s}; binding is: %s"
 			  (if key (key-description key) "Help" (if key binding "None"))))))
-      (if (> (minibuffer-depth) 0)
-	  (select-window (minibuffer-window))))
+      (smart-helm-to-minibuffer))
     (if key (call-interactively (key-binding (kbd key))))))
 
 ;;; ************************************************************************

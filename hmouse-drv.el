@@ -41,9 +41,11 @@
   "List of mouse event args from most recent release of the Assist Key.")
 
 (defvar action-key-depress-window nil
-  "The last window in which the Action Key was depressed or nil.")
+  "The last window in which the Action Key was depressed or nil.
+This is set to nil when the depress is on an inactive minibuffer.")
 (defvar assist-key-depress-window nil
-  "The last window in which the Assist Key was depressed or nil.")
+  "The last window in which the Assist Key was depressed or nil.
+This is set to nil when the depress is on an inactive minibuffer.")
 (defvar action-key-release-window nil
   "The last window in which the Action Key was released or nil.")
 (defvar assist-key-release-window nil
@@ -114,7 +116,8 @@ This permits the Smart Keys to behave as paste keys.")
 				      (selected-window))
 	action-key-release-args nil
 	action-key-release-window nil
-	action-key-release-prev-point nil))
+	action-key-release-prev-point nil)
+  (run-hooks 'action-key-depress-hook))
 
 (defun assist-key-depress (&rest args)
   (interactive)
@@ -129,7 +132,8 @@ This permits the Smart Keys to behave as paste keys.")
 				      (selected-window))
 	assist-key-release-args nil
 	assist-key-release-window nil
-	assist-key-release-prev-point nil))
+	assist-key-release-prev-point nil)
+  (run-hooks 'assist-key-depress-hook))
 
 (defun action-key-depress-emacs (event)
   (interactive "e")
@@ -167,7 +171,9 @@ Any ARGS will be passed to `hmouse-function'."
 	      (assist-key-depressed-flag
 		(hmouse-function nil nil args))
 	      ((hkey-mouse-help nil args))
-	      (t (hmouse-function #'action-key-internal nil args)))
+	      (t
+	       (run-hooks 'action-key-release-hook)
+	       (hmouse-function #'action-key-internal nil args)))
 	;; Need to clear these variables so that mouse pasting does
 	;; not occur repeatedly from a single region selection.
 	(setq hkey-region nil
@@ -188,7 +194,9 @@ Any ARGS will be passed to `hmouse-function'."
 	      (action-key-depressed-flag
 		(hmouse-function nil t args))
 	      ((hkey-mouse-help t args))
-	      (t (hmouse-function #'assist-key-internal t args)))
+	      (t
+	       (run-hooks 'assist-key-release-hook)
+	       (hmouse-function #'assist-key-internal t args)))
 	;; Need to clear this variable so that mouse pasting does
 	;; not occur repeatedly from a single region selection.
 	(setq hkey-region nil
@@ -210,7 +218,8 @@ a valid function."
 	action-key-release-args nil
 	action-key-release-window nil
 	action-key-release-prev-point nil)
-  (action-key-internal))
+  (prog1 (action-key-internal)
+    (run-hooks 'action-key-depress-hook 'action-key-release-hook)))
 
 (defun action-key-internal ()
   (setq action-key-depressed-flag nil)
@@ -237,7 +246,8 @@ bound to a valid function."
 	assist-key-release-args nil
 	assist-key-release-window nil
 	assist-key-release-prev-point nil)
-  (assist-key-internal))
+  (prog1 (assist-key-internal)
+    (run-hooks 'assist-key-depress-hook 'assist-key-release-hook)))
 
 (defun assist-key-internal ()
   (setq assist-key-depressed-flag nil)
@@ -524,11 +534,13 @@ With optional ARG, override them iff ARG is positive."
     (setq hkey-debug t)
     (message "Smart Key debugging is on; press a Smart Key to see its context.")))
 
-(defun hmouse-depress-inactive-minibuffer-p (args)
-  "Return the minibuffer window if the last Smart Mouse Key depress was in it and it was inactive, else nil."
-  (if (= (minibuffer-depth) 0)
-      (if (eq (minibuffer-window) (posn-window (event-start args)))
-	  (minibuffer-window))))
+(defun hmouse-depress-inactive-minibuffer-p (event)
+  "Return the minibuffer window if the last Smart Mouse Key depress EVENT was in it and it was inactive, else nil."
+  (let ((window (posn-window (event-start event))))
+    (if (framep window) (setq window (frame-selected-window window)))
+    (and (window-minibuffer-p window)
+	 (not (minibuffer-window-active-p window))
+	 window)))
 
 (defun hmouse-key-release-args-emacs (event)
   (if (integerp event)

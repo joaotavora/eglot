@@ -1,3 +1,45 @@
+2017-09-26  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (action-key-depress): Added action-key-depress-hook.
+                (assist-key-depress): Added assist-key-depress-hook.
+		(action-mouse-key):   Added action-key-release-hook.
+		(assist-mouse-key):   Added assist-key-release-hook.
+                (action-key): Added action-key-depress/release-hook.
+		(assist-key): Added assist-key-depress/release-hook.
+  hui-window.el (action-key-depress-hook): Set to select helm items
+    prior to a drag outside the helm buffer window.
+
+* hui-mouse.el (smart-helm-line-has-action): Fixed to use position of
+    Action Key depress; this properly selects the item chosen, even when
+    a cross-window drag is used; this allows helm buffer and file items to
+    be used in Hyperbole drag actions.
+
+* hib-social.el (github-reference): Added support for
+    gh#orgs/<org-name>/people query to list users in an org.
+
+* hmouse-drv.el (hmouse-depress-inactive-minibuffer-p): Improved doc and
+    changed param name to `event'.
+                (action-key-depress-window, assist-key-depress-window):
+    Improved doc.
+
+* hui-window.el (smart-coords-in-window-p, smart-window-of-coords,
+                 hmouse-inactive-minibuffer-p): 
+  hmouse-drv.el (hmouse-depress-inactive-minibuffer-p): 
+  hargs.el (hargs:select-event-window): Updated to handle multiple frames and minibuffers.
+
+
+* hui-window.el (hmouse-alist): Extended hmouse-drag-between-windows to
+    allow dragging items from a buffer menu or file menu buffer to a destination
+    window for display.  Helm buffer items are supported as well.
+                (hmouse-item-to-window, hmouse-drag-buffer-to-window): Added.
+  hui-mouse.el (smart-helm-to-minibuffer): Added to encapsulate when to
+    return to minibuffer, and called.
+
+* hversion.el (hyperb:version): Start adding a letter at the end of the version number for
+    significant pre-releases published to git, so we know which version is in use.
+
+----
+
 2017-09-25  Bob Weiner  <rsw@gnu.org>
 
 * hui-mini.el (hui:menu-item): Improved so that if menu item has no help string but its action is a

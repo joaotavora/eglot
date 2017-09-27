@@ -80,6 +80,8 @@
 ;;     gh#rswgnu/helm/global_mouse               Display user project's branch
 ;;     gh#rswgnu/hyperbole/55a1f0                Display user project's commit diff
 ;;
+;;     gh#orgs/github/people                     List the org, github's staff
+;;
 ;;     (setq hibtypes-github-default-user "rswgnu")
 ;;     github#/hyperbole                         Display default user's project
 ;;
@@ -306,7 +308,11 @@ PROJECT value is provided, it defaults to the value of
 	(unless (stringp user) (setq user hibtypes-github-default-user))
 	(unless (stringp project) (setq project hibtypes-github-default-project))
 	(when reference
-	  (cond ((member reference '("branches" "commits" "issues" "pulls" "tags"))
+	  (cond ((equal user "orgs")
+		 ;; A specific organization reference
+		 (setq ref-type reference
+		       reference ""))
+		((member reference '("branches" "commits" "issues" "pulls" "tags"))
 		 ;; All branches, commits, open issues, pull requests or commit tags reference
 		 (setq ref-type reference
 		       reference ""))

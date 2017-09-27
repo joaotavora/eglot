@@ -89,6 +89,13 @@ of screen control commands."
 (defvar hmouse-y-diagonal-sensitivity 3
   "*Number of lines mouse must move vertically between depress/release to register a diagonal drag.")
 
+;; Ensure any helm item at Action Mouse Key depress point is selected
+;; before a drag that ends in another window.
+(add-hook 'action-key-depress-hook
+	  (lambda () (if (eq major-mode 'helm-major-mode)
+			 ;; Select any line with an action.
+			 (smart-helm-line-has-action))))
+
 ;;;
 ;;; Add window handling to hmouse-alist dispatch table.
 ;;;
@@ -113,7 +120,7 @@ of screen control commands."
 		((hmouse-drag-between-windows) .
 		 ;; Note that `hui:link-directly' uses any active
 		 ;; region as the label of the button to create.
-		 ((hui:link-directly) . (hmouse-swap-buffers 'assist)))
+		 ((or (hmouse-drag-item-to-window) (hui:link-directly)) . (hmouse-swap-buffers 'assist)))
 		((hmouse-drag-region-active) .
 		 ((hmouse-drag-not-allowed) . (hmouse-drag-not-allowed)))
 		((setq hkey-value (and (not (hmouse-drag-between-windows))
@@ -123,7 +130,7 @@ of screen control commands."
 		 ((hmouse-vertical-action-drag) . (hmouse-vertical-assist-drag)))
 		((setq hkey-value (hmouse-drag-diagonally)) .
 		 ((hywconfig-ring-save) . (hywconfig-yank-pop
-					 (prefix-numeric-value current-prefix-arg))))
+					   (prefix-numeric-value current-prefix-arg))))
 		;;
 		;; Now since this is not a drag and if there was an active
 		;; region prior to when the Action or Assist Key was
@@ -307,9 +314,16 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
       (and assist-key-depress-window assist-key-release-window
 	   (not (eq assist-key-depress-window
 		    assist-key-release-window)))
-    (and (not (smart-helm-alive-p)) ;; Ignore Action Key drag if helm is active.
-	 action-key-depress-window action-key-release-window
+    (and action-key-depress-window action-key-release-window
 	 (not (eq action-key-depress-window action-key-release-window)))))
+
+(defun hmouse-drag-item-to-window ()
+  "Depress on a buffer name in Buffer-menu or ibuffer mode and release in another window in which to display the buffer.
+Return t unless source is not a buffer menu mode, then nil."
+  (let ((mode (cdr (assq 'major-mode (buffer-local-variables (window-buffer action-key-depress-window))))))
+    (when (memq mode '(Buffer-menu-mode ibuffer-mode helm-major-mode))
+      (hmouse-item-to-window)
+      t)))
 
 (defun hmouse-drag-diagonally ()
   "Returns non-nil iff last Action Key use was a diagonal drag within a single window.
@@ -465,7 +479,9 @@ Beeps and prints message if the window cannot be split further."
   "Tests if COORDS are in WINDOW.  Returns WINDOW if they are, nil otherwise."
   (cond ((null coords) nil)
 	((and hyperb:emacs-p (eventp coords))
-	 (eq (posn-window (event-start coords)) window))
+	 (let ((w-or-f (posn-window (event-start coords))))
+	   (if (framep w-or-f) (setq w-or-f (frame-selected-window w-or-f)))
+	   (eq w-or-f window)))
 	((if (featurep 'xemacs)
 	     (if (eventp coords)
 		 (eq (event-window coords) window)
@@ -498,7 +514,9 @@ Ignores minibuffer window."
   (cond ((markerp coords)
 	 (get-buffer-window (marker-buffer coords)))
 	((and hyperb:emacs-p (eventp coords))
-	 (posn-window (event-start coords)))
+	 (let ((w-or-f (posn-window (event-start coords))))
+	   (if (framep w-or-f) (setq w-or-f (frame-selected-window w-or-f)))
+	   w-or-f))
 	((if (featurep 'xemacs)
 	     (if (eventp coords)
 		 (event-window coords)
@@ -553,8 +571,10 @@ Ignores minibuffer window."
 
 (defun hmouse-inactive-minibuffer-p ()
   "Return t if the last command event was a mouse press or release within an inactive minibuffer, else nil."
-  (if (= (minibuffer-depth) 0)
-      (eq (minibuffer-window) (posn-window (event-start last-command-event)))))
+  (let ((window (posn-window (event-start last-command-event))))
+    (if (framep window) (setq window (frame-selected-window window)))
+    (and (window-minibuffer-p window)
+	 (not (minibuffer-window-active-p window)))))
 
 (defun hmouse-insert-region ()
   "Save a mark, then insert at point the text from `hkey-region' and indent it."
@@ -568,6 +588,35 @@ Ignores minibuffer window."
   ;; possibilities before enabling filling of this region.
   ;; (if (fboundp 'fill-region-and-align) (fill-region-and-align (mark) (point)))
   )
+
+(defun hmouse-item-to-window ()
+  "Displays buffer or file menu item at Action Key depress in window of Action Key release."
+  (let* ((w1 action-key-depress-window)
+	 (w2 action-key-release-window)
+	 (buf-name)
+	 (w1-ref (when (and w1 w2)
+		   (unwind-protect
+		       (progn (select-window w1)
+			      (cond ((eq major-mode 'Buffer-menu-mode)
+				     (Buffer-menu-buffer t))
+				    ((eq major-mode 'ibuffer-mode)
+				     (ibuffer-current-buffer t))
+				    ((eq major-mode 'helm-major-mode)
+				     ;; Returns item string
+				     (helm-get-selection (current-buffer)))
+				    (t nil)))
+		     (select-window w2)))))
+    (unwind-protect
+	(cond ((not w1-ref)
+	       (error "(hmouse-item-to-window): Last depress was not within a window."))
+	      ((buffer-live-p w1-ref)
+	       (set-window-buffer w2 w1-ref))
+	      ((and (stringp w1-ref) (file-readable-p w1-ref))
+	       (set-window-buffer w2 (find-file-noselect w1-ref)))
+	      (t (error "(hmouse-item-to-window): Cannot find or read `%s'." w1-ref)))
+      ;; If helm is active, end in the minibuffer window.
+      (if (smart-helm-alive-p)
+	  (smart-helm-to-minibuffer)))))
 
 (defun action-key-modeline ()
   "Handles Action Key depresses on a window mode line.
@@ -841,10 +890,12 @@ If optional arg ASSIST-FLAG is non-nil, uses Assist Key."
 		 (current-column))
 	     (eval (cdr (assoc (hyperb:window-system)
 			       '(("emacs" . (if (eventp args)
-						(+ (car (posn-col-row
-							 (event-start args)))
-						   (nth 0 (window-edges
-							   (car (cadr args)))))
+						(let ((w-or-f (posn-window (event-start args))))
+						  (if (framep w-or-f)
+						      (setq w-or-f (frame-selected-window w-or-f)))
+						  (+ (car (posn-col-row
+							   (event-start args)))
+						     (nth 0 (window-edges w-or-f))))
 					      (car args)))
 				 ("xemacs" .  (if (eventp args)
 						  (event-x args)
@@ -858,10 +909,12 @@ If optional arg ASSIST-FLAG is non-nil, uses Assist Key."
   "Returns y coordinate in frame lines from window system dependent ARGS."
   (let ((y (eval (cdr (assoc (hyperb:window-system)
 			     '(("emacs" . (if (eventp args)
-					      (+ (cdr (posn-col-row
-						       (event-start args)))
-						 (nth 1 (window-edges
-							 (car (cadr args)))))
+					      (let ((w-or-f (posn-window (event-start args))))
+						(if (framep w-or-f)
+						    (setq w-or-f (frame-selected-window w-or-f)))
+						(+ (cdr (posn-col-row
+							 (event-start args)))
+						   (nth 1 (window-edges w-or-f))))
 					    (cdr args)))
 			       ("xemacs" .  (if (eventp args)
 						(event-y args)
