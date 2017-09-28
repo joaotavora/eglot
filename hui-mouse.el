@@ -86,7 +86,8 @@ Its default value is #'smart-scroll-down."
   '(
     ;; Handle Emacs push buttons in buffers
     ((and (fboundp 'button-at) (button-at (point))) .
-     ((push-button) . (smart-push-button-help)))
+     ((push-button nil (mouse-event-p last-command-event))
+      . (smart-push-button-help nil (mouse-event-p last-command-event))))
     ;;
     ;; If click in the minibuffer and reading an argument,
     ;; accept argument or give completion help.
@@ -219,9 +220,9 @@ Its default value is #'smart-scroll-down."
      ((pages-directory-goto) . (pages-directory-goto)))
     ;;
     ;; Imenu listing in GNU Emacs
-    ((smart-imenu-item-at-p) .
-     ((smart-imenu-display-item-where (car hkey-value) (cdr hkey-value)) .
-      (imenu-choose-buffer-index)))
+    ((smart-imenu-item-at-p)
+     . ((smart-imenu-display-item-where (car hkey-value) (cdr hkey-value)) .emacs
+	(imenu-choose-buffer-index)))
     ;;
     ;; Function menu listing mode in XEmacs
     ((eq major-mode 'fume-list-mode) .
@@ -1097,8 +1098,12 @@ Does nothing unless imenu has been loaded and an index has been
 created for the current buffer.  When return value is non-nil, also
 sets `hkey-value' to (identifier . identifier-definition-buffer-position)."
   (and (featurep 'imenu) imenu--index-alist
-       (setq hkey-value (hargs:find-tag-default))
-       (setq hkey-value (cons hkey-value (smart-imenu-item-p hkey-value variable-flag)))
+       ;; Ignore non-alias identifiers on the first line of a Lisp def.
+       (not (and (smart-lisp-mode-p) (smart-lisp-at-definition-p)))
+       ;; Ignore Lisp loading expressions
+       (not (smart-lisp-at-load-expression-p))
+       (setq hkey-value (hargs:find-tag-default)
+	     hkey-value (cons hkey-value (smart-imenu-item-p hkey-value variable-flag)))
        (cdr hkey-value)))
 
 ;; Derived from `imenu' function in the imenu library.
@@ -1295,7 +1300,7 @@ If key is pressed:
  (2) at the end of buffer, show all buffer text 
  (3) at the beginning of a heading line, cut the headings subtree from the
      buffer;
- (4) on a header line but not at the beginning or end, if headings subtree is
+ (4) on a heading line but not at the beginning or end, if headings subtree is
      hidden then show it, otherwise hide it;
  (5) anywhere else, invoke `action-key-eol-function', typically to scroll up
      a windowful."
@@ -1316,7 +1321,7 @@ If key is pressed:
 	((or (eolp) (zerop (save-excursion (beginning-of-line)
 					   (outline-level))))
 	 (funcall action-key-eol-function))
-	;; On an outline header line but not at the start/end of line.
+	;; On an outline heading line but not at the start/end of line.
 	((smart-outline-subtree-hidden-p)
 	 (outline-show-subtree))
 	(t (outline-hide-subtree))))
@@ -1335,7 +1340,7 @@ If assist-key is pressed:
  (2) at the end of buffer, hide all bodies in buffer;
  (3) at the beginning of a heading line, cut the current heading (sans
      subtree) from the buffer;
- (4) on a header line but not at the beginning or end, if heading body is
+ (4) on a heading line but not at the beginning or end, if heading body is
      hidden then show it, otherwise hide it;
  (5) anywhere else, invoke `assist-key-eol-function', typically to scroll down
      a windowful."
@@ -1353,7 +1358,7 @@ If assist-key is pressed:
 	((or (eolp) (zerop (save-excursion (beginning-of-line)
 					   (outline-level))))
 	 (funcall assist-key-eol-function))
-	;; On an outline header line but not at the start/end of line.
+	;; On an outline heading line but not at the start/end of line.
 	((smart-outline-subtree-hidden-p)
 	 (outline-show-entry))
 	(t (outline-hide-entry))))
@@ -1378,14 +1383,16 @@ CURR-ENTRY-LEVEL is not needed."
 
 (defun smart-outline-subtree-hidden-p ()
   "Returns t if at least initial subtree of heading is hidden, else nil."
-  (outline-invisible-in-p (point) (or (save-excursion (re-search-forward "[\n\r]" nil t)) (point))))
+  (and (outline-on-heading-p t)
+       (outline-invisible-in-p
+	(point) (or (save-excursion (re-search-forward "[\n\r]" nil t)) (point)))))
 
 (defun smart-outline-char-invisible-p (&optional pos)
   "Return t if the character after point is invisible/hidden, else nil."
   (or pos (setq pos (point)))
   (when (or
 	 ;; New-style Emacs outlines with invisible properties to hide lines
-	 (kproperty:get pos 'invisible)
+	 (outline-invisible-p pos)
 	 (delq nil (mapcar (lambda (o) (overlay-get o 'invisible))
 			   (overlays-at (or pos (point)))))
 	 ;; Old-style Emacs outlines using \r (^M) characters to hide lines
@@ -1404,14 +1411,17 @@ CURR-ENTRY-LEVEL is not needed."
 ;;; ************************************************************************
 
 ;; Emacs push button support
-(defun smart-push-button-help (&optional pos)
+(defun smart-push-button-help (&optional pos use-mouse-action)
   "Show help about a push button's action at optional POS or at point in the current buffer."
-  (let ((expr (button-get (button-at (or pos (point))) 'action))
+  (let* ((button (button-at (or pos (point))))
+	 (action (or (and use-mouse-action (button-get button 'mouse-action))
+		     (button-get button 'action)))
 	 ;; Ensure these do not invoke with-output-to-temp-buffer a second time.
 	 (temp-buffer-show-hook)
 	 (temp-buffer-show-function))
-    (if (functionp expr) (describe-function expr)
-      (with-help-window (print (format "Button's action is: '%s'" expr))))))
+    (if (functionp action)
+	(describe-function action)
+      (with-help-window (print (format "Button's action is: '%s'" action))))))
 
 ;;; ************************************************************************
 ;;; smart-tar functions

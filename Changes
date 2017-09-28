@@ -1,3 +1,34 @@
+2017-09-28  Bob Weiner  <rsw@gnu.org>
+
+* hui-mouse.el (smart-push-button-help): Added 2nd optional arg, use-mouse-action,
+    which if non-nil, displays help for mouse-action property if any, and falls
+    back to action property otherwise.
+               (hkey-alist): push-button - Changed to use mouse-action if
+    last-command-event was a mouse event.  Previously, mouse actions were
+     not supported.
+
+* hmouse-tag.el (smart-lisp-at-tag-p): Changed to not match anywhere on the first
+    line of def constructs.  This aids in using Smart Keys for outline
+    folding within Lisp buffers.
+                (smart-lisp-at-definition-p): Added to test if point is on
+    the first line of a non-alias Lisp definition.
+                (smart-lisp-at-load-expression-p): Added to test if point
+    is on any type of Lisp library load expression.
+                (smart-lisp): Changed call of buffer-substring-no-properties
+    to match-string-no-properties.
+                (smart-lisp): Fixed regexp matching of require and autoload expressions.
+       For require and load, moved point to start of the buffer.
+       For autoload, triggered an error if library is found but symbol def is not.
+
+* hui-mouse.el (smart-outline-char-invisible-p): Substituted outline-invisible-p
+    call for kproperty:get, which may not yet be defined.
+               (smart-outline-subtree-hidden-p): Fixed to match only when point is
+    on a heading.
+               (smart-imenu-item-at-p): Updated to ignore when smart-lisp-at-definition-p
+    or smart-lisp-at-load-expression-p tests are true.
+               (hkey-alist): smart-imenu - ignored non-alias identifiers on the
+    first line of a Lisp def.
+
 2017-09-27  Bob Weiner  <rsw@gnu.org>
 
 * hui-mouse.el (smart-buffer-menu-no-marks): Added and called in smart-buffer-menu.

@@ -565,19 +565,33 @@ buffer."
   (interactive)
   (unless (and (smart-emacs-lisp-mode-p) (fboundp 'find-library)
 	       ;; Handle Emacs Lisp `require', `load', and `autoload' clauses.
-	       (let ((lib)
-		     (opoint (point)))
+	       (let ((opoint (point))
+		     type
+		     name
+		     lib)
 		 (setq lib (and (search-backward "\(" nil t)
-				(looking-at (concat
-					     "(\\(require\\|load\\|autoload\\)"
-					     "[ \t]+.*['\"]"
-					     "\\([^][() \t\n\r`'\"]+\\)"))))
+				(or
+				 ;; load with a filename
+				 (looking-at "(\\(load\\)[ \t]+\\(\\)\"\\([^][() \t\n\r`'\"]+\\)")
+				 ;; autoload or require with a name and filename
+				 (looking-at "(\\(autoload\\|require\\)[ \t]+'\\([^][() \t\n\r`'\"]+\\)[ \t\n\r]+\"\\([^][() \t\n\r`'\"]+\\)")
+				 ;; require without a separate filename
+				 (looking-at "(\\(require\\)\\(\\)[ \t]+'\\([^][() \t\n\r`'\"]+\\)"))))
 		 (goto-char opoint)
 		 (when lib
-		   (setq lib (buffer-substring-no-properties
-			      (match-beginning 2) (match-end 2)))
+		   (setq type (match-string-no-properties 1)
+			 name (match-string-no-properties 2)
+			 lib (match-string-no-properties 3))
 		   (hpath:display-buffer (current-buffer))
 		   (find-library lib)
+		   (goto-char (point-min))
+		   (when (equal type "autoload")
+		     ;; Ignore defgroup matches
+		     (if (re-search-forward
+			  (format "^[; \t]*(def.[^r][^ \t\n\r]*[ \t]+%s[ \t\n\r]" (regexp-quote name))
+			  nil t)
+			 (goto-char (match-beginning 0))
+		       (error "(smart-lisp): Found autoload library but no definition for `%s'" name)))
 		   t)))
     (let* ((elisp-p (smart-emacs-lisp-mode-p))
 	   (tag (smart-lisp-at-tag-p t))
@@ -604,18 +618,27 @@ buffer."
 				       (error nil)))
 			  (error "(smart-lisp): `%s' definition not found in any tag table" tag)))))))))
 
-(defun smart-lisp-at-tag-p (&optional no-flash)
-  "Returns Lisp tag name that point is within, else nil.
-Returns nil when point is within a Lisp `def' keyword."
-  (let* ((identifier-chars "-_:/*+=%$&?!<>a-zA-Z0-9~^")
-	 (identifier (concat "[-<>*a-zA-Z][" identifier-chars "]*"))
-	 (opoint (point)))
+(defun smart-lisp-at-definition-p ()
+    "Returns t when point is on the first line of a non-alias Lisp definition, else nil."
     (save-excursion
       (beginning-of-line)
-      (if (and (looking-at "\\(;*[ \t]*\\)?(def[^- \t\n\r]+")
-	       (< opoint (match-end 0)))
-	  nil
-	(goto-char opoint)
+      (and (looking-at "\\(;*[ \t]*\\)?(def")
+	   ;; Ignore alias definitions since those typically have symbol tags to lookup.
+	   (not (looking-at "\\(;*[ \t]*\\)?(def[^ \t\n\r]*alias")))))
+
+(defun smart-lisp-at-load-expression-p ()
+    "Returns t when point is on the first line of a Lisp library load expression, else nil."
+    (save-excursion
+      (beginning-of-line)
+      (looking-at "\\(;*[ \t]*\\)?(\\(autoload\\|load\\|require\\)")))
+
+(defun smart-lisp-at-tag-p (&optional no-flash)
+  "Returns Lisp tag name that point is within, else nil.
+Returns nil when point is on the first line of a non-alias Lisp definition."
+  (unless (smart-lisp-at-definition-p)
+    (let* ((identifier-chars "-_:/*+=%$&?!<>a-zA-Z0-9~^")
+	   (identifier (concat "[-<>*a-zA-Z][" identifier-chars "]*")))
+      (save-excursion
 	(skip-chars-backward identifier-chars)
 	(if (and (looking-at identifier)
 		 ;; Ignore any all punctuation matches.
