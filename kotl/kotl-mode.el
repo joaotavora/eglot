@@ -91,9 +91,11 @@ It provides the following keys:
   ;; Used by kimport.el functions.
   (unless (and (boundp 'kotl-previous-mode) kotl-previous-mode)
     (setq kotl-previous-mode major-mode
-	  ;; Remove outline indication due to selective-display.
+	  ;; Remove outline minor-mode mode-line indication.
 	  minor-mode-alist (copy-sequence minor-mode-alist)
-	  minor-mode-alist (set:remove '(selective-display " Outline")
+	  minor-mode-alist (set:remove '(outline-minor-mode " Outl")
+				       minor-mode-alist)
+ 	  minor-mode-alist (set:remove '(selective-display " Outline")
 				       minor-mode-alist)
 	  minor-mode-alist (set:remove '(selective-display " Otl")
 				       minor-mode-alist)

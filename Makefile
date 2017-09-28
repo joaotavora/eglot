@@ -189,6 +189,8 @@ help:
 	@ echo ""
 	@ echo "For Hyperbole maintainers, the Hyperbole distribution package is built with:"
 	@ echo "     make pkg"
+	@ echo "  To build documentation formats only, use:"
+	@ echo "     make doc"
 
 all: help
 

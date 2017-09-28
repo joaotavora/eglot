@@ -11,7 +11,7 @@
 
 ;;; Commentary:
 ;;
-;;; Koutliner view specs
+;;; Koutliner view specs (each viewspec is invoked with its first letter)
 ;; + means support code has been written already.
 ;;
 ;; +      all:     Show all lines of cells and all cells in the outline.
@@ -21,7 +21,7 @@
 ;;          c - set default cutoff lines
 ;;          cNUM - set cutoff lines to NUM
 ;;        descend: Only entries below this entry
-;; +      elide:   Ellipses are on.
+;; +      elide:   Ellipses are on (now always true)
 ;;          e - ellipses on 
 ;;        filter:  Regexp or filter program to select entries for view,
 ;;                 off=select non-matching entries
@@ -77,8 +77,8 @@ VIEW-SPEC is a string or t, which means recompute the current view spec.  See
 <${hyperb:dir}/kotl/EXAMPLE.kotl, 2b17=048> for details on valid view specs."
   (interactive (list (read-string "Set view spec: " kvspec:current)))
   (kotl-mode:is-p)
-  (if (or (equal view-spec "") (equal view-spec kvspec:current))
-      (setq view-spec nil))
+  (when (equal view-spec "")
+    (setq view-spec nil))
   (kvspec:initialize)
   (kvspec:update view-spec)
   (kvspec:update-view))
@@ -143,9 +143,16 @@ to be current but does not recompute the viewspec itself.  See
 view specs." 
   (cond ((stringp view-spec)
 	 ;; Use given view-spec after removing extraneous characters.
-	 (setq kvspec:current
+	 (setq view-spec
 	       (hypb:replace-match-string
-		"[^.*~0-9abcdefgilnrsv]+" view-spec "" t)))
+		"[^.*~0-9abcdefgilnrsv]+" view-spec "" t))
+	 (unless (string-match "e" view-spec)
+	   ;; Force 'e' elide view spec if not there.
+	   (setq view-spec
+		 (if (string-match "\\([abcd]+\\)" view-spec)
+		     (replace-match "\\1e" t nil view-spec)
+		   (concat "e" view-spec))))
+	 (setq kvspec:current view-spec))
 	((or (eq view-spec t) (null kvspec:current))
 	 (setq kvspec:current (kvspec:compute))))
   ;; Update display using current specs.
@@ -209,9 +216,8 @@ view specs."
 				       kvspec:label-type-alist)))))))))
 
 (defun kvspec:elide ()
-  "Turn ellipses display following clipped cells on or off according to `kvspec:current'."
-  (setq selective-display-ellipses
-	(if (string-match "e" kvspec:current) t)))
+  "Turn ellipses display following clipped cells on.  This cannot be turned off."
+  (setq selective-display-ellipses t))
 
 (defun kvspec:hide-levels ()
   "Show a set number of cell levels according to `kvspec:current'."

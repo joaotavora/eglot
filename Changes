@@ -1,5 +1,21 @@
 2017-09-28  Bob Weiner  <rsw@gnu.org>
 
+* man/hyperbole.texi (Version): Updated to 6.02a and rebuilt output formats.
+
+* man/hyperbole.texi (View Specs): Noted that ellipses can no longer be
+    turned off.
+  kotl/kvspec.el (kvspec:compute): Removed `e' ellipses viewspec because
+    it no longer works with modern Emacs outlining.
+                 (kvspec:update): Force display of `e' viewspec.
+                 (kvspec:activate): Changed to always compute new kvspec:current
+    even if requested view-spec seems the same so the 'e' viespec is added if
+    not included.
+
+* kotl/kotl-mode.el (kotl-mode): Handled removal of newest
+    outline-minor-mode mode-line indication for Koutlines.
+
+2017-09-28  Bob Weiner  <rsw@gnu.org>
+
 * hui-mouse.el (smart-push-button-help): Added 2nd optional arg, use-mouse-action,
     which if non-nil, displays help for mouse-action property if any, and falls
     back to action property otherwise.

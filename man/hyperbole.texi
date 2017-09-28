@@ -151,8 +151,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.0.3
-Printed September 17, 2017.
+Edition 6.0.2a
+Printed September 28, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed September 17, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.8, September 8, 2016.
+@center Edition 6.0.2a, September 28, 2017.
 
 @sp 2
 @noindent
@@ -444,7 +444,7 @@ Smart Keyboard Keys
 @chapter Introduction
 
 This edition of the GNU Hyperbole Manual is for use with any version
-6.0.3 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.0.2a or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 
 This chapter summarizes the structure of the rest of the manual,
@@ -601,7 +601,7 @@ operations across emacs usage, including activating and showing help
 for Hyperbole buttons.  In many popular Emacs modes, they allow you
 to perform common, sometimes complex operations without having to a
 different key for each operation.  Just press a Smart Key and the
-right thing happens.  @xref{Smart Keys};
+right thing happens.  @xref{Smart Keys}.
 
 @item Contact and Text Finder
 an interactive, textual information management interface, including
@@ -2632,7 +2632,7 @@ The @samp{KeyBindings/} submenu allows individual changes to each
 keyboard key that Hyperbole binds for its commands, notably the Action
 Key.  @xref{Smart Key Bindings}, for more information.
 
-@xref{Global Key Bindings} for complete descriptions of Hyperbole's
+@xref{Global Key Bindings}, for complete descriptions of Hyperbole's
 global key bindings, how to temporarily disable them and how to manage
 its overriding of local bindings that hide global Hyperbole keys.
 
@@ -3876,7 +3876,7 @@ lines.
 @cindex view spec, ellipses
 @item e
 Show ellipses when some content of a cell or its subtree is hidden.
-Turning this off may not work in Emacs25; nothing will happen.
+This cannot be turned off.
 
 @cindex level
 @cindex cell, hiding levels
