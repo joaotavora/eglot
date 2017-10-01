@@ -128,7 +128,9 @@ With optional LIST-POSITIONS-FLAG, return list of (string-matched start-pos end 
 		 (setq end (1- end))
 	       t)
 	     (< start end)
-	     (let ((string (hypb:replace-match-string "[\n\r]\\s-*" (buffer-substring start end) " " t)))
+	     (let ((string (substring-no-properties
+			    (hypb:replace-match-string
+			     "[\n\r]\\s-*" (buffer-substring start end) " " t))))
 	       (if list-positions-flag
 		   (list string start end)
 		 string)))))))

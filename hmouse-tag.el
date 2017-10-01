@@ -619,12 +619,14 @@ buffer."
 			  (error "(smart-lisp): `%s' definition not found in any tag table" tag)))))))))
 
 (defun smart-lisp-at-definition-p ()
-    "Returns t when point is on the first line of a non-alias Lisp definition, else nil."
-    (save-excursion
-      (beginning-of-line)
-      (and (looking-at "\\(;*[ \t]*\\)?(def")
-	   ;; Ignore alias definitions since those typically have symbol tags to lookup.
-	   (not (looking-at "\\(;*[ \t]*\\)?(def[^ \t\n\r]*alias")))))
+    "Returns t when point is in a non-help buffer on the first line of a non-alias Lisp definition, else nil."
+    (unless (derived-mode-p 'help-mode)
+      (save-excursion
+	(beginning-of-line)
+	;; Exclude any define- lines.
+	(and (looking-at "\\(;*[ \t]*\\)?(def[[:alnum:]]*[[:space:]]")
+	     ;; Ignore alias definitions since those typically have symbol tags to lookup.
+	     (not (looking-at "\\(;*[ \t]*\\)?(def[^ \t\n\r]*alias"))))))
 
 (defun smart-lisp-at-load-expression-p ()
     "Returns t when point is on the first line of a Lisp library load expression, else nil."

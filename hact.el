@@ -228,11 +228,11 @@ performing ACTION."
     (if (null action)
 	(error "(actype:act): Null action for: `%s'" actype)
       ;; Next 2 lines are needed so that relative paths are expanded
-      ;; properly but in rare cases, it can improperly expand simple
-      ;; string arguments like, "tags", as a pathname when it is not
+      ;; properly.  But in rare cases, this can improperly expand simple
+      ;; string arguments like "tags" as a pathname, when it is not
       ;; being used as a path.  So do this only if actype is a defact
       ;; and not a defun to limit any potential impact. RSW - 9/22/2017
-      (if (symbolp action) (string-match "\\'actypes::" (symbol-name action))
+      (if (symbolp action) (string-match "\\`actypes::" (symbol-name action))
 	(setq args (action:path-args-abs args)))
       (let ((hist-elt (hhist:element)))
 	(run-hooks 'action-act-hook)
@@ -257,7 +257,7 @@ ACTYPE may be a Hyperbole actype or Emacs Lisp function."
 	(setq actname actype
 	      actype (intern actype))
       (setq actname (symbol-name actype)))
-    (cond ((htype:body (if (string-match "\\'actypes::" actname)
+    (cond ((htype:body (if (string-match "\\`actypes::" actname)
 			   actype
 			 (intern-soft (concat "actypes::" actname)))))
 	  ((fboundp actype) actype)

@@ -194,7 +194,8 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 		   ((eq e ?n) (set-frame-width nil (- (frame-width) arg)))
 		   ((eq e ?o) (setq w (selected-window)) (other-window arg) (if (eq w (selected-window)) (other-window 1)))
 		   ((eq e ?O) (setq w (selected-window)) (other-frame arg) (if (eq w (selected-window)) (other-frame 1)))
-		   ((memq e (list ?q (aref (kbd "<escape>") 0))) (throw 'done t))
+		   ;; ((memq e (list ?q (aref (kbd "<escape>") 0))) (throw 'done t))
+		   ((eq e ?q) (throw 'done t))
 		   ((eq e ?s) (set-frame-height nil (- (frame-height) arg)))
 		   ((eq e ?t) (throw 'done nil))
 		   ((eq e ?u) (unbury-buffer))
@@ -222,11 +223,13 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 		   ((and (integerp e) (>= e ?0) (<= e ?9))
 		    (setq arg (+ (* arg 10) (- e ?0)))
 		    (if (> arg hycontrol-maximum-units) (setq arg (- e ?0))))
-		   ((hycontrol-handle-event e))
+		   ((hycontrol-handle-event e arg))
 		   (t (beep)
-		      (if debug (hycontrol-message debug "(HyDebug): Frame/window unhandled event - %s" e))))
+		      (if debug (hycontrol-message debug "(HyDebug): Frame/window unhandled event - %s"
+						   (hycontrol-prettify-event e)))))
 		  (discard-input))
-	      (error (if debug (hycontrol-message debug "(HyDebug): Frame/window unhandled event - %s" e))
+	      (error (if debug (hycontrol-message debug "(HyDebug): Frame/window unhandled event - %s"
+						  (hycontrol-prettify-event e)))
 		     (discard-input)
 		     (beep)))))
 	(message "Finished controlling frames")
@@ -279,7 +282,8 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 		   ((eq e ?n) (shrink-window-horizontally arg))
 		   ((eq e ?o) (setq w (selected-window)) (other-window arg) (if (eq w (selected-window)) (other-window 1)))
 		   ((eq e ?O) (setq w (selected-window)) (other-frame arg) (if (eq w (selected-window)) (other-frame 1)))
-		   ((memq e (list ?q (aref (kbd "<escape>") 0))) (throw 'done t))
+		   ;; ((memq e (list ?q (aref (kbd "<escape>") 0))) (throw 'done t))
+		   ((eq e ?q) (throw 'done t))
 		   ((eq e ?s) (shrink-window arg))
 		   ((eq e ?t) (throw 'done nil))
 		   ((eq e ?u) (unbury-buffer))
@@ -308,11 +312,13 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 		   ((and (integerp e) (>= e ?0) (<= e ?9))
 		    (setq arg (+ (* arg 10) (- e ?0)))
 		    (if (> arg hycontrol-maximum-units) (setq arg (- e ?0))))
-		   ((hycontrol-handle-event e))
+		   ((hycontrol-handle-event e arg))
 		   (t (beep)
-		      (if debug (hycontrol-message debug "(HyDebug): Frame/window unhandled event - %s" e))))
+		      (if debug (hycontrol-message debug "(HyDebug): Frame/window unhandled event - %s"
+						   (hycontrol-prettify-event e)))))
 		  (discard-input))
-	      (error (if debug (hycontrol-message debug "(HyDebug): Frame/window unhandled event - %s" e))
+	      (error (if debug (hycontrol-message debug "(HyDebug): Frame/window unhandled event - %s"
+						   (hycontrol-prettify-event e)))
 		     (beep)
 		     (discard-input)))))
 	(message "Finished controlling windows")
@@ -656,6 +662,14 @@ See its documentation for more information."
   (if (y-or-n-p "Delete all windows in this frame other than the selected one?")
       (delete-other-windows)))
 
+(defun hycontrol-prettify-event (e)
+  "Return a formatted version of event E ready for printing."
+  (cond ((integerp e)
+	 (key-description (vector e)))
+	((sequencep e) 
+	 (key-description e))
+	(t e)))
+
 (defun hycontrol-frame-height (&optional frame)
   "Return the height of optional FRAME or the selected frame.  This includes all graphical window manager decorations.
 Under a graphical window system, this is in pixels; otherwise, it is in characters."
@@ -677,8 +691,10 @@ MAX-MSGS is a number used only if ZOOM-FUNC is undefined and an error message is
 	(funcall zoom-func))
     (hycontrol-user-error max-msgs "(HyControl): Zooming requires separate \"zoom-frm.el\" Emacs Lisp library installation")))
 
-(defun hycontrol-handle-event (e)
-  "Process input event E or return nil if cannot process it."
+(defun hycontrol-handle-event (e arg)
+  "Process input event E with prefix ARG set and return it or return nil if cannot process it."
+  (setq current-prefix-arg arg)
+  (if (eq e 'escape) (setq e 27)) ; Convert escape symbol to character code.
   (cond ((listp e)
 	 (cond
 	  ((eq (car e) 'delete-frame)
@@ -699,13 +715,27 @@ MAX-MSGS is a number used only if ZOOM-FUNC is undefined and an error message is
 	 (if (commandp (key-binding (vector e)))
 	     (call-interactively (key-binding (vector e)))
 	   (setq e nil)))
-	;; Doesn't work right for self-insert-chars, so ignore integers.
-	;; ((integerp e)
-	;;  (if (commandp (key-binding (char-to-string e)))
-	;;      (call-interactively (key-binding (char-to-string e)))
-	;;    (setq e nil)))
+	;; Ignore self-insert-chars since many characters are used as
+	;; HyControl commands.
+	((integerp e)
+	 (cond ((keymapp (key-binding (vector e)))
+		;; Read a whole key sequence to get the binding
+		(let ((keys (vector)))
+		  (while (and (if (eq e 'escape) (setq e 27) t) ; Convert escape symbol to character code.
+			      (setq keys (vconcat keys (vector e)))
+			      (keymapp (key-binding (vector e))))
+		    (setq e (read-key)))
+		  (cond ((and (commandp (key-binding keys))
+			      (not (memq (key-binding keys) '(self-insert-command))))
+			 (call-interactively (key-binding keys)))
+			(t (setq e nil)))
+		  (discard-input)))
+	       ((and (commandp (key-binding (vector e)))
+		     (not (memq (key-binding (vector e)) '(self-insert-command))))
+		(call-interactively (key-binding (vector e))))
+	       (t (setq e nil))))
 	(t (setq e nil)))
-  (if e t))
+  e)
 
 (defun hycontrol-make-frame ()
    "Create and select a new frame with the same size and selected buffer as the selected frame.

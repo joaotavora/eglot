@@ -523,13 +523,14 @@ paths are allowed.  Absolute pathnames must begin with a `/' or `~'."
    ;; ((hpath:is-p (hargs:delimited "file://" "[ \t\n\r\"\'\}]" nil t)))
    ((hpath:remote-at-p))
    ((hpath:www-at-p) nil)
-   ((hpath:is-p (hpath:delimited-possible-path) type non-exist))))
+   ((hpath:is-p (hpath:delimited-possible-path non-exist) type non-exist))))
 
 (defun hpath:delimited-possible-path (&optional non-exist)
   "Returns delimited possible path or non-delimited remote path at point, if any.
 No validity checking is done on the possible path.  Delimiters may be:
 double quotes, open and close single quote, whitespace, or Texinfo file references.
-With optional NON-EXIST, nonexistent local paths are allowed.  Absolute pathnames must begin with a `/' or `~'."
+With optional NON-EXIST, nonexistent local paths are allowed.  Absolute pathnames
+must begin with a `/' or `~'."
   (or (hargs:delimited "\"" "\"") 
       ;; Filenames in Info docs or Python files
       (hargs:delimited "[`'‘]" "[`'’]" t t)

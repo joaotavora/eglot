@@ -1,4 +1,35 @@
+2017-10-01  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-handle-event): 
+               (hycontrol-prettify-event): Fixed to handle large integer code events, e.g. M-p.
+
+2017-09-30  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (HyControl):
+  hycontrol.el (hycontrol-frames, hycontrol-windows): Removed ESC as a quit command since now that
+    key sequences are supported, this is often used as a meta key prefix.  Use {q} to quit.
+
+* hact.el (actype:act, actype:action): Fixed regexp match to beginning of string; quote mark used
+   had somehow been changed to the end of string match regexp.  As a result, when explicit
+   buttons were being created or modified, no arguments were prompted for.
+
+* hargs.el (hargs:delimited): Removed unneeded properties from any returned string.
+
+* hpath.el (hpath:at-p): Added missing non-exist parameter to hpath:delimited-possible-path call.
+    This extends the prior bug fix for hpath:at-p.  See below.
+
+* hmouse-drv.el (hmouse-key-release-args-emacs): Updated to handle cross-frame drags properly
+    for when Emacs' event system is fixed to return the proper frame for a cross-frame drag
+    release event (as of 25.3, it returns the depress frame rather than the release frame).
+
+2017-09-29  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-prettify-event): Added.
+
 2017-09-28  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-handle-event): Expanded to handle single non-self-inserting
+    keys and key sequences.
 
 * man/hyperbole.texi (Version): Updated to 6.02a and rebuilt output formats.
 

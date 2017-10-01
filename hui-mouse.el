@@ -221,7 +221,7 @@ Its default value is #'smart-scroll-down."
     ;;
     ;; Imenu listing in GNU Emacs
     ((smart-imenu-item-at-p)
-     . ((smart-imenu-display-item-where (car hkey-value) (cdr hkey-value)) .emacs
+     . ((smart-imenu-display-item-where (car hkey-value) (cdr hkey-value)) .
 	(imenu-choose-buffer-index)))
     ;;
     ;; Function menu listing mode in XEmacs

@@ -542,16 +542,37 @@ With optional ARG, override them iff ARG is positive."
 	 (not (minibuffer-window-active-p window))
 	 window)))
 
+(defun hmouse-key-release-window-emacs (pos)
+  "Returns window of current mouse position POS if in a window, else nil.
+POS must be the result of calling (mouse-position)."
+  (ignore-errors (window-at (cadr pos) (cddr pos) (car pos))))
+
 (defun hmouse-key-release-args-emacs (event)
   (if (integerp event)
       (list event)
     (let ((ev-type-str (and (listp event) (symbol-name (car event)))))
-      (if (or (and ev-type-str
-		   (string-match "\\(double\\|triple\\)-mouse" ev-type-str))
-	      (not (= (length event) 3)))
-	  event
-	;; Remove depress coordinates and send only release coordinates.
-	(list (car event) (nth 2 event))))))
+      (cond ((or (and ev-type-str
+		      (string-match "\\(double\\|triple\\)-mouse" ev-type-str))
+		 (not (= (length event) 3)))
+	     event)
+	    ((and ev-type-str (string-match "drag-mouse" ev-type-str)
+		  ;; end of drag event; if drag crossed frames, the location
+		  ;; will contain a frame and some relative coordinates;
+		  ;; change to window of release and window's character coordinates
+		  ;; if within a window
+		  (let ((pos (event-end event))
+			mouse-pos coords window)
+		    (when (and (framep (posn-window pos))
+			       (setq mouse-pos (mouse-position)
+				     coords (cdr mouse-pos)
+				     window (hmouse-key-release-window-emacs mouse-pos)))
+		      (setcar pos window)
+		      (setcar (nthcdr 2 pos) coords)))
+		  ;; always fall through cond
+		  nil))
+	    ;; Remove depress coordinates and send only release coordinates.
+	    (t (list (car event) (nth 2 event)))))))
+
 
 (defun hmouse-save-region (&optional frame)
   "Saves any active region within the current buffer.

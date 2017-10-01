@@ -921,6 +921,11 @@ Buffer without File      link-to-buffer-tmp"
 		 (buffer-file-name
 		  (list 'link-to-file buffer-file-name (point)))
 		 (t (list 'link-to-buffer-tmp (buffer-name))))
+		;;
+		;; Deleted link to elisp possibility as it can embed
+		;; long elisp functions in the button data file and
+		;; possibly not parse them correctly.
+		;;
 		;; (and (fboundp 'smart-emacs-lisp-mode-p)
 		;;      (smart-emacs-lisp-mode-p)
 		;;      (or (eq (char-syntax (following-char)) ?\()
