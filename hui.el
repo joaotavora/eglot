@@ -89,9 +89,10 @@ label."
       (hattr:set 'hbut:current 'actype actype)
       (hattr:set 'hbut:current 'args (hargs:actype-get actype))
       (hattr:set 'hbut:current 'action
-		 (and hui:ebut-prompt-for-action (hui:action actype)))
-      )
-    (ebut:operate lbl nil)))
+		 (and hui:ebut-prompt-for-action (hui:action actype))))
+    (ebut:operate lbl nil)
+    (when (called-interactively-p)
+      (hui:ebut-message nil))))
 
 (defun hui:ebut-delete (but-key &optional key-src)
   "Deletes explicit Hyperbole button given by BUT-KEY in optional KEY-SRC.
@@ -175,9 +176,10 @@ Signals an error when no such button is found in the current buffer."
       (hattr:set 'hbut:current 'actype actype)
       (hattr:set 'hbut:current 'args (hargs:actype-get actype 'modifying))
       (hattr:set 'hbut:current 'action
-		 (and hui:ebut-prompt-for-action (hui:action actype)))
-      )
-    (ebut:operate lbl new-lbl)))
+		 (and hui:ebut-prompt-for-action (hui:action actype))))
+    (ebut:operate lbl new-lbl)
+    (if (called-interactively-p)
+	(hui:ebut-message t))))
 
 (defun hui:ebut-rename (curr-label new-label)
   "Renames explicit Hyperbole button given by CURR-LABEL to NEW-LABEL.
@@ -501,13 +503,7 @@ See also documentation for `hui:link-possible-types'."
 	      (hui:link-create
 		but-modify but-window
 		lbl-key but-loc but-dir type-and-args))))
-    (message "`%s' button %s %s with %S."
-	     (hbut:key-to-label lbl-key)
-	     (if but-modify "now executes" "executes")
-	     (car type-and-args)
-	     (if (= 1 (length (cdr type-and-args)))
-		 (cadr type-and-args)
-	       (cdr type-and-args)))))
+    (hui:ebut-message but-modify)))
 
 ;;; ************************************************************************
 ;;; Private functions - used only within Hyperbole
@@ -518,6 +514,7 @@ See also documentation for `hui:link-possible-types'."
   (and actype
        (let* ((act) (act-str)
 	      (params (actype:params actype))
+	      (params-no-keywords (actype:param-list actype))
 	      (params-str (and params (concat " " (prin1-to-string params))))
 	      )
 	 (while (progn
@@ -533,7 +530,7 @@ See also documentation for `hui:link-possible-types'."
 				(beep) (message "Invalid action syntax.")
 				(sit-for 3) t))))
 		 (and (not (symbolp act))
-		      params
+		      params-no-keywords
 		      ;; Use the weak condition that action must
 		      ;; involve at least one of actype's parameters
 		      ;; or else we assume the action is invalid, tell
@@ -548,7 +545,7 @@ See also documentation for `hui:link-possible-types'."
 						  "[\(\) \t\n\r\"]")
 					  act-str)
 					 t))
-				  params)))
+				  params-no-keywords)))
 		      ))
 	   (beep) (message "Action must use at least one parameter.")
 	   (sit-for 3))
@@ -560,7 +557,7 @@ See also documentation for `hui:link-possible-types'."
 			      nil  ;; terminate loop
 			      ))
 			((symbolp act)
-			 (setq act (cons act params)))
+			 (setq act (cons act params-no-keywords)))
 			((stringp act)
 			 (setq act (action:kbd-macro act 1)))
 			;; Unrecognized form
@@ -582,8 +579,7 @@ DEFAULT-ACTYPE may be a valid symbol or symbol-name."
 	       (hargs:read-match (or prompt "Button's action type: ")
 				(mapcar 'list (htype:names 'actypes))
 				nil t default-actype 'actype)))
-    (hypb:error "(actype): Invalid default action type received.")
-    ))
+    (hypb:error "(actype): Invalid default action type received.")))
 
 (defun hui:buf-writable-err (but-buf func-name)
   "If BUT-BUF is read-only, signal an error from FUNC-NAME."
@@ -660,8 +656,17 @@ within."
 (defun hui:ebut-delimit (start end instance-str)
   (hypb:error "(hui:ebut-delimit): Obsolete, use ebut:delimit instead."))
 
-(defun hui:ebut-operate (curr-label new-label)
-  (hypb:error "(hui:ebut-operate): Obsolete, use ebut:operate instead."))
+(defun hui:ebut-message (but-modify-flag)
+  (let ((actype (symbol-name (hattr:get 'hbut:current 'actype)))
+	(args (hattr:get 'hbut:current 'args)))
+    (if (string-match "\\`actypes::" actype)
+	(setq actype (intern (substring actype (match-end 0)))))
+    (message "%s%s%s %s %S"
+	     ebut:start
+	     (hbut:key-to-label (hattr:get 'hbut:current 'lbl-key))
+	     ebut:end
+	     (if but-modify-flag "now executes" "executes")
+	     (cons actype args))))
 
 (defun hui:ebut-unmark (&optional but-key key-src directory)
   "Remove delimiters from button given by BUT-KEY in KEY-SRC of DIRECTORY.

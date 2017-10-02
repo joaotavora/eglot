@@ -73,6 +73,11 @@ of screen control commands."
   :type 'function
   :group 'hyperbole-keys)
 
+(defcustom hmouse-pulse-flag t
+  "When non-nil (the default) and when display supports visual pulsing, then pulse lines and buffers when an Action Key drag is used to place a buffer or file in a window."
+  :type 'boolean
+  :group 'hyperbole-keys)
+
  ;; Mats Lidell says this should be 10 characters for GNU Emacs.
 (defvar hmouse-edge-sensitivity (if hyperb:emacs-p 10 3)
   "*Number of characters from window edges within which a click is considered at an edge.")
@@ -591,13 +596,19 @@ Ignores minibuffer window."
   ;; (if (fboundp 'fill-region-and-align) (fill-region-and-align (mark) (point)))
   )
 
+(defsubst hmouse-pulse-buffer ()
+  (when (and hmouse-pulse-flag (featurep 'pulse) (pulse-available-p))
+    (pulse-momentary-highlight-region (point-min) (point-max) 'next-error)
+    (sit-for 0.3)))
+
 (defsubst hmouse-pulse-line ()
-  (when (and (featurep 'pulse) (pulse-available-p))
+  (when (and hmouse-pulse-flag (featurep 'pulse) (pulse-available-p))
     (pulse-momentary-highlight-one-line (point) 'next-error)
     (sit-for 0.3)))
 
 (defun hmouse-item-to-window ()
-  "Displays buffer or file menu item at Action Key depress in window of Action Key release."
+  "Displays buffer or file menu item at Action Key depress in window of Action Key release.
+If depress is on the top fixed header line, moves the menu buffer to the release window."
   (let* ((w1 action-key-depress-window)
 	 (w2 action-key-release-window)
 	 (buf-name)
@@ -605,25 +616,32 @@ Ignores minibuffer window."
     (when (and w1 w2)
       (unwind-protect
 	  (progn (select-window w1)
-		 (setq w1-ref (cond ((eq major-mode 'Buffer-menu-mode)
-				     (Buffer-menu-buffer t))
-				    ((eq major-mode 'ibuffer-mode)
-				     (ibuffer-current-buffer t))
-				    ((eq major-mode 'helm-major-mode)
-				     ;; Returns item string
-				     (helm-get-selection (current-buffer)))
-				    (t nil)))
-		 (when w1-ref (hmouse-pulse-line)))
+		 (if (eq (posn-area (event-start action-key-depress-args)) 'header-line)
+		     ;; Drag from fixed header-line means move this menu buffer
+		     ;; to release window.
+		     (progn (setq w1-ref (current-buffer))
+			    (hmouse-pulse-buffer)
+			    (bury-buffer))
+		   ;; Otherwise, move the current menu item to the release window.
+		   (setq w1-ref (cond ((eq major-mode 'Buffer-menu-mode)
+				       (Buffer-menu-buffer t))
+				      ((eq major-mode 'ibuffer-mode)
+				       (ibuffer-current-buffer t))
+				      ((eq major-mode 'helm-major-mode)
+				       ;; Returns item string
+				       (helm-get-selection (current-buffer)))
+				      (t nil)))
+		   (when w1-ref (hmouse-pulse-line))))
 	(select-window w2)))
     (unwind-protect
 	(cond ((not w1-ref)
 	       (error "(hmouse-item-to-window): Last depress was not within a window."))
 	      ((buffer-live-p w1-ref)
 	       (set-window-buffer w2 w1-ref)
-	       (hmouse-pulse-line))
+	       (hmouse-pulse-buffer))
 	      ((and (stringp w1-ref) (file-readable-p w1-ref))
 	       (set-window-buffer w2 (find-file-noselect w1-ref))
-	       (hmouse-pulse-line))
+	       (hmouse-pulse-buffer))
 	      (t (error "(hmouse-item-to-window): Cannot find or read `%s'." w1-ref)))
       ;; If helm is active, end in the minibuffer window.
       (if (smart-helm-alive-p)

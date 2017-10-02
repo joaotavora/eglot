@@ -451,7 +451,7 @@ move to the first occurrence of the button."
       (goto-char (+ (match-beginning 0) (length ebut:start)))))
 
 (defun    ebut:operate (curr-label new-label)
-  "Operates on a new or existing Hyperbole button given by CURR-LABEL.
+  "Operates on and modifies properties of a new or existing Hyperbole button given by CURR-LABEL.
 When NEW-LABEL is non-nil, this is substituted for CURR-LABEL and the
 associated button is modified.  Otherwise, a new button is created.
 Returns instance string appended to label to form unique label, nil if
@@ -502,8 +502,7 @@ in the current buffer."
 		    (t (setq start (point))
 		       (insert curr-label)
 		       (setq end (point))))
-	      (ebut:delimit start end instance-flag))
-	    )
+	      (ebut:delimit start end instance-flag)))
 	  ;; Position point
 	  (let ((new-key (ebut:label-to-key new-label)))
 	    (cond ((equal (ebut:label-p) new-key)
@@ -723,7 +722,7 @@ Inserts INSTANCE-STR after END, before ending delimiter."
       )))
 
 (defun    hattr:copy (from-hbut to-hbut)
-  "Copies attributes FROM-HBUT TO-HBUT, eliminating attributes TO-HBUT had.
+  "Copies attributes FROM-HBUT TO-HBUT, overwriting TO-HBUT attribute values.
 Returns TO-HBUT."
   (mapc (lambda (hbut)
 	  (or (and hbut (symbolp hbut))
@@ -804,7 +803,7 @@ Suitable for use as part of `write-file-functions'."
   nil)
 
 (defun    hattr:set (obj-symbol attr-symbol attr-value)
-  "Sets OBJ-SYMBOL's attribute ATTR-SYMBOL to ATTR-VALUE."
+  "Sets OBJ-SYMBOL's attribute ATTR-SYMBOL to ATTR-VALUE and returns ATR-VALUE."
   (put obj-symbol attr-symbol attr-value))
 
 (defalias    'hattr:summarize 'hattr:report)

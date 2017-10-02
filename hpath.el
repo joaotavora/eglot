@@ -945,8 +945,7 @@ See the documentation of the `hpath:rfc' variable."
   (format hpath:rfc rfc-num))
 
 (defun hpath:substitute-value (path)
-  "Substitutes matching value for Emacs Lisp variables and environment variables in PATH.
-Returns path with variable values substituted."
+  "Substitutes matching value for Emacs Lisp variables and environment variables in PATH and returns PATH."
   (substitute-in-file-name
     (hypb:replace-match-string
       "\\$\{[^\}]+}"
@@ -965,8 +964,8 @@ Returns path with variable values substituted."
       t)))
 
 (defun hpath:substitute-var (path)
-  "Replaces up to one match in PATH with the first matching variable from `hpath:variables'.
-When embedded within a path, the format is ${variable}."
+  "Replaces up to one match in PATH with the first variable from `hpath:variables' whose value contains a string match to PATH.
+After any match, the resulting path will contain a varible reference like ${variable}."
   (if (not (and (stringp path) (string-match "/" path) (hpath:is-p path)))
       path
     (setq path (hpath:symlink-referent path))

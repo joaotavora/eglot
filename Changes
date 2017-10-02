@@ -1,4 +1,43 @@
+2017-10-02  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-pulse-flag): Added to allow disabling visual pulsing in Action Mouse
+    Key buffer/file window placement.  Used in hmouse-pulse-buffer and hmsoue-pulse-line.
+
+* hload-path.el (stringp): Forced use of hyperb:dir truename (after resolving pathname links).
+
+* hbdata.el (hbdata:build): Modified to ensure that but-sym or hbut:current (if but-sym is nil)
+    is updated with all modified button attributes.  This is used after interactive explicit
+    button creation or modification to display current attributes.
+
+* hui.el (hui:ebut-operate): Removed as this was obsoleted long ago; use ebut:operate instead.
+
+* hbut.el (ebut:operate): Updated documentation to clarify that this modified button properties,
+    notably its action's argument list.
+  hbut.el (hattr:copy, hattr:set): 
+  hpath.el (hpath:substitute-var): Clarified documentation.
+
+* hui.el (hui:ebut-message): Added message for use when creating and modifying explicit buttons.
+         (hui:ebut-create, hui:ebut-modify): Called hui:ebut-message after interactively creating
+    or modifying an explicit button (just as hui:link-directly already did).
+         (hui:link-directly): Modified to call hui:ebut-message.
+
+* hact.el (actype:param-list): Added.
+  hui.el (hui:action): Fixed to handle parameter lists with keywords such as &optional.
+
+* hactypes.el (link-to-file): When modifying a link, changed to handle a variable in the pathname
+    and also to maintain any prior in-file location as a default when prompting for changes even
+    if the linked-to file is not yet loaded in a buffer.
+
+* hact.el (action:params-emacs): Added to use doc strings and autoload functions to get calling
+    signatures for Emacs25 byte-coded functions.  Previously, functions with bit-coded integer
+    argument parameter placeholders were not supported.
+          (action:params): Called action:params-emacs on byte-coded objects.  Also, rewrote
+    to handle indirect byte-coded actions as well.
+
 2017-10-01  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-item-to-window): When drag from fixed menu header line, pulse the menu
+    buffer and move the menu buffer itself to the drag release window.
 
 * hycontrol.el (hycontrol-handle-event): 
                (hycontrol-prettify-event): Fixed to handle large integer code events, e.g. M-p.

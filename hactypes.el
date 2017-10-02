@@ -288,12 +288,22 @@ Use `link-to-file' instead for a permanent link."
   "Displays file given by PATH scrolled to optional POINT.
 With POINT, buffer is displayed with POINT at window top."
   (interactive
-   (let ((prev-reading-p hargs:reading-p))
+   (let ((prev-reading-p hargs:reading-p)
+	 (existing-buf t)
+	 path-buf)
      (unwind-protect
-	 (let* ((default (car defaults))
+	 (let* ((file-path (car defaults))
+		(file-point (cadr defaults))
 		(hargs:reading-p 'file)
-		(path (read-file-name "Path to link to: " default default))
-		(path-buf (get-file-buffer path)))
+		(path (read-file-name "Path to link to: " file-path file-path))
+		;; Ensure any variable is removed before doing path matching.
+		(expanded-path (hpath:substitute-value path)))
+	   (setq existing-buf (get-file-buffer expanded-path)
+		 path-buf (or existing-buf
+			      (and (file-readable-p expanded-path)
+				   (prog1 (set-buffer (find-file-noselect expanded-path t))
+				     (when (integerp file-point)
+				       (goto-char (min (point-max) file-point)))))))
 	   (if path-buf
 	       (with-current-buffer path-buf
 		 (setq hargs:reading-p 'character)
@@ -303,7 +313,9 @@ With POINT, buffer is displayed with POINT at window top."
 		     (list path (point))
 		   (list path)))
 	     (list path)))
-       (setq hargs:reading-p prev-reading-p))))
+       (setq hargs:reading-p prev-reading-p)
+       (when (and path-buf (not existing-buf))
+	 (kill-buffer path-buf)))))
   (and (hpath:find path)
        (integerp point)
        (progn (goto-char (min (point-max) point))

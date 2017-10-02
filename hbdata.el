@@ -139,9 +139,9 @@ Nil is returned when button has not beened modified."
 ;;; ------------------------------------------------------------------------
 
 (defun hbdata:build (&optional mod-lbl-key but-sym)
-  "Tries to construct button data from optional MOD-LBL-KEY and BUT-SYM.
+  "Constructs button data from optional MOD-LBL-KEY and BUT-SYM; modifies BUT-SYM attributes.
 MOD-LBL-KEY nil means create a new entry, otherwise modify existing one.
-BUT-SYM nil means use 'hbut:current'.  If successful, returns a cons of
+Nil BUT-SYM means use 'hbut:current'.  If successful, returns a cons of
  (button-data . button-instance-str), else nil."
   (let* ((but) 
 	 (b (hattr:copy (or but-sym 'hbut:current) 'but))
@@ -150,67 +150,64 @@ BUT-SYM nil means use 'hbut:current'.  If successful, returns a cons of
 	 (new-key (if mod-lbl-key (hattr:get b 'lbl-key) key))
 	 (lbl-instance) (creator) (create-time) (modifier) (mod-time)
 	 (entry) loc dir)
-    (if (null l)
-	nil
+    (when l
       (setq loc (if (bufferp l) l (file-name-nondirectory l))
 	    dir (if (bufferp l) nil (file-name-directory l)))
-      (if (setq entry (hbdata:to-entry key loc dir (not mod-lbl-key)))
-	  (if mod-lbl-key
-	      (progn
-		(setq creator     (hbdata:creator entry)
-		      create-time (hbdata:create-time entry)
-		      modifier    (let* ((user (hypb:user-name))
-					 (addr hyperb:user-email))
-				    (if (equal creator addr)
-					user addr))
-		      mod-time    (htz:date-sortable-gmt)
-		      entry       (cons new-key (cdr entry)))
-		(hbdata:delete-entry-at-point)
-		(if (setq lbl-instance (hbdata:instance-last new-key loc dir))
-		    (progn
-		      (setq lbl-instance (concat ebut:instance-sep
-						 (1+ lbl-instance)))
-		      ;; This line is needed to ensure that the highest
-		      ;; numbered instance of a label appears before
-		      ;; other instances, so 'hbdata:instance-last' will work.
-		      (if (hbdata:to-entry-buf loc dir) (forward-line 1))))
-		)
-	    (let ((inst-num (hbdata:instance-last new-key loc dir)))
-	      (setq lbl-instance (if inst-num
-				     (hbdata:instance-next 
-				      (concat new-key ebut:instance-sep
-					      (int-to-string inst-num))))))
-	    ))
-      (if (or entry (not mod-lbl-key))
-	  (cons
-	   (list (concat new-key lbl-instance)
-		 (hattr:get b 'action)
-		 ;; Hyperbole V1 referent compatibility, always nil in V2
-		 (hattr:get b 'referent)
-		 ;; Save actype without class prefix
-		 (let ((actype (hattr:get b 'actype)))
-		   (and actype (symbolp actype)
-			(setq actype (symbol-name actype))
-			(intern
-			 (substring actype (if (string-match "::" actype)
-					       (match-end 0) 0)))))
-		 (let ((mail-dir (and (fboundp 'hmail:composing-dir)
-				      (hmail:composing-dir l)))
-		       (args (hattr:get b 'args)))
-		   ;; Replace matches for Emacs Lisp directory variable
-		   ;; values with their variable names in any pathname args.
-		   (mapcar 'hpath:substitute-var
-			   (if mail-dir
-			       ;; Make pathname args absolute for outgoing mail and
-			       ;; news messages.
-			       (action:path-args-abs args mail-dir)
-			     args)))
-		 (or creator hyperb:user-email)
-		 (or create-time (htz:date-sortable-gmt))
-		 modifier
-		 mod-time)
-	   lbl-instance)
-	))))
+      (when (setq entry (hbdata:to-entry key loc dir (not mod-lbl-key)))
+	(if mod-lbl-key
+	    (progn
+	      (setq creator     (hbdata:creator entry)
+		    create-time (hbdata:create-time entry)
+		    modifier    (let* ((user (hypb:user-name))
+				       (addr hyperb:user-email))
+				  (if (equal creator addr)
+				      user addr))
+		    mod-time    (htz:date-sortable-gmt)
+		    entry       (cons new-key (cdr entry)))
+	      (hbdata:delete-entry-at-point)
+	      (when (setq lbl-instance (hbdata:instance-last new-key loc dir))
+		(setq lbl-instance (concat ebut:instance-sep (1+ lbl-instance)))
+		;; This line is needed to ensure that the highest
+		;; numbered instance of a label appears before
+		;; other instances, so 'hbdata:instance-last' will work.
+		(if (hbdata:to-entry-buf loc dir) (forward-line 1))))
+	  (let ((inst-num (hbdata:instance-last new-key loc dir)))
+	    (setq lbl-instance (if inst-num
+				   (hbdata:instance-next 
+				    (concat new-key ebut:instance-sep
+					    (int-to-string inst-num))))))))
+      (when (or entry (not mod-lbl-key))
+	(hattr:set b 'lbl-key (concat new-key lbl-instance))
+	(hattr:set b 'loc loc)
+	(hattr:set b 'dir dir)
+	(let ((hbdata (list (hattr:get b 'lbl-key)
+			    (hattr:get b 'action)
+			    ;; Hyperbole V1 referent compatibility, always nil in V2
+			    (hattr:get b 'referent)
+			    ;; Save actype without class prefix.
+			    (let ((actype (hattr:get b 'actype)))
+			      (and actype (symbolp actype)
+				   (setq actype (symbol-name actype))
+				   (intern
+				    (substring actype (if (string-match "::" actype)
+							  (match-end 0) 0)))))
+			    (let ((mail-dir (and (fboundp 'hmail:composing-dir)
+						 (hmail:composing-dir l)))
+				  (args (hattr:get b 'args)))
+			      ;; Replace matches for variable values with their variable names in any pathname args.
+			      (hattr:set b 'args
+					 (mapcar 'hpath:substitute-var
+						 (if mail-dir
+						     ;; Make pathname args absolute for outgoing mail and news messages.
+						     (action:path-args-abs args mail-dir)
+						   args))))
+			    (hattr:set b 'creator (or creator hyperb:user-email))
+			    (hattr:set b 'create-time (or create-time (htz:date-sortable-gmt)))
+			    (hattr:set b 'modifier modifier)
+			    (hattr:set b 'mod-time mod-time))))
+	  ;; Ensure modified attributes are saved to `but-sym' or hbut:current.
+	  (hattr:copy b (or but-sym 'hbut:current))
+	  (cons hbdata lbl-instance))))))
 
 (defun hbdata:get-entry (lbl-key key-src &optional directory)
   "Returns button data entry given by LBL-KEY, KEY-SRC and optional DIRECTORY.
@@ -394,8 +391,7 @@ Returns non-nil if KEY-SRC is found or created, else nil."
 		     buffer-read-only nil)
 	       (if (not (hmail:hbdata-to-p))
 		   (insert "\n" hmail:hbdata-sep "\n"))
-	       (backward-char 1)
-	       )
+	       (backward-char 1))
       (setq directory (or (file-name-directory key-src) directory))
       (let ((ln-file) (link-p key-src))
 	(while (setq link-p (file-symlink-p link-p))
@@ -416,10 +412,8 @@ Returns non-nil if KEY-SRC is found or created, else nil."
 		  (create
 		   (setq rtn t)
 		   (insert "\^L\n\"" key-src "\"\n")
-		   (backward-char 1))
-		  ))))
-    rtn
-    ))
+		   (backward-char 1))))))
+    rtn))
 
 (defun hbdata:write (&optional orig-lbl-key but-sym)
   "Tries to write Hyperbole button data from optional ORIG-LBL-KEY and BUT-SYM.
@@ -427,13 +421,13 @@ ORIG-LBL-KEY nil means create a new entry, otherwise modify existing one.
 BUT-SYM nil means use 'hbut:current'.  If successful, returns 
 a button instance string to append to button label or t when first instance.
 On failure, returns nil."
-  (let ((cns (hbdata:build orig-lbl-key but-sym))
+  (let ((cons (hbdata:build orig-lbl-key but-sym))
 	entry lbl-instance)
     (if (or (and buffer-file-name
 		 (not (file-writable-p buffer-file-name)))
-	    (null cns))
+	    (null cons))
 	nil
-      (setq entry (car cns) lbl-instance (cdr cns))
+      (setq entry (car cons) lbl-instance (cdr cons))
       (prin1 entry (current-buffer))
       (terpri (current-buffer))
       (or lbl-instance t)
