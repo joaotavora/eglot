@@ -1217,7 +1217,7 @@ See the \"${hyperb:dir}/smart-clib-sym\" script for more information."
   (if next (setq tag nil))
   (let* ((tags-table-list (or list-of-tags-tables
 			      (and (boundp 'tags-table-list)
-				   tags-table-list)
+				   (nconc (smart-tags-file-list) tags-table-list))
 			      (smart-tags-file-list)))
 	 (func (smart-tags-noselect-function))
 	 (tags-file-name (if tags-table-list
@@ -1304,9 +1304,10 @@ to look.  If no tags file is found, an error is signaled."
 	(setq tags-table-list (list smart-emacs-tags-file)))
     ;; Return the appropriate tags file list.
     (cond (tags-table-list
+	   ;; GNU Emacs when tags tables are found or provided by the user
 	   (nreverse tags-table-list))
 	  ((fboundp 'tags-table-check-computed-list)
-	   ;; GNU Emacs
+	   ;; GNU Emacs in other cases
 	   (tags-table-check-computed-list)
 	   tags-table-computed-list)
 	  ((fboundp 'buffer-tag-table-list)

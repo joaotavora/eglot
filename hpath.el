@@ -50,7 +50,7 @@ possible suffixes."
   :type 'string
   :group 'hyperbole-commands)
 
-(defcustom hpath:external-display-alist-macos (list (cons (format "\\.\\(%s\\|adaptor\\|app\\|bshlf\\|clr\\|concur\\|create\\|diagram\\|dp\\|e?ps\\|frame\\|gif\\|locus\\|Mesa\\|nib\\|pdf\\|project\\|rtf\\|sense\\|tiff\\|tree\\)$"
+(defcustom hpath:external-display-alist-macos (list (cons (format "\\.\\(app\\|%s\\|adaptor\\|app\\|bshlf\\|clr\\|concur\\|create\\|diagram\\|dp\\|e?ps\\|frame\\|gif\\|locus\\|Mesa\\|nib\\|pdf\\|project\\|rtf\\|sense\\|tiff\\|tree\\)$"
 								  hpath:external-open-office-suffixes)
 							  "open"))
   "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST)
@@ -1322,15 +1322,15 @@ from path or t."
 Return nil if FILENAME is a directory name or an image file that emacs can display.
 See also documentation for the function (hpath:get-external-display-alist) and the variable
 `hpath:internal-display-alist'."
-  (cond ((and (stringp filename) (file-directory-p filename))
+  (cond ((let ((case-fold-search t))
+	   (hpath:match filename (hpath:get-external-display-alist))))
+	((let ((case-fold-search nil))
+	   (hpath:match filename hpath:internal-display-alist)))
+	((and (stringp filename) (file-directory-p filename))
 	 nil)
 	((and (fboundp 'image-mode)
 	      (string-match hpath:native-image-suffixes filename))
 	 nil)
-	((let ((case-fold-search t))
-	   (hpath:match filename (hpath:get-external-display-alist))))
-	((let ((case-fold-search nil))
-	     (hpath:match filename hpath:internal-display-alist)))
 	(t (hpath:find-file-mailcap filename))))
 
 (defun hpath:match (filename regexp-alist)

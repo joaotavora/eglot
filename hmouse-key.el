@@ -119,7 +119,7 @@ Assist Key = shift-right mouse key."
   (interactive)
   (if hyperb:emacs-p
       (progn (hmouse-install t)
-	     (hmouse-bind-key 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs))
+	     (hmouse-bind-key-emacs 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs))
     (error "(hmouse-add-unshifted-smart-keys): Works under only GNU Emacs 19 or above")))
 
 (defun hmouse-toggle-bindings ()

@@ -1,3 +1,34 @@
+2017-10-04  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Version): Updated to 6.0.2c and rebuilt output formats.
+
+* hmouse-sh.el (hmouse-bind-key): Renamed to hmouse-bind-key-emacs since is emacs-only.
+               (hmouse-bind-shifted-key): Renamed to hmouse-bind-shifted-key-emacs.
+
+2017-10-03  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-alist): In hmouse-drag-horizontally test, removed check of
+   (not (hmouse-drag-between-windows)) since was tested earlier in hmouse-alist.
+                (hmouse-resize-window-side, hmouse-release-left-edge,
+                 hmouse-swap-buffers, hmouse-swap-windows,
+                 hmouse-modeline-resize-window, hmouse-release-right-edge,
+                 hmouse-modeline-click, hmouse-modeline-release): Removed optional
+    assist-flag arg; used assist-flag free variable instead.
+
+* hmouse-tag.el (smart-tags-display): Fixed to include tags-table found in any
+    ancestor directory of current directory when tags-table-list already
+    contains items.
+
+* hpath.el (hpath:find-program): Changed so Hyperbole external and internal
+    file suffix lists are consulted before using standard directory or
+    image display methods.  So for example, Emacs.app on macOS, which is actually
+    a directory, can be displayed/run externally.
+           (hpath:external-display-alist-macos): Added .app suffix.
+
+* hui-jmenu.el (hui-menu-buffer-mode-name): mode-name might not be a string; pass it through
+    format-mode-line to ensure it is a string.  Without this, hui-menu-of-buffers could
+    trigger an error on some buffers.
+
 2017-10-02  Bob Weiner  <rsw@gnu.org>
 
 * hui-window.el (hmouse-pulse-flag): Added to allow disabling visual pulsing in Action Mouse
@@ -39,6 +70,8 @@
 * hui-window.el (hmouse-item-to-window): When drag from fixed menu header line, pulse the menu
     buffer and move the menu buffer itself to the drag release window.
 
+* man/hyperbole.texi (Version): Updated to 6.0.2b and rebuilt output formats.
+
 * hycontrol.el (hycontrol-handle-event): 
                (hycontrol-prettify-event): Fixed to handle large integer code events, e.g. M-p.
 
@@ -70,7 +103,7 @@
 * hycontrol.el (hycontrol-handle-event): Expanded to handle single non-self-inserting
     keys and key sequences.
 
-* man/hyperbole.texi (Version): Updated to 6.02a and rebuilt output formats.
+* man/hyperbole.texi (Version): Updated to 6.0.2a and rebuilt output formats.
 
 * man/hyperbole.texi (View Specs): Noted that ellipses can no longer be
     turned off.

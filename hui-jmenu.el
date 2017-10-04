@@ -141,9 +141,13 @@
 ;;; ************************************************************************
 
 (defun hui-menu-buffer-mode-name (buffer)
-  (or (cdr (assq 'mode-name (buffer-local-variables buffer)))
+  (let ((mname (cdr (assq 'mode-name (buffer-local-variables buffer)))))
+    (if mname
+	;; Next line needed to ensure mode name is always formatted as
+	;; a string.
+	(format-mode-line mname)
       (capitalize (symbol-name
-		   (cdr (assq 'major-mode (buffer-local-variables buffer)))))))
+		   (cdr (assq 'major-mode (buffer-local-variables buffer))))))))
 
 (defun hui-menu-frame-name (frame)
   "Return the name of FRAME."

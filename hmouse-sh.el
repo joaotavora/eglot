@@ -30,7 +30,7 @@
 ;;   right-divider
 ;;   bottom-divider
 
-(defun hmouse-bind-key (mouse-key-number depress-cmd release-cmd)
+(defun hmouse-bind-key-emacs (mouse-key-number depress-cmd release-cmd)
   "Ensure MOUSE-KEY-NUMBER (1-5), e.g. 1 for [mouse-1], is globally bound to DEPRESS-CMD and RELEASE-CMD (includes depresses and drags).
 Use nil as cmd values to unbind a key.  Works under GNU Emacs only."
   (hmouse-set-key-list
@@ -138,7 +138,7 @@ Use nil as cmd values to unbind a key.  Works under GNU Emacs only."
 	   [mode-line mouse-5])
 	  ))))
 
-(defun hmouse-bind-shifted-key (shifted-mouse-key-number depress-cmd release-cmd)
+(defun hmouse-bind-shifted-key-emacs (shifted-mouse-key-number depress-cmd release-cmd)
   "Ensure shifted MOUSE-KEY-NUMBER (1-5), e.g. 1 for [Smouse-1], is globally bound to DEPRESS-CMD and RELEASE-CMD (includes depresses and drags).
 Use nil as CMD value to unbind the key.  Works under GNU Emacs only."
   (hmouse-set-key-list
@@ -475,11 +475,11 @@ select the corresponding element around point."
       (if (eq window-system 'dps)
 	  ;; NEXTSTEP offers only 2 shift-mouse buttons which we use as the Smart Keys.
 	  (progn
-	    (hmouse-bind-shifted-key 1 #'action-key-depress-emacs #'action-mouse-key-emacs)
-	    (hmouse-bind-shifted-key 2 #'assist-key-depress-emacs #'assist-mouse-key-emacs))
+	    (hmouse-bind-shifted-key-emacs 1 #'action-key-depress-emacs #'action-mouse-key-emacs)
+	    (hmouse-bind-shifted-key-emacs 2 #'assist-key-depress-emacs #'assist-mouse-key-emacs))
 	;; X, OS X or MS Windows
-	(hmouse-bind-shifted-key 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
-	(hmouse-bind-shifted-key 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs)))
+	(hmouse-bind-shifted-key-emacs 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
+	(hmouse-bind-shifted-key-emacs 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs)))
      ;;
      ;; XEmacs
      ((featurep 'xemacs)
@@ -537,8 +537,8 @@ select the corresponding element around point."
     ;;
     (if (not (eq window-system 'dps))
 	;; X, OS X or MS Windows
-	(progn (hmouse-bind-key 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
-	       ;; (hmouse-bind-key 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs)
+	(progn (hmouse-bind-key-emacs 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
+	       ;; (hmouse-bind-key-emacs 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs)
 	       )))
    ;;
    ;; XEmacs

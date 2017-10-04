@@ -63,6 +63,7 @@ of screen control commands."
   :type 'function
   :group 'hyperbole-keys)
 
+;; Set this to `hmouse-context-ibuffer-menu' if you use the ibuffer package.
 (defcustom action-key-modeline-function #'hmouse-context-menu
   "Function to call when the Action Mouse Key is clicked in the center portion of a modeline."
   :type 'function
@@ -121,17 +122,16 @@ of screen control commands."
 		((hmouse-drag-thing) .
 		 ((hmouse-yank-region) . (hmouse-kill-and-yank-region)))
 		((hmouse-drag-window-side) .
-		 ((hmouse-resize-window-side) . (hmouse-resize-window-side 'assist)))
+		 ((hmouse-resize-window-side) . (hmouse-resize-window-side)))
 		((hmouse-modeline-depress) .
 		 ((action-key-modeline) . (assist-key-modeline)))
 		((hmouse-drag-between-windows) .
 		 ;; Note that `hui:link-directly' uses any active
 		 ;; region as the label of the button to create.
-		 ((or (hmouse-drag-item-to-window) (hui:link-directly)) . (hmouse-swap-buffers 'assist)))
+		 ((or (hmouse-drag-item-to-window) (hui:link-directly)) . (hmouse-swap-buffers)))
 		((hmouse-drag-region-active) .
 		 ((hmouse-drag-not-allowed) . (hmouse-drag-not-allowed)))
-		((setq hkey-value (and (not (hmouse-drag-between-windows))
-				       (hmouse-drag-horizontally))) .
+		((setq hkey-value (hmouse-drag-horizontally)) .
 		 ((hmouse-horizontal-action-drag) . (hmouse-horizontal-assist-drag)))
 		((hmouse-drag-vertically) .
 		 ((hmouse-vertical-action-drag) . (hmouse-vertical-assist-drag)))
@@ -689,25 +689,24 @@ If the Assist Key is:
   (let ((buffers)
 	(w (smart-window-of-coords assist-key-depress-args)))
     (if w (select-window w))
-    (cond ((hmouse-modeline-click 'assist)
-	   (cond ((hmouse-release-left-edge 'assist)
+    (cond ((hmouse-modeline-click)
+	   (cond ((hmouse-release-left-edge)
 		  (if (fboundp 'last)
 		      (switch-to-buffer (car (last (buffer-list))))
 		    (setq buffers (buffer-list))
 		    (switch-to-buffer (nth (1- (length buffers)) buffers))))
-		 ((hmouse-release-right-edge 'assist)
+		 ((hmouse-release-right-edge)
 		  (if (string-match "Hyperbole Smart Keys" (buffer-name))
 		      (hkey-help-hide)
 		    (hkey-summarize 'current-window)))
 		 (t (funcall assist-key-modeline-function))))
-	  (t (hmouse-modeline-resize-window 'assist)))))
+	  (t (hmouse-modeline-resize-window)))))
 
-(defun hmouse-modeline-click (&optional assist-flag)
-  "Returns non-nil if last Action Key depress and release was at same point in a modeline.
-Optional ASSIST-FLAG non-nil means test for Assist Key click instead."
+(defun hmouse-modeline-click ()
+  "Returns non-nil if last Smart Key depress and release was at a single point in a modeline."
   ;; Assume depress was in modeline and that any drag has already been handled.
   ;; So just check that release was in modeline.
-  (hmouse-modeline-release assist-flag))
+  (hmouse-modeline-release))
 
 (defun hmouse-modeline-depress ()
   "Returns non-nil if Action Key was depressed on a window mode line.
@@ -725,9 +724,8 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
 	    (if (not (eq w (minibuffer-window))) (setq mode-ln (1- mode-ln)))
 	    (and last-press-y mode-ln (= last-press-y mode-ln)))))))
 
-(defun hmouse-modeline-release (&optional assist-flag)
-  "Returns non-nil if Action Key was released on a window mode line.
-Optional non-nil ASSIST-FLAG means test release of Assist Key instead."
+(defun hmouse-modeline-release ()
+  "Returns non-nil if Smart Key was released on a window mode line."
   (let ((args (if assist-flag assist-key-release-args
 		action-key-release-args)))
     (if (and (hyperb:window-system) args)
@@ -738,11 +736,10 @@ Optional non-nil ASSIST-FLAG means test release of Assist Key instead."
 		 (last-press-y (hmouse-y-coord args)))
 	    (and last-press-y mode-ln (= last-press-y mode-ln)))))))
 
-(defun hmouse-modeline-resize-window (&optional assist-flag)
-  "Resizes window whose mode line was depressed upon by the Action Key.
+(defun hmouse-modeline-resize-window ()
+  "Resizes window whose mode line was depressed on by the last Smart Key.
 Resize amount depends upon the vertical difference between press and release
-of the Action Key.  Optional arg ASSIST-FLAG non-nil means use values from
-Assist Key instead."
+of the Smart Key."
   (cond ((not (hyperb:window-system)) nil)
 	((and (featurep 'xemacs) (not (fboundp 'window-edges)))
 	 (error "Drag from a mode-line with button1 to resize windows."))
@@ -784,8 +781,8 @@ Assist Key instead."
 			 (error nil)))
 		   (select-window owind))))))))
 
-(defun hmouse-release-left-edge (&optional assist-flag)
-  "Returns non-nil if last Action Key release was at left window edge.
+(defun hmouse-release-left-edge ()
+  "Returns non-nil if last Smart Key release was at left window edge.
 `hmouse-edge-sensitivity' value determines how near to actual edge the
 release must be."
   (let ((args (if assist-flag assist-key-release-args
@@ -802,8 +799,8 @@ release must be."
 			   hmouse-edge-sensitivity)
 	 (>= (- last-release-x window-left) 0))))
 
-(defun hmouse-release-right-edge (&optional assist-flag)
-  "Returns non-nil if last Action Key release was at right window edge.
+(defun hmouse-release-right-edge ()
+  "Returns non-nil if the last Smart Key release was at right window edge.
 `hmouse-edge-sensitivity' value determines how near to actual edge the
 release must be."
   (let ((args (if assist-flag assist-key-release-args
@@ -820,11 +817,10 @@ release must be."
 			    window-right)
 	 (>= (- window-right last-release-x) 0))))
 
-(defun hmouse-resize-window-side (&optional assist-flag)
-  "Resizes window whose side was depressed upon by the Action Key.
+(defun hmouse-resize-window-side ()
+  "Resizes window whose side was depressed on by the last Smart Key.
 Resize amount depends upon the horizontal difference between press and release
-of the Action Key.  Optional arg ASSIST-FLAG non-nil means use values from
-Assist Key instead."
+of the Smart Key."
   (cond ((featurep 'xemacs)
 	 ;; Depress events in scrollbars or in non-text area of buffer are
 	 ;; not visible or identifiable at the Lisp-level, so always return
@@ -863,9 +859,8 @@ Assist Key instead."
 		     (shrink-window-horizontally shrink-amount))
 		 (select-window owind))))))))
 
-(defun hmouse-swap-buffers (&optional assist-flag)
-  "Swaps buffers in windows selected with last Action Key depress and release.
-If optional arg ASSIST-FLAG is non-nil, uses Assist Key."
+(defun hmouse-swap-buffers ()
+  "Swaps buffers in windows selected with the last Smart Key depress and release."
   (let* ((w1 (if assist-flag assist-key-depress-window
 	       action-key-depress-window))
 	 (w2 (if assist-flag assist-key-release-window
@@ -879,9 +874,8 @@ If optional arg ASSIST-FLAG is non-nil, uses Assist Key."
     (set-window-buffer w1 w2-buf)
     (set-window-buffer w2 w1-buf)))
 
-(defun hmouse-swap-windows (&optional assist-flag)
-  "Swaps windows selected with last Action Key depress and release.
-If optional arg ASSIST-FLAG is non-nil, uses Assist Key."
+(defun hmouse-swap-windows ()
+  "Swaps the sizes of 2 windows selected with the last Smart Key depress and release."
   (let* ((w1 (if assist-flag assist-key-depress-window
 	       action-key-depress-window))
 	 (w2 (if assist-flag assist-key-release-window
