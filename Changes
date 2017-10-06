@@ -1,3 +1,13 @@
+2017-10-05  Bob Weiner  <rsw@gnu.org>
+
+* hib-social.el (hibtypes-git-build-repos-cache): Fixed to prune matches like 'file-git',
+    leaving just .git parent directories.
+                (hibtypes-git-find-execute, hibtypes-git-find, git-find-file): Added
+    to locate and edit any git-versioned filename.
+                (hibtypes-social-regexp, git-reference): Updated with git#=file syntax
+    to find git-versioned files by name.
+  DEMO (Git (Local) References): Added example of new git#=file implicit button.
+
 2017-10-04  Bob Weiner  <rsw@gnu.org>
 
 * man/hyperbole.texi (Version): Updated to 6.0.2c and rebuilt output formats.

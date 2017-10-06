@@ -79,7 +79,7 @@ hibtypes.el         - GNU Hyperbole default implicit button types
 hib-debbugs.el      - Implicit button type for browsing GNU debbugs issues
 hib-doc-id.el       - Implicit button type for document id index entries
 hib-kbd.el          - Implicit button type for key sequences delimited with {}
-hib-social.el       - Implicit button type for social media hashtag and username references
+hib-social.el       - Implicit button type for social media/git hashtag and username references
 hinit.el            - Standard initializations for GNU Hyperbole
 hload-path.el       - GNU Hyperbole load-path setup
 hlvar.el            - GNU Hyperbole variables in local variable lists

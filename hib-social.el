@@ -1,4 +1,4 @@
-;;; hib-social.el --- Implicit button type for social media hashtag and username references
+;;; hib-social.el --- Implicit button type for social media/git hashtag and username references
 ;;
 ;; Author:       Bob Weiner
 ;;
@@ -45,9 +45,17 @@
 ;;     git#commits                               List commits in current project
 ;;     git#tags                                  List tags in current project
 ;;
+;;     git#=hibtypes.el                          Edit any local git-versioned file
+;;                                               in another window; file must match
+;;                                               to the last part of a pathname
+;;     git#=partial-path/file
+;;     git#=/path/file                           Both work, constraining the lookup more.
+;;     git#=hyperbole.pdf                        Typically displays Hyperbole manual
+;;                                               in an external viewer
+;;
 ;;     git#/hyperbole                            From any buffer, dired on the top
 ;;                                               directory of the local hyperbole
-;;                                               project
+;;                                               project (notice no =)
 ;; 
 ;;     git#/hyperbole/55a1f0 or                  From any buffer, display hyperbole
 ;;     git#hyperbole/55a1f0                      local git commit diff
@@ -62,7 +70,7 @@
 ;;     git#55a1f0                                From any buffer, once the above default
 ;;                                               is set, display current project's local
 ;;                                               git commit diff
-;;     git#master                                Shows latest commit diff for branch
+;;     git#master                                Show latest commit entry and diff for branch
 ;;     git#hyperbole-6.0.2                       From any buffer, show the commit diff
 ;;                                               for tag `hyperbole-6.0.2'
 ;;
@@ -174,8 +182,13 @@
     )
   "Alist of (social-media-service-regexp  . url-with-%s-for-username) elements.")
 
-(defconst hibtypes-social-regexp "\\([[:alpha:]]*\\)\\([#@]\\)\\(/?[[:alnum:]]*[-._/[:alnum:]]*[-_[:alnum:]]\\)"
-  "Regular expression that matches a social media hashtag or username reference.
+(defconst hibtypes-git-project-regexp "/?[[:alnum:]]*[-=._/[:alnum:]]*[-=_[:alnum:]]")
+(defconst hibtypes-git-file-regexp "=[-=._/[:alnum:]]*[-=_/[:alnum:]]")
+
+(defconst hibtypes-social-regexp
+  (concat "\\([[:alpha:]]*\\)\\([#@]\\)"
+	  "\\(" hibtypes-git-project-regexp "\\|" hibtypes-git-file-regexp "\\)")
+  "Regular expression that matches a social media/git hashtag or username reference.
 See `ibtypes::social-reference' for format details.")
 
 (defvar hibtypes-social-inhibit-modes '(texinfo-mode para-mode)
@@ -208,8 +221,8 @@ listed in `hibtypes-social-inhibit-modes'."
 		      (and (eq major-mode 'markdown-mode)
 			   (hargs:delimited "(" ")"))))
 	     (save-excursion
-	       (if (looking-at "[-#@/._[:alnum:]]")
-		   (skip-chars-backward "-#@/._[:alnum:]"))
+	       (if (looking-at "[-#@=/._[:alnum:]]")
+		   (skip-chars-backward "-#@=/._[:alnum:]"))
 	       (and (looking-at hibtypes-social-regexp)
 		    ;; Ensure prefix matches to a social web service
 		    (save-match-data
@@ -365,7 +378,7 @@ Return t if built, nil otherwise."
   (when (or (not prompt-flag)
 	    (y-or-n-p "Find all local git repositories (will take some time)?"))
     (message "Please wait while all local git repositories are found...")
-    (unless (zerop (shell-command (format "%s -r \.git$ | sed -e 's+/.git$++' > %s"
+    (unless (zerop (shell-command (format "%s -r '/\.git$' | sed -e 's+/.git$++' > %s"
 					  (hibtypes-git-get-locate-command)
 					  hibtypes-git-repos-cache)))
       (error "(hibtypes-git-build-repos-cache): Cache build failed; `locate-command' must accept `-r' argument for regexp matching"))
@@ -438,92 +451,152 @@ or  /<project>.
 If given, PROJECT overrides any project value in REFERENCE.  If no
 PROJECT value is provided, it defaults to the value of
 `hibtypes-git-default-project'."
-  (if (or (null reference) (equal reference ""))
-      (error "(git-reference): Git commit hashtag must not be empty")
-    (let ((case-fold-search t)
-	  (shell-cmd-to-format (assoc-default "git" hibtypes-social-hashtag-alist #'string-match)))
-      (when shell-cmd-to-format
-	(cond ((string-match "\\`\\(branch\\|commit\\|tag\\)/" reference)
-	       ;; [branch | commit | tag]/ref-item
-	       nil)
-	      ((string-match "\\`/?\\([^/#@]+\\)/\\([0-9a-f]+\\)\\'" reference)
-	       ;; /?project/hashtag
-	       (setq project (or project (match-string-no-properties 1 reference))
-		     reference (match-string-no-properties 2 reference)))
-	      ((string-match "\\`/\\([^/#@]+\\)\\'" reference)
-	       ;; /project
-	       (setq project (or project (match-string-no-properties 1 reference))
-		     reference nil))
-	      ((string-match "/.*/" reference)
-	       ;; Invalid user/project/hashtag
-	       (error "(git-reference): Username or path not allowed, only <project>/<commit hashtag>")))
-	(let ((cmd)
-	      (ref-type)
-	      ;; `project' now may be a project directory or a project name.
-	      ;; If a project name:
-	      ;;   If reference is within a git project, use its project directory.
-	      ;;   Otherwise, look up the project in Hyperbole's local git repo directory cache;
-	      ;;   the user is prompted to have it built when necessary.
-	      (project-dir (or (and project (file-readable-p project) (file-directory-p project) project)
-			       (locate-dominating-file default-directory ".git"))))
-	  (unless (stringp project)
-	    (unless (setq project (cond (project-dir (file-name-nondirectory (directory-file-name project-dir)))
-					((stringp hibtypes-git-default-project)
-					 hibtypes-git-default-project)))
-	      (error "(git-reference): Set `hibtypes-git-default-project' to a default project name")))
-	  (unless project-dir
-	    (setq project-dir (and project (hibtypes-git-project-directory project))))
-	(when reference
-	  (cond ((member reference '("branches" "commits" "tags"))
-		 ;; All branches, commits or commit tags reference
-		 (setq ref-type reference
-		       reference ""))
-		((string-match "\\`\\(commit\\)/" reference)
-		 ;; Specific reference preceded by keyword commit.
-		 (setq ref-type (substring reference 1 (match-end 1))
-		       reference (substring reference (match-end 0))))
-		((string-match "\\`[0-9a-f]+\\'" reference)
-		 ;; Commit reference
-		 (setq ref-type "commit"))
-		(t
-		 ;; Specific branch or commit tag reference
-		 (setq ref-type "tree/")
-		 (when (string-match "\\`\\(branch\\|tag\\)/" reference)
-		   ;; If preceded by optional keyword, remove that from the reference.
-		   (setq reference (substring reference (match-end 0)))))))
-	  (if (or (null project-dir) (equal project-dir ""))
-	      (if (and project
-		       ;; Maybe the Hyperbole git project cache is
-		       ;; out-of-date and needs to be rebuilt or added
-		       ;; to.  Prompt user and if rebuilt or added to,
-		       ;; continue.
-		       (hibtypes-git-build-or-add-to-repos-cache project t))
-		  (setq project-dir (and project (hibtypes-git-project-directory project)))
-		(error "(git-reference): No git directory found for project `%s'" project)))
-	  (if (equal project-dir "") (setq project-dir nil))
-	  (cond ((and project-dir (file-readable-p project-dir) (file-directory-p project-dir))
-		 (if reference
-		     ;; Display commit diffs in a help buffer
-		     ;; Ensure these do not invoke with-output-to-temp-buffer a second time.
-		     (let ((temp-buffer-show-hook)
-			   (temp-buffer-show-function))
-		       (setq cmd
-			     (pcase ref-type
-			       ("branches" (format shell-cmd-to-format project-dir "branch -la" ""))
-			       ("commits"  (format shell-cmd-to-format project-dir "log --abbrev-commit --pretty=oneline" ""))
-			       ("tags"     (format shell-cmd-to-format project-dir "tag -l" ""))
-			       (t          (format shell-cmd-to-format project-dir "show" reference))))
-		       (with-help-window (format "*git %s %s%s%s*" project ref-type
-						 (if (not (equal reference "")) " " "")
-						 reference)
-			 (princ (format "Command: %s\n\n" cmd))
-			 (princ (shell-command-to-string cmd))))
-		   ;; Project-only reference, run dired on the project home directory
-		   (hpath:display-buffer (dired-noselect
-					  (file-name-as-directory project-dir)))))
-		(t (if project-dir
-		       (error "(git-reference): git project `%s' directory is unreadable or invalid: \"%s\""
-			      project project-dir)
-		     (error "(git-reference): No git project found for `%s'" project)))))))))
+  (cond ((or (null reference) (equal reference ""))
+	 (error "(git-reference): Git commit hashtag must not be empty"))
+	((string-match "\\`=\\([^#@]+\\)\\'" reference)
+	 ;; =file
+	 (git-find-file (match-string-no-properties 1 reference)))
+	(t (let ((case-fold-search t)
+		 (shell-cmd-to-format (assoc-default "git" hibtypes-social-hashtag-alist #'string-match)))
+	     (when shell-cmd-to-format
+	       (cond ((string-match "\\`\\(branch\\|commit\\|tag\\)/" reference)
+		      ;; [branch | commit | tag]/ref-item
+		      nil)
+		     ((string-match "\\`/?\\([^/#@]+\\)/\\([0-9a-f]+\\)\\'" reference)
+		      ;; /?project/hashtag
+		      (setq project (or project (match-string-no-properties 1 reference))
+			    reference (match-string-no-properties 2 reference)))
+		     ((string-match "\\`/\\([^/#@]+\\)\\'" reference)
+		      ;; /project
+		      (setq project (or project (match-string-no-properties 1 reference))
+			    reference nil))
+		     ((string-match "/.*/" reference)
+		      ;; Invalid user/project/hashtag
+		      (error "(git-reference): Username or path not allowed, only <project>/<commit hashtag>")))
+	       (let ((cmd)
+		     (ref-type)
+		     ;; `project' now may be a project directory or a project name.
+		     ;; If a project name:
+		     ;;   If reference is within a git project, use its project directory.
+		     ;;   Otherwise, look up the project in Hyperbole's local git repo directory cache;
+		     ;;   the user is prompted to have it built when necessary.
+		     (project-dir (or (and project (file-readable-p project) (file-directory-p project) project)
+				      (locate-dominating-file default-directory ".git"))))
+		 (unless (stringp project)
+		   (unless (setq project (cond (project-dir (file-name-nondirectory (directory-file-name project-dir)))
+					       ((stringp hibtypes-git-default-project)
+						hibtypes-git-default-project)))
+		     (error "(git-reference): Set `hibtypes-git-default-project' to a default project name")))
+		 (unless project-dir
+		   (setq project-dir (and project (hibtypes-git-project-directory project))))
+		 (when reference
+		   (cond ((member reference '("branches" "commits" "tags"))
+			  ;; All branches, commits or commit tags reference
+			  (setq ref-type reference
+				reference ""))
+			 ((string-match "\\`\\(commit\\)/" reference)
+			  ;; Specific reference preceded by keyword commit.
+			  (setq ref-type (substring reference 1 (match-end 1))
+				reference (substring reference (match-end 0))))
+			 ((string-match "\\`[0-9a-f]+\\'" reference)
+			  ;; Commit reference
+			  (setq ref-type "commit"))
+			 (t
+			  ;; Specific branch or commit tag reference
+			  (setq ref-type "tree/")
+			  (when (string-match "\\`\\(branch\\|tag\\)/" reference)
+			    ;; If preceded by optional keyword, remove that from the reference.
+			    (setq reference (substring reference (match-end 0)))))))
+		 (when (or (null project-dir) (equal project-dir ""))
+		   (if (and project
+			    ;; Maybe the Hyperbole git project cache is
+			    ;; out-of-date and needs to be rebuilt or added
+			    ;; to.  Prompt user and if rebuilt or added to,
+			    ;; continue.
+			    (hibtypes-git-build-or-add-to-repos-cache project t))
+		       (setq project-dir (and project (hibtypes-git-project-directory project)))
+		     (error "(git-reference): No git directory found for project `%s'" project)))
+		 (when (equal project-dir "") (setq project-dir nil))
+		 (cond ((and project-dir (file-readable-p project-dir) (file-directory-p project-dir))
+			(if reference
+			    ;; Display commit diffs in a help buffer
+			    ;; Ensure these do not invoke with-output-to-temp-buffer a second time.
+			    (let ((temp-buffer-show-hook)
+				  (temp-buffer-show-function))
+			      (setq cmd
+				    (pcase ref-type
+				      ("branches" (format shell-cmd-to-format project-dir "branch -la" ""))
+				      ("commits"  (format shell-cmd-to-format project-dir "log --abbrev-commit --pretty=oneline" ""))
+				      ("tags"     (format shell-cmd-to-format project-dir "tag -l" ""))
+				      (t          (format shell-cmd-to-format project-dir "show" reference))))
+			      (with-help-window (format "*git %s %s%s%s*" project ref-type
+							(if (not (equal reference "")) " " "")
+							reference)
+				(princ (format "Command: %s\n\n" cmd))
+				(princ (shell-command-to-string cmd))))
+			  ;; Project-only reference, run dired on the project home directory
+			  (hpath:display-buffer (dired-noselect
+						 (file-name-as-directory project-dir)))))
+		       (t (if project-dir
+			      (error "(git-reference): git project `%s' directory is unreadable or invalid: \"%s\""
+				     project project-dir)
+			    (error "(git-reference): No git project found for `%s'" project))))))))))
+
+(defun hibtypes-git-find-execute (format-prefix find-dir file)
+  "Build and execute a shell command to find a matching git-versioned file.
+Return nil if no matching file is found."
+  (let ((path
+	 (shell-command-to-string
+	  (format (concat
+		   ;; Ignore any errors for non-existing paths
+		   "%s %s -path '*/.git' -prune -o -path '*%s' -print 2> /dev/null"
+		   ;; Choose the shortest matching path which is usually the best guess.
+		   " | awk '{ print length($0) \"\t\" $0 }' - | sort -n | head -n 1 | cut -f2- | tr -d '\n'")
+		  format-prefix find-dir file))))
+    (and (stringp path) (> (length path) 0) path)))
+
+(defun hibtypes-git-find (file)
+  "Return the shortest pathname matching git-versioned FILE name.
+
+Search for matches in this order: (1) the git repository of the current
+directory, if any; (2) the git repository of project `hibtypes-git-default-project'
+if not nil;  (3) the list of locally cached git repositories in `hibtypes-git-repos-cache'.
+
+Return nil if no match is found."
+  (let (root)
+    (cond
+     ;; Try to find in current directory tree first...
+     ((and (fboundp 'locate-dominating-file)
+	   (setq root (locate-dominating-file default-directory "\.git"))
+	   (hibtypes-git-find-execute "find" root file)))
+     ;; then in default project tree...
+     ((and hibtypes-git-default-project
+	   (setq root (hibtypes-git-project-directory hibtypes-git-default-project))
+	   (hibtypes-git-find-execute "find" root file)))
+     ;; then in any of list of cached project trees...
+     ((or (and (file-readable-p hibtypes-git-repos-cache)
+	       (not (zerop (nth 7 (file-attributes hibtypes-git-repos-cache))))) ; Non-zero file size
+	  (hibtypes-git-build-repos-cache t))
+      (hibtypes-git-find-execute (format "cat '%s' | xargs -I{} find" hibtypes-git-repos-cache)
+				 "'{}'"
+				 file))
+     ;; otherwise, fail.
+     (t (message "") ; Clear any potential message from building the cache.
+	nil))))
+
+(defun git-find-file (file)
+  "Locate and edit the named FILE with the shortest git-versioned pathname, typically in another window.
+Uses `hpath:find' to display the FILE.  FILE must not have any path component.
+
+If the current directory is in a git repository, search only that one;
+otherwise, search all known local repositories.  Signal an error if no match
+is found."
+  (interactive "sFind git-versioned file: ")
+  (let ((path (hibtypes-git-find file)))
+    (if path
+	(progn (message path)
+	       (hpath:find path))
+      (error "(git-find-file): `%s' not found in any local git repository" file))))
+
 
 (provide 'hib-social)
