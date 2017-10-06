@@ -32,14 +32,16 @@
 #   USAGE:	For those installing GNU Hyperbole, use:
 #   	             make help
 #
-#               For OO-Browser maintainers:
-#                 To assemble a Hyperbole Emacs package for testing:
+#               To build only the output formats of the Hyperbole manual:
+#		     make doc
+#
+#               To assemble a Hyperbole Emacs package for testing:
 #		     make pkg
-#                 To release a Hyperbole Emacs package to ELPA and ftp.gnu.org:
+#
+#               To release a Hyperbole Emacs package to ELPA and ftp.gnu.org:
 #		     make release
 #
 #               The Hyperbole Manual is included in the package in four forms:
-#
 #                  "man/hyperbole.info"   - GNU browsable version
 #                  "man/hyperbole.html"   - Web browsable version
 #                  "man/hyperbole.pdf"    - Printable version
@@ -52,7 +54,7 @@
 
 # This ver setup won't work under any make except GNU make, so set it manually.
 #HYPB_VERSION = "`head -3 hversion.el | tail -1 | sed -e 's/.*|\(.*\)|.*/\1/'`"
-HYPB_VERSION = 6.0.2c
+HYPB_VERSION = 6.0.2d
 
 # Emacs executable used to byte-compile .el files into .elc's.
 # Possibilities include: emacs, infodock, xemacs, etc.
@@ -240,11 +242,11 @@ TAGS: $(EL_TAGS)
 version: doc
 	@ echo ""
 	@ echo "Any fgrep output means the version number has not been updated in that file."
-	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS hversion.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
+	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-ANNOUNCE-SHORT HY-NEWS hversion.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
 	@ echo ""
 
-# Build the Info, HTML and Postscript versions of the user manual.
-doc: info html pdf
+# Build the Info, HTML and Postscript versions of the user manual and README.md.html.
+doc: info html pdf README.md.html
 
 info: $(man_dir)/hyperbole.info
 $(man_dir)/hyperbole.info: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt
@@ -257,6 +259,10 @@ $(man_dir)/hyperbole.html: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(m
 pdf: $(man_dir)/hyperbole.pdf
 $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt
 	cd $(man_dir) && $(TEXI2PDF) hyperbole.texi
+
+# github-markdown is an npm, installed with: npm install markdown-to-html -g
+README.md.html: README.md
+	github-markdown README.md > README.md.html
 
 # Generate a Hyperbole package suitable for distribution via the Emacs package manager.
 pkg: package

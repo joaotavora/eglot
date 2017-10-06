@@ -23,40 +23,39 @@
 
 ## Summary
 
-`GNU Hyperbole` (pronounced Ga-new Hi-per-bo-lee), or just
-`Hyperbole`, is an efficient and programmable hypertextual information
-management system implemented as a GNU Emacs package. It is a toolkit
-and user interface for viewing, retrieving and interlinking all kinds
-of textual information, utilizing Emacs for editing most of that
-information. Thus, you can build new classes of applications with it,
-but most people use it to speed their day-to-day information
-management and retrieval needs.
-
-Hyperbole works well on GNU Emacs 24.4 or above.  It is designed and
-written by Bob Weiner.  It is maintained by him and Mats Lidell.  Its
-main distribution site is: <https://www.gnu.org/software/hyperbole/>.
-If any term in here is new or unfamiliar to you, you can look it up in the
-[Hyperbole Glossary](man/hyperbole.html#Glossary).
+`GNU Hyperbole` (pronounced Ga-new Hi-per-bo-lee), or just `Hyperbole`,
+is an easy-to-use, yet powerful and programmable hypertextual information
+management system implemented as a GNU Emacs package.  It offers rapid views
+and interlinking of all kinds of textual information, utilizing Emacs for
+editing.  It can dramatically increase your productivity and greatly reduce
+the number of keyboard/mouse keys you'll need to work efficiently.
 
 Hyperbole lets you:
 
-   1. Create your own button types and use buttons of those types to
-	  launch arbitrary actions.  One action type is a link to a file;
+   1. Quickly create hyperlink buttons either from the keyboard or by dragging
+      between a source and destination window with a mouse button depressed.
+      Later activate buttons by pressing/clicking on them or by giving the
+      name of the button.
 
-   2. Build outlines with multi-level numbered outline nodes,
-	  e.g. 1.4.8.6, that all renumber automatically as any node or tree is
-	  moved in the outline.  Each node also has a permanent hyperlink anchor
-	  that you can reference from any other node;
+   2. Activate many kinds of `implicit buttons` recognized by context
+      within text buffers, e.g. URLs, grep output lines, and git commits.
+      A single key or mouse button automatically does the right thing in
+      dozens of contexts; just press and go.
 
-   3. Manage all your contacts quickly with hierarchical categories and
+   3. Build outlines with multi-level numbered outline nodes, e.g. 1.4.8.6,
+      that all renumber automatically as any node or tree is moved in the
+      outline.  Each node also has a permanent hyperlink anchor that you can
+      reference from any other node;
+
+   4. Manage all your contacts quickly with hierarchical categories and
 	  embed hyperlinks within each entry.  Or create an archive of documents
-	  with hierarchical entries and use the same search mechanism to quickly find
-	  any matching entry;
+	  with hierarchical entries and use the same search mechanism to quickly
+      find any matching entry;
 
-   4. Use single keys to easily manage your Emacs windows or frames
-	  and quickly retrieve saved window and frame configurations;
+   5. Use single keys to easily manage your Emacs windows or frames and
+      quickly retrieve saved window and frame configurations;
 
-   5. Search for things in your current buffers, in a directory tree or
+   6. Search for things in your current buffers, in a directory tree or
 	  across major web search engines with the touch of a few keys.
 
 The common thread in all these features is making retrieval,
@@ -88,6 +87,12 @@ understood from reading alone.  If you like an Emacs package to do
 only one thing than Hyperbole is not for you, but if you would
 rather learn fewer packages and get more work done faster, then
 Hyperbole is for you.
+
+Hyperbole works well on GNU Emacs 24.4 or above.  It is designed and
+written by Bob Weiner.  It is maintained by him and Mats Lidell.  Its
+main distribution site is: <https://www.gnu.org/software/hyperbole/>.
+If any term in here is new or unfamiliar to you, you can look it up in the
+[Hyperbole Glossary](man/hyperbole.html#Glossary).
 
 Hyperbole is available for [download and installation](#installation)
 through the GNU Emacs package manager.

@@ -42,16 +42,8 @@
 ;;   Git (local) reference links
 ;;
 ;;     git#branches                              List branches in current repo/project
-;;     git#commits                               List commits in current project
+;;     git#commits                               List and browse commits for current project
 ;;     git#tags                                  List tags in current project
-;;
-;;     git#=hibtypes.el                          Edit any local git-versioned file
-;;                                               in another window; file must match
-;;                                               to the last part of a pathname
-;;     git#=partial-path/file
-;;     git#=/path/file                           Both work, constraining the lookup more.
-;;     git#=hyperbole.pdf                        Typically displays Hyperbole manual
-;;                                               in an external viewer
 ;;
 ;;     git#/hyperbole                            From any buffer, dired on the top
 ;;                                               directory of the local hyperbole
@@ -66,6 +58,9 @@
 ;;                                               is inside a git project with commit
 ;;                                               hashtag 55a1f0
 ;;
+;;     commit 55a1f0                             Commits listed in 'git log' output
+;;                                               also display diffs.
+;;
 ;;     (setq hibtypes-git-default-project "hyperbole")
 ;;     git#55a1f0                                From any buffer, once the above default
 ;;                                               is set, display current project's local
@@ -79,6 +74,21 @@
 ;;       git#commit/55a1f0
 ;;       git#branch/master
 ;;       git#tag/hyperbole-6.0.2
+;;
+;;     To edit and view git managed files (note the =):
+;;
+;;       git#=hibtypes.el                        Edit any local git-versioned file
+;;                                               in another window; file must match
+;;                                               to the last part of a pathname
+;;       git#=partial-path/file
+;;       git#=/path/file                         Both work, constraining the lookup more.
+;;       git#=hyperbole.pdf                      Typically displays Hyperbole manual
+;;                                               in an external viewer
+;;
+;;       git#=master:hyperbole.el                View a file or other entity from a specific branch
+;;       git#=master:kotl/kview.el               View a branch file located in a project subdirectory
+;;
+
 
 ;;   Github (remote) reference links
 ;;
@@ -182,8 +192,9 @@
     )
   "Alist of (social-media-service-regexp  . url-with-%s-for-username) elements.")
 
-(defconst hibtypes-git-project-regexp "/?[[:alnum:]]*[-=._/[:alnum:]]*[-=_[:alnum:]]")
-(defconst hibtypes-git-file-regexp "=[-=._/[:alnum:]]*[-=_/[:alnum:]]")
+;; Assume at least a 2-character project name
+(defconst hibtypes-git-project-regexp "/?[[:alnum:]]+[-=._/[:alnum:]]*[-=_[:alnum:]]")
+(defconst hibtypes-git-file-regexp "=[-=.:_/[:alnum:]]*[-=_/[:alnum:]]")
 
 (defconst hibtypes-social-regexp
   (concat "\\([[:alpha:]]*\\)\\([#@]\\)"
@@ -199,7 +210,7 @@ See `ibtypes::social-reference' for format details.")
 ;;; ************************************************************************
 
 (defib social-reference ()
-  "Displays the web page associated with a social hashtag or username reference at point.
+  "Display the web page associated with a social hashtag or username reference at point.
 Reference format is:
   [facebook|git|github|instagram|twitter]?[#@]<reference> or
   [fb|gt|gh|in|tw]?[#@]<reference>.
@@ -221,8 +232,8 @@ listed in `hibtypes-social-inhibit-modes'."
 		      (and (eq major-mode 'markdown-mode)
 			   (hargs:delimited "(" ")"))))
 	     (save-excursion
-	       (if (looking-at "[-#@=/._[:alnum:]]")
-		   (skip-chars-backward "-#@=/._[:alnum:]"))
+	       (if (looking-at "[-#@=/.:_[:alnum:]]")
+		   (skip-chars-backward "-#@=/.:_[:alnum:]"))
 	       (and (looking-at hibtypes-social-regexp)
 		    ;; Ensure prefix matches to a social web service
 		    (save-match-data
@@ -360,6 +371,13 @@ PROJECT value is provided, it defaults to the value of
 
 ;;; Local git repository commit references
 
+(defib git-commit-reference ()
+  "Display the diff for a git commit reference, e.g. \"commit a55e21\", typically produced by git log."
+  (if (save-excursion
+	(beginning-of-line)
+	(looking-at "\\s-*commit \\([0-9a-f]+\\)$"))
+      (hact #'git-reference (match-string-no-properties 1))))
+
 (defvar hibtypes-git-repos-cache 
   (expand-file-name "Local-Git-Repos" hbmap:dir-user)
   "Filename of cache of local git repository directories found by `locate-command'.")
@@ -453,13 +471,13 @@ PROJECT value is provided, it defaults to the value of
 `hibtypes-git-default-project'."
   (cond ((or (null reference) (equal reference ""))
 	 (error "(git-reference): Git commit hashtag must not be empty"))
-	((string-match "\\`=\\([^#@]+\\)\\'" reference)
+	((string-match "\\`=\\([^:#@]+\\)\\'" reference)
 	 ;; =file
 	 (git-find-file (match-string-no-properties 1 reference)))
 	(t (let ((case-fold-search t)
 		 (shell-cmd-to-format (assoc-default "git" hibtypes-social-hashtag-alist #'string-match)))
 	     (when shell-cmd-to-format
-	       (cond ((string-match "\\`\\(branch\\|commit\\|tag\\)/" reference)
+	       (cond ((string-match "\\`\\(=\\)\\|\\(branch\\|commit\\|tag\\)/" reference)
 		      ;; [branch | commit | tag]/ref-item
 		      nil)
 		     ((string-match "\\`/?\\([^/#@]+\\)/\\([0-9a-f]+\\)\\'" reference)
@@ -482,7 +500,7 @@ PROJECT value is provided, it defaults to the value of
 		     ;;   the user is prompted to have it built when necessary.
 		     (project-dir (or (and project (file-readable-p project) (file-directory-p project) project)
 				      (locate-dominating-file default-directory ".git"))))
-		 (unless (stringp project)
+		 (unless (or (stringp project) (= (aref reference 0) ?=))
 		   (unless (setq project (cond (project-dir (file-name-nondirectory (directory-file-name project-dir)))
 					       ((stringp hibtypes-git-default-project)
 						hibtypes-git-default-project)))
@@ -494,19 +512,34 @@ PROJECT value is provided, it defaults to the value of
 			  ;; All branches, commits or commit tags reference
 			  (setq ref-type reference
 				reference ""))
-			 ((string-match "\\`\\(commit\\)/" reference)
+			 ((string-match "\\`=?\\(commit\\)/" reference)
 			  ;; Specific reference preceded by keyword commit.
-			  (setq ref-type (substring reference 1 (match-end 1))
+			  (setq ref-type "commit"
 				reference (substring reference (match-end 0))))
-			 ((string-match "\\`[0-9a-f]+\\'" reference)
+			 ((string-match "\\`=?[0-9a-f]+\\'" reference)
 			  ;; Commit reference
 			  (setq ref-type "commit"))
-			 (t
+			 ((string-match "\\`\\(=?\\(branch\\|tag\\)/\\)\\|=" reference)
 			  ;; Specific branch or commit tag reference
-			  (setq ref-type "tree/")
-			  (when (string-match "\\`\\(branch\\|tag\\)/" reference)
-			    ;; If preceded by optional keyword, remove that from the reference.
-			    (setq reference (substring reference (match-end 0)))))))
+			  (setq ref-type "tree"
+				reference (substring reference (match-end 0)))
+			  ;; reference now might be branch-name:subpath or just branch-name.
+			  ;; (subpath by itself was handled by git-find-file up above).
+			  ;; If reference contains subpath, expand it with hibtypes-git-find.
+			  (let (branch-name
+				file
+				path)
+			    (if (string-match ":" reference)
+				(setq branch-name (substring reference 0 (match-beginning 0))
+				      file (substring reference (match-end 0))
+				      path (hibtypes-git-find file)
+				      reference (concat branch-name ":" file))
+			      (setq path default-directory))
+			    (setq project-dir (or project-dir (and path (locate-dominating-file path ".git")))
+				  project (or project (and project-dir (file-name-nondirectory project-dir))
+					      hibtypes-git-default-project))))
+			 (t
+			  (setq ref-type "tree"))))
 		 (when (or (null project-dir) (equal project-dir ""))
 		   (if (and project
 			    ;; Maybe the Hyperbole git project cache is
@@ -519,21 +552,26 @@ PROJECT value is provided, it defaults to the value of
 		 (when (equal project-dir "") (setq project-dir nil))
 		 (cond ((and project-dir (file-readable-p project-dir) (file-directory-p project-dir))
 			(if reference
-			    ;; Display commit diffs in a help buffer
-			    ;; Ensure these do not invoke with-output-to-temp-buffer a second time.
-			    (let ((temp-buffer-show-hook)
-				  (temp-buffer-show-function))
-			      (setq cmd
-				    (pcase ref-type
-				      ("branches" (format shell-cmd-to-format project-dir "branch -la" ""))
-				      ("commits"  (format shell-cmd-to-format project-dir "log --abbrev-commit --pretty=oneline" ""))
-				      ("tags"     (format shell-cmd-to-format project-dir "tag -l" ""))
-				      (t          (format shell-cmd-to-format project-dir "show" reference))))
-			      (with-help-window (format "*git %s %s%s%s*" project ref-type
-							(if (not (equal reference "")) " " "")
-							reference)
-				(princ (format "Command: %s\n\n" cmd))
-				(princ (shell-command-to-string cmd))))
+			    (if (and (equal ref-type "commits") (fboundp 'vc-print-root-log))
+				(let ((default-directory project-dir))
+				  (vc-print-root-log))
+			      ;; Display commit diffs in a help buffer
+			      ;; Ensure these do not invoke with-output-to-temp-buffer a second time.
+			      (let ((temp-buffer-show-hook)
+				    (temp-buffer-show-function))
+				(setq cmd
+				      (pcase ref-type
+					("branches" (format shell-cmd-to-format project-dir "branch -la" ""))
+					("commits"  (format shell-cmd-to-format project-dir "log --abbrev-commit --pretty=oneline" ""))
+					("tags"     (format shell-cmd-to-format project-dir "tag -l" ""))
+					(t          (format shell-cmd-to-format project-dir "show" reference))))
+				(with-help-window (format "*git%s%s %s%s%s*"
+							  (if (equal project "") "" " ")
+							  project ref-type
+							  (if (equal reference "") "" " ")
+							  reference)
+				  (princ (format "Command: %s\n\n" cmd))
+				  (princ (shell-command-to-string cmd)))))
 			  ;; Project-only reference, run dired on the project home directory
 			  (hpath:display-buffer (dired-noselect
 						 (file-name-as-directory project-dir)))))
@@ -567,7 +605,7 @@ Return nil if no match is found."
     (cond
      ;; Try to find in current directory tree first...
      ((and (fboundp 'locate-dominating-file)
-	   (setq root (locate-dominating-file default-directory "\.git"))
+	   (setq root (locate-dominating-file default-directory ".git"))
 	   (hibtypes-git-find-execute "find" root file)))
      ;; then in default project tree...
      ((and hibtypes-git-default-project

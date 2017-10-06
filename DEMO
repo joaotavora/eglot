@@ -486,14 +486,15 @@ Similarly, again for software developers, git references work on local
 git repositories.  If you have a clone of the Hyperbole git repository
 on your local system, then you can activate all of the following buttons.
 
-  git#/hyperbole         (displays the top directory of the hyperbole repository)
-  git#/hyperbole/55a1f0  (displays hyperbole git commit diff)
-  git#=hactypes.el       (displays a git-versioned file regardless of directory)
-  gt#55a1f0              (when within a git repo, displays its commit diff)
+  git#/hyperbole            (displays the top directory of the hyperbole repository)
+  git#/hyperbole/55a1f0     (displays hyperbole git commit diff)
+  git#=hactypes.el          (displays a git-versioned file regardless of directory)
+  git#=master:kotl/kview.el (displays file in subdirectory from master branch)
+  gt#55a1f0                 (when within a git repo, displays its commit diff)
 
-The first three examples work anywhere regardless of the buffer since Hyperbole
+The first four examples work anywhere regardless of the buffer since Hyperbole
 locates all git repositories for you by repository/project name.  If you set a
-default project (see "(hyperbole)git-reference"), then the third example will
+default project (see "(hyperbole)git-reference"), then the last example will
 work anywhere as well.
 
 ** Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer

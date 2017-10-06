@@ -1,3 +1,17 @@
+2017-10-06  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Version): Updated to 6.0.2d and rebuilt output formats.
+
+* Makefile (README.md.html): Added build rule as part of 'make doc'.
+  README*: Rewrote the Summary intro paragraph and first two numbered items in simpler terms
+    for new users.
+
+* hib-social.el (git-commit-reference): Added new implicit button type to display a diff for
+    any commit listed in 'git log' output.
+                (git-reference): Fixed a few typos and added support for git#=branch:file syntax
+    to view (not edit) a file from a specific branch.  Hyperbole finds which project the branch
+    and file are associated with if a default is not specified.  Documented in this file and DEMO.
+
 2017-10-05  Bob Weiner  <rsw@gnu.org>
 
 * hib-social.el (hibtypes-git-build-repos-cache): Fixed to prune matches like 'file-git',
@@ -293,7 +307,7 @@
 
 * DEMO (Git References): Added.
   hib-social.el (hibtypes-github-default-project): Renamed from hibtypes-social-github-default-project.
-                (hibtypes-github-default-user): Renamed from hibtypes-social-githbu-default-user.
+                (hibtypes-github-default-user): Renamed from hibtypes-social-github-default-user.
 		(hibtypes-git-default-project): Added.
 		(hibtypes-git-*, git-reference): Updated to allow
     git#project/commit-hashtag references.  So now all of the
@@ -311,7 +325,7 @@
 * hibtypes.el (grep-msg): Added match to context lines produced by 'grep -A<num>'
     which use '-' around the line number rather than ':'.
     (hib-debbugs): Lowered priority below hib-social so it doesn't shadow valid
-       social references since it matching is broad.
+       social references since its matching is broad.
 
 * hib-social.el (social-reference, hibtypes-social-regexp): Added missing '-'
     character in social-reference matches.
@@ -533,7 +547,7 @@ Python (case-sensitive).
 
 * hpath.el (hpath:substitute-dir): Added support for environment variables including those with PATH
     in their name (colon-separated paths) that should have been there.
-    Added call to hpath:exists-p to test path with hpath:suffixes added to fix bug where
+    Added call to hpath:exists-p to test path with hpath:suffixes added.  This fixed the bug where
     "${load-path}/simple.el" did not resolve properly when the file was stored compressed
     as simple.el.gz, for example.
 

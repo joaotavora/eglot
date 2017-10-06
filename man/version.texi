@@ -1,4 +1,4 @@
-@set UPDATED October 4, 2017
+@set UPDATED October 6, 2017
 @set UPDATED-MONTH OCT 2017
-@set EDITION 6.0.2c
-@set VERSION 6.0.2c
+@set EDITION 6.0.2d
+@set VERSION 6.0.2d
