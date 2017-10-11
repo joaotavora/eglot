@@ -74,8 +74,9 @@ See "Changes" file.
 
     - DEMO File: Added description and exercise using the new Find/Web menu.
 
-    - Added README.md.html introduction with images combining README, INSTALL
-      and HY-ABOUT information.
+    - Added README.md introduction with images combining README, INSTALL
+      and HY-ABOUT information.  This is automatically transformed to
+      README.md.html.
 
     - Full set of hand-written changes are now in the file "Changes".  The
       former name, ChangeLog, is now auto-generated from the version controlled

@@ -1187,14 +1187,29 @@ Each line of the summary may be selected to jump to the associated section.
 Displays any in-file Markdown link referent.  Pathnames and urls are
 handled elsewhere.
 
-@findex ibtypes annot-bib
-@cindex bibliography
-@cindex reference
-@item annot-bib
-Displays annotated bibliography entries defined within the same buffer
-as the reference.  References must be delimited by square brackets, must
-begin with a word constituent character, and must not be in buffers
-whose names begin with a ` ' or `*' character.
+@findex ibtypes social-reference
+@cindex hashtag
+@cindex username
+@cindex social media
+@cindex social reference
+@vindex hibtypes-social-default-service
+@item social-reference
+Displays the web page associated with a social media hashtag or username
+reference at point.  Reference format is:
+
+@smallexample
+[facebook|instagram|twitter]?[#@@]<hashtag-or-username> or
+[fb|in|tw]?[#@@]<hashtag-or-username>
+@end smallexample
+
+@noindent
+For example, @samp{fb@@someuser} displays the home page for facebook user
+@samp{someuser} and @samp{in#hashtag} displays photos with the hashtag
+@samp{hashtag}.  The first part of the label for a button of this type
+is the social media service name.  The service name defaults to the
+value of @code{hibtypes-social-default-service} (default value of
+``twitter'') when not given, so #hashtag would be the same as
+twitter#hashtag.
 
 @findex ibtypes debbugs-gnu-mode
 @cindex bug tracking
@@ -1229,29 +1244,14 @@ Note that @emph{issue} or @emph{debbugs} may be used as well in place
 of @emph{bug}.  See the documentation at the top of
 the @file{hib-debbugs.el} file for detailed query format information.
 
-@findex ibtypes social-reference
-@cindex hashtag
-@cindex username
-@cindex social media
-@cindex social reference
-@vindex hibtypes-social-default-service
-@item social-reference
-Displays the web page associated with a social media hashtag or username
-reference at point.  Reference format is:
-
-@smallexample
-[facebook|instagram|twitter]?[#@@]<hashtag-or-username> or
-[fb|in|tw]?[#@@]<hashtag-or-username>
-@end smallexample
-
-@noindent
-For example, @samp{fb@@someuser} displays the home page for facebook user
-@samp{someuser} and @samp{in#hashtag} displays photos with the hashtag
-@samp{hashtag}.  The first part of the label for a button of this type
-is the social media service name.  The service name defaults to the
-value of @code{hibtypes-social-default-service} (default value of
-``twitter'') when not given, so #hashtag would be the same as
-twitter#hashtag.
+@findex ibtypes annot-bib
+@cindex bibliography
+@cindex reference
+@item annot-bib
+Displays annotated bibliography entries defined within the same buffer
+as the reference.  References must be delimited by square brackets, must
+begin with a word constituent character, and must not be in buffers
+whose names begin with a ` ' or `*' character.
 
 @c Handled instead by @xref{Smart Key - Identifier Menu Mode}.
 @c @findex ibtypes imenu-item
@@ -3745,6 +3745,23 @@ read-only, e.g. when its file is not checked out of a version control
 system yet, so that you can get effective views of an outline without
 editing it.  Some of these commands affect the current view spec.
 @xref{View Specs}.
+
+@c Emacs (as of Emacs 26) will sometimes undo the narrowing of an indirect buffer
+@c when outline items are hidden or shown.  Don't mention or add this feature until
+@c this bug is fixed.
+@c
+@c @cindex cloning
+@c @cindex outline, cloning
+@c @cindex outline, multiple views
+@c @kindex C-x 4 c
+@c If you want to see multiple perspectives of the same Koutline, use
+@c @{@{C-x 4 c}@} to create a clone of any current Koutline.  Any edits
+@c made to the original buffer or the clone are shared but when you alter
+@c the view in one, it does not affect the other, so you can expand and
+@c collapse or change viewspecs to create different perspectives.
+
+@noindent
+Here are the major commands for showing and hiding Koutline cells.
 
 @table @asis
 @cindex hide tree

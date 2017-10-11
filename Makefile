@@ -242,7 +242,7 @@ TAGS: $(EL_TAGS)
 version: doc
 	@ echo ""
 	@ echo "Any fgrep output means the version number has not been updated in that file."
-	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-ANNOUNCE-SHORT HY-NEWS hversion.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
+	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-ANNOUNCE-SHORT HY-NEWS README.md hversion.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
 	@ echo ""
 
 # Build the Info, HTML and Postscript versions of the user manual and README.md.html.
@@ -261,6 +261,7 @@ $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(ma
 	cd $(man_dir) && $(TEXI2PDF) hyperbole.texi
 
 # github-markdown is an npm, installed with: npm install markdown-to-html -g
+#   Documentation is here: https://www.npmjs.com/package/markdown-to-html
 README.md.html: README.md
 	github-markdown README.md > README.md.html
 

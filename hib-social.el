@@ -306,68 +306,72 @@ USER defaults to the value of `hibtypes-github-default-user'.
 If given, PROJECT overrides any project value in REFERENCE.  If no
 PROJECT value is provided, it defaults to the value of
 `hibtypes-github-default-project'."
-  (if (or (null reference) (equal reference ""))
-      (error "(github-reference): Github reference must not be empty")
-    (let ((case-fold-search t)
-	  (url-to-format (assoc-default "github" hibtypes-social-hashtag-alist #'string-match))
-	  (ref-type))
-      (when url-to-format
-	(cond ((string-match "\\`\\(branch\\|commit\\|issue\\|pull\\|tag\\)/" reference)
-	       ;; [branch | commit | issue | pull | tag]/ref-item
-	       nil)
-	      ((string-match "\\`/?\\(\\([^/#@]+\\)/\\)\\([^/#@]+\\)\\'" reference)
-	       ;; /?user/project
-	       (setq user (or user (match-string-no-properties 2 reference))
-		     project (or project (match-string-no-properties 3 reference))
-		     reference nil))
-	      ((string-match "\\`/?\\(\\([^/#@]+\\)/\\)?\\([^/#@]+\\)/\\([^#@]+\\)\\'" reference)
-	       ;; /?[user/]project/ref-item
-	       (setq user (or user (match-string-no-properties 2 reference))
-		     project (or project (match-string-no-properties 3 reference))
-		     reference (match-string-no-properties 4 reference)))
-	      ((string-match "\\`/\\([^/#@]+\\)\\'" reference)
-	       ;; /project
-	       (setq project (or project (match-string-no-properties 1 reference))
-		     reference nil)))
-	(unless (stringp user) (setq user hibtypes-github-default-user))
-	(unless (stringp project) (setq project hibtypes-github-default-project))
-	(when reference
-	  (cond ((equal user "orgs")
-		 ;; A specific organization reference
-		 (setq ref-type reference
-		       reference ""))
-		((member reference '("branches" "commits" "issues" "pulls" "tags"))
-		 ;; All branches, commits, open issues, pull requests or commit tags reference
-		 (setq ref-type reference
-		       reference ""))
-		((and (< (length reference) 7) (string-match "\\`\\([gG][hH]-\\)?[0-9]+\\'" reference))
-		 ;; Specific issue reference
-		 (setq ref-type "issues/"))
-		((string-match "\\`\\(commit\\|issue\\|pull\\)/" reference)
-		 ;; Specific reference preceded by keyword branch, commit,
-		 ;; issue, or pull
-		 (setq ref-type (substring reference 0 (match-end 0))
-		       reference (substring reference (match-end 0))))
-		((string-match "\\`[0-9a-f]+\\'" reference)
-		 ;; Commit reference
-		 (setq ref-type "commit/"))
-		(t
-		 ;; Specific branch or commit tag reference
-		 (setq ref-type "tree/")
-		 (when (string-match "\\`\\(branch\\|tag\\)/" reference)
-		   ;; If preceded by optional keyword, remove that from the reference.
-		   (setq reference (substring reference (match-end 0)))))))
-	(if (and (stringp user) (stringp project))
-	    (funcall hibtypes-social-display-function
-		     (if reference
-			 (format url-to-format user project ref-type reference)
-		       (format url-to-format user project "" "")))
-	  (cond ((and (null user) (null project))
-		 (error "(github-reference): Set `hibtypes-github-default-user' and `hibtypes-github-default-project'"))
-		((null user)
-		 (error "(github-reference): Set `hibtypes-github-default-user'"))
-		(t
-		 (error "(github-reference): Set `hibtypes-github-default-project'"))))))))
+  (cond ((or (null reference) (equal reference ""))
+	 (error "(github-reference): Github reference must not be empty"))
+	((equal reference "status")
+	 (funcall hibtypes-social-display-function "https://status.github.com"))
+	(t (let ((case-fold-search t)
+		 (url-to-format (assoc-default "github" hibtypes-social-hashtag-alist #'string-match))
+		 (ref-type))
+	     (when url-to-format
+	       (cond ((string-match "\\`\\(branch\\|commit\\|issue\\|pull\\|tag\\)/" reference)
+		      ;; [branch | commit | issue | pull | tag]/ref-item
+		      nil)
+		     ((string-match "\\`/?\\(\\([^/#@]+\\)/\\)\\([^/#@]+\\)\\'" reference)
+		      ;; /?user/project
+		      (setq user (or user (match-string-no-properties 2 reference))
+			    project (or project (match-string-no-properties 3 reference))
+			    reference nil))
+		     ((string-match "\\`/?\\(\\([^/#@]+\\)/\\)?\\([^/#@]+\\)/\\([^#@]+\\)\\'" reference)
+		      ;; /?[user/]project/ref-item
+		      (setq user (or user (match-string-no-properties 2 reference))
+			    project (or project (match-string-no-properties 3 reference))
+			    reference (match-string-no-properties 4 reference)))
+		     ((string-match "\\`/\\([^/#@]+\\)\\'" reference)
+		      ;; /project
+		      (setq project (or project (match-string-no-properties 1 reference))
+			    reference nil)))
+	       (unless (stringp user) (setq user hibtypes-github-default-user))
+	       (unless (stringp project) (setq project hibtypes-github-default-project))
+	       (when reference
+		 (cond ((equal user "orgs")
+			;; A specific organization reference
+			(setq ref-type reference
+			      reference ""))
+		       ((member reference '("branches" "commits" "issues" "pulls" "tags"))
+			;; All branches, commits, open issues, pull requests or commit tags reference
+			(setq ref-type reference
+			      reference ""))
+		       ((and (< (length reference) 7) (string-match "\\`\\([gG][hH]-\\)?[0-9]+\\'" reference))
+			;; Specific issue reference
+			(setq ref-type "issues/"))
+		       ((string-match "\\`\\(commit\\|issue\\|pull\\)/" reference)
+			;; Specific reference preceded by keyword branch, commit,
+			;; issue, or pull
+			(setq ref-type (substring reference 0 (match-end 0))
+			      reference (substring reference (match-end 0))))
+		       ((string-match "\\`[0-9a-f]+\\'" reference)
+			;; Commit reference
+			(setq ref-type "commit/"))
+		       (t
+			;; Specific branch or commit tag reference
+			(setq ref-type "tree/")
+			(when (string-match "\\`\\(branch\\|tag\\)/" reference)
+			  ;; If preceded by optional keyword, remove that from the reference.
+			  (setq reference (substring reference (match-end 0)))))))
+	       (if (and (stringp user) (stringp project))
+		   (funcall hibtypes-social-display-function
+			    (if reference
+				(format url-to-format user project ref-type reference)
+			      (format url-to-format user project "" "")))
+		 (cond ((and (null user) (null project))
+			(error "(github-reference): Set `hibtypes-github-default-user' and `hibtypes-github-default-project'"))
+		       ((null user)
+			(error "(github-reference): Set `hibtypes-github-default-user'"))
+		       (t
+			(error "(github-reference): Set `hibtypes-github-default-project'")))))
+	     (unless url-to-format
+	       (error "(github-reference): Add an entry for github to `hibtypes-social-hashtag-alist'"))))))
 
 ;;; Local git repository commit references
 

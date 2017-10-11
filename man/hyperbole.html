@@ -1562,15 +1562,29 @@ Each line of the summary may be selected to jump to the associated section.
 <dd><p>Displays any in-file Markdown link referent.  Pathnames and urls are
 handled elsewhere.
 </p>
-<a name="index-ibtypes-annot_002dbib"></a>
-<a name="index-bibliography"></a>
-<a name="index-reference"></a>
+<a name="index-ibtypes-social_002dreference"></a>
+<a name="index-hashtag"></a>
+<a name="index-username"></a>
+<a name="index-social-media"></a>
+<a name="index-social-reference"></a>
+<a name="index-hibtypes_002dsocial_002ddefault_002dservice"></a>
 </dd>
-<dt><code>annot-bib</code></dt>
-<dd><p>Displays annotated bibliography entries defined within the same buffer
-as the reference.  References must be delimited by square brackets, must
-begin with a word constituent character, and must not be in buffers
-whose names begin with a &lsquo; &rsquo; or &lsquo;*&rsquo; character.
+<dt><code>social-reference</code></dt>
+<dd><p>Displays the web page associated with a social media hashtag or username
+reference at point.  Reference format is:
+</p>
+<div class="smallexample">
+<pre class="smallexample">[facebook|instagram|twitter]?[#@]&lt;hashtag-or-username&gt; or
+[fb|in|tw]?[#@]&lt;hashtag-or-username&gt;
+</pre></div>
+
+<p>For example, &lsquo;<samp>fb@someuser</samp>&rsquo; displays the home page for facebook user
+&lsquo;<samp>someuser</samp>&rsquo; and &lsquo;<samp>in#hashtag</samp>&rsquo; displays photos with the hashtag
+&lsquo;<samp>hashtag</samp>&rsquo;.  The first part of the label for a button of this type
+is the social media service name.  The service name defaults to the
+value of <code>hibtypes-social-default-service</code> (default value of
+&ldquo;twitter&rdquo;) when not given, so #hashtag would be the same as
+twitter#hashtag.
 </p>
 <a name="index-ibtypes-debbugs_002dgnu_002dmode"></a>
 <a name="index-bug-tracking"></a>
@@ -1606,29 +1620,15 @@ bug#id-number?attr1=val1&amp;attr2=val2&amp;attr3=val3
 of <em>bug</em>.  See the documentation at the top of
 the <samp>hib-debbugs.el</samp> file for detailed query format information.
 </p>
-<a name="index-ibtypes-social_002dreference"></a>
-<a name="index-hashtag"></a>
-<a name="index-username"></a>
-<a name="index-social-media"></a>
-<a name="index-social-reference"></a>
-<a name="index-hibtypes_002dsocial_002ddefault_002dservice"></a>
+<a name="index-ibtypes-annot_002dbib"></a>
+<a name="index-bibliography"></a>
+<a name="index-reference"></a>
 </dd>
-<dt><code>social-reference</code></dt>
-<dd><p>Displays the web page associated with a social media hashtag or username
-reference at point.  Reference format is:
-</p>
-<div class="smallexample">
-<pre class="smallexample">[facebook|instagram|twitter]?[#@]&lt;hashtag-or-username&gt; or
-[fb|in|tw]?[#@]&lt;hashtag-or-username&gt;
-</pre></div>
-
-<p>For example, &lsquo;<samp>fb@someuser</samp>&rsquo; displays the home page for facebook user
-&lsquo;<samp>someuser</samp>&rsquo; and &lsquo;<samp>in#hashtag</samp>&rsquo; displays photos with the hashtag
-&lsquo;<samp>hashtag</samp>&rsquo;.  The first part of the label for a button of this type
-is the social media service name.  The service name defaults to the
-value of <code>hibtypes-social-default-service</code> (default value of
-&ldquo;twitter&rdquo;) when not given, so #hashtag would be the same as
-twitter#hashtag.
+<dt><code>annot-bib</code></dt>
+<dd><p>Displays annotated bibliography entries defined within the same buffer
+as the reference.  References must be delimited by square brackets, must
+begin with a word constituent character, and must not be in buffers
+whose names begin with a &lsquo; &rsquo; or &lsquo;*&rsquo; character.
 </p>
 
 <a name="index-ibtypes-function_002din_002dbuffer"></a>
@@ -4621,6 +4621,9 @@ read-only, e.g. when its file is not checked out of a version control
 system yet, so that you can get effective views of an outline without
 editing it.  Some of these commands affect the current view spec.
 See <a href="#View-Specs">View Specs</a>.
+</p>
+
+<p>Here are the major commands for showing and hiding Koutline cells.
 </p>
 <dl compact="compact">
 <dd><a name="index-hide-tree"></a>

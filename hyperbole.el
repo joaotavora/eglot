@@ -672,7 +672,7 @@ If FLAG is nil then text is shown, while if FLAG is t the text is hidden."
 (if after-init-time
     (hyperb:init)
   ;; Initialize after other key bindings are loaded at startup.
-  (add-hook 'after-init-hook #'hyperb:init))
+  (add-hook 'after-init-hook #'hyperb:init t))
 
 (makunbound 'hyperbole-loading)
 

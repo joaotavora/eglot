@@ -1,4 +1,4 @@
-# GNU Hyperbole 6.0.2 - The Everyday Hypertextual Information Manager
+# GNU Hyperbole 6.0.2d - The Everyday Hypertextual Information Manager
 
 <!-- START doctoc generated TOC -->
 **Table of Contents**
@@ -99,24 +99,24 @@ through the GNU Emacs package manager.
 
 ## Mailing Lists
 
-    - **hyperbole-users@gnu.org** - User list for GNU Hyperbole
+   - **hyperbole-users@gnu.org** - User list for GNU Hyperbole
 
-  	    [info and subscription](http://lists.gnu.org/mailman/listinfo/hyperbole-users)
-        [web archive](http://lists.gnu.org/pipermail/hyperbole-users/)
+       [info and subscription]: http://lists.gnu.org/mailman/listinfo/hyperbole-users
+       [web archive]: http://lists.gnu.org/pipermail/hyperbole-users/
 
-    - **bug-hyperbole@gnu.org** - List for bug reporting
+   - **bug-hyperbole@gnu.org** - List for bug reporting
 
-        [info and subscription](http://lists.gnu.org/mailman/listinfo/bug-hyperbole)
-        [web archive](http://lists.gnu.org/archive/html/bug-hyperbole/)
+       [info and subscription]: http://lists.gnu.org/mailman/listinfo/bug-hyperbole
+       [web archive]: http://lists.gnu.org/archive/html/bug-hyperbole/
 
 ## Ftp and Git Source Code-only Downloads
 
 To explore the released Hyperbole source code rather than installing it for use,
 download a tar.gz source archive from either:</p>
 
-    - [ftp://ftp.gnu.org/gnu/hyperbole/]()
+   - ftp://ftp.gnu.org/gnu/hyperbole/
 
-    - [http://ftpmirror.gnu.org/hyperbole/]()
+   - http://ftpmirror.gnu.org/hyperbole/
 
 which will find the closest mirror of the GNU ftp site and show it to you.
 

@@ -1,3 +1,30 @@
+2017-10-10  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (after-init-time): Added hyperb:init to the end of after-init-hook;
+   previously was added at the beginning.  This is intended to ensure that Hyperbole
+   key bindings are set after any others, notably {M-RET}.
+
+* hypb.el (hypb:rgrep-command): Changed to zgrep when available to handle compressed source files.
+
+2017-10-09  Bob Weiner  <rsw@gnu.org>
+
+* hibtypes.el (annot-bib): Eliminated matches for any programming mode (modes derived from `prog-mode').
+
+* README.md: Fixed link markup in Mailing Lists and Ftp and Git Source Code-only Downloads
+
+2017-10-08  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Implicit Buttons): Re-arranged types to reflect newest prioritization.
+
+* hib-social.el (github-reference): Added support for showing status of Github services
+    with gh#status.
+
+2017-10-06  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Hiding and Showing): Added paragraph on using {C-x 4 c} to clone
+    a Koutline and display multiple views of it.  But commented this out because of an
+    Emacs bug which alters the narrowing of indirect buffers after an outline hide or show.
+
 2017-10-06  Bob Weiner  <rsw@gnu.org>
 
 * man/hyperbole.texi (Version): Updated to 6.0.2d and rebuilt output formats.

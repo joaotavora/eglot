@@ -225,7 +225,8 @@ must have an attached file."
        buffer-file-name
        (let ((chr (aref (buffer-name) 0)))
 	 (not (or (eq chr ?\ ) (eq chr ?*))))
-       (not (memq major-mode '(c-mode objc-mode c++-mode java-mode markdown-mode)))
+       (not (or (derived-mode-p 'prog-mode)
+		(memq major-mode '(c-mode objc-mode c++-mode java-mode markdown-mode))))
        (let* ((ref-and-pos (hbut:label-p t "[" "]" t))
 	      (ref (car ref-and-pos)))
 	 (and ref (eq ?w (char-syntax (aref ref 0)))
