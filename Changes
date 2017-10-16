@@ -1,3 +1,5 @@
+----
+
 2017-10-16  Bob Weiner  <rsw@gnu.org>
 
 * hib-debbugs.el (debbugs-query:at-p): eliminated match of #id-number and always required
