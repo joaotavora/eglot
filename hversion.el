@@ -126,7 +126,7 @@ Where a part in the term-type is delimited by a `-' or  an `_'."
 			  ;; the selected frame has mouse support,
 			  ;; then there is a window system to support.
 			  (display-mouse-p))
-		      ;; X11, NEXTSTEP (DPS), or OS/2 Presentation Manager (PM)
+		      ;; X11, macOS, NEXTSTEP (DPS), or OS/2 Presentation Manager (PM)
 		      (cond (hyperb:emacs-p "emacs")
 			    ((featurep 'xemacs)  "xemacs")
 			    (t                "xterm")))
@@ -137,7 +137,8 @@ Where a part in the term-type is delimited by a `-' or  an `_'."
 		      "next")
 		     )))
     (set-frame-parameter frame 'hyperb:window-system
-			 (and term (substring term 0 (string-match "[-_]" term))))))
+			 (and term (setq term (substring term 0 (string-match "[-_]" term)))))
+    term))
 
 (defun hyperb:window-system (&optional frame)
   "Returns the string name for window system or term type under which the selected frame is running.

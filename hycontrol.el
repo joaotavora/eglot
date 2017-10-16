@@ -4,7 +4,7 @@
 ;;
 ;; Orig-Date:     1-Jun-16 at 15:35:36
 ;;
-;; Copyright (C) 2016  Free Software Foundation, Inc.
+;; Copyright (C) 2016-2017  Free Software Foundation, Inc.
 ;; See the "HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
@@ -68,6 +68,11 @@
 ;;; Public variables
 ;;; ************************************************************************
 
+(defcustom hycontrol-keep-window-flag nil
+  "*When non-nil (default is nil), leave original window when tear off window to another frame."
+  :type 'boolean
+  :group 'hyperbole-screen)
+
 (defcustom hycontrol-maximum-units 1000
   "*Maximum units setting allowed for hycontrol commands.
 The unit counter resets to the last digit entered whenever this value is exceeded."
@@ -83,7 +88,8 @@ It's value is an (x-offset . y-offset) pair in pixels."
   :group 'hyperbole-screen)
 
 (defvar hycontrol-screen-offset-alist
-  '(((1920 . 1080) . (10 0 68 0)) ; 24" iMac / HD display
+  '(((1920 . 1080) . (10 0 68 0)) ; 24" iMac HD display
+    ((2560 . 1440) . (15 0 88 0)) ; 27" iMac HD display
     (t . (0 0 0 0)))
   "*Alist of (screen-predicate . (top-offset right-offset bottom-offset left-offset) pairs.
 Offsets are integers given in pixels.  The offsets associated with the first
@@ -163,10 +169,10 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 	    (message
 	     (concat
 	      "FRAME: (h=heighten, s=shorten, w=widen, n=narrow, %%/H/W=screen %%age, arrow=move frame) by %d unit%s, .=clear units\n"
-	      ;; "c=cycle to edges, keypad=to edges, d/^/D=delete/iconify frame/others, o/O=other win/frame, [/]=create frame, (/)=save/restore fconfig\n"
-	      "c=cycle to edges, keypad=to edges, d/D=delete frame/others, o/O=other win/frame, [/]=create frame, (/)=save/restore fconfig\n"
-	      "i/j/k/m=expand to edges, -=min frame, +=max frame, u/b/~=un/bury/swap bufs, Z/z=zoom in/out, t=to win control, q=quit")
-	     ;; No room to include this binding in the message: ==frames same size
+	      ;; d/^/D=delete/iconify frame/others - iconify left out due to some bug on macOS (see comment near ^ below)
+	      "d/D=delete frame/others, o/O=other win/frame, [/]=create frame, (/)=save/restore fconfig\n"
+	      "f/F=clone/move win to new frame, -/+=minimize/maximize frame, ==frames same size, u/b/~=un/bury/swap bufs\n"
+	      "Frame to edges: c=cycle, i/j/k/m=expand/contract, p/num-keypad=move; z/Z=zoom out/in, t=to WINDOW:, q=quit")
 	     arg
 	     (if (= arg 1) "" "s"))
 	    (condition-case ()
@@ -182,20 +188,26 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 		   ((eq e ?c) (hycontrol-frame-to-screen-edges))
 		   ((eq e ?d) (delete-frame))
 		   ((eq e ?D) (hycontrol-delete-other-frames))
+		   ((eq e ?f) (hycontrol-clone-window-to-new-frame))
+		   ((eq e ?F) (hycontrol-window-to-new-frame))
 		   ((eq e ?\C-g) (keyboard-quit))
 		   ((eq e ?%) (hycontrol-frame-percentage-of-screen arg))
 		   ((eq e ?H) (hycontrol-frame-height-percentage-of-screen arg))
 		   ((eq e ?W) (hycontrol-frame-width-percentage-of-screen arg))
 		   ((eq e ?h) (set-frame-height nil (+ (frame-height) arg)))
-		   ((eq e ?i) (hycontrol-frame-expand-to-top))
-		   ((eq e ?j) (hycontrol-frame-expand-to-left))
-		   ((eq e ?k) (hycontrol-frame-expand-to-right))
-		   ((eq e ?m) (hycontrol-frame-expand-to-bottom))
+		   ((eq e ?i) (setq arg (hycontrol-frame-resize-to-top arg)))
+		   ((eq e ?j) (setq arg (hycontrol-frame-resize-to-left arg)))
+		   ((eq e ?k) (setq arg (hycontrol-frame-resize-to-right arg)))
+		   ((eq e ?l) (lower-frame))
+		   ((eq e ?m) (setq arg (hycontrol-frame-resize-to-bottom arg)))
 		   ((eq e ?n) (set-frame-width nil (- (frame-width) arg)))
 		   ((eq e ?o) (setq w (selected-window)) (other-window arg) (if (eq w (selected-window)) (other-window 1)))
 		   ((eq e ?O) (setq w (selected-window)) (other-frame arg) (if (eq w (selected-window)) (other-frame 1)))
-		   ;; ((memq e (list ?q (aref (kbd "<escape>") 0))) (throw 'done t))
+		   ;; Numeric keypad emulation for keyboards that lack one.
+		   ((eq e ?p) (hycontrol-virtual-numeric-keypad arg))
+		   ;; Don't use expr to the right; it prevents ESC use as Meta: ((memq e (list ?q (aref (kbd "<escape>") 0))) (throw 'done t))
 		   ((eq e ?q) (throw 'done t))
+		   ((eq e ?r) (raise-frame))
 		   ((eq e ?s) (set-frame-height nil (- (frame-height) arg)))
 		   ((eq e ?t) (throw 'done nil))
 		   ((eq e ?u) (unbury-buffer))
@@ -205,9 +217,8 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 		   ((memq e '(?\[ ?\])) (hycontrol-make-frame))
 		   ((eq e ?\() (call-interactively 'hycontrol-save-frame-configuration))
 		   ((eq e ?\)) (hycontrol-restore-frame-configuration))
-		   ;; Something in this command's event handling slows down
-		   ;; frame iconification under Mac OS X 100-fold, so
-		   ;; don't enable it until this issue is resolved.
+		   ;; Something in this command's event handling when used within HyControl's event loop slows down
+		   ;; frame iconification under macOS 100-fold, so don't enable it until this issue is resolved.
 		   ;; ((eq e ?^)  (iconify-frame))
 		   ((eq e ?~) (or (hycontrol-frame-swap-buffers) (hycontrol-window-swap-buffers)
 				  (hycontrol-user-error debug "(HyControl): There must be only two windows on screen to swap buffers.")))
@@ -216,7 +227,7 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 		   ((eq e ?=)
 		    (and (> (length (visible-frame-list)) 1)
 			 (y-or-n-p "Resize all other frames to the size of the selected frame?")
-			 (mapc (lambda (f) (set-frame-size f (frame-width) (frame-height))) (visible-frame-list))))
+			 (mapc (lambda (f) (set-frame-size f (frame-pixel-width) (frame-pixel-height) t)) (visible-frame-list))))
 		   ((eq e ?\C-u)
 		    (setq arg (* arg 4))
 		    (if (> arg hycontrol-maximum-units) (setq arg 4)))
@@ -261,8 +272,8 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 	     (concat
 	      "WINDOW: (h=heighten, s=shorten, w=widen, n=narrow, arrow=move frame) by %d unit%s, .=clear units\n"
 	      "d/D=delete win/others, o/O=other win/frame, [/]=split win atop/sideways, (/)=save/restore wconfig\n"
-	      "f=win to own frame, -=min win,+=max win, u/b/~=un/bury/swap bufs, Z/z=zoom in/out, t=to frame control, q=quit")
-	     ;; No room to include this binding in the message: ==wins same size
+	      "f/F=clone/move win to new frame, -/+=minimize/maximize win, ==wins same size, u/b/~=un/bury/swap bufs\n"
+	      "Frame to edges: c=cycle, i/j/k/m=expand/contract, p/num-keypad=move; z/Z=zoom out/in, t=to FRAME:, q=quit")
 	     arg
 	     (if (= arg 1) "" "s"))
 	    (condition-case ()
@@ -271,18 +282,29 @@ set to 1.  If it is > `hycontrol-maximum-units', it is set to
 		  (cond
 		   ((memq e '(up down left right))
 		    (hycontrol-move-frame e arg))
+		   ((memq e '(kp-0 kp-1 kp-2 kp-3 kp-4 kp-5 kp-6 kp-7 kp-8 kp-9))
+		    (hycontrol-numeric-keypad e arg))
 		   ((eq e ?.) (setq arg 0)) ;; Clear arg
 		   ((eq e ?b) (bury-buffer))
-		   ;; ((memq e '(?d ?^)) (delete-window))
+		   ((eq e ?c) (hycontrol-frame-to-screen-edges))
 		   ((eq e ?d) (delete-window))
 		   ((eq e ?D) (hycontrol-delete-other-windows))
-		   ((eq e ?f) (hycontrol-window-to-frame))
+		   ((eq e ?f) (hycontrol-clone-window-to-new-frame))
+		   ((eq e ?F) (hycontrol-window-to-new-frame))
 		   ((eq e ?\C-g) (keyboard-quit))
 		   ((eq e ?h) (enlarge-window arg))
+		   ;; Allow frame resizing even when in window control
+		   ;; mode because it may be used often.
+		   ((eq e ?i) (setq arg (hycontrol-frame-resize-to-top arg)))
+		   ((eq e ?j) (setq arg (hycontrol-frame-resize-to-left arg)))
+		   ((eq e ?k) (setq arg (hycontrol-frame-resize-to-right arg)))
+		   ((eq e ?m) (setq arg (hycontrol-frame-resize-to-bottom arg)))
 		   ((eq e ?n) (shrink-window-horizontally arg))
 		   ((eq e ?o) (setq w (selected-window)) (other-window arg) (if (eq w (selected-window)) (other-window 1)))
 		   ((eq e ?O) (setq w (selected-window)) (other-frame arg) (if (eq w (selected-window)) (other-frame 1)))
-		   ;; ((memq e (list ?q (aref (kbd "<escape>") 0))) (throw 'done t))
+		   ;; Numeric keypad emulation for keyboards that lack one.
+		   ((eq e ?p) (hycontrol-virtual-numeric-keypad arg))
+		   ;; Don't use expr to the right; it prevents ESC use as Meta: ((memq e (list ?q (aref (kbd "<escape>") 0))) (throw 'done t))
 		   ((eq e ?q) (throw 'done t))
 		   ((eq e ?s) (shrink-window arg))
 		   ((eq e ?t) (throw 'done nil))
@@ -348,6 +370,20 @@ nothing and return nil."
 	t))))
 
 ;;; Frame Relocation Commands
+
+(defconst hycontrol--vnk-string
+  "(Virtual   7 8 9   Enter a digit to
+ Numeric   4 5 6   move the frame
+ Keypad)   1 2 3   to that quadrant"
+  "HyControl prompt string for virtual numeric keypad (emulate keypad when not available)")
+
+(defun hycontrol-virtual-numeric-keypad (arg)
+  (catch 'quit
+    (while (and (setq e (read-char hycontrol--vnk-string))
+		(not (when (memq e '(?q ?\C-g)) (throw 'quit nil)))
+		(or (not (numberp e)) (< e ?0) (> e ?9)))
+      (beep))
+    (hycontrol-numeric-keypad (- e ?0) arg)))
 
 (defun hycontrol-frame-to-screen-edges (&optional arg)
   "Cycle the selected frame's position clockwise through the middle of edges and corners of the screen; once per call.
@@ -459,39 +495,106 @@ With an optional arg of 0, just reset the cycle position to 0."
 		      hycontrol-screen-top-offset))
 
 ;;; Frame Resizing Commands
-(defun hycontrol-frame-expand-to-bottom ()
-  "Expand the selected frame to the bottom of the screen, allowing for hycontrol-screen-*-offsets."
-  (interactive)
-  (let ((frame-resize-pixelwise t))
-    (set-frame-height nil (- (display-pixel-height) (cdr (frame-position)) hycontrol-screen-bottom-offset)
-		      nil t)))
+(defun hycontrol-frame-resize-percentage (arg)
+  "ARG should be between 0 and 100.  0 means don't resize (return 1).
+1 is the default value which means cut the frame along the given dimension
+in half (return 0.5).  2-100 is converted to a percentage to multiply by.
+Over 100 is set to 100.  Under 0 is set to 0.  Floats between 0 and 1
+are taken as percentages and used.  Other floats are rounded.
+non-integer arguments are ignored and the default value is used."
+  (cond ((integerp arg)
+	 (cond 
+	   ((= arg 0) 1)
+	   ((= arg 1) 0.5)
+	   ((and (> arg 1) (<= arg 100)) (/ arg 100.0))
+	   ((< arg 0) 0)
+	   ((> arg 100) 1)))
+	((floatp arg)
+	 (if (and (<= 0.0 arg) (<= arg 1.0))
+	     arg
+	   (hycontrol-frame-resize-percentage (round arg))))
+	(t (hycontrol-frame-resize-percentage 1))))
 
-(defun hycontrol-frame-expand-to-left ()
-  "Expand the selected frame to the left of the screen, allowing for hycontrol-screen-*-offsets."
-  (interactive)
-  (let ((frame-resize-pixelwise t))
-    (set-frame-width nil (round (- (+ (hycontrol-frame-width) (car (frame-position)))
-				   (* 2.5 (frame-scroll-bar-width))
-				   hycontrol-screen-left-offset))
-		     nil t)
-    (set-frame-position nil hycontrol-screen-left-offset (cdr (frame-position)))))
+(defun hycontrol-frame-resize-arg (arg)
+  "Inverse result of `hycontrol-frame-resize-percentage' to provide feedback on any argument value adjustment."
+  (pcase arg
+    (0 0)
+    (1 1)
+    (50 1)
+    ;; Arg must be a percentage, scale it so not fractional.
+    ((pred numberp) (round (* arg 100)))
+    (_ 1)))
 
-(defun hycontrol-frame-expand-to-right ()
-  "Expand the selected frame to the right of the screen, allowing for hycontrol-screen-*-offsets."
-  (interactive)
+(defun hycontrol-frame-resize-to-bottom (&optional arg)
+  "Expand the selected frame to the bottom of the screen, allowing for hycontrol-screen-*-offsets.
+If already at the bottom, adjust its height to ARG percent of the screen (50% by default
+if ARG is 1 or nil) but keep it at the bottom of the screen."
+  (interactive "p")
+  (setq arg (hycontrol-frame-resize-percentage arg))
   (let ((frame-resize-pixelwise t))
-    (set-frame-width nil (round (- (display-pixel-width) (car (frame-position))
-				   (* 2.5 (frame-scroll-bar-width))
-				   hycontrol-screen-right-offset))
-		     nil t)))
+    (if (hycontrol-frame-at-bottom-p)
+	;; Reduce frame height to ARG percent, keeping bottom side fixed.
+	(set-frame-height nil (floor (* (frame-pixel-height) arg))
+			  nil t)
+      ;; Expand frame height all the way to the bottom, keeping top side fixed.
+      (set-frame-height nil (- (display-pixel-height) (cdr (frame-position)) hycontrol-screen-bottom-offset)
+			nil t))
+    (hycontrol-frame-to-bottom))
+  (hycontrol-frame-resize-arg arg))
+
+(defun hycontrol-frame-resize-to-left (&optional arg)
+  "Expand the selected frame to the left of the screen, allowing for hycontrol-screen-*-offsets.
+If already at the left, adjust its width to ARG percent of the screen (50% by default
+if ARG is 1 or nil) but keep it at the left of the screen."
+  (interactive "p")
+  (setq arg (hycontrol-frame-resize-percentage arg))
+  (let ((frame-resize-pixelwise t))
+    (if (hycontrol-frame-at-left-p)
+	;; Reduce frame width to ARG percent, keeping left side fixed.
+	(set-frame-width nil (floor (* (frame-pixel-width) arg)) nil t)
+      ;; Expand frame width all the way to the left, keeping right side fixed.
+      (set-frame-width nil (round (- (+ (hycontrol-frame-width) (car (frame-position)))
+				     (* 2.5 (frame-scroll-bar-width))
+				     hycontrol-screen-left-offset))
+		       nil t))
+    (hycontrol-frame-to-left))
+  (hycontrol-frame-resize-arg arg))
+
+(defun hycontrol-frame-resize-to-right (&optional arg)
+  "Expand the selected frame to the right of the screen, allowing for hycontrol-screen-*-offsets.
+If already at the right, adjust its width to ARG percent of the screen (50% by default
+if ARG is 1 or nil) but keep it at the right of the screen."
+  (interactive "p")
+  (setq arg (hycontrol-frame-resize-percentage arg))
+  (let ((frame-resize-pixelwise t))
+    (if (hycontrol-frame-at-right-p)
+	;; Reduce frame width to ARG percent, keeping right side fixed.
+	(set-frame-width nil (floor (* (frame-pixel-width) arg)) nil t)
+      ;; Expand frame width all the way to the right, keeping left side fixed.
+      (set-frame-width nil (round (- (display-pixel-width) (car (frame-position))
+				     (* 2.5 (frame-scroll-bar-width))
+				     hycontrol-screen-right-offset))
+		       nil t))
+    (hycontrol-frame-to-right))
+  (hycontrol-frame-resize-arg arg))
   
-(defun hycontrol-frame-expand-to-top ()
-  "Expand the selected frame to the top of the screen, allowing for hycontrol-screen-*-offsets."
-  (interactive)
-  (let ((frame-resize-pixelwise t))
-    (set-frame-height nil (- (+ (cdr (frame-position)) (hycontrol-frame-height)) hycontrol-screen-top-offset)
-		      nil t)
-    (set-frame-position nil (car (frame-position)) hycontrol-screen-top-offset)))
+(defun hycontrol-frame-resize-to-top (&optional arg)
+  "Expand the selected frame to the top of the screen, allowing for hycontrol-screen-*-offsets.
+If already at the top, adjust its height to ARG percent of the screen (50% by default
+if ARG is 1 or nil) but keep it at the top of the screen."
+  (interactive "p")
+  (setq arg (hycontrol-frame-resize-percentage arg))
+  (let ((frame-resize-pixelwise t)
+	(top (nth 1 (hycontrol-frame-edges))))
+    (if (hycontrol-frame-at-top-p)
+	;; Reduce frame height to ARG percent, keeping top side fixed.
+	(set-frame-height nil (floor (* (frame-pixel-height) arg)) nil t)
+      ;; Expand frame height all the way to the top, keeping bottom side fixed.
+      (set-frame-height nil (- (+ (cdr (frame-position)) (hycontrol-frame-height)) hycontrol-screen-top-offset)
+			nil t))
+    (hycontrol-frame-to-top))
+  (hycontrol-frame-resize-arg arg))
+
 
 (defun hycontrol-frame-minimize-lines ()
   "Shrink the frame to its approximate smallest number of lines to display all existing windows."
@@ -503,11 +606,6 @@ With an optional arg of 0, just reset the cycle position to 0."
 	      (setq l (+ 2 l (min (window-height) (count-lines (point-min) (point-max))))))
 	    (window-list nil 'nomini)))
     (set-frame-height nil l)))
-
-(defun hycontrol-frame-height-percentage-of-screen (percent)
-  "Resize the selected frame's height to be approximately PERCENT of the screen."
-  (interactive "nResize frame height to be this percent of the screen (1-100): ")
-  (hycontrol-frame-percentage-of-screen percent 'height))
 
 (defun hycontrol-frame-percentage-of-screen (percent &optional dimension)
   "Resize the selected frame to be approximately PERCENT of the screen.
@@ -535,6 +633,11 @@ width to affect only that dimension."
 					   percent))
 				 t))))
     (error "(hycontrol-frame-fraction-of-screen): `%s', must be a percent value between 0 and 100." percent)))
+
+(defun hycontrol-frame-height-percentage-of-screen (percent)
+  "Resize the selected frame's height to be approximately PERCENT of the screen."
+  (interactive "nResize frame height to be this percent of the screen (1-100): ")
+  (hycontrol-frame-percentage-of-screen percent 'height))
 
 (defun hycontrol-frame-width-percentage-of-screen (percent)
   "Resize the selected frame's width to be approximately PERCENT of the screen."
@@ -572,25 +675,36 @@ Do nothing and return nil if there are not precisely two windows."
       t)))
 
 ;; Derived from Emacs mouse.el.
-(defun hycontrol-window-to-frame ()
-  "Delete the selected window, and create a new frame displaying its buffer."
+;;;###autoload
+(defun hycontrol-window-to-new-frame ()
+  "Create a new frame sized to match the selected window and with its buffer.
+If there is only one window in the source frame or if `hycontrol-keep-window-flag'
+is non-nil, leave the original window and just clone it into the new frame."
   (interactive)
   (let ((w (selected-window))
 	buf)
     (cond ((window-minibuffer-p w)
 	   (beep)
 	   (minibuffer-message "(Hyperbole): Select a non-minibuffer window"))
-	  ((one-window-p t)
-	   (beep)
-	   (minibuffer-message "(Hyperbole): Selected window is already in its own frame"))
 	  (t
 	   ;; Give temporary modes such as isearch a chance to turn off.
 	   (run-hooks 'mouse-leave-buffer-hook)
 	   (setq buf (window-buffer w))
-	   (delete-window w)
 	   (display-buffer-pop-up-frame buf nil)
-	   (set-frame-position nil (+ (car hycontrol-frame-offset) (car (frame-position)))
-			       (+ (cdr hycontrol-frame-offset) (cdr (frame-position))))))))
+	   (set-frame-position nil (+ (car hycontrol-frame-offset)
+				      (car (frame-position (window-frame w))))
+			       (+ (cdr hycontrol-frame-offset)
+				  (cdr (frame-position (window-frame w)))))
+	   (set-frame-size nil (window-size w t t) (window-size w nil t) t)
+	   (with-selected-frame (window-frame w)
+	     (unless (or hycontrol-keep-window-flag (one-window-p t))
+	       (delete-window w)))))))
+
+;;;###autoload
+(defun hycontrol-clone-window-to-new-frame ()
+  "Create a new frame sized to match the selected window and with its buffer."
+  (let ((hycontrol-keep-window-flag t))
+    (hycontrol-window-to-new-frame)))
 
 ;;; Screen Offsets - Set once when this file is loaded; `hycontrol-set-screen-offsets' resets them.
 (defun hycontrol-display-screen-offsets ()
@@ -670,17 +784,52 @@ See its documentation for more information."
 	 (key-description e))
 	(t e)))
 
+(defsubst hycontrol-frame-edges (&optional frame)
+  "Return the outermost edges of optional or selected FRAME."
+  (frame-edges frame 'native-edges))
+
 (defun hycontrol-frame-height (&optional frame)
   "Return the height of optional FRAME or the selected frame.  This includes all graphical window manager decorations.
 Under a graphical window system, this is in pixels; otherwise, it is in characters."
-    (- (nth 3 (frame-edges frame 'outer-edges))
-       (nth 1 (frame-edges frame 'outer-edges))))
+    (- (nth 3 (hycontrol-frame-edges frame))
+       (nth 1 (hycontrol-frame-edges frame))))
 
 (defun hycontrol-frame-width (&optional frame)
   "Return the height of optional FRAME or the selected frame.  This includes all graphical window manager decorations.
 Under a graphical window system, this is in pixels; otherwise, it is in characters."
-    (- (nth 2 (frame-edges frame 'outer-edges))
-       (nth 0 (frame-edges frame 'outer-edges))))
+    (- (nth 2 (hycontrol-frame-edges frame))
+       (nth 0 (hycontrol-frame-edges frame))))
+
+
+;; Frame Resizing Support
+(defconst hycontrol-screen-offset-sensitivity 12
+  "Number of pixels a frame dimension can be off from its screen-offset and still be considered at the screen edge.")
+
+(defun hycontrol-frame-at-left-p ()
+  "Return non-nil if selected frame's left edge is at the left edge of the screen sans `hycontrol-screen-left-offset'."
+  (<= (- (nth 0 (hycontrol-frame-edges)) hycontrol-screen-left-offset)
+      hycontrol-screen-offset-sensitivity))
+
+(defun hycontrol-frame-at-top-p ()
+  "Return non-nil if selected frame's bottom is at the top of the screen sans `hycontrol-screen-top-offset'."
+  (<= (- (nth 1 (hycontrol-frame-edges)) hycontrol-screen-top-offset
+	 ;; Under macOS, frames are automatically offset vertically by
+	 ;; the height of the global menubar, so account for that.
+	 (if (eq system-type 'darwin) 23 0))
+      hycontrol-screen-offset-sensitivity))
+
+(defun hycontrol-frame-at-right-p ()
+  "Return non-nil if selected frame's right edge is at the right edge of the screen sans `hycontrol-screen-right-offset'."
+  (<= (- (display-pixel-width) (nth 2 (hycontrol-frame-edges)) hycontrol-screen-right-offset)
+      hycontrol-screen-offset-sensitivity))
+
+(defun hycontrol-frame-at-bottom-p ()
+  "Return non-nil if selected frame's bottom is at the bottom of the screen sans `hycontrol-screen-bottom-offset'."
+  (<= (- (display-pixel-height) (nth 3 (hycontrol-frame-edges)) hycontrol-screen-bottom-offset
+	 ;; Under macOS, frames are automatically offset vertically by
+	 ;; the height of the global menubar, so account for that.
+	 (if (eq system-type 'darwin) -23 0))
+      hycontrol-screen-offset-sensitivity))
 
 ;; Frame Zoom Support
 (defun hycontrol-frame-zoom (zoom-func arg max-msgs)
@@ -757,7 +906,11 @@ It is offset from the selected frame by `hycontrol-frame-offset' (x . y) pixels.
 	 (set-frame-position nil (+ x pixels) y)))))
 
 (defun hycontrol-numeric-keypad (e _arg)
-  (let ((num (- (aref (symbol-name e) 3) ?0)))
+  "Move the selected frame to a screen location based on the location of the last pressed numeric keypad key."
+  (let ((num (if (integerp e)
+		 e
+	       ;; kp-<num> symbol
+	       (- (aref (symbol-name e) 3) ?0))))
     (funcall
      (nth num '(nil hycontrol-frame-to-bottom-left hycontrol-frame-to-bottom-center hycontrol-frame-to-bottom-right
 		hycontrol-frame-to-left-center hycontrol-frame-to-center hycontrol-frame-to-right-center

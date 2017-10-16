@@ -122,6 +122,10 @@ Return t if cutoff, else nil."
 			'("----" "----")))))
 	 rest-of-menu)))
 
+(defun hui-menu-key-binding-item (item-name command)
+  "Return a key binding menu item string built from ITEM-NAME and COMMAND."
+  (format "%-30s {%s}" item-name (key-description (car (where-is-internal command)))))
+
 ;; Dynamically compute submenus for Screen menu
 (defun hui-menu-screen (_ignored)
   (list
@@ -194,17 +198,19 @@ Return t if cutoff, else nil."
 	     hpath:find-file-urls-mode
 	     :style toggle
 	     :selected hpath:find-file-urls-mode]
-	    "----"
-	    ("Change-Key-Bindings"
-	     ["Action-Key"              (hui:bind-key #'hkey-either) t]            ;; {M-RET}
-	     ["Button-Rename-Key"       (hui:bind-key #'hui:ebut-rename) t]        ;; {C-c C-r}
-	     ["Drag-Emulation-Key"      (hui:bind-key #'hkey-operate) t]           ;; {M-o}
-	     ["Hyperbole-Menu-Key"      (hui:bind-key #'hyperbole) t]              ;; {C-h h}
-	     ["Mark-Thing-Key"          (hui:bind-key #'hui-select-thing) t]       ;; {C-c C-m}
-	     ["Smart-Help-Key"          (hui:bind-key #'hkey-help) t]              ;; {C-h A}
-	     ["Windows-Control-Key"     (hui:bind-key #'hycontrol-windows) t]      ;; {C-C \}
-	     )
 	    "----")
+	  (list (list "Change-Key-Bindings"
+		      (vector (hui-menu-key-binding-item "Action-Key"          'hkey-either)       '(hui:bind-key #'hkey-either)
+			      :key-sequence "M-RET"
+			      :selected t)            ;; {M-RET}
+		      (vector (hui-menu-key-binding-item "Button-Rename-Key"   'hui:ebut-rename)   '(hui:bind-key #'hui:ebut-rename) t)        ;; {C-c C-r}
+		      (vector (hui-menu-key-binding-item "Drag-Emulation-Key"  'hkey-operate)      '(hui:bind-key #'hkey-operate) t)           ;; {M-o}
+		      (vector (hui-menu-key-binding-item "Hyperbole-Menu-Key"  'hyperbole)         '(hui:bind-key #'hyperbole) t)              ;; {C-h h}
+		      (vector (hui-menu-key-binding-item "Mark-Thing-Key"      'hui-select-thing)  '(hui:bind-key #'hui-select-thing) t)       ;; {C-c C-m}
+		      (vector (hui-menu-key-binding-item "Smart-Help-Key"      'hkey-help)         '(hui:bind-key #'hkey-help) t)              ;; {C-h A}
+		      (vector (hui-menu-key-binding-item "Windows-Control-Key" 'hycontrol-windows) '(hui:bind-key #'hycontrol-windows) t)      ;; {C-C \}
+		      ))
+	  '("----")
 	  (list (cons "Display-Referents-in"
 		      (mapcar (lambda (sym)
 				(vector

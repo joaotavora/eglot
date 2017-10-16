@@ -123,6 +123,14 @@ current context; {C-u C-h A} displays the same kind of help for the Assist
 Key.  Only a capital A will work, so be sure to press shift.  Try these
 help commands.
 
+You can also see what mouse-only events like mode-line clicks and drags across
+frames will do.  Depress the Smart Mouse Key you are interested in at
+a location, then while holding it down, depress the other Smart Mouse Key, move
+to any release point and then release both keys.  The help displayed will show
+you exactly what will happen in that context.  Try this for the Action Mouse Key
+by dragging horizontally at least 10 characters in this buffer and depressing
+the Assist Mouse Key before you finish the drag.
+
 Any buffer whose name ends in `Help*' is presumed to be a temporary buffer
 that you want to inspect and then remove from view.  If you press either the
 Action or Assist Key at the end of a help buffer, the buffer is buried from
@@ -201,7 +209,7 @@ command to return to this DEMO later.
 An incredibly powerful feature of Hyperbole is known as implicit buttons,
 i.e. a specific format of text within a buffer that Hyperbole recognizes as a
 button and lets you activate.  Hyperbole recognizes these by context and does
-require much of any specialized markup.
+not require any specialized markup.
 
 Note that you must press a Smart Key on the first line of an implicit button
 to utilize it if it spans multiple lines and always press on a regular
@@ -211,7 +219,7 @@ used to select groups of text.
 Hyperbole has many built-in implicit button types, a number of which you will
 see here, and allows you to create your own.  Once a type is known, you can
 embed an infinite number of buttons of that type within your text simply by
-typing them.  Let's look at some of these buttontypes and how you can use
+typing them.  Let's look at some of these button types and how you can use
 them.
 
 ** Key Sequence Buttons
@@ -251,7 +259,7 @@ Any existing absolute or relative pathname (whether doubly quoted or not)
 acts as an implicit button that either displays the referenced path within a
 buffer, passes it to an external viewer program, or runs a function that
 operates upon the path.  These are `pathname' implicit buttons.  For example,
-activate "HY-ABOUT".  HY-ABOUT or `HY-ABOUT' would work as well or
+activate "HY-ABOUT".  HY-ABOUT or `HY-ABOUT' would work as well.   Or try
 "~/.emacs".  Pathname implicit buttons provide one example of how Hyperbole
 can improve your working environment without requiring any work from you.
 
@@ -260,8 +268,8 @@ can improve your working environment without requiring any work from you.
 If you want to display a path at a specific line number and optionally column
 number, then add each number preceded by a colon at the end of the path.
 For example, "HY-ABOUT:10" displays HY-ABOUT at line 10, the second
-paragraph, with point at the start of the line.  "HY-ABOUT:18:7" shows the
-first numbered item on line 18 at column 7, where the text starts.
+paragraph, with point at the start of the line.  "HY-ABOUT:17:7" shows the
+first numbered item on line 17 at column 7, where the text starts.
 
 *** HTML Markdown and Emacs Outline Hash Links
 
@@ -444,15 +452,16 @@ includes your system information.
 An Action Key press on a social media hashtag or username reference at point
 displays the web page associated with the reference at the associated
 service.  References are of the form:
-[facebook|instagram|twitter]?[#@]<hashtag-or-username> or
-[fb|in|tw]?[#@]<hashtag-or-username>.  If no service is given, it defaults to
-the value of @code{hibtypes-social-default-service} which is initially
-"twitter".
+[facebook|instagram|twitter][#@]<hashtag-or-username> or
+[fb|in|tw][#@]<hashtag-or-username>.  If the service is omitted and there
+is no other usage of a hash reference without a prefix in the buffer, then
+the service defaults to the value of `hibtypes-social-default-service',
+which is initially "twitter".
 
-So all of the following make the same hashtag reference: #gnu twitter#gnu
-tw#gnu and display the page for tweets with that hashtag.  Similarly,
-in@lostart or instagram@lostart would display the page for the user lostart
-at instagram.  Try pressing the Action Key on these if you like.
+For example, these make the same hashtag reference: twitter#gnu or tw#gnu
+and display the page for tweets with that hashtag.  Similarly, in@lostart or
+instagram@lostart would display the page for the user lostart at instagram.
+Try pressing the Action Key on these if you like.
 
 The file "hib-social.el" has more details on this.
 
@@ -478,7 +487,7 @@ of the git commit hash code:
 An Action Key press on the first commit reference above works because
 user, project and commit hash code are all included.  The second and
 third versions require the setup of default values, as explained in
-"(hyperbole)github-reference".
+the commentary near the top of "hib-social.el".
 
 ** Git (Local) References
 
@@ -494,11 +503,9 @@ on your local system, then you can activate all of the following buttons.
 
 The first four examples work anywhere regardless of the buffer since Hyperbole
 locates all git repositories for you by repository/project name.  If you set a
-default project (see "(hyperbole)git-reference"), then the last example will
-work anywhere as well.
+default project, then the last example will work anywhere as well.
 
-** Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer
-   Lines
+** Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer Lines
 
 The output of `grep -n', the UNIX line pattern matcher, can be activated as
 buttons that jump to each matched line within its source file; use {M-x grep
@@ -510,7 +517,7 @@ along with GDB breakpoint listing lines also link to source lines.
 
 {C-h h f o} or {M-x occur RET} (find matches in a single buffer) and {C-h h f
 m} or {M-x moccur RET} (find matches across multiple buffers and files) also
-produce implicit button output that displays associated source lines.
+produce implicit button output that display associated source lines.
 
 If you have the Cscope C/C++ code analyzer from the AT&T Toolchest and have
 loaded the cscope.el library add-on for GNU Emacs, then the output lines
@@ -519,14 +526,15 @@ source lines.  Cscope goes beyond the basic Emacs tags facility to allow you
 to see the callers of a function and the functions called by a specific
 routine.
 
-Many of these `find a line' features exist in the Hyperbole Find/ menu.  Give
-it a try, e.g. to filter a file to just lines that don't match a pattern.
+Many of these find-a-line features exist in the Hyperbole Find/ menu,
+{C-h h f}.  Give it a try for fast access to complex file line filters,
+e.g. filter a file to just lines that don't match a pattern (RemoveLines).
 
 ** Annotated Bibliography Buttons
 
-Here's a use of an annotated bibliography reference implicit button which
-allows you to see a bibliography entry such as [FSF 16] when you activate the
-button between brackets.
+Annotated Bibliography references such as [FSF 16] may be embedded in any file
+and activated with the Action Key to find the reference at the end of the file.
+Try that one by pressing between the square brackets.
 
 ** Completion Selection
 
@@ -539,8 +547,8 @@ displayed.  Test this technique with a {C-x C-f} (find-file) and then a {?}.
 
 ** Hyperbole Source Buttons
 
-If you ask for help with the Assist Key or {C-u C-h A} from within the [FSF
-16] button, the first line of the help buffer will look like this:
+If you ask for help with the Assist Key or {C-u C-h A} from within the
+[FSF 16] button, the first line of the help buffer will look like this:
 
 @loc> "DEMO"
 
@@ -985,12 +993,11 @@ behavior.
 
 * Epilog
 
-We hope you have enjoyed this introduction to Hyperbole and see how it can
-help you as an every-ready sidekick as you work with information every day.
-Explore the Hyperbole menus to learn more interactively.  For reference, the
-Hyperbole Manual has more detail about the many things that Hyperbole does
-when you are ready to dive deeper.  Read it online with the GNU Info reader
-at "(hyperbole)Top".
+We hope you have enjoyed this introduction to Hyperbole. It can be your
+every-ready sidekick in your daily information work.  Explore the Hyperbole
+menus to learn more interactively.  For reference, the Hyperbole Manual, has
+more detail about the many things that Hyperbole does when you are ready to
+dive deeper.  Read it online with the GNU Info reader at "(hyperbole)Top".
 
 
 * References

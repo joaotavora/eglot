@@ -16,11 +16,11 @@
 ;;   When the referent is a web page, this calls the function given by
 ;;   `hibtypes-social-display-function' to display it, initially set to `browse-url'.
 ;;
-;;   A hashtag reference is either: [facebook|github|git|instagram|twitter]?#<hashtag>
-;;   or using 2-letter service abbreviations: [fb|gh|gt|in|tw]?#<hashtag>.
+;;   A hashtag reference is either: [facebook|github|git|instagram|twitter]#<hashtag>
+;;   or using 2-letter service abbreviations: [fb|gh|gt|in|tw]#<hashtag>.
 ;;
-;;   A username reference is either: [facebook|github|instagram|twitter]?@<username>
-;;   or [fb|gh|in|tw]?@<username>.
+;;   A username reference is either: [facebook|github|instagram|twitter]@<username>
+;;   or [fb|gh|in|tw]@<username>.
 ;;
 ;;   If the social media service is not given, it defaults to the value of
 ;;   `hibtypes-social-default-service', initially set to \"twitter\".

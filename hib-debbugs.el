@@ -27,7 +27,6 @@
 ;;   queries when pressed within any of the following buffer text
 ;;   formats (with point prior to any attribute):
 ;;
-;;      #id-number
 ;;      bug#id-number, bug# id-number, bug #id-number, or bug id-number
 ;;      bug?attr1=val1&attr2=val2&attr3=val3
 ;;      bug#id-number?attr1=val1&attr2=val2&attr3=val3
@@ -205,10 +204,12 @@ If this is a query with attributes, then (match-string 3) = \"?\" and (match-str
 	  (skip-chars-backward " \t\n\r\f")
 	  (skip-chars-backward "bugdiseBUGDISE#") ;; bug, debbugs or issue
 	  ;; Allow for bug#222?package=hyperbole&severity=high as well as
-	  ;; bug222, bug#222, or #222.
+	  ;; bug222, or bug#222.
 	  (or (looking-at "[ \t\n\r\f]*\\(bug#?\\|debbugs#?\\|issue#?\\)[ \t\n\r\f]*#?\\([1-9][0-9]*\\)?\\(\\?\\)\\([a-z=&0-9%;()]+\\)")
 	      (looking-at "[ \t\n\r\f]*\\(bug#?\\|debbugs#?\\|issue#?\\)[ \t\n\r\f]*#?\\([1-9][0-9]*\\)[\].,;?!\)\>\}]?\\([ \t\n\r\f]\\|\\'\\)")
-	      (looking-at "[ \t\n\r\f]*\\(bug\\|debbugs\\|issue\\)?[ \t\n\r\f]*#\\([1-9][0-9]*\\)[\].,;?!\)\>\}]?\\([ \t\n\r\f]\\|\\'\\)"))))))
+	      ;; Ignore matches like  #222, so this is not confused with "hib-social.el" social references.
+	      ;; (looking-at "[ \t\n\r\f]*\\(bug\\|debbugs\\|issue\\)?[ \t\n\r\f]*#\\([1-9][0-9]*\\)[\].,;?!\)\>\}]?\\([ \t\n\r\f]\\|\\'\\)")
+	      )))))
 
 (defun debbugs-query:status (id)
   "Pretty prints to standard-output the status attributes of debbugs ID (a positive integer).

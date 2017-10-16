@@ -1023,14 +1023,14 @@ signatures.  GNUS is a news and mail reader."
 @cindex cross-reference, Texinfo
 @item texinfo-ref
 Displays Texinfo, Info node or help associated with Texinfo node, menu
-item, @@xref, @@pxref, @@ref, @@code or @@var at point.  If point is
-within the braces of a cross-reference, the associated Info node is
+item, @@xref, @@pxref, @@ref, @@code, @@findex, @@var or @@vindex at point.
+If point is within the braces of a cross-reference, the associated Info node is
 shown.  If point is to the left of the braces but after the @@ symbol and
 the reference is to a node within the current Texinfo file, then the
 Texinfo node is shown.
 
-For @@code and @@var references, the associated documentation string
-is displayed.
+For @@code, @@findex, @@var and @@vindex references, the associated documentation
+string is displayed.
 
 @findex ibtypes mail-address
 @cindex e-mail address
@@ -2938,8 +2938,11 @@ based on mode.
 
 @kindex screen, f
 @kitem f
-In WINDOW mode, delete the selected window and redisplay its buffer in a
-new frame.
+Delete the selected window and redisplay its buffer in a new frame.
+@kindex screen, F
+@kitem F
+Clone the selected window into a new frame.
+
 
 @kindex screen, i
 @kindex screen, j
@@ -2956,9 +2959,9 @@ Respects the pixel edge offsets returned by
 
 @kindex screen, =
 @kitem =
-Make the current frame's windows or all frames approximately the same
-size based on mode.  In FRAME mode, all visible frames are set to the
-size of the selected frame.
+After confirmation, in WINDOW mode, make the current frame's windows
+approximately the same size.  In FRAME mode, make all visible frames
+the size of the selected frame.
 
 @kindex screen, -
 @kitem -
@@ -6861,28 +6864,35 @@ a vertical scroll bar:
 @group
 If depressed within a window mode line:
   ACTION KEY
-     (1) clicked on the left edge of a window's modeline, the window's
-         buffer is buried (placed at the bottom of the buffer list);
+     (1) clicked on the first blank character of a window's modeline,
+         the window's buffer is buried (placed at the bottom of the
+         buffer list);
      (2) clicked on the right edge of a window's modeline, the Info
          buffer is displayed, or if it is already displayed and the
          modeline clicked upon belongs to a window displaying Info,
          the Info buffer is hidden;
-     (3) clicked anywhere within the middle of a window's modeline,
+     (3) clicked on the buffer id of a window's modeline, dired is run
+         on the current directory, replacing the window's buffer;
+         successive clicks walk up the directory tree
+     (4) clicked anywhere within the middle of a window's modeline,
          the function given by `action-key-modeline-function' is called;
-     (4) dragged vertically from a modeline to within a window, the
+     (5) dragged vertically from a modeline to within a window, the
          modeline is moved to the point of the drag release, thereby
          resizing its window and potentially its vertically neighboring
          windows.
   ASSIST KEY
-     (1) clicked on the left edge of a window's modeline, the bottom
-         buffer in the buffer list is unburied and placed in the window;
+     (1) clicked on the first blank character of a window's modeline,
+         the bottom buffer in the buffer list is unburied and placed in
+         the window;
      (2) clicked on the right edge of a window's modeline, the summary
          of Smart Key behavior is displayed, or if it is already
          displayed and the modeline clicked upon belongs to a window
          displaying the summary, the summary buffer is hidden;
-     (3) clicked anywhere within the middle of a window's modeline,
+     (3) clicked on the buffer id of a window's modeline, the next
+         buffer in sequence is displayed in the window
+     (4) clicked anywhere within the middle of a window's modeline,
          the function given by `assist-key-modeline-function' is called;
-     (4) dragged vertically from a modeline to within a window, the
+     (5) dragged vertically from a modeline to within a window, the
          modeline is moved to the point of the drag release, thereby
          resizing its window and potentially its vertically neighboring
          windows.

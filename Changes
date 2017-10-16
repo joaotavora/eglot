@@ -1,3 +1,155 @@
+2017-10-16  Bob Weiner  <rsw@gnu.org>
+
+* hib-debbugs.el (debbugs-query:at-p): eliminated match of #id-number and always required
+   'bug' or similar prefix so there is no ambiguity with social references including
+   git #commit-number.
+
+* hmouse-drv.el (hkey-help): Updated to handle call-interactively actions and 'or'ed action
+    intelligently when printing action documentation.
+
+2017-10-15  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (action-key-depress-position, assist-key-depress-position): Added to
+    test whether or not last Action Mouse Key event was a mouse click (non-drag event).
+
+2017-10-14  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Added optional Python script,
+    topwin, for macOS window-system only.  It determines the topmost application window at
+    the given position and returns the application name, so Emacs can tell if its frame is
+    obscured by another application or not.
+                (hmouse-verify-release-window-flag): Added so can turn off use of the macOS
+    Python script when desired since it slows Smart Key action handling at least 1/3 of a
+    second. 
+
+* hycontrol.el (hycontrol-frames): Changed = command call to set-frame-size to use pixel
+    dimensions rather than chars/lines for better accuracy.
+    (hycontrol-window-to-new-frame): Same.
+
+* hui-menu.el (hui-menu-key-binding-item): Added.
+
+* hmouse-drv.el (hmouse-set-point): Fixed to return a posn object as a fallback, i.e. what 
+    event-start and event-end return; previously, had returned point as a marker in this case.
+    Keyboard-based emulation of mouse drags via hkey-operate had been broken; this fixed it.
+* hui-window.el (hmouse-x-coord, hmouse-y-coord): Updated to accept a posn.
+                (hmouse-modeline-event-p): Ignored case where args is a posn or point-marker,
+    not an event.
+
+2017-10-13  Bob Weiner  <rsw@gnu.org>
+
+* hversion.el (hyperb:window-sys-term): Emacs set-frame-parameter does not return the value, so
+    this function was always returning nil.  Fixed it to return what the doc says it does.
+
+* hycontrol.el (hycontrol-frame-at-left-p, hycontrol-frame-at-top-p, hycontrol-frame-at-right-p,
+    hycontrol-frame-at-bottom-p): Added.
+    (hycontrol-frame-expand-to-*): Rewrote these: first they expand a frame to a particular edge;
+      then the next invocation when already at that edge, cuts that frame dimension in half from the
+      opposite side (or to any percentage specified as an argument), leaving the particular edge fixed.
+      Renamed to hycontrol-frame-resize-to-*.  This allows both rapid expansion and contraction of
+      frames with just 4 keys whenever needed.
+    (hycontrol-frame-resize-percentage, hycontrol-frame-resize-arg): Added as support functions.
+    (hycontrol-frame-edges): Added to ensure outer edges of frames are always used.
+    (hycontrol-frames): Added arg as a 0-100 percentage for i,j,k,m commands.
+    (hycontrol-windows): Added same c (cycle frame positions), i,j,k,m keys and numeric
+       keypad keys to here.
+    (hycontrol-frames/windows): Added p (virtual numeric keypad) to allow keyboard-based frame
+       quadrant movement when a numeric keypad is not available.  This can be interrupted
+       with a q to return to the control menu or a C-g to abort the control menu.
+
+* hui-window.el (hmouse-horizontal-action-drag): Replaced doc typo of 'vertical' with 'horizontal'.
+
+* DEMO (Help buffers): Added description of how to get help for Smart Mouse Key-only events.
+
+* hycontrol.el (hycontrol-windows, hycontrol-frames): In window-control mode, changed {f}
+    to clone window to new frame without deleting the source window to match similar
+    Action Key drag from window/modeline to outside of any Emacs window.  Added {F} to clone but
+    delete the source window.  Added these 2 bindings to frame-control mode too.  Documented
+    in Hyperbole manual.
+
+    Expanded control help to 4 lines, added = command to equalize sizes of windows/frames,
+    added f/F commands.
+
+* hibtypes.el (texinfo-ref): Added doc display for Emacs Lisp @findex (function) and @vindex
+   (variable) entries.  Changed so does nothing if function or variable is unbound.
+   Updated its doc string and doc in the Hyperbole manual.
+
+* hmouse-drv.el (hkey-help): Changed to print "WHICH WILL:" rather than "WHICH:" when the first
+    word of the doc string does not end in an 's', e.g. "Display this" instead of "Displays this".
+
+* hui-window.el (hmouse-release-left-edge): Noted that left edge mode-line clicks must be on the
+    first blank character of the mode-line because Emacs overrides the Smart Mouse Key bindings
+    immediately after that position.  Noted in Hyperbole manual as well.
+
+* Makefile (version): Added hyperbole.el to version check.
+  hyperbole.el: Updated the Commentary with a description of Hyperbole in case the Emacs package
+    system or a user looks here for it.
+
+* hycontrol.el (hycontrol-clone-window-to-new-frame): Added and used in hmouse-alist.
+
+2017-10-12  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-window-to-frame): Renamed to hycontrol-window-to-new-frame.
+               (hycontrol-keep-window-flag): Added: When non-nil (default is nil), leave
+    original window when tear off window to another frame.
+
+* hui-window.el (hmouse-emacs-modeline-event-p, hmouse-modeline-event-p): Added.
+    (hmouse-modeline-depress, hmouse-modeline-release): Simplified and speeded up for GNU Emacs.
+    (action-key-modeline, assist-key-modeline):
+  man/hyperbole.texi (Modeline Clicks and Drags): Updated with new modeline buffer id click actions.
+  man/hkey-help.txt: Updated with most new drag and click actions.
+
+* hywconfig.el: Changed all (called-interactively-p 'interactive) to (called-interactively-p)
+    so will work if called interactively from one of the Smart Key lists.
+
+* DEMO: Fixed a number of small issues with implicit buttons therein.
+
+* hui-window.el (hmouse-drag-diagonally, hmouse-drag-horizontally, hmouse-drag-vertically):
+    Added explicit test that press and release are in the same window.
+    (hmouse-drag-item-to-display, hmouse-item-to-window): Added dired support.
+    (hmouse-pulse-flag): Disabled by default due to sluggishness and improper visuals at times.
+    (hmouse-map-modes-to-form, hmouse-drag-item-mode-forms): Added.
+    (hmouse-drag-item-to-display, hmouse-item-to-window): Updated to use the new variable,
+       hmouse-drag-item-mode-forms so users can add new modes for named item drags.
+
+* hui-window.el (hmouse-drag-between-frames): Added and used in hmouse-alist.
+                (hmouse-alist): Added modeline drags between frames and outside of Emacs.
+    Added window drags outside of any window (outside of Emacs).
+                (hmouse-clone-window-to-frame): Added and used in hmouse-alist.
+  man/hkey-help.txt: Updated with latest modeline and between window drag movements.
+
+2017-10-11  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-window-to-frame): Modified in the case of only one window in the frame,
+    then clone the window into a new frame.  This allows you to create a bunch of tiled frames
+    when in Window Control mode.  Also made this an autoload and called in "hui-window" within
+    hmouse-alist.
+
+* hui-window.el (hmouse-drag-outside-all-windows): Added to handle the case where a drag release is
+    outside of any Emacs window or frame and used in hmouse-alist.
+
+* hmouse-drv.el (hmouse-vertical-line-spacing): Added and used to compute vertical character positions.
+                (hmouse-key-release-window-emacs): Renamed to hmouse-key-release-window and used in
+    hmouse-function to set action/assist-key-release-window accurately.
+                (hmouse-function): Fixed so action/assist-key-release-prev-point is set properly,
+    before point is set to the location of the mouse button release.
+
+* hui-window.el (hmouse-drag-thing): Fixed to handle when release location is outside Emacs and
+    end-point is nil.
+                (hmouse-drag-same-window): Added and used in horizontal and vertical drag tests.
+
+* hmouse-key.el (hmouse-update-smart-keys): Extended to also re-initialize Smart Key bindings.
+
+* hmouse-drv.el (smart-scroll-up): Removed 's' from the end of verbs in all function comments,
+   e.g. scroll window instead of scrolls window, for consistency within the file.
+   (hmouse-window-at-absolute-pixel-position, hmouse-window-coordinates): Added to compute the
+      actual window and location of the release of a mouse drag which Emacs does not compute.
+      Proper top-to-bottom listing of frames is available only in Emacs 26 and above.  For
+      prior versions, the ordering of the frames returned is not guaranteed, so the frame
+      whose window is returned may not be the uppermost.
+
+   (hmouse-key-release-window-emacs, hmouse-key-release-args-emacs): Updated to use new window
+      of release functions.  Now drags between frames work properly.
+
 2017-10-10  Bob Weiner  <rsw@gnu.org>
 
 * hyperbole.el (after-init-time): Added hyperb:init to the end of after-init-hook;

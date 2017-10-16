@@ -31,19 +31,29 @@ Mouse-only Control
   Drag from shared window side
     or from left of scroll bar  Resizes window width       <- same
 
-  Modeline press+wind release   Resizes window height      <- same
-  Click in modeline
+  Drag between windows from     Displays buffer/file in    Swaps window buffers
+    buffer/file menu item         window of button release 
+  Other drag between windows    Creates/modifies a link    Swaps window buffers
+  Drag to outside Emacs from    Displays buffer/file in    Moves window to new frame
+    buffer/file menu item         a new frame
+
+  Modeline or other window drag
+    outside of Emacs            Clones window to new frame Moves window to new frame
+  Modeline drag to other frame  Clones window to frame     Moves window to frame
+  Modeline depress+wind release Resizes window height      <- same
+  Modeline Click
     Left modeline edge          Buries current buffer      Unburies bottom buffer
     Right modeline edge         Info manual browser        Smart Key summary
+    Buffer ID                   Dired on buffer's dir      Next buffer
     Other blank area            Action Key modeline hook   Assist Key modeline hook
                                   Show/Hide Buffer Menu      Popup Jump & Manage Menu
 
-  Drag between windows          Creates/modifies a link    Swaps wind buffers
   Drag in window, region active Error, not allowed         Error, not allowed
   Horizontal drag in a window   Splits window below        Deletes window
   Vertical drag in a window     Splits window side-by-side Deletes window
   Diagonal drag in a window     Saves wconfig              Restores wconfig from ring
-  Active region exists          Yanks sexp at release      Kills & yanks sexp at release
+
+  Active region exists          Yanks region at release    Kills & yanks region at release
 
 Hyperbole Key Press/Click in Special Modes
   Emacs Push Button             Activates button           Button help

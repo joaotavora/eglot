@@ -242,7 +242,7 @@ TAGS: $(EL_TAGS)
 version: doc
 	@ echo ""
 	@ echo "Any fgrep output means the version number has not been updated in that file."
-	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-ANNOUNCE-SHORT HY-NEWS README.md hversion.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
+	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-ANNOUNCE-SHORT HY-NEWS README.md hversion.el hyperbole.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
 	@ echo ""
 
 # Build the Info, HTML and Postscript versions of the user manual and README.md.html.

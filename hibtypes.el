@@ -832,13 +832,13 @@ any buffer attached to a file in `hyrolo-file-list', or any buffer with
 ;;; ========================================================================
 
 (defib texinfo-ref ()
-  "Displays Texinfo, Info node or help associated with Texinfo node, menu item, @xref, @pxref, @ref, @code or @var at point.
+  "Displays Texinfo, Info node or help associated with Texinfo node, menu item, @xref, @pxref, @ref, @code, @findex, @var or @vindex at point.
 If point is within the braces of a cross-reference, the associated
 Info node is shown.  If point is to the left of the braces but after
 the @ symbol and the reference is to a node within the current
 Texinfo file, then the Texinfo node is shown.
 
-For @code and @var references, the associated documentation string is displayed."
+For @code, @findex, @var and @vindex references, the associated documentation string is displayed."
   (if (memq major-mode '(texinfo-mode para-mode))
       (let ((opoint (point))
 	    (bol (save-excursion (beginning-of-line) (point))))
@@ -851,10 +851,16 @@ For @code and @var references, the associated documentation string is displayed.
 	      ;; Show doc for any Emacs Lisp identifier references,
 	      ;; marked with @code{} or @var{}.
 	      ((save-excursion
-		 (and (search-backward "@" bol t) (looking-at "@\\(code\\|var\\){\\([^\} \t\n\r]+\\)}")
+		 (and (search-backward "@" bol t)
+		      (or (looking-at "@\\(code\\|var\\){\\([^\} \t\n\r]+\\)}")
+			  (looking-at "@\\(findex\\|vindex\\)[ ]+\\([^\} \t\n\r]+\\)"))
 		      (>= (match-end 2) opoint)))
-	       (hact 'link-to-elisp-doc
-		     (intern (ibut:label-set (match-string 2) (match-beginning 2) (match-end 2)))))
+	       (let ((type-str (match-string 1))
+		     (symbol (intern-soft (ibut:label-set (match-string 2) (match-beginning 2) (match-end 2)))))
+		 (when (and symbol (pcase type-str
+				     ((or "code" "findex") (fboundp symbol))
+				     ((or "var" "vindex") (boundp symbol))))
+		   (hact 'link-to-elisp-doc symbol))))
 	      ;; If at an @node and point is within a node name reference
 	      ;; other than the current node, display it.
 	      ((save-excursion

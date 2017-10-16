@@ -144,10 +144,11 @@ mouse key the Paste Key instead of the Action Key."
       (error "(hmouse-toggle-bindings): `%s' is empty."
 	     (if hmouse-bindings-flag 'hmouse-previous-bindings 'hmouse-bindings)))))
 
-;; Define function to reload Smart Key actions after a source code change.
+;; Define function to reload Smart Key bindings and actions after a source code change.
 (defun hmouse-update-smart-keys ()
   "Reloads the contexts and actions associated with the Smart Keys after any programmatic changes are made."
   (interactive)
+  (hkey-initialize)
   (makunbound 'hkey-alist)
   (makunbound 'hmouse-alist)
   (let ((load-prefer-newer t))
