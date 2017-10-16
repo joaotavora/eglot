@@ -124,7 +124,19 @@ Return t if cutoff, else nil."
 
 (defun hui-menu-key-binding-item (item-name command)
   "Return a key binding menu item string built from ITEM-NAME and COMMAND."
-  (format "%-30s {%s}" item-name (key-description (car (where-is-internal command)))))
+  (format "%s(%s)" item-name (key-description (where-is-internal command nil t))))
+
+(defun hui-menu-key-bindings (rest-of-menu)
+  (nconc
+   (list
+    (vector (hui-menu-key-binding-item "Action-Key         \t\t\t" 'hkey-either)       '(hui:bind-key #'hkey-either) t)        ;; {M-RET}
+    (vector (hui-menu-key-binding-item "Button-Rename-Key  \t\t"   'hui:ebut-rename)   '(hui:bind-key #'hui:ebut-rename) t)    ;; {C-c C-r}
+    (vector (hui-menu-key-binding-item "Drag-Emulation-Key \t\t"   'hkey-operate)      '(hui:bind-key #'hkey-operate) t)       ;; {M-o}
+    (vector (hui-menu-key-binding-item "Hyperbole-Menu-Key \t"     'hyperbole)         '(hui:bind-key #'hyperbole) t)          ;; {C-h h}
+    (vector (hui-menu-key-binding-item "Mark-Thing-Key     \t\t"   'hui-select-thing)  '(hui:bind-key #'hui-select-thing) t)   ;; {C-c C-m}
+    (vector (hui-menu-key-binding-item "Smart-Help-Key     \t\t"   'hkey-help)         '(hui:bind-key #'hkey-help) t)          ;; {C-h A}
+    (vector (hui-menu-key-binding-item "Windows-Control-Key\t"     'hycontrol-windows) '(hui:bind-key #'hycontrol-windows) t)) ;; {C-C \}
+   rest-of-menu))
 
 ;; Dynamically compute submenus for Screen menu
 (defun hui-menu-screen (_ignored)
@@ -140,13 +152,11 @@ Return t if cutoff, else nil."
 
 (defun hui-menu-web-search ()
   ;; Pulldown menu
-  (let ((web-pulldown-menu
-	 (mapcar (lambda (service)
-		   (vector service
-			   (list #'hyperbole-web-search service nil)
-			   t))
-		 (mapcar 'car hyperbole-web-search-alist))))
-    web-pulldown-menu))
+  (mapcar (lambda (service)
+	    (vector service
+		    (list #'hyperbole-web-search service nil)
+		    t))
+	  (mapcar 'car hyperbole-web-search-alist)))
 
 ;;; ************************************************************************
 ;;; Public variables
@@ -199,17 +209,7 @@ Return t if cutoff, else nil."
 	     :style toggle
 	     :selected hpath:find-file-urls-mode]
 	    "----")
-	  (list (list "Change-Key-Bindings"
-		      (vector (hui-menu-key-binding-item "Action-Key"          'hkey-either)       '(hui:bind-key #'hkey-either)
-			      :key-sequence "M-RET"
-			      :selected t)            ;; {M-RET}
-		      (vector (hui-menu-key-binding-item "Button-Rename-Key"   'hui:ebut-rename)   '(hui:bind-key #'hui:ebut-rename) t)        ;; {C-c C-r}
-		      (vector (hui-menu-key-binding-item "Drag-Emulation-Key"  'hkey-operate)      '(hui:bind-key #'hkey-operate) t)           ;; {M-o}
-		      (vector (hui-menu-key-binding-item "Hyperbole-Menu-Key"  'hyperbole)         '(hui:bind-key #'hyperbole) t)              ;; {C-h h}
-		      (vector (hui-menu-key-binding-item "Mark-Thing-Key"      'hui-select-thing)  '(hui:bind-key #'hui-select-thing) t)       ;; {C-c C-m}
-		      (vector (hui-menu-key-binding-item "Smart-Help-Key"      'hkey-help)         '(hui:bind-key #'hkey-help) t)              ;; {C-h A}
-		      (vector (hui-menu-key-binding-item "Windows-Control-Key" 'hycontrol-windows) '(hui:bind-key #'hycontrol-windows) t)      ;; {C-C \}
-		      ))
+	  '(("Change-Key-Bindings" :filter hui-menu-key-bindings))
 	  '("----")
 	  (list (cons "Display-Referents-in"
 		      (mapcar (lambda (sym)
@@ -379,7 +379,7 @@ REBUILD-FLAG is non-nil, in which case the menu is rebuilt."
 		   ["Types"
 		    (hui:htype-help-current-window 'actypes) t]
 		   )
-		 (nconc
+		 (append
 		  '("Find"
 		    ["Manual"   (id-info-item "menu, Find") t]
 		    "----"

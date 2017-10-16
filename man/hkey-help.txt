@@ -33,13 +33,14 @@ Mouse-only Control
 
   Drag between windows from     Displays buffer/file in    Swaps window buffers
     buffer/file menu item         window of button release 
+  Modeline drag to another      Replaces dest. buffer with Swaps window buffers
+    window                        source buffer
   Other drag between windows    Creates/modifies a link    Swaps window buffers
   Drag to outside Emacs from    Displays buffer/file in    Moves window to new frame
     buffer/file menu item         a new frame
 
   Modeline or other window drag
     outside of Emacs            Clones window to new frame Moves window to new frame
-  Modeline drag to other frame  Clones window to frame     Moves window to frame
   Modeline depress+wind release Resizes window height      <- same
   Modeline Click
     Left modeline edge          Buries current buffer      Unburies bottom buffer

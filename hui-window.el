@@ -28,13 +28,14 @@
 ;;
 ;; Drag buffer/file menu item      Display buffer/file there   Swap window buffers
 ;;   to another window
+;; Modeline drag to another window Replace dest. buffer with   Swap window buffers
+;;                                   source buffer
 ;; Other drag between windows      Create/modify a link but    Swap window buffers
 ;; Drag buffer/file menu item      Display buffer/file
 ;;   outside of Emacs                in a new frame            Move window to a new frame
 ;;
 ;; Modeline or other window drag   Clone window to a new frame Move window to a new frame
 ;;   outside of Emacs              
-;; Modeline drag to another frame  Clone window to other frame Move window to other frame  
 ;; Modeline depress & wind release Resize window height        <- same
 ;; Click in modeline
 ;;     Left modeline edge          Bury buffer                 Unbury bottom buffer
@@ -163,9 +164,19 @@ drag release window.")
 		 ((hmouse-yank-region) . (hmouse-kill-and-yank-region)))
 		((hmouse-drag-window-side) .
 		 ((hmouse-resize-window-side) . (hmouse-resize-window-side)))
-		;; Modeline drag between frames
-		((and (hmouse-modeline-depress) (hmouse-drag-between-frames)) .
-		 ((hmouse-clone-window-to-frame) . (hmouse-move-window-to-frame)))
+		;;
+		;; Although Hyperbole can distinguish whether
+		;; inter-window drags are between frames or not,
+		;; having different behavior for those 2 cases could
+		;; be confusing, so treat all modeline drags between
+		;; windows the same and comment out this next clause.
+		;;   Modeline drag between frames
+		;;   ((and (hmouse-modeline-depress) (hmouse-drag-between-frames)) .
+		;;    ((hmouse-clone-window-to-frame) . (hmouse-move-window-to-frame)))
+		;;
+		;; Modeline drag between windows
+		((and (hmouse-modeline-depress) (hmouse-drag-between-windows)) .
+		 ((hmouse-buffer-to-window) . (hmouse-swap-buffers)))
 		;; Modeline drag that ends outside of Emacs
 		((and (hmouse-modeline-depress) (hmouse-drag-outside-all-windows)) .
 		 ((hycontrol-clone-window-to-new-frame) . (hycontrol-window-to-new-frame)))
@@ -633,6 +644,10 @@ Ignores minibuffer window."
 ;;; ************************************************************************
 ;;; Private functions
 ;;; ************************************************************************
+
+(defun hmouse-buffer-to-window ()
+  "Invoked via drag, replace the buffer in the Action Key release window with the buffer from the Action Key depress window."
+  (set-window-buffer action-key-release-window (window-buffer action-key-depress-window)))
 
 (defun hmouse-drag-not-allowed ()
   "Display an error when a region is active and in-window drags are not allowed."

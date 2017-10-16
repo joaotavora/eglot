@@ -1288,6 +1288,13 @@ If not on a file name, returns nil."
 			     (setq smart-outline-cut nil))))
 	  '(outline-mode-hook outline-minor-mode-hook)))
 
+(defun smart-outline-level ()
+  "Return current outline level if point is on a line that begins with `outline-regexp'."
+  (save-excursion
+    (beginning-of-line)
+    (when (looking-at outline-regexp)
+      (funcall outline-level))))
+
 (defun smart-outline ()
   "Collapses, expands, and moves outline entries.
 Invoked via a key press when in outline-mode.  It assumes that
@@ -1316,10 +1323,9 @@ If key is pressed:
 	  (or (outline-get-next-sibling)
 	      ;; Skip past start of current entry
 	      (progn (re-search-forward outline-regexp nil t)
-		     (smart-outline-to-entry-end t (outline-level))))))
+		     (smart-outline-to-entry-end t (funcall outline-level))))))
 
-	((or (eolp) (zerop (save-excursion (beginning-of-line)
-					   (outline-level))))
+	((or (eolp) (zerop (smart-outline-level)))
 	 (funcall action-key-eol-function))
 	;; On an outline heading line but not at the start/end of line.
 	((smart-outline-subtree-hidden-p)
@@ -1354,29 +1360,25 @@ If assist-key is pressed:
 		      ;; Skip past start of current entry
 		      (progn (re-search-forward outline-regexp nil t)
 			     (smart-outline-to-entry-end
-			      nil (outline-level)))))
-	((or (eolp) (zerop (save-excursion (beginning-of-line)
-					   (outline-level))))
+			      nil (funcall outline-level)))))
+	((or (eolp) (zerop (smart-outline-level)))
 	 (funcall assist-key-eol-function))
 	;; On an outline heading line but not at the start/end of line.
 	((smart-outline-subtree-hidden-p)
 	 (outline-show-entry))
 	(t (outline-hide-entry))))
 
-(defun smart-outline-to-entry-end
-  (&optional include-sub-entries curr-entry-level)
+(defun smart-outline-to-entry-end (&optional include-sub-entries curr-entry-level)
   "Goes to end of whole entry if optional INCLUDE-SUB-ENTRIES is non-nil.
 CURR-ENTRY-LEVEL is an integer representing the length of the current level
 string which matched to `outline-regexp'.  If INCLUDE-SUB-ENTRIES is nil,
 CURR-ENTRY-LEVEL is not needed."
   (let (next-entry-exists)
-    (while (and (setq next-entry-exists
-		      (re-search-forward outline-regexp nil t))
+    (while (and (setq next-entry-exists (re-search-forward outline-regexp nil t))
 		include-sub-entries
 		(save-excursion
 		  (beginning-of-line)
-		  (> (outline-level)
-		     curr-entry-level))))
+		  (> (funcall outline-level) curr-entry-level))))
     (if next-entry-exists
 	(progn (beginning-of-line) (point))
       (goto-char (point-max)))))

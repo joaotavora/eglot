@@ -411,7 +411,8 @@ These may be the bindings prior to initializing Hyperbole or the Hyperbole bindi
   "Move point to the position clicked on with the mouse.
 This should be bound to a mouse click event type.
 If PROMOTE-TO-REGION is non-nil and event is a multiple-click,
-select the corresponding element around point."
+select the corresponding element around point, with the resulting position of
+point determined by `mouse-select-region-move-to-beginning'."
   (interactive "e\np")
   (let ((start-w-or-f (posn-window (event-start event)))
 	(end-w-or-f   (posn-window (event-end event))))
@@ -426,7 +427,11 @@ select the corresponding element around point."
       ;; Give temporary modes such as isearch a chance to turn off.
       (run-hooks 'mouse-leave-buffer-hook)
       (if (and promote-to-region (> (event-click-count event) 1))
-	  (mouse-set-region event)
+	  (progn (mouse-set-region event)
+		 (when (and (boundp 'mouse-select-region-move-to-beginning)
+			    mouse-select-region-move-to-beginning)
+		   (when (> (posn-point (event-start event)) (region-beginning))
+		     (exchange-point-and-mark))))
 	;; Use event-end in case called from mouse-drag-region.
 	;; If EVENT is a click, event-end and event-start give same value.
 	(if (and (window-minibuffer-p end-w-or-f)

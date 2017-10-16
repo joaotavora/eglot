@@ -1,3 +1,21 @@
+2017-10-16  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-drag-between-frames): Removed from hmouse-alist; treat this context
+    the same as a drag between windows within one frame, for consistency.
+
+* hui-menu.el (hui-menu-key-bindings): Added for use as menu filter for Hyperbole/Options/Change-Key-Bindings
+    so displayed key bindings are always up-to-date.
+
+* hui-mouse.el (smart-outline-level): Added and used instead of (outline-level) which assumes
+    its caller has already generated match data, which is not always the case in Hyperbole.
+
+* hmouse-sh.el (hmouse-move-point-emacs): Added mouse-select-region-move-to-beginning handling
+    that appeared in Emacs 26.1 and noted this in the function documentation.
+
+* hui-window.el (hmouse-buffer-to-window): Added along with drag from mode-line to another
+    window context to replace the buffer in a dest. window with the buffer from the source
+    window.
+
 ----
 
 2017-10-16  Bob Weiner  <rsw@gnu.org>
@@ -22,7 +40,7 @@
     obscured by another application or not.
                 (hmouse-verify-release-window-flag): Added so can turn off use of the macOS
     Python script when desired since it slows Smart Key action handling at least 1/3 of a
-    second. 
+    second.
 
 * hycontrol.el (hycontrol-frames): Changed = command call to set-frame-size to use pixel
     dimensions rather than chars/lines for better accuracy.
