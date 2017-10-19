@@ -88,7 +88,7 @@ If the query includes a single id number, displays the original message
 submission for that id and allows browsing of the followup discussion.
 The following buffer text formats are accepted (with point prior to any
 attribute): 
-   #id-number
+
    bug#id-number or bug# id-number or bug #id-number
    bug?attr1=val1&attr2=val2&attr3=val3
    bug#id-number?attr1=val1&attr2=val2&attr3=val3

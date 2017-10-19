@@ -530,8 +530,9 @@ point determined by `mouse-select-region-move-to-beginning'."
     (setq hmouse-bindings (hmouse-get-bindings hmouse-middle-flag)
 	  hmouse-bindings-flag t)))
 
-(defun hmouse-unshifted-setup (&optional _hmouse-middle-flag)
-  "Binds the middle mouse key to the Action Key."
+(defun hmouse-unshifted-setup (&optional middle-key-only-flag)
+  "Binds the middle mouse key as the Action Key and the right mouse key as the Assist Key.
+With optional MIDDLE-KEY-ONLY-FLAG non-nil, binds only the middle mouse key."
   (interactive)
   (cond	;; GNU Emacs
    (hyperb:emacs-p
@@ -540,11 +541,11 @@ point determined by `mouse-select-region-move-to-beginning'."
     (var:add-and-run-hook 'Info-mode-hook
 			  (lambda () (define-key Info-mode-map [mouse-2] nil)))
     ;;
-    (if (not (eq window-system 'dps))
+    (unless (eq window-system 'dps)
 	;; X, OS X or MS Windows
-	(progn (hmouse-bind-key-emacs 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
-	       ;; (hmouse-bind-key-emacs 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs)
-	       )))
+      (hmouse-bind-key-emacs 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
+      (unless middle-key-only-flag
+	(hmouse-bind-key-emacs 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs))))
    ;;
    ;; XEmacs
    ((featurep 'xemacs)
@@ -559,23 +560,23 @@ point determined by `mouse-select-region-move-to-beginning'."
     ;;
     (global-set-key 'button2     'action-key-depress)
     (global-set-key 'button2up   'action-mouse-key)
-    ;; (if (and (boundp 'Info-mode-map) (keymapp Info-mode-map))
-    ;;    (funcall (lambda () (define-key Info-mode-map 'button3 nil)))
-    ;;  (add-hook 'Info-mode-hook unbind-but3))
-    ;; (if (boundp 'mode-line-map)
-    ;;    (progn (define-key mode-line-map 'button3   'assist-key-depress)
-    ;;	   (define-key mode-line-map 'button3up 'assist-mouse-key)))
-    ;; (global-set-key 'button3     'assist-key-depress)
-    ;; (global-set-key 'button3up   'assist-mouse-key)
-    )
+    (unless middle-key-only-flag
+      (if (and (boundp 'Info-mode-map) (keymapp Info-mode-map))
+          (funcall (lambda () (define-key Info-mode-map 'button3 nil)))
+	(add-hook 'Info-mode-hook unbind-but3))
+      (when (boundp 'mode-line-map)
+        (define-key mode-line-map 'button3   'assist-key-depress)
+    	(define-key mode-line-map 'button3up 'assist-mouse-key))
+      (global-set-key 'button3     'assist-key-depress)
+      (global-set-key 'button3up   'assist-mouse-key)))
    ;;
    ;; X
    ((equal (hyperb:window-system) "xterm")
     (define-key mouse-map x-button-middle 'action-key-depress)
     (define-key mouse-map x-button-middle-up 'action-mouse-key)
-    ;; (define-key mouse-map x-button-right 'assist-key-depress)
-    ;; (define-key mouse-map x-button-right-up 'assist-mouse-key)
-    )))
+    (unless middle-key-only-flag
+      (define-key mouse-map x-button-right 'assist-key-depress)
+      (define-key mouse-map x-button-right-up 'assist-mouse-key)))))
 
 (provide 'hmouse-sh)
 

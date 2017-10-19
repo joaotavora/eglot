@@ -25,30 +25,36 @@
 ;;
 ;; Drag from shared window side
 ;;   or from left of scroll bar    Resize window width         <- same
+;; Modeline vertical drag          Resize window height        <- same
 ;;
-;; Drag buffer/file menu item      Display buffer/file there   Swap window buffers
-;;   to another window
-;; Modeline drag to another window Replace dest. buffer with   Swap window buffers
-;;                                   source buffer
-;; Other drag between windows      Create/modify a link but    Swap window buffers
-;; Drag buffer/file menu item      Display buffer/file
-;;   outside of Emacs                in a new frame            Move window to a new frame
+;; Other Modeline drag to          Replace dest. buffer with   Swap window buffers
+;;   another window                  source buffer
 ;;
-;; Modeline or other window drag   Clone window to a new frame Move window to a new frame
-;;   outside of Emacs              
-;; Modeline depress & wind release Resize window height        <- same
+;; Drag between windows from:
+;;   buffer/file menu item         Display buffer/file in      Swap window buffers
+;;                                   window of button release
+;;   buffer/file menu 1st line     Move buffer/file menu       Swap window buffers
+;;   anywhere else                 Create/modify a link button Swap window buffers
+;;
+;; Drag outside of Emacs from:
+;;   buffer/file menu item         Display buffer/file in      Move window to a new frame
+;;                                   a new frame
+;;   Modeline or other window      Clone window to a new frame Move window to a new frame
+;;
 ;; Click in modeline
 ;;     Left modeline edge          Bury buffer                 Unbury bottom buffer
 ;;     Right modeline edge         Info                        Smart Key Summary
 ;;     Buffer ID                   Dired on buffer's dir       Next buffer
 ;;     Other blank area            Action Key modeline hook    Assist Key modeline hook
+;;                                   Show/Hide Buffer Menu      Popup Jump & Manage Menu
 ;;
 ;; Drag in a window, region active Error, not allowed          Error, not allowed
 ;; Drag horizontally in a window   Split window below          Delete window
 ;; Drag vertically in a window     Split window side-by-side   Delete window
 ;; Drag diagonally in a window     Save window-config          Restore window-config from ring
 ;;
-;; Active region exists            Yank region at release      Kill region and yank at release
+;; Active region exists, click     Yank region at release      Kill region and yank at release
+;;   outside of the region
 
 ;;; Code:
 ;;; ************************************************************************
@@ -104,7 +110,15 @@ of screen control commands."
     (ibuffer-mode (ibuffer-current-buffer t))
     (helm-major-mode (helm-get-selection (current-buffer)))
     ;; Note how multiple major modes may be grouped with a single form for item getting.
-    ((dired-mode vc-dired-mode wdired-mode) (dired-get-filename nil t))))
+    ((dired-mode vc-dired-mode wdired-mode) (or (when (dired-get-filename nil t)
+						  (hmouse-dired-display-here-mode 1)
+						  (dired-get-filename nil t))
+						;; Drag from first line current directory
+						;; means move this dired buffer to the
+						;; release window.
+						(prog1 (current-buffer)
+						  (hmouse-pulse-buffer)
+						  (bury-buffer))))))
   "List of (major-mode lisp-form) lists.
 The car of an item must be a major-mode symbol.  The cadr of an item
 is a Lisp form to evaluate to get the item name at point (typically a
@@ -174,8 +188,9 @@ drag release window.")
 		;;   ((and (hmouse-modeline-depress) (hmouse-drag-between-frames)) .
 		;;    ((hmouse-clone-window-to-frame) . (hmouse-move-window-to-frame)))
 		;;
-		;; Modeline drag between windows
-		((and (hmouse-modeline-depress) (hmouse-drag-between-windows)) .
+		;; Non-vertical Modeline drag between windows
+		((and (hmouse-modeline-depress) (hmouse-drag-between-windows)
+		      (not (hmouse-drag-vertically-within-emacs))) .
 		 ((hmouse-buffer-to-window) . (hmouse-swap-buffers)))
 		;; Modeline drag that ends outside of Emacs
 		((and (hmouse-modeline-depress) (hmouse-drag-outside-all-windows)) .
@@ -266,6 +281,31 @@ part of InfoDock and not a part of Hyperbole)."
 			 (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point)))
        (goto-char hkey-value)
        (hmouse-save-region)))
+
+(defun hmouse-dired-readin-hook ()
+  "Remove local `hpath:display-where' setting whenever re-read a dired directory.
+See `hmouse-dired-item-dragged' for use."
+  (hmouse-dired-display-here-mode 0))
+
+(define-minor-mode hmouse-dired-display-here-mode
+  "Once a dired buffer item has been dragged, make next Action Key press on an item display it in the same dired window.
+
+By default an Action Key press on a dired item displays it in another
+window.   But once a Dired item is dragged to another window, the next
+Action Key press should display it in the dired window so that the
+behavior matches that of Buffer Menu and allows for setting what is
+displayed in all windows on screen, including the dired window.
+
+If the directory is re-read into the dired buffer with {g}, then Action
+Key behavior reverts to as though no items have been dragged."
+  nil
+  " DisplayHere"
+  nil
+  (if hmouse-dired-display-here-mode
+      (progn (set (make-local-variable 'hpath:display-where) 'this-window)
+	     (add-hook 'dired-after-readin-hook 'hmouse-dired-readin-hook nil t))
+    (kill-local-variable 'hpath:display-where)
+    (remove-hook 'dired-after-readin-hook 'hmouse-dired-readin-hook t)))
 
 (defun hmouse-drag-region-active ()
   "Return non-nil if an active region existed in the depress buffer prior to the depress and a drag motion has occurred."
@@ -492,12 +532,12 @@ Value returned is nil if not a horizontal drag, 'left if drag moved left or
 	      hmouse-y-drag-sensitivity)
 	   (if (< last-depress-x last-release-x) 'right 'left)))))
 
-(defun hmouse-drag-vertically ()
-  "Returns non-nil iff last Action Key use was a vertical drag within a single window.
+(defun hmouse-drag-vertically-within-emacs ()
+  "Returns non-nil iff last Action Key use was a vertical drag that started and ended within the same Emacs frame.
 If free variable `assist-flag' is non-nil, uses Assist Key.
 Value returned is nil if not a vertical line drag, 'up if drag moved up or
 'down otherwise."
-  (when (hmouse-drag-same-window)
+  (unless (or (hmouse-drag-between-frames) (hmouse-drag-outside-all-windows))
     (let ((last-depress-x) (last-release-x)
 	  (last-depress-y) (last-release-y))
       (if assist-flag
@@ -520,6 +560,14 @@ Value returned is nil if not a vertical line drag, 'up if drag moved up or
 		  (min last-depress-x last-release-x))
 	       hmouse-x-drag-sensitivity)
 	   (if (< last-depress-y last-release-y) 'down 'up)))))
+
+(defun hmouse-drag-vertically ()
+  "Returns non-nil iff last Action Key use was a vertical drag within a single window.
+If free variable `assist-flag' is non-nil, uses Assist Key.
+Value returned is nil if not a vertical line drag, 'up if drag moved up or
+'down otherwise."
+  (when (hmouse-drag-same-window)
+    (hmouse-drag-vertically-within-emacs)))
 
 (defun hmouse-drag-window-side ()
   "Returns non-nil if Action Key was dragged from a window side divider.
@@ -742,7 +790,9 @@ buffer itself to the release location."
 	(select-window w2)))
     (unwind-protect
 	(cond ((not w1-ref)
-	       (error "(hmouse-item-to-window): Action Mouse Key item drag must start in a live window"))
+	       (if (not (window-live-p w1))
+		   (error "(hmouse-item-to-window): Action Mouse Key item drag must start in a live window")
+		 (error "(hmouse-item-to-window): No item to display at start of Action Mouse Key drag")))
 	      ((buffer-live-p w1-ref)
 	       (set-window-buffer w2 w1-ref)
 	       (hmouse-pulse-buffer))

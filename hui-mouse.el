@@ -598,6 +598,22 @@ If assist-key is pressed:
 ;;; smart-dired functions
 ;;; ************************************************************************
 
+(defun smart-dired-pathname-up-to-point ()
+  "Assume point is on the first line of a Dired buffer.  Return the part of the pathname up through point, else the current directory path.
+Use for direct selection of an ancestor directory of this directory."
+  (interactive)
+  (if (not (looking-at "\\s-*$"))
+      (save-excursion
+	(re-search-forward "[/:\n]" nil t)
+	(buffer-substring-no-properties
+	 (if (and (not (bobp)) (= (preceding-char) ?/))
+	     (point)
+	   (1- (point)))
+	 (progn (beginning-of-line)
+		(skip-syntax-forward "-")
+		(point))))
+    default-directory))
+
 (defun smart-dired ()
   "Uses a single key or mouse key to manipulate directory entries.
 
@@ -606,24 +622,40 @@ caller has already checked that the key was pressed in an appropriate buffer
 and has moved the cursor there.
 
 If key is pressed:
- (1) within an entry line, the selected file/directory is displayed for
-     editing in the other window;
- (2) on the first line of the buffer, if any deletes are to be
-     performed, they are executed after user verification; otherwise, nothing
-     is done;
- (3) on or after the last line in the buffer, this dired invocation is quit."
+ (1) within an entry line, the selected file/directory is displayed
+     for editing, normally in another window but if an entry has been dragged
+     for display in another window, then this entry is displayed in the current
+     window (DisplayHere minor mode is shown in the mode-line; use {g}
+     to disable it)
+ (2) on the first line of the buffer (other than the end of line):
+     (a) within the leading whitespace, then if any deletes are to be
+         performed, they are executed after user verification; otherwise,
+         nothing is done;
+     (b) otherwise, dired is run in another window on the ancestor directory
+         of the current directory path up through the location of point;
+         if point is before the first character, then the / root directory
+         is used.
+ (3) on or after the last line in the buffer or at the end of the first line,
+     this dired invocation is quit."
 
   (interactive)
   (cond ((first-line-p)
-	 (if (save-excursion
-	       (goto-char (point-min))
-	       (re-search-forward "^D" nil t))
-	     (cond ;; For Tree-dired compatibility
-	      ((fboundp 'dired-do-flagged-delete)
-	       (dired-do-flagged-delete))
-	      ((fboundp 'dired-do-deletions)
-	       (dired-do-deletions))
-	      (t (error "(smart-dired): No Dired expunge function.")))))
+	 (cond ((eolp) (quit-window))
+	       ((and (looking-at "\\s-")
+		     (save-excursion
+		       (skip-syntax-backward "-"))
+		     (bolp))
+		;; In whitespace at beginning of 1st line, perform deletes.
+		(if (save-excursion
+		      (goto-char (point-min))
+		      (re-search-forward "^D" nil t))
+		    (cond ;; For Tree-dired compatibility
+		     ((fboundp 'dired-do-flagged-delete)
+		      (dired-do-flagged-delete))
+		     ((fboundp 'dired-do-deletions)
+		      (dired-do-deletions))
+		     (t (error "(smart-dired): No Dired expunge function.")))))
+	       (t (hpath:find (smart-dired-pathname-up-to-point)))))
 	((last-line-p)
 	 (quit-window))
 	(t (hpath:find (dired-get-filename)))))
@@ -642,11 +674,11 @@ If assist-key is pressed:
      deletion;
  (3) anywhere else within an entry line, the current entry is marked for
      deletion;
- (4) on or after the last line in the buffer, all delete marks on all entries
-     are undone."
+ (4) on or after the last line in the buffer or at the end of the
+     first line, all delete marks on all entries are undone."
 
   (interactive)
-  (cond ((last-line-p)
+  (cond ((or (last-line-p) (and (first-line-p) (eolp)))
 	 (dired-unmark-all-files ?D)
 	 (goto-char (point-max)))
 	((looking-at "~") (dired-flag-backup-files))
@@ -1289,11 +1321,12 @@ If not on a file name, returns nil."
 	  '(outline-mode-hook outline-minor-mode-hook)))
 
 (defun smart-outline-level ()
-  "Return current outline level if point is on a line that begins with `outline-regexp'."
+  "Return current outline level if point is on a line that begins with `outline-regexp', else 0."
   (save-excursion
     (beginning-of-line)
-    (when (looking-at outline-regexp)
-      (funcall outline-level))))
+    (if (looking-at outline-regexp)
+	(funcall outline-level)
+      0)))
 
 (defun smart-outline ()
   "Collapses, expands, and moves outline entries.

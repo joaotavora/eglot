@@ -124,7 +124,8 @@ Return t if cutoff, else nil."
 
 (defun hui-menu-key-binding-item (item-name command)
   "Return a key binding menu item string built from ITEM-NAME and COMMAND."
-  (format "%s(%s)" item-name (key-description (where-is-internal command nil t))))
+  (concat item-name (when (where-is-internal command nil t)
+		      (format "(%s)" (key-description (where-is-internal command nil t))))))
 
 (defun hui-menu-key-bindings (rest-of-menu)
   (nconc

@@ -654,7 +654,7 @@ the position (not below another application's window)."
 					    (hmouse-vertical-line-spacing in-frame)))))
 	    (setq window (window-at char-x line-y in-frame)))
 	  ;;
-	  ;; Even if in-frame is found, under click-to-focus external window
+	  ;; Otherwise, even if in-frame is found, under click-to-focus external window
 	  ;; managers, Emacs may have received the drag release event when
 	  ;; in-frame was covered by an external application's window.
 	  ;; Emacs presently has no way to handle this.  However, for the
@@ -665,24 +665,28 @@ the position (not below another application's window)."
 	  ;;
 	  (when (and hmouse-verify-release-window-flag
 		     window (eq (window-system) 'ns))
-	    (let ((topwin (executable-find "topwin"))
-		  (case-fold-search t)
-		  topmost-app)
-	      (when (and topwin (file-executable-p topwin))
-		(setq topmost-app (shell-command-to-string
-				   (format "topwin %d %d" pos-x pos-y)))
-		(cond ((string-match "emacs" topmost-app)) ; In an Emacs frame, do nothing.
-		      ((or (equal topmost-app "")
-			   ;; Any non-Emacs app window
-			   (string-match "\\`\\[" topmost-app))
-		       ;; Outside of any Emacs frame
-		       (setq window nil))
-		      (t		; topwin error message
-		       ;; Setup of the topwin script is somewhat complicated,
-		       ;; so don't trigger an error just because of it.  But
-		       ;; display a message so the user knows something happened
-		       ;; when topwin encounters an error.
-		       (message "(Hyperbole): topwin Python script error: %s" topmost-app)))))))))
+	    ;; If depress and release windows are the same and frame has
+	    ;; an auto-raise property, then we know this window was
+	    ;; uppermost at the point of release and can skip this computation.
+	    (unless (and (eq depress-window window) (frame-parameter nil 'auto-raise))
+	      (let ((topwin (executable-find "topwin"))
+		    (case-fold-search t)
+		    topmost-app)
+		(when (and topwin (file-executable-p topwin))
+		  (setq topmost-app (shell-command-to-string
+				     (format "topwin %d %d" pos-x pos-y)))
+		  (cond ((string-match "emacs" topmost-app)) ; In an Emacs frame, do nothing.
+			((or (equal topmost-app "")
+			     ;; Any non-Emacs app window
+			     (string-match "\\`\\[" topmost-app))
+			 ;; Outside of any Emacs frame
+			 (setq window nil))
+			(t ;; topwin error message
+			 ;; Setup of the topwin script is somewhat complicated,
+			 ;; so don't trigger an error just because of it.  But
+			 ;; display a message so the user knows something happened
+			 ;; when topwin encounters an error.
+			 (message "(Hyperbole): topwin Python script error: %s" topmost-app))))))))))
 
     (when (called-interactively-p 'interactive)
       (message "%s at absolute pixel position %s"

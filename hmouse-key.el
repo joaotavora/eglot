@@ -111,7 +111,7 @@ Assist Key = shift-right mouse key."
   (if (called-interactively-p 'interactive)
       ;; Assume emacs has support for 3 mouse keys.
       (message "%s the Action Mouse Key; {Shift-Mouse-3} invokes the Assist Mouse Key."
-	       (if hmouse-middle-flag "{Mouse-2} and {Shift Mouse-2} invoke"
+	       (if hmouse-middle-flag "{Mouse-2} and {Shift-Mouse-2} invoke"
 		 "{Shift-Mouse-2} invokes"))))
 
 (defun hmouse-add-unshifted-smart-keys ()

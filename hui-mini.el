@@ -345,6 +345,7 @@ constructs.  If not given, the top-level Hyperbole menu is used."
       menu-line)))
 
 (defun hui:menu-web-search ()
+  "Hyperbole minibuffer menu of web search engines."
   (let ((web-mini-menu
 	 (cons 'web
 	       (cons '("Web>")

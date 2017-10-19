@@ -3,8 +3,8 @@
 Welcome to GNU Hyperbole.  Hyperbole will super-charge your GNU Emacs
 experience, allowing you to work faster, utilize fewer key bindings, recall
 more information and link it all together by learning just a few concepts and
-keys.  Invest an hour learning Hyperbole now and save many hours for years to
-come.
+keys.  Invest an hour learning Hyperbole now and speed your daily information
+management for years to come.
 
 If you simply want to know what Hyperbole is, see the file "HY-ABOUT".
 Hyperbole displays that file when you press {C-h h d a}.  Hyperbole assumes
@@ -31,11 +31,14 @@ Assist Key, jointly referred to as Smart Keys that each do dozens of
 things, essentially whatever is most helpful in any given textual
 context where they are pressed.  The Action Key is {M-RET} (ESC RETURN
 if you are unsure) on the keyboard and the shift-middle mouse button
-on a 3-button mouse or the shift-left button on a two button mouse.  The
-Assist Key is {C-u M-RET} and the shift-right mouse button. Memorize
-these keys; you will use them a lot.  To distinguish the mouse buttons
-from the keyboard keys, we will often refer to the Action Mouse Key or
-Assist Mouse Key.
+on a 3-button mouse or the shift-left button on a two button mouse.
+The Assist Key is {C-u M-RET} and the shift-right mouse button.
+Memorize these keys; you will use them a lot.  To distinguish the
+mouse buttons from the keyboard keys, we will often refer to the
+Action Mouse Key or Assist Mouse Key.  (It is possible to rebind these
+keys to the unshifted middle and right mouse buttons, if desired.
+See the Smart Key Bindings section of the Hyperbole Manual,
+"(hyperbole)Smart Key Bindings").
 
 The Action Key selects entities, creates links and activates buttons.
 The Assist Key provides help, such as reporting on a button's
@@ -769,7 +772,7 @@ this, {C-h h c m} will toggle this feature on and off.
 
 * Smart Mouse Keys
 
-If you use Emacs with mouse support under the OS X window system, the X
+If you use Emacs with mouse support under the macOS window system, the X
 Window System or MS Windows, Hyperbole automatically configures your mouse
 keys for use as Smart Keys and provides additional display-oriented
 operations as demonstrated here.
@@ -792,16 +795,17 @@ For example:
 
 ** Thing Selection
 
-Hyperbole has some radically cool ways to select regions of structured text
-or source code and to copy or move them between buffers with a single mouse
-drag or two key presses.  A great deal of smarts are built-in so that it
-does the right thing most of the time.
+Hyperbole has some radically cool ways to select, copy and move
+regions of structured text or source code that we call `things'.  You
+can copy or move things between buffers with a single mouse drag or
+two key presses.  A great deal of smarts are built-in so that it does
+the right thing most of the time.
 
-We use the term things to refer to structured entities that Hyperbole can
-select.  These include: delimited pairs of (), {}, <>, [] and quote marks,
-source code functions, source code comments and matching tag pairs in HTML
-and SGML modes.  Delimited things are those things that contain a
-selectable delimiter such as an opening parenthesis.
+Things are structured entities that Hyperbole can select and
+manipulate.  These include: delimited pairs of (), {}, <>, [] and
+quote marks, source code functions, source code comments and matching
+tag pairs in HTML and SGML modes.  Delimited things are those things
+that contain a selectable delimiter such as an opening parenthesis.
 
 The best way to mark a delimited thing is to move your cursor to the
 starting delimiter of the thing and then press the Action Key.  Typically,
@@ -850,7 +854,8 @@ is important to have context-sensitive help available.  The earlier section
 on Help Buffers explained how to display such help from the keyboard.  The
 same help can be displayed using the mouse by depressing the Smart Key for
 which you want help, performing any action necessary to register a context,
-such as a drag motion, and then pressing the other Smart Key.
+such as a drag motion, and then pressing the other Smart Key and releasing
+both.
 
 Here is an example.  Depress the Action Key somewhere within this paragraph
 and while holding it down, depress the Assist Key.  Then release the keys in
@@ -865,7 +870,7 @@ without having to trigger any of them.
 ** Creating and Deleting Windows
 
 Horizontal and vertical drags of the Smart Mouse Keys are used to split and
-to delete Emacs windows.
+delete Emacs windows.
 
 An Action Mouse Key horizontal drag of five or more characters in either
 direction within a single window creates a new window by splitting the
@@ -896,9 +901,9 @@ You can easily resize Emacs windows by dragging their window separators
 Smart Key on a modeline or near a window side, hold it down while you drag
 to a new location and then release.  The window separator will then jump to
 the location of release.  Basically, just drag the window separator to where
-you want it.  Nowadays a better version of stacked window resizing exists on
-the left mouse key.  A drag from a blank area of a modeline with this key
-shows visible feedback as the window is resized.
+you want it.  Nowadays a better version of Emacs window resizing exists on
+the left mouse key.  A drag with this key from a blank area of a modeline or
+a window side divider shows visible feedback as the window is resized.
 
 Did you follow all that?  Let's try it to be sure.  First, you need at least
 two windows, so create a new one with the drag techniques you just learned.
@@ -910,17 +915,37 @@ window.
 Try to drag the bottom modeline.  You see that you can't; you would have to
 resize the frame to move the bottom up.
 
-** Swapping Buffers
+** Dragging Buffers and Windows
+
+*** Swapping Buffers
 
 Swapping buffer locations is quick and easy with Hyperbole.  Simply drag from
 one window to another with the Assist Key (remember the Action Key creates
 buttons when you use the same drag).
 
 Split the current window into two, one above the other.  Drag the upper
-modeline so that one window is clearly bigger than the other.
+modeline so that one window is clearly bigger than the other.  Now switch to
+another buffer in one of the windows.  Then depress your Assist (not Action)
+Mouse Key within one window, drag to the other window and release the key.
+Boom, the buffers are swapped.  This works across frames as well.
 
-Then use this Hyperbole minibuffer menu key sequence to swap the buffers and
-quit from the menu: {C-h h s w ~ q}.
+If you have just two windows in an Emacs frame, you can swap their buffers
+from the keyboard.  Use this Hyperbole minibuffer menu key sequence to swap
+the buffers and quit from the Hyperbole minibuffer menu: {C-h h s w ~ q}.
+
+*** Moving Buffers
+
+What if you want to display the same buffer in another frame and not swap
+buffers.  You want to move the buffer.  Depress on the open area of the
+modeline of the source window and drag to the text area of the destination
+window.  Voila, the buffer appears in the new location as well as the old one.
+
+To clone a window with its buffer to a new frame, simply drag the Action Key
+from the window to outside of Emacs and release the key.  A new frame pops
+up about the size of the original window with the same buffer.  Try it.
+
+The same action with the Assist Key will actually move the window to the new
+frame, deleting the old one even if it is the only window in the frame.
 
 ** Saving and Restoring Window Configurations
 
@@ -979,14 +1004,18 @@ you must click on the modeline of the window displaying the summary.
 
 *** Buffer Menu and Screen Control
 
-An Action Key click in the center portion of a modeline displays a buffer
-menu, a summary of available buffers.  An Action Key click on any buffer menu
-line then displays that buffer.
+An Action Key click in the blank center portion of a modeline displays
+a buffer menu, a summary of available buffers.  An Action Key click on
+any buffer menu line then displays that buffer and closes the buffer
+menu.  If you want to display several buffers, first create some new
+windows, then display the buffer menu and drag from each buffer name
+to the window in which you want it displayed.  This works across
+frames too.  Try it now.
 
-An Assist Key click in the center portion of a modeline pops up a menu of
-convenient screen commands that lets you select buffers grouped by major
-mode, use HyControl, or jump to specific windows, window configurations or
-frames.
+An Assist Key click in the blank center portion of a modeline pops up
+a menu of convenient screen commands that lets you select buffers
+grouped by major mode, use HyControl, or jump to specific windows,
+window configurations or frames.
 
 See "(hyperbole)action-key-modeline-function" for how to adjust this
 behavior.
@@ -994,7 +1023,7 @@ behavior.
 * Epilog
 
 We hope you have enjoyed this introduction to Hyperbole. It can be your
-every-ready sidekick in your daily information work.  Explore the Hyperbole
+every-ready sidekick in your daily knowledge work.  Explore the Hyperbole
 menus to learn more interactively.  For reference, the Hyperbole Manual, has
 more detail about the many things that Hyperbole does when you are ready to
 dive deeper.  Read it online with the GNU Info reader at "(hyperbole)Top".

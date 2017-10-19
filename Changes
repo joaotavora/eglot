@@ -1,10 +1,107 @@
+2017-10-19  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Version): Updated to 6.0.2e and rebuilt output formats.
+
+* hycontrol.el (hycontrol-frame-adjust-widths, hycontrol-frame-adjust-heights,
+    hycontrol-frame-adjust-widths-full-height, hycontrol-frame-adjust-heights-full-width,
+    hycontrol-set-width-percentage-full-height, hycontrol-set-height-percentage-full-width,
+    hycontrol-frame-widths-pointer, hycontrol-frame-widths, hycontrol-frame-heights-pointer,
+    hycontrol-frame-heights: Added to cycle through resizing height or width of frames to
+      common sizes.  Also cycle through one dimension while fixing the other dimension
+      at full-screen size.
+    (hycontrol--frames-prompt-format): Added {a} and {A} bindings to both frames and windows
+        keymaps to adjust frame width and height respectively by cycle through a list of common
+        fixed percentages such as 25% and 50%.  Added to Hyperbole manual.
+
+    (hycontrol-frames-post-command-hook-body, hycontrol-windows-post-command-hook-body): 
+      Added to prevent {C-g} quit from signalling an error within post-command-hook.
+
+2017-10-18  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-restore-frame-configuration, hycontrol-restore-window-configuration,
+                hycontrol-save-configurations, hycontrol-delete-other-frames,
+                hycontrol-delete-other-windows, hycontrol-clone-window-to-new-frame
+                hycontrol-make-frame): Made interactive.
+               (hycontrol-frames, hycontrol-windows): Forced arg to numeric value on entry.
+    	       (hycontrol-stay-in-mode, hycontrol-universal-arg-digit,
+	        hycontrol--debug, hycontrol--exit-status, hycontrol-arg,
+		hycontrol--frames-prompt-format, hycontrol--windows-prompt-format,
+		hycontrol-frames-pre-command-hook, hycontrol-windows-pre-command-hook,
+		hycontrol-frames-mode-map, hycontrol-windows-mode-map, hycontrol-exit-mode): Added.
+	       (hycontrol-prettify-event, hycontrol-handle-event): Removed. 
+
+	       (hycontrol-frames, hycontrol-windows): Rewrote HyControl to use a frame-mode
+   and window-mode transient keymap which allows for regular key bindings and eliminates
+   the need for a HyControl event loop and processing of non-HyControl events.  There should
+   be no change in HyControl user-visible behavior from this other than that key bindings
+   may now be customized (remember to update the HyControl minibuffer prompts if you do change
+   any).
+
+2017-10-17  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-screen-offset-alist, hycontrol-set-screen-offsets,
+                hycontrol-display-screen-offsets): 
+    Changed ordering of items to match Emacs window-edges and frame-edges.
+               (hycontrol-fit-to-screen): Added and used to ensure resized and repositioned
+    windows fit on the screen.
+    (hycontrol-set-frame-height, hycontrol-set-frame-position, hycontrol-set-frame-size,
+     hycontrol-set-frame-width): Added with calls to hycontrol-fit-to-screen.
+
+* man/hyperbole.texi: Removed InfoDock and XEmacs references since they are so old and no
+    longer maintained that no one uses them today.
+
+* hmouse-sh.el (hmouse-unshifted-setup): Changed to enable right mouse key as Assist Key unless
+    optional argument MIDDLE-KEY-ONLY-FLAG is non-nil (which is how it is called from
+    hmouse-shifted-setup).
+
+* hycontrol.el (hycontrol-frame-percentage-of-screen): Automatically adjusted out of bounds
+    percentages to the closest number of 0 and 0.998 (so does not overflow screen.
+    Automatically moved frame if right or bottom edges are offscreen as a result of size change.
+
+* DEMO (Dragging Buffers and Windows): Renamed this from 'Moving Buffers' and added subsections.
+
 2017-10-16  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Smart Key Modeline Clicks): Renamed from Smart Key Modeline.  Added
+    up-to-date info on click locations and actions.
+                     (Implicit Buttons): Added git-reference, git-commit-reference and
+    github-reference.
+                     (Future Work): Added Direct Manipulation section.
+		     (Smart Keys): Moved before Buttons chapter since Buttons references
+    Smart Keys and the benefits of Smart Keys are quicker to understand.
+
+* hui-mouse.el (smart-dired, smart-dired-assist): Made end of first line behave just like
+    last line for quitting and executing actions.
+
+* hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Further optimized for when
+    depress and release windows are the same and frame has an auto-raise property, then we
+    know release window was uppermost at the point of release and can skip finding what app
+    owned the topmost window.
+
+* hui-window.el (hmouse-dired-readin-hook):
+                (hmouse-dired-display-here-mode): Added and used in hmouse-drag-item-mode-forms.
+    Once a dired buffer item has been dragged, make next Action Key press on an item display it
+    in the same dired window.
+  man/hyperbole.texi (Smart Key - Dired Mode): Documented here and in smart-dired function.
+
+* man/hkey-help.txt:
+  hui-window.el: Updated drag acton summaries with the latest information.
+
+* hui-window.el (hmouse-drag-vertically-within-emacs): Added to allow for modeline vertical drags
+    between windows.
+
+* hui-mouse.el (smart-dired-pathname-up-to-point): Added this to change the behavior of smart-dired.
+    When on the first line of a Dired buffer where its directory path is shown, treat any ancestor
+    subdirectory of the current directory as a selectable path.  Thus, you can run Dired on any
+    ancestor subdirectory simply by pressing the Action Key at the end of the subdirectory you want.
+    A press on the first / character, runs dired on the root directory.
+  man/hyperbole.texi (Smart Key - Dired Mode): Updated doc to reflect this change.
 
 * hui-window.el (hmouse-drag-between-frames): Removed from hmouse-alist; treat this context
     the same as a drag between windows within one frame, for consistency.
 
-* hui-menu.el (hui-menu-key-bindings): Added for use as menu filter for Hyperbole/Options/Change-Key-Bindings
-    so displayed key bindings are always up-to-date.
+* hui-menu.el (hui-menu-key-bindings): Added for use as menu filter for
+    Hyperbole/Options/Change-Key-Bindings so displayed key bindings are always up-to-date.
 
 * hui-mouse.el (smart-outline-level): Added and used instead of (outline-level) which assumes
     its caller has already generated match data, which is not always the case in Hyperbole.
@@ -15,10 +112,6 @@
 * hui-window.el (hmouse-buffer-to-window): Added along with drag from mode-line to another
     window context to replace the buffer in a dest. window with the buffer from the source
     window.
-
-----
-
-2017-10-16  Bob Weiner  <rsw@gnu.org>
 
 * hib-debbugs.el (debbugs-query:at-p): eliminated match of #id-number and always required
    'bug' or similar prefix so there is no ambiguity with social references including
@@ -826,7 +919,7 @@ V6.0.3 changes ^^^^:
 
 * man/hyperbole.texi (Customization): Renamed from Configuration.
                      (Web Search Engines): Added this section under Customization.
-                     (HyControl): Added FramesControl key sequence.
+                     (HyControl): Added WindowsControl key sequence.
                      (Smart Key - Smart Scrolling): Documented {action,assist}-key-eol-function variables.
 
 * hsmail.el (mail-indent-citation, mail-yank-original): Updated for Emacs 25 compatibility.
@@ -842,7 +935,7 @@ V6.0.3 changes ^^^^:
 * Demo (HTML and Markdown Hash Links): Added this section.
   hibtypes.el (pathname):
   hpath.el (hpath:to-markup-anchor): Renamed from hpath:to-html-anchor and generalized for use with Markdown as well.
-    Added recognition of section links like: 
+    Added recognition of section links like:
         - [Why was Hyperbole developed?](#why-was-hyperbole-developed)
       so the pathname implicit button type matches when the Action Key is pressed anywhere on or after the
       hash character and jumps to the section:
@@ -879,7 +972,7 @@ V6.0.3 changes ^^^^:
   hui-menu.el (infodock-hyperbole-menu): Added optional rebuild-flag to force rebuilding of the
     Hyperbole menubar menu.
 
-* man/hyperbole.texi (HyControl): Documented ESC as a way to quit from HyControl.
+* man/hyperbole.texi (HyControl): Documented ESC as a way to quit from HyControl. (REMOVED IN A FUTURE REVISION).
 
 2016-08-02  Bob Weiner  <rsw@gnu.org>
 
