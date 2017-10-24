@@ -20,7 +20,6 @@
 
 ;; Quiet byte compiler warnings for these free variables.
 (eval-when-compile
-  (defvar assist-flag nil)
   (defvar hkey-action nil)
   (defvar pred-value nil))
 
@@ -86,6 +85,9 @@ Note that this may be a buffer different than where the release occurs.")
   "When non-nil, forces display of help for next Action Key release.")
 (defvar assist-key-help-flag nil
   "When non-nil, forces display of help for next Assist Key release.")
+
+(defvar assist-flag nil
+  "Non-nil when Hyperbole's Assist Key is in use rather than the Action Key.")
 
 (defcustom hkey-debug nil
   "If non-nil, displays a message with the context and values from each Smart Key activation.
