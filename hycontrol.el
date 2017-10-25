@@ -14,44 +14,101 @@
 ;;   This library provides full interactive control of window and
 ;;   frame sizes and locations utilizing quick single key commands.
 ;;   It has the ability to change from increasing a window height by
-;;   5 lines, {.5 h}, to moving a frame 820 pixels, {.820 right-arrow},
-;;   with just a few keystrokes.
+;;   5 lines, {.5 h}, to moving a frame 82 pixels, {.82 right-arrow},
+;;   with just a few keystrokes (the leading . just resets the numeric
+;;   argument to 0 prior to typing the new number).
 ;;
-;;   It supplies two commands, both of which can toggle to the other
-;;   by pressing {t}.  `hycontrol-enable-frames-mode' manages visible
-;;   frame creation, deletion, sizing, position and face
-;;   zooming (enlarging and shrinking); if called interactively, it
-;;   stores the current frame configuration for restoration via a
+;;   ----
+;;
+;;   HyControl is invoked via either of two global minor modes under
+;;   the Hyperbole screen menu, both of which can toggle to the other
+;;   by pressing {t}. `hycontrol-enable-frames-mode' bound to {C-h h s
+;;   f} manages visible frame creation, deletion, sizing, position and
+;;   face zooming (enlarging and shrinking); if called interactively,
+;;   it stores the current frame configuration for restoration via a
 ;;   press of the `)' key.  `hycontrol-enable-windows-mode' manages
 ;;   per frame window creation, deletion, sizing, reframing and face
 ;;   zooming; if called interactively, it stores the current window
 ;;   configuration for restoration via a press of the `)' key.
-;;
-;;   These commands are available under the Hyperbole Screen menu.
 ;;   `hycontrol-enable-windows-mode' is typically bound by Hyperbole
-;;   to {C-c \}.  Then press {t} if you want to switch to frame
-;;   control.
+;;   to {C-c \} or just use {C-h h s w}.  Then press {t} if you want
+;;   to switch to frame control.
 ;;
-;;   HyControl allows placement of frames at screen edges and corners. 
-;;   (A screen may span multiple physical monitors).  To prevent widgets
-;;   and toolbars at the corners of the screen from being obscured,
-;;   HyControl can offset each frame from each screen edge by a fixed
-;;   number of pixels.  These offsets are specified by the variable,
-;;   `hycontrol-screen-offset-alist' and can differ for each type of
-;;   screen; see its documentation for details.  If you change its value,
-;;   then call `hycontrol-set-screen-offsets' to set any new offset values.
-;;   `hycontrol-get-screen-offsets' returns the list of offsets in clockwise
-;;   order starting from the top edge.
+;;   With a HyControl minor mode active, a multi-line help summary of
+;;   most available key bindings is shown in the minibuffer.  Simply
+;;   read this and try each command out to get a feel for it.  Below
+;;   we highlight some of the most unique commands.
+;;
+;;   ----
+;;
+;;   In either HyControl mode, you can instantly create a grid of
+;;   windows to display many buffers by choosing a number of rows as
+;;   your first digit, then a number of columns of windows as the
+;;   second digit and then pressing {@}, e.g. {.26 @} produces 2 rows,
+;;   each with 6 columns of windows in the selected frame.  Grids can
+;;   be from 1x1 to 9x9 windows.  This command also works outside of a
+;;   HyControl mode when in Dired, Buffer Menu or IBuffer modes with
+;;   a prefix argument (no preceding period).
+;;
+;;   The buffers displayed by the {@} command are chosen smartly.
+;;   With a current buffer in Dired, Buffer Menu or IBuffer mode with
+;;   marked items, the buffers associated with those items are
+;;   displayed first.  Then the most recently used buffers are
+;;   displayed in each window, first selecting from buffers which
+;;   match any of the predicate expressions in
+;;   `hycontrol-display-buffer-predicate-list'.  Then, if there are
+;;   not enough buffers for all windows, the buffers that failed to
+;;   match to any predicate are used.  The default predicate list
+;;   chooses buffers with attached files.  In all cases, buffers whose
+;;   names start with a space are filtered out.  If a prefix argument
+;;   of 0 is given, a major mode symbol is prompted for and buffers
+;;   with that major mode are preferred for display instead of those
+;;   matching the predicate list.
+;;
+;;   ----
+;;
+;;   HyControl allows placement of frames at screen edges and corners
+;;   using the keys of the numeric keypad, matching their physical
+;;   layout, e.g. {3} moves to the lower right corner.  Press {p} for
+;;   a prompt with a virtual numeric keypad if you lack a physical one.
+;;   You can also cycle through all of these placement positions with
+;;   the {c} key.
+;;
+;;   HyControl can rapidly resize frames to common percentages of
+;;   screen sizes via a number of commands.  Each press of {a} or {A}
+;;   cycles through resizing the selected frame's width and height
+;;   respectively to a percentage of the screen given by the lists,
+;;   `hycontrol-frame-widths' and `hycontrol-frame-heights', e.g. 25%,
+;;   50%, etc.  The keys: {i} top, {j} left, {k} right, and {m}
+;;   bottom, first maximize a frame to the respective screen edge and
+;;   then with successive presses, shrink the frame dimension
+;;   perpendicular to that edge by 50% while keeping the original edge
+;;   fixed in place.  Try them and you will quickly see how they can
+;;   help.
+;;   
+;;   ----
 ;;
 ;;   When HyControl creates a new frame, it automatically sizes it to the
 ;;   same size as the previously selected frame and offsets it from that
 ;;   frame by the (X . Y) number of pixels given in the variable,
 ;;   `hycontrol-frame-offset'.
 ;;
+;;   A display screen may span multiple physical monitors.  To prevent
+;;   widgets and toolbars at the corners of the screen from being
+;;   obscured, HyControl can offset each frame from each screen edge
+;;   by a fixed number of pixels.  These offsets are specified by the
+;;   variable, `hycontrol-screen-offset-alist' and can differ for each
+;;   type of screen; see its documentation for details.  If you change
+;;   its value, then call `hycontrol-set-screen-offsets' to set any
+;;   new offset values.  `hycontrol-get-screen-offsets' returns the
+;;   list of offsets in clockwise order starting from the top edge.
+;;
+;;   ----
+;;
 ;;   Please note that the frame zoom in/out commands on Z and z will
 ;;   not work unless you have the separately available "zoom-frm.el"
 ;;   library (which itself requires another library).  If not available,
-;;   they command will just beep at you.  The window-based zoom commands
+;;   this command will just beep at you.  The window-based zoom commands
 ;;   utilize a built-in Emacs library, so they will always work under
 ;;   any window system.  These commands enlarge and shrink the default
 ;;   text face.
@@ -78,7 +135,7 @@
   (list #'buffer-file-name)
   "List of single buffer/name predicates.
 If any predicate returns non-nil for a buffer, include that buffer in
-the list to display in the windows created by `hycontrol-split-windows-rows-columns'.
+the list to display in the windows created by `hycontrol-windows-grid-rows-columns'.
 
 A predicate may be either a function that takes a single buffer
 argument or a boolean expression, in which case the expression is
@@ -192,7 +249,7 @@ The final predicate should always be t, for default values, typically of zero.")
 
     ;; Clear hycontrol-arg
     (define-key map "."     (lambda () (interactive) (setq hycontrol-arg 0) (hycontrol-frame-to-screen-edges 0)))
-    (define-key map "@"     'hycontrol-split-windows)
+    (define-key map "@"     'hycontrol-windows-grid)
     (define-key map "?"     'hycontrol-toggle-help)
     (define-key map "a"     'hycontrol-frame-adjust-widths)
     (define-key map "A"     'hycontrol-frame-adjust-heights)
@@ -264,11 +321,11 @@ The final predicate should always be t, for default values, typically of zero.")
 ;;; Window Keys
 
 ;;;###autoload
-(eval-after-load "buff-menu" '(define-key Buffer-menu-mode-map "@" 'hycontrol-split-windows))
+(eval-after-load "buff-menu" '(define-key Buffer-menu-mode-map "@" 'hycontrol-windows-grid))
 ;;;###autoload
-(eval-after-load "ibuffer"   '(define-key ibuffer-mode-map     "@" 'hycontrol-split-windows))
+(eval-after-load "ibuffer"   '(define-key ibuffer-mode-map     "@" 'hycontrol-windows-grid))
 ;;;###autoload
-(eval-after-load "dired"     '(define-key dired-mode-map       "@" 'hycontrol-split-windows))
+(eval-after-load "dired"     '(define-key dired-mode-map       "@" 'hycontrol-windows-grid))
 
 (defvar hycontrol-windows-mode-map
   (let ((map (make-sparse-keymap)))
@@ -292,7 +349,7 @@ The final predicate should always be t, for default values, typically of zero.")
 
     ;; Clear hycontrol-arg
     (define-key map "."     (lambda () (interactive) (setq hycontrol-arg 0) (hycontrol-frame-to-screen-edges 0)))
-    (define-key map "@"     'hycontrol-split-windows)
+    (define-key map "@"     'hycontrol-windows-grid)
     (define-key map "?"     'hycontrol-toggle-help)
     (define-key map "a"     'hycontrol-frame-adjust-widths)
     (define-key map "A"     'hycontrol-frame-adjust-heights)
@@ -1217,7 +1274,7 @@ width to affect only that dimension."
 
 ;;;###autoload
 (defun hycontrol-frame-adjust-widths ()
-  "Cycle though different common width adjustments of a frame.
+  "Cycle through different common width adjustments of a frame.
 Widths are given in screen percentages by the list
 `hycontrol-frame-widths' and typically go from widest to narrowest."
   (interactive)
@@ -1234,7 +1291,7 @@ Widths are given in screen percentages by the list
 
 ;;;###autoload
 (defun hycontrol-frame-adjust-widths-full-height ()
-  "Cycle though different common widths adjustments of a frame after fixing its height full-screen.
+  "Cycle through different common widths adjustments of a frame after fixing its height full-screen.
 Widths are given in screen percentages by the list
 `hycontrol-frame-widths' and typically go from widest to narrowest."
   (interactive)
@@ -1249,7 +1306,7 @@ Widths are given in screen percentages by the list
 
 ;;;###autoload
 (defun hycontrol-frame-adjust-heights ()
-  "Cycle though different common height adjustments of a frame.
+  "Cycle through different common height adjustments of a frame.
 Heights are given in screen percentages by the list
 `hycontrol-frame-heights' and typically go from tallest to shortest."
   (interactive)
@@ -1258,15 +1315,16 @@ Heights are given in screen percentages by the list
   (hycontrol-frame-height-percentage-of-screen
    (car hycontrol--frame-heights-pointer))
   (message "Screen Percentage: Fixed Width %.1f%%; Height %.1f%%"
-	   (* 100.0 (/ (float (hycontrol-frame-width)) (- (display-pixel-width)
-							  hycontrol-screen-left-offset hycontrol-screen-right-offset)))
+	   (* 100.0 (/ (float (hycontrol-frame-width))
+		       (- (display-pixel-width)
+			  hycontrol-screen-left-offset hycontrol-screen-right-offset)))
 	   (* 100.0 (car hycontrol--frame-heights-pointer)))
   (setq hycontrol--frame-heights-pointer
 	(cdr hycontrol--frame-heights-pointer)))
 
 ;;;###autoload
 (defun hycontrol-frame-adjust-heights-full-width ()
-  "Cycle though different common height adjustments of a frame after fixing its width full-screen.
+  "Cycle through different common height adjustments of a frame after fixing its width full-screen.
 Heights are given in screen percentages by the list
 `hycontrol-frame-heights' and typically go from tallest to shortest."
   (interactive)
@@ -1310,7 +1368,10 @@ Heights are given in screen percentages by the list
       (set-face-background 'mode-line fg))
     (redraw-modeline t)))
 
-(defun hycontrol-split-windows-buffer-list ()
+(defun hycontrol-windows-grid-buffer-list ()
+  "Return the existing frame's buffer list with any marked items prepended.
+Marked items are included when the current buffer is in Dired, Buffer
+Menu or IBuffer mode."
   ;; If selecting buffers by major-mode, then ignore any marked items.
   (if (and (boundp 'mode) (symbolp mode))
       (buffer-list (selected-frame))
@@ -1330,33 +1391,39 @@ Heights are given in screen percentages by the list
       (apply 'set:create (nconc items (buffer-list (selected-frame)))))))
 
 ;;;###autoload
-(defun hycontrol-split-windows (arg)
-  "Split windows according to prefix ARG.
-If ARG is 0, prompt for a number of rows and columns of windows
-to display and a major mode whose buffers should be preferred for
-display in the windows of the selected frame.  Otherwise, split
-selected frame into left digit of ARG rows and right digit of ARG
-columns of windows.
+(defun hycontrol-windows-grid (arg)
+  "Create a grid of windows in the selected frame according to prefix ARG.
 
-In Dired, Buffer Menu or IBuffer modes with marked items, the
-buffers associated with those items are preferred for display.
-Otherwise, display the most recent buffers in each window,
-allowing buffers matching predicates in
-`hycontrol-display-buffer-predicate-list' only on the first pass.
-Then, if not enough buffers for all windows, use the buffers that
-failed to match in the first pass, aside from those whose names
-begin with a space."
+If ARG is 0, prompt for a major mode whose buffers should be
+displayed first in the windows of the selected frame and then for
+the number of rows and columns of windows to display in the grid.
+Otherwise, split the selected frame into left digit of ARG rows
+and right digit of ARG columns of windows.
+
+With a current buffer in Dired, Buffer Menu or IBuffer mode that
+contains marked items, the buffers associated with those items
+are displayed first in the grid.  Then the most recently used
+buffers are displayed in each window, first selecting only those
+buffers which match any of the predicate expressions in
+`hycontrol-display-buffer-predicate-list'.  (The default
+predicate list chooses buffers with attached files).  Then, if
+there are not enough buffers for all windows, the buffers that
+failed to match to any predicate are used.  In all cases, buffers
+whose names start with a space are ignored.
+
+When done, resets the persistent prefix argument to 1 to prevent
+following commands from using the often large grid size argument."
   (interactive "p")
   (setq arg (abs (prefix-numeric-value (or arg current-prefix-arg))))
   (if (/= arg 0)
-      (hycontrol-split-windows-rows-columns arg)
+      (hycontrol-windows-grid-rows-columns arg)
     (setq current-prefix-arg 0)
-    (call-interactively #'hycontrol-split-windows-by-major-mode)))
+    (call-interactively #'hycontrol-windows-grid-by-major-mode)))
 
 ;;; Split selected frame into a matrix of windows given by row and
 ;;; column count, displaying different buffers in each window.
 ;;;###autoload
-(defun hycontrol-split-windows-by-major-mode (arg mode)
+(defun hycontrol-windows-grid-by-major-mode (arg mode)
   "Split selected frame into left digit of ARG rows and right digit of ARG columns of windows, preferring buffers with major MODE.
 Then, if not enough buffers for all windows, use the buffers that
 failed to match in the first pass, aside from those whose names
@@ -1365,17 +1432,17 @@ begin with a space."
    (list (prefix-numeric-value current-prefix-arg)
 	 (let* ((set:equal-op 'eq)
 		(mode-strings (mapcar 'symbol-name (apply #'set:create (mapcar (lambda (buf) (buffer-local-value 'major-mode buf))
-									       (hycontrol-split-windows-buffer-list))))))
-	   (intern-soft (completing-read "(HyControl Split Windows): Major mode of buffers to display: "
+									       (hycontrol-windows-grid-buffer-list))))))
+	   (intern-soft (completing-read "(HyControl Grid Windows): Major mode of buffers to display: "
 					 mode-strings nil t (symbol-name major-mode))))))
   (let ((hycontrol-display-buffer-predicate-list `((eq major-mode ',mode))))
-    (hycontrol-split-windows-rows-columns arg)))
+    (hycontrol-windows-grid-rows-columns arg)))
 
 ;;;###autoload
-(defun hycontrol-split-windows-repeatedly (&optional arg)
-  "Repeatedly split windows according to prefix ARG and ARG prompted for each time.
+(defun hycontrol-windows-grid-repeatedly (&optional arg)
+  "Repeatedly displays different window grid layouts according to prefix ARG prompted for each time.
 
-See documentation for `hycontrol-split-windows' for details."
+See documentation of `hycontrol-windows-grid' for details."
   (interactive "p")
   (catch 'done
     (let (hycontrol-help-flag)
@@ -1387,23 +1454,27 @@ See documentation for `hycontrol-split-windows' for details."
 		      (string-to-number arg)))
 	  (unless (or (eq arg 0) (and (integerp arg) (>= arg 11) (<= arg 99)))
 	    (beep)))
-	(hycontrol-split-windows arg)
+	(hycontrol-windows-grid arg)
 	(setq arg nil)))))
 
-(defun hycontrol-split-windows-rows-columns (arg)
+(defun hycontrol-windows-grid-rows-columns (arg)
   "Split selected frame into left digit of ARG rows and right digit of ARG columns of windows.
 
-See documentation for `hycontrol-split-windows' for details."
+See documentation of `hycontrol-windows-grid' for details."
   (interactive "p")
 
   ;; Check ARG, must be 2 digits of [1-9], else read a new ARG or
   ;; signal an error when in a HyControl mode and help is displayed.
   (if (and (and hycontrol-help-flag (or hycontrol-frames-mode hycontrol-windows-mode))
 	   (not (and (integerp arg) (>= arg 11) (<= arg 99))))
-      ;; Can't read a number because numeric keys are specially bound.
-      (progn (pop-to-buffer "*Messages*")
-	     (error "(HyControl): Split frame into a matrix of windows.\nArgument must be a rows digit (1-9) followed by a columns digit (1-9), not `%s'." arg))
-    (while (not (and (integerp arg) (or (= arg 0) (and (>= arg 11) (<= arg 99)))))
+      (let ((hyc-mode (if hycontrol-frames-mode #'hycontrol-frames-mode #'hycontrol-windows-mode)))
+	(hycontrol-disable-modes)
+	(setq arg 0)
+	(while (not (and (integerp arg) (and (>= arg 11) (<= arg 99))))
+	  (unless (eq arg 0) (beep))
+	  (setq arg (read-number "Split frame into a matrix of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C: ")))
+	(funcall hyc-mode arg))
+    (while (not (and (integerp arg) (and (>= arg 11) (<= arg 99))))
       (unless (eq arg 0) (beep))
       (setq arg (read-number "Split frame into a matrix of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C: "))))
 
@@ -1450,7 +1521,7 @@ See documentation for `hycontrol-split-windows' for details."
 	       ;; the predicate tests.  Always ignore buffers that
 	       ;; start with a space.  With each succeeding pass, the
 	       ;; predicate list is inverted again.
-	       (let ((buffer-list (hycontrol-split-windows-buffer-list)))
+	       (let ((buffer-list (hycontrol-windows-grid-buffer-list)))
 		 (setq hycontrol--buffer-list-pointer buffer-list)
   		 (walk-windows #'hycontrol-window-display-buffer 'no-minibuf))
 
@@ -1477,14 +1548,17 @@ See documentation for `hycontrol-split-windows' for details."
 
 (defun hycontrol-window-minimize-lines ()
   "Shrink window to its smallest possible number of lines to display entire buffer, if possible.
-Otherwise, do nothing."
+Otherwise or if the window is already displaying all of its lines, shrink it to about one line,
+if possible."
   (interactive)
   (let ((neg-shrink-amount (- (1+ (count-lines (point-min) (point-max)))))
 	(window-min-height 1))
     ;; Don't use minimize-window here since it shrinks regardless of
     ;; buffer size.
     (if (window-resizable-p (selected-window) neg-shrink-amount)
-	(shrink-window (+ (window-height) neg-shrink-amount)))))
+	(progn (goto-char (point-min))
+	       (shrink-window (+ (window-height) neg-shrink-amount)))
+      (shrink-window (1- (window-height))))))
 
 (defun hycontrol-window-swap-buffers ()
   "Swap the buffers displayed by each of two windows within the selected frame and return t.

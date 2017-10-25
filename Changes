@@ -1,3 +1,33 @@
+2017-10-25  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el: Extended initial commentary with new features and improved explanations.
+                (hycontrol-split-windows-rows-columns): Modified to temporarily exit HyControl mode if need
+    to read a rows-columns argument.
+                (hycontrol-split-windows-buffer-list, hycontrol-split-windows, hycontrol-split-windows-by-major-mode
+                hycontrol-split-windows-repeatedly, hycontrol-split-windows-rows-columns): Renamed by replacing
+    'split-windows' with 'windows-grid'.
+                (hycontrol-window-minimize-lines): Previously did not resize window if it could not display all of the
+    buffer lines in the window.  Now will resize to 1 line if cannor or if all lines are already displayed.
+                (hycontrol-split-windows-buffer-list): Added doc string.
+
+* DEMO (HyControl): Added interactive examples of newest HyControl commands.
+
+* hui-window.el (hmouse-goto-depress-prev-point): Fixed to handle when no prev-point is saved.
+                (hmouse-drag-region-active): Return nil if no prev-point saved.
+
+* hpath.el (hpath:is-p): Fixed to handle single % in path argument when sent as format string near the
+    end of the function.
+
+* hib-kbd.el (kbd-key:normalize): Quoted % characters as %% to prevent format from treating them specially.
+             (kbd-key:hyperbole-hycontrol-key-p): Added to match key sequences within HyControl since
+    its prefix arguments are specified without C-u or ESC or META prefixes.
+             (kbd-key, kbd-key:act): Used above function here.
+
+* hmouse-drv.el (hkey-either): Fixed to ignore prefix args set by HyControl.
+
+* hyperbole.el (hkey-initialize):
+  hui-menu.el (hui-menu-key-bindings): Changed {C-c \} entry from hycontrol-windows to new hycontrol-enable-windows-mode.
+
 2017-10-24  Bob Weiner  <rsw@gnu.org>
 
 * man/hyperbole.texi (Version): Updated to 6.0.2f and rebuilt output formats.

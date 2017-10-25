@@ -284,7 +284,7 @@ Entry format is: (key-description key-sequence key-binding)."
     (hkey-maybe-global-set-key "\C-c\C-m" 'hui-select-thing)
     ;;
     ;; Binds {C-c \} to interactively manage windows and frames.
-    (hkey-maybe-global-set-key "\C-c\\" 'hycontrol-windows)
+    (hkey-maybe-global-set-key "\C-c\\" 'hycontrol-enable-windows-mode)
     ;;
     ;; Binds {C-c /} to display the Hyperbole Find/Web search menu.
     (hkey-maybe-global-set-key "\C-c/" 'hui-search-web)

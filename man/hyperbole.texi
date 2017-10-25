@@ -152,7 +152,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2f
-Printed October 24, 2017.
+Printed October 25, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed October 24, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.2f, October 24, 2017.
+@center Edition 6.0.2f, October 25, 2017.
 
 @sp 2
 @noindent
@@ -2970,21 +2970,56 @@ Toggle whether HyControl displays key binding help in the minibuffer.
 @kindex HyControl, see screen
 @kindex screen, .
 @kitem .
-Clear the argument to a value of 0.
+Clear the prefix argument to a value of 0.
 
 @kindex screen, 0-9
 @kitem 0-9
-Multiply the argument by 10 and add the digit pressed.
+Multiply the prefix argument by 10 and add the digit pressed.
 
+@kindex screen, @@
+@kitem @@
+Create a grid of windows in the selected frame according to the
+prefix argument.
+
+If the prefix argument is 0, prompt for a major mode whose buffers
+should be displayed first in the windows of the selected frame and
+then for the number of rows and columns of windows to display in the
+grid.  Otherwise, split the selected frame into the number of rows
+given by the left digit of the argument and the number of columns
+given by the right digit.
+
+@vindex hycontrol-display-buffer-predicate-list
+With a current buffer in Dired, Buffer Menu or IBuffer mode that
+contains marked items, the buffers associated with those items are
+displayed first in the grid.  Then the most recently used buffers are
+displayed in each window, first selecting only those buffers which
+match any of the predicate expressions in
+@var{hycontrol-display-buffer-predicate-list}.  (The default predicate
+list chooses buffers with attached files).  Then, if there are not
+enough buffers for all windows, the buffers that failed to match to
+any predicate are used. In all cases, buffers whose names start with a
+space are ignored.
+
+When done, this resets the persistent prefix argument to 1 to prevent
+following commands from using the often large grid size argument.
+
+If you ever need to experiment with different sized window grids, use
+@bkbd{M-x hycontrol-window-grid-repeatedly @key{RET}}.  It will
+repeatedly prompt you for a grid size and then display it.  When you
+are done, simply press @bkbd{@key{RET}} to exit.
+
+@vindex hycontrol-frame-widths
 @kindex screen, a
 @kitem a
-Cycle though common width adjustments of a frame, such as 25% and 50%.
-Widths are given in screen percentages by the list
-@var{hycontrol-frame-widths} and typically go from widest to narrowest.
+Cycle through common width adjustments of a frame, such as 25% and
+50%. Widths are given in screen percentages by the list
+@var{hycontrol-frame-widths} and typically go from widest to
+narrowest.
 
+@vindex hycontrol-frame-heights
 @kindex screen, A
 @kitem A
-Cycle though common height adjustments of a frame, such as 33.3% and
+Cycle through common height adjustments of a frame, such as 33.3% and
 75%.  Heights are given in screen percentages by the list
 @var{hycontrol-frame-heights} and typically go from tallest to shortest.
 
@@ -3007,17 +3042,17 @@ Narrow by argument characters.
 
 @kindex screen, %
 @kitem %
-In FRAME mode, resize frame's height and width to about argument percent
+In FRAMES mode, resize frame's height and width to about argument percent
 of the screen size.
 
 @kindex screen, H
 @kitem H
-In FRAME mode, resize frame's height to about argument percent of the
+In FRAMES mode, resize frame's height to about argument percent of the
 screen size.
 
 @kindex screen, W
 @kitem W
-In FRAME mode, resize frame's width to about argument percent of the
+In FRAMES mode, resize frame's width to about argument percent of the
 screen size.
 
 @kindex screen, up
@@ -3047,7 +3082,7 @@ based on mode.
 
 @kindex screen, l
 @kitem l
-In FRAME mode, lower the selected frame below all other Emacs session frames.
+In FRAMES mode, lower the selected frame below all other Emacs session frames.
 
 @kindex screen, o
 @kitem o
@@ -3058,7 +3093,7 @@ Select the next visible frame.
 
 @kindex screen, keypad number
 @kitem keypad number
-In FRAME mode, move the frame directly to the screen edge position given
+In FRAMES mode, move the frame directly to the screen edge position given
 by the numeric keypad layout.  For example, 3 moves the frame to the
 bottom right corner and 8 moves it to the middle of the top edge.
 Keypad numeric keys do not adjust the argument.  Respects the pixel edge
@@ -3071,7 +3106,7 @@ Each digit key operates just as a numeric keypad key would.
 
 @kindex screen, r
 @kitem r
-In FRAME mode, raise the selected frame above all other Emacs session frames.
+In FRAMES mode, raise the selected frame above all other Emacs session frames.
 
 @vindex hycontrol-frame-offset
 @kindex screen, [
@@ -3095,6 +3130,7 @@ configuration and wish to save it temporarily.
 After confirmation, restore the last saved window or frame configuration
 based on mode.
 
+@vindex hycontrol-keep-window-flag
 @kindex screen, f
 @kitem f
 Clone the selected window to a new similarly sized frame.
@@ -3121,18 +3157,23 @@ edge.  Respects the pixel edge offsets returned by
 
 @kindex screen, =
 @kitem =
-After confirmation, in WINDOW mode, make the current frame's windows
-approximately the same size.  In FRAME mode, make all visible frames
+After confirmation, in WINDOWS mode, make the current frame's windows
+approximately the same size.  In FRAMES mode, make all visible frames
 the size of the selected frame.
 
 @kindex screen, -
 @kitem -
-Make the selected window or frame (based on mode) as small as possible
-while still displaying it.
+In WINDOWS mode, shrink window to its smallest possible number of lines
+to display the entire buffer, if possible.  Otherwise or if the window
+is already displaying all of its lines, shrink it to about one line,
+if possible.
+
+In FRAMES mode, make the frame as small as possible while still
+displaying it.
+
 @kindex screen, +
 @kitem +
-Make the window or frame (based on mode) as large as possible.  In FRAME
-mode, a second press of this key restores its size to whatever it was
+Make the window or frame (based on mode) as large as possible.  In FRAMES mode, a second press of this key restores its size to whatever it was
 prior to the first use of this command.
 
 @cindex burying
@@ -3150,8 +3191,8 @@ selected window.
 @kindex screen, ~
 @kitem ~
 Swap two buffers between the selected window or frame and one other.
-In WINDOW mode, there must be precisely two windows in the selected
-frame.  In FRAME mode, the second frame must have a single window.
+In WINDOWS mode, there must be precisely two windows in the selected
+frame.  In FRAMES mode, the second frame must have a single window.
 
 @findex zoom-frm.el
 @cindex zooming
@@ -3166,7 +3207,7 @@ face size.  Zooming supports an argument of between 1 and 9 (any other
 value sets the argument to 1).  The argument determines the number of
 sizes by which to zoom.
 
-FRAME mode zooming requires the separately available
+FRAMES mode zooming requires the separately available
 @file{zoom-frm.el} library.  WINDOW zooming works without this library.
 
 @kindex screen, t
@@ -7017,7 +7058,7 @@ a vertical scroll bar:
 @vindex assist-key-modeline-function
 @format
 @group
-If depressed within a window mode line:
+If depressed within a window modeline:
   ACTION KEY
      (1) clicked on the first blank character of a window's modeline,
          the window's buffer is buried (placed at the bottom of the

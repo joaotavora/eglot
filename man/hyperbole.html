@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 6.0.2f, Published October 24, 2017).
+(Edition 6.0.2f, Published October 25, 2017).
 
 Copyright (C) 1989-2016  Free Software Foundation, Inc.
 
@@ -323,7 +323,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2f
-Printed October 24, 2017.
+Printed October 25, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -3618,27 +3618,64 @@ and frame submodes.
 <a name="index-_002e"></a>
 </dd>
 <dt><kbd>{.}</kbd></dt>
-<dd><p>Clear the argument to a value of 0.
+<dd><p>Clear the prefix argument to a value of 0.
 </p>
 <a name="index-screen_002c-0_002d9"></a>
 <a name="index-0_002d9"></a>
 </dd>
 <dt><kbd>{0-9}</kbd></dt>
-<dd><p>Multiply the argument by 10 and add the digit pressed.
+<dd><p>Multiply the prefix argument by 10 and add the digit pressed.
 </p>
+<a name="index-screen_002c-_0040"></a>
+<a name="index-_0040"></a>
+</dd>
+<dt><kbd>{@}</kbd></dt>
+<dd><p>Create a grid of windows in the selected frame according to the
+prefix argument.
+</p>
+<p>If the prefix argument is 0, prompt for a major mode whose buffers
+should be displayed first in the windows of the selected frame and
+then for the number of rows and columns of windows to display in the
+grid.  Otherwise, split the selected frame into the number of rows
+given by the left digit of the argument and the number of columns
+given by the right digit.
+</p>
+<a name="index-hycontrol_002ddisplay_002dbuffer_002dpredicate_002dlist"></a>
+<p>With a current buffer in Dired, Buffer Menu or IBuffer mode that
+contains marked items, the buffers associated with those items are
+displayed first in the grid.  Then the most recently used buffers are
+displayed in each window, first selecting only those buffers which
+match any of the predicate expressions in
+<var>hycontrol-display-buffer-predicate-list</var>.  (The default predicate
+list chooses buffers with attached files).  Then, if there are not
+enough buffers for all windows, the buffers that failed to match to
+any predicate are used. In all cases, buffers whose names start with a
+space are ignored.
+</p>
+<p>When done, this resets the persistent prefix argument to 1 to prevent
+following commands from using the often large grid size argument.
+</p>
+<p>If you ever need to experiment with different sized window grids, use
+<kbd>{M-x hycontrol-window-grid-repeatedly <span class="key">RET</span>}</kbd>.  It will
+repeatedly prompt you for a grid size and then display it.  When you
+are done, simply press <kbd>{<span class="key">RET</span>}</kbd> to exit.
+</p>
+<a name="index-hycontrol_002dframe_002dwidths"></a>
 <a name="index-screen_002c-a"></a>
 <a name="index-a"></a>
 </dd>
 <dt><kbd>{a}</kbd></dt>
-<dd><p>Cycle though common width adjustments of a frame, such as 25% and 50%.
-Widths are given in screen percentages by the list
-<var>hycontrol-frame-widths</var> and typically go from widest to narrowest.
+<dd><p>Cycle through common width adjustments of a frame, such as 25% and
+50%. Widths are given in screen percentages by the list
+<var>hycontrol-frame-widths</var> and typically go from widest to
+narrowest.
 </p>
+<a name="index-hycontrol_002dframe_002dheights"></a>
 <a name="index-screen_002c-A"></a>
 <a name="index-A"></a>
 </dd>
 <dt><kbd>{A}</kbd></dt>
-<dd><p>Cycle though common height adjustments of a frame, such as 33.3% and
+<dd><p>Cycle through common height adjustments of a frame, such as 33.3% and
 75%.  Heights are given in screen percentages by the list
 <var>hycontrol-frame-heights</var> and typically go from tallest to shortest.
 </p>
@@ -3671,21 +3708,21 @@ character height).
 <a name="index-_0025"></a>
 </dd>
 <dt><kbd>{%}</kbd></dt>
-<dd><p>In FRAME mode, resize frame&rsquo;s height and width to about argument percent
+<dd><p>In FRAMES mode, resize frame&rsquo;s height and width to about argument percent
 of the screen size.
 </p>
 <a name="index-screen_002c-H"></a>
 <a name="index-H"></a>
 </dd>
 <dt><kbd>{H}</kbd></dt>
-<dd><p>In FRAME mode, resize frame&rsquo;s height to about argument percent of the
+<dd><p>In FRAMES mode, resize frame&rsquo;s height to about argument percent of the
 screen size.
 </p>
 <a name="index-screen_002c-W"></a>
 <a name="index-W"></a>
 </dd>
 <dt><kbd>{W}</kbd></dt>
-<dd><p>In FRAME mode, resize frame&rsquo;s width to about argument percent of the
+<dd><p>In FRAMES mode, resize frame&rsquo;s width to about argument percent of the
 screen size.
 </p>
 <a name="index-screen_002c-up"></a>
@@ -3731,7 +3768,7 @@ based on mode.
 <a name="index-l"></a>
 </dd>
 <dt><kbd>{l}</kbd></dt>
-<dd><p>In FRAME mode, lower the selected frame below all other Emacs session frames.
+<dd><p>In FRAMES mode, lower the selected frame below all other Emacs session frames.
 </p>
 <a name="index-screen_002c-o"></a>
 <a name="index-o"></a>
@@ -3748,7 +3785,7 @@ based on mode.
 <a name="index-keypad-number"></a>
 </dd>
 <dt><kbd>{keypad number}</kbd></dt>
-<dd><p>In FRAME mode, move the frame directly to the screen edge position given
+<dd><p>In FRAMES mode, move the frame directly to the screen edge position given
 by the numeric keypad layout.  For example, 3 moves the frame to the
 bottom right corner and 8 moves it to the middle of the top edge.
 Keypad numeric keys do not adjust the argument.  Respects the pixel edge
@@ -3765,7 +3802,7 @@ Each digit key operates just as a numeric keypad key would.
 <a name="index-r"></a>
 </dd>
 <dt><kbd>{r}</kbd></dt>
-<dd><p>In FRAME mode, raise the selected frame above all other Emacs session frames.
+<dd><p>In FRAMES mode, raise the selected frame above all other Emacs session frames.
 </p>
 <a name="index-hycontrol_002dframe_002doffset"></a>
 <a name="index-screen_002c-_005b"></a>
@@ -3797,6 +3834,7 @@ configuration and wish to save it temporarily.
 <dd><p>After confirmation, restore the last saved window or frame configuration
 based on mode.
 </p>
+<a name="index-hycontrol_002dkeep_002dwindow_002dflag"></a>
 <a name="index-screen_002c-f"></a>
 <a name="index-f"></a>
 </dd>
@@ -3837,22 +3875,27 @@ edge.  Respects the pixel edge offsets returned by
 <a name="index-_003d"></a>
 </dd>
 <dt><kbd>{=}</kbd></dt>
-<dd><p>After confirmation, in WINDOW mode, make the current frame&rsquo;s windows
-approximately the same size.  In FRAME mode, make all visible frames
+<dd><p>After confirmation, in WINDOWS mode, make the current frame&rsquo;s windows
+approximately the same size.  In FRAMES mode, make all visible frames
 the size of the selected frame.
 </p>
 <a name="index-screen_002c-_002d"></a>
 <a name="index-_002d"></a>
 </dd>
 <dt><kbd>{-}</kbd></dt>
-<dd><p>Make the selected window or frame (based on mode) as small as possible
-while still displaying it.
+<dd><p>In WINDOWS mode, shrink window to its smallest possible number of lines
+to display the entire buffer, if possible.  Otherwise or if the window
+is already displaying all of its lines, shrink it to about one line,
+if possible.
+</p>
+<p>In FRAMES mode, make the frame as small as possible while still
+displaying it.
+</p>
 <a name="index-screen_002c-_002b"></a>
 <a name="index-_002b"></a>
-</p></dd>
+</dd>
 <dt><kbd>{+}</kbd></dt>
-<dd><p>Make the window or frame (based on mode) as large as possible.  In FRAME
-mode, a second press of this key restores its size to whatever it was
+<dd><p>Make the window or frame (based on mode) as large as possible.  In FRAMES mode, a second press of this key restores its size to whatever it was
 prior to the first use of this command.
 </p>
 <a name="index-burying"></a>
@@ -3876,8 +3919,8 @@ selected window.
 </dd>
 <dt><kbd>{~}</kbd></dt>
 <dd><p>Swap two buffers between the selected window or frame and one other.
-In WINDOW mode, there must be precisely two windows in the selected
-frame.  In FRAME mode, the second frame must have a single window.
+In WINDOWS mode, there must be precisely two windows in the selected
+frame.  In FRAMES mode, the second frame must have a single window.
 </p>
 <a name="index-zoom_002dfrm_002eel"></a>
 <a name="index-zooming"></a>
@@ -3896,7 +3939,7 @@ face size.  Zooming supports an argument of between 1 and 9 (any other
 value sets the argument to 1).  The argument determines the number of
 sizes by which to zoom.
 </p>
-<p>FRAME mode zooming requires the separately available
+<p>FRAMES mode zooming requires the separately available
 <samp>zoom-frm.el</samp> library.  WINDOW zooming works without this library.
 </p>
 <a name="index-screen_002c-t"></a>
@@ -8446,7 +8489,7 @@ Next: <a href="#Smart-Mouse-_002d-Drags-between-Windows" accesskey="n" rel="next
 <a name="index-action_002dkey_002dmodeline_002dfunction-1"></a>
 <a name="index-assist_002dkey_002dmodeline_002dfunction-1"></a>
 <div class="format">
-<pre class="format">If depressed within a window mode line:
+<pre class="format">If depressed within a window modeline:
   ACTION KEY
      (1) clicked on the first blank character of a window&rsquo;s modeline,
          the window&rsquo;s buffer is buried (placed at the bottom of the
@@ -10338,11 +10381,13 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_symbol-10"><b>?</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>[</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>@</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>]</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>[</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-13"><b>~</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-13"><b>]</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-14"><b>~</b></a>
  &nbsp; 
 <br>
 <a class="summary-letter" href="#Key-Index_ky_letter-A"><b>A</b></a>
@@ -10422,13 +10467,16 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><th><a name="Key-Index_ky_symbol-10">?</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-_003f"><code>?</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
-<tr><th><a name="Key-Index_ky_symbol-11">[</a></th><td></td><td></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-11">@</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_0040"><code>@</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-12">[</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-_005b"><code>[</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
-<tr><th><a name="Key-Index_ky_symbol-12">]</a></th><td></td><td></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-13">]</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-_005d"><code>]</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
-<tr><th><a name="Key-Index_ky_symbol-13">~</a></th><td></td><td></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-14">~</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-_007e"><code>~</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-A">A</a></th><td></td><td></td></tr>
@@ -10657,6 +10705,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-screen_002c-0_002d9"><code>screen, 0-9</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-_003d"><code>screen, =</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-_003f"><code>screen, ?</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-screen_002c-_0040"><code>screen, @</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-a"><code>screen, a</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-A"><code>screen, A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-b"><code>screen, b</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -10741,11 +10790,13 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_symbol-10"><b>?</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>[</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>@</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>]</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>[</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-13"><b>~</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-13"><b>]</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-14"><b>~</b></a>
  &nbsp; 
 <br>
 <a class="summary-letter" href="#Key-Index_ky_letter-A"><b>A</b></a>
@@ -11038,11 +11089,15 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hui_003aebut_002ddelete_002dconfirm_002dp">hui:ebut-delete-confirm-p</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Deletion">Deletion</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_003aebut_002dprompt_002dfor_002daction">hui:ebut-prompt-for-action</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_003aebut_002drename"><code>hui:ebut-rename</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Renaming">Renaming</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hycontrol_002ddisplay_002dbuffer_002dpredicate_002dlist">hycontrol-display-buffer-predicate-list</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002denable_002d_002dwindows_002dmode"><code>hycontrol-enable--windows-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002denable_002dframes_002dmode"><code>hycontrol-enable-frames-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hycontrol_002dframe_002dheights">hycontrol-frame-heights</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002dframe_002doffset">hycontrol-frame-offset</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002dframe_002doffset-1">hycontrol-frame-offset</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hycontrol_002dframe_002dwidths">hycontrol-frame-widths</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002dget_002dscreen_002doffsets"><code>hycontrol-get-screen-offsets</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hycontrol_002dkeep_002dwindow_002dflag">hycontrol-keep-window-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002dscreen_002doffset_002dalist">hycontrol-screen-offset-alist</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002dset_002dscreen_002doffsets"><code>hycontrol-set-screen-offsets</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hypb_003argrep_002dcommand">hypb:rgrep-command</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>

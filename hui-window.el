@@ -308,8 +308,8 @@ Key behavior reverts to as though no items have been dragged."
 (defun hmouse-drag-region-active ()
   "Return non-nil if an active region existed in the depress buffer prior to the depress and a drag motion has occurred."
   (save-excursion
-    (hmouse-goto-depress-prev-point)
-    (and (region-active-p)
+    (and (hmouse-goto-depress-prev-point)
+	 (region-active-p)
 	 (or (hmouse-drag-vertically) (hmouse-drag-horizontally) (hmouse-drag-diagonally))
 	 (setq hkey-value (point)))))
 
@@ -707,10 +707,13 @@ Ignores minibuffer window."
     (if point (goto-char point))))
 
 (defun hmouse-goto-depress-prev-point ()
-  "Temporarily set point to where the last Smart Key was depressed."
-  (let ((buf (marker-buffer (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point)))
-	(loc (marker-position (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point))))
-    (hmouse-set-buffer-and-point buf loc)))
+  "Temporarily set point to where the last Smart Key was depressed and return t, else nil if no such point saved."
+  (let* ((prev-point (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point))
+	 (buf (and prev-point (marker-buffer prev-point)))
+	 (loc (marker-position prev-point)))
+    (when (and buf loc)
+      (hmouse-set-buffer-and-point buf loc)
+      t)))
 
 (defun hmouse-goto-depress-point ()
   "Temporarily set point to where the last Smart Key was depressed."

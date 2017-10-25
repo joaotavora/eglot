@@ -59,6 +59,7 @@ Forms such as {\C-b}, {\^b}, and {^b} will not be recognized."
 	      binding (key-binding key-sequence)))
       (and (cond (binding (not (integerp binding)))
 		 ((kbd-key:hyperbole-mini-menu-key-p key-sequence))
+		 ((kbd-key:hyperbole-hycontrol-key-p key-sequence))
 		 ((kbd-key:extended-command-p key-sequence)))
 	   (ibut:label-set seq-and-pos)
 	   (hact 'kbd-key key-sequence)))))
@@ -78,6 +79,7 @@ Returns t if KEY-SEQUENCE has a binding, else nil."
 	   ;; or a M-x extended command, execute it by adding its keys
 	   ;; to the stream of unread command events.
 	   (when (or (kbd-key:hyperbole-mini-menu-key-p key-sequence)
+		     (kbd-key:hyperbole-hycontrol-key-p key-sequence)
 		     (kbd-key:extended-command-p key-sequence))
 	     (setq unread-command-events (nconc unread-command-events (mapcar 'identity key-sequence)))))
 	  ((memq binding '(action-key action-mouse-key hkey-either))
@@ -120,8 +122,19 @@ With optional prefix arg FULL, displays full documentation for command."
   (let ((kbd-key (hbut:key-to-label (hattr:get but 'lbl-key))))
     (if kbd-key (kbd-key:doc kbd-key t))))
 
+(defun kbd-key:hyperbole-hycontrol-key-p (key-sequence)
+  "Returns t if normalized KEY-SEQUENCE is given when in a HyControl mode, else nil.
+Allows for multiple key sequences strung together."
+  (and key-sequence
+       (featurep 'hycontrol)
+       (or hycontrol-windows-mode hycontrol-frames-mode)
+       ;; If wanted to limit to single key bindings and provide tighter checking:
+       ;;   (string-match "[-.0-9]*\\(.*\\)" key-sequence)
+       ;;   (key-binding (match-string 1 key-sequence))
+       t))
+
 (defun kbd-key:hyperbole-mini-menu-key-p (key-sequence)
-  "Returns t if normalized KEY-SEQUENCE appears to invoke a Hyperbole menu item, else nil."
+  "Returns t if normalized KEY-SEQUENCE appears to invoke a Hyperbole menu item or sequence of keys, else nil."
   (when key-sequence
     (let ((mini-menu-key (kbd-key:normalize (key-description (car (where-is-internal 'hyperbole))))))
       (if (string-match (regexp-quote mini-menu-key) key-sequence) t))))

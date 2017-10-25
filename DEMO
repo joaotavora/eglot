@@ -176,13 +176,14 @@ menu.  If you use a lot of Emacs windows or frames (typically, window system
 windows) then this tool is for you.  A long video demonstrating most of
 HyControl's features is available at https://youtu.be/M3-aMh1ccJk.
 
-HyControl interactively adjusts the layout of your windows and frames
-down to the pixel-level if desired.  You adjust the location, size and
-display elements of your windows and frames until they look as you like
-and then simply quit HyControl and go back to work.  It has smart features to
-avoid covering toolbars anchored at the edges of your screen and allows you
-to quickly set numeric arguments to apply to operations, like resizing a
-frame to a percentage of your screen size.
+HyControl interactively adjusts the layout of your windows and frames down
+to the pixel-level if desired.  You adjust the location, size and display
+elements of your windows and frames until they look as you like and then
+simply quit HyControl and go back to work.  It has smart features for laying
+out large grids of windows, avoiding having frames cover graphical toolbars
+anchored at the edges of your screen, and allows you to quickly set numeric
+arguments to apply to operations, like resizing a frame to a percentage of
+your screen size.
 
 Hyperbole binds {C-c \} to invoke HyControl windows control; otherwise, the
 Hyperbole minibuffer menu item, Screen/WindowsControl {C-h h s w}, will do
@@ -195,6 +196,56 @@ this help display.  The key, {t}, will always switch you between controlling
 frames and windows, the minor modes of HyControl, with a mode-line indicator
 of either "HyFrm" or HyWin" depending on which type of control is active.  See
 "(hyperbole)HyControl" for full usage information.
+
+Let's try some of the more interesting commands.  You can either type the
+following key sequences (ignoring the braces) for practice or simply press
+the Action Key within them to see what they look like.
+
+{C-h h s f}  - enter HyControl Frames mode
+
+{.50 %}      - make frame 50% of screen size
+{ c }        - use this multiple times to move frame around screen edges
+{ a }        - use this multiple times to adjust frame width
+{ A }        - use this multiple times to adjust frame height
+
+The following 4 commands use the prefix argument as a percentage of the
+screen height, except that no argument or an argument of 1 mean 50% since
+the argument is used to adjust one dimension of the frame.
+
+{ i }        - move to top edge, next press cuts height by ARG %
+{ m }        - move to bottom edge, next press cuts height by ARG %
+{ j }        - move to left edge, next press cuts width by ARG %
+{ k }        - move to right edge, next press cuts width by ARG %
+
+{ f }        - clone the selected window to a new frame
+{ F }        - tear off the selected window (if more than one window)
+               into a new frame
+
+The {@} command splits a frame into a grid of up to 9 rows by 9 columns of
+windows, showing a different buffer in each window, if available.  First
+let's expand our frame to full screen with the {.1 %} command and then show
+a 2 x 3 grid.  We can do multiple commands in one key sequence.  Press the
+action key here: {.1 % .23 @}.
+
+You can even write something like this to do the whole thing in one sequence.
+First, let's quit out of HyControl Frames mode with {q}.  Then go back to one
+window with {C-x 1}.  Now we can execute a single sequence from any buffer that
+creates our 2x3 window grid:  {C-h h s f  .1 %  .23 @  q}.  Pretty amazing,
+right?  You can separate each command by any number of spaces or even jam them
+all together: {C-hhsf.1%.23@q}.
+
+A zero argument to the {@} command is special.  It means you want to
+display buffers with a particular major mode first, e.g. c-mode.  You
+will be prompted for the major mode and then the size of the grid.
+
+To try it, activate: {C-hhsf .0 @}.
+
+If you ever need to experiment with different sized window grids, use
+{M-x hycontrol-window-grid-repeatedly RET}.  It will repeatedly prompt
+you for a grid size and then display it.  When you are done, simply press
+{RET} to exit.
+
+There is lots more to discover in HyControl as you explore.
 
 
 * History

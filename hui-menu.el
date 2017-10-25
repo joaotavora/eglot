@@ -130,13 +130,13 @@ Return t if cutoff, else nil."
 (defun hui-menu-key-bindings (rest-of-menu)
   (nconc
    (list
-    (vector (hui-menu-key-binding-item "Action-Key         \t\t\t" 'hkey-either)       '(hui:bind-key #'hkey-either) t)        ;; {M-RET}
-    (vector (hui-menu-key-binding-item "Button-Rename-Key  \t\t"   'hui:ebut-rename)   '(hui:bind-key #'hui:ebut-rename) t)    ;; {C-c C-r}
-    (vector (hui-menu-key-binding-item "Drag-Emulation-Key \t\t"   'hkey-operate)      '(hui:bind-key #'hkey-operate) t)       ;; {M-o}
-    (vector (hui-menu-key-binding-item "Hyperbole-Menu-Key \t"     'hyperbole)         '(hui:bind-key #'hyperbole) t)          ;; {C-h h}
-    (vector (hui-menu-key-binding-item "Mark-Thing-Key     \t\t"   'hui-select-thing)  '(hui:bind-key #'hui-select-thing) t)   ;; {C-c C-m}
-    (vector (hui-menu-key-binding-item "Smart-Help-Key     \t\t"   'hkey-help)         '(hui:bind-key #'hkey-help) t)          ;; {C-h A}
-    (vector (hui-menu-key-binding-item "Windows-Control-Key\t"     'hycontrol-windows) '(hui:bind-key #'hycontrol-windows) t)) ;; {C-C \}
+    (vector (hui-menu-key-binding-item "Action-Key         \t\t\t" 'hkey-either)                   '(hui:bind-key #'hkey-either) t)                    ;; {M-RET}
+    (vector (hui-menu-key-binding-item "Button-Rename-Key  \t\t"   'hui:ebut-rename)               '(hui:bind-key #'hui:ebut-rename) t)                ;; {C-c C-r}
+    (vector (hui-menu-key-binding-item "Drag-Emulation-Key \t\t"   'hkey-operate)                  '(hui:bind-key #'hkey-operate) t)                   ;; {M-o}
+    (vector (hui-menu-key-binding-item "Hyperbole-Menu-Key \t"     'hyperbole)                     '(hui:bind-key #'hyperbole) t)                      ;; {C-h h}
+    (vector (hui-menu-key-binding-item "Mark-Thing-Key     \t\t"   'hui-select-thing)              '(hui:bind-key #'hui-select-thing) t)               ;; {C-c C-m}
+    (vector (hui-menu-key-binding-item "Smart-Help-Key     \t\t"   'hkey-help)                     '(hui:bind-key #'hkey-help) t)                      ;; {C-h A}
+    (vector (hui-menu-key-binding-item "Windows-Control-Key\t"     'hycontrol-enable-windows-mode) '(hui:bind-key #'hycontrol-enable-windows-mode) t)) ;; {C-C \}
    rest-of-menu))
 
 ;; Dynamically compute submenus for Screen menu

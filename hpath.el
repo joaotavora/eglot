@@ -884,10 +884,10 @@ nonexistent local paths are allowed."
 		   (let (decoded-path)
 		     (while (not (equal rtn-path (setq decoded-path (hypb:decode-url rtn-path))))
 		       (setq rtn-path decoded-path))))
-		 ;; Quote any %s except for one at the end of the path
-		 ;; part of rtn-path (immediately preceding a # or ,
-		 ;; character or the end of string).
-		 (setq rtn-path (hypb:replace-match-string "%s" rtn-path "%%s")
+		 ;; Quote any % except for one %s at the end of the
+		 ;; path part of rtn-path (immediately preceding a #
+		 ;; or , character or the end of string).
+		 (setq rtn-path (hypb:replace-match-string "%" rtn-path "%%")
 		       rtn-path (hypb:replace-match-string "%%s\\([#,]\\|\\'\\)" rtn-path "%s\\1"))
 		 ;; Return path if non-nil return value.
 		 (if (stringp suffix) ;; suffix could = t, which we ignore

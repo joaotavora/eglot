@@ -87,7 +87,9 @@ Note that this may be a buffer different than where the release occurs.")
   "When non-nil, forces display of help for next Assist Key release.")
 
 (defvar assist-flag nil
-  "Non-nil when Hyperbole's Assist Key is in use rather than the Action Key.")
+  "Non-nil when Hyperbole's Assist Key is in use rather than the Action Key.
+Never set directly.  Bound as a parameter when `hkey-execute' is called
+and then used as a free variable.")
 
 (defcustom hkey-debug nil
   "If non-nil, displays a message with the context and values from each Smart Key activation.
@@ -279,6 +281,12 @@ bound to a valid function."
 (defun hkey-either (arg)
   "Execute `action-key' or with non-nil ARG execute `assist-key'."
   (interactive "P")
+  (when (and (featurep 'hycontrol)
+	     (or hycontrol-windows-mode hycontrol-frames-mode))
+      ;; Ignore any prefix arg set by HyControl and use prefix arg
+      ;; only if it was given by a user as any number of C-u presses
+      ;; and is therefore a list.
+    (unless (listp arg) (setq arg nil)))
   (if arg (assist-key) (action-key)))
 
 ;;; ************************************************************************
