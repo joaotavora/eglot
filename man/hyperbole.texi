@@ -2909,6 +2909,8 @@ configurations by name.  @xref{Window Configurations}.
 @cindex windows control
 @cindex frames control
 @cindex HyControl
+@cindex invoking HyControl
+@cindex starting HyControl
 @cindex screen
 @cindex display
 Hyperbole includes the fastest, easiest-to-use Emacs window and frame
@@ -2959,6 +2961,11 @@ explanation does not say otherwise, then the key applies in both window
 and frame submodes.
 
 @table @asis
+
+@kindex HyControl, see screen
+@kindex screen, ?
+@kitem ?
+Toggle whether HyControl displays key binding help in the minibuffer.
 
 @kindex HyControl, see screen
 @kindex screen, .
@@ -3181,12 +3188,13 @@ variables and functions or with customized Emacs.
 @findex hycontrol-get-screen-offsets
 HyControl allows placement of frames at screen edges and corners. with
 the frame cycle command, @bkbd{c}, and direct placement matching the
-layout of the numeric keypad keys, if available.  (Note that a screen
-may span multiple physical monitors).  To prevent widgets
-and toolbars at the corners of the screen from being obscured,
-HyControl can offset each frame from each screen edge by a fixed
-number of pixels.  These offsets are specified by the variable,
-@code{hycontrol-screen-offset-alist} and can differ for each type of
+layout of the numeric keypad keys, if available, or the @kbd{p} key
+otherwise.  (Note that a screen may span multiple physical monitors).
+
+To prevent widgets and toolbars at the corners of the screen from
+being obscured, HyControl can offset each frame from each screen edge
+by a fixed number of pixels.  These offsets are specified by the
+variable,@code{hycontrol-screen-offset-alist} and can differ for each type of
 screen; see its documentation for details.  If you change its value,
 then call @code{hycontrol-set-screen-offsets} to set any new offset
 values.  @code{hycontrol-get-screen-offsets} returns the list of offsets
@@ -3201,16 +3209,18 @@ same size as the previously selected frame and offsets it from that
 frame by the (X . Y) number of pixels given in the variable,
 @code{hycontrol-frame-offset}.
 
+@cindex file, hycontrol.el
+@findex hycontrol-enable-frames-mode
+@findex hycontrol-enable--windows-mode
 The source code for the HyControl system is in @file{hycontrol.el}
 within your Hyperbole source directory, given by @code{hyperb:dir}.
-Presently, you must edit the code to change any of HyControl's internal
-key bindings.  Eventually, standard local key bindings will be provided.
-You can however bind the two HyControl invocation commands to keys.
-These commands are, @code{hycontrol-windows} and @code{hycontrol-frames}.
+HyControl uses standard Emacs keymaps, so any keys can be rebound.
+Remember that Hyperbole typically binds @bkbd{C-c \\} to the windows
+control menu, but if you would like to bind either of the two
+HyControl minor mode invocation commands to keys, they are,
+@code{hycontrol-enable-windows-mode} and @code{hycontrol-enable-frames-mode}.
 Generally, you need only one of these bound to a key since when you
-press that key, the other command can be reached by pressing
-@bkbd{t}.
-
+press that key, the other command can be reached by pressing @bkbd{t}.
 
 @node Koutliner, HyRolo, HyControl, Top
 @chapter Koutliner

@@ -669,12 +669,12 @@ the position (not below another application's window)."
 	    ;; an auto-raise property, then we know this window was
 	    ;; uppermost at the point of release and can skip this computation.
 	    (unless (and (eq depress-window window) (frame-parameter nil 'auto-raise))
-	      (let ((topwin (executable-find "topwin"))
+	      (let ((topwin (expand-file-name "topwin" hyperb:dir))
 		    (case-fold-search t)
 		    topmost-app)
 		(when (and topwin (file-executable-p topwin))
 		  (setq topmost-app (shell-command-to-string
-				     (format "topwin %d %d" pos-x pos-y)))
+				     (format "%s %d %d" topwin pos-x pos-y)))
 		  (cond ((string-match "emacs" topmost-app)) ; In an Emacs frame, do nothing.
 			((or (equal topmost-app "")
 			     ;; Any non-Emacs app window

@@ -1,3 +1,117 @@
+2017-10-24  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-universal-arg-digit): Removed first argument and replaced with global hycontrol-arg,
+    so could set this value internally.
+
+               (hycontrol--debug, hycontrol-setup): Changed from -1 to 0 as debug setting since -1 is used to turn off
+    HyControl minor modes.
+               (hycontrol-debug): Renamed from hycontrol--debug.  Made public so can be set directly.
+               (hycontrol-setup, hycontrol-frames, hycontrol-windows): : Removed debug parameter; no longer needed since
+    all events are handled normally by Emacs now.
+
+               (hycontrol-windows-mode-map): [ and ] bindings; don't call these interactively because a prefix arg of 1
+    tries to make one window 1 line tall.
+
+               (hycontrol-split-windows-repeatedly): Added to allow rapid visual testing of various window layouts until
+    satisfied.
+
+               (hycontrol-post-command-hook): Made this automatically quit from HyControl whenever a minibuffer prompt
+    becomes active so can use regular keys to type.
+
+	       (hycontrol-invert-mode-line-flag, hycontrol-invert-mode-line): Added to invert mode-line to emphasize the
+    special key bindings in effect in HyControl modes.
+
+2017-10-23  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-split-windows-buffer-list): Added to prefix buffer-list with any marked items
+    when in a Dired, Buffer-Menu or iBuffer listing buffer.  If any such items exist, the buffer-list
+    is not filtered by hycontrol-display-buffer-predicate-list.
+
+               (hycontrol-pre-command-hook): Added and changed setting of prefix-arg to pre-command-hook.  This set it
+    properly for HyControl commands.
+
+               (hycontrol--prompt-format): Added to generalize help prompt handling.
+               (hycontrol-post-command-hook): Replaced windows and frames post-command-hook with this one.
+
+               (hycontrol-frames-mode, hycontrol-windows-mode): Made these global minor modes and added their
+    variables to the hyperbole-screen group.  Buffer local minor modes renamed to hycontrol-local-*-mode.
+               (hycontrol-quit-frames-mode, hycontrol-quit-windows-mode): Changed defs to disable its global
+    minor mode.
+
+               (hycontrol-post-command-hook): Fixed so HyControl help messages are not logged to the
+    *Messages* buffer.
+
+               (hycontrol-disable-modes): Added.
+
+* set.el (set:create): Added autoload in case is ever used without a require.
+
+* hycontrol.el (hycontrol-split-windows, hycontrol-split-windows-rows-columns, hycontrol-split-windows-by-major-mode):
+    Incredible new autoloaded commands that split a frame into a number of balanced
+    windows specified by rows and columns (typically as prefix arg
+    digits).  Each window shows a different buffer, if possible, with the
+    by-major-mode command preferring buffers with the specified major mode.  The hycontrol-split-windows
+    chooses the by-major-mode command when given a prefix arge of 0; otheriwse, the rows-column one.
+               (hycontrol-window-display-buffer, hycontrol-display-buffer-predicate-list)
+                hycontrol--invert-display-buffer-predicates): Added to support new commands.
+               (require 'set): Added for set:create used in hycontrol-split-windows-by-major-mode.
+               (hycontrol-*-mode-map): Bound {@} to hycontrol-split-windows-rows-columns, also in Buffer-menu,
+    IBuffer and Dired modes.
+
+* hycontrol.el (hycontrol--initial-which-key-inhibit): Added.
+               (hycontrol-end-mode, hycontrol-frames, hycontrol-windows): Used above flag.
+
+	       (hycontrol-setup): Refactored common parts of hycontrol-frames and hycontrol-windows here.
+	       (hycontrol-frames-setup, hycontrol-windows-setup): Added and used in
+    hycontrol-frames and hycontrol-windows, respectively.
+
+2017-10-22  Bob Weiner  <rsw@gnu.org>
+
+* Makefile ($(pkg_dir)/hyperbole-$(HYPB_VERSION).tar): Ensured `topwin' script was made executable.
+  hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Changed to find `topwin' executable in
+    hyperb:dir so no additional installation is necessary.
+
+* hycontrol.el (hycontrol-window-to-new-frame): Fixed to duplicate prior selected window size properly.
+
+* hui-window.el
+  man/hkey-help.txt: Noted that a modeline click on a dired Buffer ID shows the parent directory.
+
+2017-10-20  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-help-flag):
+               (hycontrol-toggle-help): Added to allow toggling minibuffer key binding help off.
+	       (hycontrol-frames-mode, hycontrol-windows-mode): Made HyControl modes into minor modes.
+               (hycontrol-enable-frames-mode, hycontrol-enable-windows-mode): Renamed from
+    hycontrol-toggle-to-*-mode.
+  man/hyperbole.texi (HyControl): Updated documentation with these changes.
+
+* hbut.el (ibtype:create): Expanded this doc for defact, explaining how actions are connected to its
+   'at-p' parameter.
+
+* hycontrol.el (hycontrol-abort-mode): Added and used when {C-g} is pressed; exits HyControl
+    and executes (keyboard-quit).
+               (hycontrol-end-mode, hycontrol-quit-frames-mode, hycontrol-quit-windows-mode,
+                hycontrol-toggle-to-frames-mode, hycontrol-toggle-to-windows-mode): Added
+    and used as key bindings.
+    (hycontrol-exit-mode): Deleted and replaced with above commands.
+
+    (hycontrol-frame-fit-to-screen): Changed to adjust width and height separately which fixed
+      a bug in our call to set-frame-size which kept increasing the frame height slightly.
+
+    (hycontrol-frames, hycontrol-windows): Prevented `which-key' package from popping up its key
+       help and interferring with the minibuffer message while in HyControl.  Otherwise, the
+       which-key help could be left onscreen after a quit of HyControl.
+
+* hui-window.el (hmouse-pulse-flag): Made t the default because timing and display issues with
+    pulsing drag items were resolved now.
+
+2017-10-19  Bob Weiner  <rsw@gnu.org>
+
+* Makefile (pkg): Changed hyperbole source dir from hyperbole-<version> to hyperbole since that
+    is the name of the git repo top-level directory from which packages are now built.
+
+* hui-jmenu.el (hui-menu-hywconfig): Fixed improper variable reference that kept Delete-Name
+    and Restore-Name from ever being active.
+
 2017-10-19  Bob Weiner  <rsw@gnu.org>
 
 * man/hyperbole.texi (Version): Updated to 6.0.2e and rebuilt output formats.
@@ -12,9 +126,6 @@
     (hycontrol--frames-prompt-format): Added {a} and {A} bindings to both frames and windows
         keymaps to adjust frame width and height respectively by cycle through a list of common
         fixed percentages such as 25% and 50%.  Added to Hyperbole manual.
-
-    (hycontrol-frames-post-command-hook-body, hycontrol-windows-post-command-hook-body): 
-      Added to prevent {C-g} quit from signalling an error within post-command-hook.
 
 2017-10-18  Bob Weiner  <rsw@gnu.org>
 
@@ -35,7 +146,7 @@
    the need for a HyControl event loop and processing of non-HyControl events.  There should
    be no change in HyControl user-visible behavior from this other than that key bindings
    may now be customized (remember to update the HyControl minibuffer prompts if you do change
-   any).
+   any).  And mouse wheels now work for fast multi-window scrolling.
 
 2017-10-17  Bob Weiner  <rsw@gnu.org>
 
@@ -44,8 +155,8 @@
     Changed ordering of items to match Emacs window-edges and frame-edges.
                (hycontrol-fit-to-screen): Added and used to ensure resized and repositioned
     windows fit on the screen.
-    (hycontrol-set-frame-height, hycontrol-set-frame-position, hycontrol-set-frame-size,
-     hycontrol-set-frame-width): Added with calls to hycontrol-fit-to-screen.
+               (hycontrol-set-frame-height, hycontrol-set-frame-position, hycontrol-set-frame-size,
+                hycontrol-set-frame-width): Added with calls to hycontrol-fit-to-screen.
 
 * man/hyperbole.texi: Removed InfoDock and XEmacs references since they are so old and no
     longer maintained that no one uses them today.

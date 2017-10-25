@@ -51,6 +51,7 @@ Mouse-only Control
     Left modeline edge          Buries current buffer      Unburies bottom buffer
     Right modeline edge         Info manual browser        Smart Key summary
     Buffer ID                   Dired on buffer's dir      Next buffer
+                                  or on parent when a dir
     Other blank area            Action Key modeline hook   Assist Key modeline hook
                                   Shows/Hides Buffer Menu    Popup Jump & Manage Menu
 

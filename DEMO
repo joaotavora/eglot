@@ -184,17 +184,17 @@ avoid covering toolbars anchored at the edges of your screen and allows you
 to quickly set numeric arguments to apply to operations, like resizing a
 frame to a percentage of your screen size.
 
-Hyperbole binds {C-c \} to invoke HyControl window control; otherwise, the
+Hyperbole binds {C-c \} to invoke HyControl windows control; otherwise, the
 Hyperbole minibuffer menu item, Screen/WindowsControl {C-h h s w}, will do
 the same thing.
 
 Once in HyControl, your minibuffer window at the bottom of the selected frame
 will display a summary of keys you may use to adjust your windows until you
-press {q} to quit from HyControl.  The key, {t}, will always switch you
-between controlling frames and windows, the "submodes" of HyControl, with the
-upper left of the minibuffer prompt showing which type of control is active.
-
-See "(hyperbole)HyControl" for full usage information.
+press {q} to quit from HyControl.  If you don't see it, press {?}, to turn on
+this help display.  The key, {t}, will always switch you between controlling
+frames and windows, the minor modes of HyControl, with a mode-line indicator
+of either "HyFrm" or HyWin" depending on which type of control is active.  See
+"(hyperbole)HyControl" for full usage information.
 
 
 * History

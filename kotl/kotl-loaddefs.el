@@ -5,8 +5,7 @@
 ;;; Code:
 
 
-;;;### (autoloads nil "kexport" "kexport.el" (22419 35813 249912
-;;;;;;  697000))
+;;;### (autoloads nil "kexport" "kexport.el" (22452 42110 0 0))
 ;;; Generated autoloads from kexport.el
 
 (autoload 'kexport:html "kexport" "\
@@ -129,7 +128,7 @@ The variable, `paragraph-start,' is used to determine paragraphs.
 
 ;;;***
 
-;;;### (autoloads nil "klink" "klink.el" (22415 50714 80447 205000))
+;;;### (autoloads nil "klink" "klink.el" (22481 28335 0 0))
 ;;; Generated autoloads from klink.el
 
 (autoload 'klink:create "klink" "\
@@ -141,8 +140,7 @@ See documentation for `kcell:ref-to-id' for valid cell-ref formats.
 
 ;;;***
 
-;;;### (autoloads nil "kotl-mode" "kotl-mode.el" (22418 11616 709753
-;;;;;;  7000))
+;;;### (autoloads nil "kotl-mode" "kotl-mode.el" (22989 19633 0 0))
 ;;; Generated autoloads from kotl-mode.el
 
 (autoload 'kotl-mode "kotl-mode" "\
@@ -195,7 +193,7 @@ Signal an error if current buffer is not a Hyperbole outline, else return t.
 
 ;;;### (autoloads nil nil ("kcell.el" "kfill.el" "klabel.el" "kmenu.el"
 ;;;;;;  "knode.el" "kprop-em.el" "kprop-xe.el" "kproperty.el" "kview.el"
-;;;;;;  "kvspec.el") (22419 36720 3219 570000))
+;;;;;;  "kvspec.el") (22989 23220 0 0))
 
 ;;;***
 

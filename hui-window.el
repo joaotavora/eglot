@@ -45,6 +45,7 @@
 ;;     Left modeline edge          Bury buffer                 Unbury bottom buffer
 ;;     Right modeline edge         Info                        Smart Key Summary
 ;;     Buffer ID                   Dired on buffer's dir       Next buffer
+;;                                   or on parent when a dir
 ;;     Other blank area            Action Key modeline hook    Assist Key modeline hook
 ;;                                   Show/Hide Buffer Menu      Popup Jump & Manage Menu
 ;;
@@ -126,10 +127,7 @@ buffer, file or directory name whose contents will be displayed in the
 drag release window.")
 
 
-;; !!! Disable this by default because it is rather slow and the referent
-;; pulsing is not working properly.  Wait until these issues are
-;; resolved before enabling this by default.
-(defcustom hmouse-pulse-flag nil
+(defcustom hmouse-pulse-flag t
   "When non-nil (the default) and when display supports visual pulsing, then pulse lines and buffers when an Action Key drag is used to place a buffer or file in a window."
   :type 'boolean
   :group 'hyperbole-keys)
@@ -752,15 +750,15 @@ Ignores minibuffer window."
   ;; (if (fboundp 'fill-region-and-align) (fill-region-and-align (mark) (point)))
   )
 
-(defsubst hmouse-pulse-buffer ()
+(defun hmouse-pulse-buffer ()
   (when (and hmouse-pulse-flag (featurep 'pulse) (pulse-available-p))
-    (pulse-momentary-highlight-region (point-min) (point-max) 'next-error)
-    (sit-for 0.3)))
+    (recenter)
+    (pulse-momentary-highlight-region (window-start) (window-end) 'next-error)))
 
-(defsubst hmouse-pulse-line ()
+(defun hmouse-pulse-line ()
   (when (and hmouse-pulse-flag (featurep 'pulse) (pulse-available-p))
-    (pulse-momentary-highlight-one-line (point) 'next-error)
-    (sit-for 0.3)))
+    (recenter)
+    (pulse-momentary-highlight-one-line (point) 'next-error)))
 
 (defun hmouse-item-to-window ()
   "Displays buffer or file menu item at Action Key depress at the location of Action Key release.
@@ -783,10 +781,11 @@ buffer itself to the release location."
 		     ;; to release window.
 		     (progn (setq w1-ref (current-buffer))
 			    (hmouse-pulse-buffer)
+			    (sit-for 0.05)
 			    (bury-buffer))
 		   ;; Otherwise, move the current menu item to the release window.
 		   (setq w1-ref (eval (cadr (assq major-mode hmouse-drag-item-mode-forms))))
-		   (when w1-ref (hmouse-pulse-line))))
+		   (when w1-ref (hmouse-pulse-line) (sit-for 0.05))))
 	(select-window w2)))
     (unwind-protect
 	(cond ((not w1-ref)
@@ -795,9 +794,10 @@ buffer itself to the release location."
 		 (error "(hmouse-item-to-window): No item to display at start of Action Mouse Key drag")))
 	      ((buffer-live-p w1-ref)
 	       (set-window-buffer w2 w1-ref)
+	       (set-buffer w1-ref)
 	       (hmouse-pulse-buffer))
 	      ((and (stringp w1-ref) (file-readable-p w1-ref))
-	       (set-window-buffer w2 (find-file-noselect w1-ref))
+	       (set-window-buffer w2 (set-buffer (find-file-noselect w1-ref)))
 	       (hmouse-pulse-buffer))
 	      (t (error "(hmouse-item-to-window): Cannot find or read `%s'" w1-ref)))
       ;; If helm is active, end in the minibuffer window.

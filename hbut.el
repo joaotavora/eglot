@@ -1099,7 +1099,11 @@ arguments."
 PARAMS are presently ignored.
 
   AT-P is a boolean form of no arguments which determines whether or not point
-is within a button of this type.
+is within a button of this type and if it is, calls `hact' with an
+action to be performed whenever a button of this type is activated.
+The action may be a regular Emacs Lisp function or a Hyperbole action
+type created with `defact'.
+
   Optional TO-P is a boolean form which moves point immediately after the next
 button of this type within the current buffer and returns a list of (button-
 label start-pos end-pos), or nil when none is found.

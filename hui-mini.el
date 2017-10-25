@@ -481,13 +481,13 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("Windowful"      (setq smart-scroll-proportional nil))))
        '(cust-keys .
          (("Change Keys>")
-	  ("ActionKey"   (hui:bind-key #'hkey-either))            ;; {M-RET}
-	  ("ButRename"   (hui:bind-key #'hui:ebut-rename))        ;; {C-c C-r}
-	  ("DragKey"     (hui:bind-key #'hkey-operate))           ;; {M-o}
-	  ("HypbMenu"    (hui:bind-key #'hyperbole))              ;; {C-h h}
-	  ("MarkThing"   (hui:bind-key #'hui-select-thing))       ;; {C-c RET}
-	  ("SmartHelp"   (hui:bind-key #'hkey-help))              ;; {C-h A}
-	  ("WinControl"  (hui:bind-key #'hycontrol-windows))      ;; {C-c \}
+	  ("ActionKey"   (hui:bind-key #'hkey-either))                   ;; {M-RET}
+	  ("ButRename"   (hui:bind-key #'hui:ebut-rename))               ;; {C-c C-r}
+	  ("DragKey"     (hui:bind-key #'hkey-operate))                  ;; {M-o}
+	  ("HypbMenu"    (hui:bind-key #'hyperbole))                     ;; {C-h h}
+	  ("MarkThing"   (hui:bind-key #'hui-select-thing))              ;; {C-c RET}
+	  ("SmartHelp"   (hui:bind-key #'hkey-help))                     ;; {C-h A}
+	  ("WinControl"  (hui:bind-key #'hycontrol-enable-windows-mode)) ;; {C-c \}
 	  )) 
        '(cust-referents .
          (("Ref Display>")
@@ -679,9 +679,9 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ))
        '(screen .
 	 (("Screen>")
-	  ("FramesControl"    hycontrol-frames
+	  ("FramesControl"    hycontrol-enable-frames-mode
 	   "Interactively delete, jump to, move, replicate, and resize frames.")
-	  ("WindowsControl"   hycontrol-windows
+	  ("WindowsControl"   hycontrol-enable-windows-mode
 	   "Interactively delete, jump to, rebalance, resize, and split windows.")))
        '(types .
 	 (("Types>")

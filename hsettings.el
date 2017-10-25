@@ -74,7 +74,7 @@
 If a Smart Menu is already displayed, perform another Action or Assist Key
 function.")
 
-(defcustom hmouse-middle-flag (and (boundp 'infodock-version) infodock-version)
+(defcustom hmouse-middle-flag (and (boundp 'infodock-version) infodock-version t)
   "*Under InfoDock or when t, additionally bind the middle mouse button as an
 Action Key."
   :type 'boolean

@@ -144,8 +144,8 @@ Return t if cutoff, else nil."
   (list
    ["Manual" (id-info "(hyperbole)HyControl") t]
    "----"
-   ["Frames-Control"  hycontrol-frames t]
-   ["Windows-Control" hycontrol-windows t]
+   ["Control-Frames"  hycontrol-enable-frames-mode t]
+   ["Control-Windows" hycontrol-enable-windows-mode t]
    "----"
    (hui-menu-of-buffers)
    (hui-menu-of-frames)

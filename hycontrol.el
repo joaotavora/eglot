@@ -18,18 +18,19 @@
 ;;   with just a few keystrokes.
 ;;
 ;;   It supplies two commands, both of which can toggle to the other
-;;   by pressing {t}.  `hycontrol-frames' manages visible frame
-;;   creation, deletion, sizing, position and face zooming (enlarging
-;;   and shrinking); if called interactively, it stores the current
-;;   frame configuration for restoration via a press of the `)' key.
-;;   `hycontrol-windows' manages per frame window creation, deletion,
-;;   sizing, reframing and face zooming; if called interactively, it
-;;   stores the current window configuration for restoration via a
-;;   press of the `)' key.
+;;   by pressing {t}.  `hycontrol-enable-frames-mode' manages visible
+;;   frame creation, deletion, sizing, position and face
+;;   zooming (enlarging and shrinking); if called interactively, it
+;;   stores the current frame configuration for restoration via a
+;;   press of the `)' key.  `hycontrol-enable-windows-mode' manages
+;;   per frame window creation, deletion, sizing, reframing and face
+;;   zooming; if called interactively, it stores the current window
+;;   configuration for restoration via a press of the `)' key.
 ;;
-;;   These commands are available under the Hyperbole Screen menu 
-;;   and `hycontrol-windows' is typically bound by Hyperbole to
-;;   {C-c \}.  Then press {t} if you want to switch to frame control.
+;;   These commands are available under the Hyperbole Screen menu.
+;;   `hycontrol-enable-windows-mode' is typically bound by Hyperbole
+;;   to {C-c \}.  Then press {t} if you want to switch to frame
+;;   control.
 ;;
 ;;   HyControl allows placement of frames at screen edges and corners. 
 ;;   (A screen may span multiple physical monitors).  To prevent widgets
@@ -60,6 +61,7 @@
 ;;; Other required Elisp libraries
 ;;; ************************************************************************
 
+(require 'set)
 ;; Frame face enlarging/shrinking (zooming) requires this separately available library.
 ;; Everything else works fine without it, so don't make it a required dependency.
 (require 'zoom-frm nil t)
@@ -67,6 +69,31 @@
 ;;; ************************************************************************
 ;;; Public variables
 ;;; ************************************************************************
+
+(defvar hycontrol-debug nil
+  "When set non-nil by a user, some HyControl log debugging messages to the *Messages* buffer.")
+
+(defvar hycontrol-display-buffer-predicate-list
+  ;; Display only buffers attached to files.
+  (list #'buffer-file-name)
+  "List of single buffer/name predicates.
+If any predicate returns non-nil for a buffer, include that buffer in
+the list to display in the windows created by `hycontrol-split-windows-rows-columns'.
+
+A predicate may be either a function that takes a single buffer
+argument or a boolean expression, in which case the expression is
+evaluated with the buffer argument as the current buffer, e.g. (eq
+major-mode 'c-mode).")
+
+(defcustom hycontrol-help-flag t
+  "*When t (the default), display key binding help in the minibuffer when in a HyControl mode."
+  :type 'boolean
+  :group 'hyperbole-screen)
+
+(defcustom hycontrol-invert-mode-line-flag t
+  "When t (default) and in a HyControl mode, invert mode-line to emphasize the special key bindings in effect."
+  :type 'boolean
+  :group 'hyperbole-screen)
 
 (defcustom hycontrol-keep-window-flag nil
   "*When non-nil (default is nil), leave original window when tear off window to another frame."
@@ -89,7 +116,7 @@ It's value is an (x-offset . y-offset) pair in pixels."
 
 (defvar hycontrol-screen-offset-alist
   '(((1920 . 1080) . (0 10 0 68)) ; 24" iMac HD display
-    ((2560 . 1440) . (0 15 0 95)) ; 27" iMac HD display
+    ((2560 . 1440) . (0 15 0 93)) ; 27" iMac HD display
     (t . (0 0 0 0)))
   "*Alist of (screen-predicate . (top-offset right-offset bottom-offset left-offset) pairs.
 Offsets are integers given in pixels.  The offsets associated with the first
@@ -138,8 +165,8 @@ The final predicate should always be t, for default values, typically of zero.")
 0.75 and 75 are treated as the same percentage.")
 
 (defvar hycontrol-arg nil
-  "HyControl copy of prefix-arg that it changes within key bindings
-post-command-hook synchronizes this value to `current-prefix-arg'.")
+  "HyControl copy of prefix-arg that it changes within key bindings.
+`pre-command-hook' synchronizes this value to `prefix-arg'.")
 
 ;;; Frame Keys
 
@@ -165,6 +192,8 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
 
     ;; Clear hycontrol-arg
     (define-key map "."     (lambda () (interactive) (setq hycontrol-arg 0) (hycontrol-frame-to-screen-edges 0)))
+    (define-key map "@"     'hycontrol-split-windows)
+    (define-key map "?"     'hycontrol-toggle-help)
     (define-key map "a"     'hycontrol-frame-adjust-widths)
     (define-key map "A"     'hycontrol-frame-adjust-heights)
     (define-key map "b"     'bury-buffer)
@@ -173,7 +202,7 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
     (define-key map "D"     'hycontrol-delete-other-frames)
     (define-key map "f"     'hycontrol-clone-window-to-new-frame)
     (define-key map "F"     'hycontrol-window-to-new-frame)
-    (define-key map "\C-g"  (lambda () (interactive) (setq hycontrol--exit-status 'abort-from-frames)))
+    (define-key map "\C-g"  'hycontrol-abort-mode)
     (define-key map "%"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-frame-percentage-of-screen hycontrol-arg))))
     (define-key map "H"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-frame-height-percentage-of-screen hycontrol-arg))))
     (define-key map "W"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-frame-width-percentage-of-screen hycontrol-arg))))
@@ -184,18 +213,18 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
     (define-key map "l"     'lower-frame)
     (define-key map "m"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-frame-resize-to-bottom hycontrol-arg))))
     (define-key map "n"     (lambda () (interactive) (hycontrol-set-frame-width nil (- (frame-width) hycontrol-arg))))
-    (define-key map "o"     (lambda () (interactive) (setq w (selected-window)) (other-window hycontrol-arg) (if (eq w (selected-window)) (other-window 1))))
-    (define-key map "O"     (lambda () (interactive) (setq w (selected-window)) (other-frame hycontrol-arg) (if (eq w (selected-window)) (other-frame 1))))
+    (define-key map "o"     (lambda () (interactive) (let ((w (selected-window))) (other-window hycontrol-arg) (if (eq w (selected-window)) (other-window 1)))))
+    (define-key map "O"     (lambda () (interactive) (let ((w (selected-window))) (other-frame hycontrol-arg) (if (eq w (selected-window)) (other-frame 1)))))
     ;; Numeric keypad emulation for keyboards that lack one.
     (define-key map "p"     (lambda () (interactive) (hycontrol-virtual-numeric-keypad hycontrol-arg)))
-    (define-key map "q"     (lambda () (interactive) (setq hycontrol--exit-status 'quit-from-frames)))
+    (define-key map "q"     'hycontrol-quit-frames-mode)
     (define-key map "r"     'raise-frame)
     (define-key map "s"     (lambda () (interactive) (hycontrol-set-frame-height nil (- (frame-height) hycontrol-arg))))
-    (define-key map "t"     (lambda () (interactive) (setq hycontrol--exit-status 'toggle-from-frames)))
+    (define-key map "t"     'hycontrol-enable-windows-mode)
     (define-key map "u"     'unbury-buffer)
     (define-key map "w"     (lambda () (interactive) (hycontrol-set-frame-width nil (+ (frame-width) hycontrol-arg))))
-    (define-key map "Z"     (lambda () (interactive) (if (> hycontrol-arg 9) (setq hycontrol-arg 1)) (hycontrol-frame-zoom 'zoom-frm-in hycontrol-arg hycontrol--debug)))
-    (define-key map "z"     (lambda () (interactive) (if (> hycontrol-arg 9) (setq hycontrol-arg 1)) (hycontrol-frame-zoom 'zoom-frm-out hycontrol-arg hycontrol--debug)))
+    (define-key map "Z"     (lambda () (interactive) (if (> hycontrol-arg 9) (setq hycontrol-arg 1)) (hycontrol-frame-zoom 'zoom-frm-in hycontrol-arg hycontrol-debug)))
+    (define-key map "z"     (lambda () (interactive) (if (> hycontrol-arg 9) (setq hycontrol-arg 1)) (hycontrol-frame-zoom 'zoom-frm-out hycontrol-arg hycontrol-debug)))
     (define-key map "\["    'hycontrol-make-frame)
     (define-key map "\]"    'hycontrol-make-frame)
     (define-key map "\("    'hycontrol-save-frame-configuration)
@@ -205,7 +234,7 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
     ;; (define-key map "^"    'iconify-frame)
     (define-key map "~"     (lambda () (interactive)
 			      (or (hycontrol-frame-swap-buffers) (hycontrol-window-swap-buffers)
-				  (hycontrol-user-error hycontrol--debug "(HyControl): There must be only two windows on screen to swap buffers."))))
+				  (hycontrol-user-error hycontrol-debug "(HyControl): There must be only two windows on screen to swap buffers."))))
     (define-key map "-"     'hycontrol-frame-minimize-lines)
     (define-key map "+"     'toggle-frame-maximized)
     (define-key map "="     (lambda () (interactive)
@@ -213,25 +242,33 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
 				   (y-or-n-p "Resize all other frames to the size of the selected frame?")
 				   (mapc (lambda (f)
 					   (hycontrol-set-frame-size
-					    f (frame-pixel-width) (frame-pixel-height) t)) (visible-frame-list)))))
+					    f (frame-pixel-width) (frame-pixel-height) t))
+					 (visible-frame-list)))))
 
     (define-key map "\C-u"  (lambda () (interactive) (setq hycontrol-arg (* hycontrol-arg 4))
 			      (if (> hycontrol-arg hycontrol-maximum-units) (setq hycontrol-arg 4))))
-    (define-key map "0"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 0))))
-    (define-key map "1"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 1))))
-    (define-key map "2"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 2))))
-    (define-key map "3"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 3))))
-    (define-key map "4"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 4))))
-    (define-key map "5"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 5))))
-    (define-key map "6"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 6))))
-    (define-key map "7"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 7))))
-    (define-key map "8"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 8))))
-    (define-key map "9"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 9))))
+    (define-key map "0"     (lambda () (interactive) (hycontrol-universal-arg-digit 0)))
+    (define-key map "1"     (lambda () (interactive) (hycontrol-universal-arg-digit 1)))
+    (define-key map "2"     (lambda () (interactive) (hycontrol-universal-arg-digit 2)))
+    (define-key map "3"     (lambda () (interactive) (hycontrol-universal-arg-digit 3)))
+    (define-key map "4"     (lambda () (interactive) (hycontrol-universal-arg-digit 4)))
+    (define-key map "5"     (lambda () (interactive) (hycontrol-universal-arg-digit 5)))
+    (define-key map "6"     (lambda () (interactive) (hycontrol-universal-arg-digit 6)))
+    (define-key map "7"     (lambda () (interactive) (hycontrol-universal-arg-digit 7)))
+    (define-key map "8"     (lambda () (interactive) (hycontrol-universal-arg-digit 8)))
+    (define-key map "9"     (lambda () (interactive) (hycontrol-universal-arg-digit 9)))
 
     map)
   "Keymap to use when in Hyperbole HyControl frames mode.")
 
 ;;; Window Keys
+
+;;;###autoload
+(eval-after-load "buff-menu" '(define-key Buffer-menu-mode-map "@" 'hycontrol-split-windows))
+;;;###autoload
+(eval-after-load "ibuffer"   '(define-key ibuffer-mode-map     "@" 'hycontrol-split-windows))
+;;;###autoload
+(eval-after-load "dired"     '(define-key dired-mode-map       "@" 'hycontrol-split-windows))
 
 (defvar hycontrol-windows-mode-map
   (let ((map (make-sparse-keymap)))
@@ -255,6 +292,8 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
 
     ;; Clear hycontrol-arg
     (define-key map "."     (lambda () (interactive) (setq hycontrol-arg 0) (hycontrol-frame-to-screen-edges 0)))
+    (define-key map "@"     'hycontrol-split-windows)
+    (define-key map "?"     'hycontrol-toggle-help)
     (define-key map "a"     'hycontrol-frame-adjust-widths)
     (define-key map "A"     'hycontrol-frame-adjust-heights)
     (define-key map "b"     'bury-buffer)
@@ -263,7 +302,7 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
     (define-key map "D"     'hycontrol-delete-other-windows)
     (define-key map "f"     'hycontrol-clone-window-to-new-frame)
     (define-key map "F"     'hycontrol-window-to-new-frame)
-    (define-key map "\C-g"  (lambda () (interactive) (setq hycontrol--exit-status 'abort-from-windows)))
+    (define-key map "\C-g"  'hycontrol-abort-mode)
     (define-key map "h"     (lambda () (interactive) (enlarge-window hycontrol-arg)))
 
     ;; Allow frame resizing even when in window control mode because
@@ -274,13 +313,13 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
     (define-key map "m"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-frame-resize-to-bottom hycontrol-arg))))
     (define-key map "n"     (lambda () (interactive) (shrink-window-horizontally hycontrol-arg)))
 
-    (define-key map "o"     (lambda () (interactive) (setq w (selected-window)) (other-window hycontrol-arg) (if (eq w (selected-window)) (other-window 1))))
-    (define-key map "O"     (lambda () (interactive) (setq w (selected-window)) (other-frame hycontrol-arg) (if (eq w (selected-window)) (other-frame 1))))
+    (define-key map "o"     (lambda () (interactive) (let ((w (selected-window))) (other-window hycontrol-arg) (if (eq w (selected-window)) (other-window 1)))))
+    (define-key map "O"     (lambda () (interactive) (let ((w (selected-window))) (other-frame hycontrol-arg) (if (eq w (selected-window)) (other-frame 1)))))
     ;; Numeric keypad emulation for keyboards that lack one.
     (define-key map "p"     (lambda () (interactive) (hycontrol-virtual-numeric-keypad hycontrol-arg)))
-    (define-key map "q"     (lambda () (interactive) (setq hycontrol--exit-status 'quit-from-windows)))
+    (define-key map "q"     'hycontrol-quit-windows-mode)
     (define-key map "s"     (lambda () (interactive) (shrink-window hycontrol-arg)))
-    (define-key map "t"     (lambda () (interactive) (setq hycontrol--exit-status 'toggle-from-windows)))
+    (define-key map "t"     'hycontrol-enable-frames-mode)
     (define-key map "u"     'unbury-buffer)
     (define-key map "w"     (lambda () (interactive) (enlarge-window-horizontally hycontrol-arg)))
     (define-key map "Z"     (lambda () (interactive) (if (fboundp 'text-scale-increase)
@@ -290,14 +329,17 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
 							 ;; Emacs autoloaded function
 							 (text-scale-decrease (if (< hycontrol-arg 10) hycontrol-arg (setq hycontrol-arg 1))))))
 
-    (define-key map "\["    'split-window-vertically)
-    (define-key map "\]"    'split-window-horizontally)
+    ;; Don't call these interactively because a prefix arg of 1 tries
+    ;; to make one window 1 line tall.
+    (define-key map "\["    (lambda () (interactive) (split-window-vertically)))
+    (define-key map "\]"    (lambda () (interactive) (split-window-horizontally)))
+
     (define-key map "\("    'hycontrol-save-frame-configuration)
     (define-key map "\)"    'hycontrol-restore-frame-configuration)
 
     (define-key map "~"     (lambda () (interactive)
 			      (or (hycontrol-window-swap-buffers) (hycontrol-frame-swap-buffers)
-				  (hycontrol-user-error hycontrol--debug "(HyControl): There must be only two windows on screen to swap buffers."))))
+				  (hycontrol-user-error hycontrol-debug "(HyControl): There must be only two windows on screen to swap buffers."))))
     (define-key map "-"     'hycontrol-window-minimize-lines)
     (define-key map "+"     'hycontrol-window-maximize-lines)
     (define-key map "="     (lambda () (interactive) (and (> (length (window-list)) 1)
@@ -306,16 +348,16 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
 
     (define-key map "\C-u"  (lambda () (interactive) (setq hycontrol-arg (* hycontrol-arg 4))
 			      (if (> hycontrol-arg hycontrol-maximum-units) (setq hycontrol-arg 4))))
-    (define-key map "0"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 0))))
-    (define-key map "1"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 1))))
-    (define-key map "2"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 2))))
-    (define-key map "3"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 3))))
-    (define-key map "4"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 4))))
-    (define-key map "5"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 5))))
-    (define-key map "6"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 6))))
-    (define-key map "7"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 7))))
-    (define-key map "8"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 8))))
-    (define-key map "9"     (lambda () (interactive) (setq hycontrol-arg (hycontrol-universal-arg-digit hycontrol-arg 9))))
+    (define-key map "0"     (lambda () (interactive) (hycontrol-universal-arg-digit 0)))
+    (define-key map "1"     (lambda () (interactive) (hycontrol-universal-arg-digit 1)))
+    (define-key map "2"     (lambda () (interactive) (hycontrol-universal-arg-digit 2)))
+    (define-key map "3"     (lambda () (interactive) (hycontrol-universal-arg-digit 3)))
+    (define-key map "4"     (lambda () (interactive) (hycontrol-universal-arg-digit 4)))
+    (define-key map "5"     (lambda () (interactive) (hycontrol-universal-arg-digit 5)))
+    (define-key map "6"     (lambda () (interactive) (hycontrol-universal-arg-digit 6)))
+    (define-key map "7"     (lambda () (interactive) (hycontrol-universal-arg-digit 7)))
+    (define-key map "8"     (lambda () (interactive) (hycontrol-universal-arg-digit 8)))
+    (define-key map "9"     (lambda () (interactive) (hycontrol-universal-arg-digit 9)))
 
     map)
   "Keymap to use when in Hyperbole HyControl window mode.")
@@ -329,26 +371,24 @@ post-command-hook synchronizes this value to `current-prefix-arg'.")
  (concat "FRAME: (h=heighten, s=shorten, w=widen, n=narrow, %%/H/W=screen %%age, arrow=move frame) by %d unit%s, .=clear units\n"
 	 ;; d/^/D=delete/iconify frame/others - iconify left out due to some bug on macOS (see comment near ^ below)
 	 "a/A=cycle adjust width/height, d/D=delete frame/others, o/O=other win/frame, [/]=create frame, (/)=save/restore fconfig\n"
-	 "f/F=clone/move win to new frame, -/+=minimize/maximize frame, ==frames same size, u/b/~=un/bury/swap bufs\n"
+	 "@=row-col matrix of wins, f/F=clone/move win to new frame, -/+=minimize/maximize frame, ==frames same size, u/b/~=un/bury/swap bufs\n"
 	 "Frame to edges: c=cycle, i/j/k/m=expand/contract, p/num-keypad=move; z/Z=zoom out/in, t=to WINDOW:, q=quit")
  "HyControl frames-mode minibuffer prompt string to pass to format.
 Pass it with 2 arguments: prefix-arg and a plural string indicating if
- prefix-arg is not equal to 1.")
+prefix-arg is not equal to 1.")
 
 (defvar hycontrol--windows-prompt-format
   (concat
    "WINDOW: (h=heighten, s=shorten, w=widen, n=narrow, arrow=move frame) by %d unit%s, .=clear units\n"
-   ;; No room to show: a/A=cycle adjust width/height
-   "d/D=delete win/others, o/O=other win/frame, [/]=split win atop/sideways, (/)=save/restore wconfig\n"
-   "f/F=clone/move win to new frame, -/+=minimize/maximize win, ==wins same size, u/b/~=un/bury/swap bufs\n"
+   "a/A=cycle adjust frame width/height, d/D=delete win/others, o/O=other win/frame, [/]=split win atop/sideways, (/)=save/restore wconfig\n"
+   "@=row-col matrix of wins, f/F=clone/move win to new frame, -/+=minimize/maximize win, ==wins same size, u/b/~=un/bury/swap bufs\n"
    "Frame to edges: c=cycle, i/j/k/m=expand/contract, p/num-keypad=move; z/Z=zoom out/in, t=to FRAME:, q=quit")
   "HyControl windows-mode minibuffer prompt string to pass to format.
 Pass it with 2 arguments: prefix-arg and a plural string indicating if
 prefix-arg is not equal to 1.")
 
-
-(defvar hycontrol--debug nil
-  "Non-nil when HyControl is invoked with a -1 argument to output debugging messages.")
+(defvar hycontrol--prompt-format nil
+  "The current HyControl mode help format string or nil if not active.")
 
 (defvar hycontrol--exit-status nil
   "Internal HyControl status indicator of how it was exited.
@@ -363,6 +403,9 @@ associated key: quit {q}, abort {C-g}, or toggle {t}.")
   "Used to store a window configuration while in hycontrol")
 
 
+(defvar hycontrol--invert-display-buffer-predicates nil)
+
+
 (defvar hycontrol--quit-function nil
   "Stores function auto-generated by a call to `set-transient-map' to remove the transient-map later.")
 
@@ -372,67 +415,133 @@ associated key: quit {q}, abort {C-g}, or toggle {t}.")
 
 (defvar hycontrol--frame-widths-pointer nil)
 (defvar hycontrol--frame-heights-pointer nil)
+(defvar hycontrol--initial-which-key-inhibit nil
+  "Stores value of `which-key-inhibit' flag from \"which-key\" package upon entry to HyControl, if any.")
 
 ;;; ************************************************************************
 ;;; Private functions
 ;;; ************************************************************************
 
-(defun hycontrol-frames-post-command-hook ()
+;;; HyControl private per keyboard key functions
+
+(defun hycontrol-pre-command-hook ()
+  "Added to `pre-command-hook' while in any HyControl mode."
+  (when (null hycontrol-arg) (setq hycontrol-arg 1))
+  (setq prefix-arg hycontrol-arg))
+
+(defun hycontrol-post-command-hook ()
   "Added to `post-command-hook' while in HyControl frames mode."
-  (condition-case ()
-      (funcall #'hycontrol-frames-post-command-hook-body)
-    (quit (funcall #'hycontrol-frames-post-command-hook-body))))
-
-(defun hycontrol-frames-post-command-hook-body ()
   (when (null hycontrol-arg) (setq hycontrol-arg 1))
-  (setq current-prefix-arg hycontrol-arg)
-  (if hycontrol--exit-status
-      (progn (remove-hook 'post-command-hook 'hycontrol-frames-post-command-hook)
-	     (funcall hycontrol--quit-function))
-    (message hycontrol--frames-prompt-format hycontrol-arg (if (= hycontrol-arg 1) "" "s"))))
+  (if (zerop (minibuffer-depth))
+      (if hycontrol-help-flag
+	  (let ((message-log-max nil) ; prevent logging of HyControl help messages
+		(resize-mini-windows t)	 ; automatically shrink
+		(use-dialog-box))	 ; prevent y-or-n dialog boxes
+	    (message hycontrol--prompt-format hycontrol-arg (if (= hycontrol-arg 1) "" "s"))))
+    ;; Quit from HyControl at any minibuffer prompt so that
+    ;; self-insert-keys work for typing at the prompt.
+    (hycontrol-disable-modes)))
 
-(defun hycontrol-windows-post-command-hook ()
-  "Added to `post-command-hook' while in HyControl windows mode."
-  (condition-case ()
-      (funcall #'hycontrol-windows-post-command-hook-body)
-    (quit (funcall #'hycontrol-windows-post-command-hook-body))))
-
-(defun hycontrol-windows-post-command-hook-body ()
-  (when (null hycontrol-arg) (setq hycontrol-arg 1))
-  (setq current-prefix-arg hycontrol-arg)
-  (if hycontrol--exit-status
-      (progn (remove-hook 'post-command-hook 'hycontrol-windows-post-command-hook)
-	     (funcall hycontrol--quit-function))
-    (message hycontrol--windows-prompt-format hycontrol-arg (if (= hycontrol-arg 1) "" "s"))))
-
-(defun hycontrol-exit-mode ()
-  "Run by the HyControl frame or window transient keymap after it is disabled."
-  (setq inhibit-quit nil)
-  (pcase hycontrol--exit-status
-    ('toggle-from-frames  (hycontrol-windows hycontrol-arg hycontrol--debug))
-    ('toggle-from-windows (hycontrol-frames hycontrol-arg hycontrol--debug))
-    ('abort-from-frames   (progn (ding)
- 				 (setq hycontrol--exit-status nil)
-				 ;; Use of (keyboard-quit) here would
-				 ;; trigger an error in post-command-hook,
-				 ;; so don't use.
-				 (top-level)))
-    ('abort-from-windows  (progn (ding)
-				 (setq hycontrol--exit-status nil)
-				 (top-level)))
-    ('quit-from-frames    (message "Finished controlling frames"))
-    ('quit-from-windows   (message "Finished controlling windows"))))
+(defun hycontrol-end-mode ()
+  "Prepare to abort or quit from HyControl."
+  (interactive)
+  (remove-hook 'pre-command-hook  'hycontrol-pre-command-hook)
+  (remove-hook 'post-command-hook 'hycontrol-post-command-hook)
+  (if (boundp 'which-key-inhibit)
+      (setq which-key-inhibit hycontrol--initial-which-key-inhibit))
+  ;; May be called when turning on HyControl before this next function
+  ;; is defined.
+  (if (functionp hycontrol--quit-function)
+      (funcall hycontrol--quit-function))
+  (setq inhibit-quit nil
+ 	hycontrol--exit-status t
+	hycontrol-arg 1
+	prefix-arg nil
+	hycontrol-debug nil
+	hycontrol-frames-mode nil
+	hycontrol-windows-mode nil
+	hycontrol--prompt-format nil))
 
 (defun hycontrol-stay-in-mode ()
   "Return non-nil if HyControl mode should remain active."
   (null hycontrol--exit-status))
 
+(defun hycontrol-universal-arg-digit (digit)
+  "Return the new prefix argument based on existing `hycontrol-arg' and new DIGIT."
+  (setq hycontrol-arg (+ (* hycontrol-arg 10) digit)) (if (> hycontrol-arg hycontrol-maximum-units) (setq hycontrol-arg digit))
+  hycontrol-arg)
 
-(defun hycontrol-universal-arg-digit (arg digit)
-  "Return the new prefix argument based on existing ARG and new DIGIT."
-  (setq arg (+ (* arg 10) digit)) (if (> arg hycontrol-maximum-units) (setq arg digit))
-  arg)
 
+;;; HyControl private initialization functions
+
+(defun hycontrol-setup (arg setup-function)
+  "HyControl initialization; passes through ARG and SETUP-FUNCTION.
+SETUP-FUNCTION is HyControl mode-specific."
+  ;; Save status value of which-key help package and quit any
+  ;; in-progress which-key help without any user alert.
+  (when (boundp 'which-key-inhibit)
+    (setq hycontrol--initial-which-key-inhibit which-key-inhibit
+	  which-key-inhibit t)
+    (which-key--hide-popup-ignore-command))
+
+  (setq arg (prefix-numeric-value arg)
+	inhibit-quit t
+	hycontrol--exit-status nil)
+  (and hycontrol-debug (not (integerp hycontrol-debug)) (setq hycontrol-debug message-log-max))
+  (if (called-interactively-p 'interactive) (hycontrol-save-configurations))
+  (cond ((or (not (integerp arg)) (< arg 1))
+	 (setq arg 1))
+	((> arg hycontrol-maximum-units)
+	 (setq arg hycontrol-maximum-units)))
+  (setq hycontrol-arg arg
+	prefix-arg arg)
+  (hycontrol-invert-mode-line)
+  (add-hook 'pre-command-hook  'hycontrol-pre-command-hook)
+  (add-hook 'post-command-hook 'hycontrol-post-command-hook)
+  (funcall setup-function))
+
+(defun hycontrol-frames-setup ()
+  "HyControl frames-specific initializations."
+  (setq hycontrol--prompt-format hycontrol--frames-prompt-format)
+  (hycontrol-post-command-hook)
+  ;; Use normal event loop with transient-map until {C-g} or {q} is
+  ;; pressed, then exit.
+  (setq hycontrol--quit-function
+	(set-transient-map hycontrol-frames-mode-map #'hycontrol-stay-in-mode)))
+
+(defun hycontrol-frames (&optional arg)
+  "Interactively delete, jump to, move, replicate, and resize frames.
+With optional numeric prefix ARG, move and resize by ARG (an
+integer) units.  If ARG is < 1, it is set to 1.  If it is >
+`hycontrol-maximum-units', it is set to `hycontrol-maximum-units'."
+  (interactive "p")
+  (hycontrol-setup arg #'hycontrol-frames-setup)
+  (unless hycontrol-help-flag
+    (message "(HyControl) Frames global minor mode enabled; use {%s} for help"
+	     (hycontrol-help-key-description))))
+
+(defun hycontrol-windows-setup ()
+  "HyControl windows-specific initializations."
+  (setq hycontrol--prompt-format hycontrol--windows-prompt-format)
+  (hycontrol-post-command-hook)
+  ;; Use normal event loop with transient-map until {C-g} or {q} is
+  ;; pressed, then exit.
+  (setq hycontrol--quit-function
+	(set-transient-map hycontrol-windows-mode-map #'hycontrol-stay-in-mode)))
+
+(defun hycontrol-windows (&optional arg)
+  "Interactively delete, jump to, rebalance, resize, and split windows.
+With optional numeric prefix ARG, move and resize by ARG (an
+integer) units.  If ARG is < 1, it is set to 1.  If it is >
+`hycontrol-maximum-units', it is set to `hycontrol-maximum-units'."
+  (interactive "p")
+  (hycontrol-setup arg #'hycontrol-windows-setup)
+  (unless hycontrol-help-flag
+    (message "(HyControl) Windows global minor mode enabled; use {%s} for help"
+	     (hycontrol-help-key-description))))
+
+
+;;; HyControl general private functions
 
 (defsubst hycontrol-frame-edges (&optional frame)
   "Return the outermost edge coordinates of optional or selected FRAME.
@@ -589,6 +698,47 @@ multiple of the default frame font width."
     (hycontrol-frame-fit-to-screen frame x-origin y-origin)))
 
 
+(defun hycontrol-display-buffer-predicate-results (buffer)
+  (condition-case err
+      (mapcar (lambda (expr)
+		(if (functionp expr)
+		    (funcall expr buffer)
+		  (with-current-buffer buffer
+		    (eval expr))))
+	      hycontrol-display-buffer-predicate-list)
+    (error "(HyDebug): Invalid expression in `hycontrol-display-buffer-predicate-list' - %s" err)))
+
+(defun hycontrol-window-display-buffer (window)
+  "Given a WINDOW, choose the next appropriate buffer to display therein using `hycontrol-display-buffer-predicate-list'.
+Also uses the value of free variable `buffer-list' as the list of
+buffers to distribute among the windows."
+  (let ((buf (car hycontrol--buffer-list-pointer)))
+    (setq hycontrol--buffer-list-pointer (cdr hycontrol--buffer-list-pointer))
+    (unless buf
+      ;; Now on each new pass through buffer-list, the buffer predicate tests will
+      ;; be inverted to expand the list of allowed buffers because the
+      ;; 1st pass did not produce a buffer for this window.
+      (setq hycontrol--buffer-list-pointer buffer-list
+	    buf (car hycontrol--buffer-list-pointer)
+	    hycontrol--buffer-list-pointer (cdr hycontrol--buffer-list-pointer))
+      (unless (eq hycontrol--invert-display-buffer-predicates 'ignore)
+	(setq hycontrol--invert-display-buffer-predicates (not hycontrol--invert-display-buffer-predicates))))
+    (while (and buf (or (= (aref (buffer-name buf) 0) ?\ )
+			(and (not hycontrol--invert-display-buffer-predicates)
+			     (not (eval (cons 'or (hycontrol-display-buffer-predicate-results buf)))))
+			(and hycontrol--invert-display-buffer-predicates
+			     (not (eq hycontrol--invert-display-buffer-predicates 'ignore))
+			     (eval (cons 'or (hycontrol-display-buffer-predicate-results buf))))))
+      ;; Buffer is not one to display, get the next one and test again.
+      (setq buf (car hycontrol--buffer-list-pointer)
+	    hycontrol--buffer-list-pointer (cdr hycontrol--buffer-list-pointer)))
+    (cond (buf
+	   (set-window-buffer window buf))
+	  (t
+	   ;; Start 2nd or greater pass through buffer list with predicates inverted.
+	   (hycontrol-window-display-buffer window)))))
+
+
 (defun hycontrol-message (max-msgs &rest msg-args)
   "Log MAX-MSGS, adding MSG to the *Messages* buffer log."
   (let ((message-log-max max-msgs))
@@ -605,69 +755,99 @@ multiple of the default frame font width."
 ;;; Public functions
 ;;; ************************************************************************
 
-;;;###autoload
-(defun hycontrol-frames (&optional arg debug)
-  "Interactively delete, jump to, move, replicate, and resize frames.
-With optional numeric prefix ARG, move and resize by ARG (an integer) units.
-If ARG = -1 or optional DEBUG is non-nil, debugging is enabled and
-unhandled events are logged to the *Messages* buffer.  If ARG is < 1, it is
-set to 1.  If it is > `hycontrol-maximum-units', it is set to
-`hycontrol-maximum-units'."
-  (interactive "p")
-  (setq arg (prefix-numeric-value arg)
-	inhibit-quit t
-	hycontrol--exit-status nil)
-  (if (eq arg -1) (setq debug t))
-  (and debug (not (integerp debug)) (setq debug message-log-max))
-  (setq hycontrol--debug debug)
-  (if (called-interactively-p 'interactive) (hycontrol-save-configurations))
-  (let ((message-log-max nil)
-	(resize-mini-windows t) ;; automatically shrink
-	(use-dialog-box)) ;; prevent y-or-n dialog boxes
-    (cond ((or (not (integerp arg)) (< arg 1))
-	   (setq arg 1))
-	  ((> arg hycontrol-maximum-units)
-	   (setq arg hycontrol-maximum-units)))
-    (setq hycontrol-arg arg)
-    (funcall #'hycontrol-frames-post-command-hook)
-    (add-hook 'post-command-hook 'hycontrol-frames-post-command-hook)
-    ;; Use normal event loop with transient-map until {C-g} or {q} is
-    ;; pressed, then exit.
-    (setq hycontrol--quit-function
-	  (set-transient-map hycontrol-frames-mode-map #'hycontrol-stay-in-mode
-			     #'hycontrol-exit-mode))))
+;;; HyControl Global Minor Modes
 
 ;;;###autoload
-(defun hycontrol-windows (&optional arg debug)
-  "Interactively delete, jump to, rebalance, resize, and split windows.
-With optional numeric prefix ARG, move and resize by ARG (an integer) units.
-If ARG = -1 or optional DEBUG is non-nil, debugging is enabled and
-unhandled events are logged to the *Messages* buffer.  If ARG is < 1, it is
-set to 1.  If it is > `hycontrol-maximum-units', it is set to
+(defun hycontrol-enable-frames-mode (&optional arg)
+  "Globally enable HyControl Frames mode for rapid Emacs frame control.
+
+  Interactively delete, jump to, move, replicate, and resize frames.
+With optional numeric prefix ARG, move and resize by ARG (an
+integer) units.  If ARG is < 1, it is set to 1.  If it is >
+`hycontrol-maximum-units', it is set to `hycontrol-maximum-units'."
+  (interactive "p")
+  (hycontrol-disable-modes)
+  (hycontrol-frames-mode (if (and (integerp arg) (>= arg 1)) arg 1)))
+
+;;;###autoload
+(defun hycontrol-enable-windows-mode (&optional arg)
+  "Globally enable HyControl Windows mode for rapid Emacs window control.
+
+Interactively delete, jump to, rebalance, resize, and split windows.
+Optional non-negative numeric prefix ARG is used as the number of
+units for commands issued while the mode is active.  If ARG is < 1, it
+is set to 1.  If it is > `hycontrol-maximum-units', it is set to
 `hycontrol-maximum-units'."
   (interactive "p")
-  (setq arg (prefix-numeric-value arg)
-	inhibit-quit t
-	hycontrol--exit-status nil)
-  (if (eq arg -1) (setq debug t))
-  (and debug (not (integerp debug)) (setq debug message-log-max))
-  (setq hycontrol--debug debug)
-  (if (called-interactively-p 'interactive) (hycontrol-save-configurations))
-  (let ((message-log-max nil)
-	(resize-mini-windows t) ;; automatically shrink
-	(use-dialog-box)) ;; prevent y-or-n dialog boxes
-    (cond ((or (not (integerp arg)) (< arg 1))
-	   (setq arg 1))
-	  ((> arg hycontrol-maximum-units)
-	   (setq arg hycontrol-maximum-units)))
-    (setq hycontrol-arg arg)
-    (funcall #'hycontrol-windows-post-command-hook)
-    (add-hook 'post-command-hook 'hycontrol-windows-post-command-hook)
-    ;; Use normal event loop with transient-map until {C-g} or {q} is
-    ;; pressed, then exit.
-    (setq hycontrol--quit-function
-	  (set-transient-map hycontrol-windows-mode-map #'hycontrol-stay-in-mode
-			     #'hycontrol-exit-mode))))
+  (hycontrol-disable-modes)
+  (hycontrol-windows-mode (if (and (integerp arg) (>= arg 1)) arg 1)))
+
+(defun hycontrol-disable-modes ()
+  "Disable HyControl Frames and Windows modes when active."
+  (interactive)
+  (if (or hycontrol-frames-mode hycontrol-windows-mode)
+      (hycontrol-invert-mode-line))
+  (hycontrol-frames-mode -1)
+  (hycontrol-windows-mode -1))
+
+(defun hycontrol-abort-mode ()
+  "Abort HyControl, typically on a press of {C-g}."
+  (interactive)
+  (hycontrol-disable-modes)
+  (keyboard-quit))
+
+(defun hycontrol-quit-frames-mode ()
+  "Globally quit HyControl Frames mode, typically on a press of {q}."
+  (interactive)
+  (hycontrol-disable-modes)
+  (message "Finished controlling frames"))
+
+(defun hycontrol-quit-windows-mode ()
+  "Globally quit HyControl Windows mode, typically on a press of {q}."
+  (interactive)
+  (hycontrol-disable-modes)
+  (message "Finished controlling windows"))
+
+;;;###autoload
+(define-global-minor-mode hycontrol-frames-mode hycontrol-local-frames-mode
+  (lambda () (hycontrol-local-frames-mode 1)))
+
+;; These hooks run by the generated `hycontrol-frames-mode' function
+;; do the global work of turning on and off the mode.
+(add-hook 'hycontrol-frames-mode-on-hook
+	  (lambda () (hycontrol-frames current-prefix-arg)))
+
+(add-hook 'hycontrol-frames-mode-off-hook 'hycontrol-end-mode)
+
+;; This just sets the keymap locally and shows the minor mode
+;; indicator in the buffer's mode-line; the separate global minor mode
+;; turns things on and off.
+(define-minor-mode hycontrol-local-frames-mode
+  "Toggle Hyperbole Frames control minor mode in the current buffer."
+  nil " HyFrm" nil
+  :group 'hyperbole-screen
+  :global t)
+
+;;;###autoload
+(define-global-minor-mode hycontrol-windows-mode hycontrol-local-windows-mode
+  (lambda () (hycontrol-local-windows-mode 1)))
+
+;; These hooks run by the generated `hycontrol-windows-mode' function
+;; do the global work of turning on and off the mode.
+(add-hook 'hycontrol-windows-mode-on-hook
+	  (lambda () (hycontrol-windows current-prefix-arg)))
+
+(add-hook 'hycontrol-windows-mode-off-hook 'hycontrol-end-mode)
+
+;; This just sets the keymap locally and shows the minor mode
+;; indicator in the buffer's mode-line; the separate global minor mode
+;; turns things on and off.
+(define-minor-mode hycontrol-local-windows-mode
+  "Toggle Hyperbole Windows control minor mode in the current buffer."
+  nil " HyWin" nil
+  :group 'hyperbole-screen
+  :global t)
+
 
 ;;; Frame Display Commands
 (defun hycontrol-delete-other-frames ()
@@ -755,17 +935,20 @@ With an optional arg of 0, just reset the cycle position to 0."
   "Ensure the selected frame fits within the screen, allowing for hycontrol-screen-*-offsets.
 Accepts optional arguments FRAME, X-ORIGIN, and Y-ORIGIN (in pixels) to use when resizing FRAME (defaults to selected frame)."
   (let ((max-width (- (display-pixel-width) hycontrol-screen-left-offset hycontrol-screen-right-offset 2))
-	(max-height (- (display-pixel-height) hycontrol-screen-top-offset hycontrol-screen-bottom-offset 2)))
+	(max-height (- (display-pixel-height) hycontrol-screen-top-offset hycontrol-screen-bottom-offset 2))
+	(frame-resize-pixelwise t))
     (setq x-origin (or x-origin (hycontrol-frame-x-origin frame))
 	  y-origin (or y-origin (hycontrol-frame-y-origin frame)))
-    (when (or (> (hycontrol-frame-width frame) max-width) (> (hycontrol-frame-height frame) max-height))
+    (when (> (hycontrol-frame-width frame) max-width)
       ;; Adjust frame size to fit within screen
-      (set-frame-size frame (min (hycontrol-frame-width frame) max-width)
-		      (min (hycontrol-frame-height frame) max-height)
-		      t)
-      (if hycontrol--debug (hycontrol-message hycontrol--debug "(HyDebug): "Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
-				   (display-pixel-width) (display-pixel-height) (hycontrol-frame-edges frame)))
-      )
+      (set-frame-width frame (min (hycontrol-frame-width frame) max-width) nil t)
+      (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): "Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
+					      (display-pixel-width) (display-pixel-height) (hycontrol-frame-edges frame))))
+    (when (> (hycontrol-frame-height frame) max-height)
+      ;; Adjust frame size to fit within screen
+      (set-frame-height frame (min (hycontrol-frame-height frame) max-height) nil t)
+      (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): "Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
+				   (display-pixel-width) (display-pixel-height) (hycontrol-frame-edges frame))))
     ;; Ensure entire frame is positioned onscreen, keeping the
     ;; original frame origin coordinates if possible.
     (set-frame-position frame
@@ -773,8 +956,9 @@ Accepts optional arguments FRAME, X-ORIGIN, and Y-ORIGIN (in pixels) to use when
 			     (- (display-pixel-width) (hycontrol-frame-width frame) hycontrol-screen-right-offset))
 			(min (max 0 y-origin)
 			     (- (display-pixel-height) (hycontrol-frame-height frame) hycontrol-screen-bottom-offset)))
-      (if hycontrol--debug (hycontrol-message hycontrol--debug "(HyDebug): "Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
-				   (display-pixel-width) (display-pixel-height) (hycontrol-frame-edges frame)))))
+    (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): "Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
+					    (display-pixel-width) (display-pixel-height) (hycontrol-frame-edges frame)))))
+
 
 (defun hycontrol-frame-to-top ()
   "Move the selected frame to the top of the screen, allowing for hycontrol-screen-*-offsets."
@@ -884,7 +1068,8 @@ if ARG is 1 or nil) but keep it at the bottom of the screen."
   (let ((frame-resize-pixelwise t))
     (if (hycontrol-frame-at-bottom-p)
 	;; Reduce frame height to ARG percent, keeping bottom side fixed.
-	(set-frame-height nil (floor (* (frame-pixel-height) arg))
+	(set-frame-height nil (min (floor (* (frame-pixel-height) arg))
+				   (hycontrol-frame-height))
 			  nil t)
       ;; Expand frame height all the way to the bottom, keeping top side fixed.
       (set-frame-height nil (- (display-pixel-height) (cdr (frame-position)) hycontrol-screen-bottom-offset)
@@ -1115,6 +1300,170 @@ Heights are given in screen percentages by the list
 
 
 ;;; Window Commands
+
+(defun hycontrol-invert-mode-line ()
+  "If `hycontrol-invert-mode-line-flag' is non-nil, invert the background and foreground faces of the selected window mode-line."
+  (when hycontrol-invert-mode-line-flag
+    (let* ((bg (face-background 'mode-line))
+	   (fg (face-foreground 'mode-line)))
+      (set-face-foreground 'mode-line bg)
+      (set-face-background 'mode-line fg))
+    (redraw-modeline t)))
+
+(defun hycontrol-split-windows-buffer-list ()
+  ;; If selecting buffers by major-mode, then ignore any marked items.
+  (if (and (boundp 'mode) (symbolp mode))
+      (buffer-list (selected-frame))
+    ;; Get the list of marked items if in an item list buffer and
+    ;; convert items to buffers.
+    (let ((items (cond ((and (eq major-mode 'dired-mode)
+			     (mapcar #'find-file-noselect (dired-get-marked-files))))
+		       ((and (eq major-mode 'Buffer-menu-mode)
+			     (Buffer-menu-marked-buffers)))
+		       ((and (eq major-mode 'ibuffer-mode)
+			     (ibuffer-get-marked-buffers))))))
+      ;; Ignore buffer list predicate filters when items exist so the
+      ;; items are not filtered out.
+      (setq hycontrol--invert-display-buffer-predicates
+	    (when items 'ignore))
+      ;; Prepend items to buffer list.
+      (apply 'set:create (nconc items (buffer-list (selected-frame)))))))
+
+;;;###autoload
+(defun hycontrol-split-windows (arg)
+  "Split windows according to prefix ARG.
+If ARG is 0, prompt for a number of rows and columns of windows
+to display and a major mode whose buffers should be preferred for
+display in the windows of the selected frame.  Otherwise, split
+selected frame into left digit of ARG rows and right digit of ARG
+columns of windows.
+
+In Dired, Buffer Menu or IBuffer modes with marked items, the
+buffers associated with those items are preferred for display.
+Otherwise, display the most recent buffers in each window,
+allowing buffers matching predicates in
+`hycontrol-display-buffer-predicate-list' only on the first pass.
+Then, if not enough buffers for all windows, use the buffers that
+failed to match in the first pass, aside from those whose names
+begin with a space."
+  (interactive "p")
+  (setq arg (abs (prefix-numeric-value (or arg current-prefix-arg))))
+  (if (/= arg 0)
+      (hycontrol-split-windows-rows-columns arg)
+    (setq current-prefix-arg 0)
+    (call-interactively #'hycontrol-split-windows-by-major-mode)))
+
+;;; Split selected frame into a matrix of windows given by row and
+;;; column count, displaying different buffers in each window.
+;;;###autoload
+(defun hycontrol-split-windows-by-major-mode (arg mode)
+  "Split selected frame into left digit of ARG rows and right digit of ARG columns of windows, preferring buffers with major MODE.
+Then, if not enough buffers for all windows, use the buffers that
+failed to match in the first pass, aside from those whose names
+begin with a space."
+  (interactive
+   (list (prefix-numeric-value current-prefix-arg)
+	 (let* ((set:equal-op 'eq)
+		(mode-strings (mapcar 'symbol-name (apply #'set:create (mapcar (lambda (buf) (buffer-local-value 'major-mode buf))
+									       (hycontrol-split-windows-buffer-list))))))
+	   (intern-soft (completing-read "(HyControl Split Windows): Major mode of buffers to display: "
+					 mode-strings nil t (symbol-name major-mode))))))
+  (let ((hycontrol-display-buffer-predicate-list `((eq major-mode ',mode))))
+    (hycontrol-split-windows-rows-columns arg)))
+
+;;;###autoload
+(defun hycontrol-split-windows-repeatedly (&optional arg)
+  "Repeatedly split windows according to prefix ARG and ARG prompted for each time.
+
+See documentation for `hycontrol-split-windows' for details."
+  (interactive "p")
+  (catch 'done
+    (let (hycontrol-help-flag)
+      (while t
+	(while (not (or (eq arg 0) (and (integerp arg) (>= arg 11) (<= arg 99))))
+	  (setq arg (read-string "Split frame into a matrix of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C (RET to quit): "))
+	  (setq arg (if (string-equal arg "")
+			(throw 'done t)
+		      (string-to-number arg)))
+	  (unless (or (eq arg 0) (and (integerp arg) (>= arg 11) (<= arg 99)))
+	    (beep)))
+	(hycontrol-split-windows arg)
+	(setq arg nil)))))
+
+(defun hycontrol-split-windows-rows-columns (arg)
+  "Split selected frame into left digit of ARG rows and right digit of ARG columns of windows.
+
+See documentation for `hycontrol-split-windows' for details."
+  (interactive "p")
+
+  ;; Check ARG, must be 2 digits of [1-9], else read a new ARG or
+  ;; signal an error when in a HyControl mode and help is displayed.
+  (if (and (and hycontrol-help-flag (or hycontrol-frames-mode hycontrol-windows-mode))
+	   (not (and (integerp arg) (>= arg 11) (<= arg 99))))
+      ;; Can't read a number because numeric keys are specially bound.
+      (progn (pop-to-buffer "*Messages*")
+	     (error "(HyControl): Split frame into a matrix of windows.\nArgument must be a rows digit (1-9) followed by a columns digit (1-9), not `%s'." arg))
+    (while (not (and (integerp arg) (or (= arg 0) (and (>= arg 11) (<= arg 99)))))
+      (unless (eq arg 0) (beep))
+      (setq arg (read-number "Split frame into a matrix of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C: "))))
+
+  (let ((wconfig (current-window-configuration)))
+    ;; If an error occurs during a window split because the window is
+    ;; too small, then restore prior window configuration.
+    (condition-case err
+	;; Make 1 window in selected frame
+	(progn (delete-other-windows)
+
+	       (let* ((rows (floor (/ arg 10)))
+		      (columns (- arg (* rows 10)))
+		      (row-index (1- rows))
+		      (row-window-list (list (selected-window)))
+		      col-index)
+
+		 ;; Create ARG left-digit rows via split-windows,
+		 ;; balancing each time.
+		 (while (> row-index 0)
+		   (setq row-window-list (cons (split-window-vertically) row-window-list))
+		   (balance-windows)
+		   (setq row-index (1- row-index)))
+
+		 ;; Create ARG right-digit columns in each row via
+		 ;; split-windows, balancing each time.
+		 (setq row-index rows)
+		 (while (> row-index 0)
+		   (with-selected-window (car row-window-list)
+		     (setq col-index (1- columns))
+		     (while (> col-index 0)
+		       (split-window-horizontally)
+		       (balance-windows)
+		       (setq col-index (1- col-index)))
+		     (setq row-index (1- row-index)
+			   row-window-list (cdr row-window-list)))))
+
+	       ;; Walk windows in this frame and display different
+	       ;; buffers.  In the first pass, select only buffers
+	       ;; that pass at least one predicate test in
+	       ;; `hycontrol-display-buffer-predicate-list'.  If run
+	       ;; out of buffers before windows, then start a 2nd
+	       ;; pass at the start of the buffer list and use the
+	       ;; inverse, choosing only those buffers that fail all
+	       ;; the predicate tests.  Always ignore buffers that
+	       ;; start with a space.  With each succeeding pass, the
+	       ;; predicate list is inverted again.
+	       (let ((buffer-list (hycontrol-split-windows-buffer-list)))
+		 (setq hycontrol--buffer-list-pointer buffer-list)
+  		 (walk-windows #'hycontrol-window-display-buffer 'no-minibuf))
+
+	       ;; Prevent user from mistakenly using the typically
+	       ;; large argument that invoked this function; reset it
+	       ;; to 1 if there was no error.
+	       (setq hycontrol-arg 1))
+      (error (set-window-configuration wconfig)
+	     (if (and hycontrol-help-flag (or hycontrol-frames-mode hycontrol-windows-mode))
+		 (pop-to-buffer "*Messages*"))
+	     (error "(HyDebug): %s" err)))))
+
+
 (defun hycontrol-delete-other-windows ()
   "Confirm and then delete all other windows in the selected frame."
   (interactive)
@@ -1158,6 +1507,8 @@ If there is only one window in the source frame or if `hycontrol-keep-window-fla
 is non-nil, leave the original window and just clone it into the new frame."
   (interactive)
   (let ((w (selected-window))
+	(frame-resize-pixelwise t)
+	(only-one-window (one-window-p))
 	buf)
     (cond ((window-minibuffer-p w)
 	   (beep)
@@ -1166,14 +1517,13 @@ is non-nil, leave the original window and just clone it into the new frame."
 	   ;; Give temporary modes such as isearch a chance to turn off.
 	   (run-hooks 'mouse-leave-buffer-hook)
 	   (setq buf (window-buffer w))
-	   (display-buffer-pop-up-frame buf nil)
+	   (select-frame (make-frame (frame-parameters)))
+	   (unless only-one-window
+	     (hycontrol-set-frame-size nil (window-size w t t) (window-size w nil t) t))
 	   (set-frame-position nil (+ (car hycontrol-frame-offset)
 				      (car (frame-position (window-frame w))))
 			       (+ (cdr hycontrol-frame-offset)
 				  (cdr (frame-position (window-frame w)))))
-	   (if (one-window-p)
-	       (hycontrol-set-frame-size nil (hycontrol-frame-width) (hycontrol-frame-height) t)
-	     (hycontrol-set-frame-size nil (window-size w t t) (window-size w nil t) t))
 	   (with-selected-frame (window-frame w)
 	     (unless (or hycontrol-keep-window-flag (one-window-p t))
 	       (delete-window w)))))))
@@ -1252,6 +1602,18 @@ See its documentation for more information."
     offsets))
 
 (hycontrol-set-screen-offsets)
+
+(defun hycontrol-help-key-description ()
+  "Return the key description for the HyControl help key."
+  (key-description (where-is-internal 'hycontrol-toggle-help hycontrol-frames-mode-map t)))
+
+(defun hycontrol-toggle-help ()
+  "Toggle whether HyControl displays key binding help in the minibuffer."
+  (interactive)
+  (setq hycontrol-help-flag (not hycontrol-help-flag))
+  (unless (and hycontrol-help-flag (called-interactively-p))
+    (message "(HyControl): Minibuffer help is off; use {%s} to turn it on"
+	     (hycontrol-help-key-description))))
 
 (provide 'hycontrol)
 

@@ -127,9 +127,9 @@
     "----"
     ["Name-Configuration" hywconfig-add-by-name     t]
     ["Delete-Name"        hywconfig-delete-by-name
-     (if (boundp 'hywconfig-names) hywconfig-names)]
+     (frame-parameter nil 'hywconfig-names)]
     ["Restore-Name"       hywconfig-restore-by-name
-     (if (boundp 'hywconfig-names) hywconfig-names)]
+     (frame-parameter nil 'hywconfig-names)]
     "----"
     ["Pop-from-Ring"      hywconfig-delete-pop      (not (hywconfig-ring-empty-p))]
     ["Save-to-Ring"       hywconfig-ring-save       t]
@@ -155,8 +155,8 @@
 
 (defun hui-menu-modeline (_ignore)
   (list
-   ["Control-Frames"  hycontrol-frames t]
-   ["Control-Windows" hycontrol-windows t]
+   ["Control-Frames"  hycontrol-enable-frames-mode t]
+   ["Control-Windows" hycontrol-enable-windows-mode t]
    "----"
    (hui-menu-of-buffers)
    (hui-menu-of-frames)
