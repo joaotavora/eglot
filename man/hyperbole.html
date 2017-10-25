@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 6.0.2e, Published October 19, 2017).
+(Edition 6.0.2f, Published October 24, 2017).
 
 Copyright (C) 1989-2016  Free Software Foundation, Inc.
 
@@ -322,8 +322,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.0.2e
-Printed October 19, 2017.
+Edition 6.0.2f
+Printed October 24, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -736,7 +736,7 @@ Next: <a href="#Smart-Keys" accesskey="n" rel="next">Smart Keys</a>, Previous: <
 <h2 class="chapter">1 Introduction</h2>
 
 <p>This edition of the GNU Hyperbole Manual is for use with any version
-6.0.2e or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.0.2f or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 </p>
 <p>This chapter summarizes the structure of the rest of the manual,
@@ -1273,6 +1273,7 @@ Mouse-only Control
     Left modeline edge          Buries current buffer      Unburies bottom buffer
     Right modeline edge         Info manual browser        Smart Key summary
     Buffer ID                   Dired on buffer's dir      Next buffer
+                                  or on parent when a dir
     Other blank area            Action Key modeline hook   Assist Key modeline hook
                                   Shows/Hides Buffer Menu    Popup Jump &amp; Manage Menu
 
@@ -3553,6 +3554,8 @@ Next: <a href="#Koutliner" accesskey="n" rel="next">Koutliner</a>, Previous: <a 
 <a name="index-windows-control"></a>
 <a name="index-frames-control"></a>
 <a name="index-HyControl"></a>
+<a name="index-invoking-HyControl"></a>
+<a name="index-starting-HyControl"></a>
 <a name="index-screen"></a>
 <a name="index-display"></a>
 <p>Hyperbole includes the fastest, easiest-to-use Emacs window and frame
@@ -3604,6 +3607,13 @@ and frame submodes.
 <dl compact="compact">
 <dd>
 <a name="index-HyControl_002c-see-screen"></a>
+<a name="index-screen_002c-_003f"></a>
+<a name="index-_003f"></a>
+</dd>
+<dt><kbd>{?}</kbd></dt>
+<dd><p>Toggle whether HyControl displays key binding help in the minibuffer.
+</p>
+<a name="index-HyControl_002c-see-screen-1"></a>
 <a name="index-screen_002c-_002e"></a>
 <a name="index-_002e"></a>
 </dd>
@@ -3913,12 +3923,13 @@ variables and functions or with customized Emacs.
 <a name="index-hycontrol_002dget_002dscreen_002doffsets"></a>
 <p>HyControl allows placement of frames at screen edges and corners. with
 the frame cycle command, <kbd>{c}</kbd>, and direct placement matching the
-layout of the numeric keypad keys, if available.  (Note that a screen
-may span multiple physical monitors).  To prevent widgets
-and toolbars at the corners of the screen from being obscured,
-HyControl can offset each frame from each screen edge by a fixed
-number of pixels.  These offsets are specified by the variable,
-<code>hycontrol-screen-offset-alist</code> and can differ for each type of
+layout of the numeric keypad keys, if available, or the <kbd>p</kbd> key
+otherwise.  (Note that a screen may span multiple physical monitors).
+</p>
+<p>To prevent widgets and toolbars at the corners of the screen from
+being obscured, HyControl can offset each frame from each screen edge
+by a fixed number of pixels.  These offsets are specified by the
+variable,<code>hycontrol-screen-offset-alist</code> and can differ for each type of
 screen; see its documentation for details.  If you change its value,
 then call <code>hycontrol-set-screen-offsets</code> to set any new offset
 values.  <code>hycontrol-get-screen-offsets</code> returns the list of offsets
@@ -3933,17 +3944,19 @@ same size as the previously selected frame and offsets it from that
 frame by the (X . Y) number of pixels given in the variable,
 <code>hycontrol-frame-offset</code>.
 </p>
+<a name="index-file_002c-hycontrol_002eel"></a>
+<a name="index-hycontrol_002denable_002dframes_002dmode"></a>
+<a name="index-hycontrol_002denable_002d_002dwindows_002dmode"></a>
 <p>The source code for the HyControl system is in <samp>hycontrol.el</samp>
 within your Hyperbole source directory, given by <code>hyperb:dir</code>.
-Presently, you must edit the code to change any of HyControl&rsquo;s internal
-key bindings.  Eventually, standard local key bindings will be provided.
-You can however bind the two HyControl invocation commands to keys.
-These commands are, <code>hycontrol-windows</code> and <code>hycontrol-frames</code>.
+HyControl uses standard Emacs keymaps, so any keys can be rebound.
+Remember that Hyperbole typically binds <kbd>{C-c \}</kbd> to the windows
+control menu, but if you would like to bind either of the two
+HyControl minor mode invocation commands to keys, they are,
+<code>hycontrol-enable-windows-mode</code> and <code>hycontrol-enable-frames-mode</code>.
 Generally, you need only one of these bound to a key since when you
-press that key, the other command can be reached by pressing
-<kbd>{t}</kbd>.
+press that key, the other command can be reached by pressing <kbd>{t}</kbd>.
 </p>
-
 <hr>
 <a name="Koutliner"></a>
 <div class="header">
@@ -10323,11 +10336,13 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_symbol-9"><b>=</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-10"><b>[</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-10"><b>?</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>]</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>[</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>~</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>]</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-13"><b>~</b></a>
  &nbsp; 
 <br>
 <a class="summary-letter" href="#Key-Index_ky_letter-A"><b>A</b></a>
@@ -10404,13 +10419,16 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><th><a name="Key-Index_ky_symbol-9">=</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-_003d"><code>=</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
-<tr><th><a name="Key-Index_ky_symbol-10">[</a></th><td></td><td></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-10">?</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-_003f"><code>?</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-11">[</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-_005b"><code>[</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
-<tr><th><a name="Key-Index_ky_symbol-11">]</a></th><td></td><td></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-12">]</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-_005d"><code>]</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
-<tr><th><a name="Key-Index_ky_symbol-12">~</a></th><td></td><td></td></tr>
+<tr><th><a name="Key-Index_ky_symbol-13">~</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-_007e"><code>~</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-A">A</a></th><td></td><td></td></tr>
@@ -10548,6 +10566,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-h"><code>h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-H"><code>H</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-HyControl_002c-see-screen"><code>HyControl, see screen</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-HyControl_002c-see-screen-1"><code>HyControl, see screen</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-HyRolo_002c-see-rolo"><code>HyRolo, see rolo</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Keys">HyRolo Keys</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Key-Index_ky_letter-I">I</a></th><td></td><td></td></tr>
@@ -10637,6 +10656,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-screen_002c-_002e"><code>screen, .</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-0_002d9"><code>screen, 0-9</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-_003d"><code>screen, =</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-screen_002c-_003f"><code>screen, ?</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-a"><code>screen, a</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-A"><code>screen, A</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-screen_002c-b"><code>screen, b</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -10719,11 +10739,13 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
  &nbsp; 
 <a class="summary-letter" href="#Key-Index_ky_symbol-9"><b>=</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-10"><b>[</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-10"><b>?</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>]</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-11"><b>[</b></a>
  &nbsp; 
-<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>~</b></a>
+<a class="summary-letter" href="#Key-Index_ky_symbol-12"><b>]</b></a>
+ &nbsp; 
+<a class="summary-letter" href="#Key-Index_ky_symbol-13"><b>~</b></a>
  &nbsp; 
 <br>
 <a class="summary-letter" href="#Key-Index_ky_letter-A"><b>A</b></a>
@@ -11016,6 +11038,8 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hui_003aebut_002ddelete_002dconfirm_002dp">hui:ebut-delete-confirm-p</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Deletion">Deletion</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_003aebut_002dprompt_002dfor_002daction">hui:ebut-prompt-for-action</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_003aebut_002drename"><code>hui:ebut-rename</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Renaming">Renaming</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hycontrol_002denable_002d_002dwindows_002dmode"><code>hycontrol-enable--windows-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hycontrol_002denable_002dframes_002dmode"><code>hycontrol-enable-frames-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002dframe_002doffset">hycontrol-frame-offset</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002dframe_002doffset-1">hycontrol-frame-offset</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hycontrol_002dget_002dscreen_002doffsets"><code>hycontrol-get-screen-offsets</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -11676,6 +11700,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-F">F</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file-display-function">file display function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Internal-Viewers">Internal Viewers</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-file_002c-hycontrol_002eel">file, hycontrol.el</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-importing">file, importing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Inserting-and-Importing">Inserting and Importing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-filename">filename</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-fill-prefix">fill prefix</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Label-Normalization">Button Label Normalization</a></td></tr>
@@ -11807,6 +11832,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-internal-viewer">internal viewer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Internal-Viewers">Internal Viewers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Internet-RFC">Internet RFC</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Internet-RFC-1">Internet RFC</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-invoking-HyControl">invoking HyControl</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-invoking-Hyperbole">invoking Hyperbole</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-isearch">isearch</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invisible-Text-Searches">Invisible Text Searches</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-issue-tracking">issue tracking</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -12180,6 +12206,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-splitting-a-cell">splitting a cell</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Splitting-and-Appending">Splitting and Appending</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-stack-frame">stack frame</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-star-outline">star outline</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Inserting-and-Importing">Inserting and Importing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-starting-HyControl">starting HyControl</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-starting-Hyperbole">starting Hyperbole</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-storage-manager">storage manager</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-string">string</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>

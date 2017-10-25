@@ -1,5 +1,7 @@
 2017-10-24  Bob Weiner  <rsw@gnu.org>
 
+* man/hyperbole.texi (Version): Updated to 6.0.2f and rebuilt output formats.
+
 * hycontrol.el (hycontrol-universal-arg-digit): Removed first argument and replaced with global hycontrol-arg,
     so could set this value internally.
 
