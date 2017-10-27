@@ -41,10 +41,12 @@
 
      7b. With one command, rapidly create a grid of tiled windows
          displaying either selected buffers, buffers with a specific
-         major mode or the most recently used buffer list, e.g. {63 @}
-         creates 6 rows, each with 3 columns of windows (18 total) and
-         displays the first 18 buffers in them when in a HyControl
-         mode.
+         major mode or the most recently used buffer list, e.g.
+         {63 C-c @} creates 6 rows, each with 3 columns of windows (18
+         total) and displays the first 18 buffers in them when in a
+         HyControl mode.  You can mark buffers, files and directories
+         in the Buffer menu, iBuffer and Dired modes and then use the
+         same above command to display them in a grid of windows.
          
      7c. Use a quick mouse key press to scroll any window line to the
          top or bottom of a window, to see exactly what you want on
@@ -79,7 +81,7 @@ alpha ;; label-type
 
 ;; depth-first kcell attributes
 [[0
-  (creator "rsw@gnu.org" create-time "20171024:13:39:20" id-counter 22 file "/Users/bk/Dropbox/emacs/hyperbole/HY-WHY.kotl")]
+  (creator "rsw@gnu.org" create-time "20171027:13:29:32" id-counter 22 file "/Users/bk/Dropbox/emacs/hyperbole/HY-WHY.kotl")]
  [1
   (creator "rsw@gnu.org" create-time "20160524:15:04:17" no-fill t)]
  [17
@@ -106,8 +108,4 @@ alpha ;; label-type
   (creator "rsw@gnu.org" create-time "20160526:02:56:59" no-fill t)]
  [10
   (creator "rsw@gnu.org" create-time "20160530:15:10:18" no-fill t)]
- [11
-  (creator "rsw@gnu.org" create-time "20160530:15:10:41" no-fill t)]
- [12
-  (creator "rsw@gnu.org" create-time "20160530:15:14:46" no-fill t)]
- nil nil nil nil nil nil nil]
+ nil nil nil nil nil nil nil nil nil]

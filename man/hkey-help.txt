@@ -36,6 +36,14 @@ Mouse-only Control
   Other Modeline drag to        Replaces dest. buffer      Swaps window buffers
     another window                with source buffer
 
+  Drag to a Modeline from:
+    buffer/file menu item       Displays buffer/file in    Swaps window buffers
+                                  new window by release
+    buffer/file menu 1st line   Moves buffer/file menu to  Swaps window buffers
+                                  new window by release
+    anywhere else               Displays buffer in         Swaps window buffers
+                                  new window by release
+
   Drag between windows from:
     buffer/file menu item       Displays buffer/file in    Swaps window buffers
                                   window of button release 

@@ -1,3 +1,27 @@
+2017-10-27  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.css: Added to format HTML version of the Hyperbole manual like the Hyperbole web page, greatly improving
+    its appearance.
+
+* man/hkey-help.txt:
+  man/hyperbole.texi (Modeline Clicks and Drags):  Documented new drag below.
+  hui-window.el (hmouse-alist): Added context of a drag from a window with a release to a modeline which for Action Mouse
+    Key splits the release window (which contains the modeline) and then displays the item or the buffer from the depress
+    window in the release window.  With the Assist Mouse Key, just swaps buffers with no new window creation.
+
+                (hmouse-modeline-click): Updated to do full testing for a click, so this can be called at any point
+    after Smart Mouse Key release.
+                (hmouse-buffer-to-window, hmouse-item-to-window): Added optional boolean new-window parameter to force
+    a new window before buffer display.
+                (hmouse-split-window): Added.
+		(hmouse-modeline-event-p): Fixed conditional error that caused fall through past Modern GNU Emacs clause.
+		(action-mouse-key, assist-mouse-key): Set above new variables.
+                (action-key, assist-key): Added clear of any value of *-key-depress/release-position.
+  hmouse-drv.el (action-key-release-position, assist-key-release-position): Added these to compare to existing
+    *-key-depress-position value.
+
+* README.md, HY-ANNOUNCE: Updated for public release.
+
 2017-10-26  Bob Weiner  <rsw@gnu.org>
 
 * man/hyperbole.texi (Smart Mouse Drags outside a Window): Added this new section.
@@ -5,7 +29,7 @@
 
 * hui-window.el (hmouse-goto-region-point, hmouse-prior-active-region): Rewrote these to work properly so that Smart
     Mouse yanking and killing feature works as documented.  Previously, it was not switching to the buffer of the
-    depress point when checking foran active region.
+    depress point when checking for an active region.
 
 * hmouse-drv.el: Updated doc.
 
@@ -41,7 +65,7 @@
                 hycontrol-split-windows-repeatedly, hycontrol-split-windows-rows-columns): Renamed by replacing
     'split-windows' with 'windows-grid'.
                 (hycontrol-window-minimize-lines): Previously did not resize window if it could not display all of the
-    buffer lines in the window.  Now will resize to 1 line if cannor or if all lines are already displayed.
+    buffer lines in the window.  Now will resize to 1 line if cannot or if all lines are already displayed.
                 (hycontrol-split-windows-buffer-list): Added doc string.
 
 * DEMO (HyControl): Added interactive examples of newest HyControl commands.
@@ -69,8 +93,6 @@
 * hycontrol.el (hycontrol-universal-arg-digit): Removed first argument and replaced with global hycontrol-arg,
     so could set this value internally.
 
-               (hycontrol--debug, hycontrol-setup): Changed from -1 to 0 as debug setting since -1 is used to turn off
-    HyControl minor modes.
                (hycontrol-debug): Renamed from hycontrol--debug.  Made public so can be set directly.
                (hycontrol-setup, hycontrol-frames, hycontrol-windows): : Removed debug parameter; no longer needed since
     all events are handled normally by Emacs now.
@@ -132,8 +154,8 @@
 
 2017-10-22  Bob Weiner  <rsw@gnu.org>
 
-* Makefile ($(pkg_dir)/hyperbole-$(HYPB_VERSION).tar): Ensured `topwin' script was made executable.
-  hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Changed to find `topwin' executable in
+* Makefile ($(pkg_dir)/hyperbole-$(HYPB_VERSION).tar): Ensured `topwin.py' script was made executable.
+  hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Changed to find `topwin.py' executable in
     hyperb:dir so no additional installation is necessary.
 
 * hycontrol.el (hycontrol-window-to-new-frame): Fixed to duplicate prior selected window size properly.
@@ -305,7 +327,7 @@
 2017-10-14  Bob Weiner  <rsw@gnu.org>
 
 * hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Added optional Python script,
-    topwin, for macOS window-system only.  It determines the topmost application window at
+    topwin.py, for macOS window-system only.  It determines the topmost application window at
     the given position and returns the application name, so Emacs can tell if its frame is
     obscured by another application or not.
                 (hmouse-verify-release-window-flag): Added so can turn off use of the macOS
@@ -410,7 +432,7 @@
 2017-10-11  Bob Weiner  <rsw@gnu.org>
 
 * hycontrol.el (hycontrol-window-to-frame): Modified in the case of only one window in the frame,
-    then clone the window into a new frame.  This allows you to create a bunch of tiled frames
+    then clone the window into a new frame.  This allows you to create a bunch of staggered frames
     when in Window Control mode.  Also made this an autoload and called in "hui-window" within
     hmouse-alist.
 
@@ -525,7 +547,7 @@
 2017-10-02  Bob Weiner  <rsw@gnu.org>
 
 * hui-window.el (hmouse-pulse-flag): Added to allow disabling visual pulsing in Action Mouse
-    Key buffer/file window placement.  Used in hmouse-pulse-buffer and hmsoue-pulse-line.
+    Key buffer/file window placement.  Used in hmouse-pulse-buffer and hmouse-pulse-line.
 
 * hload-path.el (stringp): Forced use of hyperb:dir truename (after resolving pathname links).
 

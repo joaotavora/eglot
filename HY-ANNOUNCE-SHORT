@@ -1,5 +1,5 @@
 To: hyperbole-users@gnu.org, emacs-devel@gnu.org, emacs-tangents@gnu.org
-ANNOUNCE: GNU Hyperbole 6.0.2 for Emacs 24.4 or newer is released
+ANNOUNCE: GNU Hyperbole 7.0.0 is released for Emacs 24.4 and above
 
 For information on what GNU Hyperbole is, screenshots, download and
 installation instructions, see the GNU Hyperbole home page:
@@ -16,101 +16,9 @@ Hyperbole includes an interactive demo to introduce you to its features and a
 detailed reference manual.
 
 ===========================================================================
-*                 What's New in GNU Hyperbole V6.0.2f
+*                 What's New in GNU Hyperbole V7.0.0
 ===========================================================================
 
-See "Changes" file.
-
-===========================================================================
-*                 What's New in GNU Hyperbole V6.0.2
-===========================================================================
-
-  BUTTONS
-
-    - pathname Implicit Button Type: generalized to handle hash-style links to
-      HTML files, to Github Markdown # sections and to Emacs outline *
-      sections.  So an Action Key press on any of the following links displays
-      the link referent:
-            "man/hyperbole.html#Questions-and-Answers"
-	    "README.md#why-was-hyperbole-developed"
-	    "DEMO#HTML Markdown and Emacs Outline Hash Links"
-      Even links split across 2 lines like this now work: "DEMO#Social Media
-      Hashtags and Usernames", as long as point is on the first line.
-
-      Within HTML and Markdown files, in-file hash links without any file name
-      prefix work as well.
-
-      HTML hash-links are case-sensitive; other hash-links are not.  Hash links
-      typically use dashes in place of the spaces that referents may contain,
-      but if the link is enclosed in quotes, Hyperbole allows spaces to be used
-      as well.  In fact, it is best practice to always enclose hash-style links
-      in quotes so Hyperbole can distinguish them from other similar looking
-      constructs, such as social media hashtags (see "(hyperbole)Social Media").
-
-      Pathnames surrounded by literal non-ASCII quote marks now work as well.
-      For example, ‘http://ftp.gnu.org/gnu/hyperbole/’.
-
-    - New Implicit Button Type, markdown-internal-link, displays any in-file
-      Markdown link referent, aside from pathnames and urls.  Together with
-      other types, all Markdown links can now be followed by the Action Key.
-
-    - social-reference Implicit Button Type: Disabled this type within quoted
-      strings (all modes) and within parentheses (markdown-mode), so in-file
-      hash link references are not matched as social hash tags.  Made the list
-      of modes a variable, hibtypes-social-inhibit-modes.
-
-    - New link-to-web-search Action Type: Allows global and explicit buttons
-      to link to specific web term searches from `hyperbole-web-search-alist'.
-
-    - org-mode Implicit Button Type: Improved to invoke org-meta-return when
-      not on an Org link or outline heading.
-
-  DOCUMENTATION
-
-    - Added pointer to HyControl video and {C-c \} binding which invokes
-      HyControl window control.
-
-    - README File: New Org-mode user testimonial.
-
-    - DEMO File: Added description and exercise using the new Find/Web menu.
-
-    - Added README.md introduction with images combining README, INSTALL
-      and HY-ABOUT information.  This is automatically transformed to
-      README.md.html.
-
-    - Full set of hand-written changes are now in the file "Changes".  The
-      former name, ChangeLog, is now auto-generated from the version controlled
-      'git log' but not as complete.
-
-  KEYS
-
-    - New variables, action-key-eol-function and assist-key-eol-function, used
-      to control what the Action and Assist Keys do at the end of a line.
-      Default behaviors remain as before but now one can set these to do
-      something other than scrolling, if desired.  See "(hyperbole)Smart Key -
-      Smart Scrolling"
-
-    - When in HyControl, pressing {ESC} now quits in addition to {q}.
-
-  MENUS
-
-    - New submenu, Find/Web, for quick access to major web search engines.
-      The Find/Web menu looks like this:
-        Web> Amazon Bing Dictionary Elisp Facebook Google Hub(git) Images Maps RFCs StackOverflow Twitter Wikipedia Youtube
-
-      Hyperbole binds the key {C-c /} for quick access to this menu, if it is
-      not already bound prior to Hyperbole's initialization. The
-      Cust/Web-Search menu, {C-h h c w}, sets the option,
-      hyperbole-web-search-browser-function, which determines whether web
-      search results are displayed within Emacs or with an external web
-      browser.  A short video introduction to the Find/Web menu may be found at
-      https://youtu.be/8lMlJed0-OM.
-
-      Advanced users can change the search engines listed in the Find/Web menu
-      with M-x customize-variable RET hyperbole-web-search-alist RET.  Changes
-      are automatically reflected in the Hyperbole menus once applied.
-      Remember each search engine name must begin with a unique letter and each
-      URL must have a %s format field indicating where to place the web search
-      term when a search is performed.  See "(hyperbole)Web Search Engines".
+See "https://git.savannah.gnu.org/cgit/hyperbole.git/tree/HY-NEWS".
 
 -- The End --

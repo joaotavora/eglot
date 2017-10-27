@@ -128,7 +128,7 @@
 ;;; ************************************************************************
 
 (defvar hycontrol-debug nil
-  "When set non-nil by a user, some HyControl log debugging messages to the *Messages* buffer.")
+  "When set non-nil by a user, some HyControl functions log debugging messages to the *Messages* buffer.")
 
 (defvar hycontrol-display-buffer-predicate-list
   ;; Display only buffers attached to files.

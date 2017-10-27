@@ -61,10 +61,15 @@ This is set to nil when the depress is on an inactive minibuffer.")
 (defvar assist-key-release-window nil
   "The last window in which the Assist Key was released or nil.")
 
+;; These store mouse positions and are used only when a mouse is available.
 (defvar action-key-depress-position nil
-  "The last screen position at which the Action Key was depressed or nil.")
+  "The last mouse screen position at which the Action Key was depressed or nil.")
 (defvar assist-key-depress-position nil
-  "The last screen position at which the Assist Key was depressed or nil.")
+  "The last mouse screen position at which the Assist Key was depressed or nil.")
+(defvar action-key-release-position nil
+  "The last mouse screen position at which the Action Key was released or nil.")
+(defvar assist-key-release-position nil
+  "The last mouse screen position at which the Assist Key was released or nil.")
 
 (defvar action-key-depress-prev-point nil
   "Marker at point prior to last Action Key depress.
@@ -184,22 +189,23 @@ Any ARGS will be passed to `hmouse-function'."
   (interactive)
   ;; Make this a no-op if some local mouse key binding overrode the global
   ;; action-key-depress command invocation.
-  (if action-key-depressed-flag
-      (let ((hkey-alist hmouse-alist))
-	(setq action-key-depressed-flag nil)
-	(cond (action-key-cancelled
-		(setq action-key-cancelled nil
-		      assist-key-depressed-flag nil))
-	      (assist-key-depressed-flag
-		(hmouse-function nil nil args))
-	      ((hkey-mouse-help nil args))
-	      (t
-	       (run-hooks 'action-key-release-hook)
-	       (hmouse-function #'action-key-internal nil args)))
-	;; Need to clear these variables so that mouse pasting does
-	;; not occur repeatedly from a single region selection.
-	(setq hkey-region nil
-	      hkey-value nil))))
+  (when action-key-depressed-flag
+    (setq action-key-release-position (mouse-absolute-pixel-position))
+    (let ((hkey-alist hmouse-alist))
+      (setq action-key-depressed-flag nil)
+      (cond (action-key-cancelled
+	     (setq action-key-cancelled nil
+		   assist-key-depressed-flag nil))
+	    (assist-key-depressed-flag
+	     (hmouse-function nil nil args))
+	    ((hkey-mouse-help nil args))
+	    (t
+	     (run-hooks 'action-key-release-hook)
+	     (hmouse-function #'action-key-internal nil args)))
+      ;; Need to clear these variables so that mouse pasting does
+      ;; not occur repeatedly from a single region selection.
+      (setq hkey-region nil
+	    hkey-value nil))))
 
 (defun assist-mouse-key (&rest args)
   "Set point to the current mouse cursor position and execute `assist-key'.
@@ -207,22 +213,23 @@ Any ARGS will be passed to `hmouse-function'."
   (interactive)
   ;; Make this a no-op if some local mouse key binding overrode the global
   ;; assist-key-depress command invocation.
-  (if assist-key-depressed-flag
-      (let ((hkey-alist hmouse-alist))
-	(setq assist-key-depressed-flag nil)
-	(cond (assist-key-cancelled
-		(setq assist-key-cancelled nil
-		      action-key-depressed-flag nil))
-	      (action-key-depressed-flag
-		(hmouse-function nil t args))
-	      ((hkey-mouse-help t args))
-	      (t
-	       (run-hooks 'assist-key-release-hook)
-	       (hmouse-function #'assist-key-internal t args)))
-	;; Need to clear this variable so that mouse pasting does
-	;; not occur repeatedly from a single region selection.
-	(setq hkey-region nil
-	      hkey-value nil))))
+  (when assist-key-depressed-flag
+    (setq assist-key-release-position (mouse-absolute-pixel-position))
+    (let ((hkey-alist hmouse-alist))
+      (setq assist-key-depressed-flag nil)
+      (cond (assist-key-cancelled
+	     (setq assist-key-cancelled nil
+		   action-key-depressed-flag nil))
+	    (action-key-depressed-flag
+	     (hmouse-function nil t args))
+	    ((hkey-mouse-help t args))
+	    (t
+	     (run-hooks 'assist-key-release-hook)
+	     (hmouse-function #'assist-key-internal t args)))
+      ;; Need to clear this variable so that mouse pasting does
+      ;; not occur repeatedly from a single region selection.
+      (setq hkey-region nil
+	    hkey-value nil))))
 
 ;;; Smart Key Commands
 (defun action-key ()
@@ -235,8 +242,10 @@ a valid function."
   ;; Clear all these variables so there can be no confusion between
   ;; mouse presses and keyboard presses.
   (setq action-key-depress-prev-point nil
+	action-key-depress-position nil
 	action-key-depress-args nil
 	action-key-depress-window nil
+	action-key-release-position nil
 	action-key-release-args nil
 	action-key-release-window nil
 	action-key-release-prev-point nil)
@@ -245,9 +254,9 @@ a valid function."
 
 (defun action-key-internal ()
   (setq action-key-depressed-flag nil)
-  (if action-key-cancelled
-      (setq action-key-cancelled nil
-	    assist-key-depressed-flag nil))
+  (when action-key-cancelled
+    (setq action-key-cancelled nil
+	  assist-key-depressed-flag nil))
   (or (hkey-execute nil)
       (when (fboundp action-key-default-function)
 	(funcall action-key-default-function)
@@ -263,8 +272,10 @@ bound to a valid function."
   ;; Clear all these variables so there can be no confusion between
   ;; mouse presses and keyboard presses.
   (setq assist-key-depress-prev-point nil
+	assist-key-depress-position nil
 	assist-key-depress-args nil
 	assist-key-depress-window nil
+	assist-key-release-position nil
 	assist-key-release-args nil
 	assist-key-release-window nil
 	assist-key-release-prev-point nil)
@@ -273,9 +284,9 @@ bound to a valid function."
 
 (defun assist-key-internal ()
   (setq assist-key-depressed-flag nil)
-  (if assist-key-cancelled
-      (setq assist-key-cancelled nil
-	    action-key-depressed-flag nil))
+  (when assist-key-cancelled
+    (setq assist-key-cancelled nil
+	  action-key-depressed-flag nil))
   (or (hkey-execute t)
       (when (fboundp assist-key-default-function)
 	(funcall assist-key-default-function)

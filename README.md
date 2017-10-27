@@ -5,7 +5,7 @@
 
 - [Summary](#summary)
 - [Mailing Lists](#mailing-lists)
-- [Ftp and Git Source Code-only Downloads](#ftp-and-git)
+- [Ftp and Git Repository Downloads](#ftp-and-git)
 - [Installation](#installation)
 - [Invocation](#invocation)
 - [Hyperbole Components](#hyperbole-components)
@@ -109,10 +109,14 @@ through the GNU Emacs package manager.
        [info and subscription]: http://lists.gnu.org/mailman/listinfo/bug-hyperbole
        [web archive]: http://lists.gnu.org/archive/html/bug-hyperbole/
 
-## Ftp and Git Source Code-only Downloads
+## Ftp and Git Repository Downloads
 
-To explore the released Hyperbole source code rather than installing it for use,
-download a tar.gz source archive from either:</p>
+To inspect the Hyperbole source code online rather than installing it for
+use (which will also give you the source code), open a web page to:
+
+   - https://git.savannah.gnu.org/cgit/hyperbole.git/tree/
+
+Alternatively, you may download a tar.gz source archive from either:
 
    - ftp://ftp.gnu.org/gnu/hyperbole/
 
@@ -121,7 +125,7 @@ download a tar.gz source archive from either:</p>
 which will find the closest mirror of the GNU ftp site and show it to you.
 
 If you want to follow along with Hyperbole development and maintain a
-copy/clone of the current version-controlled git tree, use the
+copy/clone of the current version-controlled git tree, use a
 [command listed here](https://savannah.gnu.org/git/?group=hyperbole)
 to clone the Hyperbole project tree.
 
@@ -186,7 +190,7 @@ button capabilities.
 
 ![Hyperbole screenshot of the DEMO](man/im/demo.png)
 
-{C-h h k e} offers a interactive demonstration of the Koutliner,
+{C-h h k e} offers an interactive demonstration of the Koutliner,
 Hyperbole's multi-level autonumbered hypertextual outliner.
 
 ![Hyperbole screenshot of the Koutliner](man/im/koutliner.png)
@@ -196,7 +200,7 @@ system, use {C-h h s w} for window control or {C-h h s f} for frame
 control.  {t} switches between window and frame control once in one of
 them.  Hyperbole also binds {C-c \} for quick access to HyControl's
 window control menu if it was not already bound prior to Hyperbole's
-initialization.  A long video demonstrating most of HyControl's
+initialization.  A long video demonstrating many of HyControl's
 features is available at https://youtu.be/M3-aMh1ccJk.
 
 The above are the best interactive ways to learn about Hyperbole.

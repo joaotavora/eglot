@@ -82,7 +82,7 @@ TEXI2INFO = makeinfo --no-split
 # Command used to build the .html version of the user manual.
 # TEXI2HTML = id-texi2html -html_only -number -split_chapter # InfoDock-specific command
 # TEXI2HTML = makeinfo --html --split=chapter # Chapter splitting doesn't seem to work in 6.0
-TEXI2HTML = makeinfo --html --no-split
+TEXI2HTML = makeinfo --html --no-split --css-ref="hyperbole.css"
 
 # Command used to build the .pdf version of the user manual.
 TEXI2PDF = makeinfo --pdf --no-split
@@ -177,7 +177,7 @@ HYPERBOLE_FILES = dir hyperbole-pkg.el info html $(EL_SRC) $(EL_COMPILE) $(EL_KO
 	$(ELC_COMPILE) Changes COPYING Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS \
 	HY-WHY.kotl INSTALL DEMO MANIFEST README _hypb .hypb file-newer smart-clib-sym \
 	topwin.py hyperbole-banner.png $(man_dir)/hkey-help.txt \
-	$(man_dir)/hyperbole.texi $(man_dir)/version.texi
+	$(man_dir)/hyperbole.texi $(man_dir)/hyperbole.css $(man_dir)/version.texi
 
 EL_TAGS = $(EL_SRC) $(EL_COMPILE) $(EL_KOTL)
 
@@ -213,9 +213,9 @@ $(info_dir)/hyperbole.info: $(man_dir)/hyperbole.info
 	  $(INSTALL) im/*.{png,eps} $(info_dir)/im
 
 install-html: $(html_dir)/hyperbole.html
-$(html_dir)/hyperbole.html: $(man_dir)/hyperbole.html
+$(html_dir)/hyperbole.html: $(man_dir)/hyperbole.html $(man_dir)/hyperbole.css
 	$(MKDIR) $(html_dir)/im; \
-	  cd $(man_dir); $(INSTALL) hyperbole.html* $(html_dir); \
+	  cd $(man_dir); $(INSTALL) hyperbole.html* hyperbole.css $(html_dir); \
 	  $(INSTALL) im/*.{png,eps} $(html_dir)/im
 
 $(data_dir)/hkey-help.txt: $(man_dir)/hkey-help.txt
@@ -261,7 +261,7 @@ $(man_dir)/hyperbole.info: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(m
 	cd $(man_dir) && $(TEXI2INFO) hyperbole.texi
 
 html: $(man_dir)/hyperbole.html
-$(man_dir)/hyperbole.html: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt
+$(man_dir)/hyperbole.html: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt $(man_dir)/hyperbole.css
 	cd ${man_dir} && $(TEXI2HTML) hyperbole.texi
 
 pdf: $(man_dir)/hyperbole.pdf

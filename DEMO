@@ -126,7 +126,7 @@ current context; {C-u C-h A} displays the same kind of help for the Assist
 Key.  Only a capital A will work, so be sure to press shift.  Try these
 help commands.
 
-You can also see what mouse-only events like mode-line clicks and drags across
+You can also see what mouse-only events like modeline clicks and drags across
 frames will do.  Depress the Smart Mouse Key you are interested in at
 a location, then while holding it down, depress the other Smart Mouse Key, move
 to any release point and then release both keys.  The help displayed will show
@@ -193,7 +193,7 @@ Once in HyControl, your minibuffer window at the bottom of the selected frame
 will display a summary of keys you may use to adjust your windows until you
 press {q} to quit from HyControl.  If you don't see it, press {?}, to turn on
 this help display.  The key, {t}, will always switch you between controlling
-frames and windows, the minor modes of HyControl, with a mode-line indicator
+frames and windows, the minor modes of HyControl, with a modeline indicator
 of either "HyFrm" or HyWin" depending on which type of control is active.  See
 "(hyperbole)HyControl" for full usage information.
 
@@ -948,25 +948,6 @@ three or more lines to split the window.  Again, change the buffer of one of
 the windows.  Then use a vertical Assist Key drag within either one of the
 side-by-side windows to delete it.
 
-** Cloning Windows and Buffer/File Items to other Frames
-
-If you want to copy/clone a window to a new frame, simply drag the Action
-Mouse Key from within the window to anywhere outside of Emacs and release.  A
-new frame will be created, selected and sized according to the original
-window.  Do the same thing with the Assist Mouse Key and the original window
-will be deleted as well unless it is the only window in that frame.  Create a
-few windows and try these actions.
-
-This also works for items in dired, buffer menu and ibuffer menus.  With the
-Action Mouse Key, the selected item is displayed in a new frame or any Emacs
-window into which you release.  So now you can rapidly put a bunch of buffers
-and files on your screen wherever you like.  Typically, a brief visual pulse
-is shown first at the source item and then in the whole destination window,
-to help you see that the transfer has been made.  An Assist Key Drag will
-move the window with the item list to the destination, just as it does for
-other windows.  Practice these drags as they will prove very beneficial
-across time.
-
 ** Resizing Windows
 
 You can easily resize Emacs windows by dragging their window separators
@@ -988,7 +969,7 @@ window.
 Try to drag the bottom modeline.  You see that you can't; you would have to
 resize the frame to move the bottom up.
 
-** Dragging Buffers and Windows
+** Dragging Buffers, Windows and Items
 
 *** Swapping Buffers
 
@@ -1006,18 +987,41 @@ If you have just two windows in an Emacs frame, you can swap their buffers
 from the keyboard.  Use this Hyperbole minibuffer menu key sequence to swap
 the buffers and quit from the Hyperbole minibuffer menu: {C-h h s w ~ q}.
 
-*** Moving Buffers
+*** Displaying Buffers
 
-What if you want to display the same buffer in another frame and not swap
-buffers.  Depress the Action Key in the open area of the modeline of the
-source window and drag to the text area of the destination window.  Voila,
-the buffer appears in the new location as well as the old one.
+What if you want to display the same buffer in another window and not swap
+buffers?  Depress the Action Key in the open area of the modeline of the source
+window and drag to the text area of the destination window.  Voila, the buffer
+appears in the new location as well as the old one.
 
-To clone a window with its buffer to a new frame, simply drag the Action Key
-from the window to outside of Emacs and release the key.  A new frame pops up
-about the size of the original window with the same buffer.  Try it.  The
-same action with the Assist Key will move the window to the new frame,
-deleting the old one even unless it is the only window in the frame.
+If you want a new window where you release (so the original destination window's
+buffer stays onscreen), just drag to a window's modeline; that window will be
+split before the buffer is displayed.
+
+*** Displaying File and Buffer Items
+
+You can do the same thing with items in dired, buffer menu and ibuffer menus
+rather than buffers themselves.  Drag with the Action Mouse Key and the selected
+item will be displayed in any Emacs window in which you release.  Drag outside
+Emacs and it will be displayed in a new frame.
+
+*** Cloning Windows
+
+To clone a window with its buffer to a new frame, simply drag the Action Mouse
+Key from the window to outside of Emacs and release the key.  A new frame will
+be created, selected and sized according to the original window.  Do the same
+thing with the Assist Mouse Key and the original window will be deleted as well,
+unless it is the only window in that frame.  Create a few windows and try these
+actions.
+
+*** Summary
+
+So now you can rapidly put a bunch of buffers and files on your screen wherever
+you like.  Typically, a brief visual pulse is shown first at the source item and
+then in the whole destination window, to help you see that the transfer has been
+made.  An Assist Key Drag will move the window with the item list to the
+destination, just as it does for other windows.  Practice these drags as they
+will prove very beneficial across time.
 
 ** Saving and Restoring Window Configurations
 

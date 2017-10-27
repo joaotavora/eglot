@@ -152,7 +152,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2f
-Printed October 26, 2017.
+Printed October 27, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed October 26, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.2f, October 26, 2017.
+@center Edition 6.0.2f, October 27, 2017.
 
 @sp 2
 @noindent
@@ -199,12 +199,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   Web:       www.gnu.org/software/hyperbole
 @end example
 
-@example
 @float Image,image:Sample
 @caption{Sample Hyperbole screenshot of the Koutliner, DEMO file and HyRolo}
 @image{im/hyperbole-cv,6in,,Sample Hyperbole Screenshot}
 @end float
-@end example
 @sp 1
 @center --------------------
 @sp 1
@@ -657,12 +655,10 @@ Hyperbole, @pxref{Setup}, for Hyperbole installation and configuration
 information.  The demo offers a much less technical introduction to
 Hyperbole by supplying good examples of use.
 
-@example
 @float Image,image:Demo
 @caption{Hyperbole Minibuffer Menu and Demonstration Screenshot}
 @image{im/demo,6in,,Hyperbole Minibuffer Menu and Demonstration Screenshot}
 @end float
-@end example
 @sp 1
 
 @cindex GNU Emacs
@@ -904,11 +900,21 @@ and notice that the Smart Keys do just a few context-sensitive things
 per editor mode, you will find it easy to just press or point and
 click and let Hyperbole do the right thing in each context.
 
+@ifnothtml
 @format
 @smallexample
 @include hkey-help.txt
 @end smallexample
 @end format
+@end ifnothtml
+
+@ifhtml
+@format
+@example
+@include hkey-help.txt
+@end example
+@end format
+@end ifhtml
 
 @noindent
 @xref{Smart Key Reference}, for extensive reference documentation on the
@@ -2665,12 +2671,10 @@ get rid of the menu if you do not need it.  Invoking Hyperbole from
 the keyboard, as explained below, will add the menu back to the
 menubar.
 
-@example
 @float Image,image:Hyperbole Menu
 @caption{Hyperbole Menubar Menu}
 @image{im/menu-hyperbole,,5in,Hyperbole Menu}
 @end float
-@end example
 @sp 1
 
 @cindex minibuffer menus
@@ -3382,12 +3386,10 @@ when you invoke this command.
 @xref{Koutliner Keys}, for a full summary of the key bindings and
 commands available in the Koutliner.
 
-@example
 @float Image,image:Koutliner
 @caption{Koutliner Screenshot}
 @image{im/koutliner,6in,,Koutliner Screenshot}
 @end float
-@end example
 @sp 1
 
 @menu
@@ -3448,12 +3450,10 @@ page, offers a more complete set of the Koutliner commands.  Experiment
 with the menu or read the following sections explaining commands.
 
 @page
-@example
 @float Image,image:Koutline Menu
 @caption{Koutline Menu}
 @image{im/menu-koutline,,6in,Koutline Menu}
 @end float
-@end example
 @sp 1
 
 @node Creating Outlines, Autonumbering, Menu Commands, Koutliner
@@ -4474,12 +4474,10 @@ The Rolo submenu of the Hyperbole menu offers a full set of commands
 for searching and maintaining a personal address book.  It looks like
 so.
 
-@example
 @float Image,image:Rolo Menu
 @caption{HyRolo Menu}
 @image{im/menu-rolo,,7in,HyRolo Menu}
 @end float
-@end example
 @page
 
 @cindex rolo menu
@@ -6033,12 +6031,10 @@ configuring Hyperbole's behavior.
 Major Hyperbole user options may be set from the Customize submenu
 below the Hyperbole menubar menu, as seen here.
 
-@example
 @float Image,image:Customize Menu
 @caption{Hyperbole Customize Menu}
 @image{im/menu-customization,,,Hyperbole Customize Menu}
 @end float
-@end example
 @sp 1
 
 @noindent
@@ -7223,12 +7219,26 @@ If depressed within a window modeline:
          resizing its window and potentially its vertically neighboring
          windows.
      (6) dragged other than straight vertically from a modeline to another
-         window, swap the buffers of the two windows.
+         window, swap buffers in the two windows.
      (7) dragged from a modeline to outside of Emacs, create a new frame
          sized to match the selected window with the same buffer.  If there
          is only one window in the source frame or if @code{hycontrol-keep-window-flag}
          is non-nil, leave the original window and just clone it into the
          new frame;otherwise, delete the original window.
+@end group
+@end format
+
+@format
+@group
+If dragged from a window and released within a window modeline:
+  ACTION KEY
+     (1) If depress was on a buffer name in Buffer-menu/ibuffer mode or on
+         a file/directory in dired mode, splits the release window and displays
+         the item in the original release window.
+     (2) Otherwise, splits the release window and displays the depress window's
+         buffer in the original release window.
+  ASSIST KEY
+     Swaps buffers in the two windows.
 @end group
 @end format
 
@@ -7257,14 +7267,14 @@ If an active (highlighted) region exists within the editor:
 Otherwise, if dragged from inside one window to another:
   ACTION KEY
      (1) If depress was on a buffer name in Buffer-menu/ibuffer mode or on
-         a file/directory in dired mode, display the item in window of release.
+         a file/directory in dired mode, displays the item in window of release.
          See @code{hmouse-drag-item-mode-forms} for how to allow for draggable
          items in other modes.
      (2) Otherwise, creates a new link button at the drag start location, linked
          to the drag end location.  If the drag start position is within a button,
          this modifies the button to link to the drag end location.
   ASSIST KEY
-     Swaps buffers in the two windows.
+     Swap buffers in the two windows.
 @end group
 @end format
 

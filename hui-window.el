@@ -30,6 +30,14 @@
 ;; Other Modeline drag to          Replace dest. buffer with   Swap window buffers
 ;;   another window                  source buffer
 ;;
+;; Drag to a Modeline from:
+;;   buffer/file menu item         Display buffer/file in      Swap window buffers
+;;                                   new window by release
+;;   buffer/file menu 1st line     Move buffer/file menu to    Swap window buffers
+;;                                   new window by release
+;;   anywhere else                 Display buffer in           Swap window buffers
+;;                                   new window by release
+;;
 ;; Drag between windows from:
 ;;   buffer/file menu item         Display buffer/file in      Swap window buffers
 ;;                                   window of button release
@@ -186,6 +194,10 @@ drag release window.")
 		;;   ((and (hmouse-modeline-depress) (hmouse-drag-between-frames)) .
 		;;    ((hmouse-clone-window-to-frame) . (hmouse-move-window-to-frame)))
 		;;
+		;; Drag with release on a Modeline
+		((and (hmouse-modeline-release) (not (hmouse-modeline-click))) .
+		 ((or (hmouse-drag-item-to-display t) (hmouse-buffer-to-window t)) .
+		  (hmouse-swap-buffers)))
 		;; Non-vertical Modeline drag between windows
 		((and (hmouse-modeline-depress) (hmouse-drag-between-windows)
 		      (not (hmouse-drag-vertically-within-emacs))) .
@@ -456,19 +468,28 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
 	    assist-key-release-window
 	  action-key-release-window)))
 
-(defun hmouse-drag-item-to-display ()
-  "Depress on a buffer name in Buffer-menu/ibuffer mode or on a file/directory in dired mode and release in another window in which to display the item.
-If depress is on an item and release is outside Emacs, the item is displayed in a new frame.
-Return t unless source buffer is not one of these modes or point is not on an item, then nil.
+(defun hmouse-drag-item-to-display (&optional new-window)
+  "Depress on a buffer name in Buffer-menu/ibuffer mode or on a file/directory in dired mode and release where the item is to be displayed.
 
-See `hmouse-drag-item-mode-forms' for how to allow for draggable items in other modes."
+If depress is on an item and release is outside of Emacs, the
+item is displayed in a new frame with a single window.  If the
+release is inside Emacs and the optional NEW-WINDOW is non-nil,
+the release window is sensibly split before the buffer is
+displayed.  Otherwise, the buffer is simply displayed in the
+release window.
+
+Return t unless source buffer is not one of these modes or point is
+not on an item, then nil.
+
+See `hmouse-drag-item-mode-forms' for how to allow for draggable
+items in other modes."
   (let* ((buf (and action-key-depress-window (window-buffer action-key-depress-window)))
 	 (mode (and buf (cdr (assq 'major-mode (buffer-local-variables buf))))))
     (when (and buf (with-current-buffer buf
 		     ;; Point must be on an item, not after one
 		     (not (looking-at "\\s-*$")))
 	       (memq mode (mapcar #'car hmouse-drag-item-mode-forms)))
-      (hmouse-item-to-window)
+      (hmouse-item-to-window new-window)
       t)))
 
 (defun hmouse-drag-diagonally ()
@@ -691,8 +712,16 @@ Ignores minibuffer window."
 ;;; Private functions
 ;;; ************************************************************************
 
-(defun hmouse-buffer-to-window ()
-  "Invoked via drag, replace the buffer in the Action Key release window with the buffer from the Action Key depress window."
+(defun hmouse-split-window ()
+  "Split selected window sensibly."
+  (split-window-sensibly))
+
+(defun hmouse-buffer-to-window (&optional new-window)
+  "Invoked via drag, replace the buffer in the Action Key release window with the buffer from the Action Key depress window.
+With optional boolean NEW-WINDOW non-nil, sensibly split the release window before replacing the buffer."
+  (when new-window
+    (with-selected-window action-key-release-window
+      (hmouse-split-window)))
   (set-window-buffer action-key-release-window (window-buffer action-key-depress-window)))
 
 (defun hmouse-drag-not-allowed ()
@@ -763,13 +792,18 @@ Ignores minibuffer window."
     (recenter)
     (pulse-momentary-highlight-one-line (point) 'next-error)))
 
-(defun hmouse-item-to-window ()
-  "Displays buffer or file menu item at Action Key depress at the location of Action Key release.
-Release location may be an Emacs window or outside of Emacs in which case a new frame with a
-single window is created to display the item.
+(defun hmouse-item-to-window (&optional new-window)
+  "Display buffer or file menu item of Action Key depress at the location of Action Key release.
 
-If depress is on the top fixed header line or to the right of any item, this moves the menu
-buffer itself to the release location."
+Release location may be an Emacs window or outside of Emacs, in
+which case a new frame with a single window is created to display
+the item.  If the release is inside Emacs and the optional
+NEW-WINDOW is non-nil, the release window is sensibly split
+before the buffer is displayed.  Otherwise, the buffer is simply
+displayed in the release window.
+
+If depress is on the top fixed header line or to the right of any
+item, this moves the menu buffer itself to the release location."
   (let* ((w1 action-key-depress-window)
 	 ;; Release may be outside of an Emacs window in which case,
 	 ;; create a new frame and window.
@@ -789,7 +823,9 @@ buffer itself to the release location."
 		   ;; Otherwise, move the current menu item to the release window.
 		   (setq w1-ref (eval (cadr (assq major-mode hmouse-drag-item-mode-forms))))
 		   (when w1-ref (hmouse-pulse-line) (sit-for 0.05))))
-	(select-window w2)))
+	(select-window w2)
+	(when (and new-window action-key-release-window)
+	  (hmouse-split-window))))
     (unwind-protect
 	(cond ((not w1-ref)
 	       (if (not (window-live-p w1))
@@ -872,14 +908,14 @@ If the Assist Key is:
 	  (t (hmouse-modeline-resize-window)))))
 
 (defun hmouse-modeline-click ()
-  "Returns non-nil if last Smart Key depress and release was at a single point in a modeline."
-  ;; Assume depress was in modeline and that any drag has already been handled.
-  ;; So just check that release was in modeline.
-  (hmouse-modeline-release))
+  "Returns non-nil if last Smart Key depress and release were at a single point in a modeline."
+  (and (hmouse-modeline-release) (hmouse-modeline-depress)
+       (equal (if assist-flag assist-key-depress-position action-key-depress-position)
+	      (if assist-flag assist-key-release-position action-key-release-position))))
 
 (defun hmouse-emacs-modeline-event-p (event)
   "GNU Emacs: Returns non-nil if EVENT happened on a window mode line."
-  (eq (posn-area (event-start event)) 'mode-line))
+  (and (eventp event) (eq (posn-area (event-start event)) 'mode-line)))
 
 (defun hmouse-modeline-event-p (args)
   "Returns non-nil if event ARGS happened on a window mode line."
@@ -888,7 +924,8 @@ If the Assist Key is:
 	       (not (markerp args)))
       (cond
        ;; Modern GNU Emacs
-       ((hmouse-emacs-modeline-event-p args))
+       ((fboundp 'posn-area)
+	(hmouse-emacs-modeline-event-p args))
        ;; XEmacs
        ((fboundp 'event-over-modeline-p)
 	(event-over-modeline-p args))
@@ -1104,11 +1141,14 @@ of the Smart Key."
 	 (w1-buf (and w1 (window-buffer w1)))
 	 (w2-buf (and w2 (window-buffer w2)))
 	 )
-    (or (and w1 w2)
-	(error "(hmouse-swap-buffers): Last depress or release was not within a window."))
-    ;; Swap window buffers.
-    (set-window-buffer w1 w2-buf)
-    (set-window-buffer w2 w1-buf)))
+    (cond ((not (and w1 w2))
+	   (error "(hmouse-swap-buffers): Last depress or release was not within a window."))
+	  ((eq w1 w2)
+	   ;; Do nothing silently.
+	   )
+	  (t ;; Swap window buffers.
+	   (set-window-buffer w1 w2-buf)
+	   (set-window-buffer w2 w1-buf)))))
 
 (defun hmouse-swap-windows ()
   "Swaps the sizes of 2 windows selected with the last Smart Key depress and release."

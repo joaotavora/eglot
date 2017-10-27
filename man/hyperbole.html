@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 6.0.2f, Published October 25, 2017).
+(Edition 6.0.2f, Published October 27, 2017).
 
 Copyright (C) 1989-2017  Free Software Foundation, Inc.
 
@@ -61,6 +61,7 @@ span.sansserif {font-family: sans-serif; font-weight: normal}
 ul.no-bullet {list-style: none}
 -->
 </style>
+<link rel="stylesheet" type="text/css" href="hyperbole.css">
 
 
 </head>
@@ -325,7 +326,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2f
-Printed October 26, 2017.
+Printed October 27, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -976,13 +977,10 @@ Hyperbole, see <a href="#Setup">Setup</a>, for Hyperbole installation and config
 information.  The demo offers a much less technical introduction to
 Hyperbole by supplying good examples of use.
 </p>
-<div class="example">
 <div class="float"><a name="image_003aDemo"></a>
-<pre class="example">
 
 <img src="im/demo.png" alt="Hyperbole Minibuffer Menu and Demonstration Screenshot">
-</pre><div class="float-caption"><p><strong>Image 1.1: </strong>Hyperbole Minibuffer Menu and Demonstration Screenshot</p></div></div></div>
-<br>
+<div class="float-caption"><p><strong>Image 1.1: </strong>Hyperbole Minibuffer Menu and Demonstration Screenshot</p></div></div><br>
 
 <a name="index-GNU-Emacs"></a>
 <a name="index-C_002dh-t"></a>
@@ -1233,9 +1231,10 @@ and notice that the Smart Keys do just a few context-sensitive things
 per editor mode, you will find it easy to just press or point and
 click and let Hyperbole do the right thing in each context.
 </p>
+
 <div class="format">
-<div class="smallexample">
-<pre class="smallexample">========================================================================================
+<div class="example">
+<pre class="example">========================================================================================
                                               Smart Keys
 Context                         Action Key                 Assist Key
 ========================================================================================
@@ -1272,6 +1271,14 @@ Mouse-only Control
 
   Other Modeline drag to        Replaces dest. buffer      Swaps window buffers
     another window                with source buffer
+
+  Drag to a Modeline from:
+    buffer/file menu item       Displays buffer/file in    Swaps window buffers
+                                  new window by release
+    buffer/file menu 1st line   Moves buffer/file menu to  Swaps window buffers
+                                  new window by release
+    anywhere else               Displays buffer in         Swaps window buffers
+                                  new window by release
 
   Drag between windows from:
     buffer/file menu item       Displays buffer/file in    Swaps window buffers
@@ -3299,13 +3306,10 @@ get rid of the menu if you do not need it.  Invoking Hyperbole from
 the keyboard, as explained below, will add the menu back to the
 menubar.
 </p>
-<div class="example">
 <div class="float"><a name="image_003aHyperbole-Menu"></a>
-<pre class="example">
 
 <img src="im/menu-hyperbole.png" alt="Hyperbole Menu">
-</pre><div class="float-caption"><p><strong>Image 4.1: </strong>Hyperbole Menubar Menu</p></div></div></div>
-<br>
+<div class="float-caption"><p><strong>Image 4.1: </strong>Hyperbole Menubar Menu</p></div></div><br>
 
 <a name="index-minibuffer-menus"></a>
 <p>The rest of this section discusses only the
@@ -4123,13 +4127,10 @@ when you invoke this command.
 <p>See <a href="#Koutliner-Keys">Koutliner Keys</a>, for a full summary of the key bindings and
 commands available in the Koutliner.
 </p>
-<div class="example">
 <div class="float"><a name="image_003aKoutliner"></a>
-<pre class="example">
 
 <img src="im/koutliner.png" alt="Koutliner Screenshot">
-</pre><div class="float-caption"><p><strong>Image 6.1: </strong>Koutliner Screenshot</p></div></div></div>
-<br>
+<div class="float-caption"><p><strong>Image 6.1: </strong>Koutliner Screenshot</p></div></div><br>
 
 <table class="menu" border="0" cellspacing="0">
 <tr><td align="left" valign="top">&bull; <a href="#Menu-Commands" accesskey="1">Menu Commands</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
@@ -4202,13 +4203,10 @@ Vspec        kvspec:activate            Set a view specification
 page, offers a more complete set of the Koutliner commands.  Experiment
 with the menu or read the following sections explaining commands.
 </p>
-<div class="example">
 <div class="float"><a name="image_003aKoutline-Menu"></a>
-<pre class="example">
 
 <img src="im/menu-koutline.png" alt="Koutline Menu">
-</pre><div class="float-caption"><p><strong>Image 6.2: </strong>Koutline Menu</p></div></div></div>
-<br>
+<div class="float-caption"><p><strong>Image 6.2: </strong>Koutline Menu</p></div></div><br>
 
 <hr>
 <a name="Creating-Outlines"></a>
@@ -5427,13 +5425,10 @@ Next: <a href="#HyRolo-Searching" accesskey="n" rel="next">HyRolo Searching</a>,
 for searching and maintaining a personal address book.  It looks like
 so.
 </p>
-<div class="example">
 <div class="float"><a name="image_003aRolo-Menu"></a>
-<pre class="example">
 
 <img src="im/menu-rolo.png" alt="HyRolo Menu">
-</pre><div class="float-caption"><p><strong>Image 7.1: </strong>HyRolo Menu</p></div></div></div>
-
+<div class="float-caption"><p><strong>Image 7.1: </strong>HyRolo Menu</p></div></div>
 <a name="index-rolo-menu"></a>
 <a name="index-HyRolo-menu"></a>
 <p>The Rolo/ menu entry on the Hyperbole minibuffer menu provides the same
@@ -7251,13 +7246,10 @@ Previous: <a href="#Invocation" accesskey="p" rel="prev">Invocation</a>, Up: <a 
 <p>Major Hyperbole user options may be set from the Customize submenu
 below the Hyperbole menubar menu, as seen here.
 </p>
-<div class="example">
 <div class="float"><a name="image_003aCustomize-Menu"></a>
-<pre class="example">
 
 <img src="im/menu-customization.png" alt="Hyperbole Customize Menu">
-</pre><div class="float-caption"><p><strong>Image B.1: </strong>Hyperbole Customize Menu</p></div></div></div>
-<br>
+<div class="float-caption"><p><strong>Image B.1: </strong>Hyperbole Customize Menu</p></div></div><br>
 
 <p>Alternatively, the minibuffer-based menu, Cust/ may be used.
 </p>
@@ -8660,12 +8652,24 @@ Next: <a href="#Smart-Mouse-Drags-between-Windows" accesskey="n" rel="next">Smar
          resizing its window and potentially its vertically neighboring
          windows.
      (6) dragged other than straight vertically from a modeline to another
-         window, swap the buffers of the two windows.
+         window, swap buffers in the two windows.
      (7) dragged from a modeline to outside of Emacs, create a new frame
          sized to match the selected window with the same buffer.  If there
          is only one window in the source frame or if <code>hycontrol-keep-window-flag</code>
          is non-nil, leave the original window and just clone it into the
          new frame;otherwise, delete the original window.
+</pre></div>
+
+<div class="format">
+<pre class="format">If dragged from a window and released within a window modeline:
+  ACTION KEY
+     (1) If depress was on a buffer name in Buffer-menu/ibuffer mode or on
+         a file/directory in dired mode, splits the release window and displays
+         the item in the original release window.
+     (2) Otherwise, splits the release window and displays the depress window&rsquo;s
+         buffer in the original release window.
+  ASSIST KEY
+     Swaps buffers in the two windows.
 </pre></div>
 
 <hr>
@@ -8696,14 +8700,14 @@ Next: <a href="#Smart-Mouse-Drags-within-a-Window" accesskey="n" rel="next">Smar
 <pre class="format">Otherwise, if dragged from inside one window to another:
   ACTION KEY
      (1) If depress was on a buffer name in Buffer-menu/ibuffer mode or on
-         a file/directory in dired mode, display the item in window of release.
+         a file/directory in dired mode, displays the item in window of release.
          See <code>hmouse-drag-item-mode-forms</code> for how to allow for draggable
          items in other modes.
      (2) Otherwise, creates a new link button at the drag start location, linked
          to the drag end location.  If the drag start position is within a button,
          this modifies the button to link to the drag end location.
   ASSIST KEY
-     Swaps buffers in the two windows.
+     Swap buffers in the two windows.
 </pre></div>
 
 <hr>

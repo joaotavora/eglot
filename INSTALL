@@ -88,7 +88,7 @@ You can invoke Hyperbole commands in one of three ways:
 Use {C-h h d d} for an interactive demonstration of standard Hyperbole
 button capabilities.
 
-{C-h h k e} offers a interactive demonstration of the Koutliner,
+{C-h h k e} offers an interactive demonstration of the Koutliner,
 Hyperbole's multi-level autonumbered hypertextual outliner.
 
 To try out HyControl, Hyperbole's interactive frame and window control
