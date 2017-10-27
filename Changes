@@ -1,3 +1,37 @@
+2017-10-26  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Smart Mouse Drags outside a Window): Added this new section.
+    Updated manual with all new drag actions.
+
+* hui-window.el (hmouse-goto-region-point, hmouse-prior-active-region): Rewrote these to work properly so that Smart
+    Mouse yanking and killing feature works as documented.  Previously, it was not switching to the buffer of the
+    depress point when checking foran active region.
+
+* hmouse-drv.el: Updated doc.
+
+* MANIFEST (topwin): Renamed to topwin.py.
+
+* hycontrol.el (hycontrol-windows-grid): Improved doc.
+
+* hyperbole.el (hkey-initialize): Added global {C-c @} binding to hycontrol-windows-grid.
+  hui-mini.el (hui:menus): Under cust-keys, added GridOfWindows key change entry.
+  hui-menu.el (hui-menu-key-bindings): Added Grid-of-Windows-Key entry.
+  man/hyperbole.texi (Global Key Bindings): Documented this binding.
+
+* DEMO (Modeline Mouse Clicks): Added section, "Running Dired on the Current Directory".
+
+* man/hyperbole.texi (Smart Key - Image Thumbnails): Added this section.
+                     Wrapped all images with @example and removed @center so do not appear way to the left of text when
+    formatted as html.
+                     (Koutliner): Centralized all key binding index entries under "koutliner, ".
+		     (Glossary): Added Windows Grid entry.
+		     (HyControl): Added Concept Index entries.
+		     (Manual Overview): Improved pointer to DEMO.
+
+* hycontrol.el (hycontrol-windows-grid-rows-columns): Renamed to hycontrol-make-windows-grid.
+               (hycontrol--frames-prompt-format, hycontrol--windows-prompt-format): Changed FRAME: and WINDOW: prompt
+    to plural to match mode and variable names.
+
 2017-10-25  Bob Weiner  <rsw@gnu.org>
 
 * hycontrol.el: Extended initial commentary with new features and improved explanations.

@@ -60,15 +60,15 @@ Mouse-only Control
   Vertical drag in a window     Splits window side-by-side Deletes window
   Diagonal drag in a window     Saves wconfig              Restores wconfig from ring
 
-  Active region exists, click   Yanks region at release    Kills region and yanks at release
+  Active region exists, click   Yanks region at release    Kills and yanks at release
    outside of the region
 
 Hyperbole Key Press/Click in Special Modes
-  Region Active                 Yanks region at release    Kills & yanks region at release
+  Region Active                 Yanks region at release    Kills and yanks at release
   Emacs Push Button             Activates button           Button help
   Thing Begin or End            Mark thing region          Mark & kill thing region
   Page Directory Listing        Jumps to page              <- same
-  Imenu Programming Identifier  Jumps to in-buffer def     Prompts for identifier to jump to
+  Imenu Programming Identifier  Jumps to in-buffer def     Prompts for id to jump to
   C,C++,Objective-C,Java Modes  Jumps to id/include def    Jumps to next def
   Assembly Language Mode        Jumps to id/include def    Jumps to next def
   Java Cross-reference Tag      Jumps to identifier def    Jumps to next def

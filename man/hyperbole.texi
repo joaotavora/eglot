@@ -16,7 +16,7 @@
 @c Emacs documentation style settings
 @c @documentencoding UTF-8
 @c These two require Texinfo 5.0 or later, so we use the older
-@c equivalent @set variables supported in 4.11 and hence
+@c equivalent @set variables supported in 4.11 and hence.
 @ignore
 @codequotebacktick on
 @codequoteundirected on
@@ -52,7 +52,7 @@
 This manual is for GNU Hyperbole
 (Edition @value{EDITION}, Published @value{UPDATED}).
 
-Copyright @copyright{} 1989-2016  Free Software Foundation, Inc.
+Copyright @copyright{} 1989-2017  Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -139,7 +139,7 @@ Texinfo markup language.
 
 <CENTER><H2>The Everyday Hypertextual Information Manager</H2></CENTER>
 
-<P>Copyright &copy; 1989-2016  Free Software Foundation, Inc.</P>
+<P>Copyright &copy; 1989-2017  Free Software Foundation, Inc.</P>
 
 <P>GNU Hyperbole is available for use, modification, and distribution under
 the terms of the GNU General Public License (GPL) Version 3 or later,
@@ -152,7 +152,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2f
-Printed October 25, 2017.
+Printed October 26, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,11 +176,11 @@ Printed October 25, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.2f, October 25, 2017.
+@center Edition 6.0.2f, October 26, 2017.
 
 @sp 2
 @noindent
-Copyright @copyright{} 1989-2016  Free Software Foundation, Inc.
+Copyright @copyright{} 1989-2017  Free Software Foundation, Inc.
 
 GNU Hyperbole is available for use, modification, and distribution
 under the terms of the GNU General Public License (GPL) Version 3 or
@@ -199,10 +199,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   Web:       www.gnu.org/software/hyperbole
 @end example
 
+@example
 @float Image,image:Sample
 @caption{Sample Hyperbole screenshot of the Koutliner, DEMO file and HyRolo}
-@center @image{im/hyperbole-cv,6in,,Sample Hyperbole Screenshot}
+@image{im/hyperbole-cv,6in,,Sample Hyperbole Screenshot}
 @end float
+@end example
 @sp 1
 @center --------------------
 @sp 1
@@ -391,8 +393,9 @@ Smart Mouse Keys
 * Thing Selection::
 * Side-by-Side Window Resizing::
 * Modeline Clicks and Drags::
-* Smart Mouse - Drags between Windows::
-* Smart Mouse - Drags within a Window::
+* Smart Mouse Drags between Windows::
+* Smart Mouse Drags within a Window::
+* Smart Mouse Drags outside a Window::
 
 Smart Keyboard Keys
 
@@ -432,6 +435,7 @@ Smart Keyboard Keys
 * Smart Key - Man Pages::
 * Smart Key - WWW URLs::
 * Smart Key - HyRolo Match Buffers::
+* Smart Key - Image Thumbnails::
 * Smart Key - Gomoku Game::
 * Smart Key - The OO-Browser::
 * Smart Key - Default Context::
@@ -463,10 +467,17 @@ braces @kbd{@{ @}}, function and variable names use this @code{typeface}.
 @node Manual Overview, Motivation, Introduction, Introduction
 @section   Manual Overview
 
-Remember that the @file{DEMO} file included in the Hyperbole
-distribution demonstrates many of Hyperbole's standard facilities
-without the need to read through this reference manual.  It is a good
-way to rapidly understand some of what Hyperbole can do for you.
+@cindex file, DEMO
+@cindex Hyperbole demo
+@cindex demo file
+@cindex tutorial
+This is a reference manual with extensive details about Hyperbole use.  If
+you prefer a simpler, more interactive introduction to Hyperbole,
+the @file{DEMO} file included in the Hyperbole distribution demonstrates
+many of Hyperbole's standard facilities without the need to read through
+this reference manual.  It is a good way to rapidly understand some of what
+Hyperbole can do for you.  Once Hyperbole is installed, (@pxref{Setup}),
+you can access the DEMO with the key sequence @bkbd{C-h h d d}.
 
 @xref{Glossary}, for definitions of Hyperbole terms.  In some cases,
 terms are not precisely defined within the body of this manual since
@@ -576,6 +587,7 @@ intuitive mouse-based control of information display within multiple
 windows.  It also provides point-and-click access to Info manuals, ftp
 archives, and the World-Wide Web (WWW).
 
+@page
 @noindent
 Hyperbole consists of five parts:
 
@@ -643,13 +655,14 @@ Hyperbole demonstration by typing @bkbd{C-h h d d}, assuming Hyperbole
 has been installed at your site.  If you need to install
 Hyperbole, @pxref{Setup}, for Hyperbole installation and configuration
 information.  The demo offers a much less technical introduction to
-Hyperbole by supplying good examples of how buttons may be used and an
-introduction to the Koutliner.
+Hyperbole by supplying good examples of use.
 
+@example
 @float Image,image:Demo
 @caption{Hyperbole Minibuffer Menu and Demonstration Screenshot}
-@center @image{im/demo,6in,,Hyperbole Minibuffer Menu and Demonstration Screenshot}
+@image{im/demo,6in,,Hyperbole Minibuffer Menu and Demonstration Screenshot}
 @end float
+@end example
 @sp 1
 
 @cindex GNU Emacs
@@ -934,12 +947,13 @@ the @key{A} character.
 @node Smart Key Modeline Clicks, Smart Key Thing Selection, Smart Key Operations, Smart Keys
 @section   Smart Key Modeline Clicks
 
-Smart Key clicks on a window's modeline offer many powerful browsing
-features including directory editing (dired), user manual browsing, and
+Smart Mouse Key clicks on a window's modeline offer many powerful browsing
+features, including directory editing (dired), user manual browsing, and
 window, buffer and frame selection.  Generally, only Hyperbole-specific
 modeline actions are discussed herein.
 
--- Leftmost Character
+@itemize @bullet
+@item Leftmost Character
 
 @cindex bury buffer
 @cindex unbury buffer
@@ -958,7 +972,7 @@ on the Buffer Id element of modeline which cycle through previous and next
 buffers respectively.  This may be easier to use since you can click anywhere
 on the buffer identifier.
 
--- Buffer Id Element
+@item Buffer Id Element
 
 @cindex dired
 @cindex modeline, dired
@@ -968,13 +982,17 @@ on the buffer identifier.
 On the left part of the modeline is the buffer identification,
 generally the name of the buffer in use.  An Action Key click on that
 switches the window to edit the buffer's directory using dired.
-Action Key clicks on directory items display them in other windows.
-An Action Key drag from an item to another window displays the item in
-that window.  An Action Key click on the first line directory path,
-specifically on any ancestor part of the path, starts another dired
-session on the ancestor directory.  Click at the end of 
+Action Key clicks on directory items in dired display the items
+in other windows.  An Action Key drag from an item to another window
+displays the item in that window.
 
--- Large Blank Area
+An Action Key click on the first buffer line containing the current
+directory path, specifically on any ancestor part of the path (the part to
+the left of the click point), starts another dired session on the ancestor
+directory.  Click at the end of this line to end the dired session (bury
+its buffer).
+
+@item Large Blank Area
 
 @cindex buffer menu
 @cindex modeline, buffer menu
@@ -994,7 +1012,7 @@ frames by name.  Manage your windows and frames quickly with this menu
 as well.  As always with Hyperbole, just try it and you'll begin to
 wonder how you lived without it before.
 
--- Right Corner
+@item Right Corner
 
 @cindex Info browser
 @cindex modeline click and drag
@@ -1007,7 +1025,7 @@ through these manuals and follows their hyperlinked cross-references.
 A click of the Assist Key in the same location displays or hides the
 Smart Key summary, as noted earlier.
 
--- Customizable Variables
+@item Customizable Variables
 
 @vindex action-key-modeline-function
 @vindex assist-key-modeline-function
@@ -1049,6 +1067,7 @@ interactive customization interface.  Use @bkbd{M-x customize-variable
 @key{RET} assist-key-modeline-function @key{RET}}.  In the Assist
 Modeline Function text field that appears, change the value
 to @code{dired-jump}.  Then press the ``Apply and Save'' button.
+@end itemize
 
 @node Smart Key Thing Selection, Smart Key Argument Selection, Smart Key Modeline Clicks, Smart Keys
 @section   Smart Key Thing Selection
@@ -1458,7 +1477,7 @@ item, @bkbd{C-h h i a}, also activates any implicit button found at the
 current point.
 
 All of this happens transparently and is easy to use once you try it.
-The Hyperbole Smart Keys offer extensive additional context-sensitive
+The Hyperbole Smart Keys offer additional extensive context-sensitive
 point-and-click type behavior beyond implicit button types.  @xref{Smart
 Key Operations}.
 
@@ -1694,35 +1713,35 @@ handled elsewhere.
 @cindex version control
 @vindex hibtypes-git-default-project
 @item git-reference
-@example
+@format
 Displays the git entity associated with REFERENCE and optional PROJECT.
 
+@group
 REFERENCE is of the form:
     <ref-item>
     /?<project>/<ref-item>
 or  /<project>.
+@end group
 
 <ref-item> is one of these:
-
 @itemize @bullet
 @item
   one of the words: branches, commits, or tags; the associated items are listed;
-
 @item
-  one of the words: branch, commit, or tag followed by a '/' and item id; the item is shown;
-
+  one of the words: branch, commit, or tag followed by a '/' and item id; the
+  item is shown;
 @item
-  a commit reference given by a hex number, 55a1f0; the commit diff is displayed;
-
+  a commit reference given by a hex number, 55a1f0; the commit diff is
+  displayed;
 @item
   a branch or tag reference given by an alphanumeric name, e.g. hyper20; the
   files in the branch are listed.
 @end itemize
 
+@vindex hibtypes-git-default-project
 If given, PROJECT overrides any project value in REFERENCE.  If no
-PROJECT value is provided, it defaults to the value of
-@var{hibtypes-git-default-project}.
-@end example
+PROJECT value is provided, it defaults to the value of @code{hibtypes-git-default-project}.
+@end format
 
 @findex ibtypes git-commit-reference
 @cindex git commit reference
@@ -1736,42 +1755,42 @@ Displays the diff for a git commit reference, e.g. commit a55e21, typically prod
 @vindex hibtypes-github-default-project
 @vindex hibtypes-github-default-user
 @item github-reference
-@example
-Displays the Github entity associated with REFERENCE and optional USER and PROJECT.
+@format
+Displays the Github entity associated with REFERENCE and optional USER and
+PROJECT.
 
+@group
 REFERENCE is a string of the form:
     <ref-item>
     <user>/<project>/<ref-item>
     <project>/<ref-item>
 or  /<project>.
+@end group
 
 <ref-item> is one of these:
-
 @itemize @bullet
 @item
-  one of the words: branches, commits, issues, pulls, or tags; the associated items are listed;
-
+ one of the words: branches, commits, issues, pulls, or tags; the associated items are listed;
 @item
   one of the words: branch, commit, issue, pull or tag followed by a '/' and
   item id; the item is shown;
-
 @item
-  an issue reference given by a positive integer, e.g. 92 or prefaced with GH-, e.g. GH-92;
-  the issue is displayed;
-
+  an issue reference given by a positive integer, e.g. @emph{92} or prefaced with @emph{GH-}, 
+  like GH-92; the issue is displayed;
 @item
-  a commit reference given by a hex number, 55a1f0; the commit diff is displayed;
-
+  a commit reference given by a hex number, 55a1f0; the commit diff is
+  displayed;
 @item
   a branch or tag reference given by an alphanumeric name, e.g. hyper20; the
   files in the branch are listed.
 @end itemize
 
-USER defaults to the value of @var{hibtypes-github-default-user}.
+@vindex hibtypes-github-default-user
+USER defaults to the value of @code{hibtypes-github-default-user}.
 If given, PROJECT overrides any project value in REFERENCE.  If no
 PROJECT value is provided, it defaults to the value of
-@var{hibtypes-github-default-project}.
-@end example
+@code{hibtypes-github-default-project}.
+@end format
 
 @findex ibtypes social-reference
 @cindex hashtag
@@ -1783,10 +1802,10 @@ PROJECT value is provided, it defaults to the value of
 Displays the web page associated with a social media hashtag or username
 reference at point.  Reference format is:
 
-@smallexample
+@example
 [facebook|instagram|twitter]?[#@@]<hashtag-or-username> or
 [fb|in|tw]?[#@@]<hashtag-or-username>
-@end smallexample
+@end example
 
 @noindent
 For example, @samp{fb@@someuser} displays the home page for facebook user
@@ -2163,10 +2182,9 @@ and the @code{browse-url} package to display search results.
 @findex actypes man-show
 @vindex sm-notify
 @item man-show
-Displays a man page on TOPIC, which may be of the form
-@samp{<command>(<section>}).  If using the Superman manual entry
-package, see the documentation for @code{sm-notify} to control where the
-man page is displayed.
+Displays a man page on TOPIC, which may be of the form @samp{<command>(<section>}).
+If using the Superman manual entry package, see the documentation for @code{sm-notify}
+to control where the man page is displayed.
 
 @findex actypes rfc-toc
 @item rfc-toc
@@ -2561,11 +2579,11 @@ comment line added to your outgoing message, add the following to
 to your @file{~/.emacs} file before the point at which you load
 Hyperbole.
 
-@smalllisp
+@lisp
 (setq smail:comment
  (format "Comments: GNU Hyperbole mail buttons accepted, v%s.\n"
           hyperb:version))
-@end smalllisp
+@end lisp
 
 @noindent
 This will produce the following line in outgoing messages:
@@ -2647,10 +2665,12 @@ get rid of the menu if you do not need it.  Invoking Hyperbole from
 the keyboard, as explained below, will add the menu back to the
 menubar.
 
+@example
 @float Image,image:Hyperbole Menu
 @caption{Hyperbole Menubar Menu}
-@center @image{im/menu-hyperbole,,5in,Hyperbole Menu}
+@image{im/menu-hyperbole,,5in,Hyperbole Menu}
 @end float
+@end example
 @sp 1
 
 @cindex minibuffer menus
@@ -2962,6 +2982,7 @@ and frame submodes.
 
 @table @asis
 
+@cindex HyControl help
 @kindex HyControl, see screen
 @kindex screen, ?
 @kitem ?
@@ -2976,29 +2997,36 @@ Clear the prefix argument to a value of 0.
 @kitem 0-9
 Multiply the prefix argument by 10 and add the digit pressed.
 
+@cindex windows grid
+@cindex grid of windows
+@cindex HyControl windows grid
 @kindex screen, @@
 @kitem @@
-Create a grid of windows in the selected frame according to the
-prefix argument.
+
+Display a @dfn{grid of windows} in the selected frame sized according to
+the prefix argument or via a prompted input.  Left digit of the argument is
+the number of grid rows and the right digit is the number of grid columns
+to display.
 
 If the prefix argument is 0, prompt for a major mode whose buffers
-should be displayed first in the windows of the selected frame and
-then for the number of rows and columns of windows to display in the
-grid.  Otherwise, split the selected frame into the number of rows
-given by the left digit of the argument and the number of columns
-given by the right digit.
+should be displayed first in the grid windows, then prompt for the grid size.
+
+Otherwise, prompt for the grid size if the prefix argument is an invalid
+size.
 
 @vindex hycontrol-display-buffer-predicate-list
 With a current buffer in Dired, Buffer Menu or IBuffer mode that
 contains marked items, the buffers associated with those items are
-displayed first in the grid.  Then the most recently used buffers are
-displayed in each window, first selecting only those buffers which
-match any of the predicate expressions in
-@var{hycontrol-display-buffer-predicate-list}.  (The default predicate
-list chooses buffers with attached files).  Then, if there are not
-enough buffers for all windows, the buffers that failed to match to
-any predicate are used. In all cases, buffers whose names start with a
-space are ignored.
+displayed first in the grid (unless the prefix argument is 0).
+
+Then the most recently used buffers are displayed in each window, first
+selecting only those buffers which match any of the predicate expressions
+in @code{hycontrol-display-buffer-predicate-list}.  (The default predicate
+list chooses buffers with attached files).
+
+Then, if there are not enough buffers for all windows, the buffers that
+failed to match to any predicate are used. In all cases, buffers whose
+names start with a space are ignored.
 
 When done, this resets the persistent prefix argument to 1 to prevent
 following commands from using the often large grid size argument.
@@ -3008,12 +3036,13 @@ If you ever need to experiment with different sized window grids, use
 repeatedly prompt you for a grid size and then display it.  When you
 are done, simply press @bkbd{@key{RET}} to exit.
 
+@cindex frame resize
 @vindex hycontrol-frame-widths
 @kindex screen, a
 @kitem a
 Cycle through common width adjustments of a frame, such as 25% and
 50%. Widths are given in screen percentages by the list
-@var{hycontrol-frame-widths} and typically go from widest to
+@code{hycontrol-frame-widths} and typically go from widest to
 narrowest.
 
 @vindex hycontrol-frame-heights
@@ -3021,7 +3050,7 @@ narrowest.
 @kitem A
 Cycle through common height adjustments of a frame, such as 33.3% and
 75%.  Heights are given in screen percentages by the list
-@var{hycontrol-frame-heights} and typically go from tallest to shortest.
+@code{hycontrol-frame-heights} and typically go from tallest to shortest.
 
 @kindex screen, h
 @kitem h
@@ -3065,6 +3094,7 @@ screen size.
 @kitemx right
 Move frame in the specified direction by argument pixels.
 
+@cindex frame relocate
 @kindex screen, c
 @kitem c
 With each press, cycle the selected frame's position clockwise through
@@ -3072,6 +3102,8 @@ the middle of edges and corners of the screen.  With an argument of 0,
 reset the cycle position to the upper left corner.  Respects the pixel
 edge offsets returned by @code{hycontrol-get-screen-offsets}.
 
+@cindex delete frame
+@cindex frame, delete
 @kindex screen, d
 @kitem d
 Delete selected window or frame based on mode.
@@ -3080,10 +3112,16 @@ Delete selected window or frame based on mode.
 Prompt for confirmation and then delete non-selected windows or frames
 based on mode.
 
+@cindex frame, lower
+@cindex lower frame
 @kindex screen, l
 @kitem l
 In FRAMES mode, lower the selected frame below all other Emacs session frames.
 
+@cindex frame, other
+@cindex other frame
+@cindex other window
+@cindex window, other
 @kindex screen, o
 @kitem o
 Select the next window in the window list, across all visible frames.
@@ -3091,6 +3129,8 @@ Select the next window in the window list, across all visible frames.
 @kitem O
 Select the next visible frame.
 
+@cindex keypad
+@cindex numeric keypad
 @kindex screen, keypad number
 @kitem keypad number
 In FRAMES mode, move the frame directly to the screen edge position given
@@ -3099,15 +3139,20 @@ bottom right corner and 8 moves it to the middle of the top edge.
 Keypad numeric keys do not adjust the argument.  Respects the pixel edge
 offsets returned by @code{hycontrol-get-screen-offsets}.
 
+@cindex virtual numeric keypad
 @kindex screen, p
 @kitem p
 Display a virtual numeric keypad for emulating a keypad on keyboards without one.
 Each digit key operates just as a numeric keypad key would.
 
+@cindex frame, raise
+@cindex raise frame
 @kindex screen, r
 @kitem r
 In FRAMES mode, raise the selected frame above all other Emacs session frames.
 
+@cindex window, make
+@cindex make window
 @vindex hycontrol-frame-offset
 @kindex screen, [
 @kitem [
@@ -3119,6 +3164,8 @@ selected frame by the pixel amounts given by
 @kitem ]
 Create a new sideways window or frame depending on mode.
 
+@cindex frame configuration
+@cindex window configuration
 @kindex screen, (
 @kitem (
 Save the current window or frame configuration based on mode.  Whenever,
@@ -3130,6 +3177,8 @@ configuration and wish to save it temporarily.
 After confirmation, restore the last saved window or frame configuration
 based on mode.
 
+@cindex window, clone
+@cindex clone window
 @vindex hycontrol-keep-window-flag
 @kindex screen, f
 @kitem f
@@ -3138,8 +3187,11 @@ Clone the selected window to a new similarly sized frame.
 @kitem F
 Clone the selected window to a new similarly sized frame.  Delete the
 original window unless there is only one window in the source frame or
-if @var{hycontrol-keep-window-flag} is non-nil.
+if @code{hycontrol-keep-window-flag} is non-nil.
 
+@cindex frame, to edge
+@cindex frame, percentage resize
+@cindex resize frame percentage
 @kindex screen, i
 @kindex screen, j
 @kindex screen, k
@@ -3155,12 +3207,18 @@ of the screen (50% by default if ARG is 1 or nil) but keep it at the screen
 edge.  Respects the pixel edge offsets returned by
 @code{hycontrol-get-screen-offsets}.
 
+@cindex balance windows
+@cindex windows, balance
+@cindex equalize windows
+@cindex windows, equalize
 @kindex screen, =
 @kitem =
 After confirmation, in WINDOWS mode, make the current frame's windows
 approximately the same size.  In FRAMES mode, make all visible frames
 the size of the selected frame.
 
+@cindex shrink window
+@cindex window, shrink
 @kindex screen, -
 @kitem -
 In WINDOWS mode, shrink window to its smallest possible number of lines
@@ -3168,16 +3226,25 @@ to display the entire buffer, if possible.  Otherwise or if the window
 is already displaying all of its lines, shrink it to about one line,
 if possible.
 
+@cindex frame, shrink
+@cindex shrink frame
 In FRAMES mode, make the frame as small as possible while still
 displaying it.
 
+@cindex window, maximize
+@cindex maximize window
+@cindex frame, maximize
+@cindex maximize frame
 @kindex screen, +
 @kitem +
-Make the window or frame (based on mode) as large as possible.  In FRAMES mode, a second press of this key restores its size to whatever it was
-prior to the first use of this command.
+Make the window or frame (based on mode) as large as possible.  In FRAMES
+mode, a second press of this key restores its size to whatever it was prior
+to the first use of this command.
 
 @cindex burying
 @cindex unburying
+@cindex buffer, bury
+@cindex buffer, unbury
 @kindex screen, b
 @kitem b
 Bury the selected buffer within the buffer list, displaying the next
@@ -3188,14 +3255,19 @@ Unbury the bottom buffer in the buffer list and display it in the
 selected window.
 
 @cindex swapping
+@cindex buffer, swapping
 @kindex screen, ~
 @kitem ~
 Swap two buffers between the selected window or frame and one other.
 In WINDOWS mode, there must be precisely two windows in the selected
 frame.  In FRAMES mode, the second frame must have a single window.
 
-@findex zoom-frm.el
 @cindex zooming
+@cindex window, zoom
+@cindex zoom window
+@cindex frame, zoom
+@cindex zoom frame
+@findex zoom-frm.el
 @kindex screen, Z
 @kitem Z
 Zoom in selected window or frame text based on mode, increasing default
@@ -3208,12 +3280,19 @@ value sets the argument to 1).  The argument determines the number of
 sizes by which to zoom.
 
 FRAMES mode zooming requires the separately available
-@file{zoom-frm.el} library.  WINDOW zooming works without this library.
+@file{zoom-frm.el} library.  WINDOWS zooming works without this library.
 
+@cindex HyControl switch modes
+@cindex HyControl toggle modes
+@cindex toggle HyControl mode
 @kindex screen, t
 @kitem t
-Toggle between WINDOW and FRAME submodes.
+Toggle between WINDOWS and FRAMES submodes.
 
+@cindex HyControl quit
+@cindex HyControl exit
+@cindex quit HyControl
+@cindex exit HyControl
 @kindex screen, q
 @kitem q
 Quit from HyControl mode and restore normal key bindings.
@@ -3224,14 +3303,18 @@ The rest of this section goes into some technicalities about HyControl
 settings.  You may ignore it if you are not familiar with Emacs
 variables and functions or with customized Emacs.
 
+@cindex HyControl edge placement
+@cindex HyControl corner placement
+HyControl allows placement of frames at screen edges and corners with the
+frame cycle command, @bkbd{c}, and direct placement using the layout of the
+numeric keypad keys, if available, or the @kbd{p} virtual keypad key
+otherwise.  (Note that a screen may span multiple physical monitors).
+
+@cindex HyControl screen edge offsets
+@cindex screen, edge offsets
 @vindex hycontrol-screen-offset-alist
 @findex hycontrol-set-screen-offsets
 @findex hycontrol-get-screen-offsets
-HyControl allows placement of frames at screen edges and corners. with
-the frame cycle command, @bkbd{c}, and direct placement matching the
-layout of the numeric keypad keys, if available, or the @kbd{p} key
-otherwise.  (Note that a screen may span multiple physical monitors).
-
 To prevent widgets and toolbars at the corners of the screen from
 being obscured, HyControl can offset each frame from each screen edge
 by a fixed number of pixels.  These offsets are specified by the
@@ -3243,8 +3326,8 @@ in clockwise order starting from the top edge.  Both functions display a
 minibuffer message with the current offsets when called interactively.
 
 @vindex hycontrol-frame-offset
-@cindex creating frames
-@cindex frame creation
+@cindex frame, make
+@cindex make frame
 When HyControl creates a new frame, it automatically sizes it to the
 same size as the previously selected frame and offsets it from that
 frame by the (X . Y) number of pixels given in the variable,
@@ -3262,6 +3345,7 @@ HyControl minor mode invocation commands to keys, they are,
 @code{hycontrol-enable-windows-mode} and @code{hycontrol-enable-frames-mode}.
 Generally, you need only one of these bound to a key since when you
 press that key, the other command can be reached by pressing @bkbd{t}.
+
 
 @node Koutliner, HyRolo, HyControl, Top
 @chapter Koutliner
@@ -3296,15 +3380,15 @@ editing and motion commands with this file since a personal copy is made
 when you invoke this command.
 
 @xref{Koutliner Keys}, for a full summary of the key bindings and
-commands available in the outliner.
+commands available in the Koutliner.
 
-@page
+@example
 @float Image,image:Koutliner
 @caption{Koutliner Screenshot}
-@center @image{im/koutliner,6in,,Koutliner Screenshot}
+@image{im/koutliner,6in,,Koutliner Screenshot}
 @end float
+@end example
 @sp 1
-
 
 @menu
 * Menu Commands::
@@ -3319,6 +3403,7 @@ commands available in the outliner.
 @end menu
 
 
+@page
 @node Menu Commands, Creating Outlines, Koutliner, Koutliner
 @section   Menu Commands
 
@@ -3362,10 +3447,13 @@ The popup and menubar Koutline menu, as displayed on the following
 page, offers a more complete set of the Koutliner commands.  Experiment
 with the menu or read the following sections explaining commands.
 
+@page
+@example
 @float Image,image:Koutline Menu
 @caption{Koutline Menu}
-@center @image{im/menu-koutline,,6in,Koutline Menu}
+@image{im/menu-koutline,,6in,Koutline Menu}
 @end float
+@end example
 @sp 1
 
 @node Creating Outlines, Autonumbering, Menu Commands, Koutliner
@@ -3438,7 +3526,7 @@ to read aloud than equivalent legal ones.  They also simplify
 distinguishing between even and odd level labels because of the
 alternating character set.
 
-@kindex C-c C-l
+@kindex koutliner, C-c C-l
 @cindex label type, changing
 You can change the labeling scheme used in a particular outline with
 the command @bkbd{C-c C-l}.  A @bkbd{?} will show all of the
@@ -3448,8 +3536,8 @@ permanent idstamps (permanent cell ids) are all available.
 @cindex label separator, changing
 @cindex cell, label separator
 @cindex outline, label separator
-@kindex C-c M-l
-@kindex C-u C-c M-l
+@kindex koutliner, C-c M-l
+@kindex koutliner, C-u C-c M-l
 A cell label is normally followed by a period and a space, called the
 @dfn{label separator}, prior to the start of the cell contents.  You can
 change the separator for the current outline with @bkbd{C-c M-l}.
@@ -3467,9 +3555,9 @@ initialization file, @file{~/.emacs}, substituting for `your-separator':
 
 @cindex label separator, default
 @vindex kview:default-label-separator
-@smalllisp
+@lisp
 (setq kview:default-label-separator "your-separator")
-@end smalllisp
+@end lisp
 
 
 @node Idstamps, Editing, Autonumbering, Koutliner
@@ -3534,10 +3622,10 @@ selected region, since that will destroy the outline structure.
 @node Adding and Killing, Relocating and Copying, Editing, Editing
 @subsection  Adding and Killing
 
-@kindex C-j
-@kindex C-u c-j
-@kindex C-c a
-@kindex C-c p
+@kindex koutliner, C-j
+@kindex koutliner, C-u c-j
+@kindex koutliner, C-c a
+@kindex koutliner, C-c p
 @cindex cell, adding
 @cindex cell, creating
 @bkbd{C-j} adds a new cell as a successor sibling of the
@@ -3548,10 +3636,10 @@ handled specially.  It adds a single cell as a child of the current cell.
 @bkbd{C-c a} does the same thing.  @bkbd{C-c p} adds the cell as
 the successor of the current cell's parent.
 
-@kindex C-c C-k
-@kindex C-c k
-@kindex C-u C-c k
-@kindex C-y
+@kindex koutliner, C-c C-k
+@kindex koutliner, C-c k
+@kindex koutliner, C-u C-c k
+@kindex koutliner, C-y
 @cindex cell, killing
 @cindex cell, yanking contents
 @cindex tree, killing
@@ -3576,8 +3664,8 @@ child of the cell which precedes it in the outline.  @dfn{Promotion} is
 the inverse operation.  Note that trees (cells and their entire
 substructure) are promoted and demoted, not individual cells.
 
-@kindex @key{TAB}
-@kindex M-@key{TAB}
+@kindex koutliner, @key{TAB}
+@kindex koutliner, M-@key{TAB}
 Trees may be demoted or promoted by pressing @key{TAB} or
 @bkbd{M-@key{TAB}} (or @bkbd{@key{SHIFT}-@key{TAB}}) respectively, as in
 most outliners today.  @bkbd{M-0 @key{TAB}} and @bkbd{M-0 M-@key{TAB}}
@@ -3589,7 +3677,7 @@ outline may not support movement of the tree by the number of levels
 requested, however, in which case the maximal possible adjustment is
 made.
 
-@kindex M-1 @key{TAB}
+@kindex koutliner, M-1 @key{TAB}
 @cindex inserting tabs
 @cindex tabs, inserting
 @vindex kotl-mode:indent-tabs-mode
@@ -3607,7 +3695,7 @@ Use @bkbd{M-1 @key{TAB}} to toggle the @key{TAB} and
 @cindex tree, copying
 @cindex tree, moving
 @cindex Action Key, cell argument
-@kindex Action Key, cell argument
+@kindex koutliner, Action Key, cell argument
 For maximum flexibility in rearranging outlines, there are commands that
 move or copy entire trees.  Each of these commands prompts for the label
 of the root cell to move or copy and for a second cell which specifies
@@ -3731,12 +3819,12 @@ paragraphs.
 @cindex paragraph, filling
 @cindex tree, filling
 @cindex margin
-@kindex M-q
-@kindex M-j
-@kindex C-c M-q
-@kindex C-c M-j
-@kindex C-M-q
-@kindex C-M-j
+@kindex koutliner, M-q
+@kindex koutliner, M-j
+@kindex koutliner, C-c M-q
+@kindex koutliner, C-c M-j
+@kindex koutliner, C-M-q
+@kindex koutliner, C-M-j
 @bkbd{M-q} or @bkbd{M-j} refills a paragraph within a
 cell so that its lines wrap within the current margin settings.
 @bkbd{C-c M-q} or @bkbd{C-c M-j} refills all paragraphs within a
@@ -3763,7 +3851,7 @@ The Koutliner move and copy commands rearrange entire trees.  The
 following two commands, in contrast, exchange the locations of two
 individual cells.
 
-@kindex C-c e
+@kindex koutliner, C-c e
 @cindex cell, transposing
 @cindex cell, exchanging
 @cindex exchanging cells
@@ -3771,13 +3859,13 @@ individual cells.
 @bkbd{C-c e} prompts for two cell addresses and exchanges the cell
 locations.
 
-@kindex C-c t
+@kindex koutliner, C-c t
 @bkbd{C-c t} does not prompt.  It exchanges the current
 and immediatly prior cell, regardless of their levels.  If there is no
 prior cell it exchanges the current and next cell.
 
 @cindex cell, mark and point
-@kindex M-0 C-c t
+@kindex koutliner, M-0 C-c t
 @bkbd{M-0 C-c t} exchanges the cells in which point and mark fall.
 @bkbd{C-c t} with a non-zero numeric prefix argument, N, moves
 the current tree maximally past the next N visible cells.  If there are
@@ -3789,8 +3877,8 @@ fewer visible, it makes the current cell the last cell in the outline.
 
 @cindex splitting a cell
 @cindex cell, splitting
-@kindex C-c s
-@kindex C-u C-c s
+@kindex koutliner, C-c s
+@kindex koutliner, C-u C-c s
 One cell may be split into two adjacent sibling cells with @bkbd{C-c
 s}.  This leaves the cell contents preceding point in the current
 cell, minus any trailing whitespace, and moves the contents following
@@ -3801,7 +3889,7 @@ original cell, rather than as its successor.
 All cell attributes in the original cell are propagated to the new one,
 aside from the creation attributes and idstamp.
 
-@kindex C-c +
+@kindex koutliner, C-c +
 @cindex cell, appending
 @cindex appending to a cell
 @cindex attribute, no-fill
@@ -3819,14 +3907,14 @@ This helps maintain any special formatting the appended text may have.
 @cindex outline, importing into
 @cindex importing
 @cindex insertion
-@kindex C-x i
+@kindex koutliner, C-x i
 @cindex outline, foreign file
 The paragraphs of another buffer or file may be inserted into a koutline
 as a set of cells by using the @bkbd{C-x i} command.  When prompted,
 you may use a buffer name or file name from which to insert;
 completion is provided for file names only.
 
-@kindex C-u C-x i
+@kindex koutliner, C-u C-x i
 The elements from the original buffer are converted into kcells and
 inserted as the successors of the current cell.  If @bkbd{C-u C-x i}
 is used, they are instead inserted as the initial children of the current
@@ -3952,7 +4040,7 @@ editing it.  Some of these commands affect the current view spec.
 @c @cindex cloning
 @c @cindex outline, cloning
 @c @cindex outline, multiple views
-@c @kindex C-x 4 c
+@c @kindex koutliner, C-x 4 c
 @c If you want to see multiple perspectives of the same Koutline, use
 @c @{@{C-x 4 c}@} to create a clone of any current Koutline.  Any edits
 @c made to the original buffer or the clone are shared but when you alter
@@ -4014,11 +4102,11 @@ are visible.  With a prefix arg, also toggle the display of blank lines
 between cells.
 @end table
 
-@kindex Action Key, hide or show cell
+@kindex koutliner, Action Key, hide or show cell
 @cindex Action Key, hide or show cell
 @cindex cell, collapse
 @cindex cell, expand
-@kindex M-@key{RET}
+@kindex koutliner, M-@key{RET}
 A click or a press of the Action Key within a cell's body, but not on a
 Hyperbole button, toggles between hiding and showing the tree rooted at
 point.  Try it with either your mouse or with @bkbd{M-@key{RET}}.
@@ -4052,7 +4140,7 @@ presently supported and explains how to invoke a view spec.  There is no
 user-level means of adding your own view spec characters, so all other
 character codes are reserved for future use.
 
-@kindex C-c C-v
+@kindex koutliner, C-c C-v
 @cindex view spec, setting
 @cindex view spec, changing
 @cindex changing the view spec
@@ -4069,10 +4157,10 @@ view spec is <|ben>.
 @item a
 Show all cell levels and all lines in cells.
 
-@kindex C-c b
+@kindex koutliner, C-c b
 @cindex blank lines, toggle
 @cindex view spec, blank lines
-@kindex C-c b
+@kindex koutliner, C-c b
 @cindex toggling blank lines
 @item b
 Turn on blank lines between cells.  Without this character, blank lines
@@ -4138,7 +4226,7 @@ Drags}).  A @dfn{klink} is a special implicit link button, delimited by
 <> separators, that jumps to a koutline cell.  This section discusses
 klinks.
 
-@kindex Action Key, klink
+@kindex koutliner, Action Key, klink
 @cindex Action Key, klink
 @cindex klink, activating
 @cindex klink referent
@@ -4148,7 +4236,7 @@ window.  If the klink contains a view spec, it will be applied when
 the referent is displayed.
 
 @cindex klink, inserting
-@kindex C-c l
+@kindex koutliner, C-c l
 There are a number of easy ways to insert klinks into koutlines.  If you
 have mouse support under Hyperbole, simply click the Action Key within
 the indentation to the left of a cell text.  If you then double click on
@@ -4222,10 +4310,10 @@ The e-mail address of the person who created this cell.
 @item create-time
 The time at which the cell was created.  This is stored in a form that
 allows for easy data comparisons but is displayed in a human readable
-format, such as @samp{Jan 28 18:27:59 CST 2016}.
+format, such as @samp{Jan 28 18:27:59 CST 2017}.
 @end table
 
-@kindex C-c C-i
+@kindex koutliner, C-c C-i
 @cindex attribute, adding
 @cindex attribute, modifying
 @cindex attribute, removing
@@ -4245,12 +4333,12 @@ commands from refilling the cell, even if the variable,
 you from invoking explicit commands that refill the cell.
 @xref{Filling}.
 
-@kindex Assist Key, listing attributes
+@kindex koutliner, Assist Key, listing attributes
 @cindex Assist Key, listing attributes
 @cindex listing attributes
 @cindex outline, attribute list
-@kindex C-c h
-@kindex C-u C-c h
+@kindex koutliner, C-c h
+@kindex koutliner, C-u C-c h
 The attribute lists for the cells in the tree rooted at point may be
 inspected by pressing the Assist Key within the contents of a cell.
 @bkbd{C-c h} prompts for a cell label and displays the cell's
@@ -4333,7 +4421,7 @@ automatically added by the rolo system whenever a new record is added.
 ==================================================================
 *   Smith, John       <js@@hiho.com> W708-555-2001  F708-321-1492
         Chief Ether Maintainer, HiHo Industries
-        05/24/2016
+        05/24/2017
 @end group
 @end example
 
@@ -4386,10 +4474,12 @@ The Rolo submenu of the Hyperbole menu offers a full set of commands
 for searching and maintaining a personal address book.  It looks like
 so.
 
+@example
 @float Image,image:Rolo Menu
 @caption{HyRolo Menu}
-@center @image{im/menu-rolo,,7in,HyRolo Menu}
+@image{im/menu-rolo,,7in,HyRolo Menu}
 @end float
+@end example
 @page
 
 @cindex rolo menu
@@ -5560,6 +5650,9 @@ default, this is the same as the user's personal button file.
 @item Global Button File
 See @b{Button File, personal} and @b{Global Button}.
 
+@item Grid
+See @b{Windows Grid}.
+
 @findex run-hooks
 @item Hook Variable
 A variable that permits customization of an existing function's
@@ -5592,7 +5685,8 @@ followed actually take you to the works themselves.
 @item HyRolo
 HyRolo, the Hyperbole record/contact manager, provides rapid lookup of
 multi-line, hierarchically ordered free form text records.  It can
-also lookup records from the Big Brother DataBase (BBDB) package.
+also lookup records from Google/GMail Contacts and the Big Brother
+DataBase (BBDB) package.
 
 @item Implicit Button
 A button recognized contextually by Hyperbole.  Such buttons contain no
@@ -5667,14 +5761,19 @@ See @b{Augment}.
 See @b{Link} or @b{Cell}.
 
 @item The OO-Browser
-The OO-Browser is a multi-windowed, interactive object-oriented class browser
-similar in use to the well-known Smalltalk browsers.  It runs inside Emacs.
-It is unique in a number of respects foremost of which is that it works well
-with most major object-oriented languages in use today.  You can switch from
-browsing in one language to another in a few seconds.  It provides both
-textual views within an editor and graphical views under the X window system
-and Windows.  It includes support for C, C++, Common Lisp and its Object
-System (CLOS), Eiffel, Java, Objective-C, Python and Smalltalk.
+The GNU OO-Browser is a multi-windowed, interactive object-oriented class
+browser similar in use to the well-known Smalltalk browsers.  It runs
+inside Emacs.  It is unique in a number of respects foremost of which is
+that it works well with most major object-oriented languages in use today.
+You can switch from browsing in one language to another in a few seconds.
+It provides both textual views within an editor and graphical views under
+the X window system and Windows.  It includes support for C, C++, Common
+Lisp and its Object System (CLOS), Eiffel, Java, Objective-C, Python and
+Smalltalk.
+
+Hyperbole provides the mouse support for the OO-Browser, providing Smart
+Keys that utilize the OO-Browser's capabilities both when it is displayed
+on screen and when editing code.
 
 @item Outline
 See @b{Koutline}.
@@ -5785,6 +5884,11 @@ active for a buffer, the view spec appears within the modeline like so,
 An Emacs window displays a single Emacs buffer within a single frame.
 Frames may contain many windows.
 
+@item Windows Grid
+A feature of HyControl invoked with @bkbd{@@} which creates, lays out
+and populates a grid of a specified size of new Emacs windows, e.g. 4 rows
+by 3 columns, each displaying a different buffer chosen by a set of user
+specifiable filters.
 @end table
 
 @node Setup, Global Key Bindings, Glossary, Top
@@ -5827,15 +5931,16 @@ the GNU Emacs Manual}).
 @noindent
 Below are the lines to add:
 
-@smalllisp
+@lisp
 (require 'package)
-(setq package-enable-at-startup nil) ;; Prevent double loading of libraries
+;; Prevent double loading of libraries
+(setq package-enable-at-startup nil)
 (package-initialize)
 (unless (package-installed-p 'hyperbole)
   (package-refresh-contents)	
   (package-install 'hyperbole))
 (require 'hyperbole)
-@end smalllisp
+@end lisp
 
 Now save the file and restart Emacs.  Hyperbole will then be
 downloaded and compiled for use with your version of Emacs; give it a
@@ -5928,10 +6033,12 @@ configuring Hyperbole's behavior.
 Major Hyperbole user options may be set from the Customize submenu
 below the Hyperbole menubar menu, as seen here.
 
+@example
 @float Image,image:Customize Menu
 @caption{Hyperbole Customize Menu}
-@center @image{im/menu-customization,,,Hyperbole Customize Menu}
+@image{im/menu-customization,,,Hyperbole Customize Menu}
 @end float
+@end example
 @sp 1
 
 @noindent
@@ -6240,6 +6347,19 @@ an engine is selected, prompt for a search term and perform the
 associated search.  This binding is made only if the key is not bound
 prior to loading Hyperbole; otherwise, the Find/Web minibuffer menu
 item, @bkbd{C-h h f w}, will do the same thing.
+
+@kindex C-c @@
+@cindex key binding, C-c @@
+@cindex windows grid
+@cindex grid of windows
+@kitem C-c @@
+Display a grid of windows in the selected frame, sized according to the
+prefix argument.  The left digit of the argument is the number of grid rows
+and the right digit is the number of grid columns.  The argument is
+prompted for if not given.
+
+For further details, see the @bkbd{@@} key binding description
+in @ref{HyControl}.
 
 @cindex key binding, C-c C-r
 @kitem C-c C-r
@@ -6942,8 +7062,9 @@ are searched in order.
 * Thing Selection::
 * Side-by-Side Window Resizing::
 * Modeline Clicks and Drags::
-* Smart Mouse - Drags between Windows::
-* Smart Mouse - Drags within a Window::
+* Smart Mouse Drags between Windows::
+* Smart Mouse Drags within a Window::
+* Smart Mouse Drags outside a Window::
 @end menu
 
 @node Minibuffer Menu Activation, Thing Selection, Smart Mouse Keys, Smart Mouse Keys
@@ -6967,12 +7088,11 @@ When clicked within an inactive minibuffer:
      The variable @code{action-key-minibuffer-function} controls this behavior.
   ASSIST KEY
      The buffer, window and frame jump menu is displayed for selection, by default.
-     You can jump to buffers categorized by major mode, jump to windows by
-     buffer name, or to frames by name.  Manage your windows and frames
-     quickly with this menu as well.  This is the same menu that a click
-     in a blank area of the modeline displays by default since they are
-     typically so close together.  The variable @code{assist-key-minibuffer-function}
-     controls this behavior. 
+     You can jump to buffers categorized by major mode, jump to windows by buffer
+     name, or to frames by name.  Manage your windows and frames quickly with this
+     menu as well.  This is the same menu that a click in a blank area of the
+     modeline displays by default since they are typically so close together.  The
+     variable @code{assist-key-minibuffer-function} controls this behavior.
 @end group
 @end format
 
@@ -7048,8 +7168,7 @@ a vertical scroll bar:
 @end group
 @end format
 
-@page
-@node Modeline Clicks and Drags, Smart Mouse - Drags between Windows, Side-by-Side Window Resizing, Smart Mouse Keys
+@node Modeline Clicks and Drags, Smart Mouse Drags between Windows, Side-by-Side Window Resizing, Smart Mouse Keys
 @subsection Modeline Clicks and Drags
 
 @cindex depress, modeline
@@ -7071,11 +7190,21 @@ If depressed within a window modeline:
          on the current directory, replacing the window's buffer;
          successive clicks walk up the directory tree
      (4) clicked anywhere within the middle of a window's modeline,
-         the function given by `action-key-modeline-function' is called;
+         the function given by @code{action-key-modeline-function} is
+         called;
      (5) dragged vertically from a modeline to within a window, the
          modeline is moved to the point of the drag release, thereby
          resizing its window and potentially its vertically neighboring
          windows.
+     (6) dragged other than straight vertically from a modeline to another
+         window, duplicate the modeline's window buffer to the window of
+         release.
+     (7) dragged from a modeline to outside of Emacs, create a new frame
+         sized to match the selected window with the same buffer.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) clicked on the first blank character of a window's modeline,
          the bottom buffer in the buffer list is unburied and placed in
@@ -7087,16 +7216,24 @@ If depressed within a window modeline:
      (3) clicked on the buffer id of a window's modeline, the next
          buffer in sequence is displayed in the window
      (4) clicked anywhere within the middle of a window's modeline,
-         the function given by `assist-key-modeline-function' is called;
+         the function given by @code{assist-key-modeline-function} is
+         called;
      (5) dragged vertically from a modeline to within a window, the
          modeline is moved to the point of the drag release, thereby
          resizing its window and potentially its vertically neighboring
          windows.
+     (6) dragged other than straight vertically from a modeline to another
+         window, swap the buffers of the two windows.
+     (7) dragged from a modeline to outside of Emacs, create a new frame
+         sized to match the selected window with the same buffer.  If there
+         is only one window in the source frame or if @code{hycontrol-keep-window-flag}
+         is non-nil, leave the original window and just clone it into the
+         new frame;otherwise, delete the original window.
 @end group
 @end format
 
-@node Smart Mouse - Drags between Windows, Smart Mouse - Drags within a Window, Modeline Clicks and Drags, Smart Mouse Keys
-@subsection Smart Mouse - Drags between Windows
+@node Smart Mouse Drags between Windows, Smart Mouse Drags within a Window, Modeline Clicks and Drags, Smart Mouse Keys
+@subsection Smart Mouse Drags between Windows
 
 @cindex active region
 @cindex copy and yank
@@ -7119,16 +7256,20 @@ If an active (highlighted) region exists within the editor:
 @group
 Otherwise, if dragged from inside one window to another:
   ACTION KEY
-     Creates a new link button at the drag start location, linked to the
-     drag end location.  If the drag start position is within a button,
-     this modifies the button to link to the drag end location.
+     (1) If depress was on a buffer name in Buffer-menu/ibuffer mode or on
+         a file/directory in dired mode, display the item in window of release.
+         See @code{hmouse-drag-item-mode-forms} for how to allow for draggable
+         items in other modes.
+     (2) Otherwise, creates a new link button at the drag start location, linked
+         to the drag end location.  If the drag start position is within a button,
+         this modifies the button to link to the drag end location.
   ASSIST KEY
      Swaps buffers in the two windows.
 @end group
 @end format
 
-@node Smart Mouse - Drags within a Window,  , Smart Mouse - Drags between Windows, Smart Mouse Keys
-@subsection Smart Mouse - Drags within a Window
+@node Smart Mouse Drags within a Window, Smart Mouse Drags outside a Window, Smart Mouse Drags between Windows, Smart Mouse Keys
+@subsection Smart Mouse Drags within a Window
 
 @cindex active region
 @cindex region, active
@@ -7193,7 +7334,35 @@ the minimal diagonal movements which register a drag):
 @end group
 @end format
      
-@page
+@node Smart Mouse Drags outside a Window,  , Smart Mouse Drags within a Window, Smart Mouse Keys
+@subsection Smart Mouse Drags outside a Window
+
+@vindex hmouse-drag-item-mode-forms
+@vindex hycontrol-keep-window-flag
+@cindex dragging items
+@cindex dragging outside Emacs
+@cindex window, clone
+@cindex clone window
+@cindex window, move
+@cindex move window
+@format
+@group
+If dragged from an Emacs window to outside of Emacs:
+  ACTION KEY
+     (1) If depress was on a buffer name in Buffer-menu/ibuffer mode or on
+         a file/directory in dired mode, display the item in a new frame.
+         See @code{hmouse-drag-item-mode-forms} for how to allow for draggable
+         items in other modes.
+     (2) If depress was anywhere else, create a new frame sized to match the
+         selected window with the same buffer.
+  ASSIST KEY
+     Create a new frame sized to match the selected window with the same buffer.
+     If there is only one window in the source frame or if @code{hycontrol-keep-window-flag}
+     is non-nil, leave the original window and just clone it into the new frame;
+     otherwise, delete the original window.
+@end group
+@end format
+
 @node Smart Keyboard Keys,  , Smart Mouse Keys, Smart Key Reference
 @section   Smart Keyboard Keys
 
@@ -7234,6 +7403,7 @@ the minimal diagonal movements which register a drag):
 * Smart Key - Man Pages::
 * Smart Key - WWW URLs::
 * Smart Key - HyRolo Match Buffers::
+* Smart Key - Image Thumbnails::
 * Smart Key - Gomoku Game::
 * Smart Key - The OO-Browser::
 * Smart Key - Default Context::
@@ -7328,6 +7498,10 @@ When pressed at the end of a line but not the end of a buffer:
      window line, it scrolls up (forward) a windowful.  Otherwise, it tries
      to bring the current line to the top of the window, leaving point at
      the end of the line and returning t if scrolled, nil if not.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      Calls the function given by @code{assist-key-eol-function} whose
      default value is @code{smart-scroll-down}.  This scrolls down according
@@ -7397,6 +7571,10 @@ If pressed within a dired-mode (directory editor) buffer:
              is used.
      (3) on or after the last line in the buffer or at the end of the first line,
          this dired invocation is quit.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) on a ~ character, all backup files in the directory are marked for deletion;
      (2) on a # character, all auto-save files in the directory are marked for
@@ -7496,6 +7674,10 @@ When pressed within a Hyperbole Koutliner buffer (kotl-mode):
          outline cell; press the Action Key twice on another cell to
          select the link referent cell;
      (4) anywhere else, scrolls up a windowful.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) at the end of the buffer, collapses all cells and hides all
          non-level-one cells;
@@ -7528,6 +7710,10 @@ relational databases (part of InfoDock):
         the selected attribute value are removed from the current table display;
     (5) on or after the last line in the buffer, the current database is redisplayed;
     (6) anywhere else (except the end of a line), the last command is undone."
+@end group
+@end format
+@format
+@group
   ASSIST KEY
     (1) on the name of a relation, the relation is removed from the display;
     (2) on an attribute name, the attribute column is removed from the relation
@@ -7566,6 +7752,7 @@ When pressed on a pages-directory-mode entry line:
 @end group
 @end format
 
+@page
 @node Smart Key - Identifier Menu Mode , Smart Key - C Source Code, Smart Key - Pages Directory Mode, Smart Keyboard Keys
 @subsection Smart Key - Identifier Menu Mode 
 
@@ -7614,6 +7801,7 @@ When pressed within a C source code file:
 @end group
 @end format
 
+@page
 @node Smart Key - C++ Source Code, Smart Key - Assembly Source Code, Smart Key - C Source Code, Smart Keyboard Keys
 @subsection Smart Key - C++ Source Code
 
@@ -7643,7 +7831,6 @@ buffer:
 @end group
 @end format
 
-@page
 @format
 @group
 When pressed within a C++ source code file (without the OO-Browser):
@@ -7666,6 +7853,7 @@ When pressed within a C++ source code file (without the OO-Browser):
 @end group
 @end format
 
+@page
 @node Smart Key - Assembly Source Code, Smart Key - Lisp Source Code, Smart Key - C++ Source Code, Smart Keyboard Keys
 @subsection Smart Key - Assembly Source Code
 
@@ -7941,7 +8129,6 @@ and outline-minor-mode is enabled:
 @end group
 @end format
 
-@page
 @node Smart Key - Info Manuals, Smart Key - Email Composers, Smart Key - Emacs Outline Mode, Smart Keyboard Keys
 @subsection Smart Key - Info Manuals
 
@@ -7964,6 +8151,10 @@ If pressed within an Info manual node:
          is bound);
      (5) anywhere else (e.g.@: at the end of a line), the current node
          is scrolled up a windowful.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) on the first line of an Info Menu Entry or Cross Reference, the
          referenced node is displayed;
@@ -7982,7 +8173,6 @@ Use @bkbd{s} within an Info manual to search for any concept that interests you.
 @end group
 @end format
 
-@page
 @node Smart Key - Email Composers, Smart Key - GNUS Newsreader, Smart Key - Info Manuals, Smart Keyboard Keys
 @subsection Smart Key - Email Composers
 @vindex hmail:reader
@@ -8002,6 +8192,10 @@ If pressed within a Hyperbole-supported mail reader (defined by
          corresponding to the header is displayed in the msg window;
      (5) in a msg summary buffer, on or after the last line, the
          messages marked for deletion are expunged.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) in a msg buffer within the first line or at the end of a
          message, the previous undeleted message is displayed;
@@ -8031,6 +8225,10 @@ If pressed within the Gnus newsgroups listing buffer:
          whitespace, the current group is unsubscribed or resubscribed;
      (4) at the end of the GNUS-GROUP buffer after all lines, the
          number of waiting messages per group is updated.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) on a GNUS-GROUP line, that newsgroup is read;
      (2) if `gnus-topic-mode' is active, and on a topic line, the topic is
@@ -8051,6 +8249,10 @@ If pressed within a Gnus newsreader subject listing buffer:
          and scrolled forward;
      (2) at the end of the GNUS-SUBJECT buffer, the next undeleted
          article is read or the next group is entered.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) on a GNUS-SUBJECT line, that article is read and scrolled
          backward;
@@ -8068,6 +8270,10 @@ If pressed within a Gnus newsreader article buffer:
      (2) on the first line of an Info cross reference, the referent is
          displayed;
      (3) anywhere else, the window is scrolled up a windowful.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) on the first line or end of an article, the previous message is
          displayed;
@@ -8095,6 +8301,10 @@ If pressed within a listing of buffers (Buffer-menu-mode):
          is displayed);
      (4) on or after the last line in the buffer, all saves and deletes
          are done.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) on the first or second column of an entry, the selected buffer
          is unmarked for display and for saving or deletion;
@@ -8118,6 +8328,10 @@ If pressed within an interactive buffer menu (ibuffer-mode):
          within the OO-Browser user interface, only the selected buffer is
          displayed);
      (3) on the first or last line in the buffer, all deletes are done.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) on the first or second column of an entry, the selected buffer is unmarked
          for display or deletion; 
@@ -8142,6 +8356,10 @@ If pressed within a tar-mode buffer:
      (2) on or after the last line in the buffer, if any deletes are to
          be performed, they are executed after user verification;
          otherwise, this tar file browser is quit.
+@end group
+@end format
+@format
+@group
   ASSIST KEY
      (1) on an entry line, the current entry is marked for deletion;
      (2) on or after the last line in the buffer, all delete marks on
@@ -8181,7 +8399,7 @@ If pressed on a World-Wide Web universal resource locator (URL):
 @end group
 @end format
 
-@node Smart Key - HyRolo Match Buffers, Smart Key - Gomoku Game, Smart Key - WWW URLs, Smart Keyboard Keys
+@node Smart Key - HyRolo Match Buffers, Smart Key - Image Thumbnails, Smart Key - WWW URLs, Smart Keyboard Keys
 @subsection Smart Key - HyRolo Match Buffers
 @cindex click, hyrolo matches
 @cindex hyrolo matches
@@ -8193,7 +8411,24 @@ If pressed within an entry in the HyRolo search results buffer:
 @end group
 @end format
 
-@node Smart Key - Gomoku Game, Smart Key - The OO-Browser, Smart Key - HyRolo Match Buffers, Smart Keyboard Keys
+@node Smart Key - Image Thumbnails, Smart Key - Gomoku Game, Smart Key - HyRolo Match Buffers, Smart Keyboard Keys
+@subsection Smart Key - Image Thumbnails
+@cindex images
+@cindex thumbnails
+@cindex dired, images
+@vindex image-dired-external-viewer
+@format
+@group
+If pressed within a Dired Image Thumbnail buffer:
+  ACTION KEY
+     Selects the chosen thumbnail and scales its image for display in another Emacs window.
+  ASSIST KEY
+     Selects thumbnail and uses the external viewer named by @code{image-dired-external-viewer}
+     to display it.
+@end group
+@end format
+
+@node Smart Key - Gomoku Game, Smart Key - The OO-Browser, Smart Key - Image Thumbnails, Smart Keyboard Keys
 @subsection Smart Key - Gomoku Game
 @cindex game, gomoku
 @cindex gomoku
@@ -8243,7 +8478,6 @@ When pressed within an OO-Browser listing window:
 @end group
 @end format
 
-@page
 @format
 @group
   ASSIST KEY

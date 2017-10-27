@@ -26,27 +26,26 @@ terms used here are unfamiliar to you.
 
 * Smart Keys 
 
-Hyperbole provides two context-sensitive keys, the Action Key and the
-Assist Key, jointly referred to as Smart Keys that each do dozens of
-things, essentially whatever is most helpful in any given textual
-context where they are pressed.  The Action Key is {M-RET} (ESC RETURN
-if you are unsure) on the keyboard and the shift-middle mouse button
-on a 3-button mouse or the shift-left button on a two button mouse.
-The Assist Key is {C-u M-RET} and the shift-right mouse button.
-Memorize these keys; you will use them a lot.  To distinguish the
-mouse buttons from the keyboard keys, we will often refer to the
-Action Mouse Key or Assist Mouse Key.  (It is possible to rebind these
-keys to the unshifted middle and right mouse buttons, if desired.
-See the Smart Key Bindings section of the Hyperbole Manual,
+Hyperbole provides two context-sensitive keys, the Action Key and the Assist
+Key, jointly referred to as Smart Keys that each do dozens of things,
+essentially whatever is most helpful in any given textual context where they
+are pressed.  The Action Key is {M-RET} (ESC RETURN if you are unsure) on the
+keyboard and the shift-middle mouse button on a 3-button mouse or the
+shift-left button on a two button mouse.  The Assist Key is {C-u M-RET} and
+the shift-right mouse button.  Memorize these keys; you will use them a lot.
+To distinguish the mouse buttons from the keyboard keys, we will often refer
+to the Action Mouse Key or Assist Mouse Key.  (It is possible to rebind these
+keys to the unshifted middle and right mouse buttons, if desired.  See the
+Smart Key Bindings section of the Hyperbole Manual,
 "(hyperbole)Smart Key Bindings").
 
-The Action Key selects entities, creates links and activates buttons.
-The Assist Key provides help, such as reporting on a button's
-attributes, or serves a complementary function to whatever the Action
-Key does within a context.  Press the Action Key within this
-<(button)> to see all of the contexts and operations of the Smart
-Keys.  SPACE scrolls forward and backwards DELETE scrolls backward
-within the Smart Key summary; {q} quits and returns here.
+The Action Key selects entities, creates links and activates buttons.  The
+Assist Key provides help, such as reporting on a button's attributes, or
+serves a complementary function to whatever the Action Key does within a
+context.  Press the Action Key within this <(button)> to see all of the
+contexts and operations of the Smart Keys.  SPACE scrolls forward and
+backwards DELETE scrolls backward within the Smart Key summary; {q} quits and
+returns here.
 
 See also the later section, <(Smart Mouse Keys)>.
 
@@ -116,6 +115,7 @@ used to return the search results.
 You can change which browser is used with {C-h h c w}, the Cust/Web-Search
 menu.  Advanced users can change the search engines listed by editing the
 option, <(hyperbole-web-search-alist)>.
+
 
 ** Help Buffers
 
@@ -244,6 +244,9 @@ If you ever need to experiment with different sized window grids, use
 {M-x hycontrol-window-grid-repeatedly RET}.  It will repeatedly prompt
 you for a grid size and then display it.  When you are done, simply press
 {RET} to exit.
+
+Outside of HyControl, you can invoke the grid of windows command with
+{C-c @} in most buffers.
 
 There is lots more to discover in HyControl as you explore.
 
@@ -932,18 +935,37 @@ within a single window, deletes that window.
 
 Let's try these.  You need only move your mouse pointer a few characters to
 register a drag.  First, split this window with an Action Key horizontal
-drag.  Then click the Action Key in the first few characters of the modeline
-of one of the windows to change the buffer that it displays so you can tell
-the windows apart.  Then delete either one of the windows with a horizontal
-drag of the Assist Key within the window.  If you split windows many times
-and then delete a number of the windows, you'll be left with windows of
-differing heights.  Use {C-x +} to re-balance the heights of the remaining
-windows, so they are fairly even.
+drag.  Then click the Assist Key on the buffer name in the modeline of one of
+the windows to change the buffer that it displays, so you can tell the windows
+apart.  Then delete either one of the windows with a horizontal drag of the
+Assist Key within the window.  If you split windows many times and then
+delete a number of the windows, you'll be left with windows of differing
+heights.  Use {C-x +} to re-balance the heights of the remaining windows, so
+they are fairly even.
 
 Now try a side-by-side window split.  Drag vertically with the Action Key by
 three or more lines to split the window.  Again, change the buffer of one of
 the windows.  Then use a vertical Assist Key drag within either one of the
 side-by-side windows to delete it.
+
+** Cloning Windows and Buffer/File Items to other Frames
+
+If you want to copy/clone a window to a new frame, simply drag the Action
+Mouse Key from within the window to anywhere outside of Emacs and release.  A
+new frame will be created, selected and sized according to the original
+window.  Do the same thing with the Assist Mouse Key and the original window
+will be deleted as well unless it is the only window in that frame.  Create a
+few windows and try these actions.
+
+This also works for items in dired, buffer menu and ibuffer menus.  With the
+Action Mouse Key, the selected item is displayed in a new frame or any Emacs
+window into which you release.  So now you can rapidly put a bunch of buffers
+and files on your screen wherever you like.  Typically, a brief visual pulse
+is shown first at the source item and then in the whole destination window,
+to help you see that the transfer has been made.  An Assist Key Drag will
+move the window with the item list to the destination, just as it does for
+other windows.  Practice these drags as they will prove very beneficial
+across time.
 
 ** Resizing Windows
 
@@ -987,16 +1009,15 @@ the buffers and quit from the Hyperbole minibuffer menu: {C-h h s w ~ q}.
 *** Moving Buffers
 
 What if you want to display the same buffer in another frame and not swap
-buffers.  You want to move the buffer.  Depress on the open area of the
-modeline of the source window and drag to the text area of the destination
-window.  Voila, the buffer appears in the new location as well as the old one.
+buffers.  Depress the Action Key in the open area of the modeline of the
+source window and drag to the text area of the destination window.  Voila,
+the buffer appears in the new location as well as the old one.
 
 To clone a window with its buffer to a new frame, simply drag the Action Key
-from the window to outside of Emacs and release the key.  A new frame pops
-up about the size of the original window with the same buffer.  Try it.
-
-The same action with the Assist Key will actually move the window to the new
-frame, deleting the old one even if it is the only window in the frame.
+from the window to outside of Emacs and release the key.  A new frame pops up
+about the size of the original window with the same buffer.  Try it.  The
+same action with the Assist Key will move the window to the new frame,
+deleting the old one even unless it is the only window in the frame.
 
 ** Saving and Restoring Window Configurations
 
@@ -1022,11 +1043,11 @@ restoring them.
 ** Modeline Mouse Clicks
 
 Smart Mouse Key clicks on window modelines are treated specially by
-Hyperbole.  They are broken up into three regions, each with their own Smart
-Mouse Key operations.  The regions are: the left edge, the right edge, and
-the blank middle portion (the non-edge part of the modeline).  The edge
-regions are the left or rightmost three characters of the modeline, by
-default.
+Hyperbole.  They are broken up into separate regions, each with their own
+Smart Mouse Key operations.  The regions are: the left edge, the buffer ID,
+the blank middle portion (the non-edge part of the modeline), and the right
+edge.  The edge regions are the left first character and the rightmost three
+characters of the modeline, by default.
 
 *** Switching to Another Buffer
 
@@ -1034,7 +1055,18 @@ An Action Key click in the left edge of a modeline buries the current buffer,
 i.e. puts it on the bottom of the buffer list and removes it from view, if it
 is not the only available buffer.  An Assist Key click in the left edge of a
 modeline unburies the bottom buffer.  Repeated clicks of either key allow you
-to cycle through buffers to get to the one you want.  Try this out.
+to cycle through buffers to get to the one you want.  Try this out.  A
+similar thing can be accomplished by using the left mouse key and the Assist
+Mouse Key on the modeline buffer name if you need a wider space as a target.
+
+*** Running Dired on the Current Directory
+
+An Action Key click on the modeline buffer name runs dired on the current
+directory.  An Action key click on an item in the dired buffer, displays the
+item.  An Action Key click on part of the directory name in the first line of
+the dired buffer runs dired on the ancestor directory given by the text to
+the left of the click location.  A click at the end of the first line quits
+the dired session.
 
 *** Displaying Documentation
 
@@ -1058,10 +1090,17 @@ you must click on the modeline of the window displaying the summary.
 An Action Key click in the blank center portion of a modeline displays
 a buffer menu, a summary of available buffers.  An Action Key click on
 any buffer menu line then displays that buffer and closes the buffer
-menu.  If you want to display several buffers, first create some new
-windows, then display the buffer menu and drag from each buffer name
-to the window in which you want it displayed.  This works across
-frames too.  Try it now.
+menu.
+
+If you want to display several buffers, first create some new windows, then
+display the buffer menu and drag from each buffer name to the window in which
+you want it displayed.  This works across frames and also works in ibuffer
+and dired modes too!  Try it now.
+
+Alternatively, you may display the buffer menu, use its {m} command to mark
+buffers and then use the {@} command to display the marked buffers in a grid
+of popup windows whose number of rows and columns you specify at the prompt
+or via a prefix argument.  This also works in ibuffer and dired modes.
 
 An Assist Key click in the blank center portion of a modeline pops up
 a menu of convenient screen commands that lets you select buffers

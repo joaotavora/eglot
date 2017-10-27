@@ -87,7 +87,7 @@ hsettings.el        - Hyperbole settings which may require customization
 hvar.el             - Variable manipulation routines for GNU Hyperbole
 hyperbole-banner.png- Graphic of GNU Hyperbole for display with About Hyperbole
 smart-clib-sym      - Test whether symbol appears within a set of C libraries
-topwin              - Python script to find the topmost macOS app window at a screen position
+topwin.py           - Python script to find the topmost macOS app window at a screen position
 .hypb & _hypb       - Button data files used by the Hyperbole DEMO file
 
 --- EXTERNAL SYSTEM ENCAPSULATIONS ---

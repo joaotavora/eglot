@@ -28,10 +28,13 @@
 ;;; ************************************************************************
 
 (defvar hmouse-verify-release-window-flag t
-  "When non-nil under the macOS window system, verifies the application of top-most window.
-Forces a window system check at a screen position that the top-most
-window there is an Emacs frame or treats the location as outside Emacs,
-even though an Emacs frame may be below the top-most window.
+  "Non-nil means verify whether Smart Mouse Keys are released inside or outside of an Emacs frame.
+Presently, this does nothing unless Emacs is running under the
+macOS window system.  It queries the Mac window manager for the
+name of the owner of the top-most window at the point of release,
+if any.  Otherwise, if an Emacs frame is below another
+application's window at the point of release, Emacs will report
+that the release point was in its frame.
 
 See function `hmouse-window-at-absolute-pixel-position' for more details.")
 
@@ -668,7 +671,7 @@ the position (not below another application's window)."
 	  ;; managers, Emacs may have received the drag release event when
 	  ;; in-frame was covered by an external application's window.
 	  ;; Emacs presently has no way to handle this.  However, for the
-	  ;; macOS window system only, Hyperbole has a Python script, topwin, which
+	  ;; macOS window system only, Hyperbole has a Python script, topwin.py, which
 	  ;; computes the application of the topmost window at the point of release.
 	  ;; If that is Emacs, then we have the right window and nothing need be
 	  ;; done; otherwise, set window to nil and return.
@@ -679,7 +682,7 @@ the position (not below another application's window)."
 	    ;; an auto-raise property, then we know this window was
 	    ;; uppermost at the point of release and can skip this computation.
 	    (unless (and (eq depress-window window) (frame-parameter nil 'auto-raise))
-	      (let ((topwin (expand-file-name "topwin" hyperb:dir))
+	      (let ((topwin (expand-file-name "topwin.py" hyperb:dir))
 		    (case-fold-search t)
 		    topmost-app)
 		(when (and topwin (file-executable-p topwin))
@@ -696,7 +699,7 @@ the position (not below another application's window)."
 			 ;; so don't trigger an error just because of it.  But
 			 ;; display a message so the user knows something happened
 			 ;; when topwin encounters an error.
-			 (message "(Hyperbole): topwin Python script error: %s" topmost-app))))))))))
+			 (message "(Hyperbole): topwin.py Python script error: %s" topmost-app))))))))))
 
     (when (called-interactively-p 'interactive)
       (message "%s at absolute pixel position %s"

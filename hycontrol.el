@@ -135,7 +135,7 @@
   (list #'buffer-file-name)
   "List of single buffer/name predicates.
 If any predicate returns non-nil for a buffer, include that buffer in
-the list to display in the windows created by `hycontrol-windows-grid-rows-columns'.
+the list to display in the windows created by `hycontrol-windows-grid'.
 
 A predicate may be either a function that takes a single buffer
 argument or a boolean expression, in which case the expression is
@@ -425,23 +425,23 @@ The final predicate should always be t, for default values, typically of zero.")
 ;;; ************************************************************************
 
 (defvar hycontrol--frames-prompt-format
- (concat "FRAME: (h=heighten, s=shorten, w=widen, n=narrow, %%/H/W=screen %%age, arrow=move frame) by %d unit%s, .=clear units\n"
+ (concat "FRAMES: (h=heighten, s=shorten, w=widen, n=narrow, %%/H/W=screen %%age, arrow=move frame) by %d unit%s, .=clear units\n"
 	 ;; d/^/D=delete/iconify frame/others - iconify left out due to some bug on macOS (see comment near ^ below)
 	 "a/A=cycle adjust width/height, d/D=delete frame/others, o/O=other win/frame, [/]=create frame, (/)=save/restore fconfig\n"
-	 "@=row-col matrix of wins, f/F=clone/move win to new frame, -/+=minimize/maximize frame, ==frames same size, u/b/~=un/bury/swap bufs\n"
-	 "Frame to edges: c=cycle, i/j/k/m=expand/contract, p/num-keypad=move; z/Z=zoom out/in, t=to WINDOW:, q=quit")
+	 "@=grid of wins, f/F=clone/move win to new frame, -/+=minimize/maximize frame, ==frames same size, u/b/~=un/bury/swap bufs\n"
+	 "Frame to edges: c=cycle, i/j/k/m=expand/contract, p/num-keypad=move; z/Z=zoom out/in, t=to WINDOWS mode, q=quit")
  "HyControl frames-mode minibuffer prompt string to pass to format.
-Pass it with 2 arguments: prefix-arg and a plural string indicating if
+Format it with 2 arguments: prefix-arg and a plural string indicating if
 prefix-arg is not equal to 1.")
 
 (defvar hycontrol--windows-prompt-format
   (concat
-   "WINDOW: (h=heighten, s=shorten, w=widen, n=narrow, arrow=move frame) by %d unit%s, .=clear units\n"
+   "WINDOWS: (h=heighten, s=shorten, w=widen, n=narrow, arrow=move frame) by %d unit%s, .=clear units\n"
    "a/A=cycle adjust frame width/height, d/D=delete win/others, o/O=other win/frame, [/]=split win atop/sideways, (/)=save/restore wconfig\n"
-   "@=row-col matrix of wins, f/F=clone/move win to new frame, -/+=minimize/maximize win, ==wins same size, u/b/~=un/bury/swap bufs\n"
-   "Frame to edges: c=cycle, i/j/k/m=expand/contract, p/num-keypad=move; z/Z=zoom out/in, t=to FRAME:, q=quit")
+   "@=grid of wins, f/F=clone/move win to new frame, -/+=minimize/maximize win, ==wins same size, u/b/~=un/bury/swap bufs\n"
+   "Frame to edges: c=cycle, i/j/k/m=expand/contract, p/num-keypad=move; z/Z=zoom out/in, t=to FRAMES mode, q=quit")
   "HyControl windows-mode minibuffer prompt string to pass to format.
-Pass it with 2 arguments: prefix-arg and a plural string indicating if
+Format it with 2 arguments: prefix-arg and a plural string indicating if
 prefix-arg is not equal to 1.")
 
 (defvar hycontrol--prompt-format nil
@@ -1392,42 +1392,47 @@ Menu or IBuffer mode."
 
 ;;;###autoload
 (defun hycontrol-windows-grid (arg)
-  "Create a grid of windows in the selected frame according to prefix ARG.
+  "Display a grid of windows in the selected frame, sized according to prefix ARG.
+Left digit of ARG is the number of grid rows and the right digit is
+the number of grid columns.
 
 If ARG is 0, prompt for a major mode whose buffers should be
-displayed first in the windows of the selected frame and then for
-the number of rows and columns of windows to display in the grid.
-Otherwise, split the selected frame into left digit of ARG rows
-and right digit of ARG columns of windows.
+displayed first in the grid windows, then prompt for the grid size.
+
+Otherwise, prompt for the grid size if ARG is an invalid size.
 
 With a current buffer in Dired, Buffer Menu or IBuffer mode that
 contains marked items, the buffers associated with those items
-are displayed first in the grid.  Then the most recently used
-buffers are displayed in each window, first selecting only those
-buffers which match any of the predicate expressions in
-`hycontrol-display-buffer-predicate-list'.  (The default
-predicate list chooses buffers with attached files).  Then, if
-there are not enough buffers for all windows, the buffers that
-failed to match to any predicate are used.  In all cases, buffers
+are displayed first in the grid (unless ARG is 0).
+
+Then the most recently used buffers are displayed in each window,
+first selecting only those buffers which match any of the
+predicate expressions in `hycontrol-display-buffer-predicate-list'.
+\(The default predicate list chooses buffers with attached files).
+
+Then, if there are not enough buffers for all windows, the buffers
+that failed to match to any predicate are used.  In all cases, buffers
 whose names start with a space are ignored.
 
-When done, resets the persistent prefix argument to 1 to prevent
-following commands from using the often large grid size argument."
+When done, this resets the persistent prefix argument to 1 to
+prevent following commands from using the often large grid size
+argument."
   (interactive "p")
   (setq arg (abs (prefix-numeric-value (or arg current-prefix-arg))))
   (if (/= arg 0)
-      (hycontrol-windows-grid-rows-columns arg)
+      (hycontrol-make-windows-grid arg)
     (setq current-prefix-arg 0)
     (call-interactively #'hycontrol-windows-grid-by-major-mode)))
 
-;;; Split selected frame into a matrix of windows given by row and
+;;; Split selected frame into a grid of windows given by row and
 ;;; column count, displaying different buffers in each window.
 ;;;###autoload
 (defun hycontrol-windows-grid-by-major-mode (arg mode)
-  "Split selected frame into left digit of ARG rows and right digit of ARG columns of windows, preferring buffers with major MODE.
-Then, if not enough buffers for all windows, use the buffers that
-failed to match in the first pass, aside from those whose names
-begin with a space."
+  "Display a grid of windows in the selected frame, sized according to prefix ARG, with buffers of major MODE.
+Left digit of ARG is the number of grid rows and the right digit is
+the number of grid columns.
+
+See documentation of `hycontrol-windows-grid' for further details."
   (interactive
    (list (prefix-numeric-value current-prefix-arg)
 	 (let* ((set:equal-op 'eq)
@@ -1436,19 +1441,21 @@ begin with a space."
 	   (intern-soft (completing-read "(HyControl Grid Windows): Major mode of buffers to display: "
 					 mode-strings nil t (symbol-name major-mode))))))
   (let ((hycontrol-display-buffer-predicate-list `((eq major-mode ',mode))))
-    (hycontrol-windows-grid-rows-columns arg)))
+    (hycontrol-make-windows-grid arg)))
 
 ;;;###autoload
 (defun hycontrol-windows-grid-repeatedly (&optional arg)
-  "Repeatedly displays different window grid layouts according to prefix ARG prompted for each time.
+  "Repeatedly display different window grid layouts according to prefix ARG prompted for each time.
+Left digit of ARG is the number of grid rows and the right digit is
+the number of grid columns. 
 
-See documentation of `hycontrol-windows-grid' for details."
+See documentation of `hycontrol-windows-grid' for further details."
   (interactive "p")
   (catch 'done
     (let (hycontrol-help-flag)
       (while t
 	(while (not (or (eq arg 0) (and (integerp arg) (>= arg 11) (<= arg 99))))
-	  (setq arg (read-string "Split frame into a matrix of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C (RET to quit): "))
+	  (setq arg (read-string "Display grid of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C (RET to quit): "))
 	  (setq arg (if (string-equal arg "")
 			(throw 'done t)
 		      (string-to-number arg)))
@@ -1457,10 +1464,12 @@ See documentation of `hycontrol-windows-grid' for details."
 	(hycontrol-windows-grid arg)
 	(setq arg nil)))))
 
-(defun hycontrol-windows-grid-rows-columns (arg)
-  "Split selected frame into left digit of ARG rows and right digit of ARG columns of windows.
+(defun hycontrol-make-windows-grid (arg)
+  "Display a grid of windows in the selected frame, sized according to prefix ARG.
+Left digit of ARG is the number of grid rows and the right digit is
+the number of grid columns. 
 
-See documentation of `hycontrol-windows-grid' for details."
+See documentation of `hycontrol-windows-grid' for further details."
   (interactive "p")
 
   ;; Check ARG, must be 2 digits of [1-9], else read a new ARG or
@@ -1469,14 +1478,16 @@ See documentation of `hycontrol-windows-grid' for details."
 	   (not (and (integerp arg) (>= arg 11) (<= arg 99))))
       (let ((hyc-mode (if hycontrol-frames-mode #'hycontrol-frames-mode #'hycontrol-windows-mode)))
 	(hycontrol-disable-modes)
-	(setq arg 0)
+	(setq arg 1)
 	(while (not (and (integerp arg) (and (>= arg 11) (<= arg 99))))
-	  (unless (eq arg 0) (beep))
-	  (setq arg (read-number "Split frame into a matrix of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C: ")))
+	  (unless (or (eq arg 0) (eq arg 1))
+	    (beep))
+	  (setq arg (read-number "Display grid of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C: ")))
 	(funcall hyc-mode arg))
     (while (not (and (integerp arg) (and (>= arg 11) (<= arg 99))))
-      (unless (eq arg 0) (beep))
-      (setq arg (read-number "Split frame into a matrix of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C: "))))
+      (unless (or (eq arg 0) (eq arg 1))
+	(beep))
+      (setq arg (read-number "Display grid of ROW digit by COLUMN digit windows, e.g. 23 for 2R by 3C: "))))
 
   (let ((wconfig (current-window-configuration)))
     ;; If an error occurs during a window split because the window is
@@ -1576,9 +1587,10 @@ Do nothing and return nil if there are not precisely two windows."
 ;; Derived from Emacs mouse.el.
 ;;;###autoload
 (defun hycontrol-window-to-new-frame ()
-  "Create a new frame sized to match the selected window and with its buffer.
+  "Create a new frame sized to match the selected window with the same buffer.
 If there is only one window in the source frame or if `hycontrol-keep-window-flag'
-is non-nil, leave the original window and just clone it into the new frame."
+is non-nil, leave the original window and just clone it into the new frame;
+otherwise, delete the original window."
   (interactive)
   (let ((w (selected-window))
 	(frame-resize-pixelwise t)
@@ -1604,7 +1616,7 @@ is non-nil, leave the original window and just clone it into the new frame."
 
 ;;;###autoload
 (defun hycontrol-clone-window-to-new-frame ()
-  "Create a new frame sized to match the selected window and with its buffer."
+  "Create a new frame sized to match the selected window with the same buffer."
   (interactive)
   (let ((hycontrol-keep-window-flag t))
     (hycontrol-window-to-new-frame)))

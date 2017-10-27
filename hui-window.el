@@ -272,13 +272,13 @@ part of InfoDock and not a part of Hyperbole)."
 	(ibuffer)))))
 
 (defun hmouse-prior-active-region ()
-  (and (region-active-p)
-       ;; Store and goto any prior value of point from the region
-       ;; prior to the Smart Key depress, so we can return to it later.
-       (setq hkey-value (marker-position
-			 (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point)))
-       (goto-char hkey-value)
-       (hmouse-save-region)))
+  (when (setq hkey-value (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point))
+    (with-current-buffer (marker-buffer hkey-value)
+      ;; Store and goto any prior value of point from the region
+      ;; prior to the Smart Key depress, so we can return to it later.
+      (and (goto-char hkey-value)
+	   (region-active-p)
+	   (hmouse-save-region)))))
 
 (defun hmouse-dired-readin-hook ()
   "Remove local `hpath:display-where' setting whenever re-read a dired directory.
@@ -457,11 +457,11 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
 	  action-key-release-window)))
 
 (defun hmouse-drag-item-to-display ()
-  "Depress on a buffer name in Buffer-menu/ibuffer-mode or on a file/directory in dired and release in another window in which to display the item.
+  "Depress on a buffer name in Buffer-menu/ibuffer mode or on a file/directory in dired mode and release in another window in which to display the item.
 If depress is on an item and release is outside Emacs, the item is displayed in a new frame.
 Return t unless source buffer is not one of these modes or point is not on an item, then nil.
 
-See `hmouse-drag-item-mode-forms' for how to allow for draggable items from other modes."
+See `hmouse-drag-item-mode-forms' for how to allow for draggable items in other modes."
   (let* ((buf (and action-key-depress-window (window-buffer action-key-depress-window)))
 	 (mode (and buf (cdr (assq 'major-mode (buffer-local-variables buf))))))
     (when (and buf (with-current-buffer buf
@@ -722,9 +722,9 @@ Ignores minibuffer window."
     (hmouse-set-buffer-and-point buf loc)))
 
 (defun hmouse-goto-region-point ()
-  "Temporarily set point back to where it was when the region was activated."
-  (let ((buf (window-buffer (if assist-flag assist-key-depress-window action-key-depress-window)))
-	(loc hkey-value))
+  "Temporarily set point back to where it was when the region was activate prior to last Smart Key depress."
+  (let* ((loc (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point))
+	 (buf (marker-buffer loc)))
     (hmouse-set-buffer-and-point buf loc)))
 
 (defun hmouse-goto-release-point ()

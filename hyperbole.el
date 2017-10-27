@@ -272,8 +272,14 @@ Entry format is: (key-description key-sequence key-binding)."
 	  (hkey-global-set-key "\M-o" 'hkey-operate)
 	(hkey-maybe-global-set-key "\M-o" 'hkey-operate)))
     ;;
-    ;; Provides a site standard way of performing explicit button
-    ;; renames without invoking the Hyperbole menu.
+    ;; Binds {C-c @} to created a user-specified sized grid of windows
+    ;; displaying different buffers.
+    ;;
+    ;; Don't override local bindings of this key.
+    (hkey-maybe-global-set-key "\C-c@" 'hycontrol-windows-grid t)
+    ;;
+    ;; Binds {C-c C-r} as a site standard way of performing explicit
+    ;; button renames without invoking the Hyperbole menu.
     ;;
     ;; Don't override local bindings of this key.
     (hkey-maybe-global-set-key "\C-c\C-r" 'hui:ebut-rename t)

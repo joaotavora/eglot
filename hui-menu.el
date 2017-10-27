@@ -133,6 +133,7 @@ Return t if cutoff, else nil."
     (vector (hui-menu-key-binding-item "Action-Key         \t\t\t" 'hkey-either)                   '(hui:bind-key #'hkey-either) t)                    ;; {M-RET}
     (vector (hui-menu-key-binding-item "Button-Rename-Key  \t\t"   'hui:ebut-rename)               '(hui:bind-key #'hui:ebut-rename) t)                ;; {C-c C-r}
     (vector (hui-menu-key-binding-item "Drag-Emulation-Key \t\t"   'hkey-operate)                  '(hui:bind-key #'hkey-operate) t)                   ;; {M-o}
+    (vector (hui-menu-key-binding-item "Grid-of-Windows-Key \t"    'hycontrol-windows-grid)        '(hui:bind-key #'hycontrol-windows-grid) t)         ;; {C-c @}
     (vector (hui-menu-key-binding-item "Hyperbole-Menu-Key \t"     'hyperbole)                     '(hui:bind-key #'hyperbole) t)                      ;; {C-h h}
     (vector (hui-menu-key-binding-item "Mark-Thing-Key     \t\t"   'hui-select-thing)              '(hui:bind-key #'hui-select-thing) t)               ;; {C-c C-m}
     (vector (hui-menu-key-binding-item "Smart-Help-Key     \t\t"   'hkey-help)                     '(hui:bind-key #'hkey-help) t)                      ;; {C-h A}
