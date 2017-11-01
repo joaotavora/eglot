@@ -23,7 +23,7 @@
 ;;; Public variables
 ;;; ************************************************************************
 
-(defconst hyperb:version "6.0.2f" "GNU Hyperbole revision number.")
+(defconst hyperb:version "6.0.2g" "GNU Hyperbole revision number.")
 
 ;;;###autoload
 (defvar hyperb:microcruft-os-p
@@ -159,7 +159,7 @@ If nil after system initialization, no window system or mouse support is availab
 ;;; ************************************************************************
 
 (if (not (fboundp 'id-browse-file))
-(defalias 'id-browse-file 'find-file-read-only))
+(defalias 'id-browse-file 'view-file))
 
 (unless (fboundp 'id-info)
 (defun id-info (string)

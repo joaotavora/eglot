@@ -70,6 +70,56 @@
 (require 'hsys-org)
 
 ;;; ========================================================================
+;;; Composes mail, in another window, to the e-mail address at point.
+;;; ========================================================================
+
+(defvar mail-address-mode-list
+  '(emacs-lisp-mode lisp-interaction-mode lisp-mode scheme-mode c-mode
+    c++-mode html-mode java-mode js2-mode objc-mode python-mode
+    smalltalk-mode fundamental-mode text-mode indented-text-mode web-mode) 
+  "List of major modes in which mail address implicit buttons are active.")
+
+(defun mail-address-at-p ()
+  "Return e-mail address, a string, that point is within or nil."
+  (let ((case-fold-search t))
+    (save-excursion
+      (skip-chars-backward "^ \t\n\r\f\"\'(){}[];:<>|")
+      (and (or (looking-at mail-address-regexp)
+	       (looking-at (concat "mailto:" mail-address-regexp)))
+	   (save-match-data
+	     (string-match mail-address-tld-regexp (match-string-no-properties 1)))
+	   (match-string-no-properties 1)))))
+
+(defib mail-address ()
+  "If on an e-mail address in a specific buffer type, compose mail to that address in another window.
+Applies to any major mode in `mail-address-mode-list', the HyRolo match buffer,
+any buffer attached to a file in `hyrolo-file-list', or any buffer with
+\"mail\" or \"rolo\" (case-insensitive) within its name."
+  (if (let ((case-fold-search t))
+	(or
+	 (and (memq major-mode mail-address-mode-list)
+	      (not (string-match "-Elements\\'" (buffer-name)))
+	      ;; Don't want this to trigger within an OOBR-FTR buffer.
+	      (not (string-match "\\`\\(OOBR.*-FTR\\|oobr.*-ftr\\)"
+				 (buffer-name)))
+	      (not (string-equal "*Implementors*" (buffer-name))))
+	 (and
+	  (string-match "mail\\|rolo" (buffer-name))
+	  ;; Don't want this to trigger in a mail/news summary buffer.
+	  (not (or (hmail:lister-p) (hnews:lister-p))))
+	 (if (boundp 'hyrolo-display-buffer)
+	     (equal (buffer-name) hyrolo-display-buffer))
+	 (and buffer-file-name
+	      (boundp 'hyrolo-file-list)
+	      (set:member (current-buffer)
+			  (mapcar 'get-file-buffer hyrolo-file-list)))))
+      (let ((address (mail-address-at-p)))
+	(if address
+	    (progn
+	      (ibut:label-set address (match-beginning 1) (match-end 1))
+	      (hact 'mail-other-window nil address))))))
+
+;;; ========================================================================
 ;;; Displays files and directories when a valid pathname is activated.
 ;;; ========================================================================
 
@@ -421,8 +471,8 @@ pathname line or line preceding it, jumps to the associated file."
 (defib cscope ()
   "Jumps to C/C++ source line associated with Cscope C analyzer output line.
 Requires pre-loading of the cscope.el Lisp library available from the Emacs
-Lisp archives and the commercial cscope program available from UNIX System
-Laboratories.  Otherwise, does nothing."
+Lisp archives and the open source cscope program available from
+http://cscope.sf.net.  Otherwise, does nothing."
   (and (boundp 'cscope:bname-prefix)  ;; (featurep 'cscope)
        (stringp cscope:bname-prefix)
        (string-match (regexp-quote cscope:bname-prefix)
@@ -503,10 +553,9 @@ spaces and then another non-space, non-parenthesis, non-brace character."
 
 (defib rfc ()
   "Retrieves and displays an Internet rfc referenced at point.
-Requires a remote file access library, such as Tramp, for ftp
-file retrievals.  The following formats are recognized: RFC822,
-rfc-822, and RFC 822.  The `hpath:rfc' variable specifies the
-location from which to retrieve RFCs."
+The following formats are recognized: RFC822, rfc-822, and RFC 822.  The
+`hpath:rfc' variable specifies the location from which to retrieve RFCs.
+Requires the Emacs builtin Tramp library for ftp file retrievals."
   (let ((case-fold-search t)
 	(rfc-num nil))
     (and (not (memq major-mode '(dired-mode monkey-mode)))
@@ -778,56 +827,6 @@ Patch applies diffs to source code."
 	  (hact 'link-to-file-line file line)))))
 
 ;;; ========================================================================
-;;; Composes mail, in another window, to the e-mail address at point.
-;;; ========================================================================
-
-(defvar mail-address-mode-list
-  '(emacs-lisp-mode lisp-interaction-mode lisp-mode scheme-mode c-mode
-    c++-mode html-mode java-mode js2-mode objc-mode python-mode
-    smalltalk-mode fundamental-mode text-mode indented-text-mode web-mode) 
-  "List of major modes in which mail address implicit buttons are active.")
-
-(defib mail-address ()
-  "If on an e-mail address in a specific buffer type, mail to that address in another window.
-Applies to any major mode in `mail-address-mode-list', the HyRolo match buffer,
-any buffer attached to a file in `hyrolo-file-list', or any buffer with
-\"mail\" or \"rolo\" (case-insensitive) within its name."
-  (if (let ((case-fold-search t))
-	(or
-	 (and (memq major-mode mail-address-mode-list)
-	      (not (string-match "-Elements\\'" (buffer-name)))
-	      ;; Don't want this to trigger within an OOBR-FTR buffer.
-	      (not (string-match "\\`\\(OOBR.*-FTR\\|oobr.*-ftr\\)"
-				 (buffer-name)))
-	      (not (string-equal "*Implementors*" (buffer-name))))
-	 (and
-	  (string-match "mail\\|rolo" (buffer-name))
-	  ;; Don't want this to trigger in a mail/news summary buffer.
-	  (not (or (hmail:lister-p) (hnews:lister-p))))
-	 (if (boundp 'hyrolo-display-buffer)
-	     (equal (buffer-name) hyrolo-display-buffer))
-	 (and buffer-file-name
-	      (boundp 'hyrolo-file-list)
-	      (set:member (current-buffer)
-			  (mapcar 'get-file-buffer hyrolo-file-list)))))
-      (let ((address (mail-address-at-p)))
-	(if address
-	    (progn
-	      (ibut:label-set address (match-beginning 1) (match-end 1))
-	      (hact 'mail-other-window nil address))))))
-
-(defun mail-address-at-p ()
-  "Return e-mail address, a string, that point is within or nil."
-  (let ((case-fold-search t))
-    (save-excursion
-      (skip-chars-backward "^ \t\n\r\f\"\'(){}[];:<>|")
-      (and (or (looking-at mail-address-regexp)
-	       (looking-at (concat "mailto:" mail-address-regexp)))
-	   (save-match-data
-	     (string-match mail-address-tld-regexp (match-string-no-properties 1)))
-	   (match-string-no-properties 1)))))
-
-;;; ========================================================================
 ;;; Displays Texinfo or Info node associated with Texinfo @xref, @pxref or @ref at point.
 ;;; ========================================================================
 
@@ -929,8 +928,8 @@ GNUS is a news and mail reader."
 ;;; ========================================================================
 
 (defib Info-node ()
-  "Makes \"(filename)nodename\" buttons display the associated Info node.
-Also makes \"(filename)itemname\" buttons display the associated Info index item."
+  "Makes a \"(filename)nodename\" button display the associated Info node.
+Also makes a \"(filename)itemname\" button display the associated Info index item."
   (let* ((node-ref-and-pos (or (hbut:label-p t "\"" "\"" t t)
 			       ;; Typical GNU Info references; note
 			       ;; these are special quote marks, not the

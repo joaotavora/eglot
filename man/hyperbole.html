@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 6.0.2f, Published October 27, 2017).
+(Edition 6.0.2g, Published November 1, 2017).
 
 Copyright (C) 1989-2017  Free Software Foundation, Inc.
 
@@ -131,11 +131,23 @@ ul.no-bullet {list-style: none}
 <ul class="no-bullet">
   <li><a name="toc-Smart-Key-Bindings-1" href="#Smart-Key-Bindings">2.1 Smart Key Bindings</a></li>
   <li><a name="toc-Smart-Key-Operations-1" href="#Smart-Key-Operations">2.2 Smart Key Operations</a></li>
-  <li><a name="toc-Smart-Key-Modeline-Clicks-1" href="#Smart-Key-Modeline-Clicks">2.3 Smart Key Modeline Clicks</a></li>
-  <li><a name="toc-Smart-Key-Thing-Selection-1" href="#Smart-Key-Thing-Selection">2.4 Smart Key Thing Selection</a></li>
-  <li><a name="toc-Smart-Key-Argument-Selection-1" href="#Smart-Key-Argument-Selection">2.5 Smart Key Argument Selection</a></li>
-  <li><a name="toc-Smart-Key-Modifiers-1" href="#Smart-Key-Modifiers">2.6 Smart Key Modifiers</a></li>
-  <li><a name="toc-Smart-Key-Debugging-1" href="#Smart-Key-Debugging">2.7 Smart Key Debugging</a></li>
+  <li><a name="toc-Smart-Key-Argument-Selection-1" href="#Smart-Key-Argument-Selection">2.3 Smart Key Argument Selection</a></li>
+  <li><a name="toc-Smart-Key-Debugging-1" href="#Smart-Key-Debugging">2.4 Smart Key Debugging</a></li>
+  <li><a name="toc-Smart-Key-Thing-Selection-1" href="#Smart-Key-Thing-Selection">2.5 Smart Key Thing Selection</a></li>
+  <li><a name="toc-Smart-Mouse-Key-Modeline-Clicks-1" href="#Smart-Mouse-Key-Modeline-Clicks">2.6 Smart Mouse Key Modeline Clicks</a></li>
+  <li><a name="toc-Smart-Mouse-Key-Drags-1" href="#Smart-Mouse-Key-Drags">2.7 Smart Mouse Key Drags</a>
+  <ul class="no-bullet">
+    <li><a name="toc-Creating-and-Deleting-Windows-1" href="#Creating-and-Deleting-Windows">2.7.1 Creating and Deleting Windows</a></li>
+    <li><a name="toc-Saving-and-Restoring-Window-Configurations-1" href="#Saving-and-Restoring-Window-Configurations">2.7.2 Saving and Restoring Window Configurations</a></li>
+    <li><a name="toc-Resizing-Windows-1" href="#Resizing-Windows">2.7.3 Resizing Windows</a></li>
+    <li><a name="toc-Dragging-Buffers_002c-Windows-and-Items" href="#Dragging-Buffers">2.7.4 Dragging Buffers, Windows and Items</a>
+    <ul class="no-bullet">
+      <li><a name="toc-Swapping-Buffers-1" href="#Swapping-Buffers">2.7.4.1 Swapping Buffers</a></li>
+      <li><a name="toc-Displaying-Buffers-1" href="#Displaying-Buffers">2.7.4.2 Displaying Buffers</a></li>
+      <li><a name="toc-Cloning-Windows-1" href="#Cloning-Windows">2.7.4.3 Cloning Windows</a></li>
+      <li><a name="toc-Displaying-File-and-Buffer-Items-1" href="#Displaying-File-and-Buffer-Items">2.7.4.4 Displaying File and Buffer Items</a></li>
+    </ul></li>
+  </ul></li>
 </ul></li>
 <li><a name="toc-Buttons-1" href="#Buttons">3 Buttons</a>
 <ul class="no-bullet">
@@ -155,7 +167,7 @@ ul.no-bullet {list-style: none}
     <li><a name="toc-Renaming-1" href="#Renaming">3.7.2 Renaming</a></li>
     <li><a name="toc-Deletion-1" href="#Deletion">3.7.3 Deletion</a></li>
     <li><a name="toc-Modification-1" href="#Modification">3.7.4 Modification</a></li>
-    <li><a name="toc-Location-1" href="#Location">3.7.5 Location</a></li>
+    <li><a name="toc-Searching-and-Summarizing-1" href="#Searching-and-Summarizing">3.7.5 Searching and Summarizing</a></li>
     <li><a name="toc-Buttons-in-Mail-1" href="#Buttons-in-Mail">3.7.6 Buttons in Mail</a></li>
     <li><a name="toc-Buttons-in-News-1" href="#Buttons-in-News">3.7.7 Buttons in News</a></li>
   </ul></li>
@@ -325,8 +337,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.0.2f
-Printed October 27, 2017.
+Edition 6.0.2g
+Printed November 1, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -441,15 +453,39 @@ Smart Keys
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Operations">Smart Key Operations</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Argument-Selection">Smart Key Argument Selection</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Debugging">Smart Key Debugging</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Argument-Selection">Smart Key Argument Selection</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Modifiers">Smart Key Modifiers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Mouse-Key-Drags">Smart Mouse Key Drags</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Debugging">Smart Key Debugging</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+
+Smart Mouse Key Drags
+
+</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Saving-and-Restoring-Window-Configurations">Saving and Restoring Window Configurations</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Resizing-Windows">Resizing Windows</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Dragging-Buffers">Dragging Buffers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
+
+Dragging Buffers, Windows and Items
+
+</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Swapping-Buffers">Swapping Buffers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Displaying-Buffers">Displaying Buffers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Cloning-Windows">Cloning Windows</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Displaying-File-and-Buffer-Items">Displaying File and Buffer Items</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><th colspan="3" align="left" valign="top"><pre class="menu-comment">
 
@@ -481,7 +517,7 @@ Utilizing Explicit Buttons
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Modification">Modification</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Location">Location</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Searching-and-Summarizing">Searching and Summarizing</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Buttons-in-Mail">Buttons in Mail</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
@@ -743,7 +779,7 @@ Next: <a href="#Smart-Keys" accesskey="n" rel="next">Smart Keys</a>, Previous: <
 <h2 class="chapter">1 Introduction</h2>
 
 <p>This edition of the GNU Hyperbole Manual is for use with any version
-6.0.2f or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.0.2g or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 </p>
 <p>This chapter summarizes the structure of the rest of the manual,
@@ -799,20 +835,20 @@ Hyperbole&rsquo;s basic operation.
 </p>
 <p>See <a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a>, for instructions on how to ask a
 question, suggest a feature or report a bug in Hyperbole.  A few
-commonly asked questions are answered in this manual.  See <a href="#Questions-and-Answers">Questions and Answers</a>.  See <a href="#References">References</a>, if you are interested in classic
-articles on hypertext.
+commonly asked questions are answered in this manual, see <a href="#Questions-and-Answers">Questions and Answers</a>.  If you are interested in classic
+articles on hypertext, see <a href="#References">References</a>.
 </p>
 <p>See <a href="#Smart-Keys">Smart Keys</a>, for an explanation of the innovative, context-sensitive
 mouse and keyboard Action and Assist Keys offered by Hyperbole.
 See <a href="#Smart-Key-Reference">Smart Key Reference</a>, for a complete reference on what the Action
 and Assist Keys do in each particular context that they recognize.
-See <a href="#Smart-Key-Argument-Selection">Smart Key Argument Selection</a>, for special support that Hyperbole
-provides for entering arguments when prompted for them.
+See <a href="#Smart-Key-Argument-Selection">Smart Key Argument Selection</a>, for how Hyperbole speeds selection of
+prompted for arguments.
 </p>
 <p>Keep in mind as you read about using Hyperbole that in many cases, it
-provides a number of overlapping interaction methods that support
-differing work styles and hardware limitations.  In such instances,
-you need learn only one technique that suits you.
+provides a number of overlapping interaction methods that support differing
+work styles and hardware limitations.  In such instances, you need learn
+only one technique that suits you.
 </p>
 <p>See <a href="#Buttons">Buttons</a>, for an overview of Hyperbole buttons and how to use them.
 </p>
@@ -856,13 +892,12 @@ with in their everyday worklife is seldom stored away in neatly defined
 database schemas.  Instead it is scattered among local and remote files,
 e-mail messages, faxes, voice mail and web pages.
 </p>
-<p>The rise of the web has demonstrated how hypertext technologies can be
-used to build massive organized repositories of scattered information.
-But assembling information for the web still remains a great challenge
-to many and the data formats of the web are inherently still too
-structured to deal with the great variety of information that people
-process.  Modern web development often requires the use of many
-languages: HTML, JavaScript, CSS and Java.  This in itself prevents
+<p>The rise of the web has demonstrated how hypertext technologies can be used
+to build massive organized repositories of scattered information.  But
+assembling information for the web still remains a great challenge and the
+data formats of the web are too structured to deal with the great variety
+of information that people process.  Modern web development requires the
+use of many languages: HTML, JavaScript, and CSS.  This in itself prevents
 its use as the prime means of organizing and interlinking the constant
 flows of daily information.
 </p>
@@ -908,17 +943,16 @@ archives, and the World-Wide Web (WWW).
 </p>
 <dl compact="compact">
 <dt><em>Buttons and Smart Keys</em></dt>
-<dd><p>a set of hyperbutton types that provides core hypertext and other
-behaviors, see <a href="#Buttons">Buttons</a>.  Buttons may be added to documents (explicit
-buttons) with a simple drag between windows, no markup language needed.
-Implicit buttons are patterns automatically recognized within
-text that perform actions, e.g. bug#24568 displays the bug status
-information for that bug number.
+<dd><p>Hyperbole hyperlink and other kinds of buttons (explicit buttons) may be
+added to documents with a simple drag between windows, no markup language
+needed.  Implicit buttons are patterns automatically recognized within text
+that perform actions, e.g. bug#24568 displays the bug status information
+for that bug number.  See <a href="#Buttons">Buttons</a>.
 </p>
 <p>Buttons are accessed by clicking on them or referenced by name (global
 buttons), so they can be activated regardless of what is on screen.
 Users can make simple changes to button types.  Emacs Lisp programmers
-can prototype and deliver new types quickly.
+can develop new types and button actions quickly.
 </p>
 <p>Hyperbole includes two special <em>Smart Keys</em>, the Action Key and the
 Assist Key, that perform an extensive array of context-sensitive
@@ -926,7 +960,7 @@ operations across emacs usage, including activating and showing help
 for Hyperbole buttons.  In many popular Emacs modes, they allow you
 to perform common, sometimes complex operations without having to a
 different key for each operation.  Just press a Smart Key and the
-right thing happens.  See <a href="#Smart-Keys">Smart Keys</a>.
+right thing happens.  See <a href="#Smart-Keys">Smart Keys</a>;
 </p>
 </dd>
 <dt><em>Contact and Text Finder</em></dt>
@@ -1042,8 +1076,8 @@ other documents.
 <dt><em>brainstorming</em></dt>
 <dd><p>The Hyperbole outliner (see <a href="#Koutliner">Koutliner</a>) is an effective tool for
 capturing ideas and then quickly reorganizing them in a meaningful way.
-Links to related ideas are easy enough to create that copying and
-pasting ideas together quickly becomes a dated technique.
+Links to related ideas are easy to create so the need to copy and
+paste information is greatly reduced.
 </p>
 </dd>
 <dt><em>help/training systems</em></dt>
@@ -1107,15 +1141,15 @@ behavior in all contexts.
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Operations" accesskey="2">Smart Key Operations</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Modeline-Clicks" accesskey="3">Smart Key Modeline Clicks</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Argument-Selection" accesskey="3">Smart Key Argument Selection</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Thing-Selection" accesskey="4">Smart Key Thing Selection</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Debugging" accesskey="4">Smart Key Debugging</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Argument-Selection" accesskey="5">Smart Key Argument Selection</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Thing-Selection" accesskey="5">Smart Key Thing Selection</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Modifiers" accesskey="6">Smart Key Modifiers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Mouse-Key-Modeline-Clicks" accesskey="6">Smart Mouse Key Modeline Clicks</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Smart-Key-Debugging" accesskey="7">Smart Key Debugging</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Smart-Mouse-Key-Drags" accesskey="7">Smart Mouse Key Drags</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 </table>
 
@@ -1150,13 +1184,12 @@ under an external window system.
 <a name="index-unshifted-mouse-keys"></a>
 <a name="index-mouse-keys_002c-unshifted"></a>
 <a name="index-smart-keys_002c-unshifted"></a>
-<p>Users or those who set the variable, <code>hmouse-middle-flag</code>,
-to &lsquo;<samp>t</samp>&rsquo; before loading Hyperbole, may also use the middle mouse
-key as the Action Key).  If you want both the middle mouse key as the
-Action Key and the right mouse key as the Assist Key for ease of use,
-then within your personal <samp>~/.emacs</samp> file, add:
-  <code>(add-hook 'hyperbole-init-hook 'hmouse-add-unshifted-smart-keys)</code>
-and then restart Emacs.
+<p>If you set the variable, <code>hmouse-middle-flag</code>, to &lsquo;<samp>t</samp>&rsquo; before
+loading Hyperbole, then you may also use the middle mouse key as the Action
+Key).  If you want both the middle mouse key as the Action Key and the
+right mouse key as the Assist Key for ease of use, then within your
+personal <samp>~/.emacs</samp> file, add: <code>(add-hook 'hyperbole-init-hook
+'hmouse-add-unshifted-smart-keys)</code> and then restart Emacs.
 </p>
 <a name="index-key-binding_002c-smart-keys"></a>
 <a name="index-smart-key-commands"></a>
@@ -1168,37 +1201,38 @@ and then restart Emacs.
 <p>If you prefer other key assignments, simply bind the commands
 <code>action-key</code> and <code>assist-key</code> to keyboard keys.
 <code>hkey-either</code> may be used instead if you prefer a single
-key binding for both commands; a prefix argument, such as <kbd>{C-u}</kbd>,
-then invokes <code>assist-key</code>.  You may also bind <code>action-mouse-key</code>
-and <code>assist-mouse-key</code> to other mouse keys, if you like, though
-you won&rsquo;t be able to execute drag actions with such key bindings.
+key binding for both commands; a prefix argument, such as <kbd>{C-u}</kbd>, then
+invokes <code>assist-key</code>.  You may also bind <code>action-mouse-key</code>
+and <code>assist-mouse-key</code> to other mouse keys, though you won&rsquo;t be able
+to execute mouse drag actions with such key bindings.
 </p>
 <p>Mouse configuration of the Smart Keys is automatic for GNU Emacs under
 Mac OS X, the X Window System and MS Windows assuming your emacs program
 has been built with support for any of these window systems.
 </p>
 <a name="index-file_002c-_002eemacs"></a>
-<a name="index-hmouse_002dtoggle_002dbindings"></a>
-<a name="index-mouse-key-toggle"></a>
-<a name="index-Smart-Mouse-Key-toggle"></a>
-<a name="index-C_002dc-t"></a>
-<p>If you ever want to restore the mouse bindings that existed before
-Hyperbole was loaded, use the <code>hmouse-toggle-bindings</code> command.
-It switches between the Hyperbole mouse key bindings and those set
-prior to loading Hyperbole and then back again if invoked once more.
-There is no default key binding for this command; use <kbd>{M-x
-hmouse-toggle-bindings <span class="key">RET</span>}</kbd>.  Alternatively, you may select a
-key and bind it as part of any setting of <code>hyperbole-init-hook</code>
-within your personal <samp>~/.emacs</samp> file.  For example, <code>(add-hook
-'hyperbole-init-hook (lambda () (global-set-key &quot;\C-ct&quot;
-'hmouse-toggle-bindings)))</code>.
+<a name="index-hyperbole_002dtoggle_002dbindings"></a>
+<a name="index-change-key-bindings"></a>
+<a name="index-toggle-key-bindings"></a>
+<a name="index-key-bindings_002c-toggle"></a>
+<a name="index-disable-Hyperbole"></a>
+<a name="index-C_002dc-h"></a>
+<p>If you ever need to temporarily disable the Hyperbole keyboard and mouse
+bindings, use the <code>hyperbole-toggle-bindings</code> command.  It switches
+between the Hyperbole key bindings and those set prior to loading Hyperbole
+and then back again if invoked once more.  There is no default key binding
+for this command; use <kbd>{M-x hyperbole-toggle-bindings
+<span class="key">RET</span>}</kbd>.  Alternatively, you may select a key and bind it as part of any
+setting of <code>hyperbole-init-hook</code> within your personal <samp>~/.emacs</samp>
+file.  For example, <code>(add-hook 'hyperbole-init-hook (lambda ()
+(global-set-key &quot;\C-ch&quot; 'hyperbole-toggle-bindings)))</code>.
 </p>
 
 <hr>
 <a name="Smart-Key-Operations"></a>
 <div class="header">
 <p>
-Next: <a href="#Smart-Key-Modeline-Clicks" accesskey="n" rel="next">Smart Key Modeline Clicks</a>, Previous: <a href="#Smart-Key-Bindings" accesskey="p" rel="prev">Smart Key Bindings</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Smart-Key-Argument-Selection" accesskey="n" rel="next">Smart Key Argument Selection</a>, Previous: <a href="#Smart-Key-Bindings" accesskey="p" rel="prev">Smart Key Bindings</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Smart-Key-Operations-1"></a>
 <h3 class="section">2.2 Smart Key Operations</h3>
@@ -1215,12 +1249,12 @@ function to whatever the Action Key does within a context.
 <a name="index-menu-item_002c-Doc_002fSmartKeys"></a>
 <a name="index-Smart-Key-summary"></a>
 <a name="index-modeline_002c-Smart-Keys"></a>
-<p>The Hyperbole Doc/SmartKeys menu entry displays a summary of what the
-Smart Keys do in all of their different contexts.  Alternatively, a
-click of the Assist Mouse Key in the right corner of a window
-modeline (within the rightmost 3 characters) toggles between
-displaying this summary and hiding it.  Reference this summary
-whenever you need it.
+<p>The Hyperbole Doc/SmartKeys menu entry, <kbd>{C-h h d s}</kbd>, displays a
+summary of what the Smart Keys do in all of their different contexts.
+Alternatively, a click of the Assist Mouse Key in the right corner of a
+window modeline (within the rightmost 3 characters) toggles between
+displaying this summary and hiding it.  Reference this summary whenever you
+need it.
 </p>
 <p>The following table is the same summary.  Much of the browsing power
 of Hyperbole comes from the use of the Smart Keys, so spend some time
@@ -1392,235 +1426,13 @@ to Hyperbole, so you must press the shift key when you type
 the <tt class="key">A</tt> character.
 </p>
 <hr>
-<a name="Smart-Key-Modeline-Clicks"></a>
-<div class="header">
-<p>
-Next: <a href="#Smart-Key-Thing-Selection" accesskey="n" rel="next">Smart Key Thing Selection</a>, Previous: <a href="#Smart-Key-Operations" accesskey="p" rel="prev">Smart Key Operations</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
-</div>
-<a name="Smart-Key-Modeline-Clicks-1"></a>
-<h3 class="section">2.3 Smart Key Modeline Clicks</h3>
-
-<p>Smart Mouse Key clicks on a window&rsquo;s modeline offer many powerful browsing
-features, including directory editing (dired), user manual browsing, and
-window, buffer and frame selection.  Generally, only Hyperbole-specific
-modeline actions are discussed herein.
-</p>
-<ul>
-<li> Leftmost Character
-
-<a name="index-bury-buffer"></a>
-<a name="index-unbury-buffer"></a>
-<a name="index-modeline_002c-bury-buffer"></a>
-<a name="index-modeline_002c-unbury-buffer"></a>
-<a name="index-modeline_002c-leftmost-character"></a>
-<p>Action Key clicks on the first (usually blank) character of the
-modeline bury the current buffer in the buffer list and display the
-next buffer in the list.  Assist Key clicks do the reverse and unbury
-the bottom buffer.
-</p>
-<a name="index-modeline_002c-next-buffer"></a>
-<a name="index-modeline_002c-prev-buffer"></a>
-<p>A similar effect can be achieved with the standard Emacs mouse 1 and 3 buttons
-on the Buffer Id element of modeline which cycle through previous and next
-buffers respectively.  This may be easier to use since you can click anywhere
-on the buffer identifier.
-</p>
-</li><li> Buffer Id Element
-
-<a name="index-dired"></a>
-<a name="index-modeline_002c-dired"></a>
-<a name="index-buffer-id"></a>
-<a name="index-modeline_002c-buffer-id"></a>
-<a name="index-dragging-items_002c-dired"></a>
-<p>On the left part of the modeline is the buffer identification,
-generally the name of the buffer in use.  An Action Key click on that
-switches the window to edit the buffer&rsquo;s directory using dired.
-Action Key clicks on directory items in dired display the items
-in other windows.  An Action Key drag from an item to another window
-displays the item in that window.
-</p>
-<p>An Action Key click on the first buffer line containing the current
-directory path, specifically on any ancestor part of the path (the part to
-the left of the click point), starts another dired session on the ancestor
-directory.  Click at the end of this line to end the dired session (bury
-its buffer).
-</p>
-</li><li> Large Blank Area
-
-<a name="index-buffer-menu"></a>
-<a name="index-modeline_002c-buffer-menu"></a>
-<a name="index-jump-menu"></a>
-<a name="index-modeline_002c-jump-menu"></a>
-<a name="index-dragging-items_002c-buffer-menu"></a>
-<p>An Action Mouse Key click in a blank area of a window modeline (away
-from left and right edges) toggles between displaying and hiding a
-list of all buffers.  Once displayed, an Action Key click on a buffer
-item will display it in another window.  You can drag items to specific
-windows for display as well.
-</p>
-<p>An Assist Key click in the blank area of the modeline displays a quick
-access menu of display-oriented commands.  You can jump to buffers
-categorized by major mode, jump to windows by buffer name, or to
-frames by name.  Manage your windows and frames quickly with this menu
-as well.  As always with Hyperbole, just try it and you&rsquo;ll begin to
-wonder how you lived without it before.
-</p>
-</li><li> Right Corner
-
-<a name="index-Info-browser"></a>
-<a name="index-modeline-click-and-drag"></a>
-<a name="index-modeline_002c-Info-Browser"></a>
-<p>A click of the Action Mouse Key in the right corner of a window
-modeline (within the rightmost 3 characters) displays or hides the
-GNU Info Manual Browser, giving you quick point and click access to
-an amazing wealth of documentation, since the Action Key also browses
-through these manuals and follows their hyperlinked cross-references.
-A click of the Assist Key in the same location displays or hides the
-Smart Key summary, as noted earlier.
-</p>
-</li><li> Customizable Variables
-
-<a name="index-action_002dkey_002dmodeline_002dfunction"></a>
-<a name="index-assist_002dkey_002dmodeline_002dfunction"></a>
-<a name="index-action_002dkey_002dmodeline"></a>
-<a name="index-assist_002dkey_002dmodeline"></a>
-<a name="index-hmouse_002dcontext_002dmenu"></a>
-<a name="index-hmouse_002dcontext_002dibuffer_002dmenu"></a>
-<a name="index-ibuffer-menu"></a>
-<p>Hyperbole modeline mouse click actions are controlled by the two functions,
-<code>action-key-modeline</code> and <code>assist-key-modeline</code>.  If you know
-a little Emacs Lisp you can change these to do whatever you like.
-When a Smart Key press is on a blank part of a modeline but not at
-the left or right, the function given by one of these two variables
-is executed: <code>action-key-modeline-function</code> or
-<code>assist-key-modeline-function</code>.  By default, the Action Key toggles
-between displaying and hiding the buffer menu.  If you like the more
-advanced features of <code>Ibuffer Mode</code>, you can change the buffer menu
-to use that with the following in your Emacs initialization file:
-<code>(setq action-key-modeline-function #'hmouse-context-ibuffer-menu)</code>.
-To set it back to the default use:
-<code>(setq action-key-modeline-function #'hmouse-context-menu)</code>.
-</p>
-<a name="index-dired_002djump"></a>
-<a name="index-hui_002dmenu_002dscreen_002dcommands"></a>
-<a name="index-directory-editor"></a>
-<a name="index-dired-1"></a>
-<a name="index-modeline_002c-screen-command-menu"></a>
-<p>The default <code>assist-key-modeline-function</code> is to pop up a menu of
-convenient screen commands that lets you select buffers grouped by
-major mode, use HyControl, or jump to specific windows, window
-configurations or frames.  If you would prefer it runs the directory
-editor <code>dired</code> on the directory associated with the window of the
-modeline press, use this: <code>(setq assist-key-modeline-function #'dired-jump)</code>.
-To set it back to the default use:
-<code>(setq assist-key-modeline-function #'hui-menu-screen-commands)</code>.
-</p>
-<p>These variables may also be changed permanently with the Emacs
-interactive customization interface.  Use <kbd>{M-x customize-variable
-<span class="key">RET</span> assist-key-modeline-function <span class="key">RET</span>}</kbd>.  In the Assist
-Modeline Function text field that appears, change the value
-to <code>dired-jump</code>.  Then press the &ldquo;Apply and Save&rdquo; button.
-</p></li></ul>
-
-<hr>
-<a name="Smart-Key-Thing-Selection"></a>
-<div class="header">
-<p>
-Next: <a href="#Smart-Key-Argument-Selection" accesskey="n" rel="next">Smart Key Argument Selection</a>, Previous: <a href="#Smart-Key-Modeline-Clicks" accesskey="p" rel="prev">Smart Key Modeline Clicks</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
-</div>
-<a name="Smart-Key-Thing-Selection-1"></a>
-<h3 class="section">2.4 Smart Key Thing Selection</h3>
-
-<a name="index-sexp-selection"></a>
-<a name="index-code-block-selection"></a>
-<a name="index-selection"></a>
-<a name="index-smart-selection"></a>
-<a name="index-smart-marking"></a>
-<a name="index-region-selection"></a>
-<a name="index-things"></a>
-<a name="index-delimited-things"></a>
-<p>Hyperbole has some radically cool ways to select regions of structured
-text or source code and to copy or move them between buffers with a
-single mouse drag or two key presses.  A great deal of smarts are
-built-in so that it does the right thing most of the time; many other
-attempts at similar behavior such as thing.el fail to deal with many
-file format complexities.
-</p>
-<p>We use the term <em>things</em> to refer to structured entities that
-Hyperbole can select.  These include: delimited pairs of (), {}, &lt;&gt;,
-[] and quote marks, source code functions, source code comments and
-matching tag pairs in HTML and SGML modes.  <em>Delimited things</em> are
-those things that contain a selectable delimiter such as an opening
-parenthesis.
-</p>
-<a name="index-HTML-tag-pair"></a>
-<a name="index-SGML-tag-pair"></a>
-<p>The best way to mark a delimited thing is to move your cursor to the
-starting delimiter of the thing and then press the Action Key.  Typically,
-you will see the thing highlight.  You can then operate upon it as you
-would any Emacs region.  In many cases, you can do the same thing upon
-the closing delimiter but this is not as reliable.  An Action Key
-press on the start of an HTML or SGML tag pair marks the entire region
-span of the pair.  If you use the Assist Key instead, it will mark and
-kill (delete) the thing.
-</p>
-<a name="index-drag_002c-with-region"></a>
-<a name="index-kill-region"></a>
-<a name="index-yank-region"></a>
-<a name="index-cut-region"></a>
-<a name="index-copy-region"></a>
-<a name="index-paste-region"></a>
-<p>Even better are Smart Mouse Key drags which let you copy or move
-delimited things in one operation without even highlighting them.  To
-copy, simply drag with the Action Key from a thing&rsquo;s opening delimiter
-and release somewhere outside of the thing, either within the same
-window or within another window.  The thing will be copied to the
-point of release.  If you want to move a thing, simply perform the
-same drag but with the Assist Mouse Key.  Ensure that you do not move
-any explicit buttons from one buffer to another as that does not
-presently work.
-</p>
-<p>Try out some of these operations in HTML or source code files to see
-how they can speed your editing.
-</p>
-<p>Hyperbole also binds two convenience keys for working with things.
-</p>
-<a name="index-C_002dc-RET"></a>
-<a name="index-hui_002dselect_002dthing"></a>
-<a name="index-hui_002dselect_002dthing_002dwith_002dmouse"></a>
-<p>The first such key is <kbd>{C-c <span class="key">RET</span>}</kbd> <code>hui-select-thing</code>
-which selects bigger and bigger syntactic regions with each successive
-use.  Double or triple clicks of the Selection Key (left mouse key) do
-the same thing.  The first press selects a region based upon the
-character at point.  For example, with point over an opening or
-closing grouping character, such as { or }, the whole grouping is
-selected, e.g. a C function.  When on an _ or - within a programming
-language identifier name, the whole name is selected.  The type of
-selection is displayed in the minibuffer as feedback.  When using a
-language in which indentation determines nesting level like Python, a
-double click on the first alpha character of a line, such as an if
-statement, selects the whole statement.  Use <kbd>{C-g}</kbd> to unmark the
-region when done.  Use, <code>hui-select-thing-with-mouse</code> if you want
-to bind this to a different mouse key to use single clicks instead of
-double clicks.
-</p>
-<a name="index-C_002dc-_002e"></a>
-<a name="index-hui_002dselect_002dgoto_002dmatching_002dtag"></a>
-<p>The second convenience key is bound only in HTML/web mode.  <kbd>{C-c
-.}</kbd> <code>hui-select-goto-matching-tag</code> jumps between the opening and
-closing tag of a pair.  It moves point to the start of the tag paired
-with the closest tag that point is within or which it precedes.  A
-second press moves point to the matching tag of the pair, allowing you
-to quickly jump back and forth between opening and closing tags.
-</p>
-<hr>
 <a name="Smart-Key-Argument-Selection"></a>
 <div class="header">
 <p>
-Next: <a href="#Smart-Key-Modifiers" accesskey="n" rel="next">Smart Key Modifiers</a>, Previous: <a href="#Smart-Key-Thing-Selection" accesskey="p" rel="prev">Smart Key Thing Selection</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Smart-Key-Debugging" accesskey="n" rel="next">Smart Key Debugging</a>, Previous: <a href="#Smart-Key-Operations" accesskey="p" rel="prev">Smart Key Operations</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Smart-Key-Argument-Selection-1"></a>
-<h3 class="section">2.5 Smart Key Argument Selection</h3>
+<h3 class="section">2.3 Smart Key Argument Selection</h3>
 
 <a name="index-Hyperbole-help"></a>
 <p>A prime design criterion of Hyperbole&rsquo;s user interface is that you
@@ -1659,54 +1471,13 @@ list of possible completions on screen, press the Action Key twice on
 any item to enter it as the argument.
 </p>
 <hr>
-<a name="Smart-Key-Modifiers"></a>
-<div class="header">
-<p>
-Next: <a href="#Smart-Key-Debugging" accesskey="n" rel="next">Smart Key Debugging</a>, Previous: <a href="#Smart-Key-Argument-Selection" accesskey="p" rel="prev">Smart Key Argument Selection</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
-</div>
-<a name="Smart-Key-Modifiers-1"></a>
-<h3 class="section">2.6 Smart Key Modifiers</h3>
-
-<p>For advanced users of Emacs and Hyperbole, there is <code>hmouse-mod-mode</code>,
-a global minor mode which turns the Action Mouse Key into a <tt class="key">Control</tt>
-modifier key and the Assist Key into a <tt class="key">Meta</tt> modifier key.  This
-allows for better keyboard energy balance across hands and is useful for
-reducing carpal tunnel stress.  It may also be used with a <em>chord
-keyboard</em> in one hand and a mouse in the other to point at things while
-simultaneously operating upon them.
-</p>
-<a name="index-hmouse_002dmod_002dmode"></a>
-<a name="index-hmouse_002dmod_002dmode-1"></a>
-<a name="index-Smart-Keys-as-modifiers"></a>
-<a name="index-control-key-modifier"></a>
-<a name="index-meta-key-modifier"></a>
-<a name="index-chord-keyboards"></a>
-<p>Use the <code>hmouse-mod-mode</code> global minor mode to enable this feature.
-<kbd>{C-u M-x hmouse-mod-mode <span class="key">RET</span>}</kbd> enables it and adds
-&lsquo;<samp>HyMod</samp>&rsquo; to the list of modeline minor modes.  <kbd>{C-u 0 M-x
-hmouse-mod-mode <span class="key">RET</span>}</kbd> disables it and <kbd>{M-x
-hmouse-mod-mode <span class="key">RET</span>}</kbd> toggles it on and off.
-</p>
-<p>When enabled, if the Action Key is held down while alpha characters
-are typed, they are translated into <tt class="key">Control</tt> keys instead.  The
-Assist Key translates them into <tt class="key">Meta</tt> keys.  When both Smart
-Keys are depressed, <tt class="key">Control-Meta</tt> keys are produced.  The
-commands bound to the characters produced are then run.  For example,
-Action Key + <kbd>{a}</kbd> runs the function for <kbd>{C-a}</kbd>.  If no
-keys are typed while the Smart Keys are down, they operate as
-normally under Hyperbole.
-</p>
-<p>The code for Smart Key modifiers can be found in
-<samp><code>${hyperb:dir}</code>/hmouse-mod.el</samp>.
-</p>
-<hr>
 <a name="Smart-Key-Debugging"></a>
 <div class="header">
 <p>
-Previous: <a href="#Smart-Key-Modifiers" accesskey="p" rel="prev">Smart Key Modifiers</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Smart-Key-Thing-Selection" accesskey="n" rel="next">Smart Key Thing Selection</a>, Previous: <a href="#Smart-Key-Argument-Selection" accesskey="p" rel="prev">Smart Key Argument Selection</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Smart-Key-Debugging-1"></a>
-<h3 class="section">2.7 Smart Key Debugging</h3>
+<h3 class="section">2.4 Smart Key Debugging</h3>
 
 <p>Typically, <kbd>{C-h A}</kbd> and <kbd>{C-u C-h A}</kbd> which show Action and
 Assist Key help for the current context, are sufficient for seeing how
@@ -1739,6 +1510,458 @@ messages from your current emacs session into your email.  Similarly,
 when you compose an email to the hyperbole-users mailing list
 with <kbd>{C-h h m c}</kbd>, these messages are also included.
 </p>
+<hr>
+<a name="Smart-Key-Thing-Selection"></a>
+<div class="header">
+<p>
+Next: <a href="#Smart-Mouse-Key-Modeline-Clicks" accesskey="n" rel="next">Smart Mouse Key Modeline Clicks</a>, Previous: <a href="#Smart-Key-Debugging" accesskey="p" rel="prev">Smart Key Debugging</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Smart-Key-Thing-Selection-1"></a>
+<h3 class="section">2.5 Smart Key Thing Selection</h3>
+
+<a name="index-sexp-selection"></a>
+<a name="index-code-block-selection"></a>
+<a name="index-selection"></a>
+<a name="index-smart-selection"></a>
+<a name="index-smart-marking"></a>
+<a name="index-region-selection"></a>
+<a name="index-things"></a>
+<a name="index-delimited-things"></a>
+<p>Hyperbole has some radically cool ways to select regions of structured text
+or source code and to copy or move them between buffers with a single mouse
+drag or two key presses.  A great deal of smarts are built-in so that it
+does the right thing most of the time; many other attempts at similar
+behavior such as <samp>thing.el</samp> fail to deal with many file format
+complexities.
+</p>
+<p>We use the term <em>things</em> to refer to structured entities that
+Hyperbole can select.  These include: delimited pairs of (), {}, &lt;&gt;,
+[] and quote marks, source code functions, source code comments and
+matching tag pairs in HTML and SGML modes.  <em>Delimited things</em> are
+those things that contain a selectable delimiter such as an opening
+parenthesis.
+</p>
+<a name="index-HTML-tag-pair"></a>
+<a name="index-SGML-tag-pair"></a>
+<p>The best way to mark a delimited thing is to move your cursor to the
+starting delimiter of the thing and then press the Action Key.  Typically,
+you will see the thing highlight.  You can then operate upon it as you
+would any Emacs region.  In many cases, you can do the same thing upon
+the closing delimiter, but this is not as reliable.  An Action Key
+press on the start of an HTML or SGML tag pair marks the entire region
+span of the pair.  If you use the Assist Key instead, it will mark and
+kill (delete) the thing.
+</p>
+<a name="index-drag_002c-with-region"></a>
+<a name="index-kill-region"></a>
+<a name="index-yank-region"></a>
+<a name="index-cut-region"></a>
+<a name="index-copy-region"></a>
+<a name="index-paste-region"></a>
+<p>Even better are Smart Mouse Key drags which let you copy or move
+delimited things in one operation without even highlighting them.  To
+copy, simply drag with the Action Key from a thing&rsquo;s opening delimiter
+and release somewhere outside of the thing, either within the same
+window or within another window.  The thing will be copied to the
+point of release.  If you want to move a thing, simply perform the
+same drag but with the Assist Mouse Key.  Ensure that you do not move
+any explicit buttons from one buffer to another as that does not
+work.
+</p>
+<p>Try out some of these operations in HTML or source code files to see
+how they can speed your editing.
+</p>
+<p>Hyperbole also binds two convenience keys for working with things.
+</p>
+<a name="index-C_002dc-RET"></a>
+<a name="index-hui_002dselect_002dthing"></a>
+<a name="index-hui_002dselect_002dthing_002dwith_002dmouse"></a>
+<p>The first such key is <kbd>{C-c <span class="key">RET</span>}</kbd> <code>hui-select-thing</code> which
+selects bigger and bigger syntactic regions with each successive use.
+Double or triple clicks of the Selection Key (left mouse key) do the same
+thing.  The first press selects a region based upon the character at point.
+For example, with point over an opening or closing grouping character, such
+as { or }, the whole grouping is selected, e.g. a C function.  When on an
+_ or - within a programming language identifier name, the whole name is
+selected.  The type of selection is displayed in the minibuffer as
+feedback.  When using a language in which indentation determines nesting
+level like Python, a double click on the first alpha character of a line,
+such as an if statement, selects the current clause (until the next line at
+the same or lesser indentation).  Use <kbd>{C-g}</kbd> to unmark the region when
+done.  Use, <code>hui-select-thing-with-mouse</code> if you want to bind this to
+a different mouse key to use single clicks instead of double clicks.
+</p>
+<a name="index-C_002dc-_002e"></a>
+<a name="index-hui_002dselect_002dgoto_002dmatching_002dtag"></a>
+<p>The second convenience key is bound only in HTML/web mode.  <kbd>{C-c
+.}</kbd> <code>hui-select-goto-matching-tag</code> jumps between the opening and
+closing tag of a pair.  It moves point to the start of the tag paired
+with the closest tag that point is within or which it precedes.  A
+second press moves point to the matching tag of the pair, allowing you
+to quickly jump back and forth between opening and closing tags.
+</p>
+<hr>
+<a name="Smart-Mouse-Key-Modeline-Clicks"></a>
+<div class="header">
+<p>
+Next: <a href="#Smart-Mouse-Key-Drags" accesskey="n" rel="next">Smart Mouse Key Drags</a>, Previous: <a href="#Smart-Key-Thing-Selection" accesskey="p" rel="prev">Smart Key Thing Selection</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Smart-Mouse-Key-Modeline-Clicks-1"></a>
+<h3 class="section">2.6 Smart Mouse Key Modeline Clicks</h3>
+
+<p>Smart Mouse Key clicks on a window&rsquo;s modeline offer many powerful browsing
+features, including directory editing (dired), user manual browsing, and
+window, buffer and frame selection.  Generally, only Hyperbole-specific
+modeline actions are discussed herein.
+</p>
+<ul>
+<li> Leftmost Character
+
+<a name="index-bury-buffer"></a>
+<a name="index-unbury-buffer"></a>
+<a name="index-modeline_002c-bury-buffer"></a>
+<a name="index-modeline_002c-unbury-buffer"></a>
+<a name="index-modeline_002c-leftmost-character"></a>
+<p>Action Key clicks on the first (usually blank) character of the
+modeline bury the current buffer in the buffer list and display the
+next buffer in the list.  Assist Key clicks do the reverse and unbury
+the bottom buffer.
+</p>
+<a name="index-modeline_002c-next-buffer"></a>
+<a name="index-modeline_002c-prev-buffer"></a>
+<p>A similar effect can be achieved with the standard Emacs mouse 1 (left) and
+3 (right) buttons on the Buffer ID element of modeline to cycle through
+previous and next buffers, respectively.  This may be easier to use since
+you can click anywhere on the buffer identifier.
+</p>
+</li><li> Buffer ID Element
+
+<a name="index-dired"></a>
+<a name="index-modeline_002c-dired"></a>
+<a name="index-buffer-id"></a>
+<a name="index-modeline_002c-buffer-id"></a>
+<a name="index-dragging-items_002c-dired"></a>
+<p>On the left part of the modeline is the buffer identification,
+generally the name of the buffer in use.  An Action Key click on that
+switches the window to edit the buffer&rsquo;s directory using dired.
+Then Action Key clicks on directory items in the dired buffer display the
+items selected in other windows.  An Action Key drag from an item to
+another window displays the item in that window.
+</p>
+<p>An Action Key click on the first line in a dired buffer which contains the
+current directory path, specifically on any ancestor part of the path (the
+part to the left of the click point), starts another dired session on the
+ancestor directory.  Click at the end of this line to end the dired session
+(bury its buffer).
+</p>
+</li><li> Large Blank Area
+
+<a name="index-buffer-menu"></a>
+<a name="index-modeline_002c-buffer-menu"></a>
+<a name="index-jump-menu"></a>
+<a name="index-modeline_002c-jump-menu"></a>
+<a name="index-dragging-items_002c-buffer-menu"></a>
+<p>An Action Mouse Key click in a blank area of a window modeline (away
+from left and right edges) toggles between displaying and hiding a
+list of all buffers.  Once displayed, an Action Key click on a buffer
+item will display it in another window.  You can drag items to specific
+windows for display as well.
+</p>
+<p>Alternatively, you may (1) display the buffer menu, (2) use its <kbd>{m}</kbd>
+command to mark buffers, and (3) use the Hyperbole <kbd>{@}</kbd> command to
+display the marked buffers in a grid of popup windows whose number of
+rows and columns you specify at the prompt or via a prefix argument.
+This also works in <code>ibuffer-menu</code> and <code>dired</code> modes.
+See <a href="#HyControl">HyControl</a>.
+</p>
+<p>An Assist Key click in the blank area of the modeline displays a quick
+access menu of display-oriented commands.  You can jump to buffers
+categorized by major mode, jump to windows by buffer name, or to
+frames by name.  Manage your windows and frames quickly with this menu
+as well.  As always with Hyperbole, just try it and you&rsquo;ll begin to
+wonder how you lived without it before.
+</p>
+</li><li> Right Corner
+
+<a name="index-Info-browser"></a>
+<a name="index-modeline-click-and-drag"></a>
+<a name="index-modeline_002c-Info-Browser"></a>
+<p>A click of the Action Mouse Key in the right corner of a window
+modeline (within the rightmost 3 characters) displays or hides the
+GNU Info Manual Browser, giving you quick point and click access to
+an amazing wealth of documentation, since the Action Key also browses
+through these manuals and follows their hyperlinked cross-references.
+A click of the Assist Key in the same location displays or hides the
+Smart Key summary, as noted earlier.
+</p>
+</li><li> Customizable Variables
+
+<a name="index-action_002dkey_002dmodeline_002dfunction"></a>
+<a name="index-assist_002dkey_002dmodeline_002dfunction"></a>
+<a name="index-action_002dkey_002dmodeline"></a>
+<a name="index-assist_002dkey_002dmodeline"></a>
+<a name="index-hmouse_002dcontext_002dmenu"></a>
+<a name="index-hmouse_002dcontext_002dibuffer_002dmenu"></a>
+<a name="index-ibuffer-menu"></a>
+<p>Hyperbole modeline mouse click actions are controlled by the two functions,
+<code>action-key-modeline</code> and <code>assist-key-modeline</code>.  If you know
+a little Emacs Lisp you can change these to do whatever you like.  When a
+Smart Key press is on a blank part of a modeline but not at the left or
+right, the function given by one of these two variables is
+executed: <code>action-key-modeline-function</code> or
+<code>assist-key-modeline-function</code>.  By default, the Action Key toggles
+between displaying and hiding the buffer menu.  If you like the more
+advanced features of <code>Ibuffer Mode</code>, you can change the buffer menu to
+use that with the following in your Emacs initialization file:
+<code>(setq action-key-modeline-function #'hmouse-context-ibuffer-menu)</code>.
+To set it back to the default use:
+<code>(setq action-key-modeline-function #'hmouse-context-menu)</code>.
+</p>
+<a name="index-dired_002djump"></a>
+<a name="index-hui_002dmenu_002dscreen_002dcommands"></a>
+<a name="index-directory-editor"></a>
+<a name="index-dired-1"></a>
+<a name="index-modeline_002c-screen-command-menu"></a>
+<p>The default <code>assist-key-modeline-function</code> is to pop up a menu of
+convenient screen commands that lets you select buffers grouped by
+major mode, use HyControl, or jump to specific windows, window
+configurations or frames.  If you would prefer it runs the directory
+editor <code>dired</code> on the directory associated with the window of the
+modeline press, use this: <code>(setq assist-key-modeline-function #'dired-jump)</code>.
+To set it back to the default use:
+<code>(setq assist-key-modeline-function #'hui-menu-screen-commands)</code>.
+</p>
+<p>These variables may also be changed permanently with the Emacs
+interactive customization interface.  Use <kbd>{M-x customize-variable
+<span class="key">RET</span> assist-key-modeline-function <span class="key">RET</span>}</kbd>.  In the Assist
+Modeline Function text field that appears, change the value
+to <code>dired-jump</code>.  Then press the &ldquo;Apply and Save&rdquo; button.
+</p></li></ul>
+
+<hr>
+<a name="Smart-Mouse-Key-Drags"></a>
+<div class="header">
+<p>
+Previous: <a href="#Smart-Mouse-Key-Modeline-Clicks" accesskey="p" rel="prev">Smart Mouse Key Modeline Clicks</a>, Up: <a href="#Smart-Keys" accesskey="u" rel="up">Smart Keys</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Smart-Mouse-Key-Drags-1"></a>
+<h3 class="section">2.7 Smart Mouse Key Drags</h3>
+
+<a name="index-smart-mouse-key-drag"></a>
+<a name="index-Action-Mouse-Key-drag"></a>
+<a name="index-Assist-Mouse-Key-drag"></a>
+<a name="index-drag_002c-Smart-Mouse-Key"></a>
+<p>As mentioned in the section on Thing Selection, Hyperbole Smart Mouse Key
+drag actions can be quite useful.  This section summarizes other drag
+contexts and actions; for complete documentation, see <a href="#Smart-Mouse-Keys">Smart Mouse Keys</a>.
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Creating-and-Deleting-Windows" accesskey="1">Creating and Deleting Windows</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Saving-and-Restoring-Window-Configurations" accesskey="2">Saving and Restoring Window Configurations</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Resizing-Windows" accesskey="3">Resizing Windows</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Dragging-Buffers" accesskey="4">Dragging Buffers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<a name="Creating-and-Deleting-Windows"></a>
+<div class="header">
+<p>
+Next: <a href="#Saving-and-Restoring-Window-Configurations" accesskey="n" rel="next">Saving and Restoring Window Configurations</a>, Previous: <a href="#Smart-Mouse-Key-Drags" accesskey="p" rel="prev">Smart Mouse Key Drags</a>, Up: <a href="#Smart-Mouse-Key-Drags" accesskey="u" rel="up">Smart Mouse Key Drags</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Creating-and-Deleting-Windows-1"></a>
+<h4 class="subsection">2.7.1 Creating and Deleting Windows</h4>
+
+<a name="index-drag_002c-horizontal"></a>
+<a name="index-horizontal-drag"></a>
+<a name="index-drag_002c-vertical"></a>
+<a name="index-vertical-drag"></a>
+<p>Horizontal and vertical drags of the Smart Mouse Keys are used to split and
+delete Emacs windows.
+</p>
+<p>An Action Mouse Key horizontal drag of five or more characters in either
+direction within a single window creates a new window by splitting the
+current window into two windows, one atop the other.  An Action Mouse Key
+vertical drag in either direction splits the current window into two
+side-by-side windows.  A horizontal or vertical drag of the Assist Mouse
+Key within a single window, deletes that window.
+</p>
+<a name="index-C_002dx-_002b"></a>
+<a name="index-rebalance-windows"></a>
+<a name="index-windows_002c-rebalance"></a>
+<p>If you split windows many times and then delete a number of the windows,
+you&rsquo;ll be left with windows of differing heights.  Use <kbd>{C-x +}</kbd> to
+re-balance the sizes of the remaining windows, so they are fairly even.
+</p>
+<hr>
+<a name="Saving-and-Restoring-Window-Configurations"></a>
+<div class="header">
+<p>
+Next: <a href="#Resizing-Windows" accesskey="n" rel="next">Resizing Windows</a>, Previous: <a href="#Creating-and-Deleting-Windows" accesskey="p" rel="prev">Creating and Deleting Windows</a>, Up: <a href="#Smart-Mouse-Key-Drags" accesskey="u" rel="up">Smart Mouse Key Drags</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Saving-and-Restoring-Window-Configurations-1"></a>
+<h4 class="subsection">2.7.2 Saving and Restoring Window Configurations</h4>
+
+<a name="index-window-configuration-drag"></a>
+<a name="index-drag_002c-window-configuration"></a>
+<a name="index-drag_002c-diagonal"></a>
+<a name="index-diagonal-drag"></a>
+<p>A window configuration consists of the set of windows within a single Emacs
+frame.  This includes their locations, buffers, and the scrolled positions of
+their buffers.
+</p>
+<p>Hyperbole allows you to save and restore window configurations with simple
+diagonal mouse drags within a single window.  A diagonal drag in any
+direction of the Action Key saves the current window configuration to a
+ring of window configurations, just like the Emacs text kill ring.
+(See <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Kill-Ring">Kill Ring</a> in <cite>the Emacs Manual</cite>).  Each diagonal drag in any
+direction of the Assist Key restores a prior saved window configuration
+from the ring.  Window configurations are restored in reverse order of the
+way they were saved.  Since a ring is circular, after the oldest element is
+restored, the newest element will again be restored and so on.
+</p>
+<hr>
+<a name="Resizing-Windows"></a>
+<div class="header">
+<p>
+Next: <a href="#Dragging-Buffers" accesskey="n" rel="next">Dragging Buffers</a>, Previous: <a href="#Saving-and-Restoring-Window-Configurations" accesskey="p" rel="prev">Saving and Restoring Window Configurations</a>, Up: <a href="#Smart-Mouse-Key-Drags" accesskey="u" rel="up">Smart Mouse Key Drags</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Resizing-Windows-1"></a>
+<h4 class="subsection">2.7.3 Resizing Windows</h4>
+
+<a name="index-resizing-windows"></a>
+<a name="index-drag_002c-resize-window"></a>
+<p>Emacs windows may be resized by dragging their window separators (modelines
+or vertical side lines) within a frame.  Simply depress either Smart Mouse
+Key on a modeline or near a window side, hold it down while you drag to a
+new location and then release.  The window separator will then jump to the
+location of release.  Basically, just drag the window separator to where
+you want it.  Nowadays a better version of Emacs window resizing exists on
+the left mouse key.  A drag with this key from a blank area of a modeline
+or a window side divider shows visible feedback as the window is resized.
+But if you are always using the Smart Mouse Keys, you may prefer to use
+them for resizing windows as well.
+</p>
+<p>Note that you cannot drag the bottom-most modeline; you would have to
+resize the frame to move the bottom of that window up.
+</p>
+<hr>
+<a name="Dragging-Buffers"></a>
+<div class="header">
+<p>
+Previous: <a href="#Resizing-Windows" accesskey="p" rel="prev">Resizing Windows</a>, Up: <a href="#Smart-Mouse-Key-Drags" accesskey="u" rel="up">Smart Mouse Key Drags</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Dragging-Buffers_002c-Windows-and-Items"></a>
+<h4 class="subsection">2.7.4 Dragging Buffers, Windows and Items</h4>
+
+<p>Smart Mouse Key drags let you display buffers and windows however you want
+them.  Dired and buffer-menu items may also be displayed in specific
+locations with drags.  Below we explore these drag actions.
+</p>
+<table class="menu" border="0" cellspacing="0">
+<tr><td align="left" valign="top">&bull; <a href="#Swapping-Buffers" accesskey="1">Swapping Buffers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Displaying-Buffers" accesskey="2">Displaying Buffers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Cloning-Windows" accesskey="3">Cloning Windows</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Displaying-File-and-Buffer-Items" accesskey="4">Displaying File and Buffer Items</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+</table>
+
+<hr>
+<a name="Swapping-Buffers"></a>
+<div class="header">
+<p>
+Next: <a href="#Displaying-Buffers" accesskey="n" rel="next">Displaying Buffers</a>, Previous: <a href="#Dragging-Buffers" accesskey="p" rel="prev">Dragging Buffers</a>, Up: <a href="#Dragging-Buffers" accesskey="u" rel="up">Dragging Buffers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Swapping-Buffers-1"></a>
+<h4 class="subsubsection">2.7.4.1 Swapping Buffers</h4>
+
+<a name="index-swap-buffers"></a>
+<a name="index-window_002c-swap-buffer"></a>
+<a name="index-buffer_002c-swap"></a>
+<a name="index-drag_002c-buffer-swap"></a>
+<p>Swapping buffer locations is quick and easy with Hyperbole.  Simply drag
+from one window to another with the Assist Key (not the Action Key).  This
+works across frames as well.
+</p>
+<p>If you have just two windows in an Emacs frame, you can swap their buffers
+from the keyboard.  Use this Hyperbole minibuffer menu key sequence
+involving the tilde key to swap the buffers and quit from the Hyperbole
+minibuffer menu: <kbd>{C-h h s w ~ q}</kbd>.
+</p>
+<hr>
+<a name="Displaying-Buffers"></a>
+<div class="header">
+<p>
+Next: <a href="#Cloning-Windows" accesskey="n" rel="next">Cloning Windows</a>, Previous: <a href="#Swapping-Buffers" accesskey="p" rel="prev">Swapping Buffers</a>, Up: <a href="#Dragging-Buffers" accesskey="u" rel="up">Dragging Buffers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Displaying-Buffers-1"></a>
+<h4 class="subsubsection">2.7.4.2 Displaying Buffers</h4>
+
+<a name="index-buffer_002c-copy"></a>
+<a name="index-copy-buffer"></a>
+<a name="index-drag_002c-copy-buffer"></a>
+<p>What if you want to display the same buffer in another window and not swap
+buffers?  Depress the Action Mouse Key in the open area of the modeline of
+the source window and drag to the text area of the destination window.
+Voila, the buffer appears in the new location as well as the old one.
+</p>
+<p>If you want a new window where you release (so the original destination window&rsquo;s
+buffer stays onscreen), just drag to a window&rsquo;s modeline; that window will be
+split before the buffer is displayed.
+</p>
+<hr>
+<a name="Cloning-Windows"></a>
+<div class="header">
+<p>
+Next: <a href="#Displaying-File-and-Buffer-Items" accesskey="n" rel="next">Displaying File and Buffer Items</a>, Previous: <a href="#Displaying-Buffers" accesskey="p" rel="prev">Displaying Buffers</a>, Up: <a href="#Dragging-Buffers" accesskey="u" rel="up">Dragging Buffers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Cloning-Windows-1"></a>
+<h4 class="subsubsection">2.7.4.3 Cloning Windows</h4>
+
+<a name="index-clone-window"></a>
+<a name="index-window_002c-clone"></a>
+<a name="index-drag_002c-clone-window"></a>
+<p>To clone a window with its buffer to a new frame, simply drag the Action Mouse
+Key from the window to outside of Emacs and release the key.  A new frame will
+be created, selected and sized according to the original window.  Do the same
+thing with the Assist Mouse Key and the original window will be deleted as well,
+unless it is the only window in that frame.
+</p>
+<hr>
+<a name="Displaying-File-and-Buffer-Items"></a>
+<div class="header">
+<p>
+Previous: <a href="#Cloning-Windows" accesskey="p" rel="prev">Cloning Windows</a>, Up: <a href="#Dragging-Buffers" accesskey="u" rel="up">Dragging Buffers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Displaying-File-and-Buffer-Items-1"></a>
+<h4 class="subsubsection">2.7.4.4 Displaying File and Buffer Items</h4>
+
+<a name="index-dired-item-drag"></a>
+<a name="index-buffer-menu-item-drag"></a>
+<a name="index-drag_002c-dired-item"></a>
+<a name="index-drag_002c-buffer-menu-item"></a>
+<p>You can do the same thing with items in dired, buffer menu and ibuffer menus
+rather than buffers themselves.  Drag with the Action Mouse Key and the selected
+item will be displayed in any Emacs window in which you release.  Drag outside
+Emacs and it will be displayed in a new frame.
+</p>
+<p>So now you can put a bunch of buffers and files on your screen wherever
+you like.  Typically, a brief visual pulse is shown first at the source item and
+then in the whole destination window, to help you see that the transfer has been
+made.  An Assist Key Drag will move the the item list buffer to the
+destination (swapping buffers), just as it does with other buffers.
+</p>
+
+
+
+
+
 
 <hr>
 <a name="Buttons"></a>
@@ -1792,7 +2015,7 @@ Implicit buttons may appear only within document contexts allowed by
 their types, which may limit the kinds of documents or the locations
 within those documents at which such buttons may be found.  All global
 buttons for a user are stored in a single location and are activated by
-entering their names, rather than by direct selection, the means used to
+typing their names, rather than by direct selection, the means used to
 activate explicit and implicit buttons.
 </p>
 <p>To summarize:
@@ -1801,19 +2024,19 @@ activate explicit and implicit buttons.
 <pre class="example">Button Category   Active Within        Activation Means      Managed By
 ========================================================================
 Explicit          a single document    direct selection      Hyperbole
-Global            any document         entering its name     Hyperbole
+Global            any document         typing its name       Hyperbole
 Implicit          a matching context   direct selection      other tools
 
 </pre></div>
 
 <a name="index-terminal-use"></a>
 <p>A click on a Hyperbole button may activate it or describe its actions,
-depending on which mouse key is used.  Buttons may also be activated
-from a keyboard.  (In fact, virtually all Hyperbole operations,
-including menu usage, may be performed from any standard character
-terminal interface, so you need not be anchored to a workstation all
-day).  See <a href="#Smart-Keys">Smart Keys</a>.  There is also a key that shows you how a
-button will behave before you activated it, see <a href="#Smart-Key-Operations">Smart Key Operations</a>.
+depending on which mouse key is used.  Buttons may also be activated from a
+keyboard.  (In fact, many Hyperbole operations, including menu usage, may
+be performed from any standard character terminal interface, so you need
+not be anchored to a desktop all day).  See <a href="#Smart-Keys">Smart Keys</a>.  There is
+also a key that shows you how a button will behave before you activate
+it, see <a href="#Smart-Key-Operations">Smart Key Operations</a>.
 </p>
 <table class="menu" border="0" cellspacing="0">
 <tr><td align="left" valign="top">&bull; <a href="#Explicit-Buttons" accesskey="1">Explicit Buttons</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
@@ -1874,20 +2097,19 @@ buttons, see <a href="#Utilizing-Explicit-Buttons">Utilizing Explicit Buttons</a
 </p>
 <a name="index-link-button"></a>
 <a name="index-referent"></a>
-<p>Each explicit button is assigned an action type that determines the
-actions it performs.  <em>Link action types</em> connect buttons to
-particular types of <em>referents</em>, the targets of their links.  Link
-action type names all begin with <code>link-</code>.  Link action button
-referents are displayed when such buttons are  by
-pressing or clicking upon them.  See <a href="#Action-Types">Action Types</a>, for a list of
-standard action types including link types.
+<p>Each explicit button is assigned an action type that determines the actions
+it performs.  <em>Link action types</em> connect buttons to particular types
+of <em>referents</em>, the targets of their links.  Link action type names all
+begin with <code>link-</code>.  Link action button referents are displayed when
+such buttons are activated with a press or a click.  See <a href="#Action-Types">Action Types</a>,
+for a list of standard action types including link types.
 </p>
 <a name="index-linking_002c-in_002dplace"></a>
 <a name="index-Hyperbole-data-model"></a>
 <p>Hyperbole does not manage referent data; this is left to the
 applications that generate the data.  This means that Hyperbole
-provides in-place linking and does not require reformatting of data to
-integrate with Hyperbole.
+provides in-place linking and does not require reformatting data to
+integrate it with Hyperbole.
 </p>
 <a name="index-button-data"></a>
 <a name="index-button-attribute"></a>
@@ -1918,7 +2140,7 @@ Next: <a href="#Implicit-Buttons" accesskey="n" rel="next">Implicit Buttons</a>,
 since they are embedded within particular buffers.  Sometimes it is
 useful to activate buttons without regard to the information with which
 you are working.  In such instances, you use <em>global buttons</em>, which
-are buttons that may be activated or otherwise operated upon by entering
+are buttons that may be activated or otherwise operated upon by typing
 their labels/names when they are prompted for, rather than selecting the
 buttons within a buffer.
 </p>
@@ -1941,6 +2163,13 @@ the button&rsquo;s name and its action will be executed.
 <p>Global buttons are actually explicit buttons stored at the end of your
 personal button file, see <a href="#Button-Files">Button Files</a>.  You can always go into that
 file and activate, edit or annotate these buttons with comments.
+</p>
+<a name="index-bookmarks"></a>
+<p>Emacs has a built-in feature similar to Global Buttons called Bookmarks.
+Bookmarks store places in files or link to URLs, so they are more limited
+than Hyperbole&rsquo;s global buttons and cannot utilize all of Hyperbole&rsquo;s
+capabilities for performing actions.  See <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Bookmarks">Bookmarks</a> in <cite>the Emacs
+Manual</cite>, for details on bookmarks.
 </p>
 <hr>
 <a name="Implicit-Buttons"></a>
@@ -2024,8 +2253,8 @@ also the documentation for <code>actypes::hyp-config</code>.
 <a name="index-Info-node"></a>
 </dd>
 <dt><code>Info-node</code></dt>
-<dd><p>Makes &quot;(filename)nodename&quot; buttons display the associated Info node.
-Also makes &quot;(filename)itemname&quot; buttons display the associated Info
+<dd><p>Makes a &quot;(filename)nodename&quot; button display the associated Info node.
+Also makes a &quot;(filename)itemname&quot; button display the associated Info
 index item.
 </p>
 <a name="index-ibtypes-www_002durl"></a>
@@ -2072,10 +2301,10 @@ string is displayed.
 <a name="index-address"></a>
 </dd>
 <dt><code>mail-address</code></dt>
-<dd><p>If on an e-mail address in a specific buffer type, mail to that address
-in another window. Applies to the rolo match buffer, any buffer
-attached to a file in <code>hyrolo-file-list</code>, or any buffer with <samp>mail</samp>
-or <samp>rolo</samp> (case-insensitive) within its name.
+<dd><p>If on an e-mail address in a specific buffer type, compose mail to that
+address in another window. Applies to the rolo match buffer, any buffer
+attached to a file in <code>hyrolo-file-list</code>, or any buffer
+with <samp>mail</samp> or <samp>rolo</samp> (case-insensitive) within its name.
 </p>
 <a name="index-ibtypes-patch_002dmsg"></a>
 <a name="index-patch-output"></a>
@@ -2131,8 +2360,8 @@ specifiers.
 <a name="index-man-apropos"></a>
 </dd>
 <dt><code>man-apropos</code></dt>
-<dd><p>Makes man apropos entries (from &lsquo;<samp>man -k</samp>&rsquo;) display associated man pages when
-selected.
+<dd><p>Makes man apropos entries (from &lsquo;<samp>man -k</samp>&rsquo;) display associated man
+pages when selected.
 </p>
 <a name="index-ibtypes-rfc"></a>
 <a name="index-Internet-RFC"></a>
@@ -2142,11 +2371,11 @@ selected.
 <a name="index-ftp"></a>
 </dd>
 <dt><code>rfc</code></dt>
-<dd><p>Retrieves and displays an Internet rfc referenced at point.  Requires remote
-file access, e.g. via the Tramp library, for remote ftp retrievals.  The
+<dd><p>Retrieves and displays an Internet rfc referenced at point.  The
 following formats are recognized: RFC822, rfc-822, and RFC 822.  The
-<code>hpath:rfc</code> variable specifies the location from which to retrieve
-RFCs.&quot;
+<code>hpath:rfc</code> variable specifies the location from which to
+retrieve RFCs.  Requires the Emacs builtin Tramp library for ftp file
+retrievals.
 </p>
 <a name="index-ibtypes-kbd_002dkey"></a>
 <a name="index-key-sequence"></a>
@@ -2189,8 +2418,8 @@ very beginning of the line.
 <dt><code>cscope</code></dt>
 <dd><p>Jumps to a C/C++ source line associated with a Cscope C analyzer output line.
 Requires pre-loading of the cscope.el Lisp library available from the Emacs
-Lisp archives and the commercial cscope program available from AT&amp;T&rsquo;s
-software toolchest.  Otherwise, does nothing.
+Lisp archives and the open source cscope program available from
+http://cscope.sf.net.  Otherwise, does nothing.
 </p>
 <a name="index-ibtypes-etags"></a>
 <a name="index-etags-entry"></a>
@@ -2244,37 +2473,42 @@ handled elsewhere.
 <a name="index-hibtypes_002dgit_002ddefault_002dproject"></a>
 </dd>
 <dt><code>git-reference</code></dt>
-<dd><div class="format">
-<pre class="format">Displays the git entity associated with REFERENCE and optional PROJECT.
+<dd><p>Displays the git entity associated with REFERENCE and optional PROJECT.
+</p>
+<p>REFERENCE is a string of one of the following forms:
+</p><ul>
+<li> &lt;ref-item&gt;
+</li><li> /?&lt;project&gt;/&lt;ref-item&gt;
+</li><li> /&lt;project&gt;.
+</li></ul>
 
-</pre><pre class="format">REFERENCE is of the form:
-    &lt;ref-item&gt;
-    /?&lt;project&gt;/&lt;ref-item&gt;
-or  /&lt;project&gt;.
-</pre><pre class="format">
+<p>&lt;ref-item&gt; is one of these:
+</p><dl compact="compact">
+<dt>one of the words: branches, commits, or tags</dt>
+<dd><p>the associated items are listed
+</p></dd>
+<dt>one of the words: branch, commit, or tag followed by a &rsquo;/&rsquo; and item id</dt>
+<dd><p>the item is shown
+</p></dd>
+<dt>a commit reference given by a hex number, 55a1f0</dt>
+<dd><p>the commit diff is displayed
+</p></dd>
+<dt>a branch or tag reference given by an alphanumeric name, e.g. hyper20</dt>
+<dd><p>the files in the branch are listed.
+</p></dd>
+</dl>
 
-&lt;ref-item&gt; is one of these:
-</pre><ul>
-<li> <pre class="format">  one of the words: branches, commits, or tags; the associated items are listed;
-</pre></li><li> <pre class="format">  one of the words: branch, commit, or tag followed by a &rsquo;/&rsquo; and item id; the
-  item is shown;
-</pre></li><li> <pre class="format">  a commit reference given by a hex number, 55a1f0; the commit diff is
-  displayed;
-</pre></li><li> <pre class="format">  a branch or tag reference given by an alphanumeric name, e.g. hyper20; the
-  files in the branch are listed.
-</pre></li></ul>
-<pre class="format">
-
-<a name="index-hibtypes_002dgit_002ddefault_002dproject-1"></a>If given, PROJECT overrides any project value in REFERENCE.  If no
-PROJECT value is provided, it defaults to the value of <code>hibtypes-git-default-project</code>.
-</pre></div>
-
+<a name="index-hibtypes_002dgit_002ddefault_002dproject-1"></a>
+<p>If given, PROJECT overrides any project value in REFERENCE.  If no PROJECT
+value is provided, it defaults to the value of <code>hibtypes-git-default-project</code>. 
+</p>
 <a name="index-ibtypes-git_002dcommit_002dreference"></a>
 <a name="index-git-commit-reference"></a>
 <a name="index-version-control-1"></a>
 </dd>
 <dt><code>git-commit-reference</code></dt>
-<dd><p>Displays the diff for a git commit reference, e.g. commit a55e21, typically produced by git log.
+<dd><p>Displays the diff for a git commit reference, e.g. commit a55e21, typically
+produced by git log.
 </p>
 <a name="index-ibtypes-github_002dreference"></a>
 <a name="index-github-reference"></a>
@@ -2283,37 +2517,41 @@ PROJECT value is provided, it defaults to the value of <code>hibtypes-git-defaul
 <a name="index-hibtypes_002dgithub_002ddefault_002duser"></a>
 </dd>
 <dt><code>github-reference</code></dt>
-<dd><div class="format">
-<pre class="format">Displays the Github entity associated with REFERENCE and optional USER and
-PROJECT.
+<dd><p>Displays the Github entity associated with REFERENCE and optional USER and PROJECT.
+</p>
+<p>REFERENCE is a string of one of the following forms:
+</p><ul>
+<li> &lt;ref-item&gt;
+</li><li> &lt;user&gt;/&lt;project&gt;/&lt;ref-item&gt;
+</li><li> &lt;project&gt;/&lt;ref-item&gt;
+</li><li> /&lt;project&gt;.
+</li></ul>
 
-</pre><pre class="format">REFERENCE is a string of the form:
-    &lt;ref-item&gt;
-    &lt;user&gt;/&lt;project&gt;/&lt;ref-item&gt;
-    &lt;project&gt;/&lt;ref-item&gt;
-or  /&lt;project&gt;.
-</pre><pre class="format">
+<p>&lt;ref-item&gt; is one of these:
+</p><dl compact="compact">
+<dt>&bull; one of the words: branches, commits, issues, pulls, or tags</dt>
+<dd><p>the associated items are listed
+</p></dd>
+<dt>&bull; one of the words: branch, commit, issue, pull or tag followed by a &rsquo;/&rsquo; and item id</dt>
+<dd><p>the item is shown
+</p></dd>
+<dt>&bull; an issue reference given by a positive integer, e.g. <em>92</em> or prefaced with <em>GH-</em>, like GH-92</dt>
+<dd><p>the issue is displayed
+</p></dd>
+<dt>&bull; a commit reference given by a hex number, 55a1f0</dt>
+<dd><p>the commit diff is displayed
+</p></dd>
+<dt>&bull; a branch or tag reference given by an alphanumeric name, e.g. hyper20</dt>
+<dd><p>the files in the branch are listed.
+</p></dd>
+</dl>
 
-&lt;ref-item&gt; is one of these:
-</pre><ul>
-<li> <pre class="format"> one of the words: branches, commits, issues, pulls, or tags; the associated items are listed;
-</pre></li><li> <pre class="format">  one of the words: branch, commit, issue, pull or tag followed by a &rsquo;/&rsquo; and
-  item id; the item is shown;
-</pre></li><li> <pre class="format">  an issue reference given by a positive integer, e.g. <em>92</em> or prefaced with <em>GH-</em>, 
-  like GH-92; the issue is displayed;
-</pre></li><li> <pre class="format">  a commit reference given by a hex number, 55a1f0; the commit diff is
-  displayed;
-</pre></li><li> <pre class="format">  a branch or tag reference given by an alphanumeric name, e.g. hyper20; the
-  files in the branch are listed.
-</pre></li></ul>
-<pre class="format">
-
-<a name="index-hibtypes_002dgithub_002ddefault_002duser-1"></a>USER defaults to the value of <code>hibtypes-github-default-user</code>.
+<a name="index-hibtypes_002dgithub_002ddefault_002duser-1"></a>
+<p>USER defaults to the value of <code>hibtypes-github-default-user</code>.
 If given, PROJECT overrides any project value in REFERENCE.  If no
 PROJECT value is provided, it defaults to the value of
 <code>hibtypes-github-default-project</code>.
-</pre></div>
-
+</p>
 <a name="index-ibtypes-social_002dreference"></a>
 <a name="index-hashtag"></a>
 <a name="index-username"></a>
@@ -2353,12 +2591,11 @@ the issue to a window below the listing window.
 <a name="index-ibtypes-debbugs_002dgnu_002dquery"></a>
 </dd>
 <dt><code>debbugs-gnu-query</code></dt>
-<dd><p>This implicit button type displays the results of a Gnu debbugs query
-based on the string at point and works in most kinds of buffers.  If
-the query includes a single id number, it displays the original message
-submission for that id and allows browsing of the followup discussion.
-The following buffer text formats are accepted (with point prior to
-any attribute):
+<dd><p>Displays the results of a Gnu debbugs query based on the string at point and
+works in most kinds of buffers.  If the query includes a single id number, it
+displays the original message submission for that id and allows browsing of
+the followup discussion.  The following buffer text formats are accepted
+(with point prior to any attribute):
 </p>
 <div class="smallexample">
 <pre class="smallexample">bug#id-number, bug# id-number, bug #id-number or bug id-number
@@ -2407,8 +2644,6 @@ at line-num and optional column-num.  Also works for remote pathnames.
 <a name="index-hpath_003afind"></a>
 <a name="index-hpath_003asuffixes"></a>
 <a name="index-Tramp"></a>
-<a name="index-Ange_002dftp"></a>
-<a name="index-EFS"></a>
 <a name="index-ftp-1"></a>
 <a name="index-pathname"></a>
 <a name="index-remote-path"></a>
@@ -2452,12 +2687,12 @@ and <code>browse-url-generic</code>.
 <a name="index-document-identifier"></a>
 </dd>
 <dt><code>doc-id</code></dt>
-<dd><p>Displays an index entry for a site-specific document given its id.
-Ids must be delimited by <code>doc-id-start</code> and <code>doc-id-end</code> and
-must match the function given by <code>doc-id-p</code>.  This permits
-creation of catalogued online libraries.  (Note that this implicit
-button type is not installed by default.  You must manually configure
-it and load it from the file, <samp><code>${hyperb:dir}</code>/hib-doc-id.el</samp>).
+<dd><p>Displays a document from a local document library given its id.  Ids must be
+delimited by <code>doc-id-start</code> and <code>doc-id-end</code> and must match the
+function given by <code>doc-id-p</code>.  (Note that this implicit button type is
+not installed by default.  You must manually configure it and load it from
+the file, <samp><code>${hyperb:dir}</code>/hib-doc-id.el</samp>).  See the commentary
+at the top of that file for more information.
 </p></dd>
 </dl>
 
@@ -2508,10 +2743,9 @@ within the same directory.  If you want to view some other
 directory-specific button file, simply use the normal Emacs file
 finding commands.
 </p>
-<p>One might suggest that quick menu access be provided for group-specific
-and site-specific button files.  Instead, link buttons to such things
-should be placed at the top of your personal button file.  This provides
-a more flexible means of connecting to such resources.
+<p>If you want group and site-specific button files, simply place links to such
+files at the top of your personal button file and do so for your colleagues.
+This provides a flexible means of connecting to such resources.
 </p>
 <hr>
 <a name="Action-Types"></a>
@@ -2634,7 +2868,7 @@ signalled.
 <a name="index-actypes-link_002dto_002debut"></a>
 </dd>
 <dt><code>link-to-ebut</code></dt>
-<dd><p>Performs an action given by another button, specified by KEY and KEY-FILE.
+<dd><p>Performs an action given by another explicit button, specified by KEY and KEY-FILE.
 </p>
 <a name="index-actypes-link_002dto_002delisp_002ddoc"></a>
 </dd>
@@ -2644,8 +2878,8 @@ signalled.
 <a name="index-actypes-link_002dto_002dfile"></a>
 </dd>
 <dt><code>link-to-file</code></dt>
-<dd><p>Displays file given by PATH scrolled to optional POINT.  With POINT,
-buffer is displayed with POINT at window top.
+<dd><p>Displays a file given by PATH scrolled to optional POINT.  If POINT is given,
+the buffer is displayed with POINT at the top of the window.
 </p>
 <a name="index-actypes-link_002dto_002dfile_002dline"></a>
 </dd>
@@ -2712,8 +2946,7 @@ Returns &lsquo;<samp>t</samp>&rsquo; if found, signals an error if not.
 </dd>
 <dt><code>link-to-rfc</code></dt>
 <dd><p>Retrieves and displays an Internet rfc given by RFC-NUM.  RFC-NUM may be
-a string or an integer.  Requires a remote file access library, such as
-Tramp, for ftp file retrievals.
+a string or an integer.
 </p>
 <a name="index-actypes-link_002dto_002dstring_002dmatch"></a>
 </dd>
@@ -2847,7 +3080,7 @@ buttons.
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Modification" accesskey="4">Modification</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Location" accesskey="5">Location</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Searching-and-Summarizing" accesskey="5">Searching and Summarizing</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Buttons-in-Mail" accesskey="6">Buttons in Mail</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
@@ -3069,7 +3302,7 @@ prefer no confirmation.
 <a name="Modification"></a>
 <div class="header">
 <p>
-Next: <a href="#Location" accesskey="n" rel="next">Location</a>, Previous: <a href="#Deletion" accesskey="p" rel="prev">Deletion</a>, Up: <a href="#Utilizing-Explicit-Buttons" accesskey="u" rel="up">Utilizing Explicit Buttons</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Searching-and-Summarizing" accesskey="n" rel="next">Searching and Summarizing</a>, Previous: <a href="#Deletion" accesskey="p" rel="prev">Deletion</a>, Up: <a href="#Utilizing-Explicit-Buttons" accesskey="u" rel="up">Utilizing Explicit Buttons</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Modification-1"></a>
 <h4 class="subsection">3.7.4 Modification</h4>
@@ -3089,13 +3322,13 @@ button with a mouse drag.  Remember that drags may also be emulated from
 the keyboard.  See <a href="#Creation">Creation</a>.
 </p>
 <hr>
-<a name="Location"></a>
+<a name="Searching-and-Summarizing"></a>
 <div class="header">
 <p>
 Next: <a href="#Buttons-in-Mail" accesskey="n" rel="next">Buttons in Mail</a>, Previous: <a href="#Modification" accesskey="p" rel="prev">Modification</a>, Up: <a href="#Utilizing-Explicit-Buttons" accesskey="u" rel="up">Utilizing Explicit Buttons</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<a name="Location-1"></a>
-<h4 class="subsection">3.7.5 Location</h4>
+<a name="Searching-and-Summarizing-1"></a>
+<h4 class="subsection">3.7.5 Searching and Summarizing</h4>
 
 <a name="index-explicit-button_002c-summarizing"></a>
 <a name="index-button_002c-summarizing"></a>
@@ -3130,7 +3363,7 @@ attributes.
 <a name="Buttons-in-Mail"></a>
 <div class="header">
 <p>
-Next: <a href="#Buttons-in-News" accesskey="n" rel="next">Buttons in News</a>, Previous: <a href="#Location" accesskey="p" rel="prev">Location</a>, Up: <a href="#Utilizing-Explicit-Buttons" accesskey="u" rel="up">Utilizing Explicit Buttons</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Buttons-in-News" accesskey="n" rel="next">Buttons in News</a>, Previous: <a href="#Searching-and-Summarizing" accesskey="p" rel="prev">Searching and Summarizing</a>, Up: <a href="#Utilizing-Explicit-Buttons" accesskey="u" rel="up">Utilizing Explicit Buttons</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Buttons-in-Mail-1"></a>
 <h4 class="subsection">3.7.6 Buttons in Mail</h4>
@@ -3158,14 +3391,12 @@ minibuffer menu item to enable it.
 <a name="index-USENET"></a>
 <a name="index-news"></a>
 <a name="index-file_002c-hmail_002eel"></a>
-<p>Hyperbole automatically supports the following mail readers: Rmail
-(see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Rmail">Reading Mail with Rmail</a> in <cite>the GNU Emacs Manual</cite>), VM
-(see <a href="vm.html#Introduction">Introduction</a> in <cite>the VM Manual</cite>) and MH-e.  Button inclusion
-and activation within USENET news articles is also supported in the
-same fashion via the Gnus news reader if available at your site
-(see <a href="http://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Top">The Gnus Newsreader</a> in <cite>the Gnus Manual</cite>).
-(The <samp>hmail.el</samp> file defines a generalized interface that can be
-used to hook in other mail or news readers if the necessary interface
+<p>Hyperbole supports the following mail readers: Rmail (see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Rmail">Reading
+Mail with Rmail</a> in <cite>the GNU Emacs Manual</cite>), VM (see <a href="vm.html#Introduction">Introduction</a> in <cite>the VM Manual</cite>) and MH-e.  Button inclusion and activation within USENET news
+articles is also supported in the same fashion via the Gnus news reader if
+available at your site (see <a href="http://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Top">The Gnus Newsreader</a> in <cite>the Gnus
+Manual</cite>).  (The <samp>hmail.el</samp> file defines a generalized interface that can
+be used to hook in other mail or news readers if the necessary interface
 functions are written.)
 </p>
 <a name="index-mail_002dyank_002doriginal"></a>
@@ -3219,7 +3450,7 @@ Hyperbole.
 <p>This will produce the following line in outgoing messages:
 </p>
 <div class="example">
-<pre class="example">Comments: GNU Hyperbole mail buttons accepted, vX.XX.
+<pre class="example">Comments: GNU Hyperbole mail buttons accepted, vX.X.X.
 </pre></div>
 
 <a name="index-file_002c-_002eemacs-2"></a>
@@ -3327,20 +3558,31 @@ similar to key bindings.
 <a name="index-starting-Hyperbole"></a>
 <a name="index-Hyperbole_002c-starting"></a>
 <a name="index-Hyperbole-main-menu"></a>
-<p>The top-level Hyperbole menu is invoked from a key given in your
+<p>The top-level Hyperbole minibuffer menu is invoked from a key given in your
 <samp>hyperbole.el</samp> file (by default, <kbd>{C-h h}</kbd>) or with a click
-of the Action Mouse Key in the minibuffer.
+of the Action Mouse Key in the minibuffer when it is inactive.  It should
+look like this:
 </p>
+<div class="smallexample">
+<pre class="smallexample">Hy&gt;  Act Butfile/ Cust/ Doc/ Ebut/ Find/ Gbut/ Hist Ibut/ Kotl/ Msg/ Rolo/ Screen/ Win/
+</pre></div>
+
 <a name="index-submenus"></a>
 <a name="index-menu-help"></a>
 <a name="index-help_002c-menu-items"></a>
 <a name="index-menu-item-selection"></a>
 <a name="index-selection_002c-menu-items"></a>
-<p>All menu items are selected via the first character of their names
-(letter case does not matter) or with presses of the Action Key.  &quot;/&quot; at
-the end of an item name indicates that it brings up a submenu.  A press
-of the Assist Key on an item displays help for the item, including the
-action that it performs.
+<a name="index-TAB"></a>
+<a name="index-M_002df"></a>
+<a name="index-Shift_002d"></a>
+<a name="index-M_002db"></a>
+<p>All menu items are selected via the first character of their names (letter
+case does not matter), with presses of the Action Key or by using
+{<tt class="key">TAB</tt>} or <kbd>{M-f}</kbd> to move forward an item, <kbd>{Shift-<span class="key">TAB</span>}</kbd>
+or <kbd>{M-b}</kbd> to move backward an item and {<tt class="key">RET</tt>} to select the
+current item.  A press of the Assist Key on an item displays help for the
+item, including the action that it performs.  &quot;/&quot; at the end of an item name
+indicates that it brings up a submenu.
 </p>
 <a name="index-C_002dt"></a>
 <a name="index-q"></a>
@@ -3355,24 +3597,6 @@ submenus and then return to the top menu.  You can quit without
 selecting an item by using <kbd>{q}</kbd> or pressing {<tt class="key">RET</tt>} when at
 the end of a menu.  <kbd>{C-g}</kbd> aborts from the minibuffer whether you
 are at a menu prompt or any other Hyperbole prompt.
-</p>
-<p>The top-level Hyperbole menu appears in the minibuffer and should look
-like this:
-</p>
-<div class="smallexample">
-<pre class="smallexample">Hy&gt;  Act Butfile/ Cust/ Doc/ Ebut/ Find/ Gbut/ Hist Ibut/ Kotl/ Msg/ Rolo/ Screen/ Win/
-</pre></div>
-
-<br>
-<a name="index-TAB"></a>
-<a name="index-M_002df"></a>
-<a name="index-Shift_002d"></a>
-<a name="index-M_002db"></a>
-<p>Each menu item may be selected by typing its first letter (case
-insensitive), by clicking the Action Mouse Key on it, or by
-using {<tt class="key">TAB</tt>} or <kbd>{M-f}</kbd> to move forward an
-item, <kbd>{Shift-<span class="key">TAB</span>}</kbd> or <kbd>{M-b}</kbd> to move backward an item
-and {<tt class="key">RET</tt>} to select the current item.
 </p>
 <p>The top-level Hyperbole minibuffer menu items serve the following purposes:
 </p>
@@ -3884,8 +4108,8 @@ configuration and wish to save it temporarily.
 <dd><p>After confirmation, restore the last saved window or frame configuration
 based on mode.
 </p>
-<a name="index-window_002c-clone"></a>
-<a name="index-clone-window"></a>
+<a name="index-window_002c-clone-1"></a>
+<a name="index-clone-window-1"></a>
 <a name="index-hycontrol_002dkeep_002dwindow_002dflag"></a>
 <a name="index-screen_002c-f"></a>
 <a name="index-f"></a>
@@ -5323,11 +5547,11 @@ Next: <a href="#Window-Configurations" accesskey="n" rel="next">Window Configura
 <p>Hyperbole includes a complete, advanced rolo system, HyRolo, for
 convenient management of hierarchical, record-oriented information.
 Most often this is used for contact management but it can quickly be
-adapted to most any record-oriented lookup task, for fast retrieval.
+adapted to most any record-oriented lookup task requiring fast retrieval.
 </p>
 <a name="index-rolo_002c-buttons-in"></a>
 <p>Hyperbole buttons may be included within rolo records and then
-manually activated whenever their records are retrieved.
+manually activated whenever their records are retrieved in a search.
 </p>
 <p>The following subsections explain use and basic customization of this
 tool.
@@ -5845,16 +6069,16 @@ Next: <a href="#Developing-with-Hyperbole" accesskey="n" rel="next">Developing w
 <a name="index-restoring-windows"></a>
 <a name="index-saving-window-configurations"></a>
 <a name="index-file_002c-hywconfig_002eel"></a>
-<p>Hyperbole includes the <samp>hywconfig.el</samp> library which lets you save and
-restore window configurations, i.e. the layout of windows and buffers
-displayed within an emacs frame.  This is useful to save a particular
-working context and then to jump back to it at a later time during an
-emacs session.  It is also useful during demonstrations to display many
-informational artifacts all at once, e.g. all of the windows for a
-particular subsystem.  None of this information is stored between emacs
-sessions, so your window configurations will last through only a single
-session of use.  Each window configuration is tied to the emacs frame
-in which it is created.
+<p>This chapter explains Hyperbole&rsquo;s <samp>hywconfig.el</samp> library.  It lets you
+save and restore window configurations, i.e. the layout of windows and
+buffers displayed within an emacs frame.  This is useful to save a
+particular working context and then to jump back to it at a later time
+during an emacs session.  It is also useful during demonstrations to
+display many informational artifacts all at once, e.g. all of the windows
+for a particular subsystem.  None of this information is stored between
+emacs sessions, so your window configurations will last through only a
+single session of use.  Each window configuration is tied to the emacs
+frame in which it is created.
 </p>
 <p>The hywconfig library offers two independent ways of managing window
 configurations.  The first way associates a name with each stored
@@ -5866,7 +6090,7 @@ the last entry is encountered.  Simply stop when the desired
 configuration is displayed.
 </p>
 <p>The Win/ menu entry on the Hyperbole top-level menu displays a menu of
-window configuration commands:
+hywconfig window configuration commands:
 </p>
 <pre class="verbatim">WinConfig&gt;  AddName  DeleteName  RestoreName  PopRing  SaveRing  YankRing
 </pre>
@@ -5896,13 +6120,11 @@ YankRing        hywconfig-yank-pop          Restore the next wconfig
 =====================================================================
 </pre></div>
 
-<p>The easiest method is to save and restore window configurations by
-name, but it requires that you input the chosen name from the
-keyboard.  Alternately, the ring commands permit saves and restores
-using only the mouse, if desired.  An earlier chapter (see <a href="#Smart-Keys">Smart Keys</a>) mentions how to save and restore window configurations with the
-Smart Keys.  Since the ring commands are a bit more complex than their
-by-name counterparts, the following paragraphs explain them in more
-detail.
+<p>The easiest method to save and restore window configurations shown here is
+by name, but it requires that you type the chosen name.  Instead, the ring
+commands permit saves and restores using only the mouse.  Since the ring
+commands are a bit more complex than their by-name counterparts, the
+following paragraphs explain them in more detail.
 </p>
 <a name="index-kill_002dring"></a>
 <p>HyWconfig creates a ring structure that operates just like the Emacs
@@ -6613,10 +6835,6 @@ with a set of values, called arguments, is an <em>action</em>.
 Ordinarily the user presses a key which selects and activates a button.
 </p>
 </dd>
-<dt><b>Ange-ftp</b></dt>
-<dd><p>See <b>Tramp</b>.
-</p>
-</dd>
 <dt><b>Argument</b></dt>
 <dd><p>A button-specific value fed to a Hyperbole type specification when the
 button is activated.
@@ -6734,14 +6952,7 @@ Use the Action Key to select a button.
 <dd><p>The set of koutline cells which share a common parent cell and thus, are one
 level deeper than the parent.
 </p>
-</dd>
-<dt><b>Chord Keyboard</b></dt>
-<dd><p>A keyboard which supports pressing multiple keys simultaneously to produce
-a unique chord keystroke for issuing commands to a program.  In Engelbart&rsquo;s
-Augment system, mouse keys were used as modifiers for a 5-key chord
-keyboard to enable direct manipulation of objects on screen.  Hyperbole
-supports similar behavior with its <code>hmouse-mod-mode</code>.  See <a href="#Smart-Key-Modifiers">Smart Key Modifiers</a>.
-</p>
+
 </dd>
 <dt><b>Class</b></dt>
 <dd><p>A group of functions and variables with the same prefix in their names,
@@ -6772,10 +6983,6 @@ location.
 </dd>
 <dt><b>Environment</b></dt>
 <dd><p>See <b>Hyperbole Environment</b>.
-</p>
-</dd>
-<dt><b>EFS</b></dt>
-<dd><p>See <b>Tramp</b>
 </p>
 </dd>
 <dt><b>Explicit Button</b></dt>
@@ -6973,7 +7180,7 @@ button of that type is to be found at point.
 <dd><p>A file or directory on a system not shared within the local area network.
 The built-in Emacs library, <b>Tramp</b>, handles remote pathnames and
 Hyperbole uses it to enable viewing and editing of remote paths of the form:
-<samp>/&lt;user&gt;@&lt;host&gt;:&lt;path&gt;</samp> as well as web URLs.  Use the
+<samp>/&lt;protocol&gt;:&lt;user&gt;@&lt;host&gt;:&lt;path&gt;</samp> as well as web URLs.  Use the
 Cust/Find-File-URLs menu option to enable this feature.
 </p>
 </dd>
@@ -7040,12 +7247,12 @@ other system.
 </p>
 </dd>
 <dt><b>Tramp</b></dt>
-<dd><p>A remote file access library built-in to Emacs.  It does similar things as
-the older EFS and ange-ftp packages but uses more secure transfer and works
-with more types of hosts.  It allows one to use remote pathnames that are
-accessible via Internet protocols just like other pathnames, for example when
-finding a file.  Hyperbole recognizes pathnames of the form,
-<samp>/&lt;user&gt;@&lt;host&gt;:&lt;path&gt;</samp> and web URLs.
+<dd><p>A remote file access library built-in to Emacs.  It uses secure
+transfer and works with many types of hosts.  It allows you to use
+remote pathnames that are accessible via Internet protocols just like
+other pathnames, for example when finding a file.  Hyperbole
+recognizes pathnames of the form,
+<samp>/&lt;protocol&gt;:&lt;user&gt;@&lt;host&gt;:&lt;path&gt;</samp> and web URLs.
 </p>
 </dd>
 <dt><b>Tree</b></dt>
@@ -7383,7 +7590,7 @@ your personal initialization file: <code>(hpath:find-file-urls-mode 1)</code>.
 <p>Both full URLs and abbreviated ones, like <samp>www.gnu.org</samp>, are
 recognized.  File name completion does not work with URLs thus you
 have to type or paste in the entire URL.  This feature will work only
-if you have the Tramp Emacs Lisp package installed; if you don&rsquo;t have
+if you have the builtin Tramp Emacs Lisp package; if you don&rsquo;t have
 Tramp, an error message will be displayed when you try to enable
 find-file URLs.
 </p>
@@ -7584,7 +7791,7 @@ Next: <a href="#Koutliner-Keys" accesskey="n" rel="next">Koutliner Keys</a>, Pre
 This appendix summarizes all of Hyperbole&rsquo;s global key bindings and
 whether each overrides any existing binding or not.  It also describes
 how to temporarily disable these bindings and how to manage whether
-Hyperbole override local, mode-specific key bindings that hide
+Hyperbole overrides local, mode-specific key bindings that hide
 global Hyperbole keys.
 </p>
 <p>Here are descriptions of Hyperbole&rsquo;s default keyboard key bindings:
@@ -7632,7 +7839,8 @@ item, <kbd>{C-h h f w}</kbd>, will do the same thing.
 <dd><p>Display a grid of windows in the selected frame, sized according to the
 prefix argument.  The left digit of the argument is the number of grid rows
 and the right digit is the number of grid columns.  The argument is
-prompted for if not given.
+prompted for if not given.  This binding is made only if the key is not
+bound prior to loading Hyperbole.
 </p>
 <p>For further details, see the <kbd>{@}</kbd> key binding description
 in <a href="#HyControl">HyControl</a>.
@@ -7704,22 +7912,37 @@ and restart Emacs.  Then you will have to choose the Hyperbole commands
 that you want to use and bind those to keys.
 </p>
 <a name="index-file_002c-_002eemacs-4"></a>
-<a name="index-hkey_002dtoggle_002dbindings"></a>
-<a name="index-change-key-bindings"></a>
-<a name="index-toggle-key-bindings"></a>
-<a name="index-key-bindings_002c-toggle"></a>
-<a name="index-disable-Hyperbole"></a>
-<a name="index-C_002dc-h"></a>
-<p>If you ever have a need to temporarily disable the Hyperbole keyboard
-and mouse bindings, use the <code>hkey-toggle-bindings</code> command.  It
-switches between the Hyperbole key bindings and those set prior to
-loading Hyperbole and then back again if invoked once more.  There is
-no default key binding for this command; use <kbd>{M-x
-hkey-toggle-bindings <span class="key">RET</span>}</kbd>.  Alternatively, you may select a key
-and bind it as part of any setting of <code>hyperbole-init-hook</code>
+<a name="index-hyperbole_002dtoggle_002dbindings-1"></a>
+<a name="index-change-key-bindings-1"></a>
+<a name="index-toggle-key-bindings-1"></a>
+<a name="index-key-bindings_002c-toggle-1"></a>
+<a name="index-disable-Hyperbole-1"></a>
+<a name="index-C_002dc-h-1"></a>
+<p>If you ever have a need to temporarily disable the Hyperbole keyboard and
+mouse bindings, use the <code>hyperbole-toggle-bindings</code> command.  It
+switches between the Hyperbole key bindings and those set prior to loading
+Hyperbole and then back again if invoked once more.  There is no default
+key binding for this command; use <kbd>{M-x hyperbole-toggle-bindings
+<span class="key">RET</span>}</kbd>.  Alternatively, you may select a key and bind it as part of any
+setting of <code>hyperbole-init-hook</code> within your personal <samp>~/.emacs</samp>
+file.  For example, <code>(add-hook 'hyperbole-init-hook (lambda ()
+(global-set-key &quot;\C-ch&quot; 'hyperbole-toggle-bindings)))</code>.
+</p>
+<a name="index-file_002c-_002eemacs-5"></a>
+<a name="index-hmouse_002dtoggle_002dbindings"></a>
+<a name="index-mouse-key-toggle"></a>
+<a name="index-Smart-Mouse-Key-toggle"></a>
+<a name="index-C_002dc-t"></a>
+<p>If you want to restore only the mouse bindings that existed before
+Hyperbole was loaded, use the <code>hmouse-toggle-bindings</code> command.
+It switches between the Hyperbole mouse key bindings and those set
+prior to loading Hyperbole and then back again if invoked once more.
+There is no default key binding for this command; use <kbd>{M-x
+hmouse-toggle-bindings <span class="key">RET</span>}</kbd>.  Alternatively, you may select a
+key and bind it as part of any setting of <code>hyperbole-init-hook</code>
 within your personal <samp>~/.emacs</samp> file.  For example, <code>(add-hook
-'hyperbole-init-hook (lambda () (global-set-key &quot;\C-ch&quot;
-'hkey-toggle-bindings)))</code>.
+'hyperbole-init-hook (lambda () (global-set-key &quot;\C-ct&quot;
+'hmouse-toggle-bindings)))</code>.
 </p>
 <a name="index-hkey_002dinit_002doverride_002dlocal_002dkeys"></a>
 <a name="index-overriding-local-keys"></a>
@@ -8730,8 +8953,8 @@ Next: <a href="#Smart-Mouse-Drags-outside-a-Window" accesskey="n" rel="next">Sma
      Restores region to before Action Key drag and signals an error.
 </pre></div>
 
-<a name="index-drag_002c-horizontal"></a>
-<a name="index-horizontal-drag"></a>
+<a name="index-drag_002c-horizontal-1"></a>
+<a name="index-horizontal-drag-1"></a>
 <a name="index-hmouse_002dx_002ddrag_002dsensitivity"></a>
 <div class="format">
 <pre class="format">(Note that <code>hmouse-x-drag-sensitivity</code> sets the minimal horizontal
@@ -8744,8 +8967,8 @@ single window from anywhere but a thing delimiter:
      current frame.
 </pre></div>
 
-<a name="index-drag_002c-vertical"></a>
-<a name="index-vertical-drag"></a>
+<a name="index-drag_002c-vertical-1"></a>
+<a name="index-vertical-drag-1"></a>
 <a name="index-hmouse_002dy_002ddrag_002dsensitivity"></a>
 <div class="format">
 <pre class="format">(Note that <code>hmouse-y-drag-sensitivity</code> sets the minimal vertical
@@ -8758,8 +8981,8 @@ single window from anywhere but a thing delimiter:
      current frame.
 </pre></div>
 
-<a name="index-drag_002c-diagonal"></a>
-<a name="index-diagonal-drag"></a>
+<a name="index-drag_002c-diagonal-1"></a>
+<a name="index-diagonal-drag-1"></a>
 <a name="index-hmouse_002dx_002ddiagonal_002dsensitivity"></a>
 <a name="index-hmouse_002dy_002ddiagonal_002dsensitivity"></a>
 <div class="format">
@@ -8787,8 +9010,8 @@ Previous: <a href="#Smart-Mouse-Drags-within-a-Window" accesskey="p" rel="prev">
 <a name="index-hycontrol_002dkeep_002dwindow_002dflag-1"></a>
 <a name="index-dragging-items"></a>
 <a name="index-dragging-outside-Emacs"></a>
-<a name="index-window_002c-clone-1"></a>
-<a name="index-clone-window-1"></a>
+<a name="index-window_002c-clone-2"></a>
+<a name="index-clone-window-2"></a>
 <a name="index-window_002c-move"></a>
 <a name="index-move-window"></a>
 <div class="format">
@@ -10753,12 +10976,13 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-C_002dc-C_002dt"><code>C-c C-t</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-C_002du"><code>C-c C-u</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Moving-Around">Moving Around</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-C_002dy"><code>C-c C-y</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-C_002dc-h"><code>C-c h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dc-h"><code>C-c h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dc-h-1"><code>C-c h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-m"><code>C-c m</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-M_002dc"><code>C-c M-c</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-RET"><code>C-c <span class="key">RET</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-RET-1"><code>C-c <span class="key">RET</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-C_002dc-t"><code>C-c t</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dc-t"><code>C-c t</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_005c"><code>C-c \</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_005c-1"><code>C-c \</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dc-_005e"><code>C-c ^</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Moving-Around">Moving Around</a></td></tr>
@@ -10795,6 +11019,7 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-C_002du-M_002dRET"><code>C-u M-<span class="key">RET</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002du-M_002dRET-1"><code>C-u M-<span class="key">RET</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dx-_0024"><code>C-x $</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dx-_002b"><code>C-x +</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dx-C_002de"><code>C-x C-e</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-Types">Creating Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dx-m"><code>C-x m</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dx-o"><code>C-x o</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
@@ -11130,8 +11355,8 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002ddefault_002dfunction-1">action-key-default-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002deol_002dfunction">action-key-eol-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002dminibuffer_002dfunction">action-key-minibuffer-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-action_002dkey_002dmodeline"><code>action-key-modeline</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-action_002dkey_002dmodeline_002dfunction">action-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-action_002dkey_002dmodeline"><code>action-key-modeline</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-action_002dkey_002dmodeline_002dfunction">action-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002dmodeline_002dfunction-1">action-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modeline-Clicks-and-Drags">Modeline Clicks and Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dmouse_002dkey"><code>action-mouse-key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-actype_003acreate"><code>actype:create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Type-Creation">Action Type Creation</a></td></tr>
@@ -11175,8 +11400,8 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002ddefault_002dfunction-1">assist-key-default-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002deol_002dfunction">assist-key-eol-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dminibuffer_002dfunction">assist-key-minibuffer-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dmodeline"><code>assist-key-modeline</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dmodeline_002dfunction">assist-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dmodeline"><code>assist-key-modeline</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dmodeline_002dfunction">assist-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dmodeline_002dfunction-1">assist-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modeline-Clicks-and-Drags">Modeline Clicks and Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dmouse_002dkey"><code>assist-mouse-key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
@@ -11203,7 +11428,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-defact"><code>defact</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Type-Creation">Action Type Creation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-defib"><code>defib</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Button-Types">Implicit Button Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-dir_002c-_007e_002f_002ehyperb">dir, ~/.hyperb</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Files">Button Files</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-dired_002djump"><code>dired-jump</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-dired_002djump"><code>dired-jump</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Function_fn_letter-E">E</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ebut_002dcreate_002dhook">ebut-create-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
@@ -11222,6 +11447,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-file_002c-_002eemacs-2">file, .emacs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-_002eemacs-3">file, .emacs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Autonumbering">Autonumbering</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-_002eemacs-4">file, .emacs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-file_002c-_002eemacs-5">file, .emacs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-_002ehypb">file, .hypb</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-_002ekotl-suffix">file, .kotl suffix</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-Outlines">Creating Outlines</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-file_002c-DEMO-1">file, DEMO</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hyperbole-Overview">Hyperbole Overview</a></td></tr>
@@ -11282,23 +11508,20 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hkey_002dinit_002doverride_002dlocal_002dkeys">hkey-init-override-local-keys</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002doperate"><code>hkey-operate</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dsummarize"><code>hkey-summarize</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hkey_002dtoggle_002dbindings"><code>hkey-toggle-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmail_003alister">hmail:lister</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Email-Composers">Smart Key - Email Composers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmail_003areader">hmail:reader</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Email-Composers">Smart Key - Email Composers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dadd_002dunshifted_002dkeys"><code>hmouse-add-unshifted-keys</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dalist">hmouse-alist</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hmouse_002dcontext_002dibuffer_002dmenu"><code>hmouse-context-ibuffer-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hmouse_002dcontext_002dmenu"><code>hmouse-context-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hmouse_002dcontext_002dibuffer_002dmenu"><code>hmouse-context-ibuffer-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hmouse_002dcontext_002dmenu"><code>hmouse-context-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002ddrag_002ditem_002dmode_002dforms">hmouse-drag-item-mode-forms</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-outside-a-Window">Smart Mouse Drags outside a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dget_002dbindings"><code>hmouse-get-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dget_002dbindings-1"><code>hmouse-get-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dmiddle_002dflag">hmouse-middle-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Keys">Smart Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dmiddle_002dflag-1">hmouse-middle-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hmouse_002dmod_002dmode-1">hmouse-mod-mode</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hmouse_002dmod_002dmode"><code>hmouse-mod-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dsetup"><code>hmouse-setup</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dsetup-1"><code>hmouse-setup</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hmouse_002dtoggle_002dbindings"><code>hmouse-toggle-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hmouse_002dtoggle_002dbindings"><code>hmouse-toggle-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dx_002ddiagonal_002dsensitivity">hmouse-x-diagonal-sensitivity</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dx_002ddrag_002dsensitivity">hmouse-x-drag-sensitivity</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dy_002ddiagonal_002dsensitivity">hmouse-y-diagonal-sensitivity</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
@@ -11318,7 +11541,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hproperty_003acycle_002dbut_002dcolor"><code>hproperty:cycle-but-color</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-htype_002dcreate_002dhook">htype-create-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-htype_002ddelete_002dhook">htype-delete-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hui_002dmenu_002dscreen_002dcommands"><code>hui-menu-screen-commands</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hui_002dmenu_002dscreen_002dcommands"><code>hui-menu-screen-commands</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_002dselect_002dgoto_002dmatching_002dtag"><code>hui-select-goto-matching-tag</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_002dselect_002dthing"><code>hui-select-thing</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hui_002dselect_002dthing_002dwith_002dmouse"><code>hui-select-thing-with-mouse</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
@@ -11343,6 +11566,8 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hyperbole-1"><code>hyperbole</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dinit_002dhook">hyperbole-init-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dpopup_002dmenu"><code>hyperbole-popup-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyperbole_002dtoggle_002dbindings"><code>hyperbole-toggle-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyperbole_002dtoggle_002dbindings-1"><code>hyperbole-toggle-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dweb_002dsearch_002dalist">hyperbole-web-search-alist</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Web-Search-Engines">Web Search Engines</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dweb_002dsearch_002dbrowser_002dfunction">hyperbole-web-search-browser-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dadd"><code>hyrolo-add</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Menu">HyRolo Menu</a></td></tr>
@@ -11717,6 +11942,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Action-Key_002c-web-browsing">Action Key, web browsing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Mouse-Key">Action Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Mouse-Key-1">Action Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Action-Mouse-Key-drag">Action Mouse Key drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Drags">Smart Mouse Key Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action-type">action type</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action-type_002c-creation">action type, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Type-Creation">Action Type Creation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-activating-implicit-button">activating implicit button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -11727,7 +11953,6 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-actypes_002c-list-of">actypes, list of</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-address">address</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-alpha-labels">alpha labels</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Autonumbering">Autonumbering</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Ange_002dftp">Ange-ftp</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-anonymous-ftp">anonymous ftp</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Top">Top</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-API">API</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Embedding-Hyperbole">Embedding Hyperbole</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-appending-to-a-cell">appending to a cell</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Splitting-and-Appending">Splitting and Appending</a></td></tr>
@@ -11747,6 +11972,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Assist-Key_002c-listing-attributes">Assist Key, listing attributes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Assist-Mouse-Key">Assist Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Assist-Mouse-Key-1">Assist Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Assist-Mouse-Key-drag">Assist Mouse Key drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Drags">Smart Mouse Key Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-attribute">attribute</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-attribute_002c-adding">attribute, adding</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-attribute_002c-modifying">attribute, modifying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
@@ -11766,19 +11992,23 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-bibliography">bibliography</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Big-Brother-DataBase">Big Brother DataBase</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-blank-lines_002c-toggle">blank lines, toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-bookmarks">bookmarks</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Buttons">Global Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-boolean-expressions">boolean expressions</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-breakpoint">breakpoint</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-browsing-URLs">browsing URLs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-browsing-URLs-in-find_002dfile">browsing URLs in find-file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-buffer-id">buffer id</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-buffer-menu">buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-buffer-id">buffer id</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-buffer-menu">buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-buffer-menu-1">buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-buffer-menu-2">buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Buffer-Menus">Smart Key - Buffer Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-buffer-menu-item-drag">buffer menu item drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-File-and-Buffer-Items">Displaying File and Buffer Items</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-buffer_002c-bury">buffer, bury</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-buffer_002c-copy">buffer, copy</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-Buffers">Displaying Buffers</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-buffer_002c-swap">buffer, swap</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Swapping-Buffers">Swapping Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-buffer_002c-swapping">buffer, swapping</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-buffer_002c-unbury">buffer, unbury</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-bug-tracking">bug tracking</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-bury-buffer">bury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-bury-buffer">bury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-burying">burying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button">button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons">Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-action">button action</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
@@ -11815,7 +12045,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-button_002c-explicit-1">button, explicit</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-global">button, global</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons">Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-global-1">button, global</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Buttons">Global Buttons</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-help">button, help</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Location">Location</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button_002c-help">button, help</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-implicit">button, implicit</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons">Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-implicit-1">button, implicit</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-mailing">button, mailing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
@@ -11825,9 +12055,9 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-button_002c-posting">button, posting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-posting-1">button, posting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-News">Buttons in News</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-renaming">button, renaming</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Renaming">Renaming</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-searching">button, searching</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Location">Location</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button_002c-searching">button, searching</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-split-across-lines">button, split across lines</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Label-Normalization">Button Label Normalization</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-summarizing">button, summarizing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Location">Location</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button_002c-summarizing">button, summarizing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-byte-compiler-error">byte compiler error</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-C">C</a></th><td></td><td></td></tr>
@@ -11864,9 +12094,9 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-cell_002c-top_002dlevel-1">cell, top-level</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Idstamps">Idstamps</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-cell_002c-transposing">cell, transposing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Transposing">Transposing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-cell_002c-yanking-contents">cell, yanking contents</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Adding-and-Killing">Adding and Killing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-change-key-bindings">change key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-change-key-bindings">change key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-change-key-bindings-1">change key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-changing-the-view-spec">changing the view spec</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-chord-keyboards">chord keyboards</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-click_002c-buffer-menu">click, buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Buffer-Menus">Smart Key - Buffer Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-click_002c-button">click, button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Hyperbole-Buttons">Smart Key - Hyperbole Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-click_002c-dired">click, dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Dired-Mode">Smart Key - Dired Mode</a></td></tr>
@@ -11877,8 +12107,9 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-click_002c-Info">click, Info</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Info-Manuals">Smart Key - Info Manuals</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-click_002c-tar">click, tar</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Tar-File-Mode">Smart Key - Tar File Mode</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-click_002c-world_002dwide-web">click, world-wide web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-WWW-URLs">Smart Key - WWW URLs</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-clone-window">clone window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-clone-window-1">clone window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-outside-a-Window">Smart Mouse Drags outside a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-clone-window">clone window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cloning-Windows">Cloning Windows</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-clone-window-1">clone window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-clone-window-2">clone window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-outside-a-Window">Smart Mouse Drags outside a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-code-block-selection">code block selection</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-collaboration">collaboration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Koutliner-History">Koutliner History</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-collapse-lines">collapse lines</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
@@ -11893,10 +12124,10 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-configuration">configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customization">Customization</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-context">context</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-context_002dsensitive-help">context-sensitive help</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-control-key-modifier">control key modifier</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-copy-and-yank">copy and yank</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-copy-and-yank-1">copy and yank</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-between-Windows">Smart Mouse Drags between Windows</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-copy-and-yank-2">copy and yank</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-copy-buffer">copy buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-Buffers">Displaying Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-copy-region">copy region</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-copying">copying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-create_002dtime-attribute">create-time attribute</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
@@ -11931,17 +12162,20 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-demonstration">demonstration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hyperbole-Overview">Hyperbole Overview</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-demotion">demotion</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-depress_002c-modeline">depress, modeline</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modeline-Clicks-and-Drags">Modeline Clicks and Drags</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-diagonal-drag">diagonal drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-diagonal-drag">diagonal drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Saving-and-Restoring-Window-Configurations">Saving and Restoring Window Configurations</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-diagonal-drag-1">diagonal drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-digital-signature">digital signature</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-direct-link-creation">direct link creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-direct-selection">direct selection</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Argument-Selection">Smart Key Argument Selection</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-directory-editor">directory editor</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-dired">dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-dired-1">dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-directory-editor">directory editor</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-dired">dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-dired-1">dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-dired-browsing">dired browsing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Dired-Mode">Smart Key - Dired Mode</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-dired-item-drag">dired item drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-File-and-Buffer-Items">Displaying File and Buffer Items</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-dired_002c-images">dired, images</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Image-Thumbnails">Smart Key - Image Thumbnails</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-disable-global-key-bindings">disable global key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-disable-Hyperbole">disable Hyperbole</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-disable-Hyperbole">disable Hyperbole</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-disable-Hyperbole-1">disable Hyperbole</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-disable-local-key-override">disable local key override</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-display">display</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-display-function">display function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Internal-Viewers">Internal Viewers</a></td></tr>
@@ -11952,22 +12186,32 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-drag">drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag-1">drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag-2">drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-drag_002c-diagonal">drag, diagonal</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-buffer-menu-item">drag, buffer menu item</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-File-and-Buffer-Items">Displaying File and Buffer Items</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-buffer-swap">drag, buffer swap</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Swapping-Buffers">Swapping Buffers</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-clone-window">drag, clone window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cloning-Windows">Cloning Windows</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-copy-buffer">drag, copy buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-Buffers">Displaying Buffers</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-diagonal">drag, diagonal</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Saving-and-Restoring-Window-Configurations">Saving and Restoring Window Configurations</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-diagonal-1">drag, diagonal</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag_002c-dired">drag, dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Dired-Mode">Smart Key - Dired Mode</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-drag_002c-horizontal">drag, horizontal</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-dired-item">drag, dired item</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-File-and-Buffer-Items">Displaying File and Buffer Items</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-horizontal">drag, horizontal</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-horizontal-1">drag, horizontal</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-resize-window">drag, resize window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Resizing-Windows">Resizing Windows</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag_002c-side-edge">drag, side edge</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Side_002dby_002dSide-Window-Resizing">Side-by-Side Window Resizing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-drag_002c-vertical">drag, vertical</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-Smart-Mouse-Key">drag, Smart Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Drags">Smart Mouse Key Drags</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-vertical">drag, vertical</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-vertical-1">drag, vertical</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag_002c-window-configuration">drag, window configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Saving-and-Restoring-Window-Configurations">Saving and Restoring Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag_002c-with-region">drag, with region</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag_002c-with-region-1">drag, with region</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-dragging-items">dragging items</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-outside-a-Window">Smart Mouse Drags outside a Window</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-dragging-items_002c-buffer-menu">dragging items, buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-dragging-items_002c-dired">dragging items, dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-dragging-items_002c-buffer-menu">dragging items, buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-dragging-items_002c-dired">dragging items, dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-dragging-outside-Emacs">dragging outside Emacs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-outside-a-Window">Smart Mouse Drags outside a Window</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-E">E</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-e_002dmail-address">e-mail address</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-e_002dmail-address-1">e-mail address</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-EFS">EFS</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ellipses">ellipses</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Emacs">Emacs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hyperbole-Overview">Hyperbole Overview</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Emacs-1">Emacs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
@@ -11994,9 +12238,9 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-explicit-button_002c-formats">explicit button, formats</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-explicit-button_002c-modifying">explicit button, modifying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modification">Modification</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-explicit-button_002c-renaming">explicit button, renaming</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Renaming">Renaming</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-searching">explicit button, searching</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Location">Location</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-searching">explicit button, searching</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-explicit-button_002c-storage">explicit button, storage</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-summarizing">explicit button, summarizing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Location">Location</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-summarizing">explicit button, summarizing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-exporting">exporting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Exporting">Exporting</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-exporting-an-outline">exporting an outline</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-external-klink">external klink</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Links">Links</a></td></tr>
@@ -12075,7 +12319,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-hiding-signatures">hiding signatures</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-history">history</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hook-variables">hook variables</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-horizontal-drag">horizontal drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-horizontal-drag">horizontal drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-horizontal-drag-1">horizontal drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-HTML-conversion">HTML conversion</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Exporting">Exporting</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-HTML-tag-pair">HTML tag pair</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-HyControl">HyControl</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -12128,7 +12373,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-ibtype_002c-predicate">ibtype, predicate</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Button-Types">Implicit Button Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ibtype_002c-return-val">ibtype, return val</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Button-Types">Implicit Button Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ibtypes_002c-list-of">ibtypes, list of</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-ibuffer-menu">ibuffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-ibuffer-menu">ibuffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-ibuffer-menu-1">ibuffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Buffer-Menus">Smart Key - Buffer Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-idea-structuring">idea structuring</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Koutliner-History">Koutliner History</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-idstamp">idstamp</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Koutliner">Koutliner</a></td></tr>
@@ -12144,7 +12389,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-importing">importing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Inserting-and-Importing">Inserting and Importing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-importing-a-file">importing a file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Inserting-and-Importing">Inserting and Importing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-inactive-minibuffer">inactive minibuffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Info-browser">Info browser</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Info-browser">Info browser</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Info-browsing">Info browsing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Info-Manuals">Smart Key - Info Manuals</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Info-manual">Info manual</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invocation">Invocation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Info-node">Info node</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -12171,7 +12416,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-issue-tracking">issue tracking</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-J">J</a></th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-jump-menu">jump menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-jump-menu">jump menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-jump-menu-1">jump menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-K">K</a></th><td></td><td></td></tr>
@@ -12189,7 +12434,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-M_002dRET">key binding, M-<tt class="key">RET</tt></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-menu">key binding, menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-binding_002c-smart-keys">key binding, smart keys</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-key-bindings_002c-toggle">key bindings, toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-key-bindings_002c-toggle">key bindings, toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-key-bindings_002c-toggle-1">key bindings, toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-key-sequence">key sequence</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-keyboard-drag-emulation">keyboard drag emulation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-keypad">keypad</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -12339,7 +12585,6 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Window_002dConfigurations">menu, Window-Configurations</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menubar_002c-Hyperbole-menu">menubar, Hyperbole menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Messages-buffer">Messages buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Debugging">Smart Key Debugging</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-meta-key-modifier">meta key modifier</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-MH_002de">MH-e</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-middle-mouse-key">middle mouse key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Keys">Smart Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-MIME">MIME</a>:</td><td>&nbsp;</td><td valign="top"><a href="#External-Viewers">External Viewers</a></td></tr>
@@ -12349,26 +12594,26 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-minibuffer_002c-buffer-menu">minibuffer, buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-minibuffer_002c-default-actions">minibuffer, default actions</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-minibuffer_002c-jump-menu">minibuffer, jump menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline-click-and-drag">modeline click and drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline-click-and-drag">modeline click and drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-modeline-depress">modeline depress</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modeline-Clicks-and-Drags">Modeline Clicks and Drags</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-buffer-id">modeline, buffer id</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-buffer-menu">modeline, buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-bury-buffer">modeline, bury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-dired">modeline, dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-Info-Browser">modeline, Info Browser</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-jump-menu">modeline, jump menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-leftmost-character">modeline, leftmost character</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-next-buffer">modeline, next buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-prev-buffer">modeline, prev buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-screen-command-menu">modeline, screen command menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-buffer-id">modeline, buffer id</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-buffer-menu">modeline, buffer menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-bury-buffer">modeline, bury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-dired">modeline, dired</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-Info-Browser">modeline, Info Browser</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-jump-menu">modeline, jump menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-leftmost-character">modeline, leftmost character</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-next-buffer">modeline, next buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-prev-buffer">modeline, prev buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-screen-command-menu">modeline, screen command menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-modeline_002c-Smart-Keys">modeline, Smart Keys</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-modeline_002c-unbury-buffer">modeline, unbury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-modeline_002c-unbury-buffer">modeline, unbury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-modeline_002c-view-spec">modeline, view spec</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-mouse">mouse</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-mouse-bindings">mouse bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-mouse-drag_002c-link-creation">mouse drag, link creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-mouse-key-bindings">mouse key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-mouse-key-toggle">mouse key toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-mouse-key-toggle">mouse key toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-mouse-keys_002c-unshifted">mouse keys, unshifted</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-mouse-support">mouse support</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Keys">Smart Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-mouse_002c-moving-trees">mouse, moving trees</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
@@ -12458,6 +12703,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><th><a name="Concept-Index_cp_letter-R">R</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-raise-frame">raise frame</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-rdb_002dmode">rdb-mode</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-RDB-Mode">Smart Key - RDB Mode</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-rebalance-windows">rebalance windows</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-reference">reference</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-referent">referent</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-refilling">refilling</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Filling">Filling</a></td></tr>
@@ -12473,6 +12719,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Request-For-Comment">Request For Comment</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Request-For-Comment-1">Request For Comment</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-resize-frame-percentage">resize frame percentage</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-resizing-windows">resizing windows</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Resizing-Windows">Resizing Windows</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-restoring-windows">restoring windows</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-RFC">RFC</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-RFC-1">RFC</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -12542,14 +12789,14 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Smart-Key_002c-default-context">Smart Key, default context</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Smart-Key_002c-default-context-1">Smart Key, default context</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Smart-Keyboard-Keys">Smart Keyboard Keys</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Argument-Completion">Smart Key - Argument Completion</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Smart-Keys-as-modifiers">Smart Keys as modifiers</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modifiers">Smart Key Modifiers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-smart-keys_002c-unshifted">smart keys, unshifted</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-smart-marking">smart marking</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Smart-Menu">Smart Menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Menus">Smart Key - Smart Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Smart-Mouse-Key">Smart Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Smart-Mouse-Key-1">Smart Mouse Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-smart-mouse-key-drag">smart mouse key drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Drags">Smart Mouse Key Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Smart-Mouse-Key-drag">Smart Mouse Key drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modification">Modification</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Smart-Mouse-Key-toggle">Smart Mouse Key toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Smart-Mouse-Key-toggle">Smart Mouse Key toggle</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Smart-Mouse-Keys">Smart Mouse Keys</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Keys">Smart Mouse Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-smart-selection">smart selection</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-social-media">social media</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -12567,6 +12814,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-submodes">submodes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-subtree_002c-hide">subtree, hide</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-subtree_002c-show">subtree, show</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-swap-buffers">swap buffers</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Swapping-Buffers">Swapping Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-swapping">swapping</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-system-encapsulation">system encapsulation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Encapsulating-Systems">Encapsulating Systems</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
@@ -12590,7 +12838,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-toc-action-type">toc action type</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-toc-implicit-button-type">toc implicit button type</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-toggle-HyControl-mode">toggle HyControl mode</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-toggle-key-bindings">toggle key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-toggle-key-bindings">toggle key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-toggle-key-bindings-1">toggle key bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-toggling-blank-lines">toggling blank lines</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-top_002dlevel-cell">top-level cell</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-Outlines">Creating Outlines</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-top_002dlevel-cell-1">top-level cell</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Idstamps">Idstamps</a></td></tr>
@@ -12618,7 +12867,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-type-redefinition-1">type redefinition</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-Types">Creating Types</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-U">U</a></th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-unbury-buffer">unbury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Modeline-Clicks">Smart Key Modeline Clicks</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-unbury-buffer">unbury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-unburying">unburying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-UNIX-manual">UNIX manual</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-unshifted-mouse-bindings">unshifted mouse bindings</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
@@ -12641,7 +12890,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-version-control-1">version control</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-version-control-2">version control</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-version-description">version description</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-vertical-drag">vertical drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-vertical-drag">vertical drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-vertical-drag-1">vertical drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-view">view</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Viewing">Viewing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-view-mode">view mode</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-View-Mode">Smart Key - View Mode</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-view-spec">view spec</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
@@ -12669,16 +12919,19 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-web-search-menu-1">web search menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration">window configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration-commands">window configuration commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-window-configuration-drag">window configuration drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Saving-and-Restoring-Window-Configurations">Saving and Restoring Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration-ring">window configuration ring</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configurations">window configurations</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-system">window system</a>:</td><td>&nbsp;</td><td valign="top"><a href="#External-Viewers">External Viewers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-window_002c-clone">window, clone</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-window_002c-clone-1">window, clone</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-outside-a-Window">Smart Mouse Drags outside a Window</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-window_002c-clone">window, clone</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cloning-Windows">Cloning Windows</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-window_002c-clone-1">window, clone</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-window_002c-clone-2">window, clone</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-outside-a-Window">Smart Mouse Drags outside a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window_002c-make">window, make</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window_002c-maximize">window, maximize</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window_002c-move">window, move</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-outside-a-Window">Smart Mouse Drags outside a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window_002c-other">window, other</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window_002c-shrink">window, shrink</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-window_002c-swap-buffer">window, swap buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Swapping-Buffers">Swapping Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window_002c-zoom">window, zoom</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-windows">windows</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-windows-control">windows control</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -12686,6 +12939,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-windows-grid-1">windows grid</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-windows_002c-balance">windows, balance</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-windows_002c-equalize">windows, equalize</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-windows_002c-rebalance">windows, rebalance</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-word-wrap">word wrap</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Filling">Filling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-World_002dwide-Web">World-wide Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-World_002dwide-Web-1">World-wide Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>

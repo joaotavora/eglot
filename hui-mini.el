@@ -531,7 +531,7 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("Demo"         (hypb:display-file-with-logo
 			    (expand-file-name "DEMO" hyperb:dir))
 	   "Demonstrates Hyperbole features.")
-	  ("Files"        (find-file-read-only
+	  ("Files"        (hypb:display-file-with-logo
 			    (expand-file-name "MANIFEST" hyperb:dir))
 	   "Summarizes Hyperbole system files.  Click on an entry to view it.")
 	  ("Glossary"
@@ -542,7 +542,7 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("New"          (hypb:display-file-with-logo
 			   (expand-file-name "HY-NEWS" hyperb:dir))
 	   "Recent changes to Hyperbole.")
-	  ("SmartKeys"    (find-file-read-only (hypb:hkey-help-file))
+	  ("SmartKeys"    (hkey-summarize 'current-window)
 	   "Summarizes Smart Key mouse or keyboard handling.")
 	  ("Types/"       (menu . types)
 	   "Provides documentation on Hyperbole types.")

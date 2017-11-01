@@ -81,7 +81,7 @@ See the GNU General Public License for more details in the file,
      right thing, a powerful contact manager, an advanced, auto-
      numbered outliner with hyperlink anchors for each outline
      cell, and easily editable and extensible hyperlink buttons,
-     even embeddable within mail and news messages.
+     even embeddable within mail and news messages.@
 @end direntry
 
 @c
@@ -151,8 +151,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.0.2f
-Printed October 27, 2017.
+Edition 6.0.2g
+Printed November 1, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed October 27, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.2f, October 27, 2017.
+@center Edition 6.0.2g, November 1, 2017.
 
 @sp 2
 @noindent
@@ -278,11 +278,25 @@ Smart Keys
 
 * Smart Key Bindings::
 * Smart Key Operations::
-* Smart Key Modeline Clicks::
-* Smart Key Thing Selection::
 * Smart Key Argument Selection::
-* Smart Key Modifiers::
 * Smart Key Debugging::
+* Smart Key Thing Selection::
+* Smart Mouse Key Modeline Clicks::
+* Smart Mouse Key Drags::
+
+Smart Mouse Key Drags
+
+* Creating and Deleting Windows::
+* Saving and Restoring Window Configurations::
+* Resizing Windows::
+* Dragging Buffers::
+
+Dragging Buffers, Windows and Items
+
+* Swapping Buffers::
+* Displaying Buffers::
+* Cloning Windows::
+* Displaying File and Buffer Items::
 
 Buttons
 
@@ -300,7 +314,7 @@ Utilizing Explicit Buttons
 * Renaming::
 * Deletion::
 * Modification::
-* Location::
+* Searching and Summarizing::
 * Buttons in Mail::
 * Buttons in News::
 
@@ -445,7 +459,7 @@ Smart Keyboard Keys
 @chapter Introduction
 
 This edition of the GNU Hyperbole Manual is for use with any version
-6.0.2f or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+6.0.2g or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 
 This chapter summarizes the structure of the rest of the manual,
@@ -491,21 +505,21 @@ Hyperbole's basic operation.
 
 @xref{Suggestion or Bug Reporting}, for instructions on how to ask a
 question, suggest a feature or report a bug in Hyperbole.  A few
-commonly asked questions are answered in this manual.  @xref{Questions
-and Answers}.  @xref{References}, if you are interested in classic
-articles on hypertext.
+commonly asked questions are answered in this manual, @pxref{Questions
+and Answers}.  If you are interested in classic
+articles on hypertext, @pxref{References}.
 
 @xref{Smart Keys}, for an explanation of the innovative, context-sensitive
 mouse and keyboard Action and Assist Keys offered by Hyperbole.
 @xref{Smart Key Reference}, for a complete reference on what the Action
 and Assist Keys do in each particular context that they recognize.
-@xref{Smart Key Argument Selection}, for special support that Hyperbole
-provides for entering arguments when prompted for them.
+@xref{Smart Key Argument Selection}, for how Hyperbole speeds selection of
+prompted for arguments.
 
 Keep in mind as you read about using Hyperbole that in many cases, it
-provides a number of overlapping interaction methods that support
-differing work styles and hardware limitations.  In such instances,
-you need learn only one technique that suits you.
+provides a number of overlapping interaction methods that support differing
+work styles and hardware limitations.  In such instances, you need learn
+only one technique that suits you.
 
 @xref{Buttons}, for an overview of Hyperbole buttons and how to use them.
 
@@ -543,13 +557,12 @@ with in their everyday worklife is seldom stored away in neatly defined
 database schemas.  Instead it is scattered among local and remote files,
 e-mail messages, faxes, voice mail and web pages.
 
-The rise of the web has demonstrated how hypertext technologies can be
-used to build massive organized repositories of scattered information.
-But assembling information for the web still remains a great challenge
-to many and the data formats of the web are inherently still too
-structured to deal with the great variety of information that people
-process.  Modern web development often requires the use of many
-languages: HTML, JavaScript, CSS and Java.  This in itself prevents
+The rise of the web has demonstrated how hypertext technologies can be used
+to build massive organized repositories of scattered information.  But
+assembling information for the web still remains a great challenge and the
+data formats of the web are too structured to deal with the great variety
+of information that people process.  Modern web development requires the
+use of many languages: HTML, JavaScript, and CSS.  This in itself prevents
 its use as the prime means of organizing and interlinking the constant
 flows of daily information.
 
@@ -591,17 +604,16 @@ Hyperbole consists of five parts:
 
 @table @emph
 @item Buttons and Smart Keys
-a set of hyperbutton types that provides core hypertext and other
-behaviors, @pxref{Buttons}.  Buttons may be added to documents (explicit
-buttons) with a simple drag between windows, no markup language needed.
-Implicit buttons are patterns automatically recognized within
-text that perform actions, e.g. bug#24568 displays the bug status
-information for that bug number.
+Hyperbole hyperlink and other kinds of buttons (explicit buttons) may be
+added to documents with a simple drag between windows, no markup language
+needed.  Implicit buttons are patterns automatically recognized within text
+that perform actions, e.g. bug#24568 displays the bug status information
+for that bug number.  @xref{Buttons}.
 
 Buttons are accessed by clicking on them or referenced by name (global
 buttons), so they can be activated regardless of what is on screen.
 Users can make simple changes to button types.  Emacs Lisp programmers
-can prototype and deliver new types quickly.
+can develop new types and button actions quickly.
 
 Hyperbole includes two special @dfn{Smart Keys}, the Action Key and the
 Assist Key, that perform an extensive array of context-sensitive
@@ -609,7 +621,7 @@ operations across emacs usage, including activating and showing help
 for Hyperbole buttons.  In many popular Emacs modes, they allow you
 to perform common, sometimes complex operations without having to a
 different key for each operation.  Just press a Smart Key and the
-right thing happens.  @xref{Smart Keys}.
+right thing happens.  @xref{Smart Keys};
 
 @item Contact and Text Finder
 an interactive, textual information management interface, including
@@ -726,8 +738,8 @@ other documents.
 @item brainstorming
 The Hyperbole outliner (@pxref{Koutliner}) is an effective tool for
 capturing ideas and then quickly reorganizing them in a meaningful way.
-Links to related ideas are easy enough to create that copying and
-pasting ideas together quickly becomes a dated technique.
+Links to related ideas are easy to create so the need to copy and
+paste information is greatly reduced.
 
 @item help/training systems
 Tutorials with buttons can show students how things work while
@@ -774,11 +786,11 @@ behavior in all contexts.
 @menu
 * Smart Key Bindings::
 * Smart Key Operations::
-* Smart Key Modeline Clicks::
-* Smart Key Thing Selection::
 * Smart Key Argument Selection::
-* Smart Key Modifiers::
 * Smart Key Debugging::
+* Smart Key Thing Selection::
+* Smart Mouse Key Modeline Clicks::
+* Smart Mouse Key Drags::
 @end menu
 
 @node Smart Key Bindings, Smart Key Operations, Smart Keys, Smart Keys
@@ -813,13 +825,12 @@ under an external window system.
 @cindex unshifted mouse keys
 @cindex mouse keys, unshifted
 @cindex smart keys, unshifted
-Users or those who set the variable, @code{hmouse-middle-flag},
-to @samp{t} before loading Hyperbole, may also use the middle mouse
-key as the Action Key).  If you want both the middle mouse key as the
-Action Key and the right mouse key as the Assist Key for ease of use,
-then within your personal @file{~/.emacs} file, add:
-  @code{(add-hook 'hyperbole-init-hook 'hmouse-add-unshifted-smart-keys)}
-and then restart Emacs.
+If you set the variable, @code{hmouse-middle-flag}, to @samp{t} before
+loading Hyperbole, then you may also use the middle mouse key as the Action
+Key).  If you want both the middle mouse key as the Action Key and the
+right mouse key as the Assist Key for ease of use, then within your
+personal @file{~/.emacs} file, add: @code{(add-hook 'hyperbole-init-hook
+'hmouse-add-unshifted-smart-keys)} and then restart Emacs.
 
 @cindex key binding, smart keys
 @cindex smart key commands
@@ -831,30 +842,31 @@ and then restart Emacs.
 If you prefer other key assignments, simply bind the commands
 @code{action-key} and @code{assist-key} to keyboard keys.
 @code{hkey-either} may be used instead if you prefer a single
-key binding for both commands; a prefix argument, such as @bkbd{C-u},
-then invokes @code{assist-key}.  You may also bind @code{action-mouse-key}
-and @code{assist-mouse-key} to other mouse keys, if you like, though
-you won't be able to execute drag actions with such key bindings.
+key binding for both commands; a prefix argument, such as @bkbd{C-u}, then
+invokes @code{assist-key}.  You may also bind @code{action-mouse-key}
+and @code{assist-mouse-key} to other mouse keys, though you won't be able
+to execute mouse drag actions with such key bindings.
 
 Mouse configuration of the Smart Keys is automatic for GNU Emacs under
 Mac OS X, the X Window System and MS Windows assuming your emacs program
 has been built with support for any of these window systems.
 
 @vindex file, .emacs
-@findex hmouse-toggle-bindings
-@cindex mouse key toggle
-@cindex Smart Mouse Key toggle
-@kindex C-c t
-If you ever want to restore the mouse bindings that existed before
-Hyperbole was loaded, use the @code{hmouse-toggle-bindings} command.
-It switches between the Hyperbole mouse key bindings and those set
-prior to loading Hyperbole and then back again if invoked once more.
-There is no default key binding for this command; use @bkbd{M-x
-hmouse-toggle-bindings @key{RET}}.  Alternatively, you may select a
-key and bind it as part of any setting of @code{hyperbole-init-hook}
-within your personal @file{~/.emacs} file.  For example, @code{(add-hook
-'hyperbole-init-hook (lambda () (global-set-key "\C-ct"
-'hmouse-toggle-bindings)))}.
+@findex hyperbole-toggle-bindings
+@cindex change key bindings
+@cindex toggle key bindings
+@cindex key bindings, toggle
+@cindex disable Hyperbole
+@kindex C-c h
+If you ever need to temporarily disable the Hyperbole keyboard and mouse
+bindings, use the @code{hyperbole-toggle-bindings} command.  It switches
+between the Hyperbole key bindings and those set prior to loading Hyperbole
+and then back again if invoked once more.  There is no default key binding
+for this command; use @bkbd{M-x hyperbole-toggle-bindings
+@key{RET}}.  Alternatively, you may select a key and bind it as part of any
+setting of @code{hyperbole-init-hook} within your personal @file{~/.emacs}
+file.  For example, @code{(add-hook 'hyperbole-init-hook (lambda ()
+(global-set-key "\C-ch" 'hyperbole-toggle-bindings)))}.
 
 @c @cindex Paste Key
 @c @cindex mouse paste
@@ -869,7 +881,7 @@ within your personal @file{~/.emacs} file.  For example, @code{(add-hook
 @c editor when the Action Key is clicked; it will not paste selections from
 @c other applications).
 
-@node Smart Key Operations, Smart Key Modeline Clicks, Smart Key Bindings, Smart Keys
+@node Smart Key Operations, Smart Key Argument Selection, Smart Key Bindings, Smart Keys
 @section   Smart Key Operations
 
 @cindex button activation
@@ -884,12 +896,12 @@ function to whatever the Action Key does within a context.
 @cindex menu item, Doc/SmartKeys
 @cindex Smart Key summary
 @cindex modeline, Smart Keys
-The Hyperbole Doc/SmartKeys menu entry displays a summary of what the
-Smart Keys do in all of their different contexts.  Alternatively, a
-click of the Assist Mouse Key in the right corner of a window
-modeline (within the rightmost 3 characters) toggles between
-displaying this summary and hiding it.  Reference this summary
-whenever you need it.
+The Hyperbole Doc/SmartKeys menu entry, @bkbd{C-h h d s}, displays a
+summary of what the Smart Keys do in all of their different contexts.
+Alternatively, a click of the Assist Mouse Key in the right corner of a
+window modeline (within the rightmost 3 characters) toggles between
+displaying this summary and hiding it.  Reference this summary whenever you
+need it.
 
 The following table is the same summary.  Much of the browsing power
 of Hyperbole comes from the use of the Smart Keys, so spend some time
@@ -950,218 +962,7 @@ the Assist Key.  Note that @bkbd{C-h a} performs a function unrelated
 to Hyperbole, so you must press the shift key when you type
 the @key{A} character.
 
-@node Smart Key Modeline Clicks, Smart Key Thing Selection, Smart Key Operations, Smart Keys
-@section   Smart Key Modeline Clicks
-
-Smart Mouse Key clicks on a window's modeline offer many powerful browsing
-features, including directory editing (dired), user manual browsing, and
-window, buffer and frame selection.  Generally, only Hyperbole-specific
-modeline actions are discussed herein.
-
-@itemize @bullet
-@item Leftmost Character
-
-@cindex bury buffer
-@cindex unbury buffer
-@cindex modeline, bury buffer
-@cindex modeline, unbury buffer
-@cindex modeline, leftmost character
-Action Key clicks on the first (usually blank) character of the
-modeline bury the current buffer in the buffer list and display the
-next buffer in the list.  Assist Key clicks do the reverse and unbury
-the bottom buffer.
-
-@cindex modeline, next buffer
-@cindex modeline, prev buffer
-A similar effect can be achieved with the standard Emacs mouse 1 and 3 buttons
-on the Buffer Id element of modeline which cycle through previous and next
-buffers respectively.  This may be easier to use since you can click anywhere
-on the buffer identifier.
-
-@item Buffer Id Element
-
-@cindex dired
-@cindex modeline, dired
-@cindex buffer id
-@cindex modeline, buffer id
-@cindex dragging items, dired
-On the left part of the modeline is the buffer identification,
-generally the name of the buffer in use.  An Action Key click on that
-switches the window to edit the buffer's directory using dired.
-Action Key clicks on directory items in dired display the items
-in other windows.  An Action Key drag from an item to another window
-displays the item in that window.
-
-An Action Key click on the first buffer line containing the current
-directory path, specifically on any ancestor part of the path (the part to
-the left of the click point), starts another dired session on the ancestor
-directory.  Click at the end of this line to end the dired session (bury
-its buffer).
-
-@item Large Blank Area
-
-@cindex buffer menu
-@cindex modeline, buffer menu
-@cindex jump menu
-@cindex modeline, jump menu
-@cindex dragging items, buffer menu
-An Action Mouse Key click in a blank area of a window modeline (away
-from left and right edges) toggles between displaying and hiding a
-list of all buffers.  Once displayed, an Action Key click on a buffer
-item will display it in another window.  You can drag items to specific
-windows for display as well.
-
-An Assist Key click in the blank area of the modeline displays a quick
-access menu of display-oriented commands.  You can jump to buffers
-categorized by major mode, jump to windows by buffer name, or to
-frames by name.  Manage your windows and frames quickly with this menu
-as well.  As always with Hyperbole, just try it and you'll begin to
-wonder how you lived without it before.
-
-@item Right Corner
-
-@cindex Info browser
-@cindex modeline click and drag
-@cindex modeline, Info Browser
-A click of the Action Mouse Key in the right corner of a window
-modeline (within the rightmost 3 characters) displays or hides the
-GNU Info Manual Browser, giving you quick point and click access to
-an amazing wealth of documentation, since the Action Key also browses
-through these manuals and follows their hyperlinked cross-references.
-A click of the Assist Key in the same location displays or hides the
-Smart Key summary, as noted earlier.
-
-@item Customizable Variables
-
-@vindex action-key-modeline-function
-@vindex assist-key-modeline-function
-@findex action-key-modeline
-@findex assist-key-modeline
-@findex hmouse-context-menu
-@findex hmouse-context-ibuffer-menu
-@cindex ibuffer menu
-Hyperbole modeline mouse click actions are controlled by the two functions,
-@code{action-key-modeline} and @code{assist-key-modeline}.  If you know
-a little Emacs Lisp you can change these to do whatever you like.
-When a Smart Key press is on a blank part of a modeline but not at
-the left or right, the function given by one of these two variables
-is executed: @code{action-key-modeline-function} or
-@code{assist-key-modeline-function}.  By default, the Action Key toggles
-between displaying and hiding the buffer menu.  If you like the more
-advanced features of @code{Ibuffer Mode}, you can change the buffer menu
-to use that with the following in your Emacs initialization file:
-@code{(setq action-key-modeline-function #'hmouse-context-ibuffer-menu)}.
-To set it back to the default use:
-@code{(setq action-key-modeline-function #'hmouse-context-menu)}.
-
-@findex dired-jump
-@findex hui-menu-screen-commands
-@cindex directory editor
-@cindex dired
-@cindex modeline, screen command menu
-The default @code{assist-key-modeline-function} is to pop up a menu of
-convenient screen commands that lets you select buffers grouped by
-major mode, use HyControl, or jump to specific windows, window
-configurations or frames.  If you would prefer it runs the directory
-editor @code{dired} on the directory associated with the window of the
-modeline press, use this: @code{(setq assist-key-modeline-function #'dired-jump)}.
-To set it back to the default use:
-@code{(setq assist-key-modeline-function #'hui-menu-screen-commands)}.
-
-These variables may also be changed permanently with the Emacs
-interactive customization interface.  Use @bkbd{M-x customize-variable
-@key{RET} assist-key-modeline-function @key{RET}}.  In the Assist
-Modeline Function text field that appears, change the value
-to @code{dired-jump}.  Then press the ``Apply and Save'' button.
-@end itemize
-
-@node Smart Key Thing Selection, Smart Key Argument Selection, Smart Key Modeline Clicks, Smart Keys
-@section   Smart Key Thing Selection
-
-@cindex sexp selection
-@cindex code block selection
-@cindex selection
-@cindex smart selection
-@cindex smart marking
-@cindex region selection
-@cindex things
-@cindex delimited things
-Hyperbole has some radically cool ways to select regions of structured
-text or source code and to copy or move them between buffers with a
-single mouse drag or two key presses.  A great deal of smarts are
-built-in so that it does the right thing most of the time; many other
-attempts at similar behavior such as thing.el fail to deal with many
-file format complexities.
-
-We use the term @dfn{things} to refer to structured entities that
-Hyperbole can select.  These include: delimited pairs of (), @{@}, <>,
-[] and quote marks, source code functions, source code comments and
-matching tag pairs in HTML and SGML modes.  @dfn{Delimited things} are
-those things that contain a selectable delimiter such as an opening
-parenthesis.
-
-@cindex HTML tag pair
-@cindex SGML tag pair
-The best way to mark a delimited thing is to move your cursor to the
-starting delimiter of the thing and then press the Action Key.  Typically,
-you will see the thing highlight.  You can then operate upon it as you
-would any Emacs region.  In many cases, you can do the same thing upon
-the closing delimiter but this is not as reliable.  An Action Key
-press on the start of an HTML or SGML tag pair marks the entire region
-span of the pair.  If you use the Assist Key instead, it will mark and
-kill (delete) the thing.
-
-@cindex drag, with region
-@cindex kill region
-@cindex yank region
-@cindex cut region
-@cindex copy region
-@cindex paste region
-Even better are Smart Mouse Key drags which let you copy or move
-delimited things in one operation without even highlighting them.  To
-copy, simply drag with the Action Key from a thing's opening delimiter
-and release somewhere outside of the thing, either within the same
-window or within another window.  The thing will be copied to the
-point of release.  If you want to move a thing, simply perform the
-same drag but with the Assist Mouse Key.  Ensure that you do not move
-any explicit buttons from one buffer to another as that does not
-presently work.
-
-Try out some of these operations in HTML or source code files to see
-how they can speed your editing.
-
-@noindent
-Hyperbole also binds two convenience keys for working with things.
-
-@kindex C-c @key{RET}
-@findex hui-select-thing
-@findex hui-select-thing-with-mouse
-The first such key is @bkbd{C-c @key{RET}} @code{hui-select-thing}
-which selects bigger and bigger syntactic regions with each successive
-use.  Double or triple clicks of the Selection Key (left mouse key) do
-the same thing.  The first press selects a region based upon the
-character at point.  For example, with point over an opening or
-closing grouping character, such as @{ or @}, the whole grouping is
-selected, e.g. a C function.  When on an _ or - within a programming
-language identifier name, the whole name is selected.  The type of
-selection is displayed in the minibuffer as feedback.  When using a
-language in which indentation determines nesting level like Python, a
-double click on the first alpha character of a line, such as an if
-statement, selects the whole statement.  Use @bkbd{C-g} to unmark the
-region when done.  Use, @code{hui-select-thing-with-mouse} if you want
-to bind this to a different mouse key to use single clicks instead of
-double clicks.
-
-@kindex C-c .
-@findex hui-select-goto-matching-tag
-The second convenience key is bound only in HTML/web mode.  @bkbd{C-c
-.} @code{hui-select-goto-matching-tag} jumps between the opening and
-closing tag of a pair.  It moves point to the start of the tag paired
-with the closest tag that point is within or which it precedes.  A
-second press moves point to the matching tag of the pair, allowing you
-to quickly jump back and forth between opening and closing tags.
-
-@node Smart Key Argument Selection, Smart Key Modifiers, Smart Key Thing Selection, Smart Keys
+@node Smart Key Argument Selection, Smart Key Debugging, Smart Key Operations, Smart Keys
 @section   Smart Key Argument Selection
 
 @cindex Hyperbole help
@@ -1200,42 +1001,7 @@ to see what your possibilities for an argument are.  Once you have a
 list of possible completions on screen, press the Action Key twice on
 any item to enter it as the argument.
 
-@node Smart Key Modifiers, Smart Key Debugging, Smart Key Argument Selection, Smart Keys
-@section   Smart Key Modifiers
-
-For advanced users of Emacs and Hyperbole, there is @code{hmouse-mod-mode},
-a global minor mode which turns the Action Mouse Key into a @key{Control}
-modifier key and the Assist Key into a @key{Meta} modifier key.  This
-allows for better keyboard energy balance across hands and is useful for
-reducing carpal tunnel stress.  It may also be used with a @dfn{chord
-keyboard} in one hand and a mouse in the other to point at things while
-simultaneously operating upon them.
-
-@findex hmouse-mod-mode
-@vindex hmouse-mod-mode
-@cindex Smart Keys as modifiers
-@cindex control key modifier
-@cindex meta key modifier
-@cindex chord keyboards
-Use the @code{hmouse-mod-mode} global minor mode to enable this feature.
-@bkbd{C-u M-x hmouse-mod-mode @key{RET}} enables it and adds
-@samp{HyMod} to the list of modeline minor modes.  @bkbd{C-u 0 M-x
-hmouse-mod-mode @key{RET}} disables it and @bkbd{M-x
-hmouse-mod-mode @key{RET}} toggles it on and off.
-
-When enabled, if the Action Key is held down while alpha characters
-are typed, they are translated into @key{Control} keys instead.  The
-Assist Key translates them into @key{Meta} keys.  When both Smart
-Keys are depressed, @key{Control-Meta} keys are produced.  The
-commands bound to the characters produced are then run.  For example,
-Action Key + @bkbd{a} runs the function for @bkbd{C-a}.  If no
-keys are typed while the Smart Keys are down, they operate as
-normally under Hyperbole.
-
-The code for Smart Key modifiers can be found in
-@file{@code{$@{hyperb:dir@}}/hmouse-mod.el}.
-
-@node Smart Key Debugging,  , Smart Key Modifiers, Smart Keys
+@node Smart Key Debugging, Smart Key Thing Selection, Smart Key Argument Selection, Smart Keys
 @section   Smart Key Debugging
 
 Typically, @bkbd{C-h A} and @bkbd{C-u C-h A} which show Action and
@@ -1268,6 +1034,416 @@ list.  Hyperbole will automatically include all of the ``(HyDebug)''
 messages from your current emacs session into your email.  Similarly,
 when you compose an email to the hyperbole-users mailing list
 with @bkbd{C-h h m c}, these messages are also included.
+
+@node Smart Key Thing Selection, Smart Mouse Key Modeline Clicks, Smart Key Debugging, Smart Keys
+@section   Smart Key Thing Selection
+
+@cindex sexp selection
+@cindex code block selection
+@cindex selection
+@cindex smart selection
+@cindex smart marking
+@cindex region selection
+@cindex things
+@cindex delimited things
+Hyperbole has some radically cool ways to select regions of structured text
+or source code and to copy or move them between buffers with a single mouse
+drag or two key presses.  A great deal of smarts are built-in so that it
+does the right thing most of the time; many other attempts at similar
+behavior such as @file{thing.el} fail to deal with many file format
+complexities.
+
+We use the term @dfn{things} to refer to structured entities that
+Hyperbole can select.  These include: delimited pairs of (), @{@}, <>,
+[] and quote marks, source code functions, source code comments and
+matching tag pairs in HTML and SGML modes.  @dfn{Delimited things} are
+those things that contain a selectable delimiter such as an opening
+parenthesis.
+
+@cindex HTML tag pair
+@cindex SGML tag pair
+The best way to mark a delimited thing is to move your cursor to the
+starting delimiter of the thing and then press the Action Key.  Typically,
+you will see the thing highlight.  You can then operate upon it as you
+would any Emacs region.  In many cases, you can do the same thing upon
+the closing delimiter, but this is not as reliable.  An Action Key
+press on the start of an HTML or SGML tag pair marks the entire region
+span of the pair.  If you use the Assist Key instead, it will mark and
+kill (delete) the thing.
+
+@cindex drag, with region
+@cindex kill region
+@cindex yank region
+@cindex cut region
+@cindex copy region
+@cindex paste region
+Even better are Smart Mouse Key drags which let you copy or move
+delimited things in one operation without even highlighting them.  To
+copy, simply drag with the Action Key from a thing's opening delimiter
+and release somewhere outside of the thing, either within the same
+window or within another window.  The thing will be copied to the
+point of release.  If you want to move a thing, simply perform the
+same drag but with the Assist Mouse Key.  Ensure that you do not move
+any explicit buttons from one buffer to another as that does not
+work.
+
+Try out some of these operations in HTML or source code files to see
+how they can speed your editing.
+
+@noindent
+Hyperbole also binds two convenience keys for working with things.
+
+@kindex C-c @key{RET}
+@findex hui-select-thing
+@findex hui-select-thing-with-mouse
+The first such key is @bkbd{C-c @key{RET}} @code{hui-select-thing} which
+selects bigger and bigger syntactic regions with each successive use.
+Double or triple clicks of the Selection Key (left mouse key) do the same
+thing.  The first press selects a region based upon the character at point.
+For example, with point over an opening or closing grouping character, such
+as @{ or @}, the whole grouping is selected, e.g. a C function.  When on an
+_ or - within a programming language identifier name, the whole name is
+selected.  The type of selection is displayed in the minibuffer as
+feedback.  When using a language in which indentation determines nesting
+level like Python, a double click on the first alpha character of a line,
+such as an if statement, selects the current clause (until the next line at
+the same or lesser indentation).  Use @bkbd{C-g} to unmark the region when
+done.  Use, @code{hui-select-thing-with-mouse} if you want to bind this to
+a different mouse key to use single clicks instead of double clicks.
+
+@kindex C-c .
+@findex hui-select-goto-matching-tag
+The second convenience key is bound only in HTML/web mode.  @bkbd{C-c
+.} @code{hui-select-goto-matching-tag} jumps between the opening and
+closing tag of a pair.  It moves point to the start of the tag paired
+with the closest tag that point is within or which it precedes.  A
+second press moves point to the matching tag of the pair, allowing you
+to quickly jump back and forth between opening and closing tags.
+
+@node Smart Mouse Key Modeline Clicks, Smart Mouse Key Drags, Smart Key Thing Selection, Smart Keys
+@section   Smart Mouse Key Modeline Clicks
+
+Smart Mouse Key clicks on a window's modeline offer many powerful browsing
+features, including directory editing (dired), user manual browsing, and
+window, buffer and frame selection.  Generally, only Hyperbole-specific
+modeline actions are discussed herein.
+
+@itemize @bullet
+@item Leftmost Character
+
+@cindex bury buffer
+@cindex unbury buffer
+@cindex modeline, bury buffer
+@cindex modeline, unbury buffer
+@cindex modeline, leftmost character
+Action Key clicks on the first (usually blank) character of the
+modeline bury the current buffer in the buffer list and display the
+next buffer in the list.  Assist Key clicks do the reverse and unbury
+the bottom buffer.
+
+@cindex modeline, next buffer
+@cindex modeline, prev buffer
+A similar effect can be achieved with the standard Emacs mouse 1 (left) and
+3 (right) buttons on the Buffer ID element of modeline to cycle through
+previous and next buffers, respectively.  This may be easier to use since
+you can click anywhere on the buffer identifier.
+
+@item Buffer ID Element
+
+@cindex dired
+@cindex modeline, dired
+@cindex buffer id
+@cindex modeline, buffer id
+@cindex dragging items, dired
+On the left part of the modeline is the buffer identification,
+generally the name of the buffer in use.  An Action Key click on that
+switches the window to edit the buffer's directory using dired.
+Then Action Key clicks on directory items in the dired buffer display the
+items selected in other windows.  An Action Key drag from an item to
+another window displays the item in that window.
+
+An Action Key click on the first line in a dired buffer which contains the
+current directory path, specifically on any ancestor part of the path (the
+part to the left of the click point), starts another dired session on the
+ancestor directory.  Click at the end of this line to end the dired session
+(bury its buffer).
+
+@item Large Blank Area
+
+@cindex buffer menu
+@cindex modeline, buffer menu
+@cindex jump menu
+@cindex modeline, jump menu
+@cindex dragging items, buffer menu
+An Action Mouse Key click in a blank area of a window modeline (away
+from left and right edges) toggles between displaying and hiding a
+list of all buffers.  Once displayed, an Action Key click on a buffer
+item will display it in another window.  You can drag items to specific
+windows for display as well.
+
+Alternatively, you may (1) display the buffer menu, (2) use its @bkbd{m}
+command to mark buffers, and (3) use the Hyperbole @bkbd{@@} command to
+display the marked buffers in a grid of popup windows whose number of
+rows and columns you specify at the prompt or via a prefix argument.
+This also works in @code{ibuffer-menu} and @code{dired} modes.
+@xref{HyControl}.
+
+An Assist Key click in the blank area of the modeline displays a quick
+access menu of display-oriented commands.  You can jump to buffers
+categorized by major mode, jump to windows by buffer name, or to
+frames by name.  Manage your windows and frames quickly with this menu
+as well.  As always with Hyperbole, just try it and you'll begin to
+wonder how you lived without it before.
+
+@item Right Corner
+
+@cindex Info browser
+@cindex modeline click and drag
+@cindex modeline, Info Browser
+A click of the Action Mouse Key in the right corner of a window
+modeline (within the rightmost 3 characters) displays or hides the
+GNU Info Manual Browser, giving you quick point and click access to
+an amazing wealth of documentation, since the Action Key also browses
+through these manuals and follows their hyperlinked cross-references.
+A click of the Assist Key in the same location displays or hides the
+Smart Key summary, as noted earlier.
+
+@item Customizable Variables
+
+@vindex action-key-modeline-function
+@vindex assist-key-modeline-function
+@findex action-key-modeline
+@findex assist-key-modeline
+@findex hmouse-context-menu
+@findex hmouse-context-ibuffer-menu
+@cindex ibuffer menu
+Hyperbole modeline mouse click actions are controlled by the two functions,
+@code{action-key-modeline} and @code{assist-key-modeline}.  If you know
+a little Emacs Lisp you can change these to do whatever you like.  When a
+Smart Key press is on a blank part of a modeline but not at the left or
+right, the function given by one of these two variables is
+executed: @code{action-key-modeline-function} or
+@code{assist-key-modeline-function}.  By default, the Action Key toggles
+between displaying and hiding the buffer menu.  If you like the more
+advanced features of @code{Ibuffer Mode}, you can change the buffer menu to
+use that with the following in your Emacs initialization file:
+@code{(setq action-key-modeline-function #'hmouse-context-ibuffer-menu)}.
+To set it back to the default use:
+@code{(setq action-key-modeline-function #'hmouse-context-menu)}.
+
+@findex dired-jump
+@findex hui-menu-screen-commands
+@cindex directory editor
+@cindex dired
+@cindex modeline, screen command menu
+The default @code{assist-key-modeline-function} is to pop up a menu of
+convenient screen commands that lets you select buffers grouped by
+major mode, use HyControl, or jump to specific windows, window
+configurations or frames.  If you would prefer it runs the directory
+editor @code{dired} on the directory associated with the window of the
+modeline press, use this: @code{(setq assist-key-modeline-function #'dired-jump)}.
+To set it back to the default use:
+@code{(setq assist-key-modeline-function #'hui-menu-screen-commands)}.
+
+These variables may also be changed permanently with the Emacs
+interactive customization interface.  Use @bkbd{M-x customize-variable
+@key{RET} assist-key-modeline-function @key{RET}}.  In the Assist
+Modeline Function text field that appears, change the value
+to @code{dired-jump}.  Then press the ``Apply and Save'' button.
+@end itemize
+
+@node Smart Mouse Key Drags,  , Smart Mouse Key Modeline Clicks, Smart Keys
+@section Smart Mouse Key Drags
+
+@cindex smart mouse key drag
+@cindex Action Mouse Key drag
+@cindex Assist Mouse Key drag
+@cindex drag, Smart Mouse Key
+As mentioned in the section on Thing Selection, Hyperbole Smart Mouse Key
+drag actions can be quite useful.  This section summarizes other drag
+contexts and actions; for complete documentation, @pxref{Smart
+Mouse Keys}.
+
+@menu
+* Creating and Deleting Windows::
+* Saving and Restoring Window Configurations::
+* Resizing Windows::
+* Dragging Buffers::
+@end menu
+
+@node Creating and Deleting Windows, Saving and Restoring Window Configurations, Smart Mouse Key Drags, Smart Mouse Key Drags
+@subsection Creating and Deleting Windows
+
+@cindex drag, horizontal
+@cindex horizontal drag
+@cindex drag, vertical
+@cindex vertical drag
+Horizontal and vertical drags of the Smart Mouse Keys are used to split and
+delete Emacs windows.
+
+An Action Mouse Key horizontal drag of five or more characters in either
+direction within a single window creates a new window by splitting the
+current window into two windows, one atop the other.  An Action Mouse Key
+vertical drag in either direction splits the current window into two
+side-by-side windows.  A horizontal or vertical drag of the Assist Mouse
+Key within a single window, deletes that window.
+
+@kindex C-x +
+@cindex rebalance windows
+@cindex windows, rebalance
+If you split windows many times and then delete a number of the windows,
+you'll be left with windows of differing heights.  Use @bkbd{C-x +} to
+re-balance the sizes of the remaining windows, so they are fairly even.
+
+@node Saving and Restoring Window Configurations, Resizing Windows, Creating and Deleting Windows, Smart Mouse Key Drags
+@subsection Saving and Restoring Window Configurations
+
+@cindex window configuration drag
+@cindex drag, window configuration
+@cindex drag, diagonal
+@cindex diagonal drag
+A window configuration consists of the set of windows within a single Emacs
+frame.  This includes their locations, buffers, and the scrolled positions of
+their buffers.
+
+Hyperbole allows you to save and restore window configurations with simple
+diagonal mouse drags within a single window.  A diagonal drag in any
+direction of the Action Key saves the current window configuration to a
+ring of window configurations, just like the Emacs text kill ring.
+(@xref{Kill Ring,,,emacs, the Emacs Manual}).  Each diagonal drag in any
+direction of the Assist Key restores a prior saved window configuration
+from the ring.  Window configurations are restored in reverse order of the
+way they were saved.  Since a ring is circular, after the oldest element is
+restored, the newest element will again be restored and so on.
+
+@node Resizing Windows, Dragging Buffers, Saving and Restoring Window Configurations, Smart Mouse Key Drags
+@subsection Resizing Windows
+
+@cindex resizing windows
+@cindex drag, resize window
+Emacs windows may be resized by dragging their window separators (modelines
+or vertical side lines) within a frame.  Simply depress either Smart Mouse
+Key on a modeline or near a window side, hold it down while you drag to a
+new location and then release.  The window separator will then jump to the
+location of release.  Basically, just drag the window separator to where
+you want it.  Nowadays a better version of Emacs window resizing exists on
+the left mouse key.  A drag with this key from a blank area of a modeline
+or a window side divider shows visible feedback as the window is resized.
+But if you are always using the Smart Mouse Keys, you may prefer to use
+them for resizing windows as well.
+
+Note that you cannot drag the bottom-most modeline; you would have to
+resize the frame to move the bottom of that window up.
+
+@node Dragging Buffers,  , Resizing Windows, Smart Mouse Key Drags
+@subsection Dragging Buffers, Windows and Items
+
+Smart Mouse Key drags let you display buffers and windows however you want
+them.  Dired and buffer-menu items may also be displayed in specific
+locations with drags.  Below we explore these drag actions.
+
+@menu
+* Swapping Buffers::
+* Displaying Buffers::
+* Cloning Windows::
+* Displaying File and Buffer Items::
+@end menu
+
+@node Swapping Buffers, Displaying Buffers, Dragging Buffers, Dragging Buffers
+@subsubsection Swapping Buffers
+
+@cindex swap buffers
+@cindex window, swap buffer
+@cindex buffer, swap
+@cindex drag, buffer swap
+Swapping buffer locations is quick and easy with Hyperbole.  Simply drag
+from one window to another with the Assist Key (not the Action Key).  This
+works across frames as well.
+
+If you have just two windows in an Emacs frame, you can swap their buffers
+from the keyboard.  Use this Hyperbole minibuffer menu key sequence
+involving the tilde key to swap the buffers and quit from the Hyperbole
+minibuffer menu: @bkbd{C-h h s w ~ q}.
+
+@node Displaying Buffers, Cloning Windows, Swapping Buffers, Dragging Buffers
+@subsubsection Displaying Buffers
+
+@cindex buffer, copy
+@cindex copy buffer
+@cindex drag, copy buffer
+What if you want to display the same buffer in another window and not swap
+buffers?  Depress the Action Mouse Key in the open area of the modeline of
+the source window and drag to the text area of the destination window.
+Voila, the buffer appears in the new location as well as the old one.
+
+If you want a new window where you release (so the original destination window's
+buffer stays onscreen), just drag to a window's modeline; that window will be
+split before the buffer is displayed.
+
+@node Cloning Windows, Displaying File and Buffer Items, Displaying Buffers, Dragging Buffers
+@subsubsection Cloning Windows
+
+@cindex clone window
+@cindex window, clone
+@cindex drag, clone window
+To clone a window with its buffer to a new frame, simply drag the Action Mouse
+Key from the window to outside of Emacs and release the key.  A new frame will
+be created, selected and sized according to the original window.  Do the same
+thing with the Assist Mouse Key and the original window will be deleted as well,
+unless it is the only window in that frame.
+
+@node Displaying File and Buffer Items,  , Cloning Windows, Dragging Buffers
+@subsubsection Displaying File and Buffer Items
+
+@cindex dired item drag
+@cindex buffer menu item drag
+@cindex drag, dired item
+@cindex drag, buffer menu item
+You can do the same thing with items in dired, buffer menu and ibuffer menus
+rather than buffers themselves.  Drag with the Action Mouse Key and the selected
+item will be displayed in any Emacs window in which you release.  Drag outside
+Emacs and it will be displayed in a new frame.
+
+So now you can put a bunch of buffers and files on your screen wherever
+you like.  Typically, a brief visual pulse is shown first at the source item and
+then in the whole destination window, to help you see that the transfer has been
+made.  An Assist Key Drag will move the the item list buffer to the
+destination (swapping buffers), just as it does with other buffers.
+
+@c @node Smart Mouse Key Modifiers,  , Smart Mouse Key Drags, Smart Keys
+@c @section   Smart Mouse Key Modifiers
+
+@c For advanced users of Emacs and Hyperbole, there is @code{hmouse-mod-mode},
+@c a global minor mode which turns the Action Mouse Key into a @key{Control}
+@c modifier key and the Assist Mouse Key into a @key{Meta} modifier key.  This
+@c allows for better keyboard energy balance across hands and is useful for
+@c reducing carpal tunnel stress.  It may also be used with a @dfn{chord
+@c keyboard} in one hand and a mouse in the other to point at things while
+@c simultaneously operating upon them.
+
+@c @findex hmouse-mod-mode
+@c @vindex hmouse-mod-mode
+@c @cindex Smart Keys as modifiers
+@c @cindex control key modifier
+@c @cindex meta key modifier
+@c @cindex chord keyboards
+@c Use the @code{hmouse-mod-mode} global minor mode to enable this feature.
+@c @bkbd{C-u M-x hmouse-mod-mode @key{RET}} enables it and adds
+@c @samp{HyMod} to the list of modeline minor modes.  @bkbd{C-u 0 M-x
+@c hmouse-mod-mode @key{RET}} disables it and @bkbd{M-x
+@c hmouse-mod-mode @key{RET}} toggles it on and off.
+
+@c When enabled, if the Action Mouse Key is held down while alpha characters
+@c are typed, they are translated into @key{Control} keys instead.  The
+@c Assist Key translates them into @key{Meta} keys.  When both Smart
+@c Keys are depressed, @key{Control-Meta} keys are produced.  The
+@c commands bound to the characters produced are then run.  For example,
+@c Action Key + @bkbd{a} runs the function for @bkbd{C-a}.  If no
+@c keys are typed while the Smart Keys are down, they operate as
+@c normally under Hyperbole.
+
+@c The code for Smart Key modifiers can be found in
+@c @file{@code{$@{hyperb:dir@}}/hmouse-mod.el}.
 
 
 @node Buttons, Menus, Smart Keys, Top
@@ -1314,7 +1490,7 @@ Implicit buttons may appear only within document contexts allowed by
 their types, which may limit the kinds of documents or the locations
 within those documents at which such buttons may be found.  All global
 buttons for a user are stored in a single location and are activated by
-entering their names, rather than by direct selection, the means used to
+typing their names, rather than by direct selection, the means used to
 activate explicit and implicit buttons.
 
 @noindent
@@ -1324,20 +1500,19 @@ To summarize:
 Button Category   Active Within        Activation Means      Managed By
 ========================================================================
 Explicit          a single document    direct selection      Hyperbole
-Global            any document         entering its name     Hyperbole
+Global            any document         typing its name       Hyperbole
 Implicit          a matching context   direct selection      other tools
 
 @end example
 
 @cindex terminal use
 A click on a Hyperbole button may activate it or describe its actions,
-depending on which mouse key is used.  Buttons may also be activated
-from a keyboard.  (In fact, virtually all Hyperbole operations,
-including menu usage, may be performed from any standard character
-terminal interface, so you need not be anchored to a workstation all
-day).  @xref{Smart Keys}.  There is also a key that shows you how a
-button will behave before you activated it, @pxref{Smart Key
-Operations}.
+depending on which mouse key is used.  Buttons may also be activated from a
+keyboard.  (In fact, many Hyperbole operations, including menu usage, may
+be performed from any standard character terminal interface, so you need
+not be anchored to a desktop all day).  @xref{Smart Keys}.  There is
+also a key that shows you how a button will behave before you activate
+it, @pxref{Smart Key Operations}.
 
 @menu
 * Explicit Buttons::
@@ -1385,20 +1560,19 @@ buttons, @pxref{Utilizing Explicit Buttons}.
 
 @cindex link button
 @cindex referent
-Each explicit button is assigned an action type that determines the
-actions it performs.  @dfn{Link action types} connect buttons to
-particular types of @dfn{referents}, the targets of their links.  Link
-action type names all begin with @code{link-}.  Link action button
-referents are displayed when such buttons are  by
-pressing or clicking upon them.  @xref{Action Types}, for a list of
-standard action types including link types.
+Each explicit button is assigned an action type that determines the actions
+it performs.  @dfn{Link action types} connect buttons to particular types
+of @dfn{referents}, the targets of their links.  Link action type names all
+begin with @code{link-}.  Link action button referents are displayed when
+such buttons are activated with a press or a click.  @xref{Action Types},
+for a list of standard action types including link types.
 
 @cindex linking, in-place
 @cindex Hyperbole data model
 Hyperbole does not manage referent data; this is left to the
 applications that generate the data.  This means that Hyperbole
-provides in-place linking and does not require reformatting of data to
-integrate with Hyperbole.
+provides in-place linking and does not require reformatting data to
+integrate it with Hyperbole.
 
 @cindex button data
 @cindex button attribute
@@ -1423,7 +1597,7 @@ Access to explicit buttons depends upon the information on your screen
 since they are embedded within particular buffers.  Sometimes it is
 useful to activate buttons without regard to the information with which
 you are working.  In such instances, you use @dfn{global buttons}, which
-are buttons that may be activated or otherwise operated upon by entering
+are buttons that may be activated or otherwise operated upon by typing
 their labels/names when they are prompted for, rather than selecting the
 buttons within a buffer.
 
@@ -1446,6 +1620,13 @@ the button's name and its action will be executed.
 Global buttons are actually explicit buttons stored at the end of your
 personal button file, @pxref{Button Files}.  You can always go into that
 file and activate, edit or annotate these buttons with comments.
+
+@cindex bookmarks
+Emacs has a built-in feature similar to Global Buttons called Bookmarks.
+Bookmarks store places in files or link to URLs, so they are more limited
+than Hyperbole's global buttons and cannot utilize all of Hyperbole's
+capabilities for performing actions.  @xref{Bookmarks,,,emacs, the Emacs
+Manual}, for details on bookmarks.
 
 @node Implicit Buttons, Button Files, Global Buttons, Buttons
 @section   Implicit Buttons
@@ -1520,8 +1701,8 @@ also the documentation for @code{actypes::hyp-config}.
 @findex ibtypes Info-node
 @cindex Info node
 @item Info-node
-Makes "(filename)nodename" buttons display the associated Info node.
-Also makes "(filename)itemname" buttons display the associated Info
+Makes a "(filename)nodename" button display the associated Info node.
+Also makes a "(filename)itemname" button display the associated Info
 index item.
 
 @findex ibtypes www-url
@@ -1564,10 +1745,10 @@ string is displayed.
 @cindex rolo address
 @cindex address
 @item mail-address
-If on an e-mail address in a specific buffer type, mail to that address
-in another window. Applies to the rolo match buffer, any buffer
-attached to a file in @code{hyrolo-file-list}, or any buffer with @file{mail}
-or @file{rolo} (case-insensitive) within its name.
+If on an e-mail address in a specific buffer type, compose mail to that
+address in another window. Applies to the rolo match buffer, any buffer
+attached to a file in @code{hyrolo-file-list}, or any buffer
+with @file{mail} or @file{rolo} (case-insensitive) within its name.
 
 @findex ibtypes patch-msg
 @cindex patch output
@@ -1617,8 +1798,8 @@ specifiers.
 @cindex man pages
 @cindex man apropos
 @item man-apropos
-Makes man apropos entries (from @samp{man -k}) display associated man pages when
-selected.
+Makes man apropos entries (from @samp{man -k}) display associated man
+pages when selected.
 
 @findex ibtypes rfc
 @cindex Internet RFC
@@ -1627,11 +1808,11 @@ selected.
 @cindex remote file
 @cindex ftp
 @item rfc
-Retrieves and displays an Internet rfc referenced at point.  Requires remote
-file access, e.g. via the Tramp library, for remote ftp retrievals.  The
+Retrieves and displays an Internet rfc referenced at point.  The
 following formats are recognized: RFC822, rfc-822, and RFC 822.  The
-@code{hpath:rfc} variable specifies the location from which to retrieve
-RFCs."
+@code{hpath:rfc} variable specifies the location from which to
+retrieve RFCs.  Requires the Emacs builtin Tramp library for ftp file
+retrievals.
 
 @findex ibtypes kbd-key
 @cindex key sequence
@@ -1670,8 +1851,8 @@ very beginning of the line.
 @item cscope
 Jumps to a C/C++ source line associated with a Cscope C analyzer output line.
 Requires pre-loading of the cscope.el Lisp library available from the Emacs
-Lisp archives and the commercial cscope program available from AT&T's
-software toolchest.  Otherwise, does nothing.
+Lisp archives and the open source cscope program available from
+http://cscope.sf.net.  Otherwise, does nothing.
 
 @findex ibtypes etags
 @cindex etags entry
@@ -1719,41 +1900,37 @@ handled elsewhere.
 @cindex version control
 @vindex hibtypes-git-default-project
 @item git-reference
-@format
 Displays the git entity associated with REFERENCE and optional PROJECT.
 
-@group
-REFERENCE is of the form:
-    <ref-item>
-    /?<project>/<ref-item>
-or  /<project>.
-@end group
-
-<ref-item> is one of these:
+REFERENCE is a string of one of the following forms:
 @itemize @bullet
-@item
-  one of the words: branches, commits, or tags; the associated items are listed;
-@item
-  one of the words: branch, commit, or tag followed by a '/' and item id; the
-  item is shown;
-@item
-  a commit reference given by a hex number, 55a1f0; the commit diff is
-  displayed;
-@item
-  a branch or tag reference given by an alphanumeric name, e.g. hyper20; the
-  files in the branch are listed.
+@item <ref-item>
+@item /?<project>/<ref-item>
+@item /<project>.
 @end itemize
 
+<ref-item> is one of these:
+@table @asis
+@item one of the words: branches, commits, or tags
+the associated items are listed
+@item one of the words: branch, commit, or tag followed by a '/' and item id
+the item is shown
+@item a commit reference given by a hex number, 55a1f0
+the commit diff is displayed
+@item a branch or tag reference given by an alphanumeric name, e.g. hyper20
+the files in the branch are listed.
+@end table
+
 @vindex hibtypes-git-default-project
-If given, PROJECT overrides any project value in REFERENCE.  If no
-PROJECT value is provided, it defaults to the value of @code{hibtypes-git-default-project}.
-@end format
+If given, PROJECT overrides any project value in REFERENCE.  If no PROJECT
+value is provided, it defaults to the value of @code{hibtypes-git-default-project}. 
 
 @findex ibtypes git-commit-reference
 @cindex git commit reference
 @cindex version control
 @item git-commit-reference
-Displays the diff for a git commit reference, e.g. commit a55e21, typically produced by git log.
+Displays the diff for a git commit reference, e.g. commit a55e21, typically
+produced by git log.
 
 @findex ibtypes github-reference
 @cindex github reference
@@ -1761,42 +1938,35 @@ Displays the diff for a git commit reference, e.g. commit a55e21, typically prod
 @vindex hibtypes-github-default-project
 @vindex hibtypes-github-default-user
 @item github-reference
-@format
-Displays the Github entity associated with REFERENCE and optional USER and
-PROJECT.
+Displays the Github entity associated with REFERENCE and optional USER and PROJECT.
 
-@group
-REFERENCE is a string of the form:
-    <ref-item>
-    <user>/<project>/<ref-item>
-    <project>/<ref-item>
-or  /<project>.
-@end group
+REFERENCE is a string of one of the following forms:
+@itemize @bullet
+@item <ref-item>
+@item <user>/<project>/<ref-item>
+@item <project>/<ref-item>
+@item /<project>.
+@end itemize
 
 <ref-item> is one of these:
-@itemize @bullet
-@item
- one of the words: branches, commits, issues, pulls, or tags; the associated items are listed;
-@item
-  one of the words: branch, commit, issue, pull or tag followed by a '/' and
-  item id; the item is shown;
-@item
-  an issue reference given by a positive integer, e.g. @emph{92} or prefaced with @emph{GH-}, 
-  like GH-92; the issue is displayed;
-@item
-  a commit reference given by a hex number, 55a1f0; the commit diff is
-  displayed;
-@item
-  a branch or tag reference given by an alphanumeric name, e.g. hyper20; the
-  files in the branch are listed.
-@end itemize
+@table @asis
+@item @bullet{} one of the words: branches, commits, issues, pulls, or tags
+the associated items are listed
+@item @bullet{} one of the words: branch, commit, issue, pull or tag followed by a '/' and item id
+the item is shown
+@item @bullet{} an issue reference given by a positive integer, e.g. @emph{92} or prefaced with @emph{GH-}, like GH-92
+the issue is displayed
+@item @bullet{} a commit reference given by a hex number, 55a1f0
+the commit diff is displayed
+@item @bullet{} a branch or tag reference given by an alphanumeric name, e.g. hyper20
+the files in the branch are listed.
+@end table
 
 @vindex hibtypes-github-default-user
 USER defaults to the value of @code{hibtypes-github-default-user}.
 If given, PROJECT overrides any project value in REFERENCE.  If no
 PROJECT value is provided, it defaults to the value of
 @code{hibtypes-github-default-project}.
-@end format
 
 @findex ibtypes social-reference
 @cindex hashtag
@@ -1835,12 +2005,11 @@ the issue to a window below the listing window.
 
 @findex ibtypes debbugs-gnu-query
 @item debbugs-gnu-query
-This implicit button type displays the results of a Gnu debbugs query
-based on the string at point and works in most kinds of buffers.  If
-the query includes a single id number, it displays the original message
-submission for that id and allows browsing of the followup discussion.
-The following buffer text formats are accepted (with point prior to
-any attribute):
+Displays the results of a Gnu debbugs query based on the string at point and
+works in most kinds of buffers.  If the query includes a single id number, it
+displays the original message submission for that id and allows browsing of
+the followup discussion.  The following buffer text formats are accepted
+(with point prior to any attribute):
 
 @smallexample
 bug#id-number, bug# id-number, bug #id-number or bug id-number
@@ -1895,8 +2064,6 @@ at line-num and optional column-num.  Also works for remote pathnames.
 @findex hpath:find
 @vindex hpath:suffixes
 @cindex Tramp
-@cindex Ange-ftp
-@cindex EFS
 @cindex ftp
 @cindex pathname
 @cindex remote path
@@ -1938,12 +2105,12 @@ and @code{browse-url-generic}.
 @cindex online library
 @cindex document identifier
 @item doc-id
-Displays an index entry for a site-specific document given its id.
-Ids must be delimited by @code{doc-id-start} and @code{doc-id-end} and
-must match the function given by @code{doc-id-p}.  This permits
-creation of catalogued online libraries.  (Note that this implicit
-button type is not installed by default.  You must manually configure
-it and load it from the file, @file{@code{$@{hyperb:dir@}}/hib-doc-id.el}).
+Displays a document from a local document library given its id.  Ids must be
+delimited by @code{doc-id-start} and @code{doc-id-end} and must match the
+function given by @code{doc-id-p}.  (Note that this implicit button type is
+not installed by default.  You must manually configure it and load it from
+the file, @file{@code{$@{hyperb:dir@}}/hib-doc-id.el}).  See the commentary
+at the top of that file for more information.
 @end table
 
 @node Button Files, Action Types, Implicit Buttons, Buttons
@@ -1987,10 +2154,9 @@ within the same directory.  If you want to view some other
 directory-specific button file, simply use the normal Emacs file
 finding commands.
 
-One might suggest that quick menu access be provided for group-specific
-and site-specific button files.  Instead, link buttons to such things
-should be placed at the top of your personal button file.  This provides
-a more flexible means of connecting to such resources.
+If you want group and site-specific button files, simply place links to such
+files at the top of your personal button file and do so for your colleagues.
+This provides a flexible means of connecting to such resources.
 
 @node Action Types, Button Type Precedence, Button Files, Buttons
 @section   Action Types
@@ -2093,7 +2259,7 @@ signalled.
 
 @findex actypes link-to-ebut
 @item link-to-ebut
-Performs an action given by another button, specified by KEY and KEY-FILE.
+Performs an action given by another explicit button, specified by KEY and KEY-FILE.
 
 @findex actypes link-to-elisp-doc
 @item link-to-elisp-doc
@@ -2101,8 +2267,8 @@ Displays the documentation for FUNC-SYMBOL.
 
 @findex actypes link-to-file
 @item link-to-file
-Displays file given by PATH scrolled to optional POINT.  With POINT,
-buffer is displayed with POINT at window top.
+Displays a file given by PATH scrolled to optional POINT.  If POINT is given,
+the buffer is displayed with POINT at the top of the window.
 
 @findex actypes link-to-file-line
 @item link-to-file-line
@@ -2163,8 +2329,7 @@ Returns @samp{t} if found, signals an error if not.
 @findex actypes link-to-rfc
 @item link-to-rfc
 Retrieves and displays an Internet rfc given by RFC-NUM.  RFC-NUM may be
-a string or an integer.  Requires a remote file access library, such as
-Tramp, for ftp file retrievals.
+a string or an integer.
 
 @findex actypes link-to-string-match
 @item link-to-string-match
@@ -2274,7 +2439,7 @@ buttons.
 * Renaming::
 * Deletion::
 * Modification::
-* Location::
+* Searching and Summarizing::
 * Buttons in Mail::
 * Buttons in News::
 @end menu
@@ -2458,7 +2623,7 @@ is true by default, causing Hyperbole to require confirmation before
 interactively deleting explicit buttons.  Set it to @samp{nil} if you
 prefer no confirmation.
 
-@node Modification, Location, Deletion, Utilizing Explicit Buttons
+@node Modification, Searching and Summarizing, Deletion, Utilizing Explicit Buttons
 @subsection  Modification
 
 @cindex explicit button, modifying
@@ -2475,8 +2640,8 @@ destination in a different window, just as you would when creating a new
 button with a mouse drag.  Remember that drags may also be emulated from
 the keyboard.  @xref{Creation}.
 
-@node Location, Buttons in Mail, Modification, Utilizing Explicit Buttons
-@subsection  Location
+@node Searching and Summarizing, Buttons in Mail, Modification, Utilizing Explicit Buttons
+@subsection  Searching and Summarizing
 
 @cindex explicit button, summarizing
 @cindex button, summarizing
@@ -2507,7 +2672,7 @@ There are presently no user-level facilities for globally locating
 buttons created by others or for searching on particular button
 attributes.
 
-@node Buttons in Mail, Buttons in News, Location, Utilizing Explicit Buttons
+@node Buttons in Mail, Buttons in News, Searching and Summarizing, Utilizing Explicit Buttons
 @subsection  Buttons in Mail
 
 @kindex C-x m
@@ -2533,14 +2698,13 @@ minibuffer menu item to enable it.
 @cindex USENET
 @cindex news
 @vindex file, hmail.el
-Hyperbole automatically supports the following mail readers: Rmail
-(@pxref{Rmail,,Reading Mail with Rmail,emacs, the GNU Emacs Manual}), VM
-(@pxref{Introduction,,,vm, the VM Manual}) and MH-e.  Button inclusion
-and activation within USENET news articles is also supported in the
-same fashion via the Gnus news reader if available at your site
-(@pxref{Top,,The Gnus Newsreader,gnus, the Gnus Manual}).
-(The @file{hmail.el} file defines a generalized interface that can be
-used to hook in other mail or news readers if the necessary interface
+Hyperbole supports the following mail readers: Rmail (@pxref{Rmail,,Reading
+Mail with Rmail,emacs, the GNU Emacs Manual}), VM (@pxref{Introduction,,,vm,
+the VM Manual}) and MH-e.  Button inclusion and activation within USENET news
+articles is also supported in the same fashion via the Gnus news reader if
+available at your site (@pxref{Top,,The Gnus Newsreader,gnus, the Gnus
+Manual}).  (The @file{hmail.el} file defines a generalized interface that can
+be used to hook in other mail or news readers if the necessary interface
 functions are written.)
 
 @vindex mail-yank-original
@@ -2595,7 +2759,7 @@ Hyperbole.
 This will produce the following line in outgoing messages:
 
 @example
-Comments: GNU Hyperbole mail buttons accepted, vX.XX.
+Comments: GNU Hyperbole mail buttons accepted, vX.X.X.
 @end example
 
 @vindex file, .emacs
@@ -2693,20 +2857,32 @@ similar to key bindings.
 @cindex starting Hyperbole
 @cindex Hyperbole, starting
 @cindex Hyperbole main menu
-The top-level Hyperbole menu is invoked from a key given in your
+The top-level Hyperbole minibuffer menu is invoked from a key given in your
 @file{hyperbole.el} file (by default, @bkbd{C-h h}) or with a click
-of the Action Mouse Key in the minibuffer.
+of the Action Mouse Key in the minibuffer when it is inactive.  It should
+look like this:
+
+@smallexample
+@noindent
+Hy>  Act Butfile/ Cust/ Doc/ Ebut/ Find/ Gbut/ Hist Ibut/ Kotl/ Msg/ Rolo/ Screen/ Win/
+@end smallexample
 
 @cindex submenus
 @cindex menu help
 @cindex help, menu items
 @cindex menu item selection
 @cindex selection, menu items
-All menu items are selected via the first character of their names
-(letter case does not matter) or with presses of the Action Key.  "/" at
-the end of an item name indicates that it brings up a submenu.  A press
-of the Assist Key on an item displays help for the item, including the
-action that it performs.
+@kindex @key{TAB}
+@kindex M-f
+@kindex Shift-
+@kindex M-b
+All menu items are selected via the first character of their names (letter
+case does not matter), with presses of the Action Key or by using
+@{@key{TAB}@} or @bkbd{M-f} to move forward an item, @bkbd{Shift-@key{TAB}}
+or @bkbd{M-b} to move backward an item and @{@key{RET}@} to select the
+current item.  A press of the Assist Key on an item displays help for the
+item, including the action that it performs.  "/" at the end of an item name
+indicates that it brings up a submenu.
 
 @kindex C-t
 @kindex q
@@ -2721,26 +2897,6 @@ submenus and then return to the top menu.  You can quit without
 selecting an item by using @bkbd{q} or pressing @{@key{RET}@} when at
 the end of a menu.  @bkbd{C-g} aborts from the minibuffer whether you
 are at a menu prompt or any other Hyperbole prompt.
-
-@noindent
-The top-level Hyperbole menu appears in the minibuffer and should look
-like this:
-
-@smallexample
-@noindent
-Hy>  Act Butfile/ Cust/ Doc/ Ebut/ Find/ Gbut/ Hist Ibut/ Kotl/ Msg/ Rolo/ Screen/ Win/
-@end smallexample
-
-@sp 1
-@kindex @key{TAB}
-@kindex M-f
-@kindex Shift-
-@kindex M-b
-Each menu item may be selected by typing its first letter (case
-insensitive), by clicking the Action Mouse Key on it, or by
-using @{@key{TAB}@} or @bkbd{M-f} to move forward an
-item, @bkbd{Shift-@key{TAB}} or @bkbd{M-b} to move backward an item
-and @{@key{RET}@} to select the current item.
 
 @noindent
 The top-level Hyperbole minibuffer menu items serve the following purposes:
@@ -4380,11 +4536,11 @@ these capabilities back into the mainstream of modern computing culture.
 Hyperbole includes a complete, advanced rolo system, HyRolo, for
 convenient management of hierarchical, record-oriented information.
 Most often this is used for contact management but it can quickly be
-adapted to most any record-oriented lookup task, for fast retrieval.
+adapted to most any record-oriented lookup task requiring fast retrieval.
 
 @cindex rolo, buttons in
 Hyperbole buttons may be included within rolo records and then
-manually activated whenever their records are retrieved.
+manually activated whenever their records are retrieved in a search.
 
 @noindent
 The following subsections explain use and basic customization of this
@@ -4842,16 +4998,16 @@ There is never a need to learn a complicated query language.
 @cindex restoring windows
 @cindex saving window configurations
 @vindex file, hywconfig.el
-Hyperbole includes the @file{hywconfig.el} library which lets you save and
-restore window configurations, i.e@. the layout of windows and buffers
-displayed within an emacs frame.  This is useful to save a particular
-working context and then to jump back to it at a later time during an
-emacs session.  It is also useful during demonstrations to display many
-informational artifacts all at once, e.g.@: all of the windows for a
-particular subsystem.  None of this information is stored between emacs
-sessions, so your window configurations will last through only a single
-session of use.  Each window configuration is tied to the emacs frame
-in which it is created.
+This chapter explains Hyperbole's @file{hywconfig.el} library.  It lets you
+save and restore window configurations, i.e@. the layout of windows and
+buffers displayed within an emacs frame.  This is useful to save a
+particular working context and then to jump back to it at a later time
+during an emacs session.  It is also useful during demonstrations to
+display many informational artifacts all at once, e.g.@: all of the windows
+for a particular subsystem.  None of this information is stored between
+emacs sessions, so your window configurations will last through only a
+single session of use.  Each window configuration is tied to the emacs
+frame in which it is created.
 
 The hywconfig library offers two independent ways of managing window
 configurations.  The first way associates a name with each stored
@@ -4863,7 +5019,7 @@ the last entry is encountered.  Simply stop when the desired
 configuration is displayed.
 
 The Win/ menu entry on the Hyperbole top-level menu displays a menu of
-window configuration commands:
+hywconfig window configuration commands:
 
 @verbatim
 WinConfig>  AddName  DeleteName  RestoreName  PopRing  SaveRing  YankRing
@@ -4898,14 +5054,11 @@ YankRing        hywconfig-yank-pop          Restore the next wconfig
 @end group
 @end example
 
-The easiest method is to save and restore window configurations by
-name, but it requires that you input the chosen name from the
-keyboard.  Alternately, the ring commands permit saves and restores
-using only the mouse, if desired.  An earlier chapter (@pxref{Smart
-Keys}) mentions how to save and restore window configurations with the
-Smart Keys.  Since the ring commands are a bit more complex than their
-by-name counterparts, the following paragraphs explain them in more
-detail.
+The easiest method to save and restore window configurations shown here is
+by name, but it requires that you type the chosen name.  Instead, the ring
+commands permit saves and restores using only the mouse.  Since the ring
+commands are a bit more complex than their by-name counterparts, the
+following paragraphs explain them in more detail.
 
 @vindex kill-ring
 HyWconfig creates a ring structure that operates just like the Emacs
@@ -5480,9 +5633,6 @@ with a set of values, called arguments, is an @dfn{action}.
 A request to a Hyperbole button to perform its action.
 Ordinarily the user presses a key which selects and activates a button.
 
-@item Ange-ftp
-See @b{Tramp}.
-
 @item Argument
 A button-specific value fed to a Hyperbole type specification when the
 button is activated.
@@ -5584,13 +5734,13 @@ See @code{Kcell}.
 The set of koutline cells which share a common parent cell and thus, are one
 level deeper than the parent.
 
-@item Chord Keyboard
-A keyboard which supports pressing multiple keys simultaneously to produce
-a unique chord keystroke for issuing commands to a program.  In Engelbart's
-Augment system, mouse keys were used as modifiers for a 5-key chord
-keyboard to enable direct manipulation of objects on screen.  Hyperbole
-supports similar behavior with its @code{hmouse-mod-mode}.  @xref{Smart Key
-Modifiers}.
+@c @item Chord Keyboard
+@c A keyboard which supports pressing multiple keys simultaneously to produce
+@c a unique chord keystroke for issuing commands to a program.  In Engelbart's
+@c Augment system, mouse keys were used as modifiers for a 5-key chord
+@c keyboard to enable direct manipulation of objects on screen.  Hyperbole
+@c supports similar behavior with its @code{hmouse-mod-mode}.  @xref{Smart
+@c Mouse Key Modifiers}.
 
 @item Class
 A group of functions and variables with the same prefix in their names,
@@ -5616,9 +5766,6 @@ location.
 
 @item Environment
 See @b{Hyperbole Environment}.
-
-@item EFS
-See @b{Tramp}
 
 @item Explicit Button
 A button created and managed by Hyperbole, associated with a specific
@@ -5795,7 +5942,7 @@ See @b{Link}.
 A file or directory on a system not shared within the local area network.
 The built-in Emacs library, @b{Tramp}, handles remote pathnames and
 Hyperbole uses it to enable viewing and editing of remote paths of the form:
-@file{/<user>@@<host>:<path>} as well as web URLs.  Use the
+@file{/<protocol>:<user>@@<host>:<path>} as well as web URLs.  Use the
 Cust/Find-File-URLs menu option to enable this feature.
 
 @item Rolo
@@ -5852,12 +5999,12 @@ defined to recognize and activate button-type constructs managed by the
 other system.
 
 @item Tramp
-A remote file access library built-in to Emacs.  It does similar things as
-the older EFS and ange-ftp packages but uses more secure transfer and works
-with more types of hosts.  It allows one to use remote pathnames that are
-accessible via Internet protocols just like other pathnames, for example when
-finding a file.  Hyperbole recognizes pathnames of the form,
-@file{/<user>@@<host>:<path>} and web URLs.
+A remote file access library built-in to Emacs.  It uses secure
+transfer and works with many types of hosts.  It allows you to use
+remote pathnames that are accessible via Internet protocols just like
+other pathnames, for example when finding a file.  Hyperbole
+recognizes pathnames of the form,
+@file{/<protocol>:<user>@@<host>:<path>} and web URLs.
 
 @item Tree
 The set of cells in a koutline that share a common root cell, including
@@ -6151,7 +6298,7 @@ your personal initialization file: @code{(hpath:find-file-urls-mode 1)}.
 Both full URLs and abbreviated ones, like @file{www.gnu.org}, are
 recognized.  File name completion does not work with URLs thus you
 have to type or paste in the entire URL.  This feature will work only
-if you have the Tramp Emacs Lisp package installed; if you don't have
+if you have the builtin Tramp Emacs Lisp package; if you don't have
 Tramp, an error message will be displayed when you try to enable
 find-file URLs.
 
@@ -6314,7 +6461,7 @@ the current buffer.
 This appendix summarizes all of Hyperbole's global key bindings and
 whether each overrides any existing binding or not.  It also describes
 how to temporarily disable these bindings and how to manage whether
-Hyperbole override local, mode-specific key bindings that hide
+Hyperbole overrides local, mode-specific key bindings that hide
 global Hyperbole keys.
 
 Here are descriptions of Hyperbole's default keyboard key bindings:
@@ -6352,7 +6499,8 @@ item, @bkbd{C-h h f w}, will do the same thing.
 Display a grid of windows in the selected frame, sized according to the
 prefix argument.  The left digit of the argument is the number of grid rows
 and the right digit is the number of grid columns.  The argument is
-prompted for if not given.
+prompted for if not given.  This binding is made only if the key is not
+bound prior to loading Hyperbole.
 
 For further details, see the @bkbd{@@} key binding description
 in @ref{HyControl}.
@@ -6410,22 +6558,37 @@ and restart Emacs.  Then you will have to choose the Hyperbole commands
 that you want to use and bind those to keys.
 
 @vindex file, .emacs
-@findex hkey-toggle-bindings
+@findex hyperbole-toggle-bindings
 @cindex change key bindings
 @cindex toggle key bindings
 @cindex key bindings, toggle
 @cindex disable Hyperbole
 @kindex C-c h
-If you ever have a need to temporarily disable the Hyperbole keyboard
-and mouse bindings, use the @code{hkey-toggle-bindings} command.  It
-switches between the Hyperbole key bindings and those set prior to
-loading Hyperbole and then back again if invoked once more.  There is
-no default key binding for this command; use @bkbd{M-x
-hkey-toggle-bindings @key{RET}}.  Alternatively, you may select a key
-and bind it as part of any setting of @code{hyperbole-init-hook}
+If you ever have a need to temporarily disable the Hyperbole keyboard and
+mouse bindings, use the @code{hyperbole-toggle-bindings} command.  It
+switches between the Hyperbole key bindings and those set prior to loading
+Hyperbole and then back again if invoked once more.  There is no default
+key binding for this command; use @bkbd{M-x hyperbole-toggle-bindings
+@key{RET}}.  Alternatively, you may select a key and bind it as part of any
+setting of @code{hyperbole-init-hook} within your personal @file{~/.emacs}
+file.  For example, @code{(add-hook 'hyperbole-init-hook (lambda ()
+(global-set-key "\C-ch" 'hyperbole-toggle-bindings)))}.
+
+@vindex file, .emacs
+@findex hmouse-toggle-bindings
+@cindex mouse key toggle
+@cindex Smart Mouse Key toggle
+@kindex C-c t
+If you want to restore only the mouse bindings that existed before
+Hyperbole was loaded, use the @code{hmouse-toggle-bindings} command.
+It switches between the Hyperbole mouse key bindings and those set
+prior to loading Hyperbole and then back again if invoked once more.
+There is no default key binding for this command; use @bkbd{M-x
+hmouse-toggle-bindings @key{RET}}.  Alternatively, you may select a
+key and bind it as part of any setting of @code{hyperbole-init-hook}
 within your personal @file{~/.emacs} file.  For example, @code{(add-hook
-'hyperbole-init-hook (lambda () (global-set-key "\C-ch"
-'hkey-toggle-bindings)))}.
+'hyperbole-init-hook (lambda () (global-set-key "\C-ct"
+'hmouse-toggle-bindings)))}.
 
 @vindex hkey-init-override-local-keys
 @cindex overriding local keys

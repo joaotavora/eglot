@@ -794,7 +794,7 @@ compute the actual release location and include that."
 	(list (car event) (nth 2 event))))))
 
 (defun hmouse-save-region (&optional frame)
-  "Save any active region within the current buffer.
+  "Save to `hkey-region' and return any active region within the current buffer.
 Under InfoDock and XEmacs, `zmacs-region' must be t; under GNU Emacs,
 `transient-mark-mode' must be t or the function does nothing."
   (if (cond
@@ -866,7 +866,7 @@ down a windowful."))
 ;; of line to simplify repeated scrolls when using keyboard smart keys.
 ;;
 ;; These functions may also be used to test whether the scroll action would
-;; be successful, no action is taken if it would fail (because the beginning
+;; be successful: no action is taken if it would fail (because the beginning
 ;; or end of a buffer is already showing) and nil is returned.
 ;; t is returned whenever scrolling is performed.
 

@@ -3,7 +3,7 @@
 		   Designed and Written by Bob Weiner
  	        Maintained by Mats Lidell and Bob Weiner
 	         https://www.gnu.org/software/hyperbole/
-                            Version 6.0.2f
+                            Version 6.0.2g
 
 GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole, is
 an efficient and programmable hypertextual information management
@@ -27,13 +27,12 @@ explains the many ways it differs from and is complementary to Org mode.
 
 Hyperbole consists of five parts:
 
-   1.  Buttons and Smart Keys: A set of hyperbutton types which supply
-       core hypertext and other behaviors.  Buttons may be added to
-       documents (explicit buttons) with a simple drag between windows,
-       no markup language needed.  Implicit buttons are patterns
-       automatically recognized within text that perform actions,
-       e.g. bug#24568 displays the bug status information for that bug
-       number.
+   1.  Buttons and Smart Keys: Hyperbole hyperlink and other kinds of
+       buttons may be added to documents (explicit buttons) with a
+       simple drag between windows, no markup language needed.
+       Implicit buttons are patterns automatically recognized within
+       text that perform actions, e.g. bug#24568 displays the bug
+       status information for that bug number.
        
        Buttons are accessed by clicking on them or referenced by name
        (global buttons), so they can be activated regardless of what is

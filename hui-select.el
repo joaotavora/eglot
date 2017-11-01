@@ -243,7 +243,9 @@ Also, add language-specific syntax setups to aid in thing selection."
   (if hkey-init
       (cond (hyperb:emacs-p
 	     (transient-mark-mode 1)
+	     (hkey-global-set-key [double-down-mouse-1] nil)
 	     (hkey-global-set-key [double-mouse-1] 'hui-select-thing-with-mouse)
+	     (hkey-global-set-key [triple-down-mouse-1] nil)
 	     (hkey-global-set-key [triple-mouse-1] 'hui-select-thing-with-mouse))
 	    ((featurep 'xemacs)
 	     (add-hook 'mouse-track-click-hook #'hui-select-double-click-hook))))

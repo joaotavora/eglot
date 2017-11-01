@@ -1,5 +1,5 @@
 To: hyperbole-users@gnu.org, emacs-devel@gnu.org, emacs-tangents@gnu.org
-ANNOUNCE: GNU Hyperbole 7.0.0 is released for Emacs 24.4 and above
+ANNOUNCE: GNU Hyperbole 6.0.2g is released for Emacs 24.4 and above
 
 For information on what GNU Hyperbole is, screenshots, download and
 installation instructions, see the GNU Hyperbole home page:
@@ -16,7 +16,7 @@ Hyperbole includes an interactive demo to introduce you to its features and a
 detailed reference manual.
 
 ===========================================================================
-*                 What's New in GNU Hyperbole V7.0.0
+*                 What's New in GNU Hyperbole V6.0.2g
 ===========================================================================
 
 See "https://git.savannah.gnu.org/cgit/hyperbole.git/tree/HY-NEWS".

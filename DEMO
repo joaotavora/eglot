@@ -148,9 +148,9 @@ generated it.
 
 * Koutliner
 
-A unique feature of Hyperbole for those who like to outline thoughts and be
-able to easily identify each outline entry and hyperlink to it is the
-Koutliner.
+A unique feature of Hyperbole is the Koutliner; it is for outlining
+thoughts, developing requirements or listing tasks and hyperlinking
+them to other documents.
 
 The Hyperbole Koutliner should work under any modern version of GNU Emacs.
 Your Emacs supports the Koutliner if when you press {C-h h} to display the
@@ -172,18 +172,23 @@ alphabetical order the Koutliner commands which are bound to keys.
 
 Hyperbole includes the fastest, easiest-to-use Emacs window and frame
 management system available, HyControl, found under the Hyperbole Screen
-menu.  If you use a lot of Emacs windows or frames (typically, window system
-windows) then this tool is for you.  A long video demonstrating most of
-HyControl's features is available at https://youtu.be/M3-aMh1ccJk.
+menu, {C-h h s}.  If you use a lot of Emacs windows or frames (native
+window system windows), then this tool is for you.  A long video
+demonstrating most of HyControl's features is available at
+https://youtu.be/M3-aMh1ccJk.
 
 HyControl interactively adjusts the layout of your windows and frames down
-to the pixel-level if desired.  You adjust the location, size and display
+to the pixel-level, if desired.  You adjust the location, size and display
 elements of your windows and frames until they look as you like and then
 simply quit HyControl and go back to work.  It has smart features for laying
 out large grids of windows, avoiding having frames cover graphical toolbars
 anchored at the edges of your screen, and allows you to quickly set numeric
 arguments to apply to operations, like resizing a frame to a percentage of
 your screen size.
+
+There are two submodes of HyControl: one for controlling windows and one
+for controlling frames, although a number of commands are available in both
+modes where they are useful.
 
 Hyperbole binds {C-c \} to invoke HyControl windows control; otherwise, the
 Hyperbole minibuffer menu item, Screen/WindowsControl {C-h h s w}, will do
@@ -432,7 +437,7 @@ link to and jump to any marked item within any manual.
 If you use the standard Emacs library "tramp.el" for working with remote
 files and directories, then remote pathnames of the form:
 
-	  /user@host.domain:/path
+	  /protocol:user@host.domain:/path
 
 will be recognized by Hyperbole.
 
@@ -440,11 +445,10 @@ Once you have Tramp configured for loading and are on the Internet, you can
 click on any of the following to jump to the ftp site of Hyperbole tarball
 distributions:
 
-        "/anonymous@ftp.gnu.org:/pub/gnu/hyperbole/"
-	 ftp.gnu.org:/pub/gnu/hyperbole/
+        /ftp:anonymous@ftp.gnu.org:/pub/gnu/hyperbole/
 
-You can see that for Tramp pathnames, Hyperbole recognizes them with or
-without the double quote delimiters.
+For Tramp pathnames, Hyperbole recognizes them with or without double quote
+delimiters.
 
 If you enable the Hyperbole option to use URLs when finding files with
 the {C-x C-f} (find-file) command via the {C-h h c f} key sequence, then
@@ -824,6 +828,7 @@ USENET news messages has not yet been updated for use with Emacs 24 and 25,
 so these features are disabled by default.  If you want to try them knowing
 this, {C-h h c m} will toggle this feature on and off.
 
+
 * Smart Mouse Keys
 
 If you use Emacs with mouse support under the macOS window system, the X
@@ -875,7 +880,7 @@ somewhere outside of the thing, either within the same window or within
 another window.  The thing will be copied to the point of release.  If you
 want to move a thing, simply perform the same drag but with the Assist
 Mouse Key.  Ensure that you do not move any explicit buttons from one
-buffer to another as that does not presently work.
+buffer to another as that does not work.
 
 Try out some of these operations in HTML or source code files to see
 how they can speed your editing.
@@ -940,7 +945,7 @@ the windows to change the buffer that it displays, so you can tell the windows
 apart.  Then delete either one of the windows with a horizontal drag of the
 Assist Key within the window.  If you split windows many times and then
 delete a number of the windows, you'll be left with windows of differing
-heights.  Use {C-x +} to re-balance the heights of the remaining windows, so
+heights.  Use {C-x +} to re-balance the sizes of the remaining windows, so
 they are fairly even.
 
 Now try a side-by-side window split.  Drag vertically with the Action Key by
@@ -974,8 +979,7 @@ resize the frame to move the bottom up.
 *** Swapping Buffers
 
 Swapping buffer locations is quick and easy with Hyperbole.  Simply drag from
-one window to another with the Assist Key (remember the Action Key creates
-buttons when you use the same drag).
+one window to another with the Assist Key (not the Action Key).
 
 Split the current window into two, one above the other.  Drag the upper
 modeline so that one window is clearly bigger than the other.  Now switch to
@@ -998,13 +1002,6 @@ If you want a new window where you release (so the original destination window's
 buffer stays onscreen), just drag to a window's modeline; that window will be
 split before the buffer is displayed.
 
-*** Displaying File and Buffer Items
-
-You can do the same thing with items in dired, buffer menu and ibuffer menus
-rather than buffers themselves.  Drag with the Action Mouse Key and the selected
-item will be displayed in any Emacs window in which you release.  Drag outside
-Emacs and it will be displayed in a new frame.
-
 *** Cloning Windows
 
 To clone a window with its buffer to a new frame, simply drag the Action Mouse
@@ -1014,16 +1011,21 @@ thing with the Assist Mouse Key and the original window will be deleted as well,
 unless it is the only window in that frame.  Create a few windows and try these
 actions.
 
-*** Summary
+*** Displaying File and Buffer Items
+
+You can do the same thing with items in dired, buffer menu and ibuffer menus
+rather than buffers themselves.  Drag with the Action Mouse Key and the selected
+item will be displayed in any Emacs window in which you release.  Drag outside
+Emacs and it will be displayed in a new frame.
 
 So now you can rapidly put a bunch of buffers and files on your screen wherever
 you like.  Typically, a brief visual pulse is shown first at the source item and
 then in the whole destination window, to help you see that the transfer has been
-made.  An Assist Key Drag will move the window with the item list to the
-destination, just as it does for other windows.  Practice these drags as they
-will prove very beneficial across time.
+made.  An Assist Key Drag will move the the item list buffer to the destination
+(swapping buffers), just as it does with other buffers.  Practice these drags as
+they will prove very beneficial across time.
 
-** Saving and Restoring Window Configurations
+** Window Configuration Drags
 
 A window configuration consists of the set of windows within a single Emacs
 frame.  This includes their locations, buffers, and scrolled positions of
@@ -1104,7 +1106,7 @@ and dired modes too!  Try it now.
 Alternatively, you may display the buffer menu, use its {m} command to mark
 buffers and then use the {@} command to display the marked buffers in a grid
 of popup windows whose number of rows and columns you specify at the prompt
-or via a prefix argument.  This also works in ibuffer and dired modes.
+or via a prefix argument.  This also works in ibuffer-menu and dired modes.
 
 An Assist Key click in the blank center portion of a modeline pops up
 a menu of convenient screen commands that lets you select buffers

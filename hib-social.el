@@ -282,7 +282,7 @@ REF-KIND-STR is either \"#\" for a hashtag reference or \"@\" for a username ref
 ;; Don't make this a defact or its arguments may be improperly expanded as pathnames.
 (defun github-reference (reference &optional user project)
   "Display the Github entity associated with REFERENCE and optional USER and PROJECT.
-REFERENCE is a string of the form:
+REFERENCE is a string of one of the following forms:
     <ref-item>
     <user>/<project>/<ref-item>
     <project>/<ref-item>
@@ -455,7 +455,7 @@ Return t if built, nil otherwise."
 ;; Don't make this a defact or its arguments may be improperly expanded as pathnames.
 (defun git-reference (reference &optional project)
   "Display the git entity associated with REFERENCE and optional PROJECT.
-REFERENCE is of the form:
+REFERENCE is a string of one of the following forms:
     <ref-item>
     /?<project>/<ref-item>
 or  /<project>.
@@ -568,7 +568,7 @@ PROJECT value is provided, it defaults to the value of
 					("branches" (format shell-cmd-to-format project-dir "branch -la" ""))
 					("commits"  (format shell-cmd-to-format project-dir "log --abbrev-commit --pretty=oneline" ""))
 					("tags"     (format shell-cmd-to-format project-dir "tag -l" ""))
-					(t          (format shell-cmd-to-format project-dir "show" reference))))
+					(_          (format shell-cmd-to-format project-dir "show" reference))))
 				(with-help-window (format "*git%s%s %s%s%s*"
 							  (if (equal project "") "" " ")
 							  project ref-type

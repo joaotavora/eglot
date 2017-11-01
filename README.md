@@ -1,4 +1,4 @@
-# GNU Hyperbole 6.0.2f - The Everyday Hypertextual Information Manager
+# GNU Hyperbole 6.0.2g - The Everyday Hypertextual Information Manager
 
 <!-- START doctoc generated TOC -->
 **Table of Contents**
@@ -34,7 +34,7 @@ Hyperbole lets you:
 
    1. Quickly create hyperlink buttons either from the keyboard or by dragging
       between a source and destination window with a mouse button depressed.
-      Later activate buttons by pressing/clicking on them or by giving the
+      Later, activate buttons by pressing/clicking on them or by giving the
       name of the button.
 
    2. Activate many kinds of `implicit buttons` recognized by context

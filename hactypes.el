@@ -244,7 +244,7 @@ Use `link-to-file' instead for a permanent link."
   (hpath:find directory))
 
 (defact link-to-ebut (key-file key)
-  "Performs action given by another button, specified by KEY-FILE and KEY."
+  "Performs action given by another explicit button, specified by KEY-FILE and KEY."
   (interactive
    (let (but-file but-lbl)
      (while (cond ((setq but-file
@@ -285,8 +285,9 @@ Use `link-to-file' instead for a permanent link."
 	     (describe-symbol symbol)))))
 
 (defact link-to-file (path &optional point)
-  "Displays file given by PATH scrolled to optional POINT.
-With POINT, buffer is displayed with POINT at window top."
+  "Displays a file given by PATH scrolled to optional POINT.
+If POINT is given, the buffer is displayed with POINT at the top of
+the window."
   (interactive
    (let ((prev-reading-p hargs:reading-p)
 	 (existing-buf t)
@@ -439,8 +440,7 @@ Returns t if found, signals an error if not."
 
 (defact link-to-rfc (rfc-num)
   "Retrieves and displays an Internet rfc given by RFC-NUM.
-RFC-NUM may be a string or an integer.  Requires a remote file
-access library, such as Tramp, for ftp file retrievals."
+RFC-NUM may be a string or an integer."
   (interactive "nRFC number to retrieve: ")
   (if (or (stringp rfc-num) (integerp rfc-num))
       (hpath:find (hpath:rfc rfc-num))))

@@ -1,3 +1,64 @@
+2017-11-01  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Version): Updated to 6.0.2g and rebuilt output formats.
+
+* hui-window.el (hmouse-prior-active-region): Changed to call use-region-p rather than active-region-p, for a tighter test.
+    This is used as a predicate; fixed bug that moved point, causing Smart Key release logic to use the wrong point.
+
+* hmouse-key.el (hmouse-add-unshifted-smart-keys): Removed GNU Emacs-only dependencies.
+
+* kotl/kotl-autoloads.el: Renamed from kotl/kotl-loaddefs.el to match package autoload naming scheme.
+
+* hmouse-sh.el (hmouse-unshifted-setup): In Info-mode, Emacs uses key-translation-map to link mouse-1 to do whatever
+    mouse-2 does but because Hyperbole uses both down and up bindings on mouse2, this does not work.  So we rebind
+    mouse-1 and double-mouse-1 in Info mode to be actual Action Mouse Keys (which makes them follow Info
+    links/cross-references properly, doing a superset of what they did before).
+               (hmouse-posn-set-point): Added to handle frames rather than windows returned by some events; used in
+    hmouse-move-point-emacs.
+
+* hui-mouse.el (hmouse-tag): Added require of hmouse-info and hmouse-tag for smart-info, smart-lisp etc. when autoload
+    file is not available.
+
+* hmouse-sh.el (hmouse-bind-key-emacs):
+  hui-select.el (hui-select-initialize): Added missing double-down-* and triple-down-* bindings.
+
+2017-10-31  Bob Weiner  <rsw@gnu.org>
+
+* hyperbole.el (hyperb:init): Added an "Initializing Hyperbole..." message at the beginning of this function.
+    Removed 'Hyperbole loading' message at the beginning of this file since Emacs load function outputs a similar
+    message.  Moved Hyperbole 'ready for action' message here rather than at the end of this file since Hyperbole
+    initialization may be deferred until after Emacs initializaton time.  Hyperbole init. is complete only after
+    this function is run.
+
+2017-10-30  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (Glossary): Removed mention of old remote file access packages: ange-ftp and EFS.  Use Tramp only
+    now.
+                     (Searching and Summarizing): Renamed from Location.
+
+* hpath.el (hpath:remote-at-p): Fixed to return /ftp: pre-pended to ftp paths since Tramp requires it.
+
+* hibtypes.el (mail-address): Made lower priority than pathname so when an email-like user@domain is part of a remote
+    pathname, this won't trigger.
+
+* hpath.el (hpath:rfc): Prepended /ftp: to value so tramp recognizes it as a remote file path.
+
+* man/hyperbole.texi (Smart Mouse Key Modifiers):
+  hmouse-mod.el: Disabled this feature since it conflicts with present Emacs bindings of Control- and Meta- mouse keys.
+
+* hui-mini.el (Doc/Manifest):
+  hui-menu.el (Documentation/Manifest): Changed to use hypb:display-file-with-logo so can quit after viewing.
+
+* hversion.el (id-browse-file): Changed alias from find-file-read-only to view-file.
+  hui-mini.el (Doc/SmartKeys): Changed command used to match that used when same doc is displayed with a click at the right
+    of a modeline.
+
+* man/hyperbole.texi (Smart Keys): Added section on Smart Mouse Key Drags to match those in the DEMO file.
+                     (Global Key Bindings): Replaced hkey-toggle-bindings with proper reference to
+    hyperbole-toggle-bindings.
+                     (Smart Key Bindings): Included hyperbole-toggle-bindings (toggles keyboard and mouse keys)
+    rather than hmouse-toggle-bindings (toggles only mouse keys); moved the latter to the Global Key Bindings appendix.
+
 2017-10-27  Bob Weiner  <rsw@gnu.org>
 
 * man/hyperbole.css: Added to format HTML version of the Hyperbole manual like the Hyperbole web page, greatly improving

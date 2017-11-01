@@ -11,7 +11,7 @@
 ;;
 ;;; Commentary:
 ;;
-;;   Supports Mac OS X, X, NEXTSTEP and MS Windows window systems.
+;;   Supports macOS, X, NEXTSTEP and MS Windows window systems.
 ;;
 ;;   `hmouse-install' globally binds the Action and Assist Mouse Keys
 ;;   to shifted mouse buttons and optionally binds the Action Mouse Key
@@ -115,13 +115,11 @@ Assist Key = shift-right mouse key."
 		 "{Shift-Mouse-2} invokes"))))
 
 (defun hmouse-add-unshifted-smart-keys ()
-  "GNU Emacs only: binds [mouse-2] to the Action Key and [mouse-3] to the Assist Key."
+  "Binds mouse-2 to the Action Key and mouse-3 to the Assist Key."
   (interactive)
-  (if hyperb:emacs-p
-      (progn (hmouse-install t)
-	     (hmouse-bind-key-emacs 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs))
-    (error "(hmouse-add-unshifted-smart-keys): Works under only GNU Emacs 19 or above")))
-
+  (require 'hyperbole)
+  (hmouse-unshifted-setup))
+  
 (defun hmouse-toggle-bindings ()
   "Toggles between Smart Mouse Key settings and their prior bindings.
 Under InfoDock, the first invocation of this command will make the middle

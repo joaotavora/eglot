@@ -284,13 +284,15 @@ part of InfoDock and not a part of Hyperbole)."
 	(ibuffer)))))
 
 (defun hmouse-prior-active-region ()
+  "Return t iff there is a non-empty active region in buffer of the last Smart Mouse Key release."
   (when (setq hkey-value (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point))
-    (with-current-buffer (marker-buffer hkey-value)
+    (save-excursion
+      (set-buffer (marker-buffer hkey-value))
       ;; Store and goto any prior value of point from the region
       ;; prior to the Smart Key depress, so we can return to it later.
       (and (goto-char hkey-value)
-	   (region-active-p)
-	   (hmouse-save-region)))))
+	   (hmouse-save-region)
+	   t))))
 
 (defun hmouse-dired-readin-hook ()
   "Remove local `hpath:display-where' setting whenever re-read a dired directory.

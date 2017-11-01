@@ -19,12 +19,12 @@
 ;;  If you want to use your shift-middle mouse button to select Hyperbole menu
 ;;  items and Hyperbole buttons, follow these instructions.
 ;;
-;;  If you plan to use a mouse only with X windows (XEmacs, GNU Emacs
-;;  19, or InfoDock), Mac OS X, or NEXTSTEP, and you want to use the
+;;  If you plan to use a mouse only with the X window system (XEmacs, GNU Emacs
+;;  19, or InfoDock), macOS, or NEXTSTEP, and you want to use the
 ;;  shift-middle and shift-right buttons, you need not do any mouse
 ;;  configuration.  Your Emacs executable must have been built so as to
 ;;  include the mouse support files for your window system, however.  These
-;;  are in the Emacs "src" directory: for X "x*.c".
+;;  are in the Emacs "src" directory: for X - "x*.c", for macOS - "ns*.c".
 ;;
 ;;  To use a different mouse key or a different window system, modify the
 ;;  mouse key bindings in "hmouse-sh.el".
@@ -38,6 +38,10 @@
 ;;; ************************************************************************
 
 (require 'hbut)
+(unless (fboundp 'smart-info)
+  (require 'hmouse-info))
+(unless (fboundp 'smart-c-at-tag-p)
+  (require 'hmouse-tag))
 
 ;;; ************************************************************************
 ;;; Public variables
@@ -1163,7 +1167,7 @@ VARIABLE-FLAG is non-nil, the variable definition is used instead."
 ;;; ************************************************************************
 ;;; smart-info functions
 ;;; ************************************************************************
-;;; Autoloaded in "hmouse-info.el".
+;;; In "hmouse-info.el".
 
 ;;; ************************************************************************
 ;;; smart-man functions

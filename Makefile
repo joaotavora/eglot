@@ -54,7 +54,7 @@
 
 # This ver setup won't work under any make except GNU make, so set it manually.
 #HYPB_VERSION = "`head -3 hversion.el | tail -1 | sed -e 's/.*|\(.*\)|.*/\1/'`"
-HYPB_VERSION = 6.0.2f
+HYPB_VERSION = 6.0.2g
 
 # Emacs executable used to byte-compile .el files into .elc's.
 # Possibilities include: emacs, infodock, xemacs, etc.
@@ -275,10 +275,10 @@ README.md.html: README.md
 
 # Generate a Hyperbole package suitable for distribution via the Emacs package manager.
 pkg: package
-package: git-pull doc kotl/kotl-loaddefs.el $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
+package: git-pull doc kotl/kotl-autoloads.el $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
 # Generate and distribute a Hyperbole release to GNU ELPA and ftp.gnu.org.
-# One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-loaddefs.el.
+# One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-autoloads.el.
 release: package git-push $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.gz elpa ftp
 	@ echo; echo "Hyperbole $(HYPB_VERSION) released to elpa and ftp.gnu.org successfully."
 
@@ -303,9 +303,9 @@ elpa-test: package
 ftp: package
 	cd $(pkg_dir) && $(GNUFTP) hyperbole-$(HYPB_VERSION).tar.gz
 
-kotl/kotl-loaddefs.el: $(EL_KOTL)
-	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-loaddefs.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && $(RM) kotl/kotl-loaddefs.el~
-#	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-loaddefs.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && sed -i '3 i ;; Copyright (C) 2017  Free Software Foundation, Inc.\n;;' $@ && $(RM) kotl/kotl-loaddefs.el~
+kotl/kotl-autoloads.el: $(EL_KOTL)
+	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && $(RM) kotl/kotl-autoloads.el~
+#	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && sed -i '3 i ;; Copyright (C) 2017  Free Software Foundation, Inc.\n;;' $@ && $(RM) kotl/kotl-autoloads.el~
 
 # Used for ftp.gnu.org tarball distributions.
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.gz:
@@ -321,7 +321,7 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	$(RM) -r $(pkg_hyperbole)
 	cd .. && COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/h.tar hyperbole
 	cd $(pkg_dir) && COPYFILE_DISABLE=1 $(TAR) xf h.tar && cd $(pkg_hyperbole) && $(MAKE) packageclean
-	cd $(pkg_hyperbole) && make kotl/kotl-loaddefs.el && chmod 755 topwin.py && \
+	cd $(pkg_hyperbole) && make kotl/kotl-autoloads.el && chmod 755 topwin.py && \
 	cd $(pkg_dir) && $(RM) h.tar; \
 	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole
 	$(INSTALL) HY-ABOUT HY-ANNOUNCE HY-NEWS HY-WHY.kotl INSTALL README $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar

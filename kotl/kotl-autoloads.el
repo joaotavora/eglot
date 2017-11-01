@@ -1,4 +1,4 @@
-;;; kotl-loaddefs.el --- automatically extracted autoloads
+;;; kotl-autoloads.el --- automatically extracted autoloads
 ;;
 ;; Copyright (C) 2016  Free Software Foundation, Inc.
 ;;
@@ -197,11 +197,11 @@ Signal an error if current buffer is not a Hyperbole outline, else return t.
 
 ;;;***
 
-(provide 'kotl-loaddefs)
+(provide 'kotl-autoloads)
 ;; Local Variables:
 ;; version-control: never
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
 ;; coding: utf-8
 ;; End:
-;;; kotl-loaddefs.el ends here
+;;; kotl-autoloads.el ends here

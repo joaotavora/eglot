@@ -348,7 +348,7 @@ REBUILD-FLAG is non-nil, in which case the menu is rebuilt."
 		   ["Demonstration"  (hypb:display-file-with-logo
 				      (expand-file-name "DEMO" hyperb:dir)) t]
 		   ["Glossary"    (id-info "(hyperbole)Glossary") t]
-		   ["Manifest"    (find-file-read-only
+		   ["Manifest"    (hypb:display-file-with-logo
 				   (expand-file-name "MANIFEST" hyperb:dir)) t]
 		   ["Smart-Key-Summary" (id-browse-file (hypb:hkey-help-file)) t]
 		   ("Types"

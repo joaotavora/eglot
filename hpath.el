@@ -53,8 +53,7 @@ possible suffixes."
 (defcustom hpath:external-display-alist-macos (list (cons (format "\\.\\(app\\|%s\\|adaptor\\|app\\|bshlf\\|clr\\|concur\\|create\\|diagram\\|dp\\|e?ps\\|frame\\|gif\\|locus\\|Mesa\\|nib\\|pdf\\|project\\|rtf\\|sense\\|tiff\\|tree\\)$"
 								  hpath:external-open-office-suffixes)
 							  "open"))
-  "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST)
-  elements for the Macintosh os x window system.
+  "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST) elements for the macOS window system.
 See the function `hpath:get-external-display-alist' for detailed format documentation."
   :type 'regexp
   :group 'hyperbole-commands)
@@ -215,7 +214,7 @@ When embedded within a path, the format is ${variable}."
 ;;; Other public variables
 ;;; ************************************************************************
 
-(defvar hpath:rfc "/anonymous@ftp.ietf.org:rfc/rfc%s.txt"
+(defvar hpath:rfc "/ftp:anonymous@ftp.ietf.org:rfc/rfc%s.txt"
   "*String to be used in the call: (hpath:rfc rfc-num)
 to create a path to the RFC document for `rfc-num'.")
 
@@ -394,7 +393,7 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 	       ((looking-at hpath:url-regexp)
 		(if (string-equal (match-string-no-properties hpath:protocol-grpn) "ftp")
 		    (concat
-		     "/"
+		     "/ftp:"
 		     ;; user
 		     (if (match-beginning hpath:username-grpn)
 			 (match-string-no-properties hpath:username-grpn)
@@ -412,7 +411,7 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 		    (looking-at hpath:url-regexp3))
 		(if (string-equal (match-string-no-properties hpath:hostname-grpn) "ftp")
 		    (concat
-		     "/" user "@"
+		     "/ftp:" user "@"
 		     ;; site
 		     (hpath:delete-trailer
 		      (match-string-no-properties hpath:sitename-grpn))

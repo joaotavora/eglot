@@ -37,31 +37,41 @@ Use nil as cmd values to unbind a key.  Works under GNU Emacs only."
    depress-cmd
    (nth (1- mouse-key-number)
 	'(
-	  ([down-mouse-1] [header-line down-mouse-1]
+	  ([down-mouse-1]
+	   [double-down-mouse-1] [triple-down-mouse-1]
+	   [header-line down-mouse-1]
 	   [left-fringe down-mouse-1]
 	   [right-fringe down-mouse-1]
 	   [vertical-line down-mouse-1]
 	   [mode-line down-mouse-1])
 
-	  ([down-mouse-2] [header-line down-mouse-2]
+	  ([down-mouse-2]
+	   [double-down-mouse-2] [triple-down-mouse-2]
+	   [header-line down-mouse-2]
 	   [left-fringe down-mouse-2]
 	   [right-fringe down-mouse-2]
 	   [vertical-line down-mouse-2]
 	   [mode-line down-mouse-2])
 
-	  ([down-mouse-3] [header-line down-mouse-3]
+	  ([down-mouse-3]
+	   [double-down-mouse-3] [triple-down-mouse-3]
+	   [header-line down-mouse-3]
 	   [left-fringe down-mouse-3]
 	   [right-fringe down-mouse-3]
 	   [vertical-line down-mouse-3]
 	   [mode-line down-mouse-3])
 	  
-	  ([down-mouse-4] [header-line down-mouse-4]
+	  ([down-mouse-4]
+	   [double-down-mouse-4] [triple-down-mouse-4]
+	   [header-line down-mouse-4]
 	   [left-fringe down-mouse-4]
 	   [right-fringe down-mouse-4]
 	   [vertical-line down-mouse-4]
 	   [mode-line down-mouse-4])
 
-	  ([down-mouse-5] [header-line down-mouse-5]
+	  ([down-mouse-5]
+	   [double-down-mouse-5] [triple-down-mouse-5]
+	   [header-line down-mouse-5]
 	   [left-fringe down-mouse-5]
 	   [right-fringe down-mouse-5]
 	   [vertical-line down-mouse-5]
@@ -292,7 +302,7 @@ These may be the bindings prior to initializing Hyperbole or the Hyperbole bindi
 			     [mode-line S-down-mouse-2] [mode-line S-drag-mouse-2]
 			     [mode-line S-mouse-2]
 			     )
-			 ;; X, OS X or MS Windows
+			 ;; X, macOS or MS Windows
 			 '([S-down-mouse-2] [S-drag-mouse-2] [S-mouse-2]
 			   [S-down-mouse-3] [S-drag-mouse-3] [S-mouse-3]
 			   [S-double-mouse-2] [S-triple-mouse-2]
@@ -362,7 +372,7 @@ These may be the bindings prior to initializing Hyperbole or the Hyperbole bindi
 	 '(("emacs" .
 	    (mapcar (lambda (key) (cons key (global-key-binding key)))
 		    (if (not (eq window-system 'dps))
-			;; X, OS X or MS Windows
+			;; X, macOS or MS Windows
 			'([down-mouse-2] [drag-mouse-2] [mouse-2]
 			  [down-mouse-3] [drag-mouse-3] [mouse-3]
 			  [double-mouse-2] [triple-mouse-2]
@@ -406,7 +416,21 @@ These may be the bindings prior to initializing Hyperbole or the Hyperbole bindi
 			  )))
 	   )))))
 
-;; Based on functions from Emacs mouse.el.
+;; Based on a function from Emacs mouse.el.
+(defun hmouse-posn-set-point (position)
+  "Move point to POSITION, an event posn.
+Select the corresponding window as well."
+  (if (framep (posn-window position))
+      (progn (if (not (windowp (frame-selected-window (posn-window position))))
+		 (error "Position not in text area of window"))
+	     (select-window (frame-selected-window (posn-window position))))
+    (if (not (windowp (posn-window position)))
+	(error "Position not in text area of window"))
+    (select-window (posn-window position)))
+  (if (numberp (posn-point position))
+      (goto-char (posn-point position))))
+
+;; Based on a function from Emacs mouse.el.
 (defun hmouse-move-point-emacs (event &optional promote-to-region)
   "Move point to the position clicked on with the mouse.
 This should be bound to a mouse click event type.
@@ -439,7 +463,7 @@ point determined by `mouse-select-region-move-to-beginning'."
 	    ;; Select the ending frame only, not the window pressed within.
 	    (select-frame (window-frame end-w-or-f))
 	  (condition-case ()
-	      (posn-set-point (event-end event))
+	      (hmouse-posn-set-point (event-end event))
 	    (error (select-frame (window-frame end-w-or-f)))))))))
 
 (defun hmouse-move-point-eterm (arg-list)
@@ -482,7 +506,7 @@ point determined by `mouse-select-region-move-to-beginning'."
 	  (progn
 	    (hmouse-bind-shifted-key-emacs 1 #'action-key-depress-emacs #'action-mouse-key-emacs)
 	    (hmouse-bind-shifted-key-emacs 2 #'assist-key-depress-emacs #'assist-mouse-key-emacs))
-	;; X, OS X or MS Windows
+	;; X, macOS or MS Windows
 	(hmouse-bind-shifted-key-emacs 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
 	(hmouse-bind-shifted-key-emacs 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs)))
      ;;
@@ -536,13 +560,22 @@ With optional MIDDLE-KEY-ONLY-FLAG non-nil, binds only the middle mouse key."
   (interactive)
   (cond	;; GNU Emacs
    (hyperb:emacs-p
-    ;; Get rid of Info-mode [mouse-2] binding since Hyperbole performs
-    ;; a superset of what it does.
+    ;; In Info-mode, Emacs uses key-translation-map to link mouse-1 to
+    ;; do whatever mouse-2 does but because Hyperbole uses both down
+    ;; and up bindings on mouse2, this does work.  So we rebind
+    ;; mouse-1 in Info mode to be an actual Action Mouse Key (which
+    ;; makes it follow Info links/cross-references properly, doing a
+    ;; superset of what it did before).
     (var:add-and-run-hook 'Info-mode-hook
-			  (lambda () (define-key Info-mode-map [mouse-2] nil)))
+ 			  (lambda ()
+			    (define-key Info-mode-map [down-mouse-1] 'action-key-depress-emacs)
+			    (define-key Info-mode-map [mouse-1] 'action-mouse-key-emacs)
+			    (define-key Info-mode-map [double-down-mouse-1] 'action-key-depress-emacs)
+			    (define-key Info-mode-map [double-mouse-1] 'action-mouse-key-emacs)
+			    (define-key Info-mode-map [mouse-2] nil)))
     ;;
     (unless (eq window-system 'dps)
-	;; X, OS X or MS Windows
+	;; X, macOS or MS Windows
       (hmouse-bind-key-emacs 2 #'action-key-depress-emacs #'action-mouse-key-emacs)
       (unless middle-key-only-flag
 	(hmouse-bind-key-emacs 3 #'assist-key-depress-emacs #'assist-mouse-key-emacs))))
@@ -553,7 +586,7 @@ With optional MIDDLE-KEY-ONLY-FLAG non-nil, binds only the middle mouse key."
     ;; system since it can have frames on ttys and windowed displays at
     ;; the same time.
     ;;
-    ;; Get rid of Info-mode button 2 bindings since Hyperbole
+    ;; Get rid of Info-mode button 2 and possibly button 3 bindings since Hyperbole
     ;; handles things in Info.
     (var:add-and-run-hook 'Info-mode-hook
 			  (lambda () (define-key Info-mode-map 'button2 nil)))

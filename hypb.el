@@ -689,7 +689,7 @@ nor nil it means to not count the minibuffer window even if it is active."
 
 ;;;###autoload
 (defun hypb:display-file-with-logo (&optional file)
-  "Display an optional text FILE with the Hyperbole banner prepended.
+  "Display an optional text FILE in help mode with the Hyperbole banner prepended.
 Without file, the banner is prepended to the current buffer."
   (if file
       ;; A stub for this function is defined in hversion.el when not running in InfoDock.

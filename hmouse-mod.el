@@ -11,6 +11,13 @@
 
 ;;; Commentary:
 ;;
+;;   This is presently not used because Emacs binds Control and Meta
+;;   mouse keys which interfere with this mode.  To make this work,
+;;   Hyperbole will first have to unbind those mouse keys before
+;;   invoking this mode.
+;;
+;;   ----
+;;
 ;;   This defines a single minor mode, hmouse-mod-mode (Hmouse
 ;;   Modifier mode) which makes the Action Mouse Key operate as a
 ;;   Control- modifier key and the Assist Mouse Key operate as a Meta-
@@ -116,6 +123,8 @@ This stops the Smart Keys from acting as modifier keys."
 (defun hmouse-mod-enable ()
   "Creates `hmouse-mod--global-map' and installs it as the current global map.
 It accounts for modifier Smart Keys."
+  (error "(hmouse-mod-mode): Don't use this; it conflicts with Emacs mouse bindings.")
+
   (setq hmouse-mod--global-map (copy-keymap global-map))
   (substitute-key-definition
     'self-insert-command 'hmouse-mod-insert-command hmouse-mod--global-map)
