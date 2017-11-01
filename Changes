@@ -1,5 +1,18 @@
 2017-11-01  Bob Weiner  <rsw@gnu.org>
 
+* hib-kbd.el (kbd-key:special-sequence-p): Added and used in implicit button type kbd-key and kbd-key:act.
+             (kbd-key:key-and-arguments): Added to allow for key sequences with interactive arguments and
+    added an example in DEMO.
+
+* hui-mini.el (hui:menus): 
+  hui-menu.el (hui-menu-key-bindings): Added Find Web and Jump Thing key binding change entries.
+
+* hyperbole.el (mouse-position-function): Added this setting to make mouse-position and mouse-pixel-position
+    always return the selected frame.
+
+* hsettings.el (helm-allow-mouse): Changed to require Hyperbole-modified branch of Helm named global_mouse
+    and set helm-allow-mouse to the proper value of 'global-mouse-bindings.
+
 * man/hyperbole.texi (Version): Updated to 6.0.2g and rebuilt output formats.
 
 * hui-window.el (hmouse-prior-active-region): Changed to call use-region-p rather than active-region-p, for a tighter test.

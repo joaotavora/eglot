@@ -481,14 +481,16 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("Windowful"      (setq smart-scroll-proportional nil))))
        '(cust-keys .
          (("Change Keys>")
-	  ("ActionKey"     (hui:bind-key #'hkey-either))                   ;; {M-RET}
-	  ("ButRename"     (hui:bind-key #'hui:ebut-rename))               ;; {C-c C-r}
-	  ("DragKey"       (hui:bind-key #'hkey-operate))                  ;; {M-o}
-	  ("GridOfWindows" (hui:bind-key #'hycontrol-windows-grid))        ;; {C-c @}
-	  ("HypbMenu"      (hui:bind-key #'hyperbole))                     ;; {C-h h}
-	  ("MarkThing"     (hui:bind-key #'hui-select-thing))              ;; {C-c RET}
-	  ("SmartHelp"     (hui:bind-key #'hkey-help))                     ;; {C-h A}
-	  ("WinControl"    (hui:bind-key #'hycontrol-enable-windows-mode)) ;; {C-c \}
+	  ("ActionKey"     (hui:bind-key #'hkey-either))                        ;; {M-RET}
+	  ("ButRename"     (hui:bind-key #'hui:ebut-rename))                    ;; {C-c C-r}
+	  ("DragKey"       (hui:bind-key #'hkey-operate))                       ;; {M-o}
+	  ("FindWeb"       (hui:bind-key #'hui-search-web)) 	                ;; {C-c /}
+	  ("GridOfWindows" (hui:bind-key #'hycontrol-windows-grid))             ;; {C-c @}
+	  ("HypbMenu"      (hui:bind-key #'hyperbole))                          ;; {C-h h}
+	  ("JumpThing"     (hui:bind-key #'hui-select-goto-matching-delimiter)) ;; {C-c .}
+	  ("MarkThing"     (hui:bind-key #'hui-select-thing))                   ;; {C-c RET}
+	  ("SmartHelp"     (hui:bind-key #'hkey-help))                          ;; {C-h A}
+	  ("WinControl"    (hui:bind-key #'hycontrol-enable-windows-mode))      ;; {C-c \}
 	  )) 
        '(cust-referents .
          (("Ref Display>")

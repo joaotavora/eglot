@@ -1179,7 +1179,7 @@ mouse key (or shift-left on a 2-button mouse).  The <em>Assist Key</em>
 is bound to your shift-right mouse key, assuming Hyperbole is run
 under an external window system.
 </p>
-<a name="index-hmouse_002dadd_002dunshifted_002dkeys"></a>
+<a name="index-hmouse_002dadd_002dunshifted_002dsmart_002dkeys"></a>
 <a name="index-unshifted-mouse-bindings"></a>
 <a name="index-unshifted-mouse-keys"></a>
 <a name="index-mouse-keys_002c-unshifted"></a>
@@ -1198,13 +1198,16 @@ personal <samp>~/.emacs</samp> file, add: <code>(add-hook 'hyperbole-init-hook
 <a name="index-assist_002dkey"></a>
 <a name="index-action_002dmouse_002dkey"></a>
 <a name="index-assist_002dmouse_002dkey"></a>
+<a name="index-hkey_002deither"></a>
 <p>If you prefer other key assignments, simply bind the commands
 <code>action-key</code> and <code>assist-key</code> to keyboard keys.
-<code>hkey-either</code> may be used instead if you prefer a single
-key binding for both commands; a prefix argument, such as <kbd>{C-u}</kbd>, then
-invokes <code>assist-key</code>.  You may also bind <code>action-mouse-key</code>
-and <code>assist-mouse-key</code> to other mouse keys, though you won&rsquo;t be able
-to execute mouse drag actions with such key bindings.
+Hyperbole binds <kbd>{M-<span class="key">RET</span>}</kbd> to the command <code>hkey-either</code>.
+It allows for a single key binding for both commands; a prefix
+argument, such as <kbd>{C-u}</kbd>, then invokes <code>assist-key</code>.
+</p>
+<p>You may also bind <code>action-mouse-key</code> and <code>assist-mouse-key</code>
+to other mouse keys, though you won&rsquo;t be able to execute mouse drag
+actions with such key bindings.
 </p>
 <p>Mouse configuration of the Smart Keys is automatic for GNU Emacs under
 Mac OS X, the X Window System and MS Windows assuming your emacs program
@@ -7384,9 +7387,11 @@ to quit from the menu.
 <li> use the Hyperbole entry on your menubar;
 
 </li><li> <a name="index-hyperbole"></a>
-type <kbd>{C-h h}</kbd> or <kbd>{M-x hyperbole <span class="key">RET</span>}</kbd> to bring up the Hyperbole minibuffer menu;
+type <kbd>{C-h h}</kbd> or <kbd>{M-x hyperbole <span class="key">RET</span>}</kbd> to display the Hyperbole minibuffer menu;
 
-</li><li> use a specific Hyperbole command such as the Action Key, <kbd>{M-<span class="key">RET</span>}</kbd>, on a pathname to display the associated file or directory.
+</li><li> use a specific Hyperbole command, for example, a press of
+<kbd>{M-<span class="key">RET</span>}</kbd> on a pathname to display the associated file or
+directory.
 </li></ul>
 
 <p>Use <kbd>{C-h h d d}</kbd> for an interactive demonstration of standard Hyperbole
@@ -11504,13 +11509,14 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hibtypes_002dsocial_002ddefault_002dservice">hibtypes-social-default-service</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dalist">hkey-alist</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dalways_002ddisplay_002dmenu">hkey-always-display-menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Menus">Smart Key - Smart Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hkey_002deither"><code>hkey-either</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dinit">hkey-init</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dinit_002doverride_002dlocal_002dkeys">hkey-init-override-local-keys</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002doperate"><code>hkey-operate</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hkey_002dsummarize"><code>hkey-summarize</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmail_003alister">hmail:lister</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Email-Composers">Smart Key - Email Composers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmail_003areader">hmail:reader</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Email-Composers">Smart Key - Email Composers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hmouse_002dadd_002dunshifted_002dkeys"><code>hmouse-add-unshifted-keys</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hmouse_002dadd_002dunshifted_002dsmart_002dkeys"><code>hmouse-add-unshifted-smart-keys</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dalist">hmouse-alist</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dcontext_002dibuffer_002dmenu"><code>hmouse-context-ibuffer-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dcontext_002dmenu"><code>hmouse-context-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>

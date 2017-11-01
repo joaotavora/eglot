@@ -820,7 +820,7 @@ mouse key (or shift-left on a 2-button mouse).  The @dfn{Assist Key}
 is bound to your shift-right mouse key, assuming Hyperbole is run
 under an external window system.
 
-@findex hmouse-add-unshifted-keys
+@findex hmouse-add-unshifted-smart-keys
 @cindex unshifted mouse bindings
 @cindex unshifted mouse keys
 @cindex mouse keys, unshifted
@@ -839,13 +839,16 @@ personal @file{~/.emacs} file, add: @code{(add-hook 'hyperbole-init-hook
 @findex assist-key
 @findex action-mouse-key
 @findex assist-mouse-key
+@findex hkey-either
 If you prefer other key assignments, simply bind the commands
 @code{action-key} and @code{assist-key} to keyboard keys.
-@code{hkey-either} may be used instead if you prefer a single
-key binding for both commands; a prefix argument, such as @bkbd{C-u}, then
-invokes @code{assist-key}.  You may also bind @code{action-mouse-key}
-and @code{assist-mouse-key} to other mouse keys, though you won't be able
-to execute mouse drag actions with such key bindings.
+Hyperbole binds @bkbd{M-@key{RET}} to the command @code{hkey-either}.
+It allows for a single key binding for both commands; a prefix
+argument, such as @bkbd{C-u}, then invokes @code{assist-key}.
+
+You may also bind @code{action-mouse-key} and @code{assist-mouse-key}
+to other mouse keys, though you won't be able to execute mouse drag
+actions with such key bindings.
 
 Mouse configuration of the Smart Keys is automatic for GNU Emacs under
 Mac OS X, the X Window System and MS Windows assuming your emacs program
@@ -6112,9 +6115,11 @@ You can invoke Hyperbole's commands in one of three ways:
 @item use the Hyperbole entry on your menubar;
 
 @findex hyperbole
-@item type @bkbd{C-h h} or @bkbd{M-x hyperbole @key{RET}} to bring up the Hyperbole minibuffer menu;
+@item type @bkbd{C-h h} or @bkbd{M-x hyperbole @key{RET}} to display the Hyperbole minibuffer menu;
 
-@item use a specific Hyperbole command such as the Action Key, @bkbd{M-@key{RET}}, on a pathname to display the associated file or directory.
+@item use a specific Hyperbole command, for example, a press of
+@bkbd{M-@key{RET}} on a pathname to display the associated file or
+directory.
 @end itemize
 
 Use @bkbd{C-h h d d} for an interactive demonstration of standard Hyperbole

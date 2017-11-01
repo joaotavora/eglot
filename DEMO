@@ -289,9 +289,9 @@ them.
 Any Emacs key sequence delimited with curly braces is an implicit button.
 Press the Action Key with {C-u C-p} for example and the point should move
 four lines upward.  An Assist Key press on the key sequence displays the
-documentation for its command binding, i.e. what it does.  If it does not
-represent a bound key sequence, it will not be treated as a key sequence
-button.
+documentation for its command binding, i.e. what it does.  Key sequences
+together with the arguments their commands prompt for also may be given,
+e.g. {M-x apropos RET hyperbole RET}.  Click in the braces to try it out.
 
 Hyperbole minibuffer menu items may also be activated as key sequences.  For
 example, {C-h h d i} displays the online browsable Info version of the

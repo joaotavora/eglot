@@ -375,6 +375,15 @@ bindings after load)."
 ;;; Load Hyperbole mouse bindings
 ;;; ************************************************************************
 
+(if (boundp 'mouse-position-function)
+    (setq mouse-position-function
+	  (lambda (frame-x-dot-y)
+	    "Make `mouse-position' and `mouse-pixel-position' always return the selected frame.
+Under macOS and Windows 7 at least, upon initial selection of a new
+frame, those functions by default still return the prior frame."
+	    (if (consp frame-x-dot-y) (setcar frame-x-dot-y (selected-frame)))
+	    frame-x-dot-y)))
+
 (require 'hmouse-key)
 
 ;;; ************************************************************************

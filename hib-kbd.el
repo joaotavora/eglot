@@ -57,10 +57,8 @@ Forms such as {\C-b}, {\^b}, and {^b} will not be recognized."
 		 (not (eq key-sequence "")))
 	(setq key-sequence (kbd-key:normalize key-sequence)
 	      binding (key-binding key-sequence)))
-      (and (cond (binding (not (integerp binding)))
-		 ((kbd-key:hyperbole-mini-menu-key-p key-sequence))
-		 ((kbd-key:hyperbole-hycontrol-key-p key-sequence))
-		 ((kbd-key:extended-command-p key-sequence)))
+      (and (or (and binding (not (integerp binding)))
+	       (kbd-key:special-sequence-p key-sequence))
 	   (ibut:label-set seq-and-pos)
 	   (hact 'kbd-key key-sequence)))))
 
@@ -75,13 +73,11 @@ Returns t if KEY-SEQUENCE has a binding, else nil."
   (setq current-prefix-arg nil) ;; kbd-key:normalize below sets it.
   (let ((binding (key-binding key-sequence)))
     (cond ((null binding)
-	   ;; If this is a Hyperbole minibuffer menu item key sequence
-	   ;; or a M-x extended command, execute it by adding its keys
-	   ;; to the stream of unread command events.
-	   (when (or (kbd-key:hyperbole-mini-menu-key-p key-sequence)
-		     (kbd-key:hyperbole-hycontrol-key-p key-sequence)
-		     (kbd-key:extended-command-p key-sequence))
-	     (setq unread-command-events (nconc unread-command-events (mapcar 'identity key-sequence)))))
+	   ;; If this is a special key seqence, execute it by adding
+	   ;; its keys to the stream of unread command events.
+	   (when (kbd-key:special-sequence-p key-sequence)
+	     (setq unread-command-events (nconc unread-command-events (mapcar 'identity key-sequence)))
+	     t))
 	  ((memq binding '(action-key action-mouse-key hkey-either))
 	   (beep)
 	   (message "(kbd-key:act): This key does what the Action Key does.")
@@ -113,31 +109,10 @@ With optional prefix arg FULL, displays full documentation for command."
 	     (message doc)))
 	  (t (error "(kbd-key:doc): No binding found for keys {%s}" key-sequence)))))
 
-(defun kbd-key:extended-command-p (key-sequence)
-  "Returns non-nil if the string KEY-SEQUENCE is a normalized extended command invocation, i.e. M-x command."
-  (and (stringp key-sequence) (string-match kbd-key:extended-command-prefix key-sequence)))
-  
 (defun kbd-key:help (but)
   "Display documentation for binding of keyboard key given by BUT's label."
   (let ((kbd-key (hbut:key-to-label (hattr:get but 'lbl-key))))
     (if kbd-key (kbd-key:doc kbd-key t))))
-
-(defun kbd-key:hyperbole-hycontrol-key-p (key-sequence)
-  "Returns t if normalized KEY-SEQUENCE is given when in a HyControl mode, else nil.
-Allows for multiple key sequences strung together."
-  (and key-sequence
-       (featurep 'hycontrol)
-       (or hycontrol-windows-mode hycontrol-frames-mode)
-       ;; If wanted to limit to single key bindings and provide tighter checking:
-       ;;   (string-match "[-.0-9]*\\(.*\\)" key-sequence)
-       ;;   (key-binding (match-string 1 key-sequence))
-       t))
-
-(defun kbd-key:hyperbole-mini-menu-key-p (key-sequence)
-  "Returns t if normalized KEY-SEQUENCE appears to invoke a Hyperbole menu item or sequence of keys, else nil."
-  (when key-sequence
-    (let ((mini-menu-key (kbd-key:normalize (key-description (car (where-is-internal 'hyperbole))))))
-      (if (string-match (regexp-quote mini-menu-key) key-sequence) t))))
 
 (defun kbd-key:normalize (key-sequence)
   "Returns KEY-SEQUENCE string normalized into a form that can be parsed by commands."
@@ -193,6 +168,51 @@ Allows for multiple key sequences strung together."
 			      (concat "" (substring str (match-beginning 1)
 						      (1+ (match-beginning 1))))))))
     (error "(kbd-key:normalize): requires a string argument, not `%s'" key-sequence)))
+
+;;; ************************************************************************
+;;; Private functions
+;;; ************************************************************************
+
+(defun kbd-key:extended-command-p (key-sequence)
+  "Returns non-nil if the string KEY-SEQUENCE is a normalized extended command invocation, i.e. M-x command."
+  (and (stringp key-sequence) (string-match kbd-key:extended-command-prefix key-sequence)))
+  
+(defun kbd-key:hyperbole-hycontrol-key-p (key-sequence)
+  "Returns t if normalized KEY-SEQUENCE is given when in a HyControl mode, else nil.
+Allows for multiple key sequences strung together."
+  (and key-sequence
+       (featurep 'hycontrol)
+       (or hycontrol-windows-mode hycontrol-frames-mode)
+       ;; If wanted to limit to single key bindings and provide tighter checking:
+       ;;   (string-match "[-.0-9]*\\(.*\\)" key-sequence)
+       ;;   (key-binding (match-string 1 key-sequence))
+       t))
+
+(defun kbd-key:hyperbole-mini-menu-key-p (key-sequence)
+  "Returns t if normalized KEY-SEQUENCE appears to invoke a Hyperbole menu item or sequence of keys, else nil."
+  (when key-sequence
+    (let ((mini-menu-key (kbd-key:normalize (key-description (car (where-is-internal 'hyperbole))))))
+      (if (string-match (regexp-quote mini-menu-key) key-sequence) t))))
+
+(defun kbd-key:key-and-arguments (key-sequence)
+  "Returns t if normalized KEY-SEQUENCE appears to be a bound key sequence possibly with following interactive arguments, else nil."
+  (let ((prefix-binding (and key-sequence (key-binding (substring key-sequence 0 1)))))
+       ;; Just ensure that 1st character is bound to something that is
+       ;; not a self-insert-command or a number.
+    (and (not (or (integerp prefix-binding)
+		  (eq prefix-binding 'self-insert-command)))
+	 t)))
+
+(defun kbd-key:special-sequence-p (key-sequence)
+  "Returns non-nil if normalized KEY-SEQUENCE string is one of the following:
+  a Hyperbole minibuffer menu item key sequence,
+  a HyControl key sequence,
+  a M-x extended command,
+  or a key binding plus arguments."
+  (or (kbd-key:hyperbole-mini-menu-key-p key-sequence)
+      (kbd-key:hyperbole-hycontrol-key-p key-sequence)
+      (kbd-key:extended-command-p key-sequence)
+      (kbd-key:key-and-arguments key-sequence)))
 
 ;;; ************************************************************************
 ;;; Private variables
