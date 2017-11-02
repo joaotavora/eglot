@@ -172,10 +172,14 @@
       the Global Key Bindings appendix.
 
     - Other Hyperbole Manual Section Changes:
-        * Manual Overview: Improved pointer to DEMO.
-        * Koutliner: Centralized all key binding index entries under "koutliner, ".
-        * HyControl: Added Concept Index entries.
+        * Button Colors): Added doc on hproperty:but-highlight-flag.
         * Glossary: Added Windows Grid entry.
+        * Hook Variables: Added doc of: action-key-depress-hook,
+          action-key-release-hook, assist-key-depress-hook
+          and assist-key-release-hook.
+        * HyControl: Added Concept Index entries.
+        * Koutliner: Centralized all key binding index entries under "koutliner, ".
+        * Manual Overview: Improved pointer to DEMO.
 
     - New DEMO File Sections:
         * Dragging Buffers, Windows and Items
