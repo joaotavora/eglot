@@ -57,7 +57,8 @@ Forms such as {\C-b}, {\^b}, and {^b} will not be recognized."
 		 (not (eq key-sequence "")))
 	(setq key-sequence (kbd-key:normalize key-sequence)
 	      binding (key-binding key-sequence)))
-      (and (or (and binding (not (integerp binding)))
+      (and (stringp key-sequence)
+	   (or (and binding (not (integerp binding)))
 	       (kbd-key:special-sequence-p key-sequence))
 	   (ibut:label-set seq-and-pos)
 	   (hact 'kbd-key key-sequence)))))
@@ -196,10 +197,11 @@ Allows for multiple key sequences strung together."
 
 (defun kbd-key:key-and-arguments (key-sequence)
   "Returns t if normalized KEY-SEQUENCE appears to be a bound key sequence possibly with following interactive arguments, else nil."
-  (let ((prefix-binding (and key-sequence (key-binding (substring key-sequence 0 1)))))
+  (let ((prefix-binding (and (stringp key-sequence) (key-binding (substring key-sequence 0 1)))))
        ;; Just ensure that 1st character is bound to something that is
        ;; not a self-insert-command or a number.
-    (and (not (or (integerp prefix-binding)
+    (and prefix-binding
+	 (not (or (integerp prefix-binding)
 		  (eq prefix-binding 'self-insert-command)))
 	 t)))
 
