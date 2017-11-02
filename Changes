@@ -1,10 +1,24 @@
+2017-11-02  Bob Weiner  <rsw@gnu.org>
+
+* HY-NEWS: Updated for next major release
+
+* man/hyperbole.texi (Button Colors): Added doc on hproperty:but-highlight-flag.
+                     (Hook Variables): Added doc of: action-key-depress-hook, action-key-release-hook,
+    assist-key-depress-hook and assist-key-release-hook.
+
+* hsettings.el (hproperty:but-highlight-flag): Added as a setting.
+  hui-em-but.el (hproperty:but-highlight-p): Renamed to hproperty:but-highlight-flag.
+                (hproperty:but-emphasize-p): Renamed to hproperty:but-highlight-flag.
+  hui-xe-but.el (hproperty:but-highlight-p): Renamed to hproperty:but-highlight-flag.
+                (hproperty:but-emphasize-p): Renamed to hproperty:but-highlight-flag.
+
 2017-11-01  Bob Weiner  <rsw@gnu.org>
 
 * hib-kbd.el (kbd-key:special-sequence-p): Added and used in implicit button type kbd-key and kbd-key:act.
              (kbd-key:key-and-arguments): Added to allow for key sequences with interactive arguments and
     added an example in DEMO.
 
-* hui-mini.el (hui:menus): 
+* hui-mini.el (hui:menus):
   hui-menu.el (hui-menu-key-bindings): Added Find Web and Jump Thing key binding change entries.
 
 * hyperbole.el (mouse-position-function): Added this setting to make mouse-position and mouse-pixel-position
@@ -49,12 +63,11 @@
     now.
                      (Searching and Summarizing): Renamed from Location.
 
-* hpath.el (hpath:remote-at-p): Fixed to return /ftp: pre-pended to ftp paths since Tramp requires it.
-
 * hibtypes.el (mail-address): Made lower priority than pathname so when an email-like user@domain is part of a remote
     pathname, this won't trigger.
 
-* hpath.el (hpath:rfc): Prepended /ftp: to value so tramp recognizes it as a remote file path.
+* hpath.el (hpath:remote-at-p): Fixed to return /ftp: prepended to ftp paths since Tramp requires it.
+           (hpath:rfc): Prepended /ftp: to value so tramp recognizes it as a remote file path.
 
 * man/hyperbole.texi (Smart Mouse Key Modifiers):
   hmouse-mod.el: Disabled this feature since it conflicts with present Emacs bindings of Control- and Meta- mouse keys.
@@ -212,7 +225,7 @@
     windows specified by rows and columns (typically as prefix arg
     digits).  Each window shows a different buffer, if possible, with the
     by-major-mode command preferring buffers with the specified major mode.  The hycontrol-split-windows
-    chooses the by-major-mode command when given a prefix arge of 0; otheriwse, the rows-column one.
+    chooses the by-major-mode command when given a prefix arg of 0; otheriwse, the rows-column one.
                (hycontrol-window-display-buffer, hycontrol-display-buffer-predicate-list)
                 hycontrol--invert-display-buffer-predicates): Added to support new commands.
                (require 'set): Added for set:create used in hycontrol-split-windows-by-major-mode.
@@ -301,7 +314,7 @@
 		hycontrol--frames-prompt-format, hycontrol--windows-prompt-format,
 		hycontrol-frames-pre-command-hook, hycontrol-windows-pre-command-hook,
 		hycontrol-frames-mode-map, hycontrol-windows-mode-map, hycontrol-exit-mode): Added.
-	       (hycontrol-prettify-event, hycontrol-handle-event): Removed. 
+	       (hycontrol-prettify-event, hycontrol-handle-event): Removed.
 
 	       (hycontrol-frames, hycontrol-windows): Rewrote HyControl to use a frame-mode
    and window-mode transient keymap which allows for regular key bindings and eliminates
@@ -313,7 +326,7 @@
 2017-10-17  Bob Weiner  <rsw@gnu.org>
 
 * hycontrol.el (hycontrol-screen-offset-alist, hycontrol-set-screen-offsets,
-                hycontrol-display-screen-offsets): 
+                hycontrol-display-screen-offsets):
     Changed ordering of items to match Emacs window-edges and frame-edges.
                (hycontrol-fit-to-screen): Added and used to ensure resized and repositioned
     windows fit on the screen.
@@ -414,7 +427,7 @@
 
 * hui-menu.el (hui-menu-key-binding-item): Added.
 
-* hmouse-drv.el (hmouse-set-point): Fixed to return a posn object as a fallback, i.e. what 
+* hmouse-drv.el (hmouse-set-point): Fixed to return a posn object as a fallback, i.e. what
     event-start and event-end return; previously, had returned point as a marker in this case.
     Keyboard-based emulation of mouse drags via hkey-operate had been broken; this fixed it.
 * hui-window.el (hmouse-x-coord, hmouse-y-coord): Updated to accept a posn.
@@ -633,7 +646,7 @@
 
 * hbut.el (ebut:operate): Updated documentation to clarify that this modified button properties,
     notably its action's argument list.
-  hbut.el (hattr:copy, hattr:set): 
+  hbut.el (hattr:copy, hattr:set):
   hpath.el (hpath:substitute-var): Clarified documentation.
 
 * hui.el (hui:ebut-message): Added message for use when creating and modifying explicit buttons.
@@ -661,7 +674,7 @@
 
 * man/hyperbole.texi (Version): Updated to 6.0.2b and rebuilt output formats.
 
-* hycontrol.el (hycontrol-handle-event): 
+* hycontrol.el (hycontrol-handle-event):
                (hycontrol-prettify-event): Fixed to handle large integer code events, e.g. M-p.
 
 2017-09-30  Bob Weiner  <rsw@gnu.org>
@@ -775,8 +788,8 @@
     Improved doc.
 
 * hui-window.el (smart-coords-in-window-p, smart-window-of-coords,
-                 hmouse-inactive-minibuffer-p): 
-  hmouse-drv.el (hmouse-depress-inactive-minibuffer-p): 
+                 hmouse-inactive-minibuffer-p):
+  hmouse-drv.el (hmouse-depress-inactive-minibuffer-p):
   hargs.el (hargs:select-event-window): Updated to handle multiple frames and minibuffers.
 
 * hui-window.el (hmouse-alist): Extended hmouse-drag-between-windows to
@@ -812,11 +825,11 @@
       changes to "hui-mouse", "hui-window", "hibtypes" or "hactypes", most notably changes to
       hkey-alist and hmouse-alist.
 
-* hui-mouse.el (hkey-alist, smart-outline-char-invisible-p, smart-eolp): 
+* hui-mouse.el (hkey-alist, smart-outline-char-invisible-p, smart-eolp):
     Added and used to improve and narrow matching of end-of-lines.  Previously, did not handle
     new-style Emacs outlines properly nor helm section header lines.
 
-* kotl/kotl-mode.el (kotl-mode:action-key, kotl-mode:assist-key): 
+* kotl/kotl-mode.el (kotl-mode:action-key, kotl-mode:assist-key):
   hui-mouse.el (smart-outline, smart-outline-assist): Changed to invoke action/assist-key-eol-function
     for end-of-line scrolling, eliminating hard-coded call.
   man/hyperbole.texi (Smart Key - Emacs Outline Mode): Documented this change.
@@ -906,7 +919,7 @@
     button choice when customizing this.
                 (hibtypes-social-hashtag-alist, hibtypes-social-username-alist): Added
     github user and commit lookup via social link syntax.
-                (hibtypes-social-github-default-user): 
+                (hibtypes-social-github-default-user):
                 (hibtypes-social-github-default-project)
                 (github-commit-reference): Added this new action and its
     above default values.
@@ -988,7 +1001,7 @@ hyrolo.el: Added basic commentary to the file header.
     match item actions prior to invoking them.  The smart-helm function
     behaves similarly to the {C-j} and {C-z} key bindings that helm mode
     provides when a helm completion is active. If helm is not active,
-    Hyperbole resumes the prior helm session before triggering the action. 
+    Hyperbole resumes the prior helm session before triggering the action.
     The smart-helm-assist function displays the match item and its associated
     action.
 
@@ -1039,7 +1052,7 @@ Python (case-sensitive).
 * hbut.el (ebut:map): Changed to ignore explicit button matches in
     programming languages when outside of a comment.  For example, syntax like
     this in a Rust buffer had been improperly matched: fn parse_kv(kv_list:
-    Vec<(syn::Ident, syn::StrLit)>, function: &Function) -> LispFnArgs 
+    Vec<(syn::Ident, syn::StrLit)>, function: &Function) -> LispFnArgs
 
 2017-08-25  Bob Weiner  <rsw@gnu.org>
 
@@ -1049,13 +1062,13 @@ Python (case-sensitive).
 
 * hpath.el (hpath:remote-at-p): For Emacs 26 where
     tramp-file-name-structure is now a function instead of a variable, call
-    the function. 
+    the function.
 
 * hyrolo.el (hyrolo-kill): Triggered error if FILE contains a '*' character,
     mainly in case a buffer name is passed as an argument.
             (hyrolo-file-list-initialize): Added this function so can
     re-initialize the hyrolo-file-list later if BBDB or Google Contacts
-    support is loaded after the Hyperbole Rolo is initialized. 
+    support is loaded after the Hyperbole Rolo is initialized.
 
 * hbut.el (hbut:source): Allowed for spaces in buffer names.
 
@@ -1095,10 +1108,10 @@ Python (case-sensitive).
 2016-08-17  Bob Weiner  <rsw@gnu.org>
 
 * README: Added Summary section with a description of Hyperbole since this file may be shown prior to
-    download in the Emacs package manager. 
+    download in the Emacs package manager.
 
 * kotl/kexport.el (kexport:label-html-font-attributes): Fixed improper 'defvar' definition which should
-    have been a 'defcustom'. 
+    have been a 'defcustom'.
 
 2016-08-16  Bob Weiner  <rsw@gnu.org>
 
@@ -1136,8 +1149,8 @@ Python (case-sensitive).
 
 * hyperbole.el (Maintainer): Changed back to single line so ELPA parses it correctly.
 
-* hib-debbugs.el (debbugs-gnu-query:list): 
-  hyperbole.el (hkey-global-set-key, Info-directory-list): 
+* hib-debbugs.el (debbugs-gnu-query:list):
+  hyperbole.el (hkey-global-set-key, Info-directory-list):
   hvar.el (var:append): Removed improper function quoting of variable.
 
 ==============================================================================
@@ -1340,7 +1353,7 @@ V6.0.2 changes ^^^^:
     man/version.texi used in hyperbole.texi.
 
 * README.md: Added this, a markdown formatted introduction combining README,
-    INSTALL and HY-ABOUT. 
+    INSTALL and HY-ABOUT.
 
 2016-07-26  Mats Lidell  <matsl@gnu.org>
 
@@ -1419,7 +1432,7 @@ V6.0.2 changes ^^^^:
     then skip setup to generate hyperbole-autoloads with autoloads from the kotl/
     subdirectory.
 
-* hib-social.el (social-reference): 
+* hib-social.el (social-reference):
   hibtypes.el (mail-address-at-p): Let case-fold-search be t since mail-addresses
     are case-insensitive.
 

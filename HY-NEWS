@@ -7,21 +7,319 @@
 
         (See the "Changes" file for even more details of changes).
 
-  BUTTONS
+  BUTTONS AND SMART (ACTION AND ASSIST) KEYS
 
-    - 
+    - Extensive new support for cross-window and cross-frame drags of the
+      Action and Assist Mouse Keys.  See "DEMO#Smart Mouse Keys" and the Info
+      manual section, "(hyperbole)Smart Mouse Key Drags" for details.  These
+      actions allow for rapid display of buffers, windows and frames wherever
+      you like.
+
+      Major features include:
+
+        * Dragging items from Dired or the Buffer Menu for display in existing
+          or new windows and frames.  Action Key drag from the first line (or
+          header line) to another window to move the listing buffer itself.
+          Visual pulsing of source and destination to highlight the transfer
+          taking place (hmouse-pulse-flag controls this).  A following click on
+          an item displays it in the source window, replacing the Dired or
+          Buffer Menu listing.
+
+        * Dragging from a buffer or an item to a modeline splits the window of
+          the modeline and displays the buffer/item dragged in the leftmost
+	  or uppermost of the split windows.
+
+        * Cloning or moving an Emacs window to a similarly sized new frame or
+	  another existing frame.
+
+        * Displaying a buffer in specific other windows.
+
+        * With Emacs 26 on macOS, Hyperbole detects the window of any drag
+          release or whether the release was outside of Emacs, e.g. in another
+	  application whose window is atop an Emacs frame (uses a Python script
+	  included with Hyperbole, so Python must be available or this will do
+	  nothing).
+
+          The hmouse-verify-release-window-flag (default is t) controls whether
+          checking for non-Emacs areas on macOS is done or not, as this slows
+          Smart Key action handling at least 1/3 of a second in a number of cases.
+
+    - {}-delimited Key Sequence Implicit Buttons have been greatly expanded.
+      An Action Key press on the following, all execute the associated commands:
+        {M-x occur RET}                 - M-x extended commands
+        {M-x apropos RET hyperbole RET} - commands with arguments
+	{C-x 2 C-x 3}                   - sequences of commands
+
+    - Pathname Environment Variables: Implicit Buttons may contain environment
+      variables such as "${PATH}/python" and Hyperbole resolves them to the
+      first matching directory with an Action Key press.
+
+    - Prefixed URLs: Partial URLs with prefixes such as, url:photos.google.com
+      or url=calendar.google.com, can now be displayed with Action Key presses
+      even though they lack a www site name or an http protocol prefix.
+
+    - Link to File: When modifying an explicit file link button, a variable in
+      a pathname is maintained as is any prior in-file location when prompting
+      for changes.
+
+    - EWW Support: Added Action and Assist Key support for browsing links in
+      eww (the Emacs web browser) and for activating history links in the eww
+      history buffer.
+
+    - Open Office Documents: An Action Key press on an Open Office pathname
+      displays it in Open Office.  See hpath:external-open-office-suffixes for
+      file suffixes supported.
+
+    - macOS Apps: An Action Key press on a pathname that ends in ".app" on a
+      macOS system will run the app externally (previously it would have been
+      browsed as a directory).
+
+    - File Page Browsing: Dynamic table-of-contents-type browsing for files
+      separated into pages with form-feed (Control-L) page separators.  Use
+      {M-x pages-directory RET} to generate the listing of pages and then press
+      the Action Key on any entry to jump to it.
+
+    - Explicit Buttons in Comments: Explicit buttons in programming languages
+      are now matched only within comments to avoid language syntax that looks
+      like the delimiters of an explicit button, e.g. in Rust.
+
+    - New hproperty:but-highlight-flag: This controls whether Hyperbole
+      explicit buttons are highlighted with a special colored face or not.  By
+      default, they are.
+
+    - Git References: New implicit button and action type with a compact syntax
+        that displays many types of git entities, e.g. git#commit/55a1f0.  Such
+        references work across all git repositories on your local disks.
+
+        See "DEMO#Git (Local) References" or the commentary at the top of the
+        "hib-social.el" file for extensive examples of these references.  {C-h
+        f git-reference RET} explains its syntax.
+
+    - Github References: New implicit button and action type with a compact
+        syntax that displays many types of github entities,
+        e.g. gh#emacs-helm/helm/1878, displays issue #1878 for user emacs-helm
+        and project helm.  See "DEMO#Github (Remote) References" or the
+        commentary at the top of the "hib-social.el" file for extensive
+        examples of these references.  {C-h f github-reference RET} explains
+        its syntax.
+
+    - Python PDB Backtraces: Action Key presses jump to the associated source
+      line.
+
+    - Python Symbols: Action Key presses now look these up in any buffer whose
+      name includes Pydoc: or Python, mainly help buffers.
+
+    - Compressed File Grep: {C-h h f g} now uses zgrep when available to
+      handle compressed source files.
+
+    - Grep -A Support: The grep -A option produces context lines around any
+      matched lines but uses a different syntax for separating line numbers at
+      the beginning of lines.  The Action Key now supports jumping to the
+      source of any such lines.
+
+    - Dired Quit: An Action Key press at the end of the first line in a Dired
+      buffer nows quit and execute requested actions, just as presses at the
+      end of the buffer do.
+
+    - Image Thumbnail Browsing: See the Info manual section,
+      "(emacs)Image-Dired", for how to create a buffer of image thumbnails.
+      Once created, the Action Key displays a scaled version of the original
+      image in an Emacs window.  The Assist Key displays the original image in
+      an external viewer.
+
+    - Emacs Push-buttons: An Assist Key press on an Emacs push-button previously
+      displayed its keyboard-action help string but not its mouse-action help string.
+      Now it displays the mouse-action when appropriate.
+
+    - Texinfo References: An Action Key press on an Emacs Lisp @findex
+      (function) or @vindex (variable) entry displays the documentation for
+      that entry.
+
+    - Debbugs Issues: Eliminated match of #id-number as a bug reference; 'bug' or
+      similar prefix is now required so there is no ambiguity with social references
+      including 'git #commit-number'.
+
+  CUSTOMIZATON
+
+    - Smart Key Hooks: New hooks run before and after Smart Key depress and
+      release events: action-key-depress-hook, action-key-release-hook,
+      assist-key-depress-hook and assist-key-release-hook.
 
   DOCUMENTATION
 
-    - 
+    - Hyperbole HTML Manual: The HTML version of the Hyperbole Manual now uses
+      a css stylesheet similar to that used for the Hyperbole Home page, making
+      it look much better and easier to navigate.
+
+    - Drags: Updated Hyperbole Manual with all new Smart Mouse Key drag actions.
+
+    - Smart Key Help: Improved help documentation for Smart Keys when they
+      contain multiple clauses connected with 'or' logic, e.g. do 'a' or 'b' or
+      'c'.
+
+    - New Hyperbole Manual Sections:
+        * Smart Mouse Key Drags
+        * Smart Mouse Drags outside a Window
+        * Smart Key - Image Thumbnails
+	* Future Work - Direct Manipulation
+
+    - Git References: In the Implicit Buttons section of the Hyperbole Manual,
+      added documentation for git-reference, git-commit-reference and github-reference.
+
+    - Toggle Key Bindings: In the Smart Key Bindings section of the Hyperbole Manual,
+      explained hyperbole-toggle-bindings (toggles keyboard and mouse keys) rather
+      than hmouse-toggle-bindings (toggles only mouse keys).  Moved the latter to
+      the Global Key Bindings appendix.
+
+    - Other Hyperbole Manual Section Changes:
+        * Manual Overview: Improved pointer to DEMO.
+        * Koutliner: Centralized all key binding index entries under "koutliner, ".
+        * HyControl: Added Concept Index entries.
+        * Glossary: Added Windows Grid entry.
+
+    - New DEMO File Sections:
+        * Dragging Buffers, Windows and Items
+        * HyControl Frame Commands and Windows Grid subsections
+        * Running Dired on the Current Directory
+
+  HYCONTROL
+
+    - HyControl Minor Modes: HyControl is now two minor modes, one for frames
+      and one for windows.  It uses standard key bindings and standard Emacs
+      event processing instead of its own event loop, so any keys not bound
+      in a HyControl mode now work normally.  HyControl Windows Mode displays
+      HyWin in the modeline and HyControl Frames Mode displays HyFrm while
+      active.  Both modes invert the modeline colors so you don't forget you
+      are in a special mode.
+
+    - {@} is an incredible new key binding and command that creates a grid
+      of windows within a frame by splitting the frame into a number of equally
+      sized windows specified by a number of rows and columns (typically as
+      prefix arg digits).  Each window shows a different buffer, if possible,
+      with a prefix arg of 0 prompting for a major mode and first displaying
+      buffers of that mode.
+
+      The same {@} command works in Dired, Buffer Menu and IBuffer modes and
+      first displays any items marked for display in the windows grid,
+      i.e. marked with the {m} command.
+
+      Hyperbole also supplies the global key binding {C-c @} so this command
+      can be used at any time.
+
+      The variable, hycontrol-display-buffer-predicate-list, determines which
+      buffers are first displayed in the grid except when filtering by major
+      mode or by items marked in a listing buffer.
+
+      {M-x hycontrol-windows-grid-repeatedly RET} allows rapid visual testing
+      of different grid layouts or filters as it prompts you for a grid size,
+      displays it and then prompts you again until your press RET without giving
+      a size.
+
+      See "Demo#Windows Grid" for example use.
+
+    - {a} adjusts the selected frame width by cycling through a list of common
+      fixed percentages such as 25% and 50% (given by the variable,
+      hycontrol-frame-widths.
+
+      {A} does the same for the selected frame's height, using
+      hycontrol-frame-heights.
+
+    - {f} now clones a window to a new frame without deleting the source window
+      {F} moves a window to a new frame and deletes the the source window
+
+    - {i}, {j}, {k}, {m} first expand the selected frame to an edge based on
+      their respective positions on a U.S. keyboard, e.g. {i} expands the frame
+      to the top edge; with further invocations, they keep the frame at that edge
+      but cut its perpendicular dimension in half (or to any percentage specified
+      as an argument), leaving the particular edge fixed.  This allows both rapid
+      expansion and contraction of frames with just 4 keys whenever needed.
+
+      It is easiest to understand by simply trying the keys. See "Demo#Frame
+      Commands" for example use.
+
+    - {c} for frame edge location cycling now is available in HyControl Windows
+      mode.
+
+    - {p <num>} displays a virtual numeric keypad and moves the selected frame
+      to the screen edge position based on the numeric keypad layout, e.g. 3
+      moves it to the southeast corner of the screen.  This is for keyboards
+      that do not have a physical numeric keypad.  Before a number is selected,
+      {C-g} or {q} will exit and return to the top-level of the active
+      HyControl mode.
+
+    - {-} in HyControl Windows mode minimizes a window size while trying to
+      display its entire buffer.  Now it will resize the window to 1 line
+      if it cannot display all lines or if all lines are already displayed.
+
+    - Minibuffer Help: Improved help strings shown in the minibuffer while
+      HyControl is active.  Added {?} key which toggles this display on and off.
+      
+    - ESC: Removed this as a quit key since now that regular key sequences are
+      supported, this is often used as a meta key prefix.  Use {q} to quit.
+
+    - Minibuffer Prompts: Automatically quit from any HyControl mode whenever a
+      minibuffer prompt becomes active so that arguments may be typed normally.
+      Examples include use of {M-:} for Lisp expression evaluation and M-x for
+      entering commands by name.
+
+  HYROLO
+
+    - Google Contacts: New support for searching your Google Contacts with the
+      HyRolo Contact Manager; for advanced users only.  Requires use of the
+      Emacs google-contacts package and the non-Emacs gpg public key package to
+      support Google services authorization.  Once configured, these contacts
+      are automatically searched together with local HyRolo files any time a
+      contact search is performed.  See the Google Contacts Integration section
+      in "hyrolo.el".
+
+    - Dynamic HyRolo List: The HyRolo list of files to search is now computed
+      dynamically so you can enable Big Brother Database (BBDB) or Google
+      Contacts support after HyRolo is initialized and these contacts will also
+      be searched.
 
   KEYS
 
-    - 
+    - Unshifted Mouse Keys: By default, Hyperbole mouse keys are Shift-Middle
+      (Action Key) and Shift-Right (Assist Key).  For frequent mouse users,
+      there is now {M-x hmouse-add-unshifted-smart-keys RET} which additionally
+      makes the Middle mouse key the Action Key and the Right mouse key the
+      Assist Key, replacing their default Emacs functions.  {M-x
+      hmouse-toggle-bindings RET} will toggle between the Emacs and Hyperbole
+      mouse bindings.
+
+    - Smart Key Reload: If you ever edit any of the Smart Key contexts or
+      actions in "hui-mouse.el", "hui-window.el", "hibtypes.el" or
+      "hactypes.el" and re-byte-compile those files, then you may reload your
+      new settings with {M-x hmouse-update-smart-keys RET}.  No need to reload
+      or restart Hyperbole.
+
+    - Find Web: Added Find Web key binding entry to Hyperbole menus.  This key
+      displays the Hyperbole Web search menu.
+
+    - Jump Thing: Added Jump Thing key binding entry to Hyperbole menus.  This
+      key jumps between the start and end of a matching delimiter or tag pair.
+
+    - Mod Mouse Keys: Disallowed this feature meant to enable one hand on the
+      keyboard while the other hand pressed the mouse keys as Control and Meta
+      modifier keys.  Use would conflict with Emacs bindings of Control and
+      Meta mouse keys.
+
+  KOUTLINER
+
+    - `e' Viewspec: Removed ellipses viewspec because ellipses can no longer be
+      turned off with modern Emacs outlining.
 
   MENUS
 
-    -
+    - Prefix Arguments: Prefix arguments may now be given to any Hyperbole menu
+      command that accepts them.
+
+    - Action Doc Strings: If a menu item has no help string but its action is a
+      function with a doc string, then that doc string will be used to display
+      help for the menu item.
+
+    - Key Bindings: The pulldown menu, Hyperbole/Options/Change-Key-Bindings
+      now displays the current keys bound to each command for easy reference.
 
 ===========================================================================
 *				    V6.0.2

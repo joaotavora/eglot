@@ -202,6 +202,8 @@ frames and windows, the minor modes of HyControl, with a modeline indicator
 of either "HyFrm" or HyWin" depending on which type of control is active.  See
 "(hyperbole)HyControl" for full usage information.
 
+** Frame Commands
+
 Let's try some of the more interesting commands.  You can either type the
 following key sequences (ignoring the braces) for practice or simply press
 the Action Key within them to see what they look like.
@@ -225,6 +227,8 @@ the argument is used to adjust one dimension of the frame.
 { f }        - clone the selected window to a new frame
 { F }        - tear off the selected window (if more than one window)
                into a new frame
+
+** Windows Grid
 
 The {@} command splits a frame into a grid of up to 9 rows by 9 columns of
 windows, showing a different buffer in each window, if available.  First

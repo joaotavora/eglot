@@ -5140,6 +5140,15 @@ any personal Hyperbole type definitions or key bindings you might have.
 It is run after Hyperbole support code is loaded but before Hyperbole is
 initialized, i.e. prior to keyboard and mouse bindings.
 
+@item action-key-depress-hook
+@itemx assist-key-depress-hook
+Run after an Action or Assist Mouse Key depress is detected.
+
+@item action-key-release-hook
+@itemx assist-key-release-hook
+Run after an Action or Assist Mouse Key release is detected, before
+any associated action is executed.
+
 @vindex hbut:current
 @item action-act-hook
 Run before each Hyperbole button activation.
@@ -6430,7 +6439,9 @@ you in deciding whether or not to modify the value of
 @subsection  Configuring Button Colors
 @cindex Emacs support
 @cindex button highlighting
+@cindex highlighting buttons
 @cindex button flashing
+@cindex flashing buttons
 @vindex file, hui-ep*.el
 @vindex file, hsettings.el
 @findex hproperty:cycle-but-color
@@ -6443,12 +6454,12 @@ code which supports this behavior.  A call
 to @code{(hproperty:cycle-but-color)} in the @file{hsettings.el} file
 changes the color used to highlight and flash explicit buttons.
 
-@cindex button emphasis
-@vindex hproperty:but-emphasize-p
-Additionally, if @code{hproperty:but-emphasize-p} is set to @samp{t},
-then whenever the mouse pointer moves over an explicit button, it will
-be emphasized in a different color or style.  This emphasis is in
-addition to any non-mouse-sensitive button highlighting.
+@vindex hproperty:but-highlight-flag
+Whether or not buttons are highlighted is controlled
+by @code{hproperty:but-highlight-flag}, which defaults to @samp{t}.
+To disable highlighting, change this setting in @file{hsettings.el} or
+use Hyperbole menu item, Cust/All-Options, and select the Hyperbole
+Buttons group to edit its options.
 
 @cindex button highlighting, forcing
 @findex hproperty:but-create
@@ -6456,6 +6467,13 @@ If you read in a file with explicit buttons before you load Hyperbole,
 these buttons won't be highlighted.  Load Hyperbole and then use
 @bkbd{M-x hproperty:but-create @key{RET}} to highlight the buttons in
 the current buffer.
+
+@cindex button emphasis
+@vindex hproperty:but-emphasize-flag
+Additionally, if @code{hproperty:but-emphasize-flag} is set to @samp{t},
+then whenever the mouse pointer moves over an explicit button, it will
+be emphasized in a different color or style.  This emphasis is in
+addition to any non-mouse-sensitive button highlighting.
 
 
 @node Global Key Bindings, Koutliner Keys, Setup, Top

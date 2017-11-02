@@ -202,9 +202,12 @@ obtained search string."
        ;; appeal to you. See "hui-em-but.el" for how this works.
        (hproperty:cycle-but-color nil)
        ;;
+       ;; Non-nil means highlight all explict buttons with `hproperty:but-face'.
+       (setq hproperty:but-highlight-flag t)
+       ;;
        ;; Non-nil means visually emphasize that button under mouse cursor is
        ;; selectable.
-       (setq hproperty:but-emphasize-p nil)
+       (setq hproperty:but-emphasize-flag nil)
        ;;
        ;; If you find that the Hyperbole button flash time is too slow
        ;; or too fast, adjust it here.
@@ -223,6 +226,9 @@ obtained search string."
        ;; which to highlight buttons if the default highlighting does not
        ;; appeal to you. See "hui-xe-but.el" for how this works.
        (hproperty:cycle-but-color nil)
+       ;;
+       ;; Non-nil means highlight all explict buttons with `hproperty:but-face'.
+       (setq hproperty:but-highlight-flag t)
        ;;
        ;; Non-nil means visually emphasize that button under mouse cursor is
        ;; selectable.

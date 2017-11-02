@@ -1217,7 +1217,7 @@ HYROLO-BUF may be a file-name, buffer-name, or buffer."
 (defun hyrolo-highlight-matches (regexp start end)
   "Highlight matches for REGEXP in region from START to END."
   (if (fboundp 'hproperty:but-add)
-      (let ((hproperty:but-emphasize-p))
+      (let ((hproperty:but-emphasize-flag))
 	(save-excursion
 	  (goto-char start)
 	  (while (re-search-forward regexp nil t)
