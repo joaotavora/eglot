@@ -152,7 +152,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2g
-Printed November 1, 2017.
+Printed November 6, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed November 1, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.2g, November 1, 2017.
+@center Edition 6.0.2g, November 6, 2017.
 
 @sp 2
 @noindent
@@ -386,12 +386,13 @@ Setup
 
 Customization
 
-* Web Search Engines::
-* Using URLs with Find-File::
+* Referent Display::
 * Internal Viewers::
 * External Viewers::
-* Invisible Text Searches::
 * Link Variable Substitution::
+* Web Search Engines::
+* Using URLs with Find-File::
+* Invisible Text Searches::
 * Button Colors::
 
 Smart Key Reference
@@ -612,14 +613,14 @@ for that bug number.  @xref{Buttons}.
 
 Buttons are accessed by clicking on them or referenced by name (global
 buttons), so they can be activated regardless of what is on screen.
-Users can make simple changes to button types.  Emacs Lisp programmers
-can develop new types and button actions quickly.
+Users create and activate Hyperbole buttons; Emacs Lisp programmers
+easily can develop new button types and actions.
 
-Hyperbole includes two special @dfn{Smart Keys}, the Action Key and the
-Assist Key, that perform an extensive array of context-sensitive
+Hyperbole includes two special @dfn{Smart Keys}, the Action Key and
+the Assist Key, that perform an extensive array of context-sensitive
 operations across emacs usage, including activating and showing help
-for Hyperbole buttons.  In many popular Emacs modes, they allow you
-to perform common, sometimes complex operations without having to a
+for Hyperbole buttons.  In many popular Emacs modes, they allow you to
+perform common, sometimes complex operations without having to use a
 different key for each operation.  Just press a Smart Key and the
 right thing happens.  @xref{Smart Keys};
 
@@ -1685,28 +1686,37 @@ order of priority).
 @findex ibtypes completion
 @cindex completion
 @item completion
-Inserts the completion at point into the minibuffer or the other window.
+Inserts the completion at point (from a completions buffer) into the
+minibuffer or the other window.
 
 @findex ibtypes hyp-source
 @cindex Hyperbole report
 @item hyp-source
-Turns source location entries in Hyperbole reports into buttons that
-jump to the associated location.
+Turns source location entries following an `@@loc>' line in Hyperbole
+reports into buttons that jump to the associated location.  For
+example, @bkbd{C-h h d d C-h h e h o} summarizes the properties of the
+explicit buttons in the @file{DEMO} file and each button in that report
+buffer behaves the same as the corresponding button in the original
+@file{DEMO} file.
 
 @findex ibtypes hyp-address
 @cindex Hyperbole mail list
 @item hyp-address
-Turns a Hyperbole support/discussion e-mail address into an implicit
-button which inserts Hyperbole environment information.  This is
-useful when sending mail to a Hyperbole discussion mail list.  See
-also the documentation for @code{actypes::hyp-config}.
+Within a mail or Usenet news composer window, makes a Hyperbole
+support/discussion e-mail address insert Hyperbole environment and
+version information.  This is useful when sending mail to a Hyperbole
+discussion mail list.  See also the documentation
+for @code{actypes::hyp-config}.  For example, an Action Mouse Key
+click on <hyperbole-users@@gnu.org> in a mail composer window would
+activate this implicit button type.
 
 @findex ibtypes Info-node
 @cindex Info node
 @item Info-node
 Makes a "(filename)nodename" button display the associated Info node.
 Also makes a "(filename)itemname" button display the associated Info
-index item.
+index item.  Examples are "(hyperbole)Implicit Buttons" and
+``(hyperbole)C-c /''.
 
 @findex ibtypes www-url
 @cindex URL
@@ -1727,7 +1737,7 @@ like www.gnu.org, are also recognized.
 @cindex signatures, hiding
 @item gnus-push-button
 Activates GNUS-specific article push-buttons, e.g. for hiding
-signatures.  GNUS is a news and mail reader."
+signatures.  GNUS is a news and mail reader.
 
 @findex ibtypes texinfo-ref
 @cindex Texinfo cross-reference
@@ -1764,9 +1774,9 @@ program.  Patch applies diffs to source code.
 @cindex Emacs Lisp compiler error
 @cindex compiler error
 @item elisp-compiler-msg
-Jumps to the source code for a definition associated with a
-byte-compiler error message.  Works when activated anywhere within an
-error line.
+Jumps to the source code for a definition associated with an Emacs
+Lisp byte-compiler error message.  Works when activated anywhere
+within an error line.
 
 @findex ibtypes debugger-source
 @cindex gdb
@@ -1820,10 +1830,17 @@ retrievals.
 @findex ibtypes kbd-key
 @cindex key sequence
 @item kbd-key
-Executes the command binding or the Hyperbole minibuffer menu action
-for a key sequence delimited by curly braces.  Key sequences should
-be in human readable form, e.g.@: @bkbd{C-x C-b}.  Formats such
+Executes a key sequence found around point, delimited by curly braces, @{@}, if any.
+Key sequences should be in human readable form, e.g.@: @bkbd{C-x C-b}.  Formats such
 as @{^x^b@} will not be recognized.
+
+Any key sequence must be a string of one of the following:
+@itemize @bullet
+@item a Hyperbole minibuffer menu item key sequence,
+@item a HyControl key sequence,
+@item a M-x extended command,
+@item or a valid key sequence together with its interactive arguments.
+@end itemize
 
 @findex ibtypes dir-summary
 @vindex file, MANIFEST
@@ -1904,6 +1921,7 @@ handled elsewhere.
 @vindex hibtypes-git-default-project
 @item git-reference
 Displays the git entity associated with REFERENCE and optional PROJECT.
+See @file{DEMO#Git (Local) References} for examples.
 
 REFERENCE is a string of one of the following forms:
 @itemize @bullet
@@ -1942,6 +1960,7 @@ produced by git log.
 @vindex hibtypes-github-default-user
 @item github-reference
 Displays the Github entity associated with REFERENCE and optional USER and PROJECT.
+See @file{DEMO#Github (Remote) References} for examples.
 
 REFERENCE is a string of one of the following forms:
 @itemize @bullet
@@ -1978,9 +1997,10 @@ PROJECT value is provided, it defaults to the value of
 @cindex social reference
 @vindex hibtypes-social-default-service
 @item social-reference
-Displays the web page associated with a social media hashtag or username
-reference at point.  Reference format is:
+Displays the web page associated with a social media hashtag or
+username reference at point.
 
+Reference format is:
 @example
 [facebook|instagram|twitter]?[#@@]<hashtag-or-username> or
 [fb|in|tw]?[#@@]<hashtag-or-username>
@@ -2001,18 +2021,21 @@ twitter#hashtag.
 @item debbugs-gnu-mode
 Debbugs is a client-server issue tracker used by GNU free software
 projects, including Hyperbole, to manage issues and maintain threads
-of discussion around them.  When on a GNU Debbugs listing entry in
-@code{debbugs-gnu-mode}, an Action Key press displays the discussion
-of the selected issue; an Assist Key press pretty prints the status of
-the issue to a window below the listing window.
+of discussion around them.  You issues queries to a Debbugs server and
+it returns a listing entry for each matching issue.  When on a GNU
+Debbugs listing entry in @code{debbugs-gnu-mode}, an Action Key press
+displays the discussion of the selected issue; an Assist Key press
+pretty prints the status of the issue to a window below the listing
+window.
 
 @findex ibtypes debbugs-gnu-query
 @item debbugs-gnu-query
-Displays the results of a Gnu debbugs query based on the string at point and
-works in most kinds of buffers.  If the query includes a single id number, it
-displays the original message submission for that id and allows browsing of
-the followup discussion.  The following buffer text formats are accepted
-(with point prior to any attribute):
+Debbugs queries may be issued by activating this implicit button type.
+It displays the results of a Gnu debbugs query based on the string at
+point and works in most kinds of buffers.  If the query includes a
+single id number, it displays the original message submission for that
+id and allows browsing of the followup discussion.  The following
+buffer text formats are accepted (with point prior to any attribute):
 
 @smallexample
 bug#id-number, bug# id-number, bug #id-number or bug id-number
@@ -2096,13 +2119,12 @@ The Action Key follows any Org mode link at point or cycles through
 views of the outline subtree at point.  In any other context besides
 the end of a line, the Action Key will invoke the Org mode standard
 binding of @bkbd{M-@key{RET}}, (org-meta-return).  The Assist Key on
-an Org mode heading, cycles through views of the whole buffer outline
+an Org mode heading cycles through views of the whole buffer outline
 and on an Org mode link, displays standard Hyperbole help.
 
 The variable, @code{browse-url-browser-function}, customizes the url
 browser that is used for urls.  Valid values of this variable
-include @code{browse-url-default-browser}
-and @code{browse-url-generic}.
+include @code{browse-url-default-browser} and @code{browse-url-generic}.
 
 @findex ibtypes doc-id
 @cindex online library
@@ -2826,7 +2848,10 @@ explanation of how to turn this feature on.
 @chapter Menus
 
 @cindex Emacs
+@cindex Hyperbole menubar menu
+@cindex Hyperbole pulldown menu
 @cindex menu use
+@cindex pulldown menu
 @cindex menubar, Hyperbole menu
 @cindex menu item, Remove-This-Menu
 @cindex removing Hyperbole menu
@@ -2836,13 +2861,28 @@ like any other application menus and are fairly self-explanatory.  Use
 the @code{Remove-This-Menu} command on the Hyperbole menubar menu to
 get rid of the menu if you do not need it.  Invoking Hyperbole from
 the keyboard, as explained below, will add the menu back to the
-menubar.
+menubar.  Here is the Hyperbole Menubar Menu and its Find submenu.
 
 @float Image,image:Hyperbole Menu
 @caption{Hyperbole Menubar Menu}
 @image{im/menu-hyperbole,,5in,Hyperbole Menu}
 @end float
+@page
+
+@float Image,image:Find Menu
+@caption{Find Menubar Menu}
+@image{im/menu-find,,5in,Find Menu}
+@end float
 @sp 1
+
+@findex hyperbole-popup-menu
+@cindex popup menu
+@cindex hyperbole popup menu
+The Hyperbole popup menu, @code{hyperbole-popup-menu}, replicates the
+Hyperbole menubar menu.  It can be bound to a mouse key but is not
+bound to one by default.   It can also be assigned as the default
+Action or Assist Key action to use when no matching context is found.
+@xref{Smart Key - Default Context}, for details.
 
 @cindex minibuffer menus
 The rest of this section discusses only the
@@ -3170,6 +3210,12 @@ Display a @dfn{grid of windows} in the selected frame sized according to
 the prefix argument or via a prompted input.  Left digit of the argument is
 the number of grid rows and the right digit is the number of grid columns
 to display.
+
+@float Image,image:2x3-Windows-Grid
+@caption{2x3 Windows Grid}
+@image{im/wgrid-2x3,5.2in,,2x3 Windows Grid}
+@end float
+@sp 1
 
 If the prefix argument is 0, prompt for a major mode whose buffers
 should be displayed first in the grid windows, then prompt for the grid size.
@@ -3604,11 +3650,11 @@ Vspec        kvspec:activate            Set a view specification
 ====================================================================
 @end example
 
-The popup and menubar Koutline menu, as displayed on the following
-page, offers a more complete set of the Koutliner commands.  Experiment
-with the menu or read the following sections explaining commands.
-
 @page
+The popup and menubar Koutline menu, as displayed here, offers a more
+complete set of the Koutliner commands.  Experiment with the menu or
+read the following sections explaining commands.
+
 @float Image,image:Koutline Menu
 @caption{Koutline Menu}
 @image{im/menu-koutline,,6in,Koutline Menu}
@@ -4563,14 +4609,14 @@ tool.
 @cindex rolo file
 @cindex rolo entry
 HyRolo manages and searches rolo files.  A @dfn{rolo file} consists of
-an optional header which starts and ends with a line of equal signs
+an optional header that starts and ends with a line of equal signs
 (at least three equal signs starting at the beginning of a line),
-followed by any non-negative number of rolo records.  You must
-manually add a header to any rolo file if you want it to have one.
+followed by zero or more rolo records.  You must manually add a header
+to any rolo file if you want it to have one.
 
 @noindent
 Here is an example of a simple rolo file.  The date at the end is
-automatically added by the rolo system whenever a new record is added.
+automatically added by HyRolo whenever a new record is added.
 
 @example
 @group
@@ -4592,11 +4638,11 @@ character than do their parents.  Top-level entries begin with a single
 
 Beyond this initial delimiter, entries are completely free-form text.
 It is best to use a "lastname, firstname" format, however, when adding
-contact entries into a rolo.  Then the rolo system will automatically
-keep your entries alphabetized as you enter them.  You'll also be able
-to resort the entries if you ever need.  This ordering is what the
-rolo will use if you accept the default entry with which it prompts
-you when adding a new entry.
+contact entries into a rolo.  Then HyRolo will automatically keep your
+entries alphabetized as you enter them.  Then you can sort the entries
+if you ever need.  This ordering is what the rolo will use if you
+accept the default entry with which it prompts you when adding a new
+entry.
 
 Any search done on the rolo scans the full text of each entry.  During
 a search, the rolo file header separator lines and anything in between
@@ -4635,7 +4681,7 @@ so.
 
 @float Image,image:Rolo Menu
 @caption{HyRolo Menu}
-@image{im/menu-rolo,,7in,HyRolo Menu}
+@image{im/menu-rolo,,3.5in,HyRolo Menu}
 @end float
 @page
 
@@ -4925,18 +4971,48 @@ it whenever the HyRolo system is loaded.
 @cindex Big Brother DataBase
 If you use the Big Brother DataBase (BBDB) Emacs package to capture
 email addresses and store contact information, the rolo automatically
-works with it.  If BBDB is loaded before the rolo, then your
+works with it.  If the BBDB package is loaded before HyRolo, then your
 @code{bbdb-file} of contacts is added as the second entry in
 @code{hyrolo-file-list} and will be searched automatically for any matches by
 the rolo find commands.  Presently there is no support for editing
 BBDB entries, just finding them.
 
-For finding matches in the BBDB file only, there are the commands
+For finding matches within only BBDB, there are the commands
 @code{hyrolo-bbdb-fgrep} (string finding) and @code{hyrolo-bbdb-grep}
 (regular expression finding).  They may be bound to keys if desired.
 
+@cindex Google Contacts
+@cindex Gmail Contacts
+If you use Google/Gmail Contacts, you can configure the HyRolo to
+query your Google Contacts for matches.  First you must download and
+install the external @file{google-contacts} package using the Emacs
+Package Manager.  Then you must install the non-Emacs GNU Privacy
+Guard (GPG) package from @url{https://gnupg.org} so that
+the @file{gpg} or @file{gpg2} executable is in your command-line
+search path.  Once these are in place, either restart Emacs or
+use @bkbd{M-x hyrolo-initialize-file-list @key{RET}} to add Google
+Contacts to your searches.
+
+When you next do a search, you will be prompted for your Google
+Contacts password and may also have to enter an authorization code
+that will be displayed on your screen.  After authorization, you may
+at times be re-prompted for your password.
+
+@findex hyrolo-google-contacts-fgrep
+@findex hyrolo-google-contacts-grep
+For finding matches within only Google Contacts, there are the commands
+@code{hyrolo-google-contacts-fgrep} (string finding) and
+@code{hyrolo-google-contacts-grep} (regular expression finding).  They
+may be bound to keys if desired.
+
+@vindex hyrolo-google-contacts-flag
+Because Google can require frequent reauthorization to search your
+contacts, there is a flag, @code{hyrolo-google-contacts-flag}, which
+when set to @samp{nil} disables searching of your Google Contacts.
+
+
 @noindent
-Below are the rest of the settings available with the rolo:
+Below are the rest of the settings available with HyRolo:
 
 @vtable @code
 
@@ -6194,7 +6270,7 @@ below the Hyperbole menubar menu, as seen here.
 
 @float Image,image:Customize Menu
 @caption{Hyperbole Customize Menu}
-@image{im/menu-customization,,,Hyperbole Customize Menu}
+@image{im/menu-customization,,3.5in,Hyperbole Customize Menu}
 @end float
 @sp 1
 
@@ -6209,10 +6285,9 @@ However, if you like to customize your environment extensively, there
 are many additional Hyperbole customization options that may be 
 changed with the Emacs customization interface,
 @pxref{Easy Customization,,Easy Customization Interface,emacs, the GNU
-Emacs Manual}.
-When you save any changes within this interface, the changes are saved
-permanently to your personal Emacs initialization file and are available
-in future Emacs sessions.
+Emacs Manual}.  When you save any changes within this interface, the
+changes are saved permanently to your personal Emacs initialization
+file and are available in future Emacs sessions.
 
 @findex customize-browse
 @cindex menu item, Cust/All-Options
@@ -6235,88 +6310,76 @@ The following sections discuss the customization options most likely to
 be of interest to users.
 
 @menu
-* Web Search Engines::
-* Using URLs with Find-File::
+* Referent Display::
 * Internal Viewers::
 * External Viewers::
-* Invisible Text Searches::
 * Link Variable Substitution::
+* Web Search Engines::
+* Using URLs with Find-File::
+* Invisible Text Searches::
 * Button Colors::
 @end menu
 
-@node Web Search Engines, Using URLs with Find-File, Customization, Customization
-@subsection Web Search Engines
+@node Referent Display, Internal Viewers, Customization, Customization
+@subsection Referent Display
+@vindex hpath:display-where
+@cindex referent display
+@cindex link display
+@cindex display where
+@cindex where to display
+Hyperbole lets you control where link referents are displayed and even
+what Emacs function or external program is used to display them.
+There are three categories of referents, each with its own display
+setting:
+@example
+Referent Category             Variable Setting
+========================================================================
+Internal Standard Display     hpath:display-where
+Internal Custom Display       hpath:internal-display-alist
+External Display              hpath:external-display-alist
 
-@cindex menu, Find/Web
-@cindex menu, Web
-@cindex menu, Cust/Web-Search
-@kindex C-h h c w
-@kindex C-h h f w
-@vindex hyperbole-web-search-alist
-@cindex search engines menu
-@cindex web search menu
-@cindex customizing web search menu
-The Find/Web menu offers quick access to major web search engines.  It
-is typically bound to @bkbd{C-c /} or if not, then @bkbd{C-h h f w} is
-always available.  Your standard web browser will be used to return
-the search results.  You can change which browser is used
-with @bkbd{C-h h c w}, the Cust/Web-Search menu. Advanced users can
-change the search engines listed in the Find/Web menu with @bkbd{M-x
-customize-variable @key{RET} hyperbole-web-search-alist @key{RET}}.
-Changes are automatically reflected in the Hyperbole menus once applied.
-Remember each search engine name must begin with a unique letter and
-each URL must have a %s format field indicating where to place the web
-search term when a search is performed.
+@end example
 
-Advanced users can
-change the search engines listed by editing the option,
-@code{hyperbole-web-search-alist}, with @bkbd{M-x customize-variable
-@key{RET} hyperbole-web-search-alist @key{RET}}.  Remember each search engine name
-must begin with a unique letter and each URL must have a %s format
-field indicating where to place the web search term when a search is
-performed.
+@cindex menu, Cust/Referents
+@kindex C-h h c r
+Regular file links are displayed in an Emacs window specified by the
+@code{hpath:display-where} setting which may be changed with the Cust/Referents
+@bkbd{C-h h c r} menu.
 
-@node Using URLs with Find-File, Internal Viewers, Web Search Engines, Customization
-@subsection Using URLs with Find-File
+@noindent
+Available options are:
 
-@findex find-file
-@cindex find-file, browsing URLs
-@cindex browsing URLs
-@cindex URLs, using with find-file
-@cindex web pages, displaying
-@cindex remote pathnames
-Hyperbole always recognizes URLs within buffers when the Action Key is
-pressed on them.  But sometimes it is useful to enter a URL at a prompt
-and have it displayed.  Hyperbole can recognize ftp and www URLs given to
-the @code{find-file} command (or any other @code{find-file-*} commands).
-But because there is added overhead with this feature, it is not enabled by
-default.
+@table @emph
+@item @bullet{} Any-Frame
+Display in the selected window of another existing frame
+@item @bullet{} Current-Win
+Display in the selected (current) window
+@item @bullet{} Diff-Frame-One-Win
+Display in the selected window of another existing frame, deleting its other windows
+@item @bullet{} New-Frame
+Display in a new single window frame
+@item @bullet{} Other-Win
+Display in another, possibly new window of the selected frame (this is
+the default)
+@item @bullet{} Single-Win
+Display in  a window of the selected frame and delete its other windows
+@end table
 
-@cindex menu item, Find-File-URLs
-@cindex menu item, Find-File-Accepts-URLs
-To enable the feature, use the Hyperbole menu item Cust/Find-File-URLs
-(or Find-File-Accepts-URLs on the Hyperbole/Customize pulldown
-menu).  Either of these toggles acceptance of URLs.  When enabled the
-string, URLs, appears in the parenthesized minor-mode section of the
-modeline.
+@page
+@noindent
+Alternatively, you can use the Hyperbole menubar menu as shown here:
 
-@findex hpath:find-file-urls-mode
-@cindex enabling URLs in find-file
-@cindex browsing URLs in find-file
-To enable this feature each time you start the editor, add the following to
-your personal initialization file: @code{(hpath:find-file-urls-mode 1)}.
+@float Image,image:Menu-Display-Referents
+@caption{Display Referents Menu}
+@image{im/menu-display-referents,6in,,Display Referents Menu}
+@end float
+@sp 1
 
-@cindex abbreviated URLs
-@cindex URLs, abbreviated
-@cindex Tramp
-Both full URLs and abbreviated ones, like @file{www.gnu.org}, are
-recognized.  File name completion does not work with URLs thus you
-have to type or paste in the entire URL.  This feature will work only
-if you have the builtin Tramp Emacs Lisp package; if you don't have
-Tramp, an error message will be displayed when you try to enable
-find-file URLs.
+@noindent
+Continue reading the next sections for information on custom Internal
+and External Viewers for link referencts.
 
-@node Internal Viewers, External Viewers, Using URLs with Find-File, Customization
+@node Internal Viewers, External Viewers, Referent Display, Customization
 @subsection  Internal Viewers
 @vindex hpath:internal-display-alist
 @cindex file display function
@@ -6351,7 +6414,7 @@ available with InfoDock.
 @xref{External Viewers}, for instructions on associating file names with
 external, window-system specific viewers.
 
-@node External Viewers, Invisible Text Searches, Internal Viewers, Customization
+@node External Viewers, Link Variable Substitution, Internal Viewers, Customization
 @subsection  External Viewers
 @findex hpath:get-external-display-alist
 @vindex hpath:external-display-alist-macos
@@ -6393,24 +6456,7 @@ On systems that have a MIME mailcap file (see
 set of external viewer associations when none are found
 within @code{hpath:get-external-display-alist}.
 
-@node Invisible Text Searches, Link Variable Substitution, External Viewers, Customization
-@subsection Invisible Text Searches
-
-@cindex menu item, Isearch-Invisible
-@cindex menu item, Toggle-Isearch-Invisible
-@cindex isearch
-@cindex search
-This is largely for outline modes such as the Koutliner.  By default,
-character-by-character interactive search on @bkbd{C-s} will search
-through invisible/hidden text, making the text temporarily visible
-until point moves past that hidden part.  When a search match is
-selected, the surrounding text remains visible.
-
-This command toggles that setting (turns it off if a prefix
-argument less than or equal to 0 is given) and makes searches look at
-only visible text.
-
-@node Link Variable Substitution, Button Colors, Invisible Text Searches, Customization
+@node Link Variable Substitution, Web Search Engines, External Viewers, Customization
 @subsection  Link Variable Substitution
 @vindex hpath:variables
 @cindex environment variables
@@ -6435,7 +6481,112 @@ is wholly transparent to the user; it is explained here simply to help
 you in deciding whether or not to modify the value of
 @code{hpath:variables}.
 
-@node Button Colors,  , Link Variable Substitution, Customization
+@node Web Search Engines, Using URLs with Find-File, Link Variable Substitution, Customization
+@subsection Web Search Engines
+
+@cindex menu, Find/Web
+@cindex menu, Web
+@cindex menu, Cust/Web-Search
+@kindex C-h h c w
+@kindex C-h h f w
+@vindex hyperbole-web-search-alist
+@cindex search engines menu
+@cindex web search menu
+@cindex customizing web search menu
+The Find/Web menu offers quick access to major web search engines.  It
+is typically bound to @bkbd{C-c /} or if not, then @bkbd{C-h h f w} is
+always available.  Your standard web browser will be used to return
+the search results.
+
+Advanced users can change the search engines listed in the Find/Web
+menu with @bkbd{M-x customize-variable @key{RET}
+hyperbole-web-search-alist @key{RET}}.  Changes are automatically
+reflected in the Hyperbole menus once applied.  Remember each search
+engine name must begin with a unique letter and each URL must have a
+%s format field indicating where to place the web search term when a
+search is performed.
+
+@page
+You can change which browser is used with @bkbd{C-h h c w}, the
+Cust/Web-Search menu.  Below is the equivalent Hyperbole menubar menu.
+
+@float Image,image:Web-Search-Browser-Menu
+@caption{Web Search Browser Menu}
+@image{im/menu-web-search-browser,6in,,Web Search Browser Menu}
+@end float
+@sp 1
+
+@node Using URLs with Find-File, Invisible Text Searches, Web Search Engines, Customization
+@subsection Using URLs with Find-File
+
+@findex find-file
+@cindex find-file, browsing URLs
+@cindex browsing URLs
+@cindex URLs, using with find-file
+@cindex web pages, displaying
+@cindex remote pathnames
+Hyperbole always recognizes URLs within buffers when the Action Key is
+pressed on them.  But sometimes it is useful to enter a URL at a prompt
+and have it displayed.  Hyperbole can recognize ftp and www URLs given to
+the @code{find-file} command (or any other @code{find-file-*} commands).
+But because there is added overhead with this feature, it is not enabled by
+default.
+
+@cindex menu item, Find-File-URLs
+@cindex menu item, Find-File-Accepts-URLs
+To enable the feature, use the Hyperbole menu item Cust/Find-File-URLs
+(or Find-File-Accepts-URLs on the Hyperbole/Customize pulldown
+menu).  Either of these toggles acceptance of URLs.  When enabled the
+string, URLs, appears in the parenthesized minor-mode section of the
+modeline.
+
+@findex hpath:find-file-urls-mode
+@cindex enabling URLs in find-file
+@cindex browsing URLs in find-file
+To enable this feature each time you start the editor, add the
+following to your personal initialization file after initializing
+Hyperbole: @code{(hpath:find-file-urls-mode 1)}.
+
+@cindex abbreviated URLs
+@cindex URLs, abbreviated
+@cindex Tramp
+Both full URLs and abbreviated ones, like @file{www.gnu.org}, are
+recognized.  File name completion does not work with URLs; you
+have to type or paste in the entire URL.  This feature will work only
+if you have the builtin Tramp Emacs Lisp package; if you don't have
+Tramp, an error message will be displayed when you try to enable
+find-file URLs.
+
+@kindex C-h h c u
+@cindex menu, Cust/URL-Display
+The web browser used to display URLs may be set with the minibuffer
+menu Cust/URL-Display @bkbd{C-h h c u} or with this Hyperbole menubar
+menu.
+
+@float Image,image:URL-Browser-Menu
+@caption{URL Browser Menu}
+@image{im/menu-url-browser,6in,,URL Browser Menu}
+@end float
+@sp 1
+
+@node Invisible Text Searches, Button Colors, Using URLs with Find-File, Customization
+@subsection Invisible Text Searches
+
+@cindex menu item, Isearch-Invisible
+@cindex menu item, Toggle-Isearch-Invisible
+@cindex isearch
+@cindex search
+This is largely for outline modes such as the Koutliner.  By default,
+character-by-character interactive search on @bkbd{C-s} will search
+through invisible/hidden text, making the text temporarily visible
+until point moves past that hidden part.  When a search match is
+selected, the surrounding text remains visible.
+
+This command toggles that setting (turns it off if a prefix
+argument less than or equal to 0 is given) and makes searches look at
+only visible text.
+
+@node Button Colors,  , Invisible Text Searches, Customization
 @subsection  Configuring Button Colors
 @cindex Emacs support
 @cindex button highlighting
@@ -6487,7 +6638,18 @@ how to temporarily disable these bindings and how to manage whether
 Hyperbole overrides local, mode-specific key bindings that hide
 global Hyperbole keys.
 
-Here are descriptions of Hyperbole's default keyboard key bindings:
+These bindings can be viewed and edited from either the
+Cust/KeyBindings minibuffer menu or from the Hyperbole menubar menu as
+shown here:
+
+@float Image,image:Change-Key-Bindings
+@caption{Global Key Bindings Menu}
+@image{im/menu-key-bindings,6in,,Change Key Bindings}
+@end float
+@sp 1
+
+@noindent
+Below are descriptions of Hyperbole's default keyboard key bindings:
 
 @table @asis
 @cindex key binding, M-@key{RET}
@@ -8584,12 +8746,18 @@ containing its pathname:
 @cindex click, world-wide web
 @cindex W3
 @cindex URL
-@cindex world-wide web
+@vindex browse-url-browser-function
+@cindex World-wide Web
+@cindex WWW
+@kindex C-h h c u
+@cindex menu, Cust/URL-Display
 @format
 @group
 If pressed on a World-Wide Web universal resource locator (URL):
   ACTION KEY
-     Displays the referent for the URL at point.
+     Displays the referent for the URL at point using the web browser
+     given by the variable, @code{browse-url-browser-function}.  Adjust
+     this setting with the Cust/URL-Display @bkbd{C-h h c u} menu.
   ASSIST KEY
      Displays help for the ACTION KEY.
 @end group
@@ -9188,3 +9356,8 @@ Austin, TX, ACM: NY,NY, 1989, pp. 37-42.
 @printindex cp
 
 @bye
+
+@c Local Variables:
+@c eval: (outline-minor-mode 1)
+@c eval: (modify-syntax-entry ?: "_")
+@c End:

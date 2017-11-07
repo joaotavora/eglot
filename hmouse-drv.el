@@ -361,7 +361,7 @@ Return non-nil iff associated help documentation is found."
 			      (cadadr call) 
 			    (caadr call)))))
     (setq calls (if (and (consp call) (eq (car call) 'or))
-		    (mapcar #'car (cdr call))
+		    (mapcar 'identity (cdr call))
 		  (list cmd-sym)))
 
     (setq hkey-help-msg
@@ -402,8 +402,9 @@ Return non-nil iff associated help documentation is found."
 			      (if (> (length calls) 1)
 				  ;; Is an 'or' set of calls
 				  (princ "'OR' "))
-			      (princ "CALLS ") (princ (list c))
-			      (when (setq doc (documentation c))
+			      (princ "CALLS ") (princ (if (consp c) c (list c)))
+			      (when (and (fboundp (setq call (if (consp c) (car c) c)))
+					 (setq doc (documentation call)))
 				(princ " WHICH")
 				(princ (if (string-match "\\`[a-zA-Z]*[a-rt-zA-RT-Z]+s[ [:punct:]]" doc)
 					   ":" " WILL:"))

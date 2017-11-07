@@ -292,10 +292,10 @@ Return t if cutoff, else nil."
   ;; Force a menu-bar update.
   (force-mode-line-update))
 
-(defun hyperbole-popup-menu ()
+(defun hyperbole-popup-menu (&optional rebuild-flag)
   "Popup the Hyperbole menubar menu."
-  (interactive)
-  (popup-menu (infodock-hyperbole-menu)))
+  (interactive "P")
+  (popup-menu (infodock-hyperbole-menu rebuild-flag)))
 
 ;;; Don't change this name; doing so will break the way InfoDock
 ;;; initializes the Hyperbole menu.

@@ -1,4 +1,81 @@
+2017-11-06  Bob Weiner  <rsw@gnu.org>
+
+* hyrolo-demo.el (hyrolo-demo-quit): Added to unload hyrolo-demo code and used in demo.
+
+* man/hyperbole.texi (Menus): Documented hyperbole-popup-menu.
+
+* hui-menu.el (hyperbole-popup-menu): With a non-nil prefix arg, rebuild the Hyperbole popup menu in case it did
+    not initialize properly for any reason.
+
+* man/hyperbole.texi (Using URLs with Find-File): Added URL browser customization menu reference and image.
+                     (Smart Key - WWW URLs): Added browse-url-browser-function and Cust/URL-Display reference.
+		     (Referent Display): Added this section and documented display options for standard link referents.
+
+* hyrolo-logic.el (hyrolo-map-logic): Removed improper outline test for old format Emacs outlines.
+                  (hyrolo-fgrep-logical): Fixed to include sub-entries in logical searches.
+
+* hib-kbd.el (kbd-key:mark-spaces-to-keep): Added to preserve spaces in (), [], or <> delimited sections of
+    Hyperbole sequences of brace delimited keys; used this function in kbd-key:normalize.
+
+2017-11-04  Bob Weiner  <rsw@gnu.org>
+
+* hycontrol.el (hycontrol-windows-grid-buffer-list): Replaced all uses of (eq major-mode 'dired-mode) with
+    (derived-mode-p 'dired-mode) to generalize.
+
+2017-11-03  Bob Weiner  <rsw@gnu.org>
+
+* man/hyperbole.texi (HyRolo Settings): Added Google Contacts set up and use description.
+
+* hyrolo.el (hyrolo-file-list-initialize): Made interactive and displayed a message with the resulting list
+    if called interactively.  Added autoload.
+            (hyrolo-initialize-file-list): Renamed from hyrolo-file-list-initialize.
+
+* hui-window.el (hmouse-split-window): Changed to split selected window parallel to its shortest dimension.
+
+* DEMO: Added new section on HyRolo.
+  DEMO-ROLO.otl: Added.
+  hyrolo-demo.el: Added with the functions hyrolo-demo-fgrep and hyrolo-demo-fgrep-logical.
+  hyrolo-logic.el (hyrolo-map-logic): Fixed issue where a buffer was required but a buffer name was
+    given as an argument preventing search from matching.
+                  (hyrolo-fgrep-logical): Fixed that logical searches were not forced to case insensitive
+    to match hyrolo-fgrep.  Also updated to handle non-logical string searches.
+
+* hbut.el (ebut:operate): Fixed issue where user had selected a region to use as a button label but then
+    the same text was inserted when the label was created.  Solved by moving point to the beginning of
+    any marked region so buffer text comparison succeeds.
+
+* hui-window.el (hmouse-x-coord, hmouse-y-coord): Simplified logic in GNU Emacs clause.
+                (hmouse-emacs-modeline-event-p): If a drag release was to an unselected frame mode-line,
+    on click-to-focus systems, the release event will not include the mode-line area when release was on
+    the mode-line, so manually compute if that was the location.
+
 2017-11-02  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (hkey-help): Fixed that arguments were being stripped from action calls in the help
+    output.
+
+* hibtypes.el (pathname): Fixed to handle "-subr.elc" whose prefix character "-" tells Hyperbole
+    to load, not display subr.elc.  Also handled subr.el.gz compressed source files.
+
+* hib-kbd.el (kbd-key): Prevented matches to brace delimited things that are not preceded by
+    whitespace or at the beginning of buffers, e.g. ${variable}.
+
+* man/hyperbole.texi (Implicit Buttons): Added examples.
+  hib-kbd.el (kbd-key): Improved doc.
+
+* hibtypes.el (hyp-address): Fixed to grab email address using thing-at-point and work in mail-mode
+    not just whatever mode hmail:composer is.
+              (Info-node): Added check for ``dual single quotes'' used in Texinfo smart quotes.
+
+* hpath.el (hpath:substitute-value):
+           (hpath:substitute-dir): Fixed to handle unbound symbol names.  This fixed an error when an
+    environment variable matched a symbol but the symbol was unbound, e.g. (hpath:substitute-value
+    "${PATH}/python")
+
+----
+
+* hmouse-tag.el (smart-lisp-at-definition-p): Fixed to ignore lines like: (default (find-tag--default))
+    so the function in that line can be found as a tag.
 
 * HY-NEWS: Updated for next major release
 

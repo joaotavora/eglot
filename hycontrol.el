@@ -18,6 +18,9 @@
 ;;   with just a few keystrokes (the leading . just resets the numeric
 ;;   argument to 0 prior to typing the new number).
 ;;
+;;   See the Info manual entry "(hyperbole)HyControl" for reference
+;;   documentation.  See below for key usage information.
+;;
 ;;   ----
 ;;
 ;;   HyControl is invoked via either of two global minor modes under
@@ -1377,7 +1380,7 @@ Menu or IBuffer mode."
       (buffer-list (selected-frame))
     ;; Get the list of marked items if in an item list buffer and
     ;; convert items to buffers.
-    (let ((items (cond ((and (eq major-mode 'dired-mode)
+    (let ((items (cond ((and (derived-mode-p 'dired-mode)
 			     (mapcar #'find-file-noselect (dired-get-marked-files))))
 		       ((and (eq major-mode 'Buffer-menu-mode)
 			     (Buffer-menu-marked-buffers)))

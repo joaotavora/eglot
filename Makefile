@@ -151,7 +151,7 @@ EL_COMPILE = hact.el hactypes.el hargs.el hbdata.el hbmap.el hbut.el \
 	     hpath.el hrmail.el hsettings.el hsmail.el hsys-org.el hsys-www.el htz.el \
 	     hycontrol.el hui-jmenu.el hui-menu.el hui-mini.el hui-mouse.el hui-select.el \
 	     hui-window.el hui.el hvar.el hversion.el hvm.el hypb.el hyperbole.el \
-	     hyrolo-logic.el hyrolo-menu.el hyrolo.el hywconfig.el set.el
+	     hyrolo-demo.el hyrolo-logic.el hyrolo-menu.el hyrolo.el hywconfig.el set.el
 
 EL_KOTL = kotl/kexport.el kotl/kfile.el kotl/kfill.el kotl/kimport.el kotl/klabel.el \
 	  kotl/klink.el kotl/kmenu.el kotl/knode.el kotl/kotl-mode.el \
@@ -166,7 +166,7 @@ ELC_COMPILE =  hactypes.elc hibtypes.elc hib-debbugs.elc hib-doc-id.elc hib-kbd.
 	     hpath.elc hrmail.elc hsettings.elc hsmail.elc hsys-org.elc hsys-www.elc htz.elc \
 	     hycontrol.elc hui-jmenu.elc hui-menu.elc hui-mini.elc hui-mouse.elc hui-select.elc \
 	     hui-window.elc hui.elc hvar.elc hversion.elc hvm.elc hypb.elc hyperbole.elc \
-	     hyrolo-logic.elc hyrolo-menu.elc hyrolo.elc hywconfig.elc set.elc
+	     hyrolo-demo.elc hyrolo-logic.elc hyrolo-menu.elc hyrolo.elc hywconfig.elc set.elc
 
 ELC_KOTL = kotl/kexport.elc kotl/kfile.elc kotl/kfill.elc kotl/kimport.elc kotl/klabel.elc \
 	   kotl/klink.elc kotl/kmenu.elc kotl/knode.elc kotl/kotl-mode.elc \
@@ -175,7 +175,7 @@ ELC_KOTL = kotl/kexport.elc kotl/kfile.elc kotl/kfill.elc kotl/kimport.elc kotl/
 
 HYPERBOLE_FILES = dir hyperbole-pkg.el info html $(EL_SRC) $(EL_COMPILE) $(EL_KOTL) \
 	$(ELC_COMPILE) Changes COPYING Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS \
-	HY-WHY.kotl INSTALL DEMO MANIFEST README _hypb .hypb file-newer smart-clib-sym \
+	HY-WHY.kotl INSTALL DEMO DEMO-ROLO.otl MANIFEST README _hypb .hypb file-newer smart-clib-sym \
 	topwin.py hyperbole-banner.png $(man_dir)/hkey-help.txt \
 	$(man_dir)/hyperbole.texi $(man_dir)/hyperbole.css $(man_dir)/version.texi
 

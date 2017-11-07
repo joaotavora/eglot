@@ -954,9 +954,9 @@ See the documentation of the `hpath:rfc' variable."
 	       (var-name (substring path (+ match 2) (1- start)))
 	       (rest-of-path (substring path start))
 	       (sym (intern-soft var-name)))
-	  (if (file-name-absolute-p rest-of-path)
-	      (setq rest-of-path (substring rest-of-path 1)))
-	  (if (and sym (boundp sym))
+	  (when (file-name-absolute-p rest-of-path)
+	    (setq rest-of-path (substring rest-of-path 1)))
+	  (if (or (and sym (boundp sym)) (getenv var-name))
 	      (directory-file-name
 	       (hpath:substitute-dir var-name rest-of-path))
 	    var-group)))
@@ -1360,7 +1360,8 @@ local pathname is returned."
 	   (error "(hpath:substitute-dir): VAR-NAME, \"%s\", is not a bound variable nor a set environment variable"
 		  var-name))
 	  ((let ((case-fold-search t))
-	     (stringp (setq val (cond (sym (symbol-value sym))
+	     (stringp (setq val (cond ((and (boundp sym) sym)
+				       (symbol-value sym))
 				      ((string-match "path" var-name)
 				       (split-string (getenv var-name) ":"))
 				      (t (getenv var-name))))))

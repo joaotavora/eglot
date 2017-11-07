@@ -429,7 +429,10 @@ Signals an error if the buffer is read-only."
 	     (hmouse-read-only-toggle-key))
     ;; Permanently return to release point
     (select-window (if assist-flag assist-key-release-window action-key-release-window))
-    (hmouse-insert-region)))
+    ;; Protect from indentation errors
+    (condition-case err
+	(hmouse-insert-region)
+      (error nil))))
 
 (defun hmouse-drag-between-frames ()
   "Returns non-nil if last Action Key depress and release were in different frames.
@@ -715,8 +718,12 @@ Ignores minibuffer window."
 ;;; ************************************************************************
 
 (defun hmouse-split-window ()
-  "Split selected window sensibly."
-  (split-window-sensibly))
+  "Split selected window parallel to its shortest dimension."
+  (if (>= (window-width) (window-height))
+      ;; side-by-side windows
+      (split-window-horizontally)
+    ;; windows atop the other
+    (split-window-vertically)))
 
 (defun hmouse-buffer-to-window (&optional new-window)
   "Invoked via drag, replace the buffer in the Action Key release window with the buffer from the Action Key depress window.
@@ -730,7 +737,7 @@ With optional boolean NEW-WINDOW non-nil, sensibly split the release window befo
   "Display an error when a region is active and in-window drags are not allowed."
   ;; Return point to where it was prior to depress so the region does not permanently change.
   (goto-char hkey-value)
-  (error "(hmouse-drag-region-active): Region is active; Smart Key drags are not allowed.  Use a press/click instead."))
+  (error "(hmouse-drag-region-active): Region is active; use a Smart Key press/click within a window, not a drag."))
 
 (defun hmouse-set-buffer-and-point (buffer point)
   (when buffer
@@ -753,7 +760,7 @@ With optional boolean NEW-WINDOW non-nil, sensibly split the release window befo
     (hmouse-set-buffer-and-point buf loc)))
 
 (defun hmouse-goto-region-point ()
-  "Temporarily set point back to where it was when the region was activate prior to last Smart Key depress."
+  "Temporarily set point back to where it was when the region was activated prior to last Smart Key depress."
   (let* ((loc (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point))
 	 (buf (marker-buffer loc)))
     (hmouse-set-buffer-and-point buf loc)))
@@ -917,25 +924,36 @@ If the Assist Key is:
 
 (defun hmouse-emacs-modeline-event-p (event)
   "GNU Emacs: Returns non-nil if EVENT happened on a window mode line."
-  (and (eventp event) (eq (posn-area (event-start event)) 'mode-line)))
+  (or (and (eventp event) (eq (posn-area (event-start event)) 'mode-line))
+      ;; If drag release was to an unselected frame mode-line, on
+      ;; click-to-focus systems, the release event will not include
+      ;; the mode-line area when release was on the mode-line, so
+      ;; manually compute if that was the location.
+      (let* ((w (smart-window-of-coords event))
+	     ;; Do all calculations in pixels if possible.
+	     (line-height (if w (frame-char-height (window-frame w))))
+	     (mode-ln (if w (nth 3 (window-edges w nil t t))))
+	     (last-press-y (cdr (posn-x-y (event-start event)))))
+	(and (not (eq w (minibuffer-window)))
+	     last-press-y mode-ln (< (- mode-ln last-press-y) line-height)))))
 
-(defun hmouse-modeline-event-p (args)
-  "Returns non-nil if event ARGS happened on a window mode line."
-    (when (and (hyperb:window-system) args
-	       (not (posnp args))
-	       (not (markerp args)))
+(defun hmouse-modeline-event-p (event)
+  "Returns non-nil if start of EVENT happened on a window mode line."
+    (when (and (hyperb:window-system) event
+	       (not (posnp event))
+	       (not (markerp event)))
       (cond
        ;; Modern GNU Emacs
        ((fboundp 'posn-area)
-	(hmouse-emacs-modeline-event-p args))
+	(hmouse-emacs-modeline-event-p event))
        ;; XEmacs
        ((fboundp 'event-over-modeline-p)
-	(event-over-modeline-p args))
+	(event-over-modeline-p event))
        ;; Early Emacs
        (t
-	(let* ((w (smart-window-of-coords args))
+	(let* ((w (smart-window-of-coords event))
 	       (mode-ln (if w (nth 3 (window-edges w))))
-	       (last-press-y (hmouse-y-coord args)))
+	       (last-press-y (hmouse-y-coord event)))
 	  ;; Mode-line is always 1 less than the bottom of the window, unless it
 	  ;; is a minibuffer window which does not have a modeline.
 	  (if (not (eq w (minibuffer-window))) (setq mode-ln (1- mode-ln)))
@@ -1190,19 +1208,15 @@ of the Smart Key."
 		 (hypb:goto-marker args)
 		 (current-column))
 	     (eval (cdr (assoc (hyperb:window-system)
-			       '(("emacs" . (cond ((eventp args)
-						   (let ((w-or-f (posn-window (event-start args))))
-						     (if (framep w-or-f)
-							 (setq w-or-f (frame-selected-window w-or-f)))
-						     (+ (car (posn-col-row (event-start args)))
-							(nth 0 (window-edges w-or-f)))))
-						  ((posnp args)
-						   (let ((w-or-f (posn-window args)))
-						     (if (framep w-or-f)
-							 (setq w-or-f (frame-selected-window w-or-f)))
-						     (+ (car (posn-col-row args)))
-							(nth 0 (window-edges w-or-f))))
-						  (t (car args))))
+			       '(("emacs" . (progn (if (eventp args) (setq args (event-start args)))
+						   (cond
+						    ((posnp args)
+						     (let ((w-or-f (posn-window args)))
+						       (if (framep w-or-f)
+							   (setq w-or-f (frame-selected-window w-or-f)))
+						       (+ (car (posn-col-row args))
+							  (nth 0 (window-edges w-or-f)))))
+						    (t (car args)))))
 				 ("xemacs" .  (if (eventp args)
 						  (event-x args)
 						(car args)))
@@ -1214,20 +1228,14 @@ of the Smart Key."
 (defun hmouse-y-coord (args)
   "Returns y coordinate in frame lines from window system dependent ARGS."
   (let ((y (eval (cdr (assoc (hyperb:window-system)
-			     '(("emacs" . (cond ((eventp args)
-						 (let ((w-or-f (posn-window (event-start args))))
-						   (if (framep w-or-f)
-						       (setq w-or-f (frame-selected-window w-or-f)))
-						   (+ (cdr (posn-col-row
-							    (event-start args)))
-						      (nth 1 (window-edges w-or-f)))))
-						((posnp args)
-						 (let ((w-or-f (posn-window args)))
-						   (if (framep w-or-f)
-						       (setq w-or-f (frame-selected-window w-or-f)))
-						   (+ (cdr (posn-col-row args))
-						      (nth 1 (window-edges w-or-f)))))
-						(t (cdr args))))
+			     '(("emacs" . (progn (if (eventp args) (setq args (event-start args)))
+						 (cond ((posnp args)
+							(let ((w-or-f (posn-window args)))
+							  (if (framep w-or-f)
+							      (setq w-or-f (frame-selected-window w-or-f)))
+							  (+ (cdr (posn-col-row args))
+							     (nth 1 (window-edges w-or-f)))))
+						       (t (cdr args)))))
 			       ("xemacs" .  (if (eventp args)
 						(event-y args)
 					      (cdr args)))

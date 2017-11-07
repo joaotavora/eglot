@@ -71,23 +71,29 @@ executable must be found as well (for Oauth security)."
   :group 'hyperbole-rolo)
 
 (defun hyrolo-google-contacts-p ()
-  "Return non-nil if google-contacts package and gpg executables are available for use."
+  "Return non-nil if `hyrolo-google-contacts-flag' is non-nil and google-contacts package and gpg executables are available for use."
   (and hyrolo-google-contacts-flag
        (featurep 'google-contacts) 
        ;; If no gpg encryption executable, Oauth login to Google will fail.
        (or (executable-find "gpg2") (executable-find "gpg"))))
 
-(defun hyrolo-file-list-initialize ()
-  (let ((gcontacts (if (hyrolo-google-contacts-p) google-contacts-buffer-name))
-	(ms "c:/_rolo.otl")
-	(unix "~/.rolo.otl"))
-    (delq nil (if (and (boundp 'bbdb-file) (stringp bbdb-file))
-		  (if hyperb:microcruft-os-p
-		      (list ms bbdb-file gcontacts)
-		    (list  "~/.rolo.otl" bbdb-file gcontacts))
-		(if hyperb:microcruft-os-p (list ms gcontacts) (list unix gcontacts))))))
+;;;###autoload
+(defun hyrolo-initialize-file-list ()
+  "Initialize the list of files to use for HyRolo searches."
+  (interactive)
+  (let* ((gcontacts (if (hyrolo-google-contacts-p) google-contacts-buffer-name))
+	 (ms "c:/_rolo.otl")
+	 (unix "~/.rolo.otl")
+	 (list (delq nil (if (and (boundp 'bbdb-file) (stringp bbdb-file))
+			     (if hyperb:microcruft-os-p
+				 (list ms bbdb-file gcontacts)
+			       (list  "~/.rolo.otl" bbdb-file gcontacts))
+			   (if hyperb:microcruft-os-p (list ms gcontacts) (list unix gcontacts))))))
+      (when (called-interactively-p 'interactive)
+	(message "HyRolo Search List: %S" list))
+      list))
 
-(defvar hyrolo-file-list (hyrolo-file-list-initialize)
+(defvar hyrolo-file-list (hyrolo-initialize-file-list)
   "*List of files containing rolo entries.
 The first file should be a user-specific rolo file, typically in the home
 directory.

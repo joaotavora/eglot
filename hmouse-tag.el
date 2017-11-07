@@ -626,7 +626,9 @@ buffer."
 	;; Exclude any define- lines.
 	(and (looking-at "\\(;*[ \t]*\\)?(def[[:alnum:]]*[[:space:]]")
 	     ;; Ignore alias definitions since those typically have symbol tags to lookup.
-	     (not (looking-at "\\(;*[ \t]*\\)?(def[^ \t\n\r]*alias"))))))
+	     (not (looking-at "\\(;*[ \t]*\\)?(def[^ \t\n\r]*alias"))
+	     ;; Ignore lines that start with (default
+	     (not (looking-at "\\(;*[ \t]*\\)?(default"))))))
 
 (defun smart-lisp-at-load-expression-p ()
     "Returns t when point is on the first line of a Lisp library load expression, else nil."

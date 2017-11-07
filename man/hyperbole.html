@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 6.0.2g, Published November 1, 2017).
+(Edition 6.0.2g, Published November 6, 2017).
 
 Copyright (C) 1989-2017  Free Software Foundation, Inc.
 
@@ -233,13 +233,14 @@ ul.no-bullet {list-style: none}
   <li><a name="toc-Invocation-1" href="#Invocation">B.2 Invocation</a></li>
   <li><a name="toc-Customization-1" href="#Customization">B.3 Customization</a>
   <ul class="no-bullet">
-    <li><a name="toc-Web-Search-Engines-1" href="#Web-Search-Engines">B.3.1 Web Search Engines</a></li>
-    <li><a name="toc-Using-URLs-with-Find_002dFile-1" href="#Using-URLs-with-Find_002dFile">B.3.2 Using URLs with Find-File</a></li>
-    <li><a name="toc-Internal-Viewers-1" href="#Internal-Viewers">B.3.3 Internal Viewers</a></li>
-    <li><a name="toc-External-Viewers-1" href="#External-Viewers">B.3.4 External Viewers</a></li>
-    <li><a name="toc-Invisible-Text-Searches-1" href="#Invisible-Text-Searches">B.3.5 Invisible Text Searches</a></li>
-    <li><a name="toc-Link-Variable-Substitution-1" href="#Link-Variable-Substitution">B.3.6 Link Variable Substitution</a></li>
-    <li><a name="toc-Configuring-Button-Colors" href="#Button-Colors">B.3.7 Configuring Button Colors</a></li>
+    <li><a name="toc-Referent-Display-1" href="#Referent-Display">B.3.1 Referent Display</a></li>
+    <li><a name="toc-Internal-Viewers-1" href="#Internal-Viewers">B.3.2 Internal Viewers</a></li>
+    <li><a name="toc-External-Viewers-1" href="#External-Viewers">B.3.3 External Viewers</a></li>
+    <li><a name="toc-Link-Variable-Substitution-1" href="#Link-Variable-Substitution">B.3.4 Link Variable Substitution</a></li>
+    <li><a name="toc-Web-Search-Engines-1" href="#Web-Search-Engines">B.3.5 Web Search Engines</a></li>
+    <li><a name="toc-Using-URLs-with-Find_002dFile-1" href="#Using-URLs-with-Find_002dFile">B.3.6 Using URLs with Find-File</a></li>
+    <li><a name="toc-Invisible-Text-Searches-1" href="#Invisible-Text-Searches">B.3.7 Invisible Text Searches</a></li>
+    <li><a name="toc-Configuring-Button-Colors" href="#Button-Colors">B.3.8 Configuring Button Colors</a></li>
   </ul></li>
 </ul></li>
 <li><a name="toc-Global-Key-Bindings-1" href="#Global-Key-Bindings">Appendix C Global Key Bindings</a></li>
@@ -338,7 +339,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
 Edition 6.0.2g
-Printed November 1, 2017.
+Printed November 6, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -641,17 +642,19 @@ Setup
 
 Customization
 
-</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Web-Search-Engines">Web Search Engines</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
-</td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</pre></th></tr><tr><td align="left" valign="top">&bull; <a href="#Referent-Display">Referent Display</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Internal-Viewers">Internal Viewers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#External-Viewers">External Viewers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Invisible-Text-Searches">Invisible Text Searches</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
-</td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Link-Variable-Substitution">Link Variable Substitution</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Web-Search-Engines">Web Search Engines</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Invisible-Text-Searches">Invisible Text Searches</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 <tr><td align="left" valign="top">&bull; <a href="#Button-Colors">Button Colors</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
@@ -951,14 +954,14 @@ for that bug number.  See <a href="#Buttons">Buttons</a>.
 </p>
 <p>Buttons are accessed by clicking on them or referenced by name (global
 buttons), so they can be activated regardless of what is on screen.
-Users can make simple changes to button types.  Emacs Lisp programmers
-can develop new types and button actions quickly.
+Users create and activate Hyperbole buttons; Emacs Lisp programmers
+easily can develop new button types and actions.
 </p>
-<p>Hyperbole includes two special <em>Smart Keys</em>, the Action Key and the
-Assist Key, that perform an extensive array of context-sensitive
+<p>Hyperbole includes two special <em>Smart Keys</em>, the Action Key and
+the Assist Key, that perform an extensive array of context-sensitive
 operations across emacs usage, including activating and showing help
-for Hyperbole buttons.  In many popular Emacs modes, they allow you
-to perform common, sometimes complex operations without having to a
+for Hyperbole buttons.  In many popular Emacs modes, they allow you to
+perform common, sometimes complex operations without having to use a
 different key for each operation.  Just press a Smart Key and the
 right thing happens.  See <a href="#Smart-Keys">Smart Keys</a>;
 </p>
@@ -2234,23 +2237,31 @@ order of priority).
 <a name="index-completion-1"></a>
 </dd>
 <dt><code>completion</code></dt>
-<dd><p>Inserts the completion at point into the minibuffer or the other window.
+<dd><p>Inserts the completion at point (from a completions buffer) into the
+minibuffer or the other window.
 </p>
 <a name="index-ibtypes-hyp_002dsource"></a>
 <a name="index-Hyperbole-report"></a>
 </dd>
 <dt><code>hyp-source</code></dt>
-<dd><p>Turns source location entries in Hyperbole reports into buttons that
-jump to the associated location.
+<dd><p>Turns source location entries following an &lsquo;@loc&gt;&rsquo; line in Hyperbole
+reports into buttons that jump to the associated location.  For
+example, <kbd>{C-h h d d C-h h e h o}</kbd> summarizes the properties of the
+explicit buttons in the <samp>DEMO</samp> file and each button in that report
+buffer behaves the same as the corresponding button in the original
+<samp>DEMO</samp> file.
 </p>
 <a name="index-ibtypes-hyp_002daddress"></a>
 <a name="index-Hyperbole-mail-list"></a>
 </dd>
 <dt><code>hyp-address</code></dt>
-<dd><p>Turns a Hyperbole support/discussion e-mail address into an implicit
-button which inserts Hyperbole environment information.  This is
-useful when sending mail to a Hyperbole discussion mail list.  See
-also the documentation for <code>actypes::hyp-config</code>.
+<dd><p>Within a mail or Usenet news composer window, makes a Hyperbole
+support/discussion e-mail address insert Hyperbole environment and
+version information.  This is useful when sending mail to a Hyperbole
+discussion mail list.  See also the documentation
+for <code>actypes::hyp-config</code>.  For example, an Action Mouse Key
+click on &lt;hyperbole-users@gnu.org&gt; in a mail composer window would
+activate this implicit button type.
 </p>
 <a name="index-ibtypes-Info_002dnode"></a>
 <a name="index-Info-node"></a>
@@ -2258,7 +2269,8 @@ also the documentation for <code>actypes::hyp-config</code>.
 <dt><code>Info-node</code></dt>
 <dd><p>Makes a &quot;(filename)nodename&quot; button display the associated Info node.
 Also makes a &quot;(filename)itemname&quot; button display the associated Info
-index item.
+index item.  Examples are &quot;(hyperbole)Implicit Buttons&quot; and
+&ldquo;(hyperbole)C-c /&rdquo;.
 </p>
 <a name="index-ibtypes-www_002durl"></a>
 <a name="index-URL"></a>
@@ -2281,7 +2293,7 @@ like www.gnu.org, are also recognized.
 </dd>
 <dt><code>gnus-push-button</code></dt>
 <dd><p>Activates GNUS-specific article push-buttons, e.g. for hiding
-signatures.  GNUS is a news and mail reader.&quot;
+signatures.  GNUS is a news and mail reader.
 </p>
 <a name="index-ibtypes-texinfo_002dref"></a>
 <a name="index-Texinfo-cross_002dreference"></a>
@@ -2322,9 +2334,9 @@ program.  Patch applies diffs to source code.
 <a name="index-compiler-error"></a>
 </dd>
 <dt><code>elisp-compiler-msg</code></dt>
-<dd><p>Jumps to the source code for a definition associated with a
-byte-compiler error message.  Works when activated anywhere within an
-error line.
+<dd><p>Jumps to the source code for a definition associated with an Emacs
+Lisp byte-compiler error message.  Works when activated anywhere
+within an error line.
 </p>
 <a name="index-ibtypes-debugger_002dsource"></a>
 <a name="index-gdb"></a>
@@ -2384,11 +2396,18 @@ retrievals.
 <a name="index-key-sequence"></a>
 </dd>
 <dt><code>kbd-key</code></dt>
-<dd><p>Executes the command binding or the Hyperbole minibuffer menu action
-for a key sequence delimited by curly braces.  Key sequences should
-be in human readable form, e.g. <kbd>{C-x C-b}</kbd>.  Formats such
+<dd><p>Executes a key sequence found around point, delimited by curly braces, {}, if any.
+Key sequences should be in human readable form, e.g. <kbd>{C-x C-b}</kbd>.  Formats such
 as {^x^b} will not be recognized.
 </p>
+<p>Any key sequence must be a string of one of the following:
+</p><ul>
+<li> a Hyperbole minibuffer menu item key sequence,
+</li><li> a HyControl key sequence,
+</li><li> a M-x extended command,
+</li><li> or a valid key sequence together with its interactive arguments.
+</li></ul>
+
 <a name="index-ibtypes-dir_002dsummary"></a>
 <a name="index-file_002c-MANIFEST"></a>
 <a name="index-file_002c-DIR"></a>
@@ -2477,6 +2496,7 @@ handled elsewhere.
 </dd>
 <dt><code>git-reference</code></dt>
 <dd><p>Displays the git entity associated with REFERENCE and optional PROJECT.
+See <samp>DEMO#Git (Local) References</samp> for examples.
 </p>
 <p>REFERENCE is a string of one of the following forms:
 </p><ul>
@@ -2521,6 +2541,7 @@ produced by git log.
 </dd>
 <dt><code>github-reference</code></dt>
 <dd><p>Displays the Github entity associated with REFERENCE and optional USER and PROJECT.
+See <samp>DEMO#Github (Remote) References</samp> for examples.
 </p>
 <p>REFERENCE is a string of one of the following forms:
 </p><ul>
@@ -2563,10 +2584,11 @@ PROJECT value is provided, it defaults to the value of
 <a name="index-hibtypes_002dsocial_002ddefault_002dservice"></a>
 </dd>
 <dt><code>social-reference</code></dt>
-<dd><p>Displays the web page associated with a social media hashtag or username
-reference at point.  Reference format is:
+<dd><p>Displays the web page associated with a social media hashtag or
+username reference at point.
 </p>
-<div class="example">
+<p>Reference format is:
+</p><div class="example">
 <pre class="example">[facebook|instagram|twitter]?[#@]&lt;hashtag-or-username&gt; or
 [fb|in|tw]?[#@]&lt;hashtag-or-username&gt;
 </pre></div>
@@ -2586,19 +2608,22 @@ twitter#hashtag.
 <dt><code>debbugs-gnu-mode</code></dt>
 <dd><p>Debbugs is a client-server issue tracker used by GNU free software
 projects, including Hyperbole, to manage issues and maintain threads
-of discussion around them.  When on a GNU Debbugs listing entry in
-<code>debbugs-gnu-mode</code>, an Action Key press displays the discussion
-of the selected issue; an Assist Key press pretty prints the status of
-the issue to a window below the listing window.
+of discussion around them.  You issues queries to a Debbugs server and
+it returns a listing entry for each matching issue.  When on a GNU
+Debbugs listing entry in <code>debbugs-gnu-mode</code>, an Action Key press
+displays the discussion of the selected issue; an Assist Key press
+pretty prints the status of the issue to a window below the listing
+window.
 </p>
 <a name="index-ibtypes-debbugs_002dgnu_002dquery"></a>
 </dd>
 <dt><code>debbugs-gnu-query</code></dt>
-<dd><p>Displays the results of a Gnu debbugs query based on the string at point and
-works in most kinds of buffers.  If the query includes a single id number, it
-displays the original message submission for that id and allows browsing of
-the followup discussion.  The following buffer text formats are accepted
-(with point prior to any attribute):
+<dd><p>Debbugs queries may be issued by activating this implicit button type.
+It displays the results of a Gnu debbugs query based on the string at
+point and works in most kinds of buffers.  If the query includes a
+single id number, it displays the original message submission for that
+id and allows browsing of the followup discussion.  The following
+buffer text formats are accepted (with point prior to any attribute):
 </p>
 <div class="smallexample">
 <pre class="smallexample">bug#id-number, bug# id-number, bug #id-number or bug id-number
@@ -2677,13 +2702,12 @@ for special file display options.
 views of the outline subtree at point.  In any other context besides
 the end of a line, the Action Key will invoke the Org mode standard
 binding of <kbd>{M-<span class="key">RET</span>}</kbd>, (org-meta-return).  The Assist Key on
-an Org mode heading, cycles through views of the whole buffer outline
+an Org mode heading cycles through views of the whole buffer outline
 and on an Org mode link, displays standard Hyperbole help.
 </p>
 <p>The variable, <code>browse-url-browser-function</code>, customizes the url
 browser that is used for urls.  Valid values of this variable
-include <code>browse-url-default-browser</code>
-and <code>browse-url-generic</code>.
+include <code>browse-url-default-browser</code> and <code>browse-url-generic</code>.
 </p>
 <a name="index-ibtypes-doc_002did"></a>
 <a name="index-online-library"></a>
@@ -3528,7 +3552,10 @@ Next: <a href="#HyControl" accesskey="n" rel="next">HyControl</a>, Previous: <a 
 <h2 class="chapter">4 Menus</h2>
 
 <a name="index-Emacs-1"></a>
+<a name="index-Hyperbole-menubar-menu"></a>
+<a name="index-Hyperbole-pulldown-menu"></a>
 <a name="index-menu-use"></a>
+<a name="index-pulldown-menu"></a>
 <a name="index-menubar_002c-Hyperbole-menu"></a>
 <a name="index-menu-item_002c-Remove_002dThis_002dMenu"></a>
 <a name="index-removing-Hyperbole-menu"></a>
@@ -3538,13 +3565,26 @@ like any other application menus and are fairly self-explanatory.  Use
 the <code>Remove-This-Menu</code> command on the Hyperbole menubar menu to
 get rid of the menu if you do not need it.  Invoking Hyperbole from
 the keyboard, as explained below, will add the menu back to the
-menubar.
+menubar.  Here is the Hyperbole Menubar Menu and its Find submenu.
 </p>
 <div class="float"><a name="image_003aHyperbole-Menu"></a>
 
 <img src="im/menu-hyperbole.png" alt="Hyperbole Menu">
-<div class="float-caption"><p><strong>Image 4.1: </strong>Hyperbole Menubar Menu</p></div></div><br>
+<div class="float-caption"><p><strong>Image 4.1: </strong>Hyperbole Menubar Menu</p></div></div>
+<div class="float"><a name="image_003aFind-Menu"></a>
 
+<img src="im/menu-find.png" alt="Find Menu">
+<div class="float-caption"><p><strong>Image 4.2: </strong>Find Menubar Menu</p></div></div><br>
+
+<a name="index-hyperbole_002dpopup_002dmenu"></a>
+<a name="index-popup-menu"></a>
+<a name="index-hyperbole-popup-menu"></a>
+<p>The Hyperbole popup menu, <code>hyperbole-popup-menu</code>, replicates the
+Hyperbole menubar menu.  It can be bound to a mouse key but is not
+bound to one by default.   It can also be assigned as the default
+Action or Assist Key action to use when no matching context is found.
+See <a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a>, for details.
+</p>
 <a name="index-minibuffer-menus"></a>
 <p>The rest of this section discusses only the
 specialized <em>minibuffer menus</em> which appear in the minibuffer
@@ -3890,6 +3930,11 @@ the prefix argument or via a prompted input.  Left digit of the argument is
 the number of grid rows and the right digit is the number of grid columns
 to display.
 </p>
+<div class="float"><a name="image_003a2x3_002dWindows_002dGrid"></a>
+
+<img src="im/wgrid-2x3.png" alt="2x3 Windows Grid">
+<div class="float-caption"><p><strong>Image 5.1: </strong>2x3 Windows Grid</p></div></div><br>
+
 <p>If the prefix argument is 0, prompt for a major mode whose buffers
 should be displayed first in the grid windows, then prompt for the grid size.
 </p>
@@ -4426,9 +4471,9 @@ Vspec        kvspec:activate            Set a view specification
 ====================================================================
 </pre></div>
 
-<p>The popup and menubar Koutline menu, as displayed on the following
-page, offers a more complete set of the Koutliner commands.  Experiment
-with the menu or read the following sections explaining commands.
+<p>The popup and menubar Koutline menu, as displayed here, offers a more
+complete set of the Koutliner commands.  Experiment with the menu or
+read the following sections explaining commands.
 </p>
 <div class="float"><a name="image_003aKoutline-Menu"></a>
 
@@ -5584,13 +5629,13 @@ Next: <a href="#HyRolo-Menu" accesskey="n" rel="next">HyRolo Menu</a>, Previous:
 <a name="index-rolo-file"></a>
 <a name="index-rolo-entry"></a>
 <p>HyRolo manages and searches rolo files.  A <em>rolo file</em> consists of
-an optional header which starts and ends with a line of equal signs
+an optional header that starts and ends with a line of equal signs
 (at least three equal signs starting at the beginning of a line),
-followed by any non-negative number of rolo records.  You must
-manually add a header to any rolo file if you want it to have one.
+followed by zero or more rolo records.  You must manually add a header
+to any rolo file if you want it to have one.
 </p>
 <p>Here is an example of a simple rolo file.  The date at the end is
-automatically added by the rolo system whenever a new record is added.
+automatically added by HyRolo whenever a new record is added.
 </p>
 <div class="example">
 <pre class="example">==================================================================
@@ -5610,11 +5655,11 @@ character than do their parents.  Top-level entries begin with a single
 </p>
 <p>Beyond this initial delimiter, entries are completely free-form text.
 It is best to use a &quot;lastname, firstname&quot; format, however, when adding
-contact entries into a rolo.  Then the rolo system will automatically
-keep your entries alphabetized as you enter them.  You&rsquo;ll also be able
-to resort the entries if you ever need.  This ordering is what the
-rolo will use if you accept the default entry with which it prompts
-you when adding a new entry.
+contact entries into a rolo.  Then HyRolo will automatically keep your
+entries alphabetized as you enter them.  Then you can sort the entries
+if you ever need.  This ordering is what the rolo will use if you
+accept the default entry with which it prompts you when adding a new
+entry.
 </p>
 <p>Any search done on the rolo scans the full text of each entry.  During
 a search, the rolo file header separator lines and anything in between
@@ -5969,17 +6014,47 @@ it whenever the HyRolo system is loaded.
 <a name="index-Big-Brother-DataBase"></a>
 <p>If you use the Big Brother DataBase (BBDB) Emacs package to capture
 email addresses and store contact information, the rolo automatically
-works with it.  If BBDB is loaded before the rolo, then your
+works with it.  If the BBDB package is loaded before HyRolo, then your
 <code>bbdb-file</code> of contacts is added as the second entry in
 <code>hyrolo-file-list</code> and will be searched automatically for any matches by
 the rolo find commands.  Presently there is no support for editing
 BBDB entries, just finding them.
 </p>
-<p>For finding matches in the BBDB file only, there are the commands
+<p>For finding matches within only BBDB, there are the commands
 <code>hyrolo-bbdb-fgrep</code> (string finding) and <code>hyrolo-bbdb-grep</code>
 (regular expression finding).  They may be bound to keys if desired.
 </p>
-<p>Below are the rest of the settings available with the rolo:
+<a name="index-Google-Contacts"></a>
+<a name="index-Gmail-Contacts"></a>
+<p>If you use Google/Gmail Contacts, you can configure the HyRolo to
+query your Google Contacts for matches.  First you must download and
+install the external <samp>google-contacts</samp> package using the Emacs
+Package Manager.  Then you must install the non-Emacs GNU Privacy
+Guard (GPG) package from <a href="https://gnupg.org">https://gnupg.org</a> so that
+the <samp>gpg</samp> or <samp>gpg2</samp> executable is in your command-line
+search path.  Once these are in place, either restart Emacs or
+use <kbd>{M-x hyrolo-initialize-file-list <span class="key">RET</span>}</kbd> to add Google
+Contacts to your searches.
+</p>
+<p>When you next do a search, you will be prompted for your Google
+Contacts password and may also have to enter an authorization code
+that will be displayed on your screen.  After authorization, you may
+at times be re-prompted for your password.
+</p>
+<a name="index-hyrolo_002dgoogle_002dcontacts_002dfgrep"></a>
+<a name="index-hyrolo_002dgoogle_002dcontacts_002dgrep"></a>
+<p>For finding matches within only Google Contacts, there are the commands
+<code>hyrolo-google-contacts-fgrep</code> (string finding) and
+<code>hyrolo-google-contacts-grep</code> (regular expression finding).  They
+may be bound to keys if desired.
+</p>
+<a name="index-hyrolo_002dgoogle_002dcontacts_002dflag"></a>
+<p>Because Google can require frequent reauthorization to search your
+contacts, there is a flag, <code>hyrolo-google-contacts-flag</code>, which
+when set to &lsquo;<samp>nil</samp>&rsquo; disables searching of your Google Contacts.
+</p>
+
+<p>Below are the rest of the settings available with HyRolo:
 </p>
 <dl compact="compact">
 <dd>
@@ -6223,6 +6298,25 @@ appended.  Hyperbole includes the following hook variables:
 any personal Hyperbole type definitions or key bindings you might have.
 It is run after Hyperbole support code is loaded but before Hyperbole is
 initialized, i.e. prior to keyboard and mouse bindings.
+</p>
+</dd>
+<dt><code>action-key-depress-hook</code>
+<a name="index-action_002dkey_002ddepress_002dhook"></a>
+</dt>
+<dt><code>assist-key-depress-hook</code>
+<a name="index-assist_002dkey_002ddepress_002dhook"></a>
+</dt>
+<dd><p>Run after an Action or Assist Mouse Key depress is detected.
+</p>
+</dd>
+<dt><code>action-key-release-hook</code>
+<a name="index-action_002dkey_002drelease_002dhook"></a>
+</dt>
+<dt><code>assist-key-release-hook</code>
+<a name="index-assist_002dkey_002drelease_002dhook"></a>
+</dt>
+<dd><p>Run after an Action or Assist Mouse Key release is detected, before
+any associated action is executed.
 </p>
 <a name="index-hbut_003acurrent"></a>
 </dd>
@@ -7473,10 +7567,9 @@ However, if you like to customize your environment extensively, there
 are many additional Hyperbole customization options that may be 
 changed with the Emacs customization interface,
 see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Easy-Customization">Easy Customization Interface</a> in <cite>the GNU
-Emacs Manual</cite>.
-When you save any changes within this interface, the changes are saved
-permanently to your personal Emacs initialization file and are available
-in future Emacs sessions.
+Emacs Manual</cite>.  When you save any changes within this interface, the
+changes are saved permanently to your personal Emacs initialization
+file and are available in future Emacs sessions.
 </p>
 <a name="index-customize_002dbrowse"></a>
 <a name="index-menu-item_002c-Cust_002fAll_002dOptions"></a>
@@ -7499,114 +7592,98 @@ and press <tt class="key">RET</tt> to edit it.
 be of interest to users.
 </p>
 <table class="menu" border="0" cellspacing="0">
-<tr><td align="left" valign="top">&bull; <a href="#Web-Search-Engines" accesskey="1">Web Search Engines</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Referent-Display" accesskey="1">Referent Display</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Using-URLs-with-Find_002dFile" accesskey="2">Using URLs with Find-File</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Internal-Viewers" accesskey="2">Internal Viewers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Internal-Viewers" accesskey="3">Internal Viewers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#External-Viewers" accesskey="3">External Viewers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#External-Viewers" accesskey="4">External Viewers</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Link-Variable-Substitution" accesskey="4">Link Variable Substitution</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Invisible-Text-Searches" accesskey="5">Invisible Text Searches</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Web-Search-Engines" accesskey="5">Web Search Engines</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Link-Variable-Substitution" accesskey="6">Link Variable Substitution</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Using-URLs-with-Find_002dFile" accesskey="6">Using URLs with Find-File</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
-<tr><td align="left" valign="top">&bull; <a href="#Button-Colors" accesskey="7">Button Colors</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+<tr><td align="left" valign="top">&bull; <a href="#Invisible-Text-Searches" accesskey="7">Invisible Text Searches</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
+</td></tr>
+<tr><td align="left" valign="top">&bull; <a href="#Button-Colors" accesskey="8">Button Colors</a>:</td><td>&nbsp;&nbsp;</td><td align="left" valign="top">
 </td></tr>
 </table>
 
 <hr>
-<a name="Web-Search-Engines"></a>
+<a name="Referent-Display"></a>
 <div class="header">
 <p>
-Next: <a href="#Using-URLs-with-Find_002dFile" accesskey="n" rel="next">Using URLs with Find-File</a>, Previous: <a href="#Customization" accesskey="p" rel="prev">Customization</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Internal-Viewers" accesskey="n" rel="next">Internal Viewers</a>, Previous: <a href="#Customization" accesskey="p" rel="prev">Customization</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<a name="Web-Search-Engines-1"></a>
-<h4 class="subsection">B.3.1 Web Search Engines</h4>
+<a name="Referent-Display-1"></a>
+<h4 class="subsection">B.3.1 Referent Display</h4>
+<a name="index-hpath_003adisplay_002dwhere"></a>
+<a name="index-referent-display"></a>
+<a name="index-link-display"></a>
+<a name="index-display-where"></a>
+<a name="index-where-to-display"></a>
+<p>Hyperbole lets you control where link referents are displayed and even
+what Emacs function or external program is used to display them.
+There are three categories of referents, each with its own display
+setting:
+</p><div class="example">
+<pre class="example">Referent Category             Variable Setting
+========================================================================
+Internal Standard Display     hpath:display-where
+Internal Custom Display       hpath:internal-display-alist
+External Display              hpath:external-display-alist
 
-<a name="index-menu_002c-Find_002fWeb-1"></a>
-<a name="index-menu_002c-Web-1"></a>
-<a name="index-menu_002c-Cust_002fWeb_002dSearch"></a>
-<a name="index-C_002dh-h-c-w"></a>
-<a name="index-C_002dh-h-f-w"></a>
-<a name="index-hyperbole_002dweb_002dsearch_002dalist"></a>
-<a name="index-search-engines-menu"></a>
-<a name="index-web-search-menu"></a>
-<a name="index-customizing-web-search-menu"></a>
-<p>The Find/Web menu offers quick access to major web search engines.  It
-is typically bound to <kbd>{C-c /}</kbd> or if not, then <kbd>{C-h h f w}</kbd> is
-always available.  Your standard web browser will be used to return
-the search results.  You can change which browser is used
-with <kbd>{C-h h c w}</kbd>, the Cust/Web-Search menu. Advanced users can
-change the search engines listed in the Find/Web menu with <kbd>{M-x
-customize-variable <span class="key">RET</span> hyperbole-web-search-alist <span class="key">RET</span>}</kbd>.
-Changes are automatically reflected in the Hyperbole menus once applied.
-Remember each search engine name must begin with a unique letter and
-each URL must have a %s format field indicating where to place the web
-search term when a search is performed.
-</p>
-<p>Advanced users can
-change the search engines listed by editing the option,
-<code>hyperbole-web-search-alist</code>, with <kbd>{M-x customize-variable
-<span class="key">RET</span> hyperbole-web-search-alist <span class="key">RET</span>}</kbd>.  Remember each search engine name
-must begin with a unique letter and each URL must have a %s format
-field indicating where to place the web search term when a search is
-performed.
-</p>
-<hr>
-<a name="Using-URLs-with-Find_002dFile"></a>
-<div class="header">
-<p>
-Next: <a href="#Internal-Viewers" accesskey="n" rel="next">Internal Viewers</a>, Previous: <a href="#Web-Search-Engines" accesskey="p" rel="prev">Web Search Engines</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
-</div>
-<a name="Using-URLs-with-Find_002dFile-1"></a>
-<h4 class="subsection">B.3.2 Using URLs with Find-File</h4>
+</pre></div>
 
-<a name="index-find_002dfile"></a>
-<a name="index-find_002dfile_002c-browsing-URLs"></a>
-<a name="index-browsing-URLs"></a>
-<a name="index-URLs_002c-using-with-find_002dfile"></a>
-<a name="index-web-pages_002c-displaying"></a>
-<a name="index-remote-pathnames"></a>
-<p>Hyperbole always recognizes URLs within buffers when the Action Key is
-pressed on them.  But sometimes it is useful to enter a URL at a prompt
-and have it displayed.  Hyperbole can recognize ftp and www URLs given to
-the <code>find-file</code> command (or any other <code>find-file-*</code> commands).
-But because there is added overhead with this feature, it is not enabled by
-default.
+<a name="index-menu_002c-Cust_002fReferents"></a>
+<a name="index-C_002dh-h-c-r"></a>
+<p>Regular file links are displayed in an Emacs window specified by the
+<code>hpath:display-where</code> setting which may be changed with the Cust/Referents
+<kbd>{C-h h c r}</kbd> menu.
 </p>
-<a name="index-menu-item_002c-Find_002dFile_002dURLs"></a>
-<a name="index-menu-item_002c-Find_002dFile_002dAccepts_002dURLs"></a>
-<p>To enable the feature, use the Hyperbole menu item Cust/Find-File-URLs
-(or Find-File-Accepts-URLs on the Hyperbole/Customize pulldown
-menu).  Either of these toggles acceptance of URLs.  When enabled the
-string, URLs, appears in the parenthesized minor-mode section of the
-modeline.
+<p>Available options are:
 </p>
-<a name="index-hpath_003afind_002dfile_002durls_002dmode"></a>
-<a name="index-enabling-URLs-in-find_002dfile"></a>
-<a name="index-browsing-URLs-in-find_002dfile"></a>
-<p>To enable this feature each time you start the editor, add the following to
-your personal initialization file: <code>(hpath:find-file-urls-mode 1)</code>.
+<dl compact="compact">
+<dt><em>&bull; Any-Frame</em></dt>
+<dd><p>Display in the selected window of another existing frame
+</p></dd>
+<dt><em>&bull; Current-Win</em></dt>
+<dd><p>Display in the selected (current) window
+</p></dd>
+<dt><em>&bull; Diff-Frame-One-Win</em></dt>
+<dd><p>Display in the selected window of another existing frame, deleting its other windows
+</p></dd>
+<dt><em>&bull; New-Frame</em></dt>
+<dd><p>Display in a new single window frame
+</p></dd>
+<dt><em>&bull; Other-Win</em></dt>
+<dd><p>Display in another, possibly new window of the selected frame (this is
+the default)
+</p></dd>
+<dt><em>&bull; Single-Win</em></dt>
+<dd><p>Display in  a window of the selected frame and delete its other windows
+</p></dd>
+</dl>
+
+<p>Alternatively, you can use the Hyperbole menubar menu as shown here:
 </p>
-<a name="index-abbreviated-URLs"></a>
-<a name="index-URLs_002c-abbreviated"></a>
-<a name="index-Tramp-1"></a>
-<p>Both full URLs and abbreviated ones, like <samp>www.gnu.org</samp>, are
-recognized.  File name completion does not work with URLs thus you
-have to type or paste in the entire URL.  This feature will work only
-if you have the builtin Tramp Emacs Lisp package; if you don&rsquo;t have
-Tramp, an error message will be displayed when you try to enable
-find-file URLs.
+<div class="float"><a name="image_003aMenu_002dDisplay_002dReferents"></a>
+
+<img src="im/menu-display-referents.png" alt="Display Referents Menu">
+<div class="float-caption"><p><strong>Image B.2: </strong>Display Referents Menu</p></div></div><br>
+
+<p>Continue reading the next sections for information on custom Internal
+and External Viewers for link referencts.
 </p>
 <hr>
 <a name="Internal-Viewers"></a>
 <div class="header">
 <p>
-Next: <a href="#External-Viewers" accesskey="n" rel="next">External Viewers</a>, Previous: <a href="#Using-URLs-with-Find_002dFile" accesskey="p" rel="prev">Using URLs with Find-File</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#External-Viewers" accesskey="n" rel="next">External Viewers</a>, Previous: <a href="#Referent-Display" accesskey="p" rel="prev">Referent Display</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Internal-Viewers-1"></a>
-<h4 class="subsection">B.3.3 Internal Viewers</h4>
+<h4 class="subsection">B.3.2 Internal Viewers</h4>
 <a name="index-hpath_003ainternal_002ddisplay_002dalist"></a>
 <a name="index-file-display-function"></a>
 <a name="index-display-function"></a>
@@ -7647,10 +7724,10 @@ external, window-system specific viewers.
 <a name="External-Viewers"></a>
 <div class="header">
 <p>
-Next: <a href="#Invisible-Text-Searches" accesskey="n" rel="next">Invisible Text Searches</a>, Previous: <a href="#Internal-Viewers" accesskey="p" rel="prev">Internal Viewers</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Link-Variable-Substitution" accesskey="n" rel="next">Link Variable Substitution</a>, Previous: <a href="#Internal-Viewers" accesskey="p" rel="prev">Internal Viewers</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="External-Viewers-1"></a>
-<h4 class="subsection">B.3.4 External Viewers</h4>
+<h4 class="subsection">B.3.3 External Viewers</h4>
 <a name="index-hpath_003aget_002dexternal_002ddisplay_002dalist"></a>
 <a name="index-hpath_003aexternal_002ddisplay_002dalist_002dmacos"></a>
 <a name="index-hpath_003aexternal_002ddisplay_002dalist_002dmswindows"></a>
@@ -7692,36 +7769,13 @@ set of external viewer associations when none are found
 within <code>hpath:get-external-display-alist</code>.
 </p>
 <hr>
-<a name="Invisible-Text-Searches"></a>
-<div class="header">
-<p>
-Next: <a href="#Link-Variable-Substitution" accesskey="n" rel="next">Link Variable Substitution</a>, Previous: <a href="#External-Viewers" accesskey="p" rel="prev">External Viewers</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
-</div>
-<a name="Invisible-Text-Searches-1"></a>
-<h4 class="subsection">B.3.5 Invisible Text Searches</h4>
-
-<a name="index-menu-item_002c-Isearch_002dInvisible"></a>
-<a name="index-menu-item_002c-Toggle_002dIsearch_002dInvisible"></a>
-<a name="index-isearch"></a>
-<a name="index-search-1"></a>
-<p>This is largely for outline modes such as the Koutliner.  By default,
-character-by-character interactive search on <kbd>{C-s}</kbd> will search
-through invisible/hidden text, making the text temporarily visible
-until point moves past that hidden part.  When a search match is
-selected, the surrounding text remains visible.
-</p>
-<p>This command toggles that setting (turns it off if a prefix
-argument less than or equal to 0 is given) and makes searches look at
-only visible text.
-</p>
-<hr>
 <a name="Link-Variable-Substitution"></a>
 <div class="header">
 <p>
-Next: <a href="#Button-Colors" accesskey="n" rel="next">Button Colors</a>, Previous: <a href="#Invisible-Text-Searches" accesskey="p" rel="prev">Invisible Text Searches</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Web-Search-Engines" accesskey="n" rel="next">Web Search Engines</a>, Previous: <a href="#External-Viewers" accesskey="p" rel="prev">External Viewers</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Link-Variable-Substitution-1"></a>
-<h4 class="subsection">B.3.6 Link Variable Substitution</h4>
+<h4 class="subsection">B.3.4 Link Variable Substitution</h4>
 <a name="index-hpath_003avariables"></a>
 <a name="index-environment-variables"></a>
 <a name="index-Emacs-Lisp-variables"></a>
@@ -7746,16 +7800,138 @@ you in deciding whether or not to modify the value of
 <code>hpath:variables</code>.
 </p>
 <hr>
+<a name="Web-Search-Engines"></a>
+<div class="header">
+<p>
+Next: <a href="#Using-URLs-with-Find_002dFile" accesskey="n" rel="next">Using URLs with Find-File</a>, Previous: <a href="#Link-Variable-Substitution" accesskey="p" rel="prev">Link Variable Substitution</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Web-Search-Engines-1"></a>
+<h4 class="subsection">B.3.5 Web Search Engines</h4>
+
+<a name="index-menu_002c-Find_002fWeb-1"></a>
+<a name="index-menu_002c-Web-1"></a>
+<a name="index-menu_002c-Cust_002fWeb_002dSearch"></a>
+<a name="index-C_002dh-h-c-w"></a>
+<a name="index-C_002dh-h-f-w"></a>
+<a name="index-hyperbole_002dweb_002dsearch_002dalist"></a>
+<a name="index-search-engines-menu"></a>
+<a name="index-web-search-menu"></a>
+<a name="index-customizing-web-search-menu"></a>
+<p>The Find/Web menu offers quick access to major web search engines.  It
+is typically bound to <kbd>{C-c /}</kbd> or if not, then <kbd>{C-h h f w}</kbd> is
+always available.  Your standard web browser will be used to return
+the search results.
+</p>
+<p>Advanced users can change the search engines listed in the Find/Web
+menu with <kbd>{M-x customize-variable <span class="key">RET</span>
+hyperbole-web-search-alist <span class="key">RET</span>}</kbd>.  Changes are automatically
+reflected in the Hyperbole menus once applied.  Remember each search
+engine name must begin with a unique letter and each URL must have a
+%s format field indicating where to place the web search term when a
+search is performed.
+</p>
+<p>You can change which browser is used with <kbd>{C-h h c w}</kbd>, the
+Cust/Web-Search menu.  Below is the equivalent Hyperbole menubar menu.
+</p>
+<div class="float"><a name="image_003aWeb_002dSearch_002dBrowser_002dMenu"></a>
+
+<img src="im/menu-web-search-browser.png" alt="Web Search Browser Menu">
+<div class="float-caption"><p><strong>Image B.3: </strong>Web Search Browser Menu</p></div></div><br>
+
+<hr>
+<a name="Using-URLs-with-Find_002dFile"></a>
+<div class="header">
+<p>
+Next: <a href="#Invisible-Text-Searches" accesskey="n" rel="next">Invisible Text Searches</a>, Previous: <a href="#Web-Search-Engines" accesskey="p" rel="prev">Web Search Engines</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Using-URLs-with-Find_002dFile-1"></a>
+<h4 class="subsection">B.3.6 Using URLs with Find-File</h4>
+
+<a name="index-find_002dfile"></a>
+<a name="index-find_002dfile_002c-browsing-URLs"></a>
+<a name="index-browsing-URLs"></a>
+<a name="index-URLs_002c-using-with-find_002dfile"></a>
+<a name="index-web-pages_002c-displaying"></a>
+<a name="index-remote-pathnames"></a>
+<p>Hyperbole always recognizes URLs within buffers when the Action Key is
+pressed on them.  But sometimes it is useful to enter a URL at a prompt
+and have it displayed.  Hyperbole can recognize ftp and www URLs given to
+the <code>find-file</code> command (or any other <code>find-file-*</code> commands).
+But because there is added overhead with this feature, it is not enabled by
+default.
+</p>
+<a name="index-menu-item_002c-Find_002dFile_002dURLs"></a>
+<a name="index-menu-item_002c-Find_002dFile_002dAccepts_002dURLs"></a>
+<p>To enable the feature, use the Hyperbole menu item Cust/Find-File-URLs
+(or Find-File-Accepts-URLs on the Hyperbole/Customize pulldown
+menu).  Either of these toggles acceptance of URLs.  When enabled the
+string, URLs, appears in the parenthesized minor-mode section of the
+modeline.
+</p>
+<a name="index-hpath_003afind_002dfile_002durls_002dmode"></a>
+<a name="index-enabling-URLs-in-find_002dfile"></a>
+<a name="index-browsing-URLs-in-find_002dfile"></a>
+<p>To enable this feature each time you start the editor, add the
+following to your personal initialization file after initializing
+Hyperbole: <code>(hpath:find-file-urls-mode 1)</code>.
+</p>
+<a name="index-abbreviated-URLs"></a>
+<a name="index-URLs_002c-abbreviated"></a>
+<a name="index-Tramp-1"></a>
+<p>Both full URLs and abbreviated ones, like <samp>www.gnu.org</samp>, are
+recognized.  File name completion does not work with URLs; you
+have to type or paste in the entire URL.  This feature will work only
+if you have the builtin Tramp Emacs Lisp package; if you don&rsquo;t have
+Tramp, an error message will be displayed when you try to enable
+find-file URLs.
+</p>
+<a name="index-C_002dh-h-c-u"></a>
+<a name="index-menu_002c-Cust_002fURL_002dDisplay"></a>
+<p>The web browser used to display URLs may be set with the minibuffer
+menu Cust/URL-Display <kbd>{C-h h c u}</kbd> or with this Hyperbole menubar
+menu.
+</p>
+<div class="float"><a name="image_003aURL_002dBrowser_002dMenu"></a>
+
+<img src="im/menu-url-browser.png" alt="URL Browser Menu">
+<div class="float-caption"><p><strong>Image B.4: </strong>URL Browser Menu</p></div></div><br>
+
+<hr>
+<a name="Invisible-Text-Searches"></a>
+<div class="header">
+<p>
+Next: <a href="#Button-Colors" accesskey="n" rel="next">Button Colors</a>, Previous: <a href="#Using-URLs-with-Find_002dFile" accesskey="p" rel="prev">Using URLs with Find-File</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<a name="Invisible-Text-Searches-1"></a>
+<h4 class="subsection">B.3.7 Invisible Text Searches</h4>
+
+<a name="index-menu-item_002c-Isearch_002dInvisible"></a>
+<a name="index-menu-item_002c-Toggle_002dIsearch_002dInvisible"></a>
+<a name="index-isearch"></a>
+<a name="index-search-1"></a>
+<p>This is largely for outline modes such as the Koutliner.  By default,
+character-by-character interactive search on <kbd>{C-s}</kbd> will search
+through invisible/hidden text, making the text temporarily visible
+until point moves past that hidden part.  When a search match is
+selected, the surrounding text remains visible.
+</p>
+<p>This command toggles that setting (turns it off if a prefix
+argument less than or equal to 0 is given) and makes searches look at
+only visible text.
+</p>
+<hr>
 <a name="Button-Colors"></a>
 <div class="header">
 <p>
-Previous: <a href="#Link-Variable-Substitution" accesskey="p" rel="prev">Link Variable Substitution</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
+Previous: <a href="#Invisible-Text-Searches" accesskey="p" rel="prev">Invisible Text Searches</a>, Up: <a href="#Customization" accesskey="u" rel="up">Customization</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Key-Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <a name="Configuring-Button-Colors"></a>
-<h4 class="subsection">B.3.7 Configuring Button Colors</h4>
+<h4 class="subsection">B.3.8 Configuring Button Colors</h4>
 <a name="index-Emacs-support"></a>
 <a name="index-button-highlighting-1"></a>
+<a name="index-highlighting-buttons"></a>
 <a name="index-button-flashing"></a>
+<a name="index-flashing-buttons"></a>
 <a name="index-file_002c-hui_002dep_002a_002eel"></a>
 <a name="index-file_002c-hsettings_002eel"></a>
 <a name="index-hproperty_003acycle_002dbut_002dcolor"></a>
@@ -7768,12 +7944,12 @@ code which supports this behavior.  A call
 to <code>(hproperty:cycle-but-color)</code> in the <samp>hsettings.el</samp> file
 changes the color used to highlight and flash explicit buttons.
 </p>
-<a name="index-button-emphasis"></a>
-<a name="index-hproperty_003abut_002demphasize_002dp"></a>
-<p>Additionally, if <code>hproperty:but-emphasize-p</code> is set to &lsquo;<samp>t</samp>&rsquo;,
-then whenever the mouse pointer moves over an explicit button, it will
-be emphasized in a different color or style.  This emphasis is in
-addition to any non-mouse-sensitive button highlighting.
+<a name="index-hproperty_003abut_002dhighlight_002dflag"></a>
+<p>Whether or not buttons are highlighted is controlled
+by <code>hproperty:but-highlight-flag</code>, which defaults to &lsquo;<samp>t</samp>&rsquo;.
+To disable highlighting, change this setting in <samp>hsettings.el</samp> or
+use Hyperbole menu item, Cust/All-Options, and select the Hyperbole
+Buttons group to edit its options.
 </p>
 <a name="index-button-highlighting_002c-forcing"></a>
 <a name="index-hproperty_003abut_002dcreate"></a>
@@ -7781,6 +7957,13 @@ addition to any non-mouse-sensitive button highlighting.
 these buttons won&rsquo;t be highlighted.  Load Hyperbole and then use
 <kbd>{M-x hproperty:but-create <span class="key">RET</span>}</kbd> to highlight the buttons in
 the current buffer.
+</p>
+<a name="index-button-emphasis"></a>
+<a name="index-hproperty_003abut_002demphasize_002dflag"></a>
+<p>Additionally, if <code>hproperty:but-emphasize-flag</code> is set to &lsquo;<samp>t</samp>&rsquo;,
+then whenever the mouse pointer moves over an explicit button, it will
+be emphasized in a different color or style.  This emphasis is in
+addition to any non-mouse-sensitive button highlighting.
 </p>
 
 <hr>
@@ -7799,7 +7982,16 @@ how to temporarily disable these bindings and how to manage whether
 Hyperbole overrides local, mode-specific key bindings that hide
 global Hyperbole keys.
 </p>
-<p>Here are descriptions of Hyperbole&rsquo;s default keyboard key bindings:
+<p>These bindings can be viewed and edited from either the
+Cust/KeyBindings minibuffer menu or from the Hyperbole menubar menu as
+shown here:
+</p>
+<div class="float"><a name="image_003aChange_002dKey_002dBindings"></a>
+
+<img src="im/menu-key-bindings.png" alt="Change Key Bindings">
+<div class="float-caption"><p><strong>Image C.1: </strong>Global Key Bindings Menu</p></div></div><br>
+
+<p>Below are descriptions of Hyperbole&rsquo;s default keyboard key bindings:
 </p>
 <dl compact="compact">
 <dd><a name="index-key-binding_002c-M_002dRET"></a>
@@ -10185,11 +10377,17 @@ Next: <a href="#Smart-Key-_002d-HyRolo-Match-Buffers" accesskey="n" rel="next">S
 <a name="index-click_002c-world_002dwide-web"></a>
 <a name="index-W3"></a>
 <a name="index-URL-2"></a>
-<a name="index-world_002dwide-web"></a>
+<a name="index-browse_002durl_002dbrowser_002dfunction-3"></a>
+<a name="index-World_002dwide-Web-2"></a>
+<a name="index-WWW-2"></a>
+<a name="index-C_002dh-h-c-u-1"></a>
+<a name="index-menu_002c-Cust_002fURL_002dDisplay-1"></a>
 <div class="format">
 <pre class="format">If pressed on a World-Wide Web universal resource locator (URL):
   ACTION KEY
-     Displays the referent for the URL at point.
+     Displays the referent for the URL at point using the web browser
+     given by the variable, <code>browse-url-browser-function</code>.  Adjust
+     this setting with the Cust/URL-Display <kbd>{C-h h c u}</kbd> menu.
   ASSIST KEY
      Displays help for the ACTION KEY.
 </pre></div>
@@ -10334,7 +10532,7 @@ Previous: <a href="#Smart-Key-_002d-The-OO_002dBrowser" accesskey="p" rel="prev"
 <a name="index-action_002dkey_002ddefault_002dfunction-1"></a>
 <a name="index-assist_002dkey_002ddefault_002dfunction-1"></a>
 <a name="index-hyperbole-1"></a>
-<a name="index-hyperbole_002dpopup_002dmenu"></a>
+<a name="index-hyperbole_002dpopup_002dmenu-1"></a>
 <a name="index-hkey_002dsummarize"></a>
 <a name="index-Smart-Key_002c-default-context-1"></a>
 <div class="format">
@@ -10998,6 +11196,9 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-1"><code>C-h h</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-c-a"><code>C-h h c a</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customization">Customization</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-c-d"><code>C-h h c d</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Debugging">Smart Key Debugging</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dh-h-c-r"><code>C-h h c r</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Referent-Display">Referent Display</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dh-h-c-u"><code>C-h h c u</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-C_002dh-h-c-u-1"><code>C-h h c u</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-WWW-URLs">Smart Key - WWW URLs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-c-w"><code>C-h h c w</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Web-Search-Engines">Web Search Engines</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-d-d"><code>C-h h d d</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hyperbole-Overview">Hyperbole Overview</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-C_002dh-h-d-i"><code>C-h h d i</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invocation">Invocation</a></td></tr>
@@ -11358,11 +11559,13 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-action_002dkey"><code>action-key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002ddefault_002dfunction">action-key-default-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002ddefault_002dfunction-1">action-key-default-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-action_002dkey_002ddepress_002dhook">action-key-depress-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002deol_002dfunction">action-key-eol-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002dminibuffer_002dfunction">action-key-minibuffer-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002dmodeline"><code>action-key-modeline</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002dmodeline_002dfunction">action-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dkey_002dmodeline_002dfunction-1">action-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modeline-Clicks-and-Drags">Modeline Clicks and Drags</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-action_002dkey_002drelease_002dhook">action-key-release-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-action_002dmouse_002dkey"><code>action-mouse-key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-actype_003acreate"><code>actype:create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Type-Creation">Action Type Creation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-actype_003acreate-1"><code>actype:create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Type-Creation">Action Type Creation</a></td></tr>
@@ -11403,17 +11606,20 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey"><code>assist-key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002ddefault_002dfunction">assist-key-default-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002ddefault_002dfunction-1">assist-key-default-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-assist_002dkey_002ddepress_002dhook">assist-key-depress-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002deol_002dfunction">assist-key-eol-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dminibuffer_002dfunction">assist-key-minibuffer-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Minibuffer-Menu-Activation">Minibuffer Menu Activation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dmodeline"><code>assist-key-modeline</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dmodeline_002dfunction">assist-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dkey_002dmodeline_002dfunction-1">assist-key-modeline-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modeline-Clicks-and-Drags">Modeline Clicks and Drags</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-assist_002dkey_002drelease_002dhook">assist-key-release-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-assist_002dmouse_002dkey"><code>assist-mouse-key</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Function_fn_letter-B">B</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-browse_002durl_002dbrowser_002dfunction">browse-url-browser-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-browse_002durl_002dbrowser_002dfunction-1">browse-url-browser-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-browse_002durl_002dbrowser_002dfunction-2">browse-url-browser-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-browse_002durl_002dbrowser_002dfunction-3">browse-url-browser-function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-WWW-URLs">Smart Key - WWW URLs</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Function_fn_letter-C">C</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-c_002b_002b_002dcpp_002dinclude_002dpath">c++-cpp-include-path</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-C_002b_002b-Source-Code">Smart Key - C++ Source Code</a></td></tr>
@@ -11533,6 +11739,7 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dy_002ddiagonal_002dsensitivity">hmouse-y-diagonal-sensitivity</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hmouse_002dy_002ddrag_002dsensitivity">hmouse-y-drag-sensitivity</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hpath_003aat_002dp"><code>hpath:at-p</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hpath_003adisplay_002dwhere">hpath:display-where</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Referent-Display">Referent Display</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hpath_003aexternal_002ddisplay_002dalist_002dmacos">hpath:external-display-alist-macos</a>:</td><td>&nbsp;</td><td valign="top"><a href="#External-Viewers">External Viewers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hpath_003aexternal_002ddisplay_002dalist_002dmswindows">hpath:external-display-alist-mswindows</a>:</td><td>&nbsp;</td><td valign="top"><a href="#External-Viewers">External Viewers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hpath_003aexternal_002ddisplay_002dalist_002dx">hpath:external-display-alist-x</a>:</td><td>&nbsp;</td><td valign="top"><a href="#External-Viewers">External Viewers</a></td></tr>
@@ -11543,7 +11750,8 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hpath_003asuffixes">hpath:suffixes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hpath_003avariables">hpath:variables</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Link-Variable-Substitution">Link Variable Substitution</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hproperty_003abut_002dcreate"><code>hproperty:but-create</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hproperty_003abut_002demphasize_002dp">hproperty:but-emphasize-p</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hproperty_003abut_002demphasize_002dflag">hproperty:but-emphasize-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hproperty_003abut_002dhighlight_002dflag">hproperty:but-highlight-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hproperty_003acycle_002dbut_002dcolor"><code>hproperty:cycle-but-color</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-htype_002dcreate_002dhook">htype-create-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-htype_002ddelete_002dhook">htype-delete-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
@@ -11571,7 +11779,8 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hyperbole"><code>hyperbole</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invocation">Invocation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole-1"><code>hyperbole</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dinit_002dhook">hyperbole-init-hook</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-hyperbole_002dpopup_002dmenu"><code>hyperbole-popup-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyperbole_002dpopup_002dmenu"><code>hyperbole-popup-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyperbole_002dpopup_002dmenu-1"><code>hyperbole-popup-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Default-Context">Smart Key - Default Context</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dtoggle_002dbindings"><code>hyperbole-toggle-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dtoggle_002dbindings-1"><code>hyperbole-toggle-bindings</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyperbole_002dweb_002dsearch_002dalist">hyperbole-web-search-alist</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Web-Search-Engines">Web Search Engines</a></td></tr>
@@ -11589,6 +11798,9 @@ Next: <a href="#Concept-Index" accesskey="n" rel="next">Concept Index</a>, Previ
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dentry_002dregexp">hyrolo-entry-regexp</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dfgrep"><code>hyrolo-fgrep</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Menu">HyRolo Menu</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dfile_002dlist">hyrolo-file-list</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyrolo_002dgoogle_002dcontacts_002dfgrep"><code>hyrolo-google-contacts-fgrep</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyrolo_002dgoogle_002dcontacts_002dflag">hyrolo-google-contacts-flag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyrolo_002dgoogle_002dcontacts_002dgrep"><code>hyrolo-google-contacts-grep</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dgrep"><code>hyrolo-grep</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Menu">HyRolo Menu</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dhdr_002dregexp">hyrolo-hdr-regexp</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hyrolo_002dhighlight_002dface">hyrolo-highlight-face</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
@@ -12185,6 +12397,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-disable-local-key-override">disable local key override</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-display">display</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-display-function">display function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Internal-Viewers">Internal Viewers</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-display-where">display where</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Referent-Display">Referent Display</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-DisplayHere-mode">DisplayHere mode</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Dired-Mode">Smart Key - Dired Mode</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-distributed-collaboration">distributed collaboration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Koutliner-History">Koutliner History</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-document-identifier">document identifier</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -12266,6 +12479,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-filling-1">filling</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Filling">Filling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Find">Find</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-find_002dfile_002c-browsing-URLs">find-file, browsing URLs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-flashing-buttons">flashing buttons</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-frame-configuration">frame configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-frame-relocate">frame relocate</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-frame-resize">frame resize</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -12298,6 +12512,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-global-button-2">global button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Files">Button Files</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-global-button_002c-modify">global button, modify</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Questions-and-Answers">Questions and Answers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-glossary">glossary</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Gmail-Contacts">Gmail Contacts</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-GNU-Emacs">GNU Emacs</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hyperbole-Overview">Hyperbole Overview</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-GNU-Hyperbole">GNU Hyperbole</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hyperbole-Overview">Hyperbole Overview</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Gnus">Gnus</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
@@ -12305,6 +12520,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Gnus-browsing">Gnus browsing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-GNUS-Newsreader">Smart Key - GNUS Newsreader</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-GNUS-push_002dbuttons">GNUS push-buttons</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-gomoku">gomoku</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Gomoku-Game">Smart Key - Gomoku Game</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Google-Contacts">Google Contacts</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyRolo-Settings">HyRolo Settings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-grep">grep</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Grep">Grep</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-grep-files">grep files</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
@@ -12323,6 +12539,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-hide-tree">hide tree</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hiding">hiding</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hiding-signatures">hiding signatures</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-highlighting-buttons">highlighting buttons</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-history">history</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hook-variables">hook variables</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-horizontal-drag">horizontal drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
@@ -12350,6 +12567,9 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Hyperbole-mail-list">Hyperbole mail list</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Hyperbole-main-menu">Hyperbole main menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Hyperbole-manual">Hyperbole manual</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invocation">Invocation</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Hyperbole-menubar-menu">Hyperbole menubar menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-hyperbole-popup-menu">hyperbole popup menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-Hyperbole-pulldown-menu">Hyperbole pulldown menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Hyperbole-report">Hyperbole report</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Hyperbole-types">Hyperbole types</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-Types">Creating Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Hyperbole-version">Hyperbole version</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Suggestion-or-Bug-Reporting">Suggestion or Bug Reporting</a></td></tr>
@@ -12481,6 +12701,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-link">link</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Links">Links</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link-action-types">link action types</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link-button">link button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-link-display">link display</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Referent-Display">Referent Display</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link_002c-creation">link, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link_002c-creation-1">link, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Menu">By Menu</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link_002c-display-function">link, display function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Internal-Viewers">Internal Viewers</a></td></tr>
@@ -12554,6 +12775,9 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Button_002dFile">menu, Button-File</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Cust">menu, Cust</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Cust-1">menu, Cust</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customization">Customization</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-menu_002c-Cust_002fReferents">menu, Cust/Referents</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Referent-Display">Referent Display</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-menu_002c-Cust_002fURL_002dDisplay">menu, Cust/URL-Display</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-menu_002c-Cust_002fURL_002dDisplay-1">menu, Cust/URL-Display</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-WWW-URLs">Smart Key - WWW URLs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Cust_002fWeb_002dSearch">menu, Cust/Web-Search</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Web-Search-Engines">Web Search Engines</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Customize">menu, Customize</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-menu_002c-Doc">menu, Doc</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
@@ -12696,12 +12920,14 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-permanent-identifier">permanent identifier</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Koutliner">Koutliner</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-permanent-identifier-1">permanent identifier</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Idstamps">Idstamps</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-pipe-character">pipe character</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-popup-menu">popup menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-posting-buttons">posting buttons</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-posting-news">posting news</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-News">Buttons in News</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-programming-interface">programming interface</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Embedding-Hyperbole">Embedding Hyperbole</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-promotion">promotion</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-proportional-scrolling">proportional scrolling</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-proportional-scrolling-1">proportional scrolling</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-pulldown-menu">pulldown menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-Q">Q</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-quit-HyControl">quit HyControl</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
@@ -12712,6 +12938,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-rebalance-windows">rebalance windows</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Creating-and-Deleting-Windows">Creating and Deleting Windows</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-reference">reference</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-referent">referent</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-referent-display">referent display</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Referent-Display">Referent Display</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-refilling">refilling</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Filling">Filling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-region-selection">region selection</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-region_002c-active">region, active</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Drags-within-a-Window">Smart Mouse Drags within a Window</a></td></tr>
@@ -12923,6 +13150,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-web-search-link">web search link</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-web-search-menu">web search menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Web-Search-Engines">Web Search Engines</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-web-search-menu-1">web search menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-where-to-display">where to display</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Referent-Display">Referent Display</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration">window configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration-commands">window configuration commands</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-window-configuration-drag">window configuration drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Saving-and-Restoring-Window-Configurations">Saving and Restoring Window Configurations</a></td></tr>
@@ -12949,9 +13177,10 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-word-wrap">word wrap</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Filling">Filling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-World_002dwide-Web">World-wide Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-World_002dwide-Web-1">World-wide Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-world_002dwide-web">world-wide web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-WWW-URLs">Smart Key - WWW URLs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-World_002dwide-Web-2">World-wide Web</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-WWW-URLs">Smart Key - WWW URLs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-WWW">WWW</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-WWW-1">WWW</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-WWW-2">WWW</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-WWW-URLs">Smart Key - WWW URLs</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-X">X</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-xdb">xdb</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>

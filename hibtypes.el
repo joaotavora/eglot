@@ -148,13 +148,15 @@ See `hpath:find' function documentation for special file display options."
 	;;
 	;; Match to Emacs Lisp and Info files without any directory component.
 	(if (setq path (hpath:delimited-possible-path))
-	    (cond ((string-match "\\`[^\\\\/~]+\\.elc?\\'" path)
+	    (cond ((string-match "\\`[^\\\\/~]+\\.elc?\\(\\.gz\\)?\\'" path)
 		   (ibut:label-set path)
-		   (setq full-path (locate-library path))
-		   (if full-path
-		       (hact 'link-to-file full-path)
-		     (hact 'error "(pathname): \"%s\" not found in `load-path'"
-			   path)))
+		   (if (string-match hpath:prefix-regexp path)
+		       (hact 'hpath:find path)
+		     (setq full-path (locate-library path))
+		     (if full-path
+			 (hact 'link-to-file full-path)
+		       (hact 'error "(pathname): \"%s\" not found in `load-path'"
+			     path))))
 		  ;; Match only if "(filename)" references a valid Info file
 		  ;; and point is within the filename, not on any delimiters
 		  ;; so that delimited thing matches trigger later.
@@ -210,7 +212,7 @@ This triggers only when the \"func-menu.el\" library has been loaded and the
 current major mode is one handled by func-menu."
   (if (and (boundp 'fume-function-name-regexp-alist)
 	   (assq major-mode fume-function-name-regexp-alist)
-	   (not (eq major-mode 'dired-mode))
+	   (not (derived-mode-p 'dired-mode))
 	   ;; Not sure if this is defined in early versions of Emacs.
 	   (fboundp 'skip-syntax-backward)
 	   ;; Prevent triggering when on method, class or function definition
@@ -750,7 +752,7 @@ This works with JavaScript and Python tracebacks, gdb, dbx, and xdb.  Such lines
 ;;; ========================================================================
 
 (defib elisp-compiler-msg ()
-  "Jumps to source code for definition associated with byte-compiler error message.
+  "Jumps to source code for definition associated with an Emacs Lisp byte-compiler error message.
 Works when activated anywhere within an error line."
   (if (or (member (buffer-name) '("*Compile-Log-Show*" "*Compile-Log*"
 				  "*compilation*"))
@@ -929,12 +931,15 @@ GNUS is a news and mail reader."
 
 (defib Info-node ()
   "Makes a \"(filename)nodename\" button display the associated Info node.
-Also makes a \"(filename)itemname\" button display the associated Info index item."
+Also makes a \"(filename)itemname\" button display the associated Info index item.
+Examples are \"(hyperbole)Implicit Buttons\" and ``(hyperbole)C-c /''."
   (let* ((node-ref-and-pos (or (hbut:label-p t "\"" "\"" t t)
 			       ;; Typical GNU Info references; note
 			       ;; these are special quote marks, not the
 			       ;; standard ASCII characters.
 			       (hbut:label-p t "‘" "’" t t)
+			       ;; Regular dual single quotes (Texinfo smart quotes)
+			       (hbut:label-p t "``" "''" t t)
 			       ;; Regular open and close quotes
 			       (hbut:label-p t "`" "'" t t)))
 	 (node-ref (hpath:is-p (car node-ref-and-pos) nil t)))
@@ -947,22 +952,30 @@ Also makes a \"(filename)itemname\" button display the associated Info index ite
 ;;; ========================================================================
 
 (defib hyp-address ()
-  "Turns a Hyperbole support/discussion e-mail address into an implicit button which inserts Hyperbole environment information.
-See also the documentation for `actypes::hyp-config'."
-  (if (memq major-mode (list hmail:composer hnews:composer))
-      (let ((addr (hargs:find-tag-default)))
-	(cond ((null addr) nil)
-	      ((member addr '("hyperbole" "hyperbole-users@gnu.org" "bug-hyperbole@gnu.org"))
-	       (hact 'hyp-config))
-	      ((string-match "\\(hyperbole\\|hyperbole-users@gnu\\.org\\|bug-hyperbole@gnu\\.org\\)\\(-\\(join\\|leave\\|owner\\)\\)" addr)
-	       (hact 'hyp-request))))))
+  "Within a mail or Usenet news composer window, makes a Hyperbole support/discussion e-mail address insert Hyperbole environment and version information.
+See also the documentation for `actypes::hyp-config'.
+
+For example, an Action Mouse Key click on <hyperbole-users@gnu.org> in
+a mail composer window would activate this implicit button type."
+  (when (memq major-mode (list 'mail-mode hmail:composer hnews:composer))
+    (let ((addr (thing-at-point 'email)))
+      (cond ((null addr) nil)
+	    ((member addr '("hyperbole" "hyperbole-users@gnu.org" "bug-hyperbole@gnu.org"))
+	     (hact 'hyp-config))
+	    ((string-match "\\(hyperbole\\|hyperbole-users@gnu\\.org\\|bug-hyperbole@gnu\\.org\\)\\(-\\(join\\|leave\\|owner\\)\\)" addr)
+	     (hact 'hyp-request))))))
 
 ;;; ========================================================================
 ;;; Makes source entries in Hyperbole reports selectable.
 ;;; ========================================================================
 
 (defib hyp-source ()
-  "Turns source location entries in Hyperbole reports into buttons that jump to the associated location."
+  "Turns source location entries in Hyperbole reports into buttons that jump to the associated location.
+
+For example, {C-h h d d C-h h e h o} summarizes the properties of
+the explicit buttons in the DEMO file and each button in that
+report buffer behaves the same as the corresponding button in the
+original DEMO file."
   (save-excursion
     (beginning-of-line)
     (if (looking-at hbut:source-prefix)

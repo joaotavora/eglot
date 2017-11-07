@@ -54,6 +54,10 @@
       variables such as "${PATH}/python" and Hyperbole resolves them to the
       first matching directory with an Action Key press.
 
+    - Compressed Elisp: Quoted, compressed Emacs Lisp source file names without
+      any path now work as implicit buttons that display the source file, with
+      or without the compressed file suffix, e.g. "subr.el" or "subr.el.gz".
+
     - Prefixed URLs: Partial URLs with prefixes such as, url:photos.google.com
       or url=calendar.google.com, can now be displayed with Action Key presses
       even though they lack a www site name or an http protocol prefix.
@@ -184,6 +188,7 @@
     - New DEMO File Sections:
         * Dragging Buffers, Windows and Items
         * HyControl Frame Commands and Windows Grid subsections
+	* HyRolo
         * Running Dired on the Current Directory
 
   HYCONTROL
@@ -273,8 +278,8 @@
       Emacs google-contacts package and the non-Emacs gpg public key package to
       support Google services authorization.  Once configured, these contacts
       are automatically searched together with local HyRolo files any time a
-      contact search is performed.  See the Google Contacts Integration section
-      in "hyrolo.el".
+      contact search is performed.  See the Google Contacts part in
+      "(hyperbole)HyRolo Settings".
 
     - Dynamic HyRolo List: The HyRolo list of files to search is now computed
       dynamically so you can enable Big Brother Database (BBDB) or Google

@@ -34,34 +34,52 @@
 ;;; ************************************************************************
   
 (defact kbd-key (key-sequence)
-  "Executes the command binding or the Hyperbole minibuffer menu action for KEY-SEQUENCE, delimited by {}.
-Returns t if this is a valid KEY-SEQUENCE, else nil."
+  "Executes a normalized key sequence without curly braces, {}.
+KEY-SEQUENCE must be a string of one of the following:
+  a Hyperbole minibuffer menu item key sequence,
+  a HyControl key sequence,
+  a M-x extended command,
+  or a valid key sequence together with its interactive arguments.
+
+Returns t if the sequence appears to be valid, else nil."
   (interactive "kKey sequence to execute (no {}): ")
   (kbd-key:act key-sequence))
 
 (defib kbd-key ()
-  "Executes a key sequence delimited by curly braces.
+  "Executes a key sequence found around point, delimited by curly braces, {}, if any.
 Key sequences should be in human readable form, e.g. {C-x C-b}, or what `key-description' returns.
-Forms such as {\C-b}, {\^b}, and {^b} will not be recognized."
+Forms such as {\C-b}, {\^b}, and {^b} will not be recognized.
+
+Any key sequence must be a string of one of the following:
+  a Hyperbole minibuffer menu item key sequence,
+  a HyControl key sequence,
+  a M-x extended command,
+  or a valid key sequence together with its interactive arguments."
   (unless (or (br-in-browser)
 	      (and (looking-at "[{}]") (/= ?\\ (preceding-char))))
     (let* ((seq-and-pos (or (hbut:label-p t "{`" "'}" t)
 			    (hbut:label-p t "{" "}" t)
+			    ;; Regular dual single quotes (Texinfo smart quotes)
+			    (hbut:label-p t "``" "''" t)
 			    ;; Typical GNU manual key sequences; note
 			    ;; these are special quote marks, not the
 			    ;; standard ASCII characters.
 			    (hbut:label-p t "‘" "’" t)))
 	   (key-sequence (car seq-and-pos))
+	   (start (cadr seq-and-pos))
 	   binding)
-      (when (and (stringp key-sequence)
-		 (not (eq key-sequence "")))
-	(setq key-sequence (kbd-key:normalize key-sequence)
-	      binding (key-binding key-sequence)))
-      (and (stringp key-sequence)
-	   (or (and binding (not (integerp binding)))
-	       (kbd-key:special-sequence-p key-sequence))
-	   (ibut:label-set seq-and-pos)
-	   (hact 'kbd-key key-sequence)))))
+      ;; Match only when start delimiter is preceded by whitespace or
+      ;; is the 1st buffer character, so do not match to things like ${variable}.
+      (when (= (char-syntax (or (char-before start) ?\t)) ?\ )
+	(when (and (stringp key-sequence)
+		   (not (eq key-sequence "")))
+	  (setq key-sequence (kbd-key:normalize key-sequence)
+		binding (key-binding key-sequence)))
+	(and (stringp key-sequence)
+	     (or (and binding (not (integerp binding)))
+		 (kbd-key:special-sequence-p key-sequence))
+	     (ibut:label-set seq-and-pos)
+	     (hact 'kbd-key key-sequence))))))
 
 ;;; ************************************************************************
 ;;; Public functions
@@ -71,7 +89,7 @@ Forms such as {\C-b}, {\^b}, and {^b} will not be recognized."
   "Executes the command binding for normalized KEY-SEQUENCE.
 Returns t if KEY-SEQUENCE has a binding, else nil."
   (interactive "kKeyboard key to execute (no {}): ")
-  (setq current-prefix-arg nil) ;; kbd-key:normalize below sets it.
+  (setq current-prefix-arg nil) ;; Execution of the key-sequence may set it.
   (let ((binding (key-binding key-sequence)))
     (cond ((null binding)
 	   ;; If this is a special key seqence, execute it by adding
@@ -116,43 +134,54 @@ With optional prefix arg FULL, displays full documentation for command."
     (if kbd-key (kbd-key:doc kbd-key t))))
 
 (defun kbd-key:normalize (key-sequence)
-  "Returns KEY-SEQUENCE string normalized into a form that can be parsed by commands."
+  "Returns KEY-SEQUENCE string (without surrounding {}) normalized into a form that can be parsed by commands."
   (interactive "kKeyboard key sequence to normalize (no {}): ")
   (if (stringp key-sequence)
       (let ((norm-key-seq (copy-sequence key-sequence))
-	    (case-fold-search nil) (case-replace t))
+	    (case-fold-search nil)
+	    (case-replace t)
+	    (substring)
+	    (arg))
 	(setq norm-key-seq (hypb:replace-match-string
-			    "[ \t\n\r]+" norm-key-seq "" t)
+			    "@key{DEL}\\|<DEL>\\|\\<DEL\\>" norm-key-seq "\177" t)
 	      norm-key-seq (hypb:replace-match-string
-			    "@key{SPC}\\|<SPC>\\|SPC" norm-key-seq "\040" t)
+			    "@key{RET}\\|<RET>\\|@key{RTN}\\|\\<RETURN\\>\\|\\<RET\\>\\|\\<RTN\\>"
+			    norm-key-seq "$#@!" t)
 	      norm-key-seq (hypb:replace-match-string
-			    "@key{DEL}\\|<DEL>\\|DEL" norm-key-seq "\177" t)
+			    "\\<ESCESC\\>" norm-key-seq "\233" t)
 	      norm-key-seq (hypb:replace-match-string
-			    "@key{RET}\\|<RET>\\|@key{RTN}\\|RETURN\\|RET\\|RTN"
-			    norm-key-seq "\015" t)
-	      norm-key-seq (hypb:replace-match-string
-			    "ESCESC" norm-key-seq "\233" t)
-	      norm-key-seq (hypb:replace-match-string
-			    "@key{ESC}\\|<ESC>\\|ESC" norm-key-seq "M-" t)
+			    "@key{ESC}\\|<ESC>\\|\\<ESC\\>" norm-key-seq "M-" t)
 	      norm-key-seq (hypb:replace-match-string
 			    "C-M-" norm-key-seq "M-C-" t)
+	      norm-key-seq (kbd-key:mark-spaces-to-keep norm-key-seq "(" ")")
+	      norm-key-seq (kbd-key:mark-spaces-to-keep norm-key-seq "\\[" "\\]")
+	      norm-key-seq (kbd-key:mark-spaces-to-keep norm-key-seq "<" ">")
+	      norm-key-seq (kbd-key:mark-spaces-to-keep norm-key-seq "\"" "\"")
+	      norm-key-seq (hypb:replace-match-string "\\\\ " norm-key-seq "\0\0\0" t)
+	      norm-key-seq (hypb:replace-match-string
+			    "[ \t\n\r]+" norm-key-seq "" t)
+	      norm-key-seq (hypb:replace-match-string
+			    "\0\0\0\\|@key{SPC}\\|<SPC>\\|\\<SPC\\>" norm-key-seq "\040" t)
+	      norm-key-seq (hypb:replace-match-string "$#@!" norm-key-seq "\015" t)
 	      ;; Unqote special {} chars.
 	      norm-key-seq (hypb:replace-match-string "\\\\\\([{}]\\)"
 						      norm-key-seq "\\1"))
 	(while (string-match "\\`\\(C-u\\|M-\\)\\(-?[0-9]+\\)" norm-key-seq)
-	  (setq current-prefix-arg
+	  (setq arg
 		(string-to-number (substring norm-key-seq (match-beginning 2)
 					     (match-end 2)))
 		norm-key-seq (substring norm-key-seq (match-end 0))))
 	(let (arg-val)
 	  (while (string-match "\\`C-u" norm-key-seq)
-	    (if (or (not (listp current-prefix-arg))
-		    (not (integerp (setq arg-val (car current-prefix-arg)))))
-		(setq current-prefix-arg '(1)
+	    (if (or (not (listp arg))
+		    (not (integerp (setq arg-val (car arg)))))
+		(setq arg '(1)
 		      arg-val 1))
 	    (setq arg-val (* arg-val 4)
-		  current-prefix-arg (cons arg-val nil)
+		  arg (cons arg-val nil)
 		  norm-key-seq (substring norm-key-seq (match-end 0)))))
+	(if arg (setq norm-key-seq (concat (format "\025%s" arg) norm-key-seq)))
+	;;
 	;; Quote Control and Meta key names
 	(setq norm-key-seq (hypb:replace-match-string
 			    "C-\\(.\\)" norm-key-seq
@@ -205,12 +234,30 @@ Allows for multiple key sequences strung together."
 		  (eq prefix-binding 'self-insert-command)))
 	 t)))
 
+(defun kbd-key:mark-spaces-to-keep (string start-delim end-delim)
+  "Return STRING with all spaces between any START-DELIM string and END-DELIM string marked for non-replacement."
+  (let ((regexp (format "\\(%s\\S-*\\)\\s-\\(.*%s\\)"
+			start-delim end-delim))
+	(start 0)
+	(end))
+    (while (string-match regexp string start)
+      (setq start (match-beginning 0)
+	    end (match-end 0)
+	    substring (match-string 0 string)
+	    string (concat (substring string 0 start)
+			   (hypb:replace-match-string "\\s-" substring "\0\0\0" t)
+			   (if (< end (length string))
+			       (substring string end)
+			     ""))
+	    start end))
+    string))
+
 (defun kbd-key:special-sequence-p (key-sequence)
   "Returns non-nil if normalized KEY-SEQUENCE string is one of the following:
   a Hyperbole minibuffer menu item key sequence,
   a HyControl key sequence,
   a M-x extended command,
-  or a key binding plus arguments."
+  or a valid key sequence together with its interactive arguments."
   (or (kbd-key:hyperbole-mini-menu-key-p key-sequence)
       (kbd-key:hyperbole-hycontrol-key-p key-sequence)
       (kbd-key:extended-command-p key-sequence)

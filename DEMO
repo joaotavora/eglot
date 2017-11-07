@@ -148,9 +148,9 @@ generated it.
 
 * Koutliner
 
-A unique feature of Hyperbole is the Koutliner; it is for outlining
-thoughts, developing requirements or listing tasks and hyperlinking
-them to other documents.
+A unique feature of Hyperbole is the Koutliner; it is for outlining thoughts,
+developing requirements or listing tasks and hyperlinking them to other
+documents.
 
 The Hyperbole Koutliner should work under any modern version of GNU Emacs.
 Your Emacs supports the Koutliner if when you press {C-h h} to display the
@@ -172,13 +172,12 @@ alphabetical order the Koutliner commands which are bound to keys.
 
 Hyperbole includes the fastest, easiest-to-use Emacs window and frame
 management system available, HyControl, found under the Hyperbole Screen
-menu, {C-h h s}.  If you use a lot of Emacs windows or frames (native
-window system windows), then this tool is for you.  A long video
-demonstrating most of HyControl's features is available at
-https://youtu.be/M3-aMh1ccJk.
+menu, {C-h h s}.  If you use a lot of Emacs windows or frames (native window
+system windows), then this tool is for you.  A long video demonstrating most
+of HyControl's features is available at https://youtu.be/M3-aMh1ccJk.
 
-HyControl interactively adjusts the layout of your windows and frames down
-to the pixel-level, if desired.  You adjust the location, size and display
+HyControl interactively adjusts the layout of your windows and frames down to
+the pixel-level, if desired.  You adjust the location, size and display
 elements of your windows and frames until they look as you like and then
 simply quit HyControl and go back to work.  It has smart features for laying
 out large grids of windows, avoiding having frames cover graphical toolbars
@@ -186,9 +185,9 @@ anchored at the edges of your screen, and allows you to quickly set numeric
 arguments to apply to operations, like resizing a frame to a percentage of
 your screen size.
 
-There are two submodes of HyControl: one for controlling windows and one
-for controlling frames, although a number of commands are available in both
-modes where they are useful.
+There are two submodes of HyControl: one for controlling windows and one for
+controlling frames, although a number of commands are available in both modes
+where they are useful.
 
 Hyperbole binds {C-c \} to invoke HyControl windows control; otherwise, the
 Hyperbole minibuffer menu item, Screen/WindowsControl {C-h h s w}, will do
@@ -199,8 +198,8 @@ will display a summary of keys you may use to adjust your windows until you
 press {q} to quit from HyControl.  If you don't see it, press {?}, to turn on
 this help display.  The key, {t}, will always switch you between controlling
 frames and windows, the minor modes of HyControl, with a modeline indicator
-of either "HyFrm" or HyWin" depending on which type of control is active.  See
-"(hyperbole)HyControl" for full usage information.
+of either "HyFrm" or HyWin" depending on which type of control is active.
+See "(hyperbole)HyControl" for full usage information.
 
 ** Frame Commands
 
@@ -243,21 +242,128 @@ creates our 2x3 window grid:  {C-h h s f  .1 %  .23 @  q}.  Pretty amazing,
 right?  You can separate each command by any number of spaces or even jam them
 all together: {C-hhsf.1%.23@q}.
 
-A zero argument to the {@} command is special.  It means you want to
-display buffers with a particular major mode first, e.g. c-mode.  You
-will be prompted for the major mode and then the size of the grid.
+A zero argument to the {@} command is special.  It means you want to display
+buffers with a particular major mode first, e.g. c-mode.  You will be
+prompted for the major mode and then the size of the grid.
 
 To try it, activate: {C-hhsf .0 @}.
 
-If you ever need to experiment with different sized window grids, use
-{M-x hycontrol-window-grid-repeatedly RET}.  It will repeatedly prompt
-you for a grid size and then display it.  When you are done, simply press
-{RET} to exit.
+If you ever need to experiment with different sized window grids, use {M-x
+hycontrol-window-grid-repeatedly RET}.  It will repeatedly prompt you for a
+grid size and then display it.  When you are done, simply press {RET} to
+exit.
 
-Outside of HyControl, you can invoke the grid of windows command with
-{C-c @} in most buffers.
+Outside of HyControl, you can invoke the grid of windows command with {C-c @}
+in most buffers.
 
 There is lots more to discover in HyControl as you explore.
+
+
+* HyRolo
+
+HyRolo is an advanced hierarchical, record-oriented retrieval system that
+uses text files for storing its records.  Most often this is used for contact
+management but it can quickly be adapted to most any record-oriented lookup
+task requiring fast retrieval.
+
+HyRolo manages and searches rolo files which consist of an optional header
+that starts and ends with a line of equal signs (at least three equal signs
+starting at the beginning of a line), followed by zero or more rolo records.
+You must manually add a header to any rolo file if you want it to have one.
+
+We call rolo records, entries.  Entries begin with a delimiter of one or more
+`*' characters at the beginning of a line.  Entries may be arranged in a
+hierarchy, where child entries start with one more `*' character than do
+their parents.  Top-level entries begin with a single `*'.
+
+Beyond this initial delimiter, entries are completely free-form text.  It is
+best to use a "lastname, firstname" format, however, when adding contact
+entries into a rolo.  Then HyRolo will automatically keep your entries
+alphabetized as you enter them.  Then you can sort the entries if you ever
+need.
+
+HyRolo commands are invoked from the Hyperbole Rolo menu.  See
+"(hyperbole)HyRolo" for a full reference on commands including adding
+entries, regular expression searches and manipulating the HyRolo search
+results buffer.
+
+For demonstration purposes, we discuss only the most common searches and use
+a global key binding for quick access to HyRolo searches of existing entries.
+Below is a sample rolo file that we will work with in this DEMO.  The date at
+the end of each record is automatically added by HyRolo whenever a new record
+is added.
+
+==================================================================
+                       DEMO ROLO
+==================================================================
+*    HiHo Industries
+**     Strong, Hugo            <hs@hiho.com>  W708-555-9821
+             Manager
+             04/12/2017
+***      Smith, John           <js@hiho.com>  W708-555-2001
+             Chief Ether Maintainer
+             05/24/2017
+*    Work Industries
+**     Hansen, Dan             <dh@work.com>  W218-555-2311
+             Manager
+             02/18/2017
+***      Dunn, John            <md@work.com>  W218-555-3233
+             Media Maker
+             11/2/2017
+
+** String Searches
+
+Any search done on the rolo scans the full text of each entry and ignores the
+case of the text.  During a search, the rolo file header separator lines and
+anything in between are appended to the buffer of matched entries before any
+entries are retrieved from the file.  Whenever an entry is matched, it and
+all of its descendant entries are retrieved.  If your emacs version supports
+textual highlighting, each search match is highlighted for quick, visual
+location.
+
+Let's try the HyRolo.  First load the HyRolo demo commands with an Action Key
+click on "-hyrolo-demo.el".  Now {C-x 4 r} wil search the DEMO ROLO file.
+Action Key click on {C-x4r work RET} to search for all entries from Work
+Industries; then type {q} to quit from the HyRolo search results buffer.
+{C-x4r manager RET} finds all managers plus their staff across companies.
+{C-x4r Dunn,\ J RET} finds just that staffer.  Notice that you must quote the
+space with a backslash when including it in a key sequence search string or
+else the space will be removed; when just typing the same string
+interactively, don't add the backslash.
+
+A prefix argument used with any of the find commands listed above limits the
+search to a maximum number of matches given by the argument.  For example
+{C-u 1 C-x4r John RET}, finds only the John Smith entry and ignores John
+Dunn.
+
+** Logical Searches
+
+The same search command can be used to perform logical searches of the HyRolo
+files.  A simple parenthesis delimited prefix format is used with the
+following logical operators.
+
+Operator Name   Number of Arguments    Description
+=====================================================================
+and             two or more            Match entries with all args
+or              two or more            Match entries with any args
+xor             two or more            Match entries with 1 arg only
+not             one                    Match entries without the arg
+=====================================================================
+
+So for example, {C-x4r (or smith dunn) RET} finds both the Smith and Dunn
+entries.  (Note that you do not need to backslash quote spaces within
+parentheses, square brackets, angle brackets or double quotes when used in
+key sequences).  To find any Managers and their staffers at HiHo Industries,
+use: {C-x4r (and manager hiho) RET}.  To find managers anywhere but at HiHo:
+{C-x4r (and manager (not hiho)) RET}.  Finally, this will find all people who
+are not managers at HiHo: {C-x4r (not (and manager hiho)) RET}.
+
+See "(hyperbole)HyRolo Keys" for how to navigate the HyRolo Matches buffer
+when many entries are found or how to edit a matched entry.
+
+We are now finished with the HyRolo section of the demo.  Activate this
+to remove the HyRolo demo code and restore any prior key binding:
+{M-x hyrolo-demo-quit RET}.
 
 
 * History
@@ -410,8 +516,8 @@ non-windowed shell program.  For example, try "!/bin/date" on UNIX.  This
 will run the program in a subshell within Emacs.  An ampersand prefix means
 run the full pathname as a windowed program, outside of Emacs.  Under the X
 window system, try "&/usr/X11/bin/xeyes".  Finally, a hyphen indicates that
-the filename should be executed as an Emacs Lisp library,
-e.g. "-hibtypes.elc", rather than displayed.
+the filename should be executed as an Emacs Lisp library, e.g. "-subr.elc",
+rather than displayed.
 
 *** Info Paths
 
@@ -441,7 +547,7 @@ link to and jump to any marked item within any manual.
 If you use the standard Emacs library "tramp.el" for working with remote
 files and directories, then remote pathnames of the form:
 
-	  /protocol:user@host.domain:/path
+	/protocol:user@host.domain:/path
 
 will be recognized by Hyperbole.
 
@@ -458,7 +564,7 @@ If you enable the Hyperbole option to use URLs when finding files with
 the {C-x C-f} (find-file) command via the {C-h h c f} key sequence, then
 you can also use paths of the form:
 
-	 ftp://ftp.gnu.org/pub/
+	ftp://ftp.gnu.org/pub/
 
 ** Internet Request For Comments (RFC) Document Browsing
 

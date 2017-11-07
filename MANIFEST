@@ -1,6 +1,8 @@
 --- INTRODUCTION ---
 COPYING             - GNU General Public License
-DEMO                - Demonstration of basic GNU Hyperbole button capabilities
+DEMO                - Interactive Demonstration of many GNU Hyperbole capabilities
+DEMO-ROLO.otl       - Sample Hyperbole Rolo file for use with DEMO
+hyrolo-demo.el      - Code to support DEMO introduction to HyRolo
 HY-ABOUT            - Introductory description of GNU Hyperbole
 HY-ANNOUNCE         - GNU Hyperbole release announcement
 HY-COPY             - GNU Hyperbole Copyright

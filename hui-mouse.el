@@ -139,7 +139,7 @@ Its default value is #'smart-scroll-down."
     ((eq major-mode 'smart-menu-mode) . 
      ((smart-menu-select) . (smart-menu-help)))
     ;;
-    ((eq major-mode 'dired-mode) . 
+    ((derived-mode-p 'dired-mode) . 
      ((smart-dired) . (smart-dired-assist)))
     ;;
     ;; If on a Hyperbole button, perform action or give help.
