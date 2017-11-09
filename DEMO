@@ -322,7 +322,7 @@ textual highlighting, each search match is highlighted for quick, visual
 location.
 
 Let's try the HyRolo.  First load the HyRolo demo commands with an Action Key
-click on "-hyrolo-demo.el".  Now {C-x 4 r} wil search the DEMO ROLO file.
+click on "-hyrolo-demo.el".  Now {C-x 4 r} will search the DEMO ROLO file.
 Action Key click on {C-x4r work RET} to search for all entries from Work
 Industries; then type {q} to quit from the HyRolo search results buffer.
 {C-x4r manager RET} finds all managers plus their staff across companies.
