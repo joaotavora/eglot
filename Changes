@@ -72,8 +72,6 @@
     environment variable matched a symbol but the symbol was unbound, e.g. (hpath:substitute-value
     "${PATH}/python")
 
-----
-
 * hmouse-tag.el (smart-lisp-at-definition-p): Fixed to ignore lines like: (default (find-tag--default))
     so the function in that line can be found as a tag.
 

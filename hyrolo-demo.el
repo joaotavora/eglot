@@ -65,6 +65,8 @@ single argument."
   (fmakunbound 'hyrolo-demo-fgrep)
   (fmakunbound 'hyrolo-demo-fgrep-logical)
   (setq features (delq 'hyrolo-demo features))
+  (mapc (lambda (buf) (when (get-buffer buf) (kill-buffer buf)))
+	'("*Hyperbole Rolo*" "DEMO-ROLO.otl"))
   (load "hyperbole-autoloads")
   (fmakunbound 'hyrolo-demo-quit)
   (message "HyRolo demo code removed and {C-x 4 r} key binding reset."))

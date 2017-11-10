@@ -53,7 +53,7 @@ See documentation of the function `format-time-string' for format options."
 (defvar hyrolo-display-format-function
   ;; Set trailing newlines to exactly two.
   (lambda (entry)
-    (concat (replace-regexp-in-string "[ \t\n\r]+\\'" "" entry) "\n\n"))
+    (concat (replace-regexp-in-string "[ \t\n\r]+\\'" "" entry nil t) "\n\n"))
   "*Function of one argument, a rolo entry string, which modifies the string for display.")
 
 (defcustom hyrolo-email-format "%s\t\t<%s>"

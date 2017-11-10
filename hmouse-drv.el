@@ -409,7 +409,7 @@ Return non-nil iff associated help documentation is found."
 				(princ (if (string-match "\\`[a-zA-Z]*[a-rt-zA-RT-Z]+s[ [:punct:]]" doc)
 					   ":" " WILL:"))
 				(terpri) (terpri)
-				(princ (replace-regexp-in-string "^" "  " doc))
+				(princ (replace-regexp-in-string "^" "  " doc nil t))
 				(terpri) (terpri)))
 			    calls)
 

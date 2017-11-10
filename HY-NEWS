@@ -49,6 +49,7 @@
         {M-x occur RET}                 - M-x extended commands
         {M-x apropos RET hyperbole RET} - commands with arguments
 	{C-x 2 C-x 3}                   - sequences of commands
+	{ESC: (+ 2 3) RET}              - lisp expressions
 
     - Pathname Environment Variables: Implicit Buttons may contain environment
       variables such as "${PATH}/python" and Hyperbole resolves them to the
@@ -162,6 +163,7 @@
       'c'.
 
     - New Hyperbole Manual Sections:
+        * Referent Display - setting of where link referents are displayed
         * Smart Mouse Key Drags
         * Smart Mouse Drags outside a Window
         * Smart Key - Image Thumbnails
@@ -176,14 +178,16 @@
       the Global Key Bindings appendix.
 
     - Other Hyperbole Manual Section Changes:
-        * Button Colors): Added doc on hproperty:but-highlight-flag.
+        * Button Colors: Added doc on hproperty:but-highlight-flag.
         * Glossary: Added Windows Grid entry.
         * Hook Variables: Added doc of: action-key-depress-hook,
           action-key-release-hook, assist-key-depress-hook
           and assist-key-release-hook.
-        * HyControl: Added Concept Index entries.
+        * HyControl: Added Google Contacts use and additional Concept Index entries.
         * Koutliner: Centralized all key binding index entries under "koutliner, ".
         * Manual Overview: Improved pointer to DEMO.
+        * Smart Key - WWW URLs: Added browse-url-browser-function and Cust/URL-Display reference.
+        * Using URLs with Find-File: Added URL browser customization menu reference and image.
 
     - New DEMO File Sections:
         * Dragging Buffers, Windows and Items

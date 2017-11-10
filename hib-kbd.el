@@ -148,9 +148,9 @@ With optional prefix arg FULL, displays full documentation for command."
 			    "@key{RET}\\|<RET>\\|@key{RTN}\\|\\<RETURN\\>\\|\\<RET\\>\\|\\<RTN\\>"
 			    norm-key-seq "$#@!" t)
 	      norm-key-seq (hypb:replace-match-string
-			    "\\<ESCESC\\>" norm-key-seq "\233" t)
+			    "\\<ESC\s-*ESC\\>" norm-key-seq "\233" t)
 	      norm-key-seq (hypb:replace-match-string
-			    "@key{ESC}\\|<ESC>\\|\\<ESC\\>" norm-key-seq "M-" t)
+			    "@key{ESC}\\|<ESC>\\|\\<ESC\\(APE\\)?\\>" norm-key-seq "M-" t)
 	      norm-key-seq (hypb:replace-match-string
 			    "C-M-" norm-key-seq "M-C-" t)
 	      norm-key-seq (kbd-key:mark-spaces-to-keep norm-key-seq "(" ")")

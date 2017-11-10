@@ -33,13 +33,15 @@
       and rapidly changeable views.
 
    7. Rapid control over what is displayed where in multiple windows
-      and frames with the Hyperbole HyControl system.
+      and frames with mouse drags and the Hyperbole HyControl system.
 
      7a. Drag Buffer Menu or Dired items to other windows to display
          them wherever you want.  Drag-and-drop text regions across
          Emacs frames.
 
-     7b. With one command, rapidly create a grid of tiled windows
+     7b. Swap buffers in windows across frames with a mouse drag.
+
+     7c. With one command, rapidly create a grid of tiled windows
          displaying either selected buffers, buffers with a specific
          major mode or the most recently used buffer list, e.g.
          {63 C-c @} creates 6 rows, each with 3 columns of windows (18
@@ -61,19 +63,19 @@
          
      7f. Easily adjust the height and width of windows as needed.
 
-     7g. Quick clicks on different areas of a buffer's modeline will
+     7f. Quick clicks on different areas of a buffer's modeline will
          rotate through your working list of buffers, changing what
          each window displays.  A popup menu gives you quick access to
          Hyperbole commands plus frame, window and buffer selection
          and management commands.  GNU documentation manuals may be
          shown and navigated with a single mouse key.
 
-     7h. A single mouse drag swaps what is displayed in each of two
+     7g. A single mouse drag swaps what is displayed in each of two
          windows, even across frames.
 
 
 "ben" ;; kvspec:current
-22 ;; id-counter
+23 ;; id-counter
 alpha ;; label-type
 4 ;; label-min-width
 ". " ;; label-separator
@@ -81,7 +83,7 @@ alpha ;; label-type
 
 ;; depth-first kcell attributes
 [[0
-  (creator "rsw@gnu.org" create-time "20171027:13:29:32" id-counter 22 file "/Users/bk/Dropbox/emacs/hyperbole/HY-WHY.kotl")]
+  (creator "rsw@gnu.org" create-time "20171108:01:14:52" id-counter 23 file "/Users/bk/Dropbox/emacs/hyperbole/HY-WHY.kotl")]
  [1
   (creator "rsw@gnu.org" create-time "20160524:15:04:17" no-fill t)]
  [17
@@ -98,6 +100,8 @@ alpha ;; label-type
   (creator "rsw@gnu.org" create-time "20160524:15:32:11" no-fill t)]
  [20
   (creator "rsw@gnu.org" create-time "20171019:22:07:29" no-fill t)]
+ [23
+  (creator "rsw@gnu.org" create-time "20171108:01:15:39" no-fill t)]
  [22
   (creator "rsw@gnu.org" create-time "20171024:13:41:50" no-fill t)]
  [15

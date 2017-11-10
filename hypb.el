@@ -238,7 +238,10 @@ FILE is temporarily read into a buffer to determine the major mode if necessary.
   (if (stringp string)
       (replace-regexp-in-string
        "@@@" "%%" (replace-regexp-in-string
-		   "%" "%%" (replace-regexp-in-string "%%" "@@@" string)))))
+		   "%" "%%" (replace-regexp-in-string "%%" "@@@" string nil t)
+		   nil t)
+       nil t)))
+
 ;;;###autoload
 (defun hypb:functionp (obj)
 "Returns t if OBJ is a function, nil otherwise."
