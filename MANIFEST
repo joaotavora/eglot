@@ -18,7 +18,7 @@ hyperbole.el        - Loads and initializes GNU Hyperbole
 Changes             - Summary of changes in recent GNU Hyperbole releases
 
 --- DOCUMENTATION ---
-dir                 - GNU Hyperbole Info directory tree entry
+man/dir             - GNU Hyperbole Info directory tree entry
 man/hyperbole.html  - The GNU Hyperbole Manual  (web version)
 man/hyperbole.info  - The GNU Hyperbole Manual  (GNU Info version)
 man/hyperbole.pdf   - The GNU Hyperbole Manual  (printable version)

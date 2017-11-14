@@ -794,23 +794,28 @@ compute the actual release location and include that."
 	;; Remove depress coordinates and send only original release coordinates.
 	(list (car event) (nth 2 event))))))
 
+(defun hmouse-use-region-p ()
+  "Return t if there is a non-empty, highlighted region, else nil."
+  (cond
+   ;; Newer GNU Emacs
+   ((fboundp 'use-region-p)
+    (let ((use-empty-active-region))
+      (use-region-p)))
+   ;; InfoDock and XEmacs
+   ((fboundp 'region-exists-p)
+    (and (fboundp 'region-active-p) (region-active-p) (region-exists-p)))
+   ;; Older GNU Emacs
+   ((boundp 'transient-mark-mode)
+    (and transient-mark-mode mark-active))))
+
 (defun hmouse-save-region (&optional frame)
   "Save to `hkey-region' and return any active region within the current buffer.
 Under InfoDock and XEmacs, `zmacs-region' must be t; under GNU Emacs,
 `transient-mark-mode' must be t or the function does nothing."
-  (if (cond
-       ;; Newer GNU Emacs
-       ((fboundp 'use-region-p)
-	(let ((use-empty-active-region))
-	  (use-region-p)))
-       ;; InfoDock and XEmacs
-       ((fboundp 'region-exists-p)
-	(and (fboundp 'region-active-p) (region-active-p) (region-exists-p)))
-       ;; Older GNU Emacs
-       ((boundp 'transient-mark-mode)
-	(and transient-mark-mode mark-active)))
-      (setq hkey-region (buffer-substring (region-beginning) (region-end)))
-    (setq hkey-region nil)))
+  (setq hkey-region
+	(when (hmouse-use-region-p)
+	  (buffer-substring (region-beginning) (region-end)))))
+
 
 ;; Save any active region to `hkey-region' when the mouse is moved between frames or buffers.
 (if (featurep 'xemacs)

@@ -1,3 +1,36 @@
+2017-11-13  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-drag-thing): Added error if drag ends within the delimited thing region, so user knows
+    that this is an invalid drag.
+                (hmouse-yank-region, hmouse-kill-and-yank-region): Made no-op unless hkey-region is non-nil.
+    This handles the hmouse-drag-thing case when we want that predicate true (so no other predicate matches)
+    but there is no region to copy or kill, e.g. when the release point is within the thing itself.
+
+* hui-select.el (hui-select-delimited-thing): Fixed to match doc and work as a predicate.
+
+* hui-window.el (hmouse-goto-depress-prev-point): Deleted since it duplicated hmouse-goto-region-prev-point.
+                (hmouse-goto-region-prev-point): Added missing check for prev-point nil when setting loc.
+    This caused the Smart Keys to fail when used if a Lisp backtrace was active.
+                (hmouse-drag-thing): Erased any saved location of a region prior to Smart Key depress since
+    now we have a new region location.  This prevents hmouse-kill-and-yank-region from jumping to the old
+    location.  Also fixed edge cases where want to copy or move thing to the beginning or end of the thing region.
+                (hmouse-goto-region-point): Renamed to hmouse-goto-region-prev-point, for clarity.
+                (hmouse-kill-and-yank-region, hmouse-kill-region): Used value of point saved in hkey-value to determine
+    the region if non-nil. 
+
+* hui-select.el (hui-select-delimited-thing, hui-select-thing): Changed to use use-region-p.
+  hmouse-drv.el (hmouse-use-region-p): Added and used to improve hmouse-drag-thing.
+                (hmouse-save-region): Simplified.
+  hui-window.el (hmouse-drag-region-active): Changed call of region-active-p to hmouse-use-region-p.
+
+
+* hui-window.el (hmouse-kill-and-yank-region): Fixed error that was testing not in depress buffer (as desired) but the
+    buffer prior to depress.  Also protected insertion from syntax-directed indentation errors.
+
+* hui-em-but.el
+  hui-xe-but.el (hproperty:but-create-on-yank): Added as handler for yank-handled-properties so explicit buttons are
+    re-highlighted when yanked after being killed.
+
 2017-11-06  Bob Weiner  <rsw@gnu.org>
 
 * hyrolo-demo.el (hyrolo-demo-quit): Added to unload hyrolo-demo code and used in demo.

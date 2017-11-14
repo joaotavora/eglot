@@ -311,7 +311,7 @@ If invoked repeatedly, this selects bigger and bigger things.
 If `hui-select-display-type' is non-nil and this is called
 interactively, the type of selection is displayed in the minibuffer."
   (interactive
-   (cond ((and (fboundp 'region-active-p) (region-active-p))
+   (cond ((and (fboundp 'use-region-p) (use-region-p))
 	  nil)
 	 ((and (boundp 'transient-mark-mode) transient-mark-mode mark-active)
 	  nil)
@@ -320,8 +320,9 @@ interactively, the type of selection is displayed in the minibuffer."
 	  (hui-select-reset)
 	  nil)))
   (let ((region (hui-select-boundaries (point))))
-    (or region (if (eq hui-select-previous 'punctuation)
-		   (setq region (hui-select-word (point)))))
+    (unless region
+      (when (eq hui-select-previous 'punctuation)
+	(setq region (hui-select-word (point)))))
     (when region
       (goto-char (car region))
       (set-mark (cdr region))
@@ -600,22 +601,21 @@ The non-nil value returned is the function to call to select that syntactic unit
 (defun hui-select-delimited-thing ()
   "Selects a markup pair, list, array/vector, set, comment or string at point and returns t, else nil."
   (interactive)
-  (hui-select-delimited-thing-call #'hui-select-thing)
-  ;; If selected region is followed by only whitespace and then a
-  ;; newline, add the newline to the region.
-  (if (region-active-p)
-      (if (> (mark) (point))
-	  (save-excursion
-	    (goto-char (mark))
-	    (skip-chars-forward " \t")
-	    (and (char-after) (= ?\n (char-after))
-		 (set-mark (1+ (point)))))
-	(if (looking-at "[ \t]*\n")
-	    (goto-char (match-end 0))))))
+  (prog1 (and (hui-select-delimited-thing-call #'hui-select-thing) t)
+    ;; If selected region is followed by only whitespace and then a
+    ;; newline, add the newline to the region.
+    (if (use-region-p)
+	(if (> (mark) (point))
+	    (save-excursion
+	      (goto-char (mark))
+	      (skip-chars-forward " \t")
+	      (and (char-after) (= ?\n (char-after))
+		   (set-mark (1+ (point)))))
+	  (if (looking-at "[ \t]*\n")
+	      (goto-char (match-end 0)))))))
 
 (defun hui-select-at-delimited-sexp-p ()
-  (if (eolp)
-      nil
+  (unless (eolp)
     (let ((syn-before (if (char-before) (char-syntax (char-before)) 0))
 	  (syn-after  (if (char-after)  (char-syntax (char-after)) 0)))
       (or (and (/= syn-before ?\\) (or (= syn-after ?\() (= syn-after ?\))))
@@ -628,8 +628,9 @@ Return t if marked, nil otherwise.  If any error occurs such as
   unbalanced start and end sexp delimiters, ignore it, and return
   nil."
   (interactive)
-  (let ((mark-sexp-func (lambda () (if (region-active-p) (deactivate-mark))
-			    (mark-sexp) t)))
+  (let ((mark-sexp-func (lambda ()
+			  (if (region-active-p) (deactivate-mark))
+			  (mark-sexp) t)))
     (condition-case nil
 	(let ((syn-after (char-syntax (char-after)))
 	      syn-before)
@@ -693,7 +694,7 @@ mail and news reply modes."
 The non-nil value returned is the function to call to select that syntactic unit."
   (unless (and (memq major-mode '(emacs-lisp-mode lisp-mode lisp-interaction-mode slime-mode cider-mode))
 	       ;; Ignore quoted identifier sexpressions, like #'function
-	       (char-after) (memq (char-after) '(?# ?\'))))
+	       (char-after) (memq (char-after) '(?# ?\')))
       (let ((hui-select-char-p)
 	    (hui-select-whitespace)
 	    (hui-select-syntax-alist '((?\" . hui-select-string)
@@ -706,14 +707,14 @@ The non-nil value returned is the function to call to select that syntactic unit
 				       ;; multi-char comment delimiters
 				       (?\. . hui-select-punctuation))))
 	(hui-select-reset)
-	(funcall func)))
+	(funcall func))))
 
 (defun hui-select-region-bigger-p (old-region new-region)
   "Return t if OLD-REGION is smaller than NEW-REGION and NEW-REGION partially overlaps OLD-REGION, or if OLD-REGION is uninitialized."
   (if (null (car old-region))
       t
     (and (> (abs (- (cdr new-region) (car new-region)))
-       (abs (- (cdr old-region) (car old-region))))
+	    (abs (- (cdr old-region) (car old-region))))
 	 ;; Ensure the two regions intersect.
 	 (or (and (<= (min (cdr new-region) (car new-region))
 		      (min (cdr old-region) (car old-region)))

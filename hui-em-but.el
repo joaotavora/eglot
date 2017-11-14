@@ -127,7 +127,14 @@ highlighted."
     (ebut:map (lambda (lbl start end)
 		(hproperty:but-add start end hproperty:but-face))
 	      start-delim end-delim regexp-match 'include-delims)))
-	       
+
+(defun hproperty:but-create-on-yank (prop-value start end)
+  (save-restriction
+    (narrow-to-region start end)
+    (hproperty:but-create-all)))
+
+(add-to-list 'yank-handled-properties '(hproperty:but-face . hproperty:but-create-on-yank))
+
 (defun hproperty:but-delete (&optional pos)
   (let ((but (hproperty:but-get pos)))
     (if but (delete-overlay but))))

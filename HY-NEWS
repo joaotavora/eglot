@@ -15,7 +15,7 @@
       actions allow for rapid display of buffers, windows and frames wherever
       you like.
 
-      Major features include:
+      Major new features include:
 
         * Dragging items from Dired or the Buffer Menu for display in existing
           or new windows and frames.  Action Key drag from the first line (or
@@ -66,6 +66,9 @@
     - Link to File: When modifying an explicit file link button, a variable in
       a pathname is maintained as is any prior in-file location when prompting
       for changes.
+
+    - Yanking Explicit Buttons: When copying or moving explicit buttons, they
+      are now re-highlighted when yanked into a new position.
 
     - EWW Support: Added Action and Assist Key support for browsing links in
       eww (the Emacs web browser) and for activating history links in the eww
@@ -133,16 +136,16 @@
       an external viewer.
 
     - Emacs Push-buttons: An Assist Key press on an Emacs push-button previously
-      displayed its keyboard-action help string but not its mouse-action help string.
-      Now it displays the mouse-action when appropriate.
+      displayed its keyboard-action help string but not its mouse-action help
+      string.  Now it displays the mouse-action when appropriate.
 
     - Texinfo References: An Action Key press on an Emacs Lisp @findex
       (function) or @vindex (variable) entry displays the documentation for
       that entry.
 
-    - Debbugs Issues: Eliminated match of #id-number as a bug reference; 'bug' or
-      similar prefix is now required so there is no ambiguity with social references
-      including 'git #commit-number'.
+    - Debbugs Issues: Eliminated match of #id-number as a bug reference; 'bug'
+      or similar prefix is now required so there is no ambiguity with social
+      references including 'git #commit-number'.
 
   CUSTOMIZATON
 
@@ -153,14 +156,14 @@
   DOCUMENTATION
 
     - Hyperbole HTML Manual: The HTML version of the Hyperbole Manual now uses
-      a css stylesheet similar to that used for the Hyperbole Home page, making
+      css stylesheet similar to that used for the Hyperbole Home page, making
       it look much better and easier to navigate.
 
     - Drags: Updated Hyperbole Manual with all new Smart Mouse Key drag actions.
 
     - Smart Key Help: Improved help documentation for Smart Keys when they
-      contain multiple clauses connected with 'or' logic, e.g. do 'a' or 'b' or
-      'c'.
+      contain multiple clauses connected with 'or' logic, e.g. do 'a' or 'b'
+      or 'c'.
 
     - New Hyperbole Manual Sections:
         * Referent Display - setting of where link referents are displayed
@@ -170,12 +173,13 @@
 	* Future Work - Direct Manipulation
 
     - Git References: In the Implicit Buttons section of the Hyperbole Manual,
-      added documentation for git-reference, git-commit-reference and github-reference.
+      added documentation for git-reference, git-commit-reference and
+      github-reference.
 
-    - Toggle Key Bindings: In the Smart Key Bindings section of the Hyperbole Manual,
-      explained hyperbole-toggle-bindings (toggles keyboard and mouse keys) rather
-      than hmouse-toggle-bindings (toggles only mouse keys).  Moved the latter to
-      the Global Key Bindings appendix.
+    - Toggle Key Bindings: In the Smart Key Bindings section of the Hyperbole
+      Manual, explained hyperbole-toggle-bindings (toggles keyboard and mouse
+      keys) rather than hmouse-toggle-bindings (toggles only mouse keys).
+      Moved the latter to the Global Key Bindings appendix.
 
     - Other Hyperbole Manual Section Changes:
         * Button Colors: Added doc on hproperty:but-highlight-flag.
@@ -199,14 +203,14 @@
 
     - HyControl Minor Modes: HyControl is now two minor modes, one for frames
       and one for windows.  It uses standard key bindings and standard Emacs
-      event processing instead of its own event loop, so any keys not bound
-      in a HyControl mode now work normally.  HyControl Windows Mode displays
+      event processing instead of its own event loop, so any keys not bound in
+      a HyControl mode now work normally.  HyControl Windows Mode displays
       HyWin in the modeline and HyControl Frames Mode displays HyFrm while
       active.  Both modes invert the modeline colors so you don't forget you
       are in a special mode.
 
-    - {@} is an incredible new key binding and command that creates a grid
-      of windows within a frame by splitting the frame into a number of equally
+    - {@} is an incredible new key binding and command that creates a grid of
+      windows within a frame by splitting the frame into a number of equally
       sized windows specified by a number of rows and columns (typically as
       prefix arg digits).  Each window shows a different buffer, if possible,
       with a prefix arg of 0 prompting for a major mode and first displaying
@@ -225,8 +229,8 @@
 
       {M-x hycontrol-windows-grid-repeatedly RET} allows rapid visual testing
       of different grid layouts or filters as it prompts you for a grid size,
-      displays it and then prompts you again until your press RET without giving
-      a size.
+      displays it and then prompts you again until your press RET without
+      giving a size.
 
       See "Demo#Windows Grid" for example use.
 
@@ -241,48 +245,50 @@
       {F} moves a window to a new frame and deletes the the source window
 
     - {i}, {j}, {k}, {m} first expand the selected frame to an edge based on
-      their respective positions on a U.S. keyboard, e.g. {i} expands the frame
-      to the top edge; with further invocations, they keep the frame at that edge
-      but cut its perpendicular dimension in half (or to any percentage specified
-      as an argument), leaving the particular edge fixed.  This allows both rapid
-      expansion and contraction of frames with just 4 keys whenever needed.
+      their respective positions on a U.S. keyboard, e.g. {i} expands the
+      frame to the top edge; with further invocations, they keep the frame at
+      that edge but cut its perpendicular dimension in half (or to any
+      percentage specified as an argument), leaving the particular edge fixed.
+      This allows both rapid expansion and contraction of frames with just 4
+      keys whenever needed.
 
       It is easiest to understand by simply trying the keys. See "Demo#Frame
       Commands" for example use.
 
-    - {c} for frame edge location cycling now is available in HyControl Windows
-      mode.
+    - {c} for frame edge location cycling now is available in HyControl
+      Windows mode.
 
     - {p <num>} displays a virtual numeric keypad and moves the selected frame
       to the screen edge position based on the numeric keypad layout, e.g. 3
       moves it to the southeast corner of the screen.  This is for keyboards
-      that do not have a physical numeric keypad.  Before a number is selected,
-      {C-g} or {q} will exit and return to the top-level of the active
-      HyControl mode.
+      that do not have a physical numeric keypad.  Before a number is
+      selected, {C-g} or {q} will exit and return to the top-level of the
+      active HyControl mode.
 
     - {-} in HyControl Windows mode minimizes a window size while trying to
-      display its entire buffer.  Now it will resize the window to 1 line
-      if it cannot display all lines or if all lines are already displayed.
+      display its entire buffer.  Now it will resize the window to 1 line if
+      it cannot display all lines or if all lines are already displayed.
 
     - Minibuffer Help: Improved help strings shown in the minibuffer while
-      HyControl is active.  Added {?} key which toggles this display on and off.
+      HyControl is active.  Added {?} key which toggles this display on and
+      off.
       
     - ESC: Removed this as a quit key since now that regular key sequences are
       supported, this is often used as a meta key prefix.  Use {q} to quit.
 
-    - Minibuffer Prompts: Automatically quit from any HyControl mode whenever a
-      minibuffer prompt becomes active so that arguments may be typed normally.
-      Examples include use of {M-:} for Lisp expression evaluation and M-x for
-      entering commands by name.
+    - Minibuffer Prompts: Automatically quit from any HyControl mode whenever
+      a minibuffer prompt becomes active so that arguments may be typed
+      normally.  Examples include use of {M-:} for Lisp expression evaluation
+      and M-x for entering commands by name.
 
   HYROLO
 
     - Google Contacts: New support for searching your Google Contacts with the
       HyRolo Contact Manager; for advanced users only.  Requires use of the
-      Emacs google-contacts package and the non-Emacs gpg public key package to
-      support Google services authorization.  Once configured, these contacts
-      are automatically searched together with local HyRolo files any time a
-      contact search is performed.  See the Google Contacts part in
+      Emacs google-contacts package and the non-Emacs gpg public key package
+      to support Google services authorization.  Once configured, these
+      contacts are automatically searched together with local HyRolo files any
+      time a contact search is performed.  See the Google Contacts part in
       "(hyperbole)HyRolo Settings".
 
     - Dynamic HyRolo List: The HyRolo list of files to search is now computed
@@ -294,9 +300,9 @@
 
     - Unshifted Mouse Keys: By default, Hyperbole mouse keys are Shift-Middle
       (Action Key) and Shift-Right (Assist Key).  For frequent mouse users,
-      there is now {M-x hmouse-add-unshifted-smart-keys RET} which additionally
-      makes the Middle mouse key the Action Key and the Right mouse key the
-      Assist Key, replacing their default Emacs functions.  {M-x
+      there is now {M-x hmouse-add-unshifted-smart-keys RET} which
+      additionally makes the Middle mouse key the Action Key and the Right
+      mouse key the Assist Key, replacing their default Emacs functions.  {M-x
       hmouse-toggle-bindings RET} will toggle between the Emacs and Hyperbole
       mouse bindings.
 
@@ -319,17 +325,17 @@
 
   KOUTLINER
 
-    - `e' Viewspec: Removed ellipses viewspec because ellipses can no longer be
-      turned off with modern Emacs outlining.
+    - `e' Viewspec: Removed ellipses viewspec because ellipses can no longer
+      be turned off with modern Emacs outlining.
 
   MENUS
 
-    - Prefix Arguments: Prefix arguments may now be given to any Hyperbole menu
-      command that accepts them.
+    - Prefix Arguments: Prefix arguments may now be given to any Hyperbole
+      menu command that accepts them.
 
-    - Action Doc Strings: If a menu item has no help string but its action is a
-      function with a doc string, then that doc string will be used to display
-      help for the menu item.
+    - Action Doc Strings: If a menu item has no help string but its action is
+      a function with a doc string, then that doc string will be used to
+      display help for the menu item.
 
     - Key Bindings: The pulldown menu, Hyperbole/Options/Change-Key-Bindings
       now displays the current keys bound to each command for easy reference.

@@ -169,75 +169,74 @@ drag release window.")
 ;;; Add window handling to hmouse-alist dispatch table.
 ;;;
 (if (not (boundp 'hmouse-alist))
-    (error
-      "\"hui-window.el\": `hmouse-alist' must be defined before loading this.")
-  (or (assoc #'(hmouse-drag-thing) hmouse-alist)
-      (setq hmouse-alist
-	    (append
-	      '(
-		;; If click in the minibuffer when it is not active (blank),
-		;; display the Hyperbole minibuffer menu or popup the jump menu.
-		((hmouse-inactive-minibuffer-p) .
-		 ((funcall action-key-minibuffer-function) . 
-		  (funcall assist-key-minibuffer-function)))
-		((hmouse-drag-thing) .
-		 ((hmouse-yank-region) . (hmouse-kill-and-yank-region)))
-		((hmouse-drag-window-side) .
-		 ((hmouse-resize-window-side) . (hmouse-resize-window-side)))
-		;;
-		;; Although Hyperbole can distinguish whether
-		;; inter-window drags are between frames or not,
-		;; having different behavior for those 2 cases could
-		;; be confusing, so treat all modeline drags between
-		;; windows the same and comment out this next clause.
-		;;   Modeline drag between frames
-		;;   ((and (hmouse-modeline-depress) (hmouse-drag-between-frames)) .
-		;;    ((hmouse-clone-window-to-frame) . (hmouse-move-window-to-frame)))
-		;;
-		;; Drag with release on a Modeline
-		((and (hmouse-modeline-release) (not (hmouse-modeline-click))) .
-		 ((or (hmouse-drag-item-to-display t) (hmouse-buffer-to-window t)) .
-		  (hmouse-swap-buffers)))
-		;; Non-vertical Modeline drag between windows
-		((and (hmouse-modeline-depress) (hmouse-drag-between-windows)
-		      (not (hmouse-drag-vertically-within-emacs))) .
-		 ((hmouse-buffer-to-window) . (hmouse-swap-buffers)))
-		;; Modeline drag that ends outside of Emacs
-		((and (hmouse-modeline-depress) (hmouse-drag-outside-all-windows)) .
-		 ((hycontrol-clone-window-to-new-frame) . (hycontrol-window-to-new-frame)))
-		;; Other Modeline click or drag
-		((hmouse-modeline-depress) .
-		 ((action-key-modeline) . (assist-key-modeline)))
-		((hmouse-drag-between-windows) .
-		 ;; Note that `hui:link-directly' uses any active
-		 ;; region as the label of the button to create.
-		 ((or (hmouse-drag-item-to-display) (hui:link-directly)) . (hmouse-swap-buffers)))
-		((hmouse-drag-region-active) .
-		 ((hmouse-drag-not-allowed) . (hmouse-drag-not-allowed)))
-		((setq hkey-value (hmouse-drag-horizontally)) .
-		 ((hmouse-horizontal-action-drag) . (hmouse-horizontal-assist-drag)))
-		((hmouse-drag-vertically) .
-		 ((hmouse-vertical-action-drag) . (hmouse-vertical-assist-drag)))
-		((setq hkey-value (hmouse-drag-diagonally)) .
-		 ((call-interactively #'hywconfig-ring-save) .
-		  (call-interactively #'hywconfig-yank-pop)))
-		;; Window drag that ends outside of Emacs
-		((hmouse-drag-outside-all-windows) .
-		 ((or (hmouse-drag-item-to-display)
-		      (hycontrol-clone-window-to-new-frame)) .
-		  (hycontrol-window-to-new-frame)))
-		;;
-		;; Now since this is not a drag and if there was an active
-		;; region prior to when the Action or Assist Key was
-		;; pressed, then store point at one end of the region into
-		;; `hkey-value' and the string value of the region
-		;; into `hkey-region' which is either yanked, or
-		;; killed and yanked at the current point.
-		((hmouse-prior-active-region) .
-		 ((hmouse-yank-region) . (hmouse-kill-and-yank-region)))
-		;;
-		)
-	      hmouse-alist))))
+    (error "\"hui-window.el\": `hmouse-alist' must be defined before loading this.")
+  (unless (assoc #'(hmouse-inactive-minibuffer-p) hmouse-alist)
+    (setq hmouse-alist
+	  (append
+	   '(
+	     ;; If click in the minibuffer when it is not active (blank),
+	     ;; display the Hyperbole minibuffer menu or popup the jump menu.
+	     ((hmouse-inactive-minibuffer-p) .
+	      ((funcall action-key-minibuffer-function) . 
+	       (funcall assist-key-minibuffer-function)))
+	     ((hmouse-drag-thing) .
+	      ((hmouse-yank-region) . (hmouse-kill-and-yank-region)))
+	     ((hmouse-drag-window-side) .
+	      ((hmouse-resize-window-side) . (hmouse-resize-window-side)))
+	     ;;
+	     ;; Although Hyperbole can distinguish whether
+	     ;; inter-window drags are between frames or not,
+	     ;; having different behavior for those 2 cases could
+	     ;; be confusing, so treat all modeline drags between
+	     ;; windows the same and comment out this next clause.
+	     ;;   Modeline drag between frames
+	     ;;   ((and (hmouse-modeline-depress) (hmouse-drag-between-frames)) .
+	     ;;    ((hmouse-clone-window-to-frame) . (hmouse-move-window-to-frame)))
+	     ;;
+	     ;; Drag with release on a Modeline
+	     ((and (hmouse-modeline-release) (not (hmouse-modeline-click))) .
+	      ((or (hmouse-drag-item-to-display t) (hmouse-buffer-to-window t)) .
+	       (hmouse-swap-buffers)))
+	     ;; Non-vertical Modeline drag between windows
+	     ((and (hmouse-modeline-depress) (hmouse-drag-between-windows)
+		   (not (hmouse-drag-vertically-within-emacs))) .
+		   ((hmouse-buffer-to-window) . (hmouse-swap-buffers)))
+	     ;; Modeline drag that ends outside of Emacs
+	     ((and (hmouse-modeline-depress) (hmouse-drag-outside-all-windows)) .
+	      ((hycontrol-clone-window-to-new-frame) . (hycontrol-window-to-new-frame)))
+	     ;; Other Modeline click or drag
+	     ((hmouse-modeline-depress) .
+	      ((action-key-modeline) . (assist-key-modeline)))
+	     ((hmouse-drag-between-windows) .
+	      ;; Note that `hui:link-directly' uses any active
+	      ;; region as the label of the button to create.
+	      ((or (hmouse-drag-item-to-display) (hui:link-directly)) . (hmouse-swap-buffers)))
+	     ((hmouse-drag-region-active) .
+	      ((hmouse-drag-not-allowed) . (hmouse-drag-not-allowed)))
+	     ((setq hkey-value (hmouse-drag-horizontally)) .
+	      ((hmouse-horizontal-action-drag) . (hmouse-horizontal-assist-drag)))
+	     ((hmouse-drag-vertically) .
+	      ((hmouse-vertical-action-drag) . (hmouse-vertical-assist-drag)))
+	     ((setq hkey-value (hmouse-drag-diagonally)) .
+	      ((call-interactively #'hywconfig-ring-save) .
+	       (call-interactively #'hywconfig-yank-pop)))
+	     ;; Window drag that ends outside of Emacs
+	     ((hmouse-drag-outside-all-windows) .
+	      ((or (hmouse-drag-item-to-display)
+		   (hycontrol-clone-window-to-new-frame)) .
+		   (hycontrol-window-to-new-frame)))
+	     ;;
+	     ;; Now since this is not a drag and if there was an active
+	     ;; region prior to when the Action or Assist Key was
+	     ;; pressed, then store point at one end of the region into
+	     ;; `hkey-value' and the string value of the region
+	     ;; into `hkey-region' which is either yanked, or
+	     ;; killed and yanked at the current point.
+	     ((hmouse-prior-active-region) .
+	      ((hmouse-yank-region) . (hmouse-kill-and-yank-region)))
+	     ;;
+	     )
+	   hmouse-alist))))
 
 ;;; ************************************************************************
 ;;; Public functions
@@ -322,8 +321,8 @@ Key behavior reverts to as though no items have been dragged."
 (defun hmouse-drag-region-active ()
   "Return non-nil if an active region existed in the depress buffer prior to the depress and a drag motion has occurred."
   (save-excursion
-    (and (hmouse-goto-depress-prev-point)
-	 (region-active-p)
+    (and (hmouse-goto-region-prev-point)
+	 (hmouse-use-region-p)
 	 (or (hmouse-drag-vertically) (hmouse-drag-horizontally) (hmouse-drag-diagonally))
 	 (setq hkey-value (point)))))
 
@@ -334,105 +333,119 @@ Delimited constructs include lists, comments, strings,
  </div>.  Point must be on the start or end delimiter or in the
  case of markup pair tags, on the first character of either tag.
  For strings and comments, point must be on the first line."
-    ;; Move point back to Smart Key depress location for testing whether at a thing.
-    (let ((depress-args (if assist-flag assist-key-depress-args action-key-depress-args))
-	  (release-args (if assist-flag assist-key-release-args action-key-release-args))
-	  (marked-thing))
-      (save-excursion
-	(hmouse-goto-depress-point)
-	(if (and (not (region-active-p)) (hui-select-at-delimited-thing-p)
-		 (or (markerp depress-args) (markerp release-args)
-		     (and (not (or (hmouse-drag-window-side) (hmouse-modeline-depress)))
-			  (or (hmouse-drag-between-windows) (hmouse-drag-vertically) 
-			      (hmouse-drag-horizontally) (hmouse-drag-diagonally))))
-		 (let ((start-buf (window-buffer (smart-window-of-coords depress-args)))
-		       (end-buf (window-buffer (smart-window-of-coords release-args)))
-		       (start-point (smart-point-of-coords depress-args))
-		       (end-point (smart-point-of-coords release-args)))
-		   ;; Ignore this, if it is a click or if drag end point is within the thing to operate upon
-		   (not (and (eq start-buf end-buf)
- 			     start-point
-			     end-point
-			     (/= start-point end-point)
-			     (setq marked-thing (hui-select-delimited-thing))
-			     (>= end-point (min (point) (mark)))
-			     (<= end-point (max (point) (mark)))))))
-	    (progn (if (not (region-active-p)) (hui-select-delimited-thing))
-		   ;; Store any new value of point as a result of marking the region,
-		   ;; so we can return to it later.
-		   (setq hkey-value (point))
-		   (hmouse-save-region)
-		   t)
-	  (if marked-thing (deactivate-mark))
-	  nil))))
+  ;; Move point back to Smart Key depress location for testing whether at a thing.
+  (let ((depress-args (if assist-flag assist-key-depress-args action-key-depress-args))
+	(release-args (if assist-flag assist-key-release-args action-key-release-args))
+	(marked-thing)
+	(ignore-drag))
+    (save-excursion
+      (hmouse-goto-depress-point)
+      (if (and (not (hmouse-use-region-p)) (hui-select-at-delimited-thing-p)
+	       (or (markerp depress-args) (markerp release-args)
+		   (and (not (or (hmouse-drag-window-side) (hmouse-modeline-depress)))
+			(or (hmouse-drag-between-windows) (hmouse-drag-vertically) 
+			    (hmouse-drag-horizontally) (hmouse-drag-diagonally))))
+	       (let ((start-buf (window-buffer (smart-window-of-coords depress-args)))
+		     (end-buf (window-buffer (smart-window-of-coords release-args)))
+		     (start-point (smart-point-of-coords depress-args))
+		     (end-point (smart-point-of-coords release-args)))
+		 ;; If it is a click, return nil; if drag end point
+		 ;; is within the thing to operate upon, don't set a
+		 ;; region, so no operation will be performed but
+		 ;; return t (ignore drag).
+		 (not (and (eq start-buf end-buf)
+ 			   start-point
+			   end-point
+			   (/= start-point end-point)
+			   (setq marked-thing (hui-select-delimited-thing))
+			   (setq ignore-drag (and (> end-point (min (point) (mark)))
+						  (< end-point (max (point) (mark)))))))))
+	  (progn (when (not (hmouse-use-region-p)) (hui-select-delimited-thing))
+		 ;; Erase any saved location of a region prior to Smart Key depress since now we have a
+		 ;; new region location.  This prevents hmouse-kill-and-yank-region from jumping to the
+		 ;; old location.
+		 (if assist-flag
+		     (setq assist-key-depress-prev-point nil)
+		   (setq action-key-depress-prev-point nil))
+		 ;; Store any new value of point as a result of marking the region, so we can return to it
+		 ;; later.
+		 (setq hkey-value (point))
+		 (hmouse-save-region)
+		 t)
+	(if marked-thing (deactivate-mark))
+	(when ignore-drag (error "(Hyperbole): Smart Key drag of a delimited thing must end outside of the thing"))
+	nil))))
 
 (defun hmouse-kill-region ()
   "Kill the marked region near where the Smart Key was depressed.
 Signals an error if the depress buffer is read-only."
-  ;; Move point back to Smart Key depress buffer but not necessarily
-  ;; the same point at the depress since region selection may have
-  ;; moved it.
-  (hmouse-goto-region-point)
+  ;; Region may be in another buffer, so move there if so.
+  (hmouse-goto-region-prev-point)
   (if buffer-read-only
       ;; In this case, we want an error that will terminate execution so that
       ;; hkey-region is not reset to nil.  This allows the user to fix the
       ;; problem and then to try killing again.
       (error "(hmouse-kill-region): Use {%s} to enable killing from this buffer."
 	     (hmouse-read-only-toggle-key))
-    (kill-region (point) (mark))))
+    (kill-region (or hkey-value (point)) (mark))))
 
 (defun hmouse-kill-and-yank-region ()
   "Kill the marked region near where the Smart Key was depressed and yank it at the point of release.
 Signals an error if either depress or release buffer is read-only."
-  ;; Move point back to Smart Key depress buffer but not necessarily
-  ;; the same point, for testing if real-only.
-  (hmouse-goto-region-point)
-  (if buffer-read-only
-      ;; In this case, we want an error that will terminate execution so that
-      ;; hkey-region is not reset to nil.  This allows the user to fix the
-      ;; problem and then to try killing again.
-      (error "(hmouse-kill-and-yank-region): Use {%s} to enable killing from this buffer."
-	     (hmouse-read-only-toggle-key))
-    ;; Depress and release may be in the same buffer, in which case, 
-    ;; save the release point that may change as a result of
-    ;; the kill; also, before the kill, restore the point to where it
-    ;; was when the region was set.
-    (hmouse-goto-release-point)
-    (let ((release-point (point-marker)))
-      (if buffer-read-only
-	  ;; In this case, we want an error that will terminate execution so that
-	  ;; hkey-region is not reset to nil.  This allows the user to fix the
-	  ;; problem and then to try yanking again.
-	  (error "(hmouse-kill-and-yank-region): Use {%s} to enable yanking into this buffer."
-		 (hmouse-read-only-toggle-key))
-	;; Now kill and yank the region into the Smart Key release buffer.
-	(hmouse-goto-region-point)
-	(kill-region (point) (mark))
-	;; Permanently return to release point
-	(select-window (if assist-flag assist-key-release-window action-key-release-window))
-	(goto-char release-point)
-	(hmouse-insert-region)))))
+  (when hkey-region
+    ;; Move point back to Smart Key depress buffer.
+    (hmouse-goto-depress-point)
+    (if buffer-read-only
+	;; In this case, we want an error that will terminate execution so that
+	;; hkey-region is not reset to nil.  This allows the user to fix the
+	;; problem and then to try killing again.
+	(error "(hmouse-kill-and-yank-region): Use {%s} to enable killing from this buffer."
+	       (hmouse-read-only-toggle-key))
+      ;; Depress and release may be in the same buffer, in which case, 
+      ;; save the release point that may change as a result of
+      ;; the kill; also, before the kill, restore the point to where it
+      ;; was when the region was set.
+      (hmouse-goto-release-point)
+      (let ((release-point (point-marker)))
+	(if buffer-read-only
+	    ;; In this case, we want an error that will terminate execution so that
+	    ;; hkey-region is not reset to nil.  This allows the user to fix the
+	    ;; problem and then to try yanking again.
+	    (error "(hmouse-kill-and-yank-region): Use {%s} to enable yanking into this buffer."
+		   (hmouse-read-only-toggle-key))
+	  ;; Region may be in another buffer, so move there if so.
+	  (hmouse-goto-region-prev-point)
+	  ;; Now kill and yank the region into the Smart Key release buffer.
+	  (kill-region (or hkey-value (point)) (mark))
+	  ;; Permanently return to release point
+	  (select-window (if assist-flag assist-key-release-window action-key-release-window))
+	  (goto-char release-point)
+	  ;; Protect from indentation errors
+	  (condition-case ()
+	      (hmouse-insert-region)
+	    (error nil)))))))
 
 (defun hmouse-yank-region ()
   "Yank the region of text saved in `hkey-region' into the current buffer.
 Signals an error if the buffer is read-only."
   ;; If a region was just selected for yanking, deactivate it as we
   ;; have already copied the region into `hkey-region'.
-  (hmouse-goto-region-point)
-  (if (region-active-p) (deactivate-mark))
-  (hmouse-goto-release-point)
-  (if buffer-read-only
-      ;; In this case, we want an error that will terminate execution so that
-      ;; hkey-region is not reset to nil.  This allows the user to fix the
-      ;; problem and then to try yanking again.
-      (error "(hmouse-yank-region): Use {%s} to enable yanking into this buffer."
-	     (hmouse-read-only-toggle-key))
-    ;; Permanently return to release point
-    (select-window (if assist-flag assist-key-release-window action-key-release-window))
-    ;; Protect from indentation errors
-    (condition-case err
-	(hmouse-insert-region)
-      (error nil))))
+  (when hkey-region
+    (hmouse-goto-region-prev-point)
+    (if (region-active-p) (deactivate-mark))
+    (hmouse-goto-release-point)
+    (if buffer-read-only
+	;; In this case, we want an error that will terminate execution so that
+	;; hkey-region is not reset to nil.  This allows the user to fix the
+	;; problem and then to try yanking again.
+	(error "(hmouse-yank-region): Use {%s} to enable yanking into this buffer."
+	       (hmouse-read-only-toggle-key))
+      ;; Permanently return to release point
+      (select-window (if assist-flag assist-key-release-window action-key-release-window))
+      ;; Protect from indentation errors
+      (condition-case ()
+	  (hmouse-insert-region)
+	(error nil)))))
 
 (defun hmouse-drag-between-frames ()
   "Returns non-nil if last Action Key depress and release were in different frames.
@@ -742,13 +755,13 @@ With optional boolean NEW-WINDOW non-nil, sensibly split the release window befo
 (defun hmouse-set-buffer-and-point (buffer point)
   (when buffer
     (set-buffer buffer)
-    (if point (goto-char point))))
+    (when point (goto-char point))))
 
-(defun hmouse-goto-depress-prev-point ()
-  "Temporarily set point to where the last Smart Key was depressed and return t, else nil if no such point saved."
+(defun hmouse-goto-region-prev-point ()
+  "Temporarily set point to where it was prior to the last Smart Key depress and return t, else nil if no such point is saved."
   (let* ((prev-point (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point))
 	 (buf (and prev-point (marker-buffer prev-point)))
-	 (loc (marker-position prev-point)))
+	 (loc (and prev-point (marker-position prev-point))))
     (when (and buf loc)
       (hmouse-set-buffer-and-point buf loc)
       t)))
@@ -759,14 +772,8 @@ With optional boolean NEW-WINDOW non-nil, sensibly split the release window befo
 	(loc (smart-point-of-coords (if assist-flag assist-key-depress-args action-key-depress-args))))
     (hmouse-set-buffer-and-point buf loc)))
 
-(defun hmouse-goto-region-point ()
-  "Temporarily set point back to where it was when the region was activated prior to last Smart Key depress."
-  (let* ((loc (if assist-flag assist-key-depress-prev-point action-key-depress-prev-point))
-	 (buf (marker-buffer loc)))
-    (hmouse-set-buffer-and-point buf loc)))
-
 (defun hmouse-goto-release-point ()
-  "Temporarily set point to where the last Smart Key was depressed."
+  "Temporarily set point to where the last Smart Key was released."
   (let ((buf (window-buffer (if assist-flag assist-key-release-window action-key-release-window)))
 	(loc (smart-point-of-coords (if assist-flag assist-key-release-args action-key-release-args))))
     (hmouse-set-buffer-and-point buf loc)))
