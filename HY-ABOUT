@@ -3,14 +3,14 @@
 		   Designed and Written by Bob Weiner
  	        Maintained by Mats Lidell and Bob Weiner
 	         https://www.gnu.org/software/hyperbole/
-                            Version 6.0.2g
+                            Version 7.0.0
 
 GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole, is
 an efficient and programmable hypertextual information management
 system implemented as a GNU Emacs package.  It works well on GNU Emacs
-24.4 or above.
+24.4 or above.  (See also: "HY-WHY.kotl" for Hyperbole uses).
 
-It includes easy-to-use, powerful hypertextual button types without
+Hyperbole includes easy-to-use, powerful hypertextual buttons without
 the need to learn a markup language; a hierarchical, record-based
 contact manager; a rapid window and frame control system; and a
 powerful multi-level auto-numbered outliner.  All features are aimed

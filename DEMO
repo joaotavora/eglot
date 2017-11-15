@@ -1,4 +1,20 @@
-* GNU Hyperbole Demonstration and Introduction by Bob Weiner
+* GNU Hyperbole Demonstration by Bob Weiner
+
+    Table of Contents
+    -----------------
+    * Introduction
+    * Smart Keys 
+    * Koutliner
+    * HyControl
+    * HyRolo
+    * History
+    * Implicit Buttons
+    * Explicit Buttons
+    * Smart Mouse Keys
+    * Epilog
+    * References
+
+* Introduction
 
 Welcome to GNU Hyperbole.  Hyperbole will super-charge your GNU Emacs
 experience, allowing you to work faster, utilize fewer key bindings, recall
@@ -36,20 +52,27 @@ the shift-right mouse button.  Memorize these keys; you will use them a lot.
 To distinguish the mouse buttons from the keyboard keys, we will often refer
 to the Action Mouse Key or Assist Mouse Key.  (It is possible to rebind these
 keys to the unshifted middle and right mouse buttons, if desired.  See the
-Smart Key Bindings section of the Hyperbole Manual,
-"(hyperbole)Smart Key Bindings").
+Smart Key Bindings section of the Hyperbole Manual, "(hyperbole)Smart Key
+Bindings").
 
 The Action Key selects entities, creates links and activates buttons.  The
 Assist Key provides help, such as reporting on a button's attributes, or
 serves a complementary function to whatever the Action Key does within a
 context.  Press the Action Key within this <(button)> to see all of the
 contexts and operations of the Smart Keys.  SPACE scrolls forward and
-backwards DELETE scrolls backward within the Smart Key summary; {q} quits and
-returns here.
+backwards DELETE scrolls backward within the Smart Key summary; {q} quits
+and returns here.
 
 See also the later section, <(Smart Mouse Keys)>.
 
 Now let's look at many of the things you can do with the Smart Keys.
+
+** Table of Contents Browsing
+
+In DEMO, README and TUTORIAL files, Hyperbole recognizes table of contents
+entries and jumps to their associated sections (by default, in another
+window) with a press of the Action Key.  Go back to the table of contents at
+the start of this file and try navigating to different sections.
 
 ** Smart Scrolling
 
@@ -59,8 +82,8 @@ the current line is placed at the top of the window; the Assist Key does the
 reverse when pressed at the end of line; it places the current line at the
 bottom of the window.  This is called proportional scrolling because the
 amount of scrolling is relative to the point's position in the window.  Try
-it with this DEMO buffer to see how you can precisely control what is displayed
-in a window and then come back here.
+it with this DEMO buffer to see how you can precisely control what is
+displayed in a window and then come back here.
 
 Alternatively, if this variable is set to nil (FALSE), the Smart Keys scroll
 forward or backward a windowful when at the end of a line, regardless of
@@ -152,19 +175,16 @@ A unique feature of Hyperbole is the Koutliner; it is for outlining thoughts,
 developing requirements or listing tasks and hyperlinking them to other
 documents.
 
-The Hyperbole Koutliner should work under any modern version of GNU Emacs.
-Your Emacs supports the Koutliner if when you press {C-h h} to display the
-Hyperbole menu, you have a Kotl/ entry in the menu.
-
 The Hyperbole Koutliner produces structured, autonumbered documents composed
 of hierarchies of cells.  Each cell has two identifiers, a relative
 autonumber indicating its present position within the outline and a permanent
 identifier suitable for use within hyperlink references to the cell.
 
-The Kotl/Example menu entry on {C-h h k e} gives you an editable copy of
-Hyperbole's example Koutliner file.  This explains the Koutliner commands
-and lets you try them out as you learn.  Additional documentation can be
-found in "(hyperbole)Koutliner".  "(hyperbole)Koutliner Keys" summarizes in
+A demonstration of the Koutliner is found on the Hyperbole Kotl/Example menu
+entry.  {C-h h k e}, gives you an editable copy of Hyperbole's example
+Koutliner file.  This explains the Koutliner commands and lets you try them
+out as you learn.  Additional documentation can be found in
+"(hyperbole)Koutliner".  "(hyperbole)Koutliner Keys" summarizes in
 alphabetical order the Koutliner commands which are bound to keys.
 
 
@@ -207,25 +227,25 @@ Let's try some of the more interesting commands.  You can either type the
 following key sequences (ignoring the braces) for practice or simply press
 the Action Key within them to see what they look like.
 
-{C-h h s f}  - enter HyControl Frames mode
+   {C-h h s f}  - enter HyControl Frames mode
 
-{.50 %}      - make frame 50% of screen size
-{ c }        - use this multiple times to move frame around screen edges
-{ a }        - use this multiple times to adjust frame width
-{ A }        - use this multiple times to adjust frame height
+   {.50 %}      - make frame 50% of screen size
+   { c }        - use this multiple times to move frame around screen edges
+   { a }        - use this multiple times to adjust frame width
+   { A }        - use this multiple times to adjust frame height
 
 The following 4 commands use the prefix argument as a percentage of the
 screen height, except that no argument or an argument of 1 mean 50% since
 the argument is used to adjust one dimension of the frame.
 
-{ i }        - move to top edge, next press cuts height by ARG %
-{ m }        - move to bottom edge, next press cuts height by ARG %
-{ j }        - move to left edge, next press cuts width by ARG %
-{ k }        - move to right edge, next press cuts width by ARG %
+   { i }        - move to top edge, next press cuts height by ARG %
+   { m }        - move to bottom edge, next press cuts height by ARG %
+   { j }        - move to left edge, next press cuts width by ARG %
+   { k }        - move to right edge, next press cuts width by ARG %
 
-{ f }        - clone the selected window to a new frame
-{ F }        - tear off the selected window (if more than one window)
-               into a new frame
+   { f }        - clone the selected window to a new frame
+   { F }        - tear off the selected window (if more than one window)
+		  into a new frame
 
 ** Windows Grid
 
@@ -289,27 +309,27 @@ results buffer.
 
 For demonstration purposes, we discuss only the most common searches and use
 a global key binding for quick access to HyRolo searches of existing entries.
-Below is a sample rolo file that we will work with in this DEMO.  The date at
-the end of each record is automatically added by HyRolo whenever a new record
-is added.
+Below is a sample rolo file (indented 3 spaces) that we will work with in
+this DEMO.  The date at the end of each record is automatically added by
+HyRolo whenever a new record is added.
 
-==================================================================
-                       DEMO ROLO
-==================================================================
-*    HiHo Industries
-**     Strong, Hugo            <hs@hiho.com>  W708-555-9821
-             Manager
-             04/12/2017
-***      Smith, John           <js@hiho.com>  W708-555-2001
-             Chief Ether Maintainer
-             05/24/2017
-*    Work Industries
-**     Hansen, Dan             <dh@work.com>  W218-555-2311
-             Manager
-             02/18/2017
-***      Dunn, John            <md@work.com>  W218-555-3233
-             Media Maker
-             11/2/2017
+   ==================================================================
+			  DEMO ROLO
+   ==================================================================
+   *    HiHo Industries
+   **     Strong, Hugo            <hs@hiho.com>  W708-555-9821
+		Manager
+		04/12/2017
+   ***      Smith, John           <js@hiho.com>  W708-555-2001
+		Chief Ether Maintainer
+		05/24/2017
+   *    Work Industries
+   **     Hansen, Dan             <dh@work.com>  W218-555-2311
+		Manager
+		02/18/2017
+   ***      Dunn, John            <md@work.com>  W218-555-3233
+		Media Maker
+		11/2/2017
 
 ** String Searches
 
@@ -529,18 +549,16 @@ the filename.
 
 Refname can be an Info node name or any Info index item (an item listed in
 any of a manual's indices).  Index items let you jump to a specific,
-referenced point within an Info node.  As an example, suppose you want
-quick access to a summary of Hyperbole's key bindings.  Store
-"(hyperbole)key binding list" in your personal file of buttons (accessed with
-{C-h h b p}) and it will always be there.  Press the Action Key on it and
-try it.  Press the Action Key on the key binding of your personal button
-file and then store the implicit link there if you like.
-
-If you want to learn a rapid way to create explicit buttons, see "(hyperbole)By
-Dragging".
+referenced point within an Info node.  As an example, suppose you want quick
+access to a summary of Hyperbole's key bindings.  Store "(hyperbole)key
+binding list" in your personal file of buttons (accessed with {C-h h b p})
+and you will always have quick access to a list of Hyperbole's global key
+bindings.  Press the Action Key on the Info reference and try it.  Press the
+Action Key on the key binding of your personal button file and then store the
+implicit link there if you like.
 
 Since Emacs and most GNU programs include Info manuals, you now a simple way to
-link to and jump to any marked item within any manual.
+link to and jump to any named item within a manual.
 
 *** Remote Paths
 
@@ -623,11 +641,14 @@ includes your system information.
 An Action Key press on a social media hashtag or username reference at point
 displays the web page associated with the reference at the associated
 service.  References are of the form:
-[facebook|instagram|twitter][#@]<hashtag-or-username> or
-[fb|in|tw][#@]<hashtag-or-username>.  If the service is omitted and there
-is no other usage of a hash reference without a prefix in the buffer, then
-the service defaults to the value of `hibtypes-social-default-service',
-which is initially "twitter".
+
+             [facebook|instagram|twitter][#@]<hashtag-or-username>
+          or
+             [fb|in|tw][#@]<hashtag-or-username>.
+
+If the service is omitted and there is no other usage of a hash reference
+without a prefix in the buffer, then the service defaults to the value of
+`hibtypes-social-default-service', which is initially "twitter".
 
 For example, these make the same hashtag reference: twitter#gnu or tw#gnu
 and display the page for tweets with that hashtag.  Similarly, in@lostart or
@@ -646,11 +667,13 @@ Press the Action Key on github@rswgnu to go to RSW's gihub home page.
 gh@rswgnu works too. 
 
 References to project home pages look like this (the / is required):
+
   github#/hyperbole           (uses user default setting)
   github#/rswgnu/hyperbole
 
 References to specific commits use the # hash symbol and short versions
 of the git commit hash code:
+
   gh#rswgnu/hyperbole/5ae3550 (if include user, must include project)
   github#hyperbole/5ae3550    (project can be given with user default)
   gh#5ae3550                  (user and project defaults are used)
@@ -733,8 +756,8 @@ If you click the Action Key on the buffer name, the buffer will be displayed
 just as a file buffer would.  This type of implicit button is called a
 `hyp-source' button.
 
-You can also activate any explicit buttons shown in help buffers thanks to
-hyp-source buttons.
+You can also activate any explicit buttons (see "#Explicit Buttons") shown in
+help buffers thanks to hyp-source buttons.
 
 ** UNIX Man Apropos Buttons
 
@@ -1229,11 +1252,10 @@ behavior.
 * Epilog
 
 We hope you have enjoyed this introduction to Hyperbole. It can be your
-every-ready sidekick in your daily knowledge work.  Explore the Hyperbole
+ever-ready sidekick in your daily knowledge work.  Explore the Hyperbole
 menus to learn more interactively.  For reference, the Hyperbole Manual, has
-more detail about the many things that Hyperbole does when you are ready to
-dive deeper.  Read it online with the GNU Info reader at "(hyperbole)Top".
-
+extensive detail about the many things that Hyperbole does when you are ready
+to dive deeper.  Read it online with the GNU Info reader at "(hyperbole)Top".
 
 * References
 

@@ -876,7 +876,7 @@ Output looks like so:
 	(hyrolo-kill-buffers-after-use (not (get-buffer google-contacts-buffer-name))))
     (call-interactively (if arg 'hyrolo-fgrep 'hyrolo-grep))
     (read-only-mode 0)
-    (re-search-forward rolo-entry-regexp nil t)
+    (re-search-forward hyrolo-entry-regexp nil t)
     (beginning-of-line)
     (set-buffer-modified-p nil)
     (read-only-mode 1)))

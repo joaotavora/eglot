@@ -1012,7 +1012,8 @@ Assumes Hyperbole has already checked that helm is active."
 			       nil)))))
 	     (if hkey-debug
 		 (message "(HyDebug): In smart-helm-assist, key to execute is: {%s}; binding is: %s"
-			  (if key (key-description key) "Help" (if key binding "None"))))))
+			  (if key (key-description key) "Help")
+			  (if key (key-binding key) "None")))))
       (smart-helm-to-minibuffer))
     (if key (call-interactively (key-binding (kbd key))))))
 

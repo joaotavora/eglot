@@ -311,7 +311,7 @@ must have an attached file."
       (cond ((markdown-link-p) 
 	     (condition-case ()
 		 ;; Follows a reference link to its referent.
-		 (progn (markdown-jump)
+		 (progn (markdown-do)
 			(when (/= opoint (point))
 			  (setq npoint (point))
 			  (goto-char opoint)
@@ -498,14 +498,14 @@ http://cscope.sf.net.  Otherwise, does nothing."
 
 (defib text-toc ()
   "Jumps to the text file section referenced by a table of contents entry at point.
-File name must contain README and there must be a `Table of Contents' or
-`Contents' label on a line by itself (it may begin with an asterisk),
-preceding the table of contents.  Each toc entry must begin with some
-whitespace followed by one or more asterisk characters.  Each file section
-name line must start with one or more asterisk characters at the very
-beginning of the line."
+File name must contain DEMO, README or TUTORIAL and there must be a `Table
+of Contents' or `Contents' label on a line by itself (it may begin with
+an asterisk), preceding the table of contents.  Each toc entry must begin
+with some whitespace followed by one or more asterisk characters.  Each
+file section name line must start with one or more asterisk characters at
+the very beginning of the line."
   (let (section)
-    (if (and (string-match "README" (buffer-name))
+    (if (and (string-match "DEMO\\|README\\|TUTORIAL" (buffer-name))
 	     (save-excursion
 	       (beginning-of-line)
 	       ;; Entry line within a TOC
@@ -932,7 +932,9 @@ GNUS is a news and mail reader."
 (defib Info-node ()
   "Makes a \"(filename)nodename\" button display the associated Info node.
 Also makes a \"(filename)itemname\" button display the associated Info index item.
-Examples are \"(hyperbole)Implicit Buttons\" and ``(hyperbole)C-c /''."
+Examples are \"(hyperbole)Implicit Buttons\" and ``(hyperbole)C-c /''.
+
+Activates only if point is within the first line of the Info-node name."
   (let* ((node-ref-and-pos (or (hbut:label-p t "\"" "\"" t t)
 			       ;; Typical GNU Info references; note
 			       ;; these are special quote marks, not the

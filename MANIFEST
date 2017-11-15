@@ -29,7 +29,7 @@ man/hkey-help.txt   - Summarizes Smart Key behaviors in different contexts
 hmouse-info.el      - Walks through Info networks using one key
 hmouse-drv.el       - Smart Key/Mouse driver functions
 hmouse-key.el       - Setup Smart Key mouse bindings
-hmouse-mod.el       - Action Key acts as CONTROL modifier and Assist Key as META modifier (Optional)
+hmouse-mod.el       - Action Key acts as CONTROL modifier and Assist Key as META modifier (Unused)
 hmouse-sh.el        - System-dependent Smart Mouse Key bindings
 hmouse-tag.el       - Smart Key support of programming language tags location
 hycontrol.el        - Interactive sizing, moving, replicating and deleting of windows and frames

@@ -4,7 +4,7 @@
 ;;
 ;; Orig-Date:    15-Nov-93 at 11:57:05
 ;;
-;; Copyright (C) 1993-2016  Free Software Foundation, Inc.
+;; Copyright (C) 1993-2017  Free Software Foundation, Inc.
 ;; See the "../HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
@@ -61,6 +61,9 @@ cells as the initial set of children of the current cell, if any.
    .kot
    .kotl - imported as a structured koutline
    .aug  - imported as an Augment post-numbered outline.")
+
+(defconst kimport:star-heading "^\\(\\*+\\)"
+  "Regular expression matching a star outline heading with the number of stars given by groupoing 1.")
 
 ;;; ************************************************************************
 ;;; Public functions
@@ -260,13 +263,13 @@ an explanation of where imported cells are placed.
     (outline-show-all)
     (save-excursion
       (goto-char (point-min))
-      ;; If initial text in buffer is not an star outline node, add a star to
+      ;; If initial text in buffer is not a star outline node, add a star to
       ;; make it one, so it is not deleted from the import.
-      (if (not (looking-at "[ \t]*\\*"))
+      (unless (looking-at kimport:star-heading)
 	  (insert "* "))
       (goto-char (point-min))
       ;; Total number of top-level cells.
-      (setq total (count-matches "^[ \t]*\\*[ \t\n\r]"))
+      (setq total (count-matches (concat kimport:star-heading "[ \t\n\r]")))
       (if initially-empty-output
 	  nil
 	;; Insert first cell as sibling of current cell.
@@ -612,7 +615,7 @@ COUNT of inserted entries starts at 0.  TOTAL is the total number of entries
 in IMPORT-FROM, used to show a running tally of the imported entries."
   (set-buffer import-from)
   (let ((start (point))
-	(hyrolo-entry-regexp "^[ \t]*\\(\\*+\\)")
+	(hyrolo-entry-regexp kimport:star-heading)
 	subtree-p end contents node-level child-label)
     ;; While find cells at import-level or deeper ...
     (while (and (re-search-forward hyrolo-entry-regexp nil t)

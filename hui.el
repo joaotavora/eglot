@@ -91,7 +91,7 @@ label."
       (hattr:set 'hbut:current 'action
 		 (and hui:ebut-prompt-for-action (hui:action actype))))
     (ebut:operate lbl nil)
-    (when (called-interactively-p)
+    (when (called-interactively-p 'interactive)
       (hui:ebut-message nil))))
 
 (defun hui:ebut-delete (but-key &optional key-src)
@@ -178,7 +178,7 @@ Signals an error when no such button is found in the current buffer."
       (hattr:set 'hbut:current 'action
 		 (and hui:ebut-prompt-for-action (hui:action actype))))
     (ebut:operate lbl new-lbl)
-    (if (called-interactively-p)
+    (when (called-interactively-p 'interactive)
 	(hui:ebut-message t))))
 
 (defun hui:ebut-rename (curr-label new-label)

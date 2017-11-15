@@ -1,3 +1,39 @@
+2017-11-15  Bob Weiner  <rsw@gnu.org>
+
+* hversion.el: Updated to 7.0.0 for major release.
+
+* hui-window.el (hmouse-drag-window-side): Fixed coordinate error when drag release is outside of Emacs.
+
+* hui-mouse.el (smart-helm-assist): Fixed message formatting bugs in hkey-debug message.
+
+* hlvar.el (hack-local-variables): Changed from use of older inhibit-local-variables variable to newer
+    (inhibit-local-variables-p) function call.
+
+* Makefile (version): Removed HY-ANNOUNCE-SHORT from distribution.
+
+* kotl/kexport.el (kexport:html): Changed to wrap cell contents in <PRE></PRE> tags if soft-newline-flag is nil
+    rather than using <BR> hard newlines, so all cell formatting is preserved.  Also changed NAME attribute to
+    ID for HTML5.
+
+2017-11-14  Bob Weiner  <rsw@gnu.org>
+
+* kotl/kimport.el (kimport:star-heading): Added and replaced use of hard-coded regexps in star outline importation.
+    Also, stopped allowing leading whitespace before outline heading stars so can use indented stars as list items
+    rather than outline headings.
+
+* hibtypes.el (text-toc): Expanded file names to include DEMO and TUTORIAL.
+  DEMO: Added Table of Contents and a section on using it, Table of Contents Browsing.
+
+* hbut.el (ebut:label-p): Changed last parameter to limit search to two lines rather than one, so Info node matches can
+    span two lines as they often do.
+
+* HY-ABOUT: Added link to HY-WHY.kotl.
+  HY-WHY.kotl: Added links to relevant DEMO sections throughout.
+ DEMO (Koutliner): Updated this section.
+  hui-menu.el (infodock-hyperbole-menu): Added Why-Use? entry.
+  hui-mini.el (hui:menus): Added WhyUse entry to display HY-WHY.kotl, list of Hyperbole use cases.
+  man/hyperbole.css (code, tt): Removed leading and trailing padding of 5px from code samples so display inline better.
+
 2017-11-13  Bob Weiner  <rsw@gnu.org>
 
 * hui-window.el (hmouse-drag-thing): Added error if drag ends within the delimited thing region, so user knows

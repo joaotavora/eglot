@@ -229,7 +229,7 @@ Global keymap is used unless optional KEYMAP is given."
 FILE is temporarily read into a buffer to determine the major mode if necessary."
   (let ((existing-flag (get-file-buffer file))
 	(buf (find-file-noselect file)))
-    (prog1 (if buf (save-excursion (set-buffer buf) major-mode))
+    (prog1 (when buf (save-excursion (set-buffer buf) major-mode))
       (unless (or existing-flag (null buf))
 	(kill-buffer buf)))))
 
@@ -518,10 +518,9 @@ Otherwise treat \\ in NEWTEXT string as special:
   \\\\ means insert one \\.
 NEWTEXT may instead be a function of one argument (the string to replace in)
 that returns a replacement string."
-  (if (not (stringp str))
-      (error "(hypb:replace-match-string): 2nd arg must be a string: %s" str))
-  (if (or (stringp newtext) (hypb:functionp newtext))
-      nil
+  (unless (stringp str)
+    (error "(hypb:replace-match-string): 2nd arg must be a string: %s" str))
+  (unless (or (stringp newtext) (hypb:functionp newtext))
     (error "(hypb:replace-match-string): 3rd arg must be a string or function: %s"
 	   newtext))
   (let ((rtn-str "")

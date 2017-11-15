@@ -166,11 +166,6 @@ Return t if cutoff, else nil."
 ;;; Public variables
 ;;; ************************************************************************
 
-;; Ensure that this variable is defined to avert any error within
-;; the Customize menu.
-;; (defvar highlight-headers-follow-url-netscape-new-window nil
-;;   "*Whether to make Netscape create a new window when a URL is sent to it.")
-
 (defconst hui-menu-about
   (vector (concat "About-Hyperbole-"
 		  (if (= (aref hyperb:version 0) ?0)
@@ -317,9 +312,11 @@ REBUILD-FLAG is non-nil, in which case the menu is rebuilt."
 		 ;; (if (and (boundp 'infodock-version) infodock-version)
 		 ;;     ["Manual"      (id-info "(infodock)Hyperbole Menu") t]
 		 ;;   ["Manual"      (id-info "(hyperbole)Top") t])
-		 ["Manual"      (id-info "(hyperbole)Top") t]
-		 ["What-is-New?"  (hypb:display-file-with-logo
-				   (expand-file-name "HY-NEWS" hyperb:dir)) t]
+		 ["Manual"         (id-info "(hyperbole)Top") t]
+		 ["What-is-New?"   (hypb:display-file-with-logo
+				    (expand-file-name "HY-NEWS" hyperb:dir)) t]
+		 ["Why-Use?"       (find-file
+				    (expand-file-name "HY-WHY.kotl" hyperb:dir)) t]
 		 "----"
 		 ["Remove-This-Menu"
 		  (progn

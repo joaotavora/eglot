@@ -548,6 +548,8 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	   "Summarizes Smart Key mouse or keyboard handling.")
 	  ("Types/"       (menu . types)
 	   "Provides documentation on Hyperbole types.")
+	  ("WhyUse"       (find-file (expand-file-name "HY-WHY.kotl" hyperb:dir))
+	   "Lists use cases for Hyperbole Hyperbole.")
 	 ))
        '(ebut .
 	 (("EButton>")

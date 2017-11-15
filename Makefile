@@ -32,7 +32,7 @@
 #   USAGE:	For those installing GNU Hyperbole, use:
 #   	             make help
 #
-#               To build only the output formats of the Hyperbole manual:
+#               To build only the output formats of the Hyperbole MANUAL:
 #		     make doc
 #
 #               To assemble a Hyperbole Emacs package for testing:
@@ -54,7 +54,7 @@
 
 # This ver setup won't work under any make except GNU make, so set it manually.
 #HYPB_VERSION = "`head -3 hversion.el | tail -1 | sed -e 's/.*|\(.*\)|.*/\1/'`"
-HYPB_VERSION = 6.0.2g
+HYPB_VERSION = 7.0.0
 
 # Emacs executable used to byte-compile .el files into .elc's.
 # Possibilities include: emacs, infodock, xemacs, etc.
@@ -250,7 +250,7 @@ TAGS: $(EL_TAGS)
 version: doc
 	@ echo ""
 	@ echo "Any fgrep output means the version number has not been updated in that file."
-	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-ANNOUNCE-SHORT HY-NEWS README.md hversion.el hyperbole.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
+	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-NEWS README.md hversion.el hyperbole.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
 	@ echo ""
 
 # Build the Info, HTML and Postscript versions of the user manual and README.md.html.
@@ -318,19 +318,21 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSIO
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	make version
-	$(RM) -r $(pkg_hyperbole)
+	cd $(pkg_dir) && $(RM) -fr $(pkg_hyperbole) $(pkg_hyperbole)-$(HYPB_VERSION)
 	cd .. && COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/h.tar hyperbole
 	cd $(pkg_dir) && COPYFILE_DISABLE=1 $(TAR) xf h.tar && cd $(pkg_hyperbole) && $(MAKE) packageclean
 	cd $(pkg_hyperbole) && make kotl/kotl-autoloads.el && chmod 755 topwin.py && \
 	cd $(pkg_dir) && $(RM) h.tar; \
-	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole
+	  mv $(pkg_hyperbole) $(pkg_hyperbole)-$(HYPB_VERSION) && \
+	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION)
 	$(INSTALL) HY-ABOUT HY-ANNOUNCE HY-NEWS HY-WHY.kotl INSTALL README $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
 
 pkgclean: packageclean
 packageclean:
 	if [ -d $(pkg_hyperbole) ]; then \
-	  cd $(pkg_hyperbole) && $(RM) -r .git* videos ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
-	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id; fi
+	  cd $(pkg_hyperbole) && $(RM) -r .git* videos ChangeLog.* *autoloads.* *.elc TAGS TODO* HY-ANNOUNCE-* .DS_Store \
+	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id \
+	    && gsed '/\f/,/\f/{/\f/!d}' .hypb | tail +2 > .hypb2 && rm -f .hypb && mv .hypb2 .hypb; fi # Filter out unneeded TODO file hbut data from .hypb
 	if [ -d $(pkg_hyperbole)/kotl ]; then \
 	  cd $(pkg_hyperbole)/kotl && $(RM) -r *autoloads.* *.elc TAGS TODO* .DS_Store \
 	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore; fi

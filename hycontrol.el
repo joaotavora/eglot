@@ -475,6 +475,8 @@ associated key: quit {q}, abort {C-g}, or toggle {t}.")
 
 (defvar hycontrol--frame-widths-pointer nil)
 (defvar hycontrol--frame-heights-pointer nil)
+(defvar hycontrol--buffer-list-pointer nil)
+
 (defvar hycontrol--initial-which-key-inhibit nil
   "Stores value of `which-key-inhibit' flag from \"which-key\" package upon entry to HyControl, if any.")
 
@@ -948,11 +950,12 @@ nothing and return nil."
 
 (defun hycontrol-virtual-numeric-keypad (arg)
   (catch 'quit
-    (while (and (setq e (read-char hycontrol--vnk-string))
-		(not (when (memq e '(?q ?\C-g)) (throw 'quit nil)))
-		(or (not (numberp e)) (< e ?0) (> e ?9)))
-      (beep))
-    (hycontrol-numeric-keypad (- e ?0) arg)))
+    (let (e)
+      (while (and (setq e (read-char hycontrol--vnk-string))
+		  (not (when (memq e '(?q ?\C-g)) (throw 'quit nil)))
+		  (or (not (numberp e)) (< e ?0) (> e ?9)))
+	(beep))
+      (hycontrol-numeric-keypad (- e ?0) arg))))
 
 (defun hycontrol-frame-to-screen-edges (&optional arg)
   "Cycle the selected frame's position clockwise through the middle of edges and corners of the screen; once per call.
@@ -1002,12 +1005,12 @@ Accepts optional arguments FRAME, X-ORIGIN, and Y-ORIGIN (in pixels) to use when
     (when (> (hycontrol-frame-width frame) max-width)
       ;; Adjust frame size to fit within screen
       (set-frame-width frame (min (hycontrol-frame-width frame) max-width) nil t)
-      (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): "Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
+      (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
 					      (display-pixel-width) (display-pixel-height) (hycontrol-frame-edges frame))))
     (when (> (hycontrol-frame-height frame) max-height)
       ;; Adjust frame size to fit within screen
       (set-frame-height frame (min (hycontrol-frame-height frame) max-height) nil t)
-      (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): "Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
+      (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
 				   (display-pixel-width) (display-pixel-height) (hycontrol-frame-edges frame))))
     ;; Ensure entire frame is positioned onscreen, keeping the
     ;; original frame origin coordinates if possible.
@@ -1016,7 +1019,7 @@ Accepts optional arguments FRAME, X-ORIGIN, and Y-ORIGIN (in pixels) to use when
 			     (- (display-pixel-width) (hycontrol-frame-width frame) hycontrol-screen-right-offset))
 			(min (max 0 y-origin)
 			     (- (display-pixel-height) (hycontrol-frame-height frame) hycontrol-screen-bottom-offset)))
-    (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): "Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
+    (if hycontrol-debug (hycontrol-message hycontrol-debug "(HyDebug): Screen (X,Y): %d, %d; Frame Edges (L,T,R,B): %s"
 					    (display-pixel-width) (display-pixel-height) (hycontrol-frame-edges frame)))))
 
 
@@ -1369,7 +1372,7 @@ Heights are given in screen percentages by the list
 	   (fg (face-foreground 'mode-line)))
       (set-face-foreground 'mode-line bg)
       (set-face-background 'mode-line fg))
-    (redraw-modeline t)))
+    (force-mode-line-update t)))
 
 (defun hycontrol-windows-grid-buffer-list ()
   "Return the existing frame's buffer list with any marked items prepended.
@@ -1700,7 +1703,7 @@ See its documentation for more information."
   "Toggle whether HyControl displays key binding help in the minibuffer."
   (interactive)
   (setq hycontrol-help-flag (not hycontrol-help-flag))
-  (unless (and hycontrol-help-flag (called-interactively-p))
+  (unless (and hycontrol-help-flag (called-interactively-p 'interactive))
     (message "(HyControl): Minibuffer help is off; use {%s} to turn it on"
 	     (hycontrol-help-key-description))))
 

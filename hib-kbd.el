@@ -239,7 +239,8 @@ Allows for multiple key sequences strung together."
   (let ((regexp (format "\\(%s\\S-*\\)\\s-\\(.*%s\\)"
 			start-delim end-delim))
 	(start 0)
-	(end))
+	(end)
+	(substring))
     (while (string-match regexp string start)
       (setq start (match-beginning 0)
 	    end (match-end 0)

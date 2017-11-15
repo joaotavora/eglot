@@ -212,8 +212,8 @@ When optional SYM is given, returns the name for that symbol only, if any."
    ((and (autoloadp def) (not (eq (nth 4 def) 'keymap)))
     ;; Force autoload to get function signature.
     (setq def (autoload-do-load def))
-    (if (not autoloadp def)
-	(action:params-emacs def)))))
+    (unless (autoloadp def)
+      (action:params-emacs def)))))
 
 (defun action:params (action)
   "Returns unmodified ACTION parameter list.

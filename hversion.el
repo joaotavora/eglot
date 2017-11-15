@@ -23,7 +23,7 @@
 ;;; Public variables
 ;;; ************************************************************************
 
-(defconst hyperb:version "6.0.2g" "GNU Hyperbole revision number.")
+(defconst hyperb:version "7.0.0" "GNU Hyperbole revision number.")
 
 ;;;###autoload
 (defvar hyperb:microcruft-os-p

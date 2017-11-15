@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 6.0.2g, Published November 6, 2017).
+(Edition 7.0.0, Published November 15, 2017).
 
 Copyright (C) 1989-2017  Free Software Foundation, Inc.
 
@@ -338,8 +338,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.0.2g
-Printed November 6, 2017.
+Edition 7.0.0
+Printed November 15, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -782,7 +782,7 @@ Next: <a href="#Smart-Keys" accesskey="n" rel="next">Smart Keys</a>, Previous: <
 <h2 class="chapter">1 Introduction</h2>
 
 <p>This edition of the GNU Hyperbole Manual is for use with any version
-6.0.2g or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+7.0.0 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 </p>
 <p>This chapter summarizes the structure of the rest of the manual,
@@ -1246,6 +1246,7 @@ Next: <a href="#Smart-Key-Argument-Selection" accesskey="n" rel="next">Smart Key
 <a name="index-button-activation"></a>
 <a name="index-activation"></a>
 <a name="index-button-help"></a>
+<a name="index-help_002c-button"></a>
 <p>The Action Key generally selects entities, creates links and
 activates buttons.  The Assist Key generally provides help,
 such as reporting on a button&rsquo;s attributes, or serves a complementary
@@ -2074,6 +2075,8 @@ Next: <a href="#Global-Buttons" accesskey="n" rel="next">Global Buttons</a>, Pre
 <a name="index-button_002c-explicit-1"></a>
 <a name="index-button-label"></a>
 <a name="index-button-name"></a>
+<a name="index-label_002c-button"></a>
+<a name="index-name_002c-button"></a>
 <p>Hyperbole creates and manages <em>explicit buttons</em> which perform
 specific actions when activated (typically through a button press).
 They look like this &lsquo;<samp>&lt;(fake button)&gt;</samp>&rsquo;.  They are quickly
@@ -2142,6 +2145,7 @@ Next: <a href="#Implicit-Buttons" accesskey="n" rel="next">Implicit Buttons</a>,
 <a name="index-global-button-1"></a>
 <a name="index-button_002c-global-1"></a>
 <a name="index-button-label-1"></a>
+<a name="index-label_002c-button-1"></a>
 <p>Access to explicit buttons depends upon the information on your screen
 since they are embedded within particular buffers.  Sometimes it is
 useful to activate buttons without regard to the information with which
@@ -3057,6 +3061,7 @@ Next: <a href="#Utilizing-Explicit-Buttons" accesskey="n" rel="next">Utilizing E
 <h3 class="section">3.6 Button Type Precedence</h3>
 
 <a name="index-button-precedence"></a>
+<a name="index-precedence_002c-buttons"></a>
 <a name="index-button-label-overlap"></a>
 <p>Explicit buttons always take precedence over implicit buttons.  Thus, if
 a button selection is made which falls within both an explicit and
@@ -3146,14 +3151,15 @@ Next: <a href="#By-Menu" accesskey="n" rel="next">By Menu</a>, Previous: <a href
 <a name="Creation-Via-Action-Key-Drags"></a>
 <h4 class="subsubsection">3.7.1.1 Creation Via Action Key Drags</h4>
 
-<a name="index-explicit-button_002c-creation"></a>
-<a name="index-button_002c-creation"></a>
-<a name="index-link_002c-creation"></a>
+<a name="index-explicit-button-creation"></a>
+<a name="index-button-creation"></a>
+<a name="index-creating-buttons"></a>
+<a name="index-link-creation"></a>
+<a name="index-creating-links"></a>
+<a name="index-direct-link-creation"></a>
+<a name="index-mouse-drag_002c-link-creation"></a>
 <a name="index-drag"></a>
 <a name="index-Action-Key-drag"></a>
-<a name="index-creating-a-link"></a>
-<a name="index-mouse-drag_002c-link-creation"></a>
-<a name="index-direct-link-creation"></a>
 <p>The most efficient way to create an explicit link button interactively
 is to use the Action Mouse Key to drag from a non-read-only button
 source window to a window showing its desired link referent.  More
@@ -3204,7 +3210,7 @@ Buffer without File      link-to-buffer-tmp
 <a name="index-C_002du-M_002do"></a>
 <a name="index-C_002dx-o"></a>
 <a name="index-hkey_002doperate"></a>
-<a name="index-Action-Key-drag-emulation"></a>
+<a name="index-emulation_002c-Action-Key-drag"></a>
 <a name="index-keyboard-drag-emulation"></a>
 <p>If you run Emacs under a window system and there is no prior key
 binding on <kbd>{M-o}</kbd> when you load Hyperbole, then you can emulate
@@ -3255,7 +3261,7 @@ label again and delimit it yourself or copy and paste the button with
 its delimiters.  Hyperbole will interpret all occurrences of the same
 delimited label within a buffer as the same button.
 </p>
-<a name="index-link_002c-creation-1"></a>
+<a name="index-link_002c-creation"></a>
 <p>If you create link buttons using the Hyperbole menus, the best
 technique is to place on screen both the source buffer for the button
 and the buffer to which it will link.  Mark the region of text to use
@@ -3273,8 +3279,8 @@ Next: <a href="#Deletion" accesskey="n" rel="next">Deletion</a>, Previous: <a hr
 <a name="Renaming-1"></a>
 <h4 class="subsection">3.7.2 Renaming</h4>
 
-<a name="index-explicit-button_002c-renaming"></a>
-<a name="index-button_002c-renaming"></a>
+<a name="index-explicit-button-renaming"></a>
+<a name="index-button-renaming"></a>
 <p>Once an explicit button has been created, its label text must be
 treated specially.  Any inter-word spacing within the label may be
 freely changed, as may happen when a paragraph is refilled, but a
@@ -3311,8 +3317,8 @@ Next: <a href="#Modification" accesskey="n" rel="next">Modification</a>, Previou
 <a name="Deletion-1"></a>
 <h4 class="subsection">3.7.3 Deletion</h4>
 
-<a name="index-explicit-button_002c-deleting"></a>
-<a name="index-button_002c-deleting"></a>
+<a name="index-explicit-button-deletion"></a>
+<a name="index-button-deletion"></a>
 <p>Ebut/Delete works similarly to the Rename command but deletes the
 selected button.  The button&rsquo;s delimiters are removed to confirm the
 deletion.  If the delete command is invoked with a prefix argument, then
@@ -3334,10 +3340,10 @@ Next: <a href="#Searching-and-Summarizing" accesskey="n" rel="next">Searching an
 <a name="Modification-1"></a>
 <h4 class="subsection">3.7.4 Modification</h4>
 
-<a name="index-explicit-button_002c-modifying"></a>
-<a name="index-button_002c-modifying"></a>
+<a name="index-explicit-button-modification"></a>
+<a name="index-button-modification"></a>
 <a name="index-Smart-Mouse-Key-drag"></a>
-<a name="index-button_002c-attributes"></a>
+<a name="index-button-attributes"></a>
 <p>Ebut/Modify prompts you with each of the elements from the button&rsquo;s
 attributes list and allows you to modify each in turn.  Ebut/Edit does
 the exact same thing and is there for people who prefer that term.
@@ -3357,9 +3363,9 @@ Next: <a href="#Buttons-in-Mail" accesskey="n" rel="next">Buttons in Mail</a>, P
 <a name="Searching-and-Summarizing-1"></a>
 <h4 class="subsection">3.7.5 Searching and Summarizing</h4>
 
-<a name="index-explicit-button_002c-summarizing"></a>
-<a name="index-button_002c-summarizing"></a>
-<a name="index-button_002c-help"></a>
+<a name="index-explicit-button-summary"></a>
+<a name="index-button-summary"></a>
+<a name="index-button-help-1"></a>
 <p>The Ebut/Help menu may be used to summarize either a single explicit
 button or all such buttons within a buffer.  The buttons summarized may
 then be activated directly from the summary.
@@ -3370,8 +3376,8 @@ the button at point.  Ebut/Help/OrderedButs summarizes the buttons in
 alphabetical order.  All of these summary commands eliminate duplicate
 occurrences of buttons from their help displays.
 </p>
-<a name="index-explicit-button_002c-searching"></a>
-<a name="index-button_002c-searching"></a>
+<a name="index-explicit-button-searching"></a>
+<a name="index-button-searching"></a>
 <p>Ebut/Search prompts for a search pattern and searches across all the
 locations in which you have previously created explicit buttons.  It
 asks you whether to match to any part of a button label or to whole
@@ -3405,8 +3411,8 @@ Because this involves complex changes to mail support functions, this
 feature is disabled by default.  Use the Cust/Msg-Toggle-Ebuts
 minibuffer menu item to enable it.
 </p>
-<a name="index-button_002c-mailing"></a>
-<a name="index-button_002c-posting"></a>
+<a name="index-button-mailing"></a>
+<a name="index-button-posting"></a>
 <a name="index-mailing-buttons"></a>
 <a name="index-posting-buttons"></a>
 <a name="index-mail-reader"></a>
@@ -3502,7 +3508,7 @@ Previous: <a href="#Buttons-in-Mail" accesskey="p" rel="prev">Buttons in Mail</a
 <a name="Buttons-in-News-1"></a>
 <h4 class="subsection">3.7.7 Buttons in News</h4>
 
-<a name="index-button_002c-posting-1"></a>
+<a name="index-button-posting-1"></a>
 <a name="index-news-reader_002fposter"></a>
 <a name="index-posting-news"></a>
 <a name="index-Gnus-1"></a>
@@ -3742,6 +3748,7 @@ access to popular web search engines.
                    is given, limit search to only .el and .el.gz
                    files.  Set <code>hypb:rgrep-command</code> to change the
                    grep command or options.
+
 </li><li> LocateFiles -      Prompt for a pattern and display a list of all 
                    matching pathnames found throughout the file
                    system.  On Mac OS X, this uses Spotlight
@@ -3749,17 +3756,22 @@ access to popular web search engines.
                    the <code>locate</code> command.  Within the resulting
                    *Locate* buffer, Find/Grep-Files will find matching lines
                    within only these paths (files and directories).
+
 </li><li> MatchFileBuffers - Show numbered line matches for regexp in all file-based buffers.
+
 </li><li> OccurHere -        Show numbered line matches for regexp from this buffer.
+
 </li><li> RemoveLines -      Following point, remove all lines that match regexp.
+
 </li><li> SaveLines -        Following point, keep only lines that match regexp.
-</li><li> <a name="index-menu_002c-Find_002fWeb"></a>
+<a name="index-menu_002c-Find_002fWeb"></a>
 <a name="index-menu_002c-Web"></a>
 <a name="index-searching-the-web"></a>
 <a name="index-web-search"></a>
 <a name="index-C_002dc-_002f"></a>
 <a name="index-hyperbole_002dweb_002dsearch_002dbrowser_002dfunction"></a>
-Web/ -             Select a search engine and term and search with them.
+
+</li><li> Web/ -             Select a search engine and term and search with them.
                    Hyperbole binds the key <kbd>{C-c /}</kbd> for quick
                    access to this menu, if it is not already bound
                    prior to Hyperbole&rsquo;s initialization.  The Cust/Web-Search
@@ -3767,11 +3779,13 @@ Web/ -             Select a search engine and term and search with them.
                    which determines whether web search results are displayed
                    within Emacs or with an external web browser.  A short
                    video introduction to the Find/Web menu may be
-                   found at <a href="https://youtu.be/8lMlJed0-OM">https://youtu.be/8lMlJed0-OM</a>. The
-                   Find/Web menu looks like this:
+                   found at <a href="https://youtu.be/8lMlJed0-OM">https://youtu.be/8lMlJed0-OM</a>.
+
+<p>The Find/Web menu looks like this:
+</p>
 <div class="smallexample">
-<pre class="smallexample">Web&gt;  Amazon Bing Dictionary Elisp Facebook Google Hub(git) Images
-      Maps RFCs StackOverflow Twitter Wikipedia Youtube
+<pre class="smallexample">Web&gt;  Amazon Bing Dictionary Elisp Facebook Google Hub(git)
+      Images Maps RFCs StackOverflow Twitter Wikipedia Youtube
 </pre></div>
 </li></ul>
 
@@ -3780,13 +3794,12 @@ Web/ -             Select a search engine and term and search with them.
 </dd>
 <dt><strong>Gbut/</strong></dt>
 <dd><p>All global button commands.  Global buttons are accessed by name
-rather than by direct selection.  The window-system-based Hyperbole
-menu also includes an activation menu item for each global button.
-</p>
+rather than by direct selection.  The Hyperbole menubar menu also
+includes an activation menu item for each global button.
 <a name="index-menu-item_002c-Back_002dto_002dPrior_002dLocation"></a>
 <a name="index-menu-item_002c-Hist"></a>
 <a name="index-history"></a>
-</dd>
+</p></dd>
 <dt><strong>Hist</strong></dt>
 <dd><p>Return to previous positions in the button traversal history.
 </p>
@@ -3808,13 +3821,13 @@ a Hyperbole discussion mailing list.
 <a name="index-menu_002c-Kotl"></a>
 </dd>
 <dt><strong>Kotl/</strong></dt>
-<dd><p>Autonumbered, structured outliner and hyper-node manager commands.
+<dd><p>Autonumbered, structured outliner commands with per-node hyperlink anchors.
 See <a href="#Koutliner">Koutliner</a>.
 </p>
 <a name="index-menu_002c-Rolo"></a>
 </dd>
 <dt><strong>Rolo/</strong></dt>
-<dd><p>Hierarchical, multi-file rolo lookup and edit commands.
+<dd><p>Hierarchical, multi-file contact manager lookup and edit commands.
 See <a href="#HyRolo">HyRolo</a>.
 </p>
 <a name="index-menu_002c-Screen"></a>
@@ -3826,8 +3839,8 @@ See <a href="#HyRolo">HyRolo</a>.
 <a name="index-menu_002c-WinConfig"></a>
 </dd>
 <dt><strong>Win/</strong></dt>
-<dd><p>Window configuration management, such as adding and restoring window
-configurations by name.  See <a href="#Window-Configurations">Window Configurations</a>.
+<dd><p>Window configuration management commands, such as adding and restoring
+window configurations by name.  See <a href="#Window-Configurations">Window Configurations</a>.
 </p>
 </dd>
 </dl>
@@ -4256,7 +4269,7 @@ buffer.
 selected window.
 </p>
 <a name="index-swapping"></a>
-<a name="index-buffer_002c-swapping"></a>
+<a name="index-buffer_002c-swap-1"></a>
 <a name="index-screen_002c-_007e"></a>
 <a name="index-_007e"></a>
 </dd>
@@ -4267,9 +4280,7 @@ frame.  In FRAMES mode, the second frame must have a single window.
 </p>
 <a name="index-zooming"></a>
 <a name="index-window_002c-zoom"></a>
-<a name="index-zoom-window"></a>
 <a name="index-frame_002c-zoom"></a>
-<a name="index-zoom-frame"></a>
 <a name="index-zoom_002dfrm_002eel"></a>
 <a name="index-screen_002c-Z"></a>
 <a name="index-Z"></a>
@@ -6765,10 +6776,10 @@ Next: <a href="#Programmatic-Button-Creation" accesskey="n" rel="next">Programma
 <a name="Operational-and-Storage-Formats-1"></a>
 <h4 class="subsection">9.3.2 Operational and Storage Formats</h4>
 
-<a name="index-explicit-button_002c-formats"></a>
-<a name="index-explicit-button_002c-storage"></a>
+<a name="index-explicit-button-formats"></a>
+<a name="index-explicit-button-storage"></a>
 <a name="index-storage-manager"></a>
-<a name="index-button-attributes"></a>
+<a name="index-button-attributes-1"></a>
 <a name="index-hbut_003acurrent-1"></a>
 <p>Hyperbole uses a terse format to store explicit buttons and a more
 meaningful one to show users and to manipulate during editing.  The
@@ -6799,7 +6810,7 @@ Previous: <a href="#Operational-and-Storage-Formats" accesskey="p" rel="prev">Op
 <a name="Programmatic-Button-Creation-1"></a>
 <h4 class="subsection">9.3.3 Programmatic Button Creation</h4>
 
-<a name="index-explicit-button_002c-creation-1"></a>
+<a name="index-explicit-button_002c-creation"></a>
 <p>A common need when developing with Hyperbole is to create or to modify
 explicit buttons without user interaction.  For example, an application
 might require the addition of an explicit summary button to a file for
@@ -7951,7 +7962,6 @@ To disable highlighting, change this setting in <samp>hsettings.el</samp> or
 use Hyperbole menu item, Cust/All-Options, and select the Hyperbole
 Buttons group to edit its options.
 </p>
-<a name="index-button-highlighting_002c-forcing"></a>
 <a name="index-hproperty_003abut_002dcreate"></a>
 <p>If you read in a file with explicit buttons before you load Hyperbole,
 these buttons won&rsquo;t be highlighted.  Load Hyperbole and then use
@@ -12153,7 +12163,6 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-action-1">action</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Key">Action Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Keys">Smart Keys</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Key-drag">Action Key drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-Action-Key-drag-emulation">Action Key drag emulation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Key_002c-cell-argument">Action Key, cell argument</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Key_002c-hide-or-show-cell">Action Key, hide or show cell</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Action-Key_002c-klink">Action Key, klink</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Links">Links</a></td></tr>
@@ -12223,7 +12232,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-buffer_002c-bury">buffer, bury</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-buffer_002c-copy">buffer, copy</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-Buffers">Displaying Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-buffer_002c-swap">buffer, swap</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Swapping-Buffers">Swapping Buffers</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-buffer_002c-swapping">buffer, swapping</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-buffer_002c-swap-1">buffer, swap</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-buffer_002c-unbury">buffer, unbury</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-bug-tracking">bug tracking</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-bury-buffer">bury buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
@@ -12232,11 +12241,14 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-button-action">button action</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-activation">button activation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-attribute">button attribute</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button-attributes">button attributes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-attributes">button attributes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modification">Modification</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-attributes-1">button attributes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-category">button category</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons">Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-click">button click</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Hyperbole-Buttons">Smart Key - Hyperbole Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-creation">button creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-data">button data</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-data-saving">button data saving</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-deletion">button deletion</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Deletion">Deletion</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-demo">button demo</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hyperbole-Overview">Hyperbole Overview</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-emphasis">button emphasis</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-file_002c-directory">button file, directory</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Files">Button Files</a></td></tr>
@@ -12245,37 +12257,33 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-button-files">button files</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Files">Button Files</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-flashing">button flashing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-help">button help</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-help-1">button help</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-highlighting">button highlighting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hook-Variables">Hook Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-highlighting-1">button highlighting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button-highlighting_002c-forcing">button highlighting, forcing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-instance">button instance</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Menu">By Menu</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-key">button key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Label-Normalization">Button Label Normalization</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-label">button label</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-label-1">button label</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Buttons">Global Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-label-2">button label</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Label-Normalization">Button Label Normalization</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-label-overlap">button label overlap</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Type-Precedence">Button Type Precedence</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-mailing">button mailing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-modification">button modification</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modification">Modification</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-name">button name</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-posting">button posting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-posting-1">button posting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-News">Buttons in News</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button-precedence">button precedence</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Type-Precedence">Button Type Precedence</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-attributes">button, attributes</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modification">Modification</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-creation">button, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-deleting">button, deleting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Deletion">Deletion</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-renaming">button renaming</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Renaming">Renaming</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-searching">button searching</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-button-summary">button summary</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-explicit">button, explicit</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons">Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-explicit-1">button, explicit</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-global">button, global</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons">Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-global-1">button, global</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Buttons">Global Buttons</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-help">button, help</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-implicit">button, implicit</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons">Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-implicit-1">button, implicit</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-mailing">button, mailing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-modifying">button, modifying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modification">Modification</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-moving">button, moving</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-multiple-lines">button, multiple lines</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Label-Normalization">Button Label Normalization</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-posting">button, posting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-posting-1">button, posting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-News">Buttons in News</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-renaming">button, renaming</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Renaming">Renaming</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-searching">button, searching</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-button_002c-split-across-lines">button, split across lines</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Label-Normalization">Button Label Normalization</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-button_002c-summarizing">button, summarizing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-byte-compiler-error">byte compiler error</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-C">C</a></th><td></td><td></td></tr>
@@ -12349,7 +12357,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-copy-region">copy region</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-copying">copying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-create_002dtime-attribute">create-time attribute</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-creating-a-link">creating a link</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-creating-buttons">creating buttons</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-creating-links">creating links</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-creator-attribute">creator attribute</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cell-Attributes">Cell Attributes</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-credits">credits</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Top">Top</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-cross-referencing">cross referencing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Koutliner-History">Koutliner History</a></td></tr>
@@ -12439,6 +12448,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-Emacs-Lisp-variables">Emacs Lisp variables</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Link-Variable-Substitution">Link Variable Substitution</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-emacs-outline">emacs outline</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Inserting-and-Importing">Inserting and Importing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Emacs-support">Emacs support</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Colors">Button Colors</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-emulation_002c-Action-Key-drag">emulation, Action Key drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-enabling-URLs-in-find_002dfile">enabling URLs in find-file</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Using-URLs-with-Find_002dFile">Using URLs with Find-File</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-end-of-line-click">end of line click</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Smart-Scrolling">Smart Key - Smart Scrolling</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-Engelbart">Engelbart</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Koutliner-History">Koutliner History</a></td></tr>
@@ -12451,15 +12461,15 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-expanding">expanding</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-explicit-button">explicit button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons">Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-explicit-button-1">explicit button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-creation">explicit button, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-creation-1">explicit button, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Programmatic-Button-Creation">Programmatic Button Creation</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-deleting">explicit button, deleting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Deletion">Deletion</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-formats">explicit button, formats</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-modifying">explicit button, modifying</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modification">Modification</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-renaming">explicit button, renaming</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Renaming">Renaming</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-searching">explicit button, searching</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-storage">explicit button, storage</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-summarizing">explicit button, summarizing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button-creation">explicit button creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button-deletion">explicit button deletion</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Deletion">Deletion</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button-formats">explicit button formats</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button-modification">explicit button modification</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Modification">Modification</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button-renaming">explicit button renaming</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Renaming">Renaming</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button-searching">explicit button searching</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button-storage">explicit button storage</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Operational-and-Storage-Formats">Operational and Storage Formats</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button-summary">explicit button summary</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Searching-and-Summarizing">Searching and Summarizing</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-explicit-button_002c-creation">explicit button, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Programmatic-Button-Creation">Programmatic Button Creation</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-exporting">exporting</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Exporting">Exporting</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-exporting-an-outline">exporting an outline</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-external-klink">external klink</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Links">Links</a></td></tr>
@@ -12531,6 +12541,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><th><a name="Concept-Index_cp_letter-H">H</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hashtag">hashtag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-help-buffer">help buffer</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Help-Buffers">Smart Key - Help Buffers</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-help_002c-button">help, button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-help_002c-menu-items">help, menu items</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-help_002c-Smart-Key">help, Smart Key</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Operations">Smart Key Operations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-hide-levels">hide levels</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
@@ -12694,6 +12705,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-label-type_002c-idstamps">label type, idstamps</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-label-type_002c-legal">label type, legal</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Autonumbering">Autonumbering</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-label-type_002c-legal-1">label type, legal</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-label_002c-button">label, button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-label_002c-button-1">label, button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Buttons">Global Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-legal-labels">legal labels</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Autonumbering">Autonumbering</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-level">level</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-level-1">level</a>:</td><td>&nbsp;</td><td valign="top"><a href="#View-Specs">View Specs</a></td></tr>
@@ -12701,9 +12714,9 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-link">link</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Links">Links</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link-action-types">link action types</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link-button">link button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-link-creation">link creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link-display">link display</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Referent-Display">Referent Display</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-link_002c-creation">link, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Dragging">By Dragging</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-link_002c-creation-1">link, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Menu">By Menu</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-link_002c-creation">link, creation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#By-Menu">By Menu</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link_002c-display-function">link, display function</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Internal-Viewers">Internal Viewers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link_002c-pathname">link, pathname</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-link_002c-pathname-line-and-column">link, pathname line and column</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
@@ -12852,6 +12865,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-multiplier">multiplier</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-N">N</a></th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-name_002c-button">name, button</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Explicit-Buttons">Explicit Buttons</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-named-window-configuration">named window configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Window-Configurations">Window Configurations</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-news">news</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-news-comment">news comment</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-News">Buttons in News</a></td></tr>
@@ -12923,6 +12937,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-popup-menu">popup menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-posting-buttons">posting buttons</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-Mail">Buttons in Mail</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-posting-news">posting news</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Buttons-in-News">Buttons in News</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-precedence_002c-buttons">precedence, buttons</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Button-Type-Precedence">Button Type Precedence</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-programming-interface">programming interface</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Embedding-Hyperbole">Embedding Hyperbole</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-promotion">promotion</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Relocating-and-Copying">Relocating and Copying</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-proportional-scrolling">proportional scrolling</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Glossary">Glossary</a></td></tr>
@@ -13193,8 +13208,6 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-yanking-2">yanking</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-Z">Z</a></th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-zoom-frame">zoom frame</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-zoom-window">zoom window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-zooming">zooming</a>:</td><td>&nbsp;</td><td valign="top"><a href="#HyControl">HyControl</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 </table>

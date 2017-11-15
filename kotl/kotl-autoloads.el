@@ -1,22 +1,22 @@
 ;;; kotl-autoloads.el --- automatically extracted autoloads
 ;;
-;; Copyright (C) 2016  Free Software Foundation, Inc.
+;; Copyright (C) 2017  Free Software Foundation, Inc.
 ;;
 ;;; Code:
 
 
-;;;### (autoloads nil "kexport" "kexport.el" (22452 42110 0 0))
+;;;### (autoloads nil "kexport" "kexport.el" (23052 37373 0 0))
 ;;; Generated autoloads from kexport.el
 
 (autoload 'kexport:html "kexport" "\
 Export a koutline buffer or file in EXPORT-FROM to html format in OUTPUT-TO.
-By default, this retains newlines within cells as they are.  With optional prefix arg, SOFT-NEWLINES-P, 
+By default, this retains newlines within cells as they are.  With optional prefix arg, SOFT-NEWLINES-FLAG, 
 hard newlines are not used.  Also converts Urls and Klinks into Html hyperlinks.
 STILL TODO:
   Make delimited pathnames into file links (but not if within klinks).
   Copy attributes stored in cell 0 and attributes from each cell.
 
-\(fn EXPORT-FROM OUTPUT-TO &optional SOFT-NEWLINES-P)" t nil)
+\(fn EXPORT-FROM OUTPUT-TO &optional SOFT-NEWLINES-FLAG)" t nil)
 
 ;;;***
 
@@ -41,7 +41,7 @@ View an existing kotl version-2 file FILE-NAME in a read-only mode.
 
 ;;;***
 
-;;;### (autoloads nil "kimport" "kimport.el" (22415 50714 79447 574000))
+;;;### (autoloads nil "kimport" "kimport.el" (23051 38597 0 0))
 ;;; Generated autoloads from kimport.el
 
 (defvar kimport:mode-alist '((t . kimport:text) (outline-mode . kimport:star-outline)) "\

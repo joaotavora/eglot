@@ -945,6 +945,7 @@ See the documentation of the `hpath:rfc' variable."
 
 (defun hpath:substitute-value (path)
   "Substitutes matching value for Emacs Lisp variables and environment variables in PATH and returns PATH."
+  ;; Uses free variables `match' and `start' from `hypb:replace-match-string'.
   (substitute-in-file-name
     (hypb:replace-match-string
       "\\$\{[^\}]+}"
@@ -1072,21 +1073,20 @@ to it."
 ;; available.
 (defun hpath:handle-urls ()
   (let ((remote-fs-package (hpath:remote-available-p)))
-      (progn
-	;; www-url functions are defined in "hsys-www.el".
-	(put 'expand-file-name   remote-fs-package   'www-url-expand-file-name)
-	(put 'find-file-noselect remote-fs-package   'www-url-find-file-noselect)
-	;; Necessary since Dired overrides other file-name-handler-alist
-	;; settings.
-	(put 'expand-file-name   'dired 'www-url-expand-file-name)
-	(put 'find-file-noselect 'dired 'www-url-find-file-noselect)
+    ;; www-url functions are defined in "hsys-www.el".
+    (put 'expand-file-name   remote-fs-package   'www-url-expand-file-name)
+    (put 'find-file-noselect remote-fs-package   'www-url-find-file-noselect)
+    ;; Necessary since Dired overrides other file-name-handler-alist
+    ;; settings.
+    (put 'expand-file-name   'dired 'www-url-expand-file-name)
+    (put 'find-file-noselect 'dired 'www-url-find-file-noselect)
 
-	(if (not (fboundp 'hyperb:substitute-in-file-name))
-	    (progn
+    (unless (fboundp 'hyperb:substitute-in-file-name)
+      (progn
 
 ;; Overload `substitute-in-file-name' to eliminate truncation of URL prefixes 
 ;; such as http://.
-(or (fboundp 'hyperb:substitute-in-file-name)
+(unless (fboundp 'hyperb:substitute-in-file-name)
 (defalias 'hyperb:substitute-in-file-name
   (symbol-function 'substitute-in-file-name)))
 
@@ -1102,7 +1102,7 @@ If `/~' appears, all of FILENAME through that `/' is discarded."
        filename)
       (substring filename (match-beginning 2))
     (hyperb:substitute-in-file-name filename)))
-)))))
+))))
 
 (defun hpath:enable-find-file-urls ()
   "Enable the use of ftp and www Urls as arguments to `find-file' commands."

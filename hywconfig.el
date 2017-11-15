@@ -82,13 +82,13 @@ NAME, confirms whether or not to replace it."
       (error "(hywconfig-add-by-name): `name' argument is not a string: %s" name))
   (let ((set:equal-op  (lambda (key elt) (equal key (car elt))))
 	(wconfig-names (hywconfig-get-names)))
-    (if (or (not (called-interactively-p))
+    (if (or (not (called-interactively-p 'interactive))
 	    (not (set:member name wconfig-names))
 	    (y-or-n-p
 	     (format "Replace existing `%s' window configuration: " name)))
 	(progn (hywconfig-set-names (set:replace name (current-window-configuration)
 						 wconfig-names))
-	       (if (called-interactively-p)
+	       (if (called-interactively-p 'interactive)
 		   (message
 		    (substitute-command-keys
 		     (format "Window configuration `%s' saved.  Use {\\[hywconfig-restore-by-name]} to restore." name))))))))
@@ -104,7 +104,7 @@ NAME, confirms whether or not to replace it."
 	 (error "(hywconfig-delete-by-name): `name' argument is not a string: %s" name))
 	(t (let ((set:equal-op (lambda (key elt) (equal key (car elt)))))
 	     (hywconfig-set-names (set:remove name (hywconfig-get-names)))
-	     (if (called-interactively-p)
+	     (if (called-interactively-p 'interactive)
 		 (message "Window configuration `%s' has been deleted." name))))))
 
 ;;;###autoload
@@ -119,7 +119,7 @@ NAME, confirms whether or not to replace it."
 	(t (let ((wconfig (set:get name (hywconfig-get-names))))
 	     (if wconfig
 		 (progn (hywconfig-set-window-configuration wconfig)
-			(if (called-interactively-p)
+			(if (called-interactively-p 'interactive)
 			    (message "Window configuration `%s' is now active." name)))
 	       (error "(hywconfig-restore-by-name): No window configuration for this frame named `%s'" name))))))
 
@@ -148,7 +148,7 @@ Then deletes this new configuration from the ring."
 Use {\\[hywconfig-yank-pop]} to restore it at a later time."
   (interactive)
   (ring-insert (hywconfig-get-ring) (current-window-configuration))
-  (if (called-interactively-p)
+  (if (called-interactively-p 'interactive)
       (message
        (substitute-command-keys
 	"Window configuration saved.  Use {\\[hywconfig-yank-pop]} to restore."))))

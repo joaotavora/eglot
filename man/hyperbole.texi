@@ -151,8 +151,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 6.0.2g
-Printed November 6, 2017.
+Edition 7.0.0
+Printed November 15, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed November 6, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 6.0.2g, November 6, 2017.
+@center Edition 7.0.0, November 15, 2017.
 
 @sp 2
 @noindent
@@ -460,7 +460,7 @@ Smart Keyboard Keys
 @chapter Introduction
 
 This edition of the GNU Hyperbole Manual is for use with any version
-6.0.2g or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+7.0.0 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 
 This chapter summarizes the structure of the rest of the manual,
@@ -891,6 +891,7 @@ file.  For example, @code{(add-hook 'hyperbole-init-hook (lambda ()
 @cindex button activation
 @cindex activation
 @cindex button help
+@cindex help, button
 The Action Key generally selects entities, creates links and
 activates buttons.  The Assist Key generally provides help,
 such as reporting on a button's attributes, or serves a complementary
@@ -1535,6 +1536,8 @@ it, @pxref{Smart Key Operations}.
 @cindex button, explicit
 @cindex button label
 @cindex button name
+@cindex label, button
+@cindex name, button
 Hyperbole creates and manages @dfn{explicit buttons} which perform
 specific actions when activated (typically through a button press).
 They look like this @samp{<(fake button)>}.  They are quickly
@@ -1597,6 +1600,7 @@ asking for help on a button.
 @cindex global button
 @cindex button, global
 @cindex button label
+@cindex label, button
 Access to explicit buttons depends upon the information on your screen
 since they are embedded within particular buffers.  Sometimes it is
 useful to activate buttons without regard to the information with which
@@ -2424,6 +2428,7 @@ Lisp can evaluate.
 @section   Button Type Precedence
 
 @cindex button precedence
+@cindex precedence, buttons
 @cindex button label overlap
 Explicit buttons always take precedence over implicit buttons.  Thus, if
 a button selection is made which falls within both an explicit and
@@ -2486,14 +2491,15 @@ Hyperbole menus.
 @node By Dragging, By Menu, Creation, Creation
 @subsubsection Creation Via Action Key Drags
 
-@cindex explicit button, creation
-@cindex button, creation
-@cindex link, creation
+@cindex explicit button creation
+@cindex button creation
+@cindex creating buttons
+@cindex link creation
+@cindex creating links
+@cindex direct link creation
+@cindex mouse drag, link creation
 @cindex drag
 @cindex Action Key drag
-@cindex creating a link
-@cindex mouse drag, link creation
-@cindex direct link creation
 The most efficient way to create an explicit link button interactively
 is to use the Action Mouse Key to drag from a non-read-only button
 source window to a window showing its desired link referent.  More
@@ -2544,7 +2550,7 @@ Buffer without File      link-to-buffer-tmp
 @kindex C-u M-o
 @kindex C-x o
 @findex hkey-operate
-@cindex Action Key drag emulation
+@cindex emulation, Action Key drag 
 @cindex keyboard drag emulation
 If you run Emacs under a window system and there is no prior key
 binding on @bkbd{M-o} when you load Hyperbole, then you can emulate
@@ -2602,8 +2608,8 @@ Selection}, to select the link referent.
 @node Renaming, Deletion, Creation, Utilizing Explicit Buttons
 @subsection  Renaming
 
-@cindex explicit button, renaming
-@cindex button, renaming
+@cindex explicit button renaming
+@cindex button renaming
 Once an explicit button has been created, its label text must be
 treated specially.  Any inter-word spacing within the label may be
 freely changed, as may happen when a paragraph is refilled, but a
@@ -2634,8 +2640,8 @@ file: @code{(global-set-key "\C-c\C-r" 'hui:ebut-rename)}.
 @node Deletion, Modification, Renaming, Utilizing Explicit Buttons
 @subsection  Deletion
 
-@cindex explicit button, deleting
-@cindex button, deleting
+@cindex explicit button deletion
+@cindex button deletion
 Ebut/Delete works similarly to the Rename command but deletes the
 selected button.  The button's delimiters are removed to confirm the
 deletion.  If the delete command is invoked with a prefix argument, then
@@ -2651,10 +2657,10 @@ prefer no confirmation.
 @node Modification, Searching and Summarizing, Deletion, Utilizing Explicit Buttons
 @subsection  Modification
 
-@cindex explicit button, modifying
-@cindex button, modifying
+@cindex explicit button modification
+@cindex button modification
 @cindex Smart Mouse Key drag
-@cindex button, attributes
+@cindex button attributes
 Ebut/Modify prompts you with each of the elements from the button's
 attributes list and allows you to modify each in turn.  Ebut/Edit does
 the exact same thing and is there for people who prefer that term.
@@ -2668,9 +2674,9 @@ the keyboard.  @xref{Creation}.
 @node Searching and Summarizing, Buttons in Mail, Modification, Utilizing Explicit Buttons
 @subsection  Searching and Summarizing
 
-@cindex explicit button, summarizing
-@cindex button, summarizing
-@cindex button, help
+@cindex explicit button summary
+@cindex button summary
+@cindex button help
 The Ebut/Help menu may be used to summarize either a single explicit
 button or all such buttons within a buffer.  The buttons summarized may
 then be activated directly from the summary.
@@ -2681,8 +2687,8 @@ the button at point.  Ebut/Help/OrderedButs summarizes the buttons in
 alphabetical order.  All of these summary commands eliminate duplicate
 occurrences of buttons from their help displays.
 
-@cindex explicit button, searching
-@cindex button, searching
+@cindex explicit button searching
+@cindex button searching
 Ebut/Search prompts for a search pattern and searches across all the
 locations in which you have previously created explicit buttons.  It
 asks you whether to match to any part of a button label or to whole
@@ -2710,8 +2716,8 @@ Because this involves complex changes to mail support functions, this
 feature is disabled by default.  Use the Cust/Msg-Toggle-Ebuts
 minibuffer menu item to enable it.
 
-@cindex button, mailing
-@cindex button, posting
+@cindex button mailing
+@cindex button posting
 @cindex mailing buttons
 @cindex posting buttons
 @cindex mail reader
@@ -2804,7 +2810,7 @@ described in @ref{Smart Key Argument Selection}.
 @node Buttons in News,  , Buttons in Mail, Utilizing Explicit Buttons
 @subsection  Buttons in News
 
-@cindex button, posting
+@cindex button posting
 @cindex news reader/poster
 @cindex posting news
 @cindex Gnus
@@ -3038,6 +3044,7 @@ GrepFiles -        Show numbered line matches for a regexp in all
                    is given, limit search to only .el and .el.gz
                    files.  Set @code{hypb:rgrep-command} to change the
                    grep command or options.
+
 @item
 LocateFiles -      Prompt for a pattern and display a list of all 
                    matching pathnames found throughout the file
@@ -3046,12 +3053,16 @@ LocateFiles -      Prompt for a pattern and display a list of all
                    the @code{locate} command.  Within the resulting
                    *Locate* buffer, Find/Grep-Files will find matching lines
                    within only these paths (files and directories).
+
 @item
 MatchFileBuffers - Show numbered line matches for regexp in all file-based buffers.
+
 @item
 OccurHere -        Show numbered line matches for regexp from this buffer.
+
 @item
 RemoveLines -      Following point, remove all lines that match regexp.
+
 @item
 SaveLines -        Following point, keep only lines that match regexp.
 @cindex menu, Find/Web
@@ -3060,6 +3071,7 @@ SaveLines -        Following point, keep only lines that match regexp.
 @cindex web search
 @kindex C-c /
 @vindex hyperbole-web-search-browser-function
+
 @item
 Web/ -             Select a search engine and term and search with them.
                    Hyperbole binds the key @bkbd{C-c /} for quick
@@ -3069,12 +3081,14 @@ Web/ -             Select a search engine and term and search with them.
                    which determines whether web search results are displayed
                    within Emacs or with an external web browser.  A short
                    video introduction to the Find/Web menu may be
-                   found at @url{https://youtu.be/8lMlJed0-OM}. The
-                   Find/Web menu looks like this:
+                   found at @url{https://youtu.be/8lMlJed0-OM}.
+
+                   The Find/Web menu looks like this:
+
 @smallexample
 @noindent
-Web>  Amazon Bing Dictionary Elisp Facebook Google Hub(git) Images
-      Maps RFCs StackOverflow Twitter Wikipedia Youtube
+Web>  Amazon Bing Dictionary Elisp Facebook Google Hub(git)
+      Images Maps RFCs StackOverflow Twitter Wikipedia Youtube
 @end smallexample
 @end itemize
 
@@ -3082,9 +3096,8 @@ Web>  Amazon Bing Dictionary Elisp Facebook Google Hub(git) Images
 @cindex menu, Gbut
 @item Gbut/
 All global button commands.  Global buttons are accessed by name
-rather than by direct selection.  The window-system-based Hyperbole
-menu also includes an activation menu item for each global button.
-
+rather than by direct selection.  The Hyperbole menubar menu also
+includes an activation menu item for each global button.
 @cindex menu item, Back-to-Prior-Location
 @cindex menu item, Hist
 @cindex history
@@ -3106,12 +3119,12 @@ a Hyperbole discussion mailing list.
 @cindex menu, Koutline
 @cindex menu, Kotl
 @item Kotl/
-Autonumbered, structured outliner and hyper-node manager commands.
+Autonumbered, structured outliner commands with per-node hyperlink anchors.
 @xref{Koutliner}.
 
 @cindex menu, Rolo
 @item Rolo/
-Hierarchical, multi-file rolo lookup and edit commands.
+Hierarchical, multi-file contact manager lookup and edit commands.
 @xref{HyRolo}.
 
 @cindex menu, Screen
@@ -3121,8 +3134,8 @@ Window, frame and buffer display control commands.  @xref{HyControl}.
 @cindex menu, Window-Configurations
 @cindex menu, WinConfig
 @item Win/
-Window configuration management, such as adding and restoring window
-configurations by name.  @xref{Window Configurations}.
+Window configuration management commands, such as adding and restoring
+window configurations by name.  @xref{Window Configurations}.
 
 @end table
 
@@ -3464,7 +3477,7 @@ Unbury the bottom buffer in the buffer list and display it in the
 selected window.
 
 @cindex swapping
-@cindex buffer, swapping
+@cindex buffer, swap
 @kindex screen, ~
 @kitem ~
 Swap two buffers between the selected window or frame and one other.
@@ -3473,9 +3486,7 @@ frame.  In FRAMES mode, the second frame must have a single window.
 
 @cindex zooming
 @cindex window, zoom
-@cindex zoom window
 @cindex frame, zoom
-@cindex zoom frame
 @findex zoom-frm.el
 @kindex screen, Z
 @kitem Z
@@ -5580,8 +5591,8 @@ intervention is required.
 @node Operational and Storage Formats, Programmatic Button Creation, Button Label Normalization, Explicit Button Technicalities
 @subsection  Operational and Storage Formats
 
-@cindex explicit button, formats
-@cindex explicit button, storage
+@cindex explicit button formats
+@cindex explicit button storage
 @cindex storage manager
 @cindex button attributes
 @vindex hbut:current
@@ -6612,7 +6623,6 @@ To disable highlighting, change this setting in @file{hsettings.el} or
 use Hyperbole menu item, Cust/All-Options, and select the Hyperbole
 Buttons group to edit its options.
 
-@cindex button highlighting, forcing
 @findex hproperty:but-create
 If you read in a file with explicit buttons before you load Hyperbole,
 these buttons won't be highlighted.  Load Hyperbole and then use

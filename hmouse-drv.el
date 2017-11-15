@@ -398,20 +398,20 @@ Return non-nil iff associated help documentation is found."
 			  "there is no matching context"))
 		    (terpri)
 
-		    (mapcar (lambda (c)
-			      (if (> (length calls) 1)
-				  ;; Is an 'or' set of calls
-				  (princ "'OR' "))
-			      (princ "CALLS ") (princ (if (consp c) c (list c)))
-			      (when (and (fboundp (setq call (if (consp c) (car c) c)))
-					 (setq doc (documentation call)))
-				(princ " WHICH")
-				(princ (if (string-match "\\`[a-zA-Z]*[a-rt-zA-RT-Z]+s[ [:punct:]]" doc)
-					   ":" " WILL:"))
-				(terpri) (terpri)
-				(princ (replace-regexp-in-string "^" "  " doc nil t))
-				(terpri) (terpri)))
-			    calls)
+		    (mapc (lambda (c)
+			    (if (> (length calls) 1)
+				;; Is an 'or' set of calls
+				(princ "'OR' "))
+			    (princ "CALLS ") (princ (if (consp c) c (list c)))
+			    (when (and (fboundp (setq call (if (consp c) (car c) c)))
+				       (setq doc (documentation call)))
+			      (princ " WHICH")
+			      (princ (if (string-match "\\`[a-zA-Z]*[a-rt-zA-RT-Z]+s[ [:punct:]]" doc)
+					 ":" " WILL:"))
+			      (terpri) (terpri)
+			      (princ (replace-regexp-in-string "^" "  " doc nil t))
+			      (terpri) (terpri)))
+			  calls)
 
 		    (when (memq cmd-sym '(hui:hbut-act hui:hbut-help))
 		      (princ (format "BUTTON SPECIFICS:\n\n%s\n"
@@ -776,7 +776,7 @@ compute the actual release location and include that."
 	      (not (= (length event) 3)))
 	  event
 	(let ((pos (event-end event))
-	      coords window-and-char-coords)
+	      coords window window-and-char-coords)
 	  (when (and ev-type-str (string-match "drag-mouse" ev-type-str)
 		     ;; end of drag event; If drag crossed frames, the location
 		     ;; will contain the frame of the depress point and

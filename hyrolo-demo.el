@@ -18,6 +18,12 @@
 (require 'hyrolo-logic)
 
 ;;; ************************************************************************
+;;; Public variables
+;;; ************************************************************************
+
+(defvar hyrolo-demo-save-key nil)
+
+;;; ************************************************************************
 ;;; Public functions
 ;;; ************************************************************************
 
@@ -75,8 +81,8 @@ single argument."
 ;;; Key Bindings
 ;;; ************************************************************************
 
-(defconst hyrolo-demo-save-key (unless (eq (key-binding "\C-x4r") #'hyrolo-demo-fgrep)
-				 (key-binding "\C-x4r")))
+(unless (eq (key-binding "\C-x4r") #'hyrolo-demo-fgrep)
+  (setq hyrolo-demo-save-key (key-binding "\C-x4r")))
 
 (global-set-key "\C-x4r" 'hyrolo-demo-fgrep)
 

@@ -255,7 +255,7 @@ represent the output of particular document formatters."
 		pos (1+ pos)))
 	lbl)))
 
-(defun    ebut:label-p (&optional as-label start-delim end-delim pos-flag one-line-flag)
+(defun    ebut:label-p (&optional as-label start-delim end-delim pos-flag two-lines-flag)
   "Returns key for Hyperbole button label that point is within.
 Returns nil if not within a label.  Assumes point is within first line
   of button label, if at all.
@@ -264,7 +264,7 @@ is returned rather than the key derived from the label.  START-DELIM
 and END-DELIM are strings that override default button delimiters.
 With POS-FLAG non-nil, returns list of label-or-key,
 but-start-position, but-end-position.  Positions include delimiters.
-With ONE-LINE-FLAG non-nil, constrains label search to a single line."
+With TWO-LINES-FLAG non-nil, constrains label search to two lines."
   (let ((opoint (point))
 	(npoint)
 	(quoted "\\(^\\|[^\\{]\\)")
@@ -297,10 +297,10 @@ With ONE-LINE-FLAG non-nil, constrains label search to a single line."
 		  (forward-char -2))
 	      (error (goto-char (1- opoint))))
 	  (goto-char (1- opoint)))
-	(if one-line-flag
-	    (save-excursion
-	      (end-of-line)
-	      (setq ebut:max-len (- (point) start))))
+	(when two-lines-flag
+	  (save-excursion
+	    (forward-line 2)
+	    (setq ebut:max-len (- (point) start))))
 	(and (< (point) (+ start ebut:max-len))
 	     (re-search-forward (concat quoted (regexp-quote end-delim))
 				(+ start ebut:max-len) t)

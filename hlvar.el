@@ -44,7 +44,7 @@ for current buffer."
 	    (and (search-forward "Local Variables:" nil t)
 		 (setq local-start (match-beginning 0))
 		 (or (and (not (string-match "^19\\." emacs-version))
-			  (not inhibit-local-variables))
+			  (not (inhibit-local-variables-p)))
 		     force
 		     (if (string-match "^19\\." emacs-version)
 			 (cond ((eq enable-local-variables t) t)

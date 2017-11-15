@@ -2,12 +2,28 @@
 				 by Bob Weiner
 
 ===========================================================================
-*                                   V6.0.2g
+*                                   V7.0.0
 ===========================================================================
 
         (See the "Changes" file for even more details of changes).
 
   BUTTONS AND SMART (ACTION AND ASSIST) KEYS
+
+    - Git References: New implicit button and action type with a compact syntax
+        that displays many types of git entities, e.g. git#commit/55a1f0.  Such
+        references work across all git repositories on your local disks.
+
+        See "DEMO#Git (Local) References" or the commentary at the top of the
+        "hib-social.el" file for extensive examples of these references.  {C-h
+        f git-reference RET} explains its syntax.
+
+    - Github References: New implicit button and action type with a compact
+        syntax that displays many types of github entities,
+        e.g. gh#emacs-helm/helm/1878, displays issue #1878 for user emacs-helm
+        and project helm.  See "DEMO#Github (Remote) References" or the
+        commentary at the top of the "hib-social.el" file for extensive
+        examples of these references.  {C-h f github-reference RET} explains
+        its syntax.
 
     - Extensive new support for cross-window and cross-frame drags of the
       Action and Assist Mouse Keys.  See "DEMO#Smart Mouse Keys" and the Info
@@ -45,7 +61,7 @@
           Smart Key action handling at least 1/3 of a second in a number of cases.
 
     - {}-delimited Key Sequence Implicit Buttons have been greatly expanded.
-      An Action Key press on the following, all execute the associated commands:
+      An Action Key press on any of the following execute the associated commands:
         {M-x occur RET}                 - M-x extended commands
         {M-x apropos RET hyperbole RET} - commands with arguments
 	{C-x 2 C-x 3}                   - sequences of commands
@@ -53,7 +69,7 @@
 
     - Pathname Environment Variables: Implicit Buttons may contain environment
       variables such as "${PATH}/python" and Hyperbole resolves them to the
-      first matching directory with an Action Key press.
+      first matching directory when activated.
 
     - Compressed Elisp: Quoted, compressed Emacs Lisp source file names without
       any path now work as implicit buttons that display the source file, with
@@ -94,22 +110,6 @@
     - New hproperty:but-highlight-flag: This controls whether Hyperbole
       explicit buttons are highlighted with a special colored face or not.  By
       default, they are.
-
-    - Git References: New implicit button and action type with a compact syntax
-        that displays many types of git entities, e.g. git#commit/55a1f0.  Such
-        references work across all git repositories on your local disks.
-
-        See "DEMO#Git (Local) References" or the commentary at the top of the
-        "hib-social.el" file for extensive examples of these references.  {C-h
-        f git-reference RET} explains its syntax.
-
-    - Github References: New implicit button and action type with a compact
-        syntax that displays many types of github entities,
-        e.g. gh#emacs-helm/helm/1878, displays issue #1878 for user emacs-helm
-        and project helm.  See "DEMO#Github (Remote) References" or the
-        commentary at the top of the "hib-social.el" file for extensive
-        examples of these references.  {C-h f github-reference RET} explains
-        its syntax.
 
     - Python PDB Backtraces: Action Key presses jump to the associated source
       line.
@@ -155,8 +155,13 @@
 
   DOCUMENTATION
 
+    - Why Use Hyperbole: "HY-WHY.kotl" lists use cases for Hyperbole with
+      hyperlinks to associated "DEMO" sections for each.  View this via
+      the minibuffer menu with {C-h h d w} or via the `Why-Use?' Hyperbole
+      menubar menu entry.
+
     - Hyperbole HTML Manual: The HTML version of the Hyperbole Manual now uses
-      css stylesheet similar to that used for the Hyperbole Home page, making
+      the same css stylesheet as used for the Hyperbole Home page, making
       it look much better and easier to navigate.
 
     - Drags: Updated Hyperbole Manual with all new Smart Mouse Key drag actions.
@@ -194,6 +199,7 @@
         * Using URLs with Find-File: Added URL browser customization menu reference and image.
 
     - New DEMO File Sections:
+        * Table of Contents Browsing
         * Dragging Buffers, Windows and Items
         * HyControl Frame Commands and Windows Grid subsections
 	* HyRolo

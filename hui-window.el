@@ -607,7 +607,7 @@ Value returned is nil if not a vertical line drag, 'up if drag moved up or
     (hmouse-drag-vertically-within-emacs)))
 
 (defun hmouse-drag-window-side ()
-  "Returns non-nil if Action Key was dragged from a window side divider.
+  "Returns non-nil if Action Key was dragged from a window side divider and released in the same window.
 If free variable `assist-flag' is non-nil, uses Assist Key."
   (cond ((featurep 'xemacs)
 	 ;; Depress events in scrollbars or in non-text area of buffer are
@@ -619,10 +619,11 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
 				action-key-depress-args))
 		(release-args (if assist-flag assist-key-release-args
 				action-key-release-args))
-		(w (smart-window-of-coords depress-args))
-		(right-side-ln (and w (1- (nth 2 (window-edges w)))))
-		(last-press-x   (and depress-args (hmouse-x-coord depress-args)))
-		(last-release-x (and release-args (hmouse-x-coord release-args))))
+		(wd (smart-window-of-coords depress-args))
+		(wr (smart-window-of-coords release-args))
+		(right-side-ln (and wd (1- (nth 2 (window-edges wd)))))
+		(last-press-x   (and wd depress-args (hmouse-x-coord depress-args)))
+		(last-release-x (and wr release-args (hmouse-x-coord release-args))))
 	   (and last-press-x last-release-x right-side-ln
 		(/= last-press-x last-release-x)
 		(not (<= (abs (- right-side-ln (frame-width))) 5))

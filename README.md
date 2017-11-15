@@ -1,4 +1,4 @@
-# GNU Hyperbole 6.0.2g - The Everyday Hypertextual Information Manager
+# GNU Hyperbole 7.0.0 - The Everyday Hypertextual Information Manager
 
 <!-- START doctoc generated TOC -->
 **Table of Contents**

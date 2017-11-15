@@ -4,7 +4,7 @@
 ;;
 ;; Orig-Date:    26-Feb-98
 ;;
-;; Copyright (C) 1998-2016  Free Software Foundation, Inc.
+;; Copyright (C) 1998-2017  Free Software Foundation, Inc.
 ;; See the "../HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
@@ -113,9 +113,9 @@ pattern may be:
 ;;; ************************************************************************
 
 ;;;###autoload
-(defun kexport:html (export-from output-to &optional soft-newlines-p)
+(defun kexport:html (export-from output-to &optional soft-newlines-flag)
   "Export a koutline buffer or file in EXPORT-FROM to html format in OUTPUT-TO.
-By default, this retains newlines within cells as they are.  With optional prefix arg, SOFT-NEWLINES-P, 
+By default, this retains newlines within cells as they are.  With optional prefix arg, SOFT-NEWLINES-FLAG, 
 hard newlines are not used.  Also converts Urls and Klinks into Html hyperlinks.
 STILL TODO:
   Make delimited pathnames into file links (but not if within klinks).
@@ -170,13 +170,13 @@ STILL TODO:
 				 title)))
 
     (princ "<HTML><HEAD>\n\n")
-    (princ "<A NAME=\"top\"></A><A NAME=\"0\"></A>\n")
+    (princ "<A ID=\"top\"></A><A ID=\"0\"></A>\n")
     (princ (format "<TITLE>%s</TITLE>\n" title))
     (if kexport:html-description
-	(princ (format "<META NAME=\"description\" CONTENT=\"%s\">\n"
+	(princ (format "<META ID=\"description\" CONTENT=\"%s\">\n"
 		       kexport:html-description)))
     (if kexport:html-keywords
-	(princ (format "<META NAME=\"keywords\" CONTENT=\"%s\">\n"
+	(princ (format "<META ID=\"keywords\" CONTENT=\"%s\">\n"
 		       kexport:html-keywords)))
     (princ "</HEAD>\n\n")
     (princ (format "<BODY %s>\n\n" kexport:html-body-attributes))
@@ -196,24 +196,23 @@ STILL TODO:
 	   (setq i (1- i)))
 	 (princ "<TABLE><TR>\n")
 	 (setq label (kcell-view:label))
-	 (princ (format "<A NAME=\"%s\"></A>" label))
-	 (princ (format "<A NAME=\"%s\"></A>\n" (kcell-view:idstamp)))
-	 (princ "<TD WIDTH=2% VALIGN=top>\n")
+	 (princ (format "<A ID=\"%s\"></A>" label))
+	 (princ (format "<A ID=\"%s\"></A>\n" (kcell-view:idstamp)))
+	 (princ "<TD WIDTH=2% VALIGN=top><PRE>\n")
 	 (princ (format
-		 "<FONT %s>%s%s</FONT></TD>\n"
+		 "<FONT %s>%s%s</FONT></PRE></TD>\n"
 		 kexport:label-html-font-attributes
 		 label separator))
 	 (princ "<TD>")
 	 (setq contents (kcell-view:contents))
 	 (if (string-match "\\`\\([-_$%#@~^&*=+|/A-Za-z0-9 ]+\\):.*\\S-"
 			   contents)
-	     (princ (format "<A NAME=\"%s\"></A>"
+	     (princ (format "<A ID=\"%s\"></A>"
 			    (substring contents 0 (match-end 1)))))
 	 (setq contents (kexport:html-markup contents))
-	 (or soft-newlines-p
-	     (setq contents (hypb:replace-match-string
-			     "\n" contents "<BR>\n")))
-	 (princ contents)
+	 (if soft-newlines-flag
+	     (princ contents)
+	   (princ "<PRE>") (princ contents) (princ "</PRE>"))
 	 (princ "</TD>\n")
 	 (princ "</TR></TABLE>")
 	 (setq i level)
@@ -260,10 +259,10 @@ Works exclusively within a call to `hypb:replace-match-string'."
 	 (last-str-char (length string))
 	 (last-url-char (length url)))
     (while (memq (aref url (1- last-url-char))
-		 '(?. ?, ?? ?# ?! ?* ?( ?)))
+		 '(?. ?, ?? ?# ?! ?* ?\( ?\)))
       (setq last-url-char (1- last-url-char)))
     (while (memq (aref string (1- last-str-char))
-		 '(?. ?, ?? ?# ?! ?* ?( ?)))
+		 '(?. ?, ?? ?# ?! ?* ?\( ?\)))
       (setq last-str-char (1- last-str-char)))
     (format "<A HREF=\"%s\">%s</A>%s"
 	    (substring url 0 last-url-char)
