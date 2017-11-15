@@ -74,7 +74,6 @@ kotl/EXAMPLE.kotl   - Sample Koutline document explaining Koutliner features
 hgnus.el            - GNU Hyperbole buttons in news reader/poster: GNUS
 
 --- HYPERBOLE INTERNALS ---
-file-newer          - Perl script which returns 1 if file 1 is newer than file 2
 hactypes.el         - Default action types for GNU Hyperbole
 hbdata.el           - GNU Hyperbole button attribute accessor functions
 hibtypes.el         - GNU Hyperbole default implicit button types

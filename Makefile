@@ -175,7 +175,7 @@ ELC_KOTL = kotl/kexport.elc kotl/kfile.elc kotl/kfill.elc kotl/kimport.elc kotl/
 
 HYPERBOLE_FILES = dir hyperbole-pkg.el info html $(EL_SRC) $(EL_COMPILE) $(EL_KOTL) \
 	$(ELC_COMPILE) Changes COPYING Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS \
-	HY-WHY.kotl INSTALL DEMO DEMO-ROLO.otl MANIFEST README _hypb .hypb file-newer smart-clib-sym \
+	HY-WHY.kotl INSTALL DEMO DEMO-ROLO.otl MANIFEST README _hypb .hypb smart-clib-sym \
 	topwin.py hyperbole-banner.png $(man_dir)/hkey-help.txt \
 	$(man_dir)/hyperbole.texi $(man_dir)/hyperbole.css $(man_dir)/version.texi
 

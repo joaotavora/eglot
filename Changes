@@ -2,6 +2,9 @@
 
 * hversion.el: Updated to 7.0.0 for major release.
 
+* smart-clib-sym: Removed file-newer Perl script dependency.
+  file-newer: Removed.
+
 * Makefile (help): Removed misplaced double quote characters.
 
 * hui-window.el (hmouse-drag-window-side): Fixed coordinate error when drag release is outside of Emacs.

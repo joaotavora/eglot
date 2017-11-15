@@ -23,10 +23,6 @@
 #   Either 1 if symbol is found or 0 if not.
 
 # Code:
-#
-# Perl script used to tell whether one file is newer than another.
-#
-set fn = "file-newer"
 
 # Create this file and place in the file the full path for each C, C++ or
 # Objective-C library that you want scanned for symbol names.  One filename
@@ -40,16 +36,10 @@ set clib_list = "~/.CLIBS-LIST"
 #
 set clib_symbols = "~/.clibs-symbols"
 
-# Try to locate 'perl' and 'file-newer' script for use.
-
-which perl >& /dev/null
-if ($status) unset fn
-
 set st = 0 rebuild = 0
 if (-e $clib_list) then
    if (! -e $clib_symbols || -z $clib_symbols) set rebuild = 1
-   if (! $rebuild  && $?fn) @ rebuild = `perl $fn $clib_list $clib_symbols`
-   if ($rebuild) then
+   if ($rebuild || (-M $clib_list) > (-M $clib_symbols)) then
       nm -g `cat $clib_list` | grep '^[0-9 ].* _[A-Za-z]' | sed -e 's/^[^_][^_]*_//g' | sort | uniq > $clib_symbols
    endif
    fgrep -sx $1 $clib_symbols >& /dev/null
@@ -58,3 +48,6 @@ endif
 
 echo $st
 exit $st
+
+
+
