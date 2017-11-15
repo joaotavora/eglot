@@ -292,11 +292,11 @@ git-push:
 # git, ELPA will automatically check and build its Hyperbole archive, allowing users to
 # update their packages of Hyperbole.  ELPA does this twice a day now.
 elpa: package
-	cd $(elpa_hypb_dir) && git pull http://git.savannah.gnu.org/r/hyperbole.git master \
+	cd $(elpa_hypb_dir) && git pull http://git.sv.gnu.org:/srv/git/hyperbole.git master \
 	&& git tag -s hyperbole-$(HYPB_VERSION) && git push
 
 elpa-test: package
-	cd $(elpa_hypb_dir) && git pull http://git.savannah.gnu.org/r/hyperbole.git master
+	cd $(elpa_hypb_dir) && git pull http://git.sv.gnu.org:/srv/git/hyperbole.git master
 
 # Send compressed tarball for uploading to GNU ftp site; this must be done from the directory
 # containing the tarball to upload.
