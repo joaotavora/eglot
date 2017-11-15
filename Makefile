@@ -197,10 +197,10 @@ help:
 	@ echo "     make release"
 	@ echo ""
 	@ echo "The Hyperbole Manual is included in the package in four forms:"
-	@ echo "    man/hyperbole.info"   - GNU browsable version"
-	@ echo "    man/hyperbole.html"   - Web browsable version"
-	@ echo "    man/hyperbole.pdf"    - Printable version"
-	@ echo "    man/hyperbole.texi"   - source form"
+	@ echo "    man/hyperbole.info    - GNU browsable version"
+	@ echo "    man/hyperbole.html    - Web browsable version"
+	@ echo "    man/hyperbole.pdf     - Printable version"
+	@ echo "    man/hyperbole.texi    - source form"
 
 all: help
 

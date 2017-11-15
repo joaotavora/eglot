@@ -2,6 +2,8 @@
 
 * hversion.el: Updated to 7.0.0 for major release.
 
+* Makefile (help): Removed misplaced double quote characters.
+
 * hui-window.el (hmouse-drag-window-side): Fixed coordinate error when drag release is outside of Emacs.
 
 * hui-mouse.el (smart-helm-assist): Fixed message formatting bugs in hkey-debug message.
