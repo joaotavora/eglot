@@ -565,19 +565,33 @@ buffer."
   (interactive)
   (unless (and (smart-emacs-lisp-mode-p) (fboundp 'find-library)
 	       ;; Handle Emacs Lisp `require', `load', and `autoload' clauses.
-	       (let ((lib)
-		     (opoint (point)))
+	       (let ((opoint (point))
+		     type
+		     name
+		     lib)
 		 (setq lib (and (search-backward "\(" nil t)
-				(looking-at (concat
-					     "(\\(require\\|load\\|autoload\\)"
-					     "[ \t]+.*['\"]"
-					     "\\([^][() \t\n\r`'\"]+\\)"))))
+				(or
+				 ;; load with a filename
+				 (looking-at "(\\(load\\)[ \t]+\\(\\)\"\\([^][() \t\n\r`'\"]+\\)")
+				 ;; autoload or require with a name and filename
+				 (looking-at "(\\(autoload\\|require\\)[ \t]+'\\([^][() \t\n\r`'\"]+\\)[ \t\n\r]+\"\\([^][() \t\n\r`'\"]+\\)")
+				 ;; require without a separate filename
+				 (looking-at "(\\(require\\)\\(\\)[ \t]+'\\([^][() \t\n\r`'\"]+\\)"))))
 		 (goto-char opoint)
 		 (when lib
-		   (setq lib (buffer-substring-no-properties
-			      (match-beginning 2) (match-end 2)))
+		   (setq type (match-string-no-properties 1)
+			 name (match-string-no-properties 2)
+			 lib (match-string-no-properties 3))
 		   (hpath:display-buffer (current-buffer))
 		   (find-library lib)
+		   (goto-char (point-min))
+		   (when (equal type "autoload")
+		     ;; Ignore defgroup matches
+		     (if (re-search-forward
+			  (format "^[; \t]*(def.[^r][^ \t\n\r]*[ \t]+%s[ \t\n\r]" (regexp-quote name))
+			  nil t)
+			 (goto-char (match-beginning 0))
+		       (error "(smart-lisp): Found autoload library but no definition for `%s'" name)))
 		   t)))
     (let* ((elisp-p (smart-emacs-lisp-mode-p))
 	   (tag (smart-lisp-at-tag-p t))
@@ -604,18 +618,31 @@ buffer."
 				       (error nil)))
 			  (error "(smart-lisp): `%s' definition not found in any tag table" tag)))))))))
 
-(defun smart-lisp-at-tag-p (&optional no-flash)
-  "Returns Lisp tag name that point is within, else nil.
-Returns nil when point is within a Lisp `def' keyword."
-  (let* ((identifier-chars "-_:/*+=%$&?!<>a-zA-Z0-9~^")
-	 (identifier (concat "[-<>*a-zA-Z][" identifier-chars "]*"))
-	 (opoint (point)))
+(defun smart-lisp-at-definition-p ()
+    "Returns t when point is in a non-help buffer on the first line of a non-alias Lisp definition, else nil."
+    (unless (derived-mode-p 'help-mode)
+      (save-excursion
+	(beginning-of-line)
+	;; Exclude any define- lines.
+	(and (looking-at "\\(;*[ \t]*\\)?(def[[:alnum:]]*[[:space:]]")
+	     ;; Ignore alias definitions since those typically have symbol tags to lookup.
+	     (not (looking-at "\\(;*[ \t]*\\)?(def[^ \t\n\r]*alias"))
+	     ;; Ignore lines that start with (default
+	     (not (looking-at "\\(;*[ \t]*\\)?(default"))))))
+
+(defun smart-lisp-at-load-expression-p ()
+    "Returns t when point is on the first line of a Lisp library load expression, else nil."
     (save-excursion
       (beginning-of-line)
-      (if (and (looking-at "\\(;*[ \t]*\\)?(def[^- \t\n\r]+")
-	       (< opoint (match-end 0)))
-	  nil
-	(goto-char opoint)
+      (looking-at "\\(;*[ \t]*\\)?(\\(autoload\\|load\\|require\\)")))
+
+(defun smart-lisp-at-tag-p (&optional no-flash)
+  "Returns Lisp tag name that point is within, else nil.
+Returns nil when point is on the first line of a non-alias Lisp definition."
+  (unless (smart-lisp-at-definition-p)
+    (let* ((identifier-chars "-_:/*+=%$&?!<>a-zA-Z0-9~^")
+	   (identifier (concat "[-<>*a-zA-Z][" identifier-chars "]*")))
+      (save-excursion
 	(skip-chars-backward identifier-chars)
 	(if (and (looking-at identifier)
 		 ;; Ignore any all punctuation matches.
@@ -795,16 +822,29 @@ If key is pressed:
 (defun smart-python-at-tag-p (&optional no-flash)
   "Return Python tag name that point is within, else nil."
   (let* ((identifier-chars "a-zA-Z0-9_")
-	 (identifier (concat "[a-zA-Z_][" identifier-chars "]*")))
+	 (identifier-fragment (concat "[a-zA-Z_][" identifier-chars "]*"))
+	 (identifier (concat identifier-fragment "\\(\\."
+			     identifier-fragment "\\)*"))
+	 start end tag)
     (save-excursion
-      (skip-chars-backward identifier-chars)
+      ;; Allow for name1.name2.module tags.
+      (while (and (/= (skip-chars-backward identifier-chars) 0)
+		  (/= (skip-chars-backward "\.") 0)))
+      (when (= (following-char) ?.)
+	(forward-char 1))
+      (setq start (point))
+      (while (and (/= (skip-chars-forward identifier-chars) 0)
+		  (/= (skip-chars-forward "\.") 0)))
+      (when (= (preceding-char) ?.)
+	(backward-char 1))
+      (setq end (point))
+      (goto-char start)
+      (setq tag (buffer-substring-no-properties start end))
       (if (and (looking-at identifier)
-	       (not (member (downcase (match-string 0)) smart-python-keywords)))
+	       (not (member (downcase tag) smart-python-keywords)))
 	  (if no-flash
-	      (buffer-substring-no-properties (point) (match-end 0))
-	    (smart-flash-tag
-	     (buffer-substring-no-properties (point) (match-end 0))
-	     (point) (match-end 0)))))))
+	      tag
+	    (smart-flash-tag tag start end))))))
 
 ;;; ************************************************************************
 ;;; Private functions
@@ -1179,7 +1219,7 @@ See the \"${hyperb:dir}/smart-clib-sym\" script for more information."
   (if next (setq tag nil))
   (let* ((tags-table-list (or list-of-tags-tables
 			      (and (boundp 'tags-table-list)
-				   tags-table-list)
+				   (nconc (smart-tags-file-list) tags-table-list))
 			      (smart-tags-file-list)))
 	 (func (smart-tags-noselect-function))
 	 (tags-file-name (if tags-table-list
@@ -1266,9 +1306,10 @@ to look.  If no tags file is found, an error is signaled."
 	(setq tags-table-list (list smart-emacs-tags-file)))
     ;; Return the appropriate tags file list.
     (cond (tags-table-list
+	   ;; GNU Emacs when tags tables are found or provided by the user
 	   (nreverse tags-table-list))
 	  ((fboundp 'tags-table-check-computed-list)
-	   ;; GNU Emacs
+	   ;; GNU Emacs in other cases
 	   (tags-table-check-computed-list)
 	   tags-table-computed-list)
 	  ((fboundp 'buffer-tag-table-list)

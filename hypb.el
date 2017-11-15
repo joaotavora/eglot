@@ -26,7 +26,8 @@
   "Prefix attached to all native Hyperbole help buffer names.
 This should end with a space.")
 
-(defcustom hypb:rgrep-command "grep -insIHr "
+(defcustom hypb:rgrep-command
+  (format "%sgrep -insIHr " (if (executable-find "zgrep") "z" ""))
   "*Grep command string and initial arguments to send to `hypb:rgrep' command.
 It must end with a space."
   :type 'string
@@ -155,6 +156,31 @@ Global keymap is used unless optional KEYMAP is given."
       (load "hbut.el"))
   (setq debug-on-error t))
 
+;; Copied from eww.el so as to not require that package.
+(defun hypb:decode-url (string)
+  (let* ((binary (url-unhex-string string))
+         (decoded
+          (decode-coding-string
+           binary
+           ;; Possibly set by `universal-coding-system-argument'.
+           (or coding-system-for-read
+               ;; RFC 3986 says that %AB stuff is utf-8.
+               (if (equal (decode-coding-string binary 'utf-8)
+                          '(unicode))
+                   'utf-8
+                 ;; But perhaps not.
+                 (car (detect-coding-string binary))))))
+         (encodes (find-coding-systems-string decoded)))
+    (if (or (equal encodes '(undecided))
+            (memq (coding-system-base (or file-name-coding-system
+                                          default-file-name-coding-system))
+                  encodes))
+        decoded
+      ;; If we can't encode the decoded file name (due to language
+      ;; environment settings), then we return the original, hexified
+      ;; string.
+      string)))
+
 (defun hypb:domain-name ()
   "Returns current Internet domain name with '@' prepended or nil if none."
   (let* ((dname-cmd (or (file-exists-p "/usr/bin/domainname")
@@ -203,7 +229,7 @@ Global keymap is used unless optional KEYMAP is given."
 FILE is temporarily read into a buffer to determine the major mode if necessary."
   (let ((existing-flag (get-file-buffer file))
 	(buf (find-file-noselect file)))
-    (prog1 (if buf (save-excursion (set-buffer buf) major-mode))
+    (prog1 (when buf (save-excursion (set-buffer buf) major-mode))
       (unless (or existing-flag (null buf))
 	(kill-buffer buf)))))
 
@@ -212,7 +238,10 @@ FILE is temporarily read into a buffer to determine the major mode if necessary.
   (if (stringp string)
       (replace-regexp-in-string
        "@@@" "%%" (replace-regexp-in-string
-		   "%" "%%" (replace-regexp-in-string "%%" "@@@" string)))))
+		   "%" "%%" (replace-regexp-in-string "%%" "@@@" string nil t)
+		   nil t)
+       nil t)))
+
 ;;;###autoload
 (defun hypb:functionp (obj)
 "Returns t if OBJ is a function, nil otherwise."
@@ -489,10 +518,9 @@ Otherwise treat \\ in NEWTEXT string as special:
   \\\\ means insert one \\.
 NEWTEXT may instead be a function of one argument (the string to replace in)
 that returns a replacement string."
-  (if (not (stringp str))
-      (error "(hypb:replace-match-string): 2nd arg must be a string: %s" str))
-  (if (or (stringp newtext) (hypb:functionp newtext))
-      nil
+  (unless (stringp str)
+    (error "(hypb:replace-match-string): 2nd arg must be a string: %s" str))
+  (unless (or (stringp newtext) (hypb:functionp newtext))
     (error "(hypb:replace-match-string): 3rd arg must be a string or function: %s"
 	   newtext))
   (let ((rtn-str "")
@@ -663,7 +691,7 @@ nor nil it means to not count the minibuffer window even if it is active."
 
 ;;;###autoload
 (defun hypb:display-file-with-logo (&optional file)
-  "Display an optional text FILE with the Hyperbole banner prepended.
+  "Display an optional text FILE in help mode with the Hyperbole banner prepended.
 Without file, the banner is prepended to the current buffer."
   (if file
       ;; A stub for this function is defined in hversion.el when not running in InfoDock.

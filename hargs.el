@@ -128,7 +128,9 @@ With optional LIST-POSITIONS-FLAG, return list of (string-matched start-pos end 
 		 (setq end (1- end))
 	       t)
 	     (< start end)
-	     (let ((string (hypb:replace-match-string "[\n\r]\\s-*" (buffer-substring start end) " " t)))
+	     (let ((string (substring-no-properties
+			    (hypb:replace-match-string
+			     "[\n\r]\\s-*" (buffer-substring start end) " " t))))
 	       (if list-positions-flag
 		   (list string start end)
 		 string)))))))
@@ -198,13 +200,12 @@ Optional DEFAULT-PROMPT is used to describe default value."
   (if (featurep 'xemacs)
       (if current-mouse-event
 	  (select-window
-	   (or (event-window current-mouse-event)
-	       (selected-window))))
-    (let* ((event last-command-event)
-	   (window (posn-window (event-start event))))
-      (if (and (eq window (minibuffer-window))
-	       (not (minibuffer-window-active-p
-		     (minibuffer-window))))
+	   (or (event-window current-mouse-event) (selected-window))))
+    (let ((window (posn-window (event-start last-command-event))))
+      (if (framep window)
+	  (setq window (frame-selected-window window)))
+      (if (and (window-minibuffer-p window)
+	       (not (minibuffer-window-active-p window)))
 	  (error "Attempt to select inactive minibuffer window")
 	(select-window (or window (selected-window)))))))
 
@@ -260,7 +261,7 @@ If optional argument NO-DEFAULT is non-nil, nil is returned instead of any
 default values.
 
 Caller should have checked whether an argument is presently being read
-and set `hargs:reading-p' to an appropriate argument type.
+and has set `hargs:reading-p' to an appropriate argument type.
 Handles all of the interactive argument types that `hargs:iform-read' does."
   (cond ((and (eq hargs:reading-p 'kcell)
 	      (eq major-mode 'kotl-mode)
@@ -294,7 +295,7 @@ Handles all of the interactive argument types that `hargs:iform-read' does."
 	((eq hargs:reading-p 'ebut) (ebut:label-p 'as-label))
 	((ebut:label-p) nil)
 	((eq hargs:reading-p 'file)
-	 (cond ((eq major-mode 'dired-mode)
+	 (cond ((derived-mode-p 'dired-mode)
 		(let ((file (dired-get-filename nil t)))
 		  (and file (hpath:absolute-to file))))
 	       ((eq major-mode 'monkey-mode)
@@ -305,12 +306,12 @@ Handles all of the interactive argument types that `hargs:iform-read' does."
 	       ;; Unquoted remote file name.
 	       ((hpath:is-p (hpath:remote-at-p) 'file))
 	       ;; Possibly non-existent file name
-	       ((hpath:at-p nil 'non-exist))
+	       ((if no-default (hpath:at-p 'file 'non-exist)))
 	       (no-default nil)
 	       ((buffer-file-name))
 	       ))
 	((eq hargs:reading-p 'directory)
-	 (cond ((eq major-mode 'dired-mode)
+	 (cond ((derived-mode-p 'dired-mode)
 		(let ((dir (dired-get-filename nil t)))
 		  (and dir (setq dir (hpath:absolute-to dir))
 		       (file-directory-p dir) dir)))
@@ -322,8 +323,8 @@ Handles all of the interactive argument types that `hargs:iform-read' does."
 	       ((hpath:at-p 'directory))
 	       ;; Unquoted remote directory name.
 	       ((hpath:is-p (hpath:remote-at-p) 'directory))
-	       ;; Possibly non-existant directory name
-	       ((hpath:at-p 'directory 'non-exist))
+	       ;; Possibly non-existent directory name
+	       ((if no-default (hpath:at-p 'directory 'non-exist)))
 	       (no-default nil)
 	       (default-directory)
 	       ))

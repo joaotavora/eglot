@@ -291,8 +291,9 @@
          3b18c3. cN: Hide any lines greater than N in each cell.  0 means
                  don't cutoff any lines.
 
-         3b18c4. e: Show ellipses when some content is hidden (turning this
-                 off may not work in Emacs25; nothing will happen)
+         3b18c4. e: Show ellipses when some content is hidden (This is
+                 always on in modern versions of Emacs; it cannot be
+                 turned off).
 
          3b18c5. lN: Hide cells at levels deeper than N.  0 means don't hide
                  any cells.
@@ -368,7 +369,7 @@ alpha ;; label-type
 
 ;; depth-first kcell attributes
 [[0
-  (creator "rsw@gnu.org" create-time "20160714:20:38:58" id-counter 77 file "/Users/bk/sw-dev/emacs/hyperbole-5.15/kotl/EXAMPLE.kotl")]
+  (creator "rsw@gnu.org" create-time "20170928:19:50:05" id-counter 77 file "/Users/bk/sw-dev/emacs/hyperbole/kotl/EXAMPLE.kotl")]
  [20
   (creator "rsw@gnu.org" create-time "19940104:17:38:28" no-fill t)]
  [75

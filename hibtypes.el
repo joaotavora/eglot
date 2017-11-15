@@ -70,6 +70,56 @@
 (require 'hsys-org)
 
 ;;; ========================================================================
+;;; Composes mail, in another window, to the e-mail address at point.
+;;; ========================================================================
+
+(defvar mail-address-mode-list
+  '(emacs-lisp-mode lisp-interaction-mode lisp-mode scheme-mode c-mode
+    c++-mode html-mode java-mode js2-mode objc-mode python-mode
+    smalltalk-mode fundamental-mode text-mode indented-text-mode web-mode) 
+  "List of major modes in which mail address implicit buttons are active.")
+
+(defun mail-address-at-p ()
+  "Return e-mail address, a string, that point is within or nil."
+  (let ((case-fold-search t))
+    (save-excursion
+      (skip-chars-backward "^ \t\n\r\f\"\'(){}[];:<>|")
+      (and (or (looking-at mail-address-regexp)
+	       (looking-at (concat "mailto:" mail-address-regexp)))
+	   (save-match-data
+	     (string-match mail-address-tld-regexp (match-string-no-properties 1)))
+	   (match-string-no-properties 1)))))
+
+(defib mail-address ()
+  "If on an e-mail address in a specific buffer type, compose mail to that address in another window.
+Applies to any major mode in `mail-address-mode-list', the HyRolo match buffer,
+any buffer attached to a file in `hyrolo-file-list', or any buffer with
+\"mail\" or \"rolo\" (case-insensitive) within its name."
+  (if (let ((case-fold-search t))
+	(or
+	 (and (memq major-mode mail-address-mode-list)
+	      (not (string-match "-Elements\\'" (buffer-name)))
+	      ;; Don't want this to trigger within an OOBR-FTR buffer.
+	      (not (string-match "\\`\\(OOBR.*-FTR\\|oobr.*-ftr\\)"
+				 (buffer-name)))
+	      (not (string-equal "*Implementors*" (buffer-name))))
+	 (and
+	  (string-match "mail\\|rolo" (buffer-name))
+	  ;; Don't want this to trigger in a mail/news summary buffer.
+	  (not (or (hmail:lister-p) (hnews:lister-p))))
+	 (if (boundp 'hyrolo-display-buffer)
+	     (equal (buffer-name) hyrolo-display-buffer))
+	 (and buffer-file-name
+	      (boundp 'hyrolo-file-list)
+	      (set:member (current-buffer)
+			  (mapcar 'get-file-buffer hyrolo-file-list)))))
+      (let ((address (mail-address-at-p)))
+	(if address
+	    (progn
+	      (ibut:label-set address (match-beginning 1) (match-end 1))
+	      (hact 'mail-other-window nil address))))))
+
+;;; ========================================================================
 ;;; Displays files and directories when a valid pathname is activated.
 ;;; ========================================================================
 
@@ -85,9 +135,11 @@ See `hpath:suffixes' variable documentation for suffixes that are added to or
 removed from pathname when searching for a valid match.
 See `hpath:find' function documentation for special file display options."
   ;;
-  ;; Ignore paths in Buffer menu and dired modes.
-  (unless (delq nil (mapcar (lambda (substring) (string-match substring mode-name))
-		     '("Buffer Menu" "IBuffer" "Dired")))
+  ;; Ignore paths in Buffer menu, dired and helm modes.
+  (unless (or (eq major-mode 'helm-major-mode)
+	      (delq nil (mapcar (lambda (substring) (string-match
+						     substring (format-mode-line mode-name)))
+				'("Buffer Menu" "IBuffer" "Dired"))))
     (let ((path (hpath:at-p))
 	  full-path)
       (if path
@@ -96,13 +148,15 @@ See `hpath:find' function documentation for special file display options."
 	;;
 	;; Match to Emacs Lisp and Info files without any directory component.
 	(if (setq path (hpath:delimited-possible-path))
-	    (cond ((string-match "\\`[^\\\\/~]+\\.elc?\\'" path)
+	    (cond ((string-match "\\`[^\\\\/~]+\\.elc?\\(\\.gz\\)?\\'" path)
 		   (ibut:label-set path)
-		   (setq full-path (locate-library path))
-		   (if full-path
-		       (hact 'link-to-file full-path)
-		     (hact 'error "(pathname): \"%s\" not found in `load-path'"
-				  path)))
+		   (if (string-match hpath:prefix-regexp path)
+		       (hact 'hpath:find path)
+		     (setq full-path (locate-library path))
+		     (if full-path
+			 (hact 'link-to-file full-path)
+		       (hact 'error "(pathname): \"%s\" not found in `load-path'"
+			     path))))
 		  ;; Match only if "(filename)" references a valid Info file
 		  ;; and point is within the filename, not on any delimiters
 		  ;; so that delimited thing matches trigger later.
@@ -158,7 +212,7 @@ This triggers only when the \"func-menu.el\" library has been loaded and the
 current major mode is one handled by func-menu."
   (if (and (boundp 'fume-function-name-regexp-alist)
 	   (assq major-mode fume-function-name-regexp-alist)
-	   (not (eq major-mode 'dired-mode))
+	   (not (derived-mode-p 'dired-mode))
 	   ;; Not sure if this is defined in early versions of Emacs.
 	   (fboundp 'skip-syntax-backward)
 	   ;; Prevent triggering when on method, class or function definition
@@ -210,10 +264,27 @@ current major mode is one handled by func-menu."
 ;; 	      (hact 'imenu-display-item-where item-name item-pos)))))))
 
 ;;; ========================================================================
-;;; Handles social media hashtag and username references, e.g. twitter#myhashtag
+;;; Handles internal references within an annotated bibliography, delimiters=[]
 ;;; ========================================================================
 
-(require 'hib-social)
+(defib annot-bib ()
+  "Displays annotated bibliography entries referenced internally.
+References must be delimited by square brackets, must begin with a word
+constituent character, not contain @ or # characters, must not be
+in buffers whose names begin with a space or asterisk character, and
+must have an attached file."
+  (and (not (bolp))
+       buffer-file-name
+       (let ((chr (aref (buffer-name) 0)))
+	 (not (or (eq chr ?\ ) (eq chr ?*))))
+       (not (or (derived-mode-p 'prog-mode)
+		(memq major-mode '(c-mode objc-mode c++-mode java-mode markdown-mode))))
+       (let* ((ref-and-pos (hbut:label-p t "[" "]" t))
+	      (ref (car ref-and-pos)))
+	 (and ref (eq ?w (char-syntax (aref ref 0)))
+	      (not (string-match "[#@]" ref))
+	      (progn (ibut:label-set ref-and-pos)
+		     (hact 'annot-bib ref))))))
 
 ;;; ========================================================================
 ;;; Handles Gnu debbugs issue ids, e.g. bug#45678 or just 45678.
@@ -222,24 +293,10 @@ current major mode is one handled by func-menu."
 (require 'hib-debbugs)
 
 ;;; ========================================================================
-;;; Handles internal references within an annotated bibliography, delimiters=[]
+;;; Handles social media hashtag and username references, e.g. twitter#myhashtag
 ;;; ========================================================================
 
-(defib annot-bib ()
-  "Displays annotated bibliography entries referenced internally.
-References must be delimited by square brackets, must begin with a word
-constituent character, and must not be in buffers whose names begin with a
-` ' or `*' character or which do not have an attached file."
-  (and (not (bolp))
-       buffer-file-name
-       (let ((chr (aref (buffer-name) 0)))
-	 (not (or (eq chr ?\ ) (eq chr ?*))))
-       (not (memq major-mode '(c-mode objc-mode c++-mode java-mode markdown-mode)))
-       (let* ((ref-and-pos (hbut:label-p t "[" "]" t))
-	      (ref (car ref-and-pos)))
-	 (and ref (eq ?w (char-syntax (aref ref 0)))
-	      (progn (ibut:label-set ref-and-pos)
-		     (hact 'annot-bib ref))))))
+(require 'hib-social)
 
 ;;; ========================================================================
 ;;; Displays in-file Markdown link referents.
@@ -254,7 +311,7 @@ constituent character, and must not be in buffers whose names begin with a
       (cond ((markdown-link-p) 
 	     (condition-case ()
 		 ;; Follows a reference link to its referent.
-		 (progn (markdown-jump)
+		 (progn (markdown-do)
 			(when (/= opoint (point))
 			  (setq npoint (point))
 			  (goto-char opoint)
@@ -416,8 +473,8 @@ pathname line or line preceding it, jumps to the associated file."
 (defib cscope ()
   "Jumps to C/C++ source line associated with Cscope C analyzer output line.
 Requires pre-loading of the cscope.el Lisp library available from the Emacs
-Lisp archives and the commercial cscope program available from UNIX System
-Laboratories.  Otherwise, does nothing."
+Lisp archives and the open source cscope program available from
+http://cscope.sf.net.  Otherwise, does nothing."
   (and (boundp 'cscope:bname-prefix)  ;; (featurep 'cscope)
        (stringp cscope:bname-prefix)
        (string-match (regexp-quote cscope:bname-prefix)
@@ -441,14 +498,14 @@ Laboratories.  Otherwise, does nothing."
 
 (defib text-toc ()
   "Jumps to the text file section referenced by a table of contents entry at point.
-File name must contain README and there must be a `Table of Contents' or
-`Contents' label on a line by itself (it may begin with an asterisk),
-preceding the table of contents.  Each toc entry must begin with some
-whitespace followed by one or more asterisk characters.  Each file section
-name line must start with one or more asterisk characters at the very
-beginning of the line."
+File name must contain DEMO, README or TUTORIAL and there must be a `Table
+of Contents' or `Contents' label on a line by itself (it may begin with
+an asterisk), preceding the table of contents.  Each toc entry must begin
+with some whitespace followed by one or more asterisk characters.  Each
+file section name line must start with one or more asterisk characters at
+the very beginning of the line."
   (let (section)
-    (if (and (string-match "README" (buffer-name))
+    (if (and (string-match "DEMO\\|README\\|TUTORIAL" (buffer-name))
 	     (save-excursion
 	       (beginning-of-line)
 	       ;; Entry line within a TOC
@@ -498,10 +555,9 @@ spaces and then another non-space, non-parenthesis, non-brace character."
 
 (defib rfc ()
   "Retrieves and displays an Internet rfc referenced at point.
-Requires a remote file access library, such as Tramp, for ftp
-file retrievals.  The following formats are recognized: RFC822,
-rfc-822, and RFC 822.  The `hpath:rfc' variable specifies the
-location from which to retrieve RFCs."
+The following formats are recognized: RFC822, rfc-822, and RFC 822.  The
+`hpath:rfc' variable specifies the location from which to retrieve RFCs.
+Requires the Emacs builtin Tramp library for ftp file retrievals."
   (let ((case-fold-search t)
 	(rfc-num nil))
     (and (not (memq major-mode '(dired-mode monkey-mode)))
@@ -558,34 +614,36 @@ location from which to retrieve RFCs."
 (defib grep-msg ()
   "Jumps to line associated with grep or compilation error msgs.
 Messages are recognized in any buffer."
-  (progn
-    ;; Locate and parse grep messages found in any buffer.
+  ;; Locate and parse grep messages found in any buffer other than a
+  ;; helm completion buffer.
+  (unless (eq major-mode 'helm-major-mode)
     (save-excursion
       (beginning-of-line)
       (if (or
-	    ;; UNIX C compiler and Introl 68HC11 C compiler errors
-	    (looking-at "\\([^ \t\n\r:]+\\): ?\\([0-9]+\\)[ :]")
-	    ;; HP C compiler errors
-	    (looking-at
-	     "[a-zA-Z0-9]+: \"\\([^\t\n\r\",]+\\)\", line \\([0-9]+\\):")
-	    ;; BSO/Tasking 68HC08 C compiler errors
-	    (looking-at
-	     "[a-zA-Z 0-9]+: \\([^ \t\n\r\",]+\\) line \\([0-9]+\\)[ \t]*:")
-	    ;; UNIX Lint errors
-	    (looking-at "[^:]+: \\([^ \t\n\r:]+\\): line \\([0-9]+\\):")
-	    ;; SparcWorks C compiler errors (ends with :)
-	    ;; IBM AIX xlc C compiler errors (ends with .)
-	    (looking-at "\"\\([^\"]+\\)\", line \\([0-9]+\\)[:.]")
-	    ;; Introl as11 assembler errors
-	    (looking-at " \\*+ \\([^ \t\n\r]+\\) - \\([0-9]+\\) ")
-	    ;; perl5: ... at file.c line 10
-	    (looking-at ".+ at \\([^ \t\n\r]+\\) line +\\([0-9]+\\)")
-	    ;; Weblint
-	    (looking-at "\\([^ \t\n\r:()]+\\)(\\([0-9]+\\)): ")
-	    ;; Microsoft JVC
-	    ;; file.java(6,1) : error J0020: Expected 'class' or 'interface'
-	    (looking-at
-	     "^\\(\\([a-zA-Z]:\\)?[^:\( \t\n\r-]+\\)[:\(][ \t]*\\([0-9]+\\),"))
+	   ;; Grep matches, UNIX C compiler and Introl 68HC11 C compiler errors
+	   (looking-at "\\([^ \t\n\r:]+\\): ?\\([1-9][0-9]*\\)[ :]")
+	   ;; HP C compiler errors
+	   (looking-at "[a-zA-Z0-9]+: \"\\([^\t\n\r\",]+\\)\", line \\([0-9]+\\):")
+	   ;; BSO/Tasking 68HC08 C compiler errors
+	   (looking-at
+	    "[a-zA-Z 0-9]+: \\([^ \t\n\r\",]+\\) line \\([0-9]+\\)[ \t]*:")
+	   ;; UNIX Lint errors
+	   (looking-at "[^:]+: \\([^ \t\n\r:]+\\): line \\([0-9]+\\):")
+	   ;; SparcWorks C compiler errors (ends with :)
+	   ;; IBM AIX xlc C compiler errors (ends with .)
+	   (looking-at "\"\\([^\"]+\\)\", line \\([0-9]+\\)[:.]")
+	   ;; Introl as11 assembler errors
+	   (looking-at " \\*+ \\([^ \t\n\r]+\\) - \\([0-9]+\\) ")
+	   ;; perl5: ... at file.c line 10
+	   (looking-at ".+ at \\([^ \t\n\r]+\\) line +\\([0-9]+\\)")
+	   ;; Weblint
+	   (looking-at "\\([^ \t\n\r:()]+\\)(\\([0-9]+\\)): ")
+	   ;; Microsoft JVC
+	   ;; file.java(6,1) : error J0020: Expected 'class' or 'interface'
+	   (looking-at "^\\(\\([a-zA-Z]:\\)?[^:\( \t\n\r-]+\\)[:\(][ \t]*\\([0-9]+\\),")
+	   ;; Grep match context lines (-A<num> option)
+	   (and (string-match "grep\\|shell" (buffer-name))
+		(looking-at "\\([^ \t\n\r:]+\\)-\\([1-9][0-9]*\\)-")))
 	  (let* ((file (match-string-no-properties 1))
 		 (line-num  (match-string-no-properties 2))
 		 (but-label (concat file ":" line-num))
@@ -605,81 +663,96 @@ Messages are recognized in any buffer."
 
 (defib debugger-source ()
   "Jumps to source line associated with stack frame or breakpoint lines.
-This works with JavaScript traces, gdb, dbx, and xdb.  Such lines are recognized in any buffer."
+This works with JavaScript and Python tracebacks, gdb, dbx, and xdb.  Such lines are recognized in any buffer."
   (save-excursion
     (beginning-of-line)
-    (cond  ((or (looking-at "[a-zA-Z0-9-:.()? ]+? +at \\([^() \t]+\\) (\\([^:, \t()]+\\):\\([0-9]+\\):\\([0-9]+\\))$")
-		(looking-at "[a-zA-Z0-9-:.()? ]+? +at\\( \\)\\([^:, \t()]+\\):\\([0-9]+\\):\\([0-9]+\\)$")
-		(looking-at "[a-zA-Z0-9-:.()? ]+?\\( \\)\\([^:, \t()]+\\):\\([0-9]+\\)\\(\\)$"))
-	   ;; JavaScript traceback
-	   (let* ((file (match-string-no-properties 2))
-		  (line-num (match-string-no-properties 3))
-		  (col-num (match-string-no-properties 4))
-		  but-label)
+    (cond
+     ;; Python pdb
+     ((looking-at ".+ File \"\\([^\"\n\r]+\\)\", line \\([0-9]+\\)")
+      (let* ((file (match-string-no-properties 1))
+	     (line-num (match-string-no-properties 2))
+	     (but-label (concat file ":" line-num)))
+	(setq line-num (string-to-number line-num))
+	(ibut:label-set but-label (match-beginning 1) (match-end 1))
+	(hact 'link-to-file-line file line-num)))
 
-	     ;; For Meteor app errors, remove the "app/" prefix which
-	     ;; is part of the build subdirectory and not part of the
-	     ;; source tree.
-	     (if (and (not (eq col-num "")) (string-match "^app/" file))
-		 (setq file (substring file (match-end 0))))
+     ;; JavaScript traceback
+     ((or (looking-at "[a-zA-Z0-9-:.()? ]+? +at \\([^() \t]+\\) (\\([^:, \t()]+\\):\\([0-9]+\\):\\([0-9]+\\))$")
+	  (looking-at "[a-zA-Z0-9-:.()? ]+? +at\\( \\)\\([^:, \t()]+\\):\\([0-9]+\\):\\([0-9]+\\)$")
+	  (looking-at "[a-zA-Z0-9-:.()? ]+?\\( \\)\\([^:, \t()]+\\):\\([0-9]+\\)\\(\\)$"))
+      (let* ((file (match-string-no-properties 2))
+	     (line-num (match-string-no-properties 3))
+	     (col-num (match-string-no-properties 4))
+	     but-label)
 
-	     (setq but-label (concat file ":" line-num)
-		   line-num (string-to-number line-num))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num)))
-	   ((looking-at
-	     ".+ \\(at\\|file\\) \\([^ :,]+\\)\\(:\\|, line \\)\\([0-9]+\\)\\.?$")
-	   ;; GDB or WDB
-	   (let* ((file (match-string-no-properties 2))
-		  (line-num (match-string-no-properties 4))
-		  (but-label (concat file ":" line-num))
-		  (gdb-last-file (or (and (boundp 'gud-last-frame)
-					  (stringp (car gud-last-frame))
-					  (car gud-last-frame))
-				     (and (boundp 'gdb-last-frame)
-					  (stringp (car gdb-last-frame))
-					  (car gdb-last-frame)))))
-	     (setq line-num (string-to-number line-num))
-	     ;; The `file' typically has no directory component and so may
-	     ;; not be resolvable.  `gdb-last-file' is the last file
-	     ;; displayed by gdb.  Use its directory if available as a best
-	     ;; guess.
-	     (if gdb-last-file
-		 (setq file (expand-file-name
-			     file (file-name-directory gdb-last-file))))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num)))
-	   ((looking-at ".+ (file=[^\"\n\r]+\"\\([^\"\n\r]+\\)\", line=\\([0-9]+\\),")
-	   ;; XEmacs assertion failure
-	   (let* ((file (match-string-no-properties 1))
-		  (line-num (match-string-no-properties 2))
-		  (but-label (concat file ":" line-num)))
-	     (setq line-num (string-to-number line-num))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num)))
-	  ((looking-at ".+ line \\([0-9]+\\) in \"\\([^\"]+\\)\"$")
-	   ;; New DBX
-	   (let* ((file (match-string-no-properties 2))
-		  (line-num (match-string-no-properties 1))
-		  (but-label (concat file ":" line-num)))
-	     (setq line-num (string-to-number line-num))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num)))
-	  ((or (looking-at ".+ \\[\"\\([^\"]+\\)\":\\([0-9]+\\),") ;; Old DBX
-	       (looking-at ".+ \\[\\([^: ]+\\): \\([0-9]+\\)\\]")) ;; HP-UX xdb
-	   (let* ((file (match-string-no-properties 1))
-		  (line-num (match-string-no-properties 2))
-		  (but-label (concat file ":" line-num)))
-	     (setq line-num (string-to-number line-num))
-	     (ibut:label-set but-label)
-	     (hact 'link-to-file-line file line-num))))))
+	;; For Meteor app errors, remove the "app/" prefix which
+	;; is part of the build subdirectory and not part of the
+	;; source tree.
+	(if (and (not (eq col-num "")) (string-match "^app/" file))
+	    (setq file (substring file (match-end 0))))
+
+	(setq but-label (concat file ":" line-num)
+	      line-num (string-to-number line-num))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num)))
+
+     ;; GDB or WDB
+     ((looking-at
+       ".+ \\(at\\|file\\) \\([^ :,]+\\)\\(:\\|, line \\)\\([0-9]+\\)\\.?$")
+      (let* ((file (match-string-no-properties 2))
+	     (line-num (match-string-no-properties 4))
+	     (but-label (concat file ":" line-num))
+	     (gdb-last-file (or (and (boundp 'gud-last-frame)
+				     (stringp (car gud-last-frame))
+				     (car gud-last-frame))
+				(and (boundp 'gdb-last-frame)
+				     (stringp (car gdb-last-frame))
+				     (car gdb-last-frame)))))
+	(setq line-num (string-to-number line-num))
+	;; The `file' typically has no directory component and so may
+	;; not be resolvable.  `gdb-last-file' is the last file
+	;; displayed by gdb.  Use its directory if available as a best
+	;; guess.
+	(if gdb-last-file
+	    (setq file (expand-file-name
+			file (file-name-directory gdb-last-file))))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num)))
+
+     ;; XEmacs assertion failure
+     ((looking-at ".+ (file=[^\"\n\r]+\"\\([^\"\n\r]+\\)\", line=\\([0-9]+\\),")
+      (let* ((file (match-string-no-properties 1))
+	     (line-num (match-string-no-properties 2))
+	     (but-label (concat file ":" line-num)))
+	(setq line-num (string-to-number line-num))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num)))
+
+     ;; New DBX
+     ((looking-at ".+ line \\([0-9]+\\) in \"\\([^\"]+\\)\"$")
+      (let* ((file (match-string-no-properties 2))
+	     (line-num (match-string-no-properties 1))
+	     (but-label (concat file ":" line-num)))
+	(setq line-num (string-to-number line-num))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num)))
+
+     ;; Old DBX and HP-UX xdb
+     ((or (looking-at ".+ \\[\"\\([^\"]+\\)\":\\([0-9]+\\),") ;; Old DBX
+	  (looking-at ".+ \\[\\([^: ]+\\): \\([0-9]+\\)\\]")) ;; HP-UX xdb
+      (let* ((file (match-string-no-properties 1))
+	     (line-num (match-string-no-properties 2))
+	     (but-label (concat file ":" line-num)))
+	(setq line-num (string-to-number line-num))
+	(ibut:label-set but-label)
+	(hact 'link-to-file-line file line-num))))))
 
 ;;; ========================================================================
 ;;; Jumps to source of Emacs Lisp byte-compiler error messages.
 ;;; ========================================================================
 
 (defib elisp-compiler-msg ()
-  "Jumps to source code for definition associated with byte-compiler error message.
+  "Jumps to source code for definition associated with an Emacs Lisp byte-compiler error message.
 Works when activated anywhere within an error line."
   (if (or (member (buffer-name) '("*Compile-Log-Show*" "*Compile-Log*"
 				  "*compilation*"))
@@ -756,67 +829,17 @@ Patch applies diffs to source code."
 	  (hact 'link-to-file-line file line)))))
 
 ;;; ========================================================================
-;;; Composes mail, in another window, to the e-mail address at point.
-;;; ========================================================================
-
-(defvar mail-address-mode-list
-  '(emacs-lisp-mode lisp-interaction-mode lisp-mode scheme-mode c-mode
-    c++-mode html-mode java-mode js2-mode objc-mode python-mode
-    smalltalk-mode fundamental-mode text-mode indented-text-mode web-mode) 
-  "List of major modes in which mail address implicit buttons are active.")
-
-(defib mail-address ()
-  "If on an e-mail address in a specific buffer type, mail to that address in another window.
-Applies to any major mode in `mail-address-mode-list', the HyRolo match buffer,
-any buffer attached to a file in `hyrolo-file-list', or any buffer with
-\"mail\" or \"rolo\" (case-insensitive) within its name."
-  (if (let ((case-fold-search t))
-	(or
-	 (and (memq major-mode mail-address-mode-list)
-	      (not (string-match "-Elements\\'" (buffer-name)))
-	      ;; Don't want this to trigger within an OOBR-FTR buffer.
-	      (not (string-match "\\`\\(OOBR.*-FTR\\|oobr.*-ftr\\)"
-				 (buffer-name)))
-	      (not (string-equal "*Implementors*" (buffer-name))))
-	 (and
-	  (string-match "mail\\|rolo" (buffer-name))
-	  ;; Don't want this to trigger in a mail/news summary buffer.
-	  (not (or (hmail:lister-p) (hnews:lister-p))))
-	 (if (boundp 'hyrolo-display-buffer)
-	     (equal (buffer-name) hyrolo-display-buffer))
-	 (and buffer-file-name
-	      (boundp 'hyrolo-file-list)
-	      (set:member (current-buffer)
-			  (mapcar 'get-file-buffer hyrolo-file-list)))))
-      (let ((address (mail-address-at-p)))
-	(if address
-	    (progn
-	      (ibut:label-set address (match-beginning 1) (match-end 1))
-	      (hact 'mail-other-window nil address))))))
-
-(defun mail-address-at-p ()
-  "Return e-mail address, a string, that point is within or nil."
-  (let ((case-fold-search t))
-    (save-excursion
-      (skip-chars-backward "^ \t\n\r\f\"\'(){}[];:<>|")
-      (and (or (looking-at mail-address-regexp)
-	       (looking-at (concat "mailto:" mail-address-regexp)))
-	   (save-match-data
-	     (string-match mail-address-tld-regexp (match-string-no-properties 1)))
-	   (match-string-no-properties 1)))))
-
-;;; ========================================================================
 ;;; Displays Texinfo or Info node associated with Texinfo @xref, @pxref or @ref at point.
 ;;; ========================================================================
 
 (defib texinfo-ref ()
-  "Displays Texinfo, Info node or help associated with Texinfo node, menu item, @xref, @pxref, @ref, @code or @var at point.
+  "Displays Texinfo, Info node or help associated with Texinfo node, menu item, @xref, @pxref, @ref, @code, @findex, @var or @vindex at point.
 If point is within the braces of a cross-reference, the associated
 Info node is shown.  If point is to the left of the braces but after
 the @ symbol and the reference is to a node within the current
 Texinfo file, then the Texinfo node is shown.
 
-For @code and @var references, the associated documentation string is displayed."
+For @code, @findex, @var and @vindex references, the associated documentation string is displayed."
   (if (memq major-mode '(texinfo-mode para-mode))
       (let ((opoint (point))
 	    (bol (save-excursion (beginning-of-line) (point))))
@@ -829,10 +852,16 @@ For @code and @var references, the associated documentation string is displayed.
 	      ;; Show doc for any Emacs Lisp identifier references,
 	      ;; marked with @code{} or @var{}.
 	      ((save-excursion
-		 (and (search-backward "@" bol t) (looking-at "@\\(code\\|var\\){\\([^\} \t\n\r]+\\)}")
+		 (and (search-backward "@" bol t)
+		      (or (looking-at "@\\(code\\|var\\){\\([^\} \t\n\r]+\\)}")
+			  (looking-at "@\\(findex\\|vindex\\)[ ]+\\([^\} \t\n\r]+\\)"))
 		      (>= (match-end 2) opoint)))
-	       (hact 'link-to-elisp-doc
-		     (intern (ibut:label-set (match-string 2) (match-beginning 2) (match-end 2)))))
+	       (let ((type-str (match-string 1))
+		     (symbol (intern-soft (ibut:label-set (match-string 2) (match-beginning 2) (match-end 2)))))
+		 (when (and symbol (pcase type-str
+				     ((or "code" "findex") (fboundp symbol))
+				     ((or "var" "vindex") (boundp symbol))))
+		   (hact 'link-to-elisp-doc symbol))))
 	      ;; If at an @node and point is within a node name reference
 	      ;; other than the current node, display it.
 	      ((save-excursion
@@ -901,15 +930,20 @@ GNUS is a news and mail reader."
 ;;; ========================================================================
 
 (defib Info-node ()
-  "Makes \"(filename)nodename\" buttons display the associated Info node.
-Also makes \"(filename)itemname\" buttons display the associated Info index item."
-  (let* ((node-ref-and-pos (or (hbut:label-p t "\"" "\"" t)
+  "Makes a \"(filename)nodename\" button display the associated Info node.
+Also makes a \"(filename)itemname\" button display the associated Info index item.
+Examples are \"(hyperbole)Implicit Buttons\" and ``(hyperbole)C-c /''.
+
+Activates only if point is within the first line of the Info-node name."
+  (let* ((node-ref-and-pos (or (hbut:label-p t "\"" "\"" t t)
 			       ;; Typical GNU Info references; note
 			       ;; these are special quote marks, not the
 			       ;; standard ASCII characters.
-			       (hbut:label-p t "‘" "’" t)
+			       (hbut:label-p t "‘" "’" t t)
+			       ;; Regular dual single quotes (Texinfo smart quotes)
+			       (hbut:label-p t "``" "''" t t)
 			       ;; Regular open and close quotes
-			       (hbut:label-p t "`" "'" t)))
+			       (hbut:label-p t "`" "'" t t)))
 	 (node-ref (hpath:is-p (car node-ref-and-pos) nil t)))
     (and node-ref (string-match "\\`([^\):]+)" node-ref)
 	 (ibut:label-set node-ref-and-pos)
@@ -920,22 +954,30 @@ Also makes \"(filename)itemname\" buttons display the associated Info index item
 ;;; ========================================================================
 
 (defib hyp-address ()
-  "Turns a Hyperbole support/discussion e-mail address into an implicit button which inserts Hyperbole environment information.
-See also the documentation for `actypes::hyp-config'."
-  (if (memq major-mode (list hmail:composer hnews:composer))
-      (let ((addr (hargs:find-tag-default)))
-	(cond ((null addr) nil)
-	      ((member addr '("hyperbole" "hyperbole-users@gnu.org" "bug-hyperbole@gnu.org"))
-	       (hact 'hyp-config))
-	      ((string-match "\\(hyperbole\\|hyperbole-users@gnu\\.org\\|bug-hyperbole@gnu\\.org\\)\\(-\\(join\\|leave\\|owner\\)\\)" addr)
-	       (hact 'hyp-request))))))
+  "Within a mail or Usenet news composer window, makes a Hyperbole support/discussion e-mail address insert Hyperbole environment and version information.
+See also the documentation for `actypes::hyp-config'.
+
+For example, an Action Mouse Key click on <hyperbole-users@gnu.org> in
+a mail composer window would activate this implicit button type."
+  (when (memq major-mode (list 'mail-mode hmail:composer hnews:composer))
+    (let ((addr (thing-at-point 'email)))
+      (cond ((null addr) nil)
+	    ((member addr '("hyperbole" "hyperbole-users@gnu.org" "bug-hyperbole@gnu.org"))
+	     (hact 'hyp-config))
+	    ((string-match "\\(hyperbole\\|hyperbole-users@gnu\\.org\\|bug-hyperbole@gnu\\.org\\)\\(-\\(join\\|leave\\|owner\\)\\)" addr)
+	     (hact 'hyp-request))))))
 
 ;;; ========================================================================
 ;;; Makes source entries in Hyperbole reports selectable.
 ;;; ========================================================================
 
 (defib hyp-source ()
-  "Turns source location entries in Hyperbole reports into buttons that jump to the associated location."
+  "Turns source location entries in Hyperbole reports into buttons that jump to the associated location.
+
+For example, {C-h h d d C-h h e h o} summarizes the properties of
+the explicit buttons in the DEMO file and each button in that
+report buffer behaves the same as the corresponding button in the
+original DEMO file."
   (save-excursion
     (beginning-of-line)
     (if (looking-at hbut:source-prefix)

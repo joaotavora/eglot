@@ -28,32 +28,62 @@ Mouse-only Control
     expression, such as a
     string, list or markup
     language tag pair
+
   Drag from shared window side
     or from left of scroll bar  Resizes window width       <- same
+  Modeline vertical drag        Resizes window height      <- same
 
-  Modeline press+wind release   Resizes window height      <- same
-  Click in modeline
+  Other Modeline drag to        Replaces dest. buffer      Swaps window buffers
+    another window                with source buffer
+
+  Drag to a Modeline from:
+    buffer/file menu item       Displays buffer/file in    Swaps window buffers
+                                  new window by release
+    buffer/file menu 1st line   Moves buffer/file menu to  Swaps window buffers
+                                  new window by release
+    anywhere else               Displays buffer in         Swaps window buffers
+                                  new window by release
+
+  Drag between windows from:
+    buffer/file menu item       Displays buffer/file in    Swaps window buffers
+                                  window of button release 
+    buffer/file menu 1st line   Moves buffer/file menu     Swaps window buffers
+    anywhere else               Creates/modifies a link    Swaps window buffers
+
+  Drag outside of Emacs from:
+    buffer/file menu item       Displays buffer/file in    Moves window to new frame
+                                  a new frame
+    Modeline or other window    Clones window to new frame Moves window to new frame
+
+  Modeline Click
     Left modeline edge          Buries current buffer      Unburies bottom buffer
     Right modeline edge         Info manual browser        Smart Key summary
+    Buffer ID                   Dired on buffer's dir      Next buffer
+                                  or on parent when a dir
     Other blank area            Action Key modeline hook   Assist Key modeline hook
-                                  Show/Hide Buffer Menu      Popup Jump & Manage Menu
+                                  Shows/Hides Buffer Menu    Popup Jump & Manage Menu
 
-  Drag between windows          Creates/modifies a link    Swaps wind buffers
   Drag in window, region active Error, not allowed         Error, not allowed
   Horizontal drag in a window   Splits window below        Deletes window
   Vertical drag in a window     Splits window side-by-side Deletes window
   Diagonal drag in a window     Saves wconfig              Restores wconfig from ring
-  Active region exists          Yanks sexp at release      Kills & yanks sexp at release
+
+  Active region exists, click   Yanks region at release    Kills and yanks at release
+   outside of the region
 
 Hyperbole Key Press/Click in Special Modes
-  Emacs push button             Activates button           Button help
-  Thing begin or end            Mark thing region          Mark & kill thing region
+  Region Active                 Yanks region at release    Kills and yanks at release
+  Emacs Push Button             Activates button           Button help
+  Thing Begin or End            Mark thing region          Mark & kill thing region
+  Page Directory Listing        Jumps to page              <- same
+  Imenu Programming Identifier  Jumps to in-buffer def     Prompts for id to jump to
   C,C++,Objective-C,Java Modes  Jumps to id/include def    Jumps to next def
+  Assembly Language Mode        Jumps to id/include def    Jumps to next def
   Java Cross-reference Tag      Jumps to identifier def    Jumps to next def
   JavaScript and Python Modes   Jumps to identifier def    Jumps to next def
-  Assembly Language Mode        Jumps to id/include def    Jumps to next def
-  Any Lisp or Fortran Mode      Jumps to id def            Jumps to next def
+  Any Lisp or Fortran Mode      Jumps to identifier def    Jumps to next def
   Emacs Lisp Compiler Error     Jumps to def with error    <- same
+  Other Compiler Error          Jumps to src error line    <- same
   Grep or Occur Match           Jumps to match source line <- same
   Multi-buffer Occur Match      Jumps to match source line <- same
   Etags `TAGS' file entry       Jumps to source line       Button help

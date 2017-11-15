@@ -20,13 +20,23 @@
 
 ;; Quiet byte compiler warnings for these free variables.
 (eval-when-compile
-  (defvar assist-flag nil)
   (defvar hkey-action nil)
   (defvar pred-value nil))
 
 ;;; ************************************************************************
 ;;; Public variables
 ;;; ************************************************************************
+
+(defvar hmouse-verify-release-window-flag t
+  "Non-nil means verify whether Smart Mouse Keys are released inside or outside of an Emacs frame.
+Presently, this does nothing unless Emacs is running under the
+macOS window system.  It queries the Mac window manager for the
+name of the owner of the top-most window at the point of release,
+if any.  Otherwise, if an Emacs frame is below another
+application's window at the point of release, Emacs will report
+that the release point was in its frame.
+
+See function `hmouse-window-at-absolute-pixel-position' for more details.")
 
 (defvar action-key-depressed-flag nil "t while Action Key is depressed.")
 (defvar assist-key-depressed-flag nil "t while Assist Key is depressed.")
@@ -41,13 +51,25 @@
   "List of mouse event args from most recent release of the Assist Key.")
 
 (defvar action-key-depress-window nil
-  "The last window in which the Action Key was depressed or nil.")
+  "The last window in which the Action Key was depressed or nil.
+This is set to nil when the depress is on an inactive minibuffer.")
 (defvar assist-key-depress-window nil
-  "The last window in which the Assist Key was depressed or nil.")
+  "The last window in which the Assist Key was depressed or nil.
+This is set to nil when the depress is on an inactive minibuffer.")
 (defvar action-key-release-window nil
   "The last window in which the Action Key was released or nil.")
 (defvar assist-key-release-window nil
   "The last window in which the Assist Key was released or nil.")
+
+;; These store mouse positions and are used only when a mouse is available.
+(defvar action-key-depress-position nil
+  "The last mouse screen position at which the Action Key was depressed or nil.")
+(defvar assist-key-depress-position nil
+  "The last mouse screen position at which the Assist Key was depressed or nil.")
+(defvar action-key-release-position nil
+  "The last mouse screen position at which the Action Key was released or nil.")
+(defvar assist-key-release-position nil
+  "The last mouse screen position at which the Assist Key was released or nil.")
 
 (defvar action-key-depress-prev-point nil
   "Marker at point prior to last Action Key depress.
@@ -71,6 +93,11 @@ Note that this may be a buffer different than where the release occurs.")
   "When non-nil, forces display of help for next Action Key release.")
 (defvar assist-key-help-flag nil
   "When non-nil, forces display of help for next Assist Key release.")
+
+(defvar assist-flag nil
+  "Non-nil when Hyperbole's Assist Key is in use rather than the Action Key.
+Never set directly.  Bound as a parameter when `hkey-execute' is called
+and then used as a free variable.")
 
 (defcustom hkey-debug nil
   "If non-nil, displays a message with the context and values from each Smart Key activation.
@@ -112,9 +139,11 @@ This permits the Smart Keys to behave as paste keys.")
 	action-key-depress-args (hmouse-set-point args)
 	action-key-depress-window (or (hmouse-depress-inactive-minibuffer-p args)
 				      (selected-window))
+	action-key-depress-position (mouse-absolute-pixel-position)
 	action-key-release-args nil
 	action-key-release-window nil
-	action-key-release-prev-point nil))
+	action-key-release-prev-point nil)
+  (run-hooks 'action-key-depress-hook))
 
 (defun assist-key-depress (&rest args)
   (interactive)
@@ -127,9 +156,11 @@ This permits the Smart Keys to behave as paste keys.")
 	assist-key-depress-args (hmouse-set-point args)
 	assist-key-depress-window (or (hmouse-depress-inactive-minibuffer-p args)
 				      (selected-window))
+	assist-key-depress-position (mouse-absolute-pixel-position)
 	assist-key-release-args nil
 	assist-key-release-window nil
-	assist-key-release-prev-point nil))
+	assist-key-release-prev-point nil)
+  (run-hooks 'assist-key-depress-hook))
 
 (defun action-key-depress-emacs (event)
   (interactive "e")
@@ -158,20 +189,23 @@ Any ARGS will be passed to `hmouse-function'."
   (interactive)
   ;; Make this a no-op if some local mouse key binding overrode the global
   ;; action-key-depress command invocation.
-  (if action-key-depressed-flag
-      (let ((hkey-alist hmouse-alist))
-	(setq action-key-depressed-flag nil)
-	(cond (action-key-cancelled
-		(setq action-key-cancelled nil
-		      assist-key-depressed-flag nil))
-	      (assist-key-depressed-flag
-		(hmouse-function nil nil args))
-	      ((hkey-mouse-help nil args))
-	      (t (hmouse-function #'action-key-internal nil args)))
-	;; Need to clear these variables so that mouse pasting does
-	;; not occur repeatedly from a single region selection.
-	(setq hkey-region nil
-	      hkey-value nil))))
+  (when action-key-depressed-flag
+    (setq action-key-release-position (mouse-absolute-pixel-position))
+    (let ((hkey-alist hmouse-alist))
+      (setq action-key-depressed-flag nil)
+      (cond (action-key-cancelled
+	     (setq action-key-cancelled nil
+		   assist-key-depressed-flag nil))
+	    (assist-key-depressed-flag
+	     (hmouse-function nil nil args))
+	    ((hkey-mouse-help nil args))
+	    (t
+	     (run-hooks 'action-key-release-hook)
+	     (hmouse-function #'action-key-internal nil args)))
+      ;; Need to clear these variables so that mouse pasting does
+      ;; not occur repeatedly from a single region selection.
+      (setq hkey-region nil
+	    hkey-value nil))))
 
 (defun assist-mouse-key (&rest args)
   "Set point to the current mouse cursor position and execute `assist-key'.
@@ -179,44 +213,50 @@ Any ARGS will be passed to `hmouse-function'."
   (interactive)
   ;; Make this a no-op if some local mouse key binding overrode the global
   ;; assist-key-depress command invocation.
-  (if assist-key-depressed-flag
-      (let ((hkey-alist hmouse-alist))
-	(setq assist-key-depressed-flag nil)
-	(cond (assist-key-cancelled
-		(setq assist-key-cancelled nil
-		      action-key-depressed-flag nil))
-	      (action-key-depressed-flag
-		(hmouse-function nil t args))
-	      ((hkey-mouse-help t args))
-	      (t (hmouse-function #'assist-key-internal t args)))
-	;; Need to clear this variable so that mouse pasting does
-	;; not occur repeatedly from a single region selection.
-	(setq hkey-region nil
-	      hkey-value nil))))
+  (when assist-key-depressed-flag
+    (setq assist-key-release-position (mouse-absolute-pixel-position))
+    (let ((hkey-alist hmouse-alist))
+      (setq assist-key-depressed-flag nil)
+      (cond (assist-key-cancelled
+	     (setq assist-key-cancelled nil
+		   action-key-depressed-flag nil))
+	    (action-key-depressed-flag
+	     (hmouse-function nil t args))
+	    ((hkey-mouse-help t args))
+	    (t
+	     (run-hooks 'assist-key-release-hook)
+	     (hmouse-function #'assist-key-internal t args)))
+      ;; Need to clear this variable so that mouse pasting does
+      ;; not occur repeatedly from a single region selection.
+      (setq hkey-region nil
+	    hkey-value nil))))
 
 ;;; Smart Key Commands
 (defun action-key ()
   "Use one key to perform functions that vary by context.
 If no matching context is found, the default function set with
-the `action-key-default-function' variable is run.  Returns t
+the `action-key-default-function' variable is run.  Return t
 unless the `action-key-default-function' variable is not bound to
 a valid function."
   (interactive)
   ;; Clear all these variables so there can be no confusion between
   ;; mouse presses and keyboard presses.
   (setq action-key-depress-prev-point nil
+	action-key-depress-position nil
 	action-key-depress-args nil
 	action-key-depress-window nil
+	action-key-release-position nil
 	action-key-release-args nil
 	action-key-release-window nil
 	action-key-release-prev-point nil)
-  (action-key-internal))
+  (prog1 (action-key-internal)
+    (run-hooks 'action-key-depress-hook 'action-key-release-hook)))
 
 (defun action-key-internal ()
   (setq action-key-depressed-flag nil)
-  (if action-key-cancelled
-      (setq action-key-cancelled nil
-	    assist-key-depressed-flag nil))
+  (when action-key-cancelled
+    (setq action-key-cancelled nil
+	  assist-key-depressed-flag nil))
   (or (hkey-execute nil)
       (when (fboundp action-key-default-function)
 	(funcall action-key-default-function)
@@ -225,33 +265,42 @@ a valid function."
 (defun assist-key ()
   "Use one key to perform functions that vary by context.
 If no matching context is found, the default function set with
-the `assist-key-default-function' variable is run.  Returns
+the `assist-key-default-function' variable is run.  Return
 non-nil unless `assist-key-default-function' variable is not
 bound to a valid function."
   (interactive)
   ;; Clear all these variables so there can be no confusion between
   ;; mouse presses and keyboard presses.
   (setq assist-key-depress-prev-point nil
+	assist-key-depress-position nil
 	assist-key-depress-args nil
 	assist-key-depress-window nil
+	assist-key-release-position nil
 	assist-key-release-args nil
 	assist-key-release-window nil
 	assist-key-release-prev-point nil)
-  (assist-key-internal))
+  (prog1 (assist-key-internal)
+    (run-hooks 'assist-key-depress-hook 'assist-key-release-hook)))
 
 (defun assist-key-internal ()
   (setq assist-key-depressed-flag nil)
-  (if assist-key-cancelled
-      (setq assist-key-cancelled nil
-	    action-key-depressed-flag nil))
+  (when assist-key-cancelled
+    (setq assist-key-cancelled nil
+	  action-key-depressed-flag nil))
   (or (hkey-execute t)
       (when (fboundp assist-key-default-function)
 	(funcall assist-key-default-function)
 	t)))
 
 (defun hkey-either (arg)
-  "Executes `action-key' or with non-nil ARG executes `assist-key'."
+  "Execute `action-key' or with non-nil ARG execute `assist-key'."
   (interactive "P")
+  (when (and (featurep 'hycontrol)
+	     (or hycontrol-windows-mode hycontrol-frames-mode))
+      ;; Ignore any prefix arg set by HyControl and use prefix arg
+      ;; only if it was given by a user as any number of C-u presses
+      ;; and is therefore a list.
+    (unless (listp arg) (setq arg nil)))
   (if arg (assist-key) (action-key)))
 
 ;;; ************************************************************************
@@ -275,7 +324,7 @@ bound to a valid function."
 (defun hkey-execute (assist-flag)
   "Evaluate Action Key form (or Assist Key form with ASSIST-FLAG non-nil) for first non-nil predicate from `hkey-alist'.
 Non-nil ASSIST-FLAG means evaluate second form, otherwise evaluate first form.
-Returns non-nil iff a non-nil predicate is found."
+Return non-nil iff a non-nil predicate is found."
   ;; Keep in mind that hkey-alist may be set to hmouse-alist here, with additional predicates.
   (let ((hkey-forms hkey-alist)
 	(pred-value) (hkey-action) hkey-form pred)
@@ -293,10 +342,10 @@ Returns non-nil iff a non-nil predicate is found."
 (defun hkey-help (&optional assist-flag)
   "Display help for the Action Key command in current context.
 With optional ASSIST-FLAG non-nil, display help for the Assist Key command.
-Returns non-nil iff associated help documentation is found."
+Return non-nil iff associated help documentation is found."
   (interactive "P")
   (let ((hkey-forms hkey-alist)
-	(hkey-form) (pred-value) (call) (cmd-sym) (doc))
+	hkey-form pred-value call calls cmd-sym doc)
     (while (and (null pred-value) (setq hkey-form (car hkey-forms)))
       (or (setq pred-value (eval (car hkey-form)))
 	  (setq hkey-forms (cdr hkey-forms))))
@@ -304,13 +353,20 @@ Returns non-nil iff associated help documentation is found."
 	(setq call (if assist-flag (cdr (cdr hkey-form))
 		     (car (cdr hkey-form)))
 	      cmd-sym (car call))
-      (setq cmd-sym
-	    (if assist-flag assist-key-default-function action-key-default-function)
+      (setq cmd-sym (if assist-flag assist-key-default-function action-key-default-function)
 	    call cmd-sym))
+    (if (and (consp call) (eq (car call) 'call-interactively))
+	(if (consp (cadr call))
+	    (setq cmd-sym (if (memq (caadr call) '(function quote))
+			      (cadadr call) 
+			    (caadr call)))))
+    (setq calls (if (and (consp call) (eq (car call) 'or))
+		    (mapcar 'identity (cdr call))
+		  (list cmd-sym)))
+
     (setq hkey-help-msg
 	  (if (and cmd-sym (symbolp cmd-sym))
 	      (progn
-		(setq doc (documentation cmd-sym))
 		(let* ((condition (car hkey-form))
 		       (temp-buffer-show-hook
 			 (lambda (buf)
@@ -341,15 +397,27 @@ Returns non-nil iff associated help documentation is found."
 		      (or condition
 			  "there is no matching context"))
 		    (terpri)
-		    (princ "CALLS ") (princ call)
-		    (if doc (progn (princ " WHICH:") (terpri) (terpri)
-				   (princ doc)))
-		    (if (memq cmd-sym '(hui:hbut-act hui:hbut-help))
-			(progn
-			  (princ (format "\n\nBUTTON SPECIFICS:\n\n%s\n"
-					 (actype:doc 'hbut:current t)))
-			  (hattr:report
-			    (nthcdr 2 (hattr:list 'hbut:current)))))
+
+		    (mapc (lambda (c)
+			    (if (> (length calls) 1)
+				;; Is an 'or' set of calls
+				(princ "'OR' "))
+			    (princ "CALLS ") (princ (if (consp c) c (list c)))
+			    (when (and (fboundp (setq call (if (consp c) (car c) c)))
+				       (setq doc (documentation call)))
+			      (princ " WHICH")
+			      (princ (if (string-match "\\`[a-zA-Z]*[a-rt-zA-RT-Z]+s[ [:punct:]]" doc)
+					 ":" " WILL:"))
+			      (terpri) (terpri)
+			      (princ (replace-regexp-in-string "^" "  " doc nil t))
+			      (terpri) (terpri)))
+			  calls)
+
+		    (when (memq cmd-sym '(hui:hbut-act hui:hbut-help))
+		      (princ (format "BUTTON SPECIFICS:\n\n%s\n"
+				     (actype:doc 'hbut:current t)))
+		      (hattr:report
+		       (nthcdr 2 (hattr:list 'hbut:current))))
 		    (terpri)
 		    ))
 		"")
@@ -359,7 +427,7 @@ Returns non-nil iff associated help documentation is found."
 
 (defun hkey-assist-help ()
   "Display doc associated with Assist Key command in current context.
-Returns non-nil iff associated documentation is found."
+Return non-nil iff associated documentation is found."
   (interactive)
   (hkey-help 'assist))
 
@@ -370,8 +438,8 @@ Returns non-nil iff associated documentation is found."
 
 ;;;###autoload
 (defun hkey-help-hide (&optional kill window)
-  "Optionally KILLs current buffer (default is bury) and quits WINDOW.
-Restores frame to configuration prior to help buffer display.
+  "Optionally KILL current buffer (default is bury) and quit WINDOW.
+Restore frame to configuration prior to help buffer display.
 Point must be in a help buffer.  See `hkey-quit-window' for additional
 details."
   (interactive "P")
@@ -395,9 +463,9 @@ details."
 
 ;;;###autoload
 (defun hkey-help-show (&optional buffer current-window)
-  "Saves prior window configuration if BUFFER displays help.  Displays BUFFER.
+  "Save prior window configuration if BUFFER displays help.  Display BUFFER.
 
-Optional second arg CURRENT-WINDOW non-nil forces display of buffer within
+With optional second arg CURRENT-WINDOW non-nil, force display of buffer within
 the current window.  By default, it is displayed according to the setting of
 `hpath:display-where'."
   (if (bufferp buffer) (setq buffer (buffer-name buffer)))
@@ -429,7 +497,8 @@ the current window.  By default, it is displayed according to the setting of
 	  ;; selection.
 	  (unless (or (where-is-internal 'quit-window (current-local-map))
 		      (where-is-internal 'hkey-help-hide (current-local-map)))
-	    (help-mode)
+	    (if (string-match "^\\*Help\\|Help\\*$" (buffer-name))
+		(help-mode))
 	    (local-set-key "q" #'hkey-help-hide))))
     ;; If in a *Completions* buffer, re-select the window that
     ;; generated the completions.
@@ -437,10 +506,10 @@ the current window.  By default, it is displayed according to the setting of
 	(select-window (get-buffer-window completion-reference-buffer t)))))
 
 (defun hkey-mouse-help (assist-flag args)
-  "If a Smart Key help flag is set and the other Smart Key is not down, shows help.
+  "If a Smart Key help flag is set and the other Smart Key is not down, show help.
 Takes two args:  ASSIST-FLAG should be non-nil iff command applies to the Assist Key.
 ARGS is a list of arguments passed to `hmouse-function'.
-Returns t if help is displayed, nil otherwise."
+Return t if help is displayed, nil otherwise."
   (let ((help-shown)
 	(other-key-released (not (if assist-flag
 				     action-key-depressed-flag
@@ -462,7 +531,7 @@ Returns t if help is displayed, nil otherwise."
 	t))))
 
 (defun hkey-operate (&optional arg)
-  "Uses the keyboard to emulate Smart Mouse Key drag actions.
+  "Use the keyboard to emulate Smart Mouse Key drag actions.
 Each invocation alternates between starting a drag and ending it.
 Optional prefix ARG non-nil means emulate Assist Key rather than the
 Action Key.
@@ -490,8 +559,8 @@ Only works when running under a window system, not from a dumb terminal."
       )))
 
 (defun hkey-summarize (&optional current-window)
-  "Displays smart key operation summary in help buffer.
-Optional arg CURRENT-WINDOW non-nil forces display of buffer within
+  "Display smart key operation summary in help buffer.
+With optional arg CURRENT-WINDOW non-nil, force display of buffer within
 the current window.  By default, it is displayed in another window."
   (interactive)
   (let* ((doc-file (hypb:hkey-help-file))
@@ -523,13 +592,182 @@ With optional ARG, override them iff ARG is positive."
     (setq hkey-debug t)
     (message "Smart Key debugging is on; press a Smart Key to see its context.")))
 
-(defun hmouse-depress-inactive-minibuffer-p (args)
-  "Return the minibuffer window if the last Smart Mouse Key depress was in it and it was inactive, else nil."
-  (if (= (minibuffer-depth) 0)
-      (if (eq (minibuffer-window) (posn-window (event-start args)))
-	  (minibuffer-window))))
+(defun hmouse-depress-inactive-minibuffer-p (event)
+  "Return the minibuffer window if the last Smart Mouse Key depress EVENT was in it and it was inactive, else nil."
+  (let ((window (posn-window (event-start event))))
+    (if (framep window) (setq window (frame-selected-window window)))
+    (and (window-minibuffer-p window)
+	 (not (minibuffer-window-active-p window))
+	 window)))
+
+;; Based on code from subr.el.
+(defun hmouse-vertical-line-spacing (frame)
+  "Return any extra vertical spacing in pixels between text lines or 0 if none."
+  (let ((spacing (when (display-graphic-p frame)
+                   (or (with-current-buffer (window-buffer (frame-selected-window frame))
+                         line-spacing)
+		       (frame-parameter frame 'line-spacing)))))
+    (cond ((floatp spacing)
+	   (setq spacing (truncate (* spacing (frame-char-height frame)))))
+	  ((null spacing)
+	   (setq spacing 0)))
+    spacing))
+
+(defun hmouse-window-at-absolute-pixel-position (&optional position release-flag)
+  "Return the top-most Emacs window at optional POSITION ((x . y) in absolute pixels) or mouse position.
+If POSITION is not in a window, return nil.  Considers all windows on
+the same display as the selected frame.
+
+If optional RELEASE-FLAG is non-nil, this is part of a Smart Key
+release computation, so optimize window selection based on the depress
+window already computed.
+
+If the selected frame is a graphical macOS window and
+`hmouse-verity-release-window-flag' is non-nil, then return the
+top-most Emacs window only if it is the top-most application window at
+the position (not below another application's window)."
+  (interactive)
+  (setq position (or position (mouse-absolute-pixel-position)))
+  ;; Proper top-to-bottom listing of frames is available only in Emacs
+  ;; 26 and above.  For prior versions, the ordering of the frames
+  ;; returned is not guaranteed, so the frame whose window is returned
+  ;; may not be the uppermost.
+  (let* ((top-to-bottom-frames (if (fboundp 'frame-list-z-order)
+				   (frame-list-z-order)
+				 (frame-list)))
+	 (pos-x (car position))
+	 (pos-y (cdr position))
+	 edges left top right bottom
+	 frame
+	 in-frame
+	 window)
+    ;; First find top-most frame containing position.
+    (while (and (not in-frame) top-to-bottom-frames)
+      (setq frame (car top-to-bottom-frames)
+	    top-to-bottom-frames (cdr top-to-bottom-frames))
+      ;; Check that in-frame is valid with frame-live-p since under macOS
+      ;; when position is outside a frame, in-frame could be invalid and
+      ;; frame-visible-p would trigger an error in that case.
+      (when (and (frame-live-p frame) (frame-visible-p frame))
+	(setq edges (frame-edges frame)
+	      left   (nth 0 edges)
+	      top    (nth 1 edges)
+	      right  (nth 2 edges)
+	      bottom (nth 3 edges))
+	(when (and (>= pos-x left) (<= pos-x right)
+		   (>= pos-y top)  (<= pos-y bottom))
+	  (setq in-frame frame))))
+    ;; If in-frame is found, find which of its windows contains
+    ;; position and return that.  The window-at call below requires
+    ;; character coordinates relative to in-frame, so compute them.
+    (when in-frame
+      (let ((depress-position (and release-flag (if assist-flag
+						    assist-key-depress-position
+						  action-key-depress-position)))
+	    (depress-window  (and release-flag (if assist-flag
+						   assist-key-depress-window
+						 action-key-depress-window))))
+	(if (and release-flag depress-window (equal position depress-position))
+	    ;; This was a click, so we know that the frame of the click
+	    ;; is topmost on screen or the mouse events would not have
+	    ;; been routed to Emacs.  Reuse saved window of depress rather
+	    ;; then running possibly expensive computation to find the
+	    ;; topmost application window.
+	    (setq window depress-window)
+	  (let ((char-x (/ (- pos-x left) (frame-char-width in-frame)))
+		(line-y (/ (- pos-y top) (+ (frame-char-height in-frame)
+					    (hmouse-vertical-line-spacing in-frame)))))
+	    (setq window (window-at char-x line-y in-frame)))
+	  ;;
+	  ;; Otherwise, even if in-frame is found, under click-to-focus external window
+	  ;; managers, Emacs may have received the drag release event when
+	  ;; in-frame was covered by an external application's window.
+	  ;; Emacs presently has no way to handle this.  However, for the
+	  ;; macOS window system only, Hyperbole has a Python script, topwin.py, which
+	  ;; computes the application of the topmost window at the point of release.
+	  ;; If that is Emacs, then we have the right window and nothing need be
+	  ;; done; otherwise, set window to nil and return.
+	  ;;
+	  (when (and hmouse-verify-release-window-flag
+		     window (eq (window-system) 'ns))
+	    ;; If depress and release windows are the same and frame has
+	    ;; an auto-raise property, then we know this window was
+	    ;; uppermost at the point of release and can skip this computation.
+	    (unless (and (eq depress-window window) (frame-parameter nil 'auto-raise))
+	      (let ((topwin (expand-file-name "topwin.py" hyperb:dir))
+		    (case-fold-search t)
+		    topmost-app)
+		(when (and topwin (file-executable-p topwin))
+		  (setq topmost-app (shell-command-to-string
+				     (format "%s %d %d" topwin pos-x pos-y)))
+		  (cond ((string-match "emacs" topmost-app)) ; In an Emacs frame, do nothing.
+			((or (equal topmost-app "")
+			     ;; Any non-Emacs app window
+			     (string-match "\\`\\[" topmost-app))
+			 ;; Outside of any Emacs frame
+			 (setq window nil))
+			(t ;; topwin error message
+			 ;; Setup of the topwin script is somewhat complicated,
+			 ;; so don't trigger an error just because of it.  But
+			 ;; display a message so the user knows something happened
+			 ;; when topwin encounters an error.
+			 (message "(Hyperbole): topwin.py Python script error: %s" topmost-app))))))))))
+
+    (when (called-interactively-p 'interactive)
+      (message "%s at absolute pixel position %s"
+	       (or window "No Emacs window") position))
+    window))
+
+(defun hmouse-window-coordinates (&optional event)
+  "Return a list (window (x-chars . y-chars)) for optional EVENT.
+Always ignores EVENT coordinates and uses current mouse position.
+The area of the EVENT is utilized. If EVENT is not given and the
+free variable `assist-flag' is non-nil, EVENT is set to
+`assist-key-release-args', otherwise, `action-key-release-args'.
+
+The coordinates x-chars and y-chars are relative character
+coordinates within the window.  If POSITION is not in a live
+window, return nil.  Considers all windows on the selected frame's display."
+  (interactive)
+  (unless (eventp event)
+    (setq event (if assist-flag assist-key-release-args action-key-release-args)))
+  (let* ((position (mouse-absolute-pixel-position))
+	 (pos-x (car position))
+	 (pos-y (cdr position))
+	 (window (hmouse-window-at-absolute-pixel-position position t))
+	 (edges (when (window-live-p window) (window-edges window t t t)))
+	 left top right bottom
+	 frame)
+    (when edges
+      (setq left   (nth 0 edges)
+	    top    (nth 1 edges)
+	    right  (nth 2 edges)
+	    bottom (nth 3 edges))
+      (when (or (and event (eq (posn-area (event-start event)) 'mode-line))
+		(and (>= pos-x left) (<= pos-x right)
+		     (>= pos-y top)  (<= pos-y bottom)))
+	;; If position is in a live window, compute position's character
+	;; coordinates within the window and return the window with these
+	;; coordinates.
+	(setq frame (window-frame window)
+	      pos-x (round (/ (- pos-x left) (frame-char-width frame)))
+	      pos-y (round (/ (- pos-y top)  (+ (frame-char-height frame)
+						(hmouse-vertical-line-spacing frame)))))))
+    (when (called-interactively-p 'interactive)
+      (message "%s at %s coordinates (%s . %s)"
+	       (if edges window "No live Emacs window")
+	       (if frame "character" "absolute pixel")
+	       pos-x pos-y))
+    (when edges (list window (cons pos-x pos-y)))))
+
+(defun hmouse-key-release-window ()
+  "Return the window of the current mouse position if any, else nil."
+  (ignore-errors (hmouse-window-at-absolute-pixel-position nil t)))
 
 (defun hmouse-key-release-args-emacs (event)
+  "For GNU Emacs, return a possibly modified version of EVENT as a list.
+For mouse drags and double and triple clicks, remove any depress location,
+compute the actual release location and include that."
   (if (integerp event)
       (list event)
     (let ((ev-type-str (and (listp event) (symbol-name (car event)))))
@@ -537,26 +775,47 @@ With optional ARG, override them iff ARG is positive."
 		   (string-match "\\(double\\|triple\\)-mouse" ev-type-str))
 	      (not (= (length event) 3)))
 	  event
-	;; Remove depress coordinates and send only release coordinates.
+	(let ((pos (event-end event))
+	      coords window window-and-char-coords)
+	  (when (and ev-type-str (string-match "drag-mouse" ev-type-str)
+		     ;; end of drag event; If drag crossed frames, the location
+		     ;; will contain the frame of the depress point and
+		     ;; some relative coordinates; change these to the window of
+		     ;; release and window's character coordinates if within a window
+		     ;; and to nil if outside of Emacs (as best we can tell).
+		     (framep (posn-window pos)))
+	    (setq window-and-char-coords (hmouse-window-coordinates event)
+		  window (car window-and-char-coords)
+		  coords (cadr window-and-char-coords))
+	    ;; Modify the values in the event-end structure even if no
+	    ;; valid window was found.
+	    (setcar pos window)
+	    (setcar (nthcdr 2 pos) coords)))
+	;; Remove depress coordinates and send only original release coordinates.
 	(list (car event) (nth 2 event))))))
 
+(defun hmouse-use-region-p ()
+  "Return t if there is a non-empty, highlighted region, else nil."
+  (cond
+   ;; Newer GNU Emacs
+   ((fboundp 'use-region-p)
+    (let ((use-empty-active-region))
+      (use-region-p)))
+   ;; InfoDock and XEmacs
+   ((fboundp 'region-exists-p)
+    (and (fboundp 'region-active-p) (region-active-p) (region-exists-p)))
+   ;; Older GNU Emacs
+   ((boundp 'transient-mark-mode)
+    (and transient-mark-mode mark-active))))
+
 (defun hmouse-save-region (&optional frame)
-  "Saves any active region within the current buffer.
+  "Save to `hkey-region' and return any active region within the current buffer.
 Under InfoDock and XEmacs, `zmacs-region' must be t; under GNU Emacs,
 `transient-mark-mode' must be t or the function does nothing."
-  (if (cond
-       ;; Newer GNU Emacs
-       ((fboundp 'use-region-p)
-	(let ((use-empty-active-region))
-	  (use-region-p)))
-       ;; InfoDock and XEmacs
-       ((fboundp 'region-exists-p)
-	(and (fboundp 'region-active-p) (region-active-p) (region-exists-p)))
-       ;; Older GNU Emacs
-       ((boundp 'transient-mark-mode)
-	(and transient-mark-mode mark-active)))
-      (setq hkey-region (buffer-substring (region-beginning) (region-end)))
-    (setq hkey-region nil)))
+  (setq hkey-region
+	(when (hmouse-use-region-p)
+	  (buffer-substring (region-beginning) (region-end)))))
+
 
 ;; Save any active region to `hkey-region' when the mouse is moved between frames or buffers.
 (if (featurep 'xemacs)
@@ -571,8 +830,8 @@ Under InfoDock and XEmacs, `zmacs-region' must be t; under GNU Emacs,
 ;; assume this is no longer a problem in 2016 but have this note here
 ;; in case it is.
 (defun hmouse-set-point (args)
-  "Sets point to Smart Key press/release location given by ARGS.
-Returns argument list including x and y frame coordinates in characters and
+  "Set point to Smart Key press/release location given by ARGS.
+Return argument list including x and y frame coordinates in characters and
 lines or if ARGS is null and there is no graphical window system,
 return current point as a marker."
   (and (car args) (listp (car args)) (setq args (car args)))
@@ -587,10 +846,10 @@ return current point as a marker."
 			    (+ (nth 1 args) (nth 0 (window-edges win)))
 			    (+ (nth 2 args) (nth 1 (window-edges win))))))
 		   (t args)))
-    (point-marker)))
+    (posn-at-point)))
 
 (defun hmouse-set-point-at (set-point-arg-list)
-  "Sets point to cursor position using SET-POINT-ARG-LIST and returns t.
+  "Set point to cursor position using SET-POINT-ARG-LIST and returns t.
 If 'hmouse-set-point-command' is not bound to a function, this does nothing
 and returns nil."
   (if (fboundp hmouse-set-point-command)
@@ -608,49 +867,50 @@ line to bottom of window.  Repeated presses then scroll up or down a
 windowful.  Nil value instead ignores current line and always scrolls up or
 down a windowful."))
 
-;; The smart keys scroll buffers when pressed at the ends of lines.
+;; The smart keys scroll buffers when pressed at the end of lines.
 ;; These next two functions do the scrolling and keep point at the end
 ;; of line to simplify repeated scrolls when using keyboard smart keys.
 ;;
 ;; These functions may also be used to test whether the scroll action would
-;; be successful, no action is taken if it would fail (because the beginning
+;; be successful: no action is taken if it would fail (because the beginning
 ;; or end of a buffer is already showing) and nil is returned.
 ;; t is returned whenever scrolling is performed.
 
 (defun hmouse-function (func assist-flag set-point-arg-list)
-  "Executes FUNC for Action Key (Assist Key with ASSIST-FLAG non-nil) and sets point from SET-POINT-ARG-LIST.
+  "Execute FUNC for Action Key (Assist Key with ASSIST-FLAG non-nil) and set point from SET-POINT-ARG-LIST.
 FUNC may be nil in which case no function is called.
 SET-POINT-ARG-LIST is passed to the call of the command bound to
-`hmouse-set-point-command'.  Returns nil if `hmouse-set-point-command' variable
+`hmouse-set-point-command'.  Return nil if `hmouse-set-point-command' variable
 is not bound to a valid function."
-  (if (fboundp hmouse-set-point-command)
-      (let ((release-args (hmouse-set-point set-point-arg-list)))
-	(if assist-flag
-	    (setq assist-key-release-window (selected-window)
-		  assist-key-release-args release-args
-		  assist-key-release-prev-point (point-marker))
-	  (setq action-key-release-window (selected-window)
-		action-key-release-args release-args
-		action-key-release-prev-point (point-marker)))
-	(and (eq major-mode 'br-mode)
-	     (setq action-mouse-key-prev-window 
-		   (if (br-in-view-window-p)
-		       (save-window-excursion
-			 (br-next-listing-window)
-			 (selected-window))
-		     (selected-window))))
-	(setq action-mouse-key-prefix-arg current-prefix-arg)
-	(when func
-	  (funcall func)
-	  (setq action-mouse-key-prev-window nil
-		action-mouse-key-prefix-arg nil))
-	t)))
+  (when (fboundp hmouse-set-point-command)
+    (if assist-flag
+	(setq assist-key-release-window (hmouse-key-release-window)
+	      assist-key-release-prev-point (point-marker))
+      (setq action-key-release-window (hmouse-key-release-window)
+	    action-key-release-prev-point (point-marker)))
+    (and (eq major-mode 'br-mode)
+	 (setq action-mouse-key-prev-window 
+	       (if (br-in-view-window-p)
+		   (save-window-excursion
+		     (br-next-listing-window)
+		     (selected-window))
+		 (selected-window))))
+    (setq action-mouse-key-prefix-arg current-prefix-arg)
+    (let ((release-args (hmouse-set-point set-point-arg-list)))
+      (if assist-flag
+	  (setq assist-key-release-args release-args)
+	(setq action-key-release-args release-args)))
+    (when func
+      (funcall func)
+      (setq action-mouse-key-prev-window nil
+	    action-mouse-key-prefix-arg nil))
+    t))
 
 (defun smart-scroll-down ()
-  "Scrolls down according to value of smart-scroll-proportional.
+  "Scroll down according to value of smart-scroll-proportional.
 If smart-scroll-proportional is nil or if point is on the bottom window line,
-scrolls down (backward) a windowful.  Otherwise, tries to bring current line
-to bottom of window.  Leaves point at end of line and returns t if scrolled,
+scroll down (backward) a windowful.  Otherwise, try to bring current line
+to the bottom of the window.  Leave point at end of line and return t if scrolled,
 nil if not."
   (interactive)
   (let ((rtn t))
@@ -672,10 +932,10 @@ nil if not."
     rtn))
 
 (defun smart-scroll-up ()
-  "Scrolls up according to value of smart-scroll-proportional.
+  "Scroll up according to value of smart-scroll-proportional.
 If smart-scroll-proportional is nil or if point is on the top window line,
-scrolls up (forward) a windowful.  Otherwise, tries to bring current line to
-top of window.  Leaves point at end of line and returns t if scrolled, nil if
+scroll up (forward) a windowful.  Otherwise, tyr to bring current line to
+the top of the window.  Leave point at end of line and return t if scrolled, nil if
 not."
   (interactive)
   (let ((rtn t))

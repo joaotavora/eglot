@@ -10,6 +10,14 @@
 ;; This file is part of GNU Hyperbole.
 
 ;;; Commentary:
+;;
+;;  This is Hyperbole's advanced rolo system, HyRolo, for convenient
+;;  management of hierarchical, record-oriented information.  Most
+;;  often this is used for contact management but it can quickly be
+;;  adapted to most any record-oriented lookup task, for fast retrieval.
+;;
+;;  See all the autoloaded functions herein for interactive commands.
+;;  See the Info manual entry "(hyperbole)HyRolo" for usage information.
 
 ;;; Code:
 ;;; ************************************************************************
@@ -24,6 +32,8 @@
 (eval-when-compile
   (unless (require 'bbdb nil t)
     (defvar bbdb-file nil))
+  (unless (require 'google-contacts nil t)
+    (defvar google-contacts-buffer-name nil))
   (defvar next-entry-exists nil))
 
 ;;; ************************************************************************
@@ -40,7 +50,10 @@ See documentation of the function `format-time-string' for format options."
   :type 'string
   :group 'hyperbole-rolo)
 
-(defvar hyrolo-display-format-function 'identity
+(defvar hyrolo-display-format-function
+  ;; Set trailing newlines to exactly two.
+  (lambda (entry)
+    (concat (replace-regexp-in-string "[ \t\n\r]+\\'" "" entry nil t) "\n\n"))
   "*Function of one argument, a rolo entry string, which modifies the string for display.")
 
 (defcustom hyrolo-email-format "%s\t\t<%s>"
@@ -50,12 +63,37 @@ It must contain a %s indicating where to put the entry name and a second
   :type 'string
   :group 'hyperbole-rolo)
 
-(defvar hyrolo-file-list
-  (if (and (boundp 'bbdb-file) (stringp bbdb-file))
-      (if hyperb:microcruft-os-p
-	  (list "c:/_rolo.otl" bbdb-file)
-	(list  "~/.rolo.otl" bbdb-file))
-    (if hyperb:microcruft-os-p '("c:/_rolo.otl") '("~/.rolo.otl")))
+(defcustom hyrolo-google-contacts-flag t
+  "*Non-nil means search Google Contacts on each hyrolo query.
+The google-contact package must be loaded and a gpg encryption
+executable must be found as well (for Oauth security)."
+  :type 'boolean
+  :group 'hyperbole-rolo)
+
+(defun hyrolo-google-contacts-p ()
+  "Return non-nil if `hyrolo-google-contacts-flag' is non-nil and google-contacts package and gpg executables are available for use."
+  (and hyrolo-google-contacts-flag
+       (featurep 'google-contacts) 
+       ;; If no gpg encryption executable, Oauth login to Google will fail.
+       (or (executable-find "gpg2") (executable-find "gpg"))))
+
+;;;###autoload
+(defun hyrolo-initialize-file-list ()
+  "Initialize the list of files to use for HyRolo searches."
+  (interactive)
+  (let* ((gcontacts (if (hyrolo-google-contacts-p) google-contacts-buffer-name))
+	 (ms "c:/_rolo.otl")
+	 (unix "~/.rolo.otl")
+	 (list (delq nil (if (and (boundp 'bbdb-file) (stringp bbdb-file))
+			     (if hyperb:microcruft-os-p
+				 (list ms bbdb-file gcontacts)
+			       (list  "~/.rolo.otl" bbdb-file gcontacts))
+			   (if hyperb:microcruft-os-p (list ms gcontacts) (list unix gcontacts))))))
+      (when (called-interactively-p 'interactive)
+	(message "HyRolo Search List: %S" list))
+      list))
+
+(defvar hyrolo-file-list (hyrolo-initialize-file-list)
   "*List of files containing rolo entries.
 The first file should be a user-specific rolo file, typically in the home
 directory.
@@ -310,11 +348,14 @@ Returns entry name if found, else nil."
 	src)
     (if name
 	(progn (setq src (hbut:key-src))
-	       (if (and (boundp 'bbdb-file) (equal src (expand-file-name bbdb-file)))
-		   ;; For now, can't edit the bbdb database, signal an error.
-		   (error "(hyrolo-edit-entry): BBDB entries are not editable.")
-		 (hyrolo-edit name src)
-		 name))
+	       (cond ((and (boundp 'bbdb-file) (stringp bbdb-file) (equal src (expand-file-name bbdb-file)))
+		      ;; For now, can't edit an entry from the bbdb database, signal an error.
+		      (error "(hyrolo-edit-entry): BBDB entries are not editable."))
+		     ((and (featurep 'google-contacts) (equal src (get-buffer google-contacts-buffer-name)))
+		      ;; For now, can't edit an entry from Google Contacts, signal an error.
+		      (error "(hyrolo-edit-entry): Google Contacts entries are not editable."))
+		     (t (hyrolo-edit name src)
+			name)))
       (error "(hyrolo-edit-entry): Move to an entry to edit it."))))
 
 ;;;###autoload
@@ -384,9 +425,12 @@ hyrolo-file-list."
 		(or (not (integerp max-matches))
 		    (< total-matches (max max-matches (- max-matches)))))
       (setq hyrolo-file-list (cdr hyrolo-file-list)
-	    num-matched (if (and (featurep 'bbdb) (equal file bbdb-file))
-			    (hyrolo-bbdb-grep-file file regexp max-matches count-only)
-			  (hyrolo-grep-file file regexp max-matches count-only))
+	    num-matched (cond ((and (featurep 'bbdb) (equal file bbdb-file))
+			       (hyrolo-bbdb-grep-file file regexp max-matches count-only))
+			      ((and (hyrolo-google-contacts-p) (equal file google-contacts-buffer-name))
+			       (hyrolo-retrieve-google-contacts (regexp-quote regexp))
+			       (hyrolo-google-contacts-grep-file file regexp max-matches count-only))
+			      (t (hyrolo-grep-file file regexp max-matches count-only)))
 	    total-matches (+ total-matches num-matched))
       (if (integerp max-matches)
 	  (setq max-matches
@@ -440,7 +484,7 @@ NAME may be of the form: parent/child to kill child below a parent entry
 which begins with the parent string.
 Returns t if entry is killed, nil otherwise."
   (interactive "sKill rolo entry named: \nP")
-  (if (or (not (stringp name)) (string= name ""))
+  (if (or (not (stringp name)) (string= name "") (string-match "\\*" name))
       (error "(hyrolo-kill): Invalid name: `%s'" name))
   (if (and (called-interactively-p 'interactive) current-prefix-arg)
       (setq file (completing-read "Entry's File: "
@@ -751,14 +795,14 @@ of a string."
 
 ;;;###autoload
 (defun hyrolo-bbdb-fgrep (&optional arg)
-  "Fgrep over a BBDB database and format the results as rolo entries.
+  "Fgrep over a bbdb database and format the results as rolo entries.
 With optional prefix ARG, do a grep regexp match instead of a string match."
   (interactive "P")
   (hyrolo-bbdb-grep (not arg)))
 
 ;;;###autoload
 (defun hyrolo-bbdb-grep (&optional arg)
-  "Grep over a BBDB database and format the results as rolo entries.
+  "Grep over a bbdb database and format the results as rolo entries.
 With optional prefix ARG, do an fgrep string match instead of a regexp match.
 
 Output looks like so:
@@ -801,6 +845,178 @@ Returns number of matching entries found."
 (defun hyrolo-bbdb-entry-format (entry)
   (let ((v (read entry)))
     (format "* %s: %s: <%s>\n" (elt v 1) (elt v 0) (car (elt v 7)))))
+
+;;; ************************************************************************
+;;; Google Contacts Integration
+;;; ************************************************************************
+
+;;;###autoload
+(defun hyrolo-google-contacts-fgrep (&optional arg)
+  "Fgrep over a buffer of Google Contacts and format the results as rolo entries.
+With optional prefix ARG, do a grep regexp match instead of a string match."
+  (interactive "P")
+  (hyrolo-google-contacts-grep (not arg)))
+
+;;;###autoload
+(defun hyrolo-google-contacts-grep (&optional arg)
+  "Grep over a buffer of Google Contacts and format the results as rolo entries.
+With optional prefix ARG, do an fgrep string match instead of a regexp match.
+
+Output looks like so:
+======================================================================
+@loc> <buffer *Google Contacts*>
+======================================================================
+* Jones     Tom
+* Sera      Kate
+* Yako      Maso"
+  (interactive "P")
+  (require 'google-contacts)
+  (let ((hyrolo-file-list (list google-contacts-buffer-name))
+	;; Kill the google-contacts buffer after use if it is not already in use.
+	(hyrolo-kill-buffers-after-use (not (get-buffer google-contacts-buffer-name))))
+    (call-interactively (if arg 'hyrolo-fgrep 'hyrolo-grep))
+    (read-only-mode 0)
+    (re-search-forward hyrolo-entry-regexp nil t)
+    (beginning-of-line)
+    (set-buffer-modified-p nil)
+    (read-only-mode 1)))
+
+(defun hyrolo-google-contacts-grep-file (hyrolo-file-or-buf regexp &optional max-matches count-only)
+  "Retrieve entries in google-contacts HYROLO-FILE-OR-BUF matching REGEXP to a maximum of optional MAX-MATCHES.
+Nil value of MAX-MATCHES means find all matches, t value means find all matches
+but omit file headers, negative values mean find up to the inverse of that
+number of entries and omit file headers.  Optional COUNT-ONLY non-nil
+means don't retrieve matching entries.
+Returns number of matching entries found."
+  ;; Kill the google-contacts buffer after use if it is not already in use.
+  (let ((hyrolo-kill-buffers-after-use (not (get-buffer google-contacts-buffer-name))))
+    (hyrolo-grep-file hyrolo-file-or-buf regexp max-matches count-only)))
+
+;; Derived from google-contacts.el.
+(defun hyrolo-google-contacts-insert-data (contacts token contact-prefix-string)
+  (if (not contacts)
+      ;; No contacts, insert a string and return nil
+      (insert "No result.")
+    (print contacts (get-buffer-create "*contacts-data*"))
+    (dolist (contact contacts)
+      (let* ((name-value (nth 0 (xml-get-children contact 'gd:name)))
+             (fullname (xml-node-child-string (nth 0 (xml-get-children name-value 'gd:fullName))))
+             (givenname (xml-node-child-string (nth 0 (xml-get-children name-value 'gd:givenName))))
+             (familyname (xml-node-child-string (nth 0 (xml-get-children name-value 'gd:familyName))))
+
+             (nickname (xml-node-child-string (nth 0 (xml-get-children contact 'gContact:nickname))))
+             (birthday (xml-get-attribute-or-nil (nth 0 (xml-get-children contact 'gContact:birthday)) 'when))
+
+             (organization-value (nth 0 (xml-get-children contact 'gd:organization)))
+             (organization-name (xml-node-child-string (nth 0 (xml-get-children organization-value 'gd:orgName))))
+             (organization-title (xml-node-child-string (nth 0 (xml-get-children organization-value 'gd:orgTitle))))
+
+             (notes (xml-node-child-string (nth 0 (xml-get-children contact 'content))))
+             ;; Links
+             (links (xml-get-children contact 'link))
+
+             ;; Multiple values
+             ;; Format is ((rel-type . data) (rel-type . data) … )
+             (events (google-contacts-build-node-list contact 'gContact:event
+                                                      (xml-get-attribute (nth 0 (xml-get-children child 'gd:when)) 'startTime)))
+             (emails (google-contacts-build-node-list contact 'gd:email
+                                                      (xml-get-attribute child 'address)))
+             (phones (google-contacts-build-node-list contact 'gd:phoneNumber))
+             (websites (google-contacts-build-node-list contact 'gContact:website
+                                                        (xml-get-attribute child 'href)))
+             (relations (google-contacts-build-node-list contact 'gContact:relation))
+             (postal-addresses (google-contacts-build-node-list contact 'gd:structuredPostalAddress
+                                                                (xml-node-child-string
+                                                                 (nth 0 (xml-get-children child 'gd:formattedAddress)))))
+             (instant-messaging (google-contacts-build-node-list contact 'gd:im
+                                                                 (cons
+                                                                  (xml-node-get-attribute-type child 'protocol)
+                                                                  (cdr (assoc 'address (xml-node-attributes child))))))
+             (beg (point)))
+        (unless (and (string= familyname "") (string= givenname "") (string= nickname ""))
+	  (insert contact-prefix-string familyname (if (or (string= familyname "")
+							   (string= givenname "")) "" ", ")
+		  givenname
+		  (if (string= nickname "")
+		      ""
+		    (format " (%s)" nickname))
+		  "\n"))
+
+        (unless (and (string= organization-name "")
+                     (string= organization-title ""))
+	  (insert (google-contacts-margin-element))
+	  (if (string= organization-title "")
+	      (insert organization-name "\n")
+	    (insert organization-title " @ " organization-name "\n")))
+
+        (hyrolo-google-contacts-insert-generic-list emails "E-mails")
+        (hyrolo-google-contacts-insert-generic-list phones "Phones")
+        (hyrolo-google-contacts-insert-generic-list postal-addresses "Addresses"
+                                             (lambda (address)
+                                               (google-contacts-add-margin-to-text (cdr address)
+                                                                                   (+ 4 (length (car address))))))
+        (hyrolo-google-contacts-insert-generic-list websites "Websites"
+                                             (lambda (website) (cdr website)))
+        (hyrolo-google-contacts-insert-generic-list events "Events")
+        (hyrolo-google-contacts-insert-generic-list relations "Relations"
+                                             (lambda (relation)
+                                               (widget-create 'link
+                                                              :button-prefix "" :button-suffix ""
+                                                              :action (lambda (widget &optional _event)
+                                                                        (google-contacts (widget-value widget)))
+                                                              (cdr relation))
+                                               ""))
+        (hyrolo-google-contacts-insert-generic-list instant-messaging "Instant messaging"
+                                             (lambda (im)
+                                               (concat (cddr im) " (" (cadr im) ")")))
+
+        (when birthday
+          (insert "\n" (google-contacts-margin-element) "Birthday: " birthday "\n"))
+
+        (unless (string= notes "")
+          (insert "\n" (google-contacts-margin-element) "Notes:  "
+                  (google-contacts-add-margin-to-text notes 8)
+                  "\n"))
+
+        ;; Insert properties
+        (put-text-property beg (1+ beg) 'google-contacts t)
+        (when emails
+          (put-text-property beg (point)
+                             'google-contacts-email (concat fullname " <" (cdr (nth 0 emails)) ">")))))
+    (goto-char (point-min)))
+  ;; Return contacts
+  contacts)
+
+;; Derived from google-contacts.el.
+(defun hyrolo-google-contacts-insert-generic-list (items title &optional get-value)
+  "Insert a text for rendering ITEMS with TITLE.
+Use GET-VALUE to get the value from the cdr of the item,
+otherwise just put the cdr of item."
+  (when items
+    (insert "\n" (google-contacts-margin-element) (concat title ":\n"))
+    (dolist (item items)
+      (insert (google-contacts-margin-element) "  "
+              (concat (car item) ":") " "
+	      (if get-value
+                  (funcall get-value item)
+                (cdr item))
+              "\n"))))
+
+;; Derived from google-contacts.el.
+(defun hyrolo-retrieve-google-contacts (&optional query-string force-refresh)
+  (interactive
+   (list (read-string "Look for: " (car google-contacts-history)
+                      'google-contacts-history)
+         current-prefix-arg))
+  (let ((buffer (google-contacts-make-buffer))
+        (token (google-contacts-oauth-token))
+        (google-contacts-expire-time (if force-refresh 0 google-contacts-expire-time))
+        (inhibit-read-only t))
+    (with-current-buffer buffer
+      (setq google-contacts-query-string query-string)
+      (hyrolo-google-contacts-insert-data (xml-get-children (google-contacts-data query-string token)
+							    'entry)
+					  token "* "))))
 
 ;;; ************************************************************************
 ;;; Public functions
@@ -1007,7 +1223,7 @@ HYROLO-BUF may be a file-name, buffer-name, or buffer."
 (defun hyrolo-highlight-matches (regexp start end)
   "Highlight matches for REGEXP in region from START to END."
   (if (fboundp 'hproperty:but-add)
-      (let ((hproperty:but-emphasize-p))
+      (let ((hproperty:but-emphasize-flag))
 	(save-excursion
 	  (goto-char start)
 	  (while (re-search-forward regexp nil t)

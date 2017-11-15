@@ -46,7 +46,12 @@
 ;;; Public variables
 ;;; ************************************************************************
 
-(defcustom hproperty:but-emphasize-p nil
+(defcustom hproperty:but-highlight-flag t
+  "*Non-nil (default value) means highlight all explict buttons with `hproperty:but-face'."
+  :type 'boolean
+  :group 'hyperbole-buttons)
+
+(defcustom hproperty:but-emphasize-flag nil
   "*Non-nil means visually emphasize that button under mouse cursor is selectable."
   :type 'boolean
   :group 'hyperbole-buttons)
@@ -74,11 +79,11 @@ Call (hproperty:set-item-highlight <color>) to change value."
 
 (defun hproperty:but-add (start end face)
   "Add between START and END a button using FACE in current buffer.
-If `hproperty:but-emphasize-p' is non-nil when this is called, emphasize that
-button is selectable whenever the mouse cursor moves over it."
+If `hproperty:but-emphasize-flag' is non-nil when this is called, emphasize
+that button is selectable whenever the mouse cursor moves over it."
   (let ((but (make-overlay start end)))
     (overlay-put but 'face face)
-    (if hproperty:but-emphasize-p (overlay-put but 'mouse-face 'highlight))))
+    (if hproperty:but-emphasize-flag (overlay-put but 'mouse-face 'highlight))))
 
 (defun hproperty:but-color ()
   "Return current color of buffer's buttons."
@@ -105,8 +110,8 @@ expression which matches an entire button string.
 If REGEXP-MATCH is non-nil, only buttons matching this argument are
 highlighted.
 
-If `hproperty:but-emphasize-p' is non-nil when this is called, emphasize that
-button is selectable whenever the mouse cursor moves over it."
+If `hproperty:but-emphasize-flag' is non-nil when this is called, emphasize
+that button is selectable whenever the mouse cursor moves over it."
   (interactive)
   (hproperty:but-clear)
   (hproperty:but-create-all start-delim end-delim regexp-match))
@@ -118,10 +123,18 @@ If END-DELIM is a symbol, e.g. t, then START-DELIM is taken as a regular
 expression which matches an entire button string.
 If REGEXP-MATCH is non-nil, only buttons matching this argument are
 highlighted."
-  (ebut:map (lambda (lbl start end)
-	      (hproperty:but-add start end hproperty:but-face))
-	    start-delim end-delim regexp-match 'include-delims))
-	       
+  (when hproperty:but-highlight-flag
+    (ebut:map (lambda (lbl start end)
+		(hproperty:but-add start end hproperty:but-face))
+	      start-delim end-delim regexp-match 'include-delims)))
+
+(defun hproperty:but-create-on-yank (prop-value start end)
+  (save-restriction
+    (narrow-to-region start end)
+    (hproperty:but-create-all)))
+
+(add-to-list 'yank-handled-properties '(hproperty:but-face . hproperty:but-create-on-yank))
+
 (defun hproperty:but-delete (&optional pos)
   (let ((but (hproperty:but-get pos)))
     (if but (delete-overlay but))))

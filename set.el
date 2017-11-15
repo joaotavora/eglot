@@ -86,6 +86,7 @@ ARITY members."
 				(set:combinations rest (1- arity))))
 		      set))))))
 
+;;;###autoload
 (defun set:create (&rest elements)
   "Returns a new set created from any number of ELEMENTS.
 If no ELEMENTS are given, returns the empty set.  Uses `set:equal-op' for comparison."

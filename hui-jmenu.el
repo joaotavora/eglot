@@ -127,9 +127,9 @@
     "----"
     ["Name-Configuration" hywconfig-add-by-name     t]
     ["Delete-Name"        hywconfig-delete-by-name
-     (if (boundp 'hywconfig-names) hywconfig-names)]
+     (frame-parameter nil 'hywconfig-names)]
     ["Restore-Name"       hywconfig-restore-by-name
-     (if (boundp 'hywconfig-names) hywconfig-names)]
+     (frame-parameter nil 'hywconfig-names)]
     "----"
     ["Pop-from-Ring"      hywconfig-delete-pop      (not (hywconfig-ring-empty-p))]
     ["Save-to-Ring"       hywconfig-ring-save       t]
@@ -141,9 +141,13 @@
 ;;; ************************************************************************
 
 (defun hui-menu-buffer-mode-name (buffer)
-  (or (cdr (assq 'mode-name (buffer-local-variables buffer)))
+  (let ((mname (cdr (assq 'mode-name (buffer-local-variables buffer)))))
+    (if mname
+	;; Next line needed to ensure mode name is always formatted as
+	;; a string.
+	(format-mode-line mname)
       (capitalize (symbol-name
-		   (cdr (assq 'major-mode (buffer-local-variables buffer)))))))
+		   (cdr (assq 'major-mode (buffer-local-variables buffer))))))))
 
 (defun hui-menu-frame-name (frame)
   "Return the name of FRAME."
@@ -151,8 +155,8 @@
 
 (defun hui-menu-modeline (_ignore)
   (list
-   ["Control-Frames"  hycontrol-frames t]
-   ["Control-Windows" hycontrol-windows t]
+   ["Control-Frames"  hycontrol-enable-frames-mode t]
+   ["Control-Windows" hycontrol-enable-windows-mode t]
    "----"
    (hui-menu-of-buffers)
    (hui-menu-of-frames)

@@ -1,14 +1,16 @@
 			  ABOUT GNU HYPERBOLE
+
 		   Designed and Written by Bob Weiner
+ 	        Maintained by Mats Lidell and Bob Weiner
 	         https://www.gnu.org/software/hyperbole/
-                            Version 6.0.2
+                            Version 7.0.0
 
 GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole, is
 an efficient and programmable hypertextual information management
 system implemented as a GNU Emacs package.  It works well on GNU Emacs
-24.4 or above.
+24.4 or above.  (See also: "HY-WHY.kotl" for Hyperbole uses).
 
-It includes easy-to-use, powerful hypertextual button types without
+Hyperbole includes easy-to-use, powerful hypertextual buttons without
 the need to learn a markup language; a hierarchical, record-based
 contact manager; a rapid window and frame control system; and a
 powerful multi-level auto-numbered outliner.  All features are aimed
@@ -25,13 +27,12 @@ explains the many ways it differs from and is complementary to Org mode.
 
 Hyperbole consists of five parts:
 
-   1.  Buttons and Smart Keys: A set of hyperbutton types which supply
-       core hypertext and other behaviors.  Buttons may be added to
-       documents (explicit buttons) with a simple drag between windows,
-       no markup language needed.  Implicit buttons are patterns
-       automatically recognized within text that perform actions,
-       e.g. bug#24568 displays the bug status information for that bug
-       number.
+   1.  Buttons and Smart Keys: Hyperbole hyperlink and other kinds of
+       buttons may be added to documents (explicit buttons) with a
+       simple drag between windows, no markup language needed.
+       Implicit buttons are patterns automatically recognized within
+       text that perform actions, e.g. bug#24568 displays the bug
+       status information for that bug number.
        
        Buttons are accessed by clicking on them or referenced by name
        (global buttons), so they can be activated regardless of what is
@@ -44,7 +45,7 @@ Hyperbole consists of five parts:
        context-sensitive operations across emacs usage, including
        activating and showing help for Hyperbole buttons.  In many
        popular Emacs modes, they allow you to perform common, sometimes
-       complex operations without having to a different key for each
+       complex operations without having to use a different key for each
        operation.  Just press a Smart Key and the right thing happens;
 
    2.  Contact and Text Finder: an interactive textual information

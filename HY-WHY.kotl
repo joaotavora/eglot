@@ -2,62 +2,107 @@
 "Kotl-4.0" ;; file-format
 
    1. Create a library of documents, link them on-the-fly and retrieve
-      any one at the touch of a button containing its short id.
+      any one at the touch of a button containing its short id.  See
+      "hib-doc-id.el".  (Use the Action Key to activate any
+      cross-reference herein).
 
-   2. Utilize a single key to follow URLs with section links, Markdown
+   2. Action Key click to follow URLs with section links, Markdown
       links, Emacs outline heading links, Org mode links, file and
       directory links and program identifier references.
+      See "DEMO#HTML Markdown and Emacs Outline Hash Links".
 
-   3. Display and edit local or remote files and directories simply by
+   3. Random access to sections of a Table of Contents in DEMO, README
+      and TUTORIAL files as well as Internet RFCs.  Entries in a
+      code library MANIFEST file work the same way.  See "DEMO#Table
+      of Contents Browsing".
+
+   4. Display and edit local or remote files and directories simply by
       pressing on their names.  Hyperbole will automatically embed
       certain key variables in link pathnames so that as these links
       are moved from site to site and the variable values change at
-      each site, the links automatically maintain proper linkages.
+      each site, the links maintained properly.  See "DEMO#Path
+      Suffixes and Variables" and "DEMO#Path Prefixes".
 
-   4. Full-text search for any contact-related information across
+   5. Quickly search the web for targeted types of information such as
+      programming questions, code libraries, images, videos,
+      locations, word definitions, wikipedia entries or even tweets.
+      See "DEMO#Hyperbole Menus".
+
+   6. Embed social media hashtags and user names in any text files.
+      Then jump to the associated web page in your favorite web
+      browser with an Action Key press.  See "DEMO#Social Media
+      Hashtags and Usernames".
+
+   7. Similarly, you can embed github and git object links in any
+      files with a simple syntax and Hyperbole will display the
+      associated objects with an Action Key press.  See "DEMO#Github
+      (Remote) References" and "DEMO#Git (Local) References".
+
+   8. Full-text search for any contact-related information across
       thousands of contacts in under a second.  The fastest contact
       manager you have ever used, with hierarchical entries so you can
       easily find everyone on a particular team or within an
       organization.  Then collapse all matches to a single line each
       while still seeing name, phone number and email information.
-      Edit entries with a single key press.
+      Edit entries with a single key press.  See "DEMO#HyRolo".
 
-   5. Hyperbole has some radically cool ways to select regions of
-      structured text or source code and to copy or move them between
-      buffers with a single mouse drag or two key presses.  These
-      selectable things include: delimited pairs of (), @{@}, <>, []
-      and quote marks, source code functions, source code comments and
-      matching tag pairs in HTML and SGML modes.
+   9. Select regions of structured text or source code and to copy or
+      move them between buffers with a single mouse drag or two key
+      presses.  These selectable things include: delimited pairs of
+      (), @{@}, <>, [] and quote marks, source code functions, source
+      code comments and matching tag pairs in HTML and SGML modes.
+      See "DEMO#Thing Selection".     
 
-   6. Use the fantastic, auto-numbered Koutliner with per-item links
-      and rapidly changeable views.
+  10. Use the fantastic, auto-numbered Koutliner with per-item links
+      and rapidly changeable views.  See "DEMO#Koutliner".
 
-   7. Rapid control over what is displayed where in multiple windows
-      and frames with the Hyperbole HyControl system.
+  11. Rapid control over what is displayed where in multiple windows
+      and frames with mouse drags and the Hyperbole HyControl system.
+      See "DEMO#HyControl".
 
-     7a. Use a quick mouse key press to scroll any window line to the
+    11a. Drag Buffer Menu or Dired items to other windows to display
+         them wherever you want.  Drag-and-drop text regions across
+         Emacs frames.  See "DEMO#Displaying File and Buffer Items".
+
+    11b. Swap buffers in windows across frames with a mouse drag.
+         See "DEMO#Swapping Buffers".
+
+    11c. With one command, rapidly create a grid of tiled windows
+         displaying either selected buffers, buffers with a specific
+         major mode or the most recently used buffer list, e.g.
+         {63 C-c @} creates 6 rows, each with 3 columns of windows (18
+         total) and displays the first 18 buffers in them when in a
+         HyControl mode.  You can mark buffers, files and directories
+         in the Buffer menu, iBuffer and Dired modes and then use the
+         same above command to display them in a grid of windows.  See
+         "DEMO#Windows Grid".
+
+    11d. Use a quick mouse key press to scroll any window line to the
          top or bottom of a window, to see exactly what you want on
-         screen.
+         screen.  See "DEMO#Smart Scrolling".
 
-     7b. For each frame, store a series of window configurations
-         (layouts) that each allow for working with a set of specific
-         buffers, rapidly moving among them.
+    11e. Clone or tear off a window into its own frame with a quick
+         mouse drag.  See "DEMO#Cloning Windows".
 
-     7c. Easily adjust the height and width of windows as needed.
+    11f. Each frame can store a series of window configurations
+         (layouts) which support working with sets of buffers and
+         rapidly moving among them.  See "DEMO#Window Configuration
+         Drags".
 
-     7d. Quick clicks on different areas of a buffer's modeline will
+    11g. Easily adjust the height and width of windows and frames as
+         needed.  See "DEMO#Frame Commands".
+
+    11h. Quick clicks on different areas of a buffer's modeline will
          rotate through your working list of buffers, changing what
          each window displays.  A popup menu gives you quick access to
          Hyperbole commands plus frame, window and buffer selection
          and management commands.  GNU documentation manuals may be
-         shown and navigated with a single mouse key.
-
-     7e. A single mouse drag swaps what is displayed in each of two
-         windows, even across frames.
+         shown and navigated with a single mouse key.  See
+         "DEMO#Buffer Menu and Screen Control".
 
 
 "ben" ;; kvspec:current
-18 ;; id-counter
+36 ;; id-counter
 alpha ;; label-type
 4 ;; label-min-width
 ". " ;; label-separator
@@ -65,13 +110,21 @@ alpha ;; label-type
 
 ;; depth-first kcell attributes
 [[0
-  (creator nil create-time "20160806:03:21:53" id-counter 18 file "/Users/bk/sw-dev/emacs/hyperbole-6.0.1/HY-WHY.kotl")]
+  (creator "rsw@gnu.org" create-time "20171114:17:51:59" id-counter 36 file "/Users/bk/sw-dev/emacs/hyperbole/HY-WHY.kotl")]
  [1
   (creator "rsw@gnu.org" create-time "20160524:15:04:17" no-fill t)]
  [17
   (creator "rsw@gnu.org" create-time "20160809:03:31:21" no-fill t)]
+ [36
+  (creator "rsw@gnu.org" create-time "20171114:23:37:20" no-fill t)]
  [2
   (creator "rsw@gnu.org" create-time "20160524:15:04:24" no-fill t)]
+ [31
+  (creator "rsw@gnu.org" create-time "20171114:23:18:01" no-fill t)]
+ [33
+  (creator "rsw@gnu.org" create-time "20171114:23:24:51" no-fill t)]
+ [34
+  (creator "rsw@gnu.org" create-time "20171114:23:24:57" no-fill t)]
  [9
   (creator "rsw@gnu.org" create-time "20160530:15:05:18" no-fill t)]
  [16
@@ -80,14 +133,20 @@ alpha ;; label-type
   (idstamp 3 idstamp 1 creator "rsw@gnu.org" create-time "20160524:15:04:17" no-fill t)]
  [6
   (creator "rsw@gnu.org" create-time "20160524:15:32:11" no-fill t)]
+ [20
+  (creator "rsw@gnu.org" create-time "20171019:22:07:29" no-fill t)]
+ [23
+  (creator "rsw@gnu.org" create-time "20171108:01:15:39" no-fill t)]
+ [22
+  (creator "rsw@gnu.org" create-time "20171024:13:41:50" no-fill t)]
+ [32
+  (idstamp 22 creator "rsw@gnu.org" create-time "20171024:13:41:50" no-fill t)]
  [15
   (creator "rsw@gnu.org" create-time "20160613:15:05:40" no-fill t)]
+ [21
+  (creator "rsw@gnu.org" create-time "20171019:22:09:06" no-fill t)]
+ [30
+  (creator "rsw@gnu.org" create-time "20171114:21:36:09" no-fill t)]
  [8
   (creator "rsw@gnu.org" create-time "20160526:02:56:59" no-fill t)]
- [10
-  (creator "rsw@gnu.org" create-time "20160530:15:10:18" no-fill t)]
- [11
-  (creator "rsw@gnu.org" create-time "20160530:15:10:41" no-fill t)]
- [12
-  (creator "rsw@gnu.org" create-time "20160530:15:14:46" no-fill t)]
- nil nil nil nil nil nil]
+ nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil]

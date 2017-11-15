@@ -35,17 +35,54 @@
 ;;; Public functions and types
 ;;; ************************************************************************
 
+;; eww-mode should define these next functions but presently does not,
+;; so define them here when needed.
+(unless (fboundp 'eww-link-at-point)
+  (defun shr-link-at-point ()
+    "Return any shr hyperlink url at point or nil if none."
+    (get-text-property (point) 'shr-url))
+  (defun eww-link-at-point ()
+    "Return any eww web page hyperlink url at point or nil if none."
+    (shr-link-at-point))
+  (defun eww-bookmark-property (property)
+    "Return value of PROPERTY, a symbol, for current eww bookmark line or nil."
+    (if (eq major-mode 'eww-bookmark-mode)
+	(plist-get (get-text-property (line-beginning-position) 'eww-bookmark)
+		   property)))
+  (defun eww-history-property (property)
+    "Return value of PROPERTY, a symbol, for current eww history line or nil."
+    (if (eq major-mode 'eww-history-mode)
+	(plist-get (get-text-property (line-beginning-position) 'eww-history)
+		   property))))
+
 (defib www-url ()
   "Follow any non-ftp url (link) at point.
 The variable, `browse-url-browser-function', customizes the url browser that
 is used.
 Valid values of this variable include `browse-url-default-browser' and
 `browse-url-generic'."
-  (let ((link-and-pos (hpath:www-at-p t)))
-    ;; Skip ftp URLs which are handled elsewhere.
-    (if (and link-and-pos (not (hpath:remote-at-p)))
-	(progn (ibut:label-set link-and-pos)
-	       (hact 'www-url (car link-and-pos))))))
+  (cond ((looking-at "\\s-*\\'")
+	 ;; Don't match if at the end of the buffer; end of line is
+	 ;; handled elsewhere.
+	 nil)
+	((and (eq major-mode 'eww-mode) (eww-link-at-point))
+	 (ibut:label-set (eww-link-at-point))
+	 (hact 'eww-follow-link))
+	((eq major-mode 'eww-bookmark-mode)
+	 (ibut:label-set (concat (eww-bookmark-property :title)
+				 (if (eww-bookmark-property :url)
+				     (concat " <" (eww-bookmark-property :url) ">"))))
+	 (hact 'eww-bookmark-browse))
+	((eq major-mode 'eww-history-mode)
+	 (ibut:label-set (concat (eww-history-property :title)
+				 (if (eww-history-property :url)
+				     (concat " <" (eww-history-property :url) ">"))))
+	 (hact 'eww-history-browse))
+	(t (let ((link-and-pos (hpath:www-at-p t)))
+	     ;; Skip ftp URLs which are handled elsewhere.
+	     (if (and link-and-pos (not (hpath:remote-at-p)))
+		 (progn (ibut:label-set link-and-pos)
+			(hact 'www-url (car link-and-pos))))))))
 
 (defact www-url (url)
   "Follow a link given by URL.
@@ -56,13 +93,12 @@ is used.  Valid values of this variable include `browse-url-default-browser' and
   (or (stringp url)
       (error "(www-url): URL = `%s' but must be a string" url))
   (if (or (functionp browse-url-browser-function)
-	   ;; May be a predicate alist of functions from which to select
-	   (consp browse-url-browser-function))
+	  ;; May be a predicate alist of functions from which to select
+	  (consp browse-url-browser-function))
       (let (browse-function-name
 	    browser)
 	(if (symbolp browse-url-browser-function)
-	    (setq browse-function-name
-		  (symbol-name browse-url-browser-function)
+	    (setq browse-function-name (symbol-name browse-url-browser-function)
 		  browser (and (string-match
 				"-\\([^-]+\\)\\'"
 				browse-function-name)

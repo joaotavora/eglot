@@ -11,7 +11,7 @@
 ;;
 ;;; Commentary:
 ;;
-;;   Supports Mac OS X, X, NEXTSTEP and MS Windows window systems.
+;;   Supports macOS, X, NEXTSTEP and MS Windows window systems.
 ;;
 ;;   `hmouse-install' globally binds the Action and Assist Mouse Keys
 ;;   to shifted mouse buttons and optionally binds the Action Mouse Key
@@ -43,6 +43,22 @@
 ;;; ************************************************************************
 ;;; Public functions
 ;;; ************************************************************************
+
+(defun hmouse-check-action-key ()
+  "After use of the Action Mouse Key, ensure both depress and release events are assigned to the key.
+Returns t iff the key is properly bound, else nil."
+  (and (or (and (eventp action-key-depress-args) (eventp action-key-release-args))
+	   (not (or action-key-depress-args action-key-release-args)))
+       (where-is-internal 'action-key-depress-emacs (current-global-map) t)
+       (where-is-internal 'action-mouse-key-emacs (current-global-map) t)))
+
+(defun hmouse-check-assist-key ()
+  "After use of the Assist Mouse Key, ensure both depress and release events are assigned to the key.
+Returns t iff the key is properly bound, else nil."
+  (and (or (and (eventp assist-key-depress-args) (eventp assist-key-release-args))
+	   (not (or assist-key-depress-args assist-key-release-args)))
+       (where-is-internal 'assist-key-depress-emacs (current-global-map) t)
+       (where-is-internal 'assist-mouse-key-emacs (current-global-map) t)))
 
 (defun hmouse-set-bindings (key-binding-list)
   "Sets mouse keys used as Smart Keys to bindings in KEY-BINDING-LIST.
@@ -95,9 +111,15 @@ Assist Key = shift-right mouse key."
   (if (called-interactively-p 'interactive)
       ;; Assume emacs has support for 3 mouse keys.
       (message "%s the Action Mouse Key; {Shift-Mouse-3} invokes the Assist Mouse Key."
-	       (if hmouse-middle-flag "{Mouse-2} and {Shift Mouse-2} invoke"
+	       (if hmouse-middle-flag "{Mouse-2} and {Shift-Mouse-2} invoke"
 		 "{Shift-Mouse-2} invokes"))))
 
+(defun hmouse-add-unshifted-smart-keys ()
+  "Binds mouse-2 to the Action Key and mouse-3 to the Assist Key."
+  (interactive)
+  (require 'hyperbole)
+  (hmouse-unshifted-setup))
+  
 (defun hmouse-toggle-bindings ()
   "Toggles between Smart Mouse Key settings and their prior bindings.
 Under InfoDock, the first invocation of this command will make the middle
@@ -119,6 +141,19 @@ mouse key the Paste Key instead of the Action Key."
 		       (if hmouse-bindings-flag "Hyperbole" "Non-Hyperbole"))))
       (error "(hmouse-toggle-bindings): `%s' is empty."
 	     (if hmouse-bindings-flag 'hmouse-previous-bindings 'hmouse-bindings)))))
+
+;; Define function to reload Smart Key bindings and actions after a source code change.
+(defun hmouse-update-smart-keys ()
+  "Reloads the contexts and actions associated with the Smart Keys after any programmatic changes are made."
+  (interactive)
+  (hkey-initialize)
+  (makunbound 'hkey-alist)
+  (makunbound 'hmouse-alist)
+  (let ((load-prefer-newer t))
+    ;; This also reloads "hui-window" where mouse-only actions are defined.
+    (mapc #'load '("hui-mouse" "hibtypes" "hactypes")))
+  (message "Hyperbole Smart Key and Smart Mouse Key actions have been updated."))
+
 
 ;;; ************************************************************************
 ;;; Private variables

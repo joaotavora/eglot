@@ -35,10 +35,7 @@
 	   :style radio
 	   :selected (eq ,browser-option #'browse-url-chromium)]
 	  ["Default (System wide)"
-	   (setq ,browser-option
-		(if (and (boundp 'browse-url-generic-program) (stringp browse-url-generic-program))
-		    #'browse-url-generic
-		  #'browse-url-default-browser))
+	   (setq ,browser-option #'browse-url-default-browser)
 	   :style radio
 	   :selected (eq ,browser-option #'browse-url-default-browser)]
 	  ["EWW (Emacs)"
@@ -125,13 +122,33 @@ Return t if cutoff, else nil."
 			'("----" "----")))))
 	 rest-of-menu)))
 
+(defun hui-menu-key-binding-item (item-name command)
+  "Return a key binding menu item string built from ITEM-NAME and COMMAND."
+  (concat item-name (when (where-is-internal command nil t)
+		      (format "(%s)" (key-description (where-is-internal command nil t))))))
+
+(defun hui-menu-key-bindings (rest-of-menu)
+  (nconc
+   (list
+    (vector (hui-menu-key-binding-item "Action-Key          \t\t\t" 'hkey-either)                        '(hui:bind-key #'hkey-either) t)                    ;; {M-RET}
+    (vector (hui-menu-key-binding-item "Button-Rename-Key   \t"     'hui:ebut-rename)                    '(hui:bind-key #'hui:ebut-rename) t)                ;; {C-c C-r}
+    (vector (hui-menu-key-binding-item "Drag-Emulation-Key  \t\t"   'hkey-operate)                       '(hui:bind-key #'hkey-operate) t)                   ;; {M-o}
+    (vector (hui-menu-key-binding-item "Find-Web-Key        \t\t"   'hui-search-web)                     '(hui:bind-key #'hui-search-web) t)                 ;; {C-c /}
+    (vector (hui-menu-key-binding-item "Grid-of-Windows-Key \t"     'hycontrol-windows-grid)             '(hui:bind-key #'hycontrol-windows-grid) t)         ;; {C-c @}
+    (vector (hui-menu-key-binding-item "Hyperbole-Menu-Key  \t"     'hyperbole)                          '(hui:bind-key #'hyperbole) t)                      ;; {C-h h}
+    (vector (hui-menu-key-binding-item "Jump-Thing-Key      \t\t"   'hui-select-goto-matching-delimiter) '(hui:bind-key #'hui-select-thing) t)               ;; {C-c .}
+    (vector (hui-menu-key-binding-item "Mark-Thing-Key      \t\t"   'hui-select-thing)                   '(hui:bind-key #'hui-select-thing) t)               ;; {C-c C-m}
+    (vector (hui-menu-key-binding-item "Smart-Help-Key      \t\t"   'hkey-help)                          '(hui:bind-key #'hkey-help) t)                      ;; {C-h A}
+    (vector (hui-menu-key-binding-item "Windows-Control-Key\t"      'hycontrol-enable-windows-mode)      '(hui:bind-key #'hycontrol-enable-windows-mode) t)) ;; {C-C \}
+   rest-of-menu))
+
 ;; Dynamically compute submenus for Screen menu
 (defun hui-menu-screen (_ignored)
   (list
    ["Manual" (id-info "(hyperbole)HyControl") t]
    "----"
-   ["Frames-Control"  hycontrol-frames t]
-   ["Windows-Control" hycontrol-windows t]
+   ["Control-Frames"  hycontrol-enable-frames-mode t]
+   ["Control-Windows" hycontrol-enable-windows-mode t]
    "----"
    (hui-menu-of-buffers)
    (hui-menu-of-frames)
@@ -139,22 +156,15 @@ Return t if cutoff, else nil."
 
 (defun hui-menu-web-search ()
   ;; Pulldown menu
-  (let ((web-pulldown-menu
-	 (mapcar (lambda (service)
-		   (vector service
-			   (list #'hyperbole-web-search service nil)
-			   t))
-		 (mapcar 'car hyperbole-web-search-alist))))
-    web-pulldown-menu))
+  (mapcar (lambda (service)
+	    (vector service
+		    (list #'hyperbole-web-search service nil)
+		    t))
+	  (mapcar 'car hyperbole-web-search-alist)))
 
 ;;; ************************************************************************
 ;;; Public variables
 ;;; ************************************************************************
-
-;; Ensure that this variable is defined to avert any error within
-;; the Customize menu.
-;; (defvar highlight-headers-follow-url-netscape-new-window nil
-;;   "*Whether to make Netscape create a new window when a URL is sent to it.")
 
 (defconst hui-menu-about
   (vector (concat "About-Hyperbole-"
@@ -197,17 +207,9 @@ Return t if cutoff, else nil."
 	     hpath:find-file-urls-mode
 	     :style toggle
 	     :selected hpath:find-file-urls-mode]
-	    "----"
-	    ("Change-Key-Bindings"
-	     ["Action-Key"              (hui:bind-key #'hkey-either) t]            ;; {M-RET}
-	     ["Button-Rename-Key"       (hui:bind-key #'hui:ebut-rename) t]        ;; {C-c C-r}
-	     ["Drag-Emulation-Key"      (hui:bind-key #'hkey-operate) t]           ;; {M-o}
-	     ["Hyperbole-Menu-Key"      (hui:bind-key #'hyperbole) t]              ;; {C-h h}
-	     ["Mark-Thing-Key"          (hui:bind-key #'hui-select-thing) t]       ;; {C-c C-m}
-	     ["Smart-Help-Key"          (hui:bind-key #'hkey-help) t]              ;; {C-h A}
-	     ["Windows-Control-Key"     (hui:bind-key #'hycontrol-windows) t]      ;; {C-C \}
-	     )
 	    "----")
+	  '(("Change-Key-Bindings" :filter hui-menu-key-bindings))
+	  '("----")
 	  (list (cons "Display-Referents-in"
 		      (mapcar (lambda (sym)
 				(vector
@@ -249,7 +251,7 @@ Return t if cutoff, else nil."
 	     :style toggle :selected (and (boundp 'hyrolo-add-hook)
 					  (listp hyrolo-add-hook)
 					  (memq 'hyrolo-set-date hyrolo-add-hook))]
-	    ["Toggle-Smart-Key-Debug" hkey-toggle-debug
+	    ["Toggle-Smart-Key-Debug (HyDebug)" hkey-toggle-debug
 	     :style toggle :selected hkey-debug]
 	    ))
   "Untitled menu of Hyperbole options.")
@@ -285,10 +287,10 @@ Return t if cutoff, else nil."
   ;; Force a menu-bar update.
   (force-mode-line-update))
 
-(defun hyperbole-popup-menu ()
+(defun hyperbole-popup-menu (&optional rebuild-flag)
   "Popup the Hyperbole menubar menu."
-  (interactive)
-  (popup-menu (infodock-hyperbole-menu)))
+  (interactive "P")
+  (popup-menu (infodock-hyperbole-menu rebuild-flag)))
 
 ;;; Don't change this name; doing so will break the way InfoDock
 ;;; initializes the Hyperbole menu.
@@ -310,9 +312,11 @@ REBUILD-FLAG is non-nil, in which case the menu is rebuilt."
 		 ;; (if (and (boundp 'infodock-version) infodock-version)
 		 ;;     ["Manual"      (id-info "(infodock)Hyperbole Menu") t]
 		 ;;   ["Manual"      (id-info "(hyperbole)Top") t])
-		 ["Manual"      (id-info "(hyperbole)Top") t]
-		 ["What-is-New?"  (hypb:display-file-with-logo
-				   (expand-file-name "HY-NEWS" hyperb:dir)) t]
+		 ["Manual"         (id-info "(hyperbole)Top") t]
+		 ["What-is-New?"   (hypb:display-file-with-logo
+				    (expand-file-name "HY-NEWS" hyperb:dir)) t]
+		 ["Why-Use?"       (find-file
+				    (expand-file-name "HY-WHY.kotl" hyperb:dir)) t]
 		 "----"
 		 ["Remove-This-Menu"
 		  (progn
@@ -343,7 +347,7 @@ REBUILD-FLAG is non-nil, in which case the menu is rebuilt."
 		   ["Demonstration"  (hypb:display-file-with-logo
 				      (expand-file-name "DEMO" hyperb:dir)) t]
 		   ["Glossary"    (id-info "(hyperbole)Glossary") t]
-		   ["Manifest"    (find-file-read-only
+		   ["Manifest"    (hypb:display-file-with-logo
 				   (expand-file-name "MANIFEST" hyperb:dir)) t]
 		   ["Smart-Key-Summary" (id-browse-file (hypb:hkey-help-file)) t]
 		   ("Types"
@@ -376,7 +380,7 @@ REBUILD-FLAG is non-nil, in which case the menu is rebuilt."
 		   ["Types"
 		    (hui:htype-help-current-window 'actypes) t]
 		   )
-		 (nconc
+		 (append
 		  '("Find"
 		    ["Manual"   (id-info-item "menu, Find") t]
 		    "----"

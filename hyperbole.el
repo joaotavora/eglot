@@ -1,13 +1,12 @@
 ;;; hyperbole.el --- GNU Hyperbole: The Everyday Hypertextual Information Manager
 
-;; Copyright (C) 1992-2016  Free Software Foundation, Inc.
+;; Copyright (C) 1992-2017  Free Software Foundation, Inc.
 
 ;; Author:           Bob Weiner
-;; Maintainer:       Bob Weiner <rsw@gnu.org>
-;;		     Mats Lidell <matsl@gnu.org>
+;; Maintainer:       Bob Weiner <rsw@gnu.org> and Mats Lidell <matsl@gnu.org>
 ;; Created:          06-Oct-92 at 11:52:51
-;; Released:         09-Aug-16
-;; Version:          6.0.2
+;; Released:         24-Oct-17
+;; Version:          7.0.0
 ;; Keywords:         comm, convenience, files, frames, hypermedia, languages, mail, matching, mouse, multimedia, outlines, tools, wp
 ;; Package:          hyperbole
 ;; Package-Requires: ((emacs "24.4"))
@@ -19,22 +18,60 @@
 
 ;;; Commentary:
 ;;
-;;   See the "INSTALL" file for installation instructions and the
-;;   "README" file for general information.
+;; GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole, is an
+;; easy-to-use, yet powerful and programmable hypertextual information
+;; management system implemented as a GNU Emacs package.  It offers rapid views
+;; and interlinking of all kinds of textual information, utilizing Emacs for
+;; editing.  It can dramatically increase your productivity and greatly reduce
+;; the number of keyboard/mouse keys you'll need to work efficiently.
+;; 
+;; Hyperbole lets you:
+;; 
+;; 1. Quickly create hyperlink buttons either from the keyboard or by dragging
+;; between a source and destination window with a mouse button depressed.
+;; Later activate buttons by pressing/clicking on them or by giving the name of
+;; the button.
+;; 
+;; 2. Activate many kinds of `implicit buttons' recognized by context within
+;; text buffers, e.g. URLs, grep output lines, and git commits.  A single key
+;; or mouse button automatically does the right thing in dozens of contexts;
+;; just press and go.
+;; 
+;; 3. Build outlines with multi-level numbered outline nodes, e.g. 1.4.8.6,
+;; that all renumber automatically as any node or tree is moved in the
+;; outline. Each node also has a permanent hyperlink anchor that you can
+;; reference from any other node;
+;; 
+;; 4. Manage all your contacts quickly with hierarchical categories and embed
+;; hyperlinks within each entry. Or create an archive of documents with
+;; hierarchical entries and use the same search mechanism to quickly find any
+;; matching entry;
+;; 
+;; 5. Use single keys to easily manage your Emacs windows or frames and quickly
+;; retrieve saved window and frame configurations;
+;; 
+;; 6. Search for things in your current buffers, in a directory tree or across
+;; major web search engines with the touch of a few keys.
+;; 
+;; The common thread in all these features is making retrieval, management and
+;; display of information fast and easy. That is Hyperbole's purpose.
+;; 
+;; ----
 ;;
-;;   There is no need to manually edit this file unless there are specific
-;;   customizations you would like to make, such as whether a Hyperbole
-;;   Action Mouse Key is bound to the middle mouse button.  (See the
-;;   call of the function, `hmouse-install', below).
+;; See the "INSTALL" file for installation instructions and the "README" file
+;; for general information.
 ;;
-;;   Other site-specific customizations belong in "hsettings.el".
+;; There is no need to manually edit this file unless there are specific
+;; customizations you would like to make, such as whether a Hyperbole Action
+;; Mouse Key is bound to the middle mouse button.  (See the call of the
+;; function, `hmouse-install', below).
+;;
+;; Other site-specific customizations belong in "hsettings.el".
 
 ;;; Code:
 ;;; ************************************************************************
 ;;; Start Initializations
 ;;; ************************************************************************
-
-(message "Initializing Hyperbole, please wait...")
 
 (defconst hyperbole-loading t
   "Temporary constant available for testing while Hyperbole is loading.") 
@@ -196,7 +233,7 @@ Entry format is: (key-description key-sequence key-binding)."
 	  (hkey-bindings-keys hkey-previous-bindings)))
 
 (defun hkey-global-set-key (key command &optional no-add)
-  (or no-add (add-to-list #'hkey-previous-bindings (hkey-binding-entry key)))
+  (or no-add (add-to-list 'hkey-previous-bindings (hkey-binding-entry key)))
   (global-set-key key command))
 
 (defun hkey-initialize ()
@@ -233,8 +270,14 @@ Entry format is: (key-description key-sequence key-binding)."
 	  (hkey-global-set-key "\M-o" 'hkey-operate)
 	(hkey-maybe-global-set-key "\M-o" 'hkey-operate)))
     ;;
-    ;; Provides a site standard way of performing explicit button
-    ;; renames without invoking the Hyperbole menu.
+    ;; Binds {C-c @} to created a user-specified sized grid of windows
+    ;; displaying different buffers.
+    ;;
+    ;; Don't override local bindings of this key.
+    (hkey-maybe-global-set-key "\C-c@" 'hycontrol-windows-grid t)
+    ;;
+    ;; Binds {C-c C-r} as a site standard way of performing explicit
+    ;; button renames without invoking the Hyperbole menu.
     ;;
     ;; Don't override local bindings of this key.
     (hkey-maybe-global-set-key "\C-c\C-r" 'hui:ebut-rename t)
@@ -245,7 +288,7 @@ Entry format is: (key-description key-sequence key-binding)."
     (hkey-maybe-global-set-key "\C-c\C-m" 'hui-select-thing)
     ;;
     ;; Binds {C-c \} to interactively manage windows and frames.
-    (hkey-maybe-global-set-key "\C-c\\" 'hycontrol-windows)
+    (hkey-maybe-global-set-key "\C-c\\" 'hycontrol-enable-windows-mode)
     ;;
     ;; Binds {C-c /} to display the Hyperbole Find/Web search menu.
     (hkey-maybe-global-set-key "\C-c/" 'hui-search-web)
@@ -332,6 +375,15 @@ bindings after load)."
 ;;; Load Hyperbole mouse bindings
 ;;; ************************************************************************
 
+(if (boundp 'mouse-position-function)
+    (setq mouse-position-function
+	  (lambda (frame-x-dot-y)
+	    "Make `mouse-position' and `mouse-pixel-position' always return the selected frame.
+Under macOS and Windows 7 at least, upon initial selection of a new
+frame, those functions by default still return the prior frame."
+	    (if (consp frame-x-dot-y) (setcar frame-x-dot-y (selected-frame)))
+	    frame-x-dot-y)))
+
 (require 'hmouse-key)
 
 ;;; ************************************************************************
@@ -341,13 +393,14 @@ bindings after load)."
 ;; Add Hyperbole Info directory to Info-directory-list after the Info
 ;; manual reader package is loaded.
 (eval-after-load "info"
-  #'(if (boundp 'hyperb:dir)
-	(let ((info-dir (expand-file-name "man/" hyperb:dir)))
-	  (if (file-exists-p info-dir)
-	      (add-to-list #'Info-directory-list info-dir)))))
+  '(when (boundp 'hyperb:dir)
+     (info-initialize)
+     (let ((info-dir (expand-file-name "man/" hyperb:dir)))
+       (if (file-exists-p info-dir)
+	   (add-to-list 'Info-directory-list info-dir)))))
 
 ;;; ************************************************************************
-;;; Prevent local key maps from hiding the Action Key (overriding it)
+;;; Prevent local key maps from hiding/overriding the Action and Assist Keys
 ;;; ************************************************************************
 
 ;; (defun hkey-read-only-bindings ()
@@ -378,16 +431,16 @@ bindings after load)."
     (if hkey-init-override-local-keys
 	(let (hkey
 	      binding)
-	 (mapc (lambda (descrip-key-cmd)
-		 (and (setq hkey (cadr descrip-key-cmd))
-		      ;; To see the key name, use: (key-description hkey)
-		      (setq binding (local-key-binding hkey))
-		      ;; A number indicates an invalid key prefix, so
-		      ;; there is not actually a local binding for
-		      ;; this key sequence.
-		      (not (numberp binding))
-		      (local-unset-key hkey)))
-	       hkey-previous-bindings)))))
+	  (mapc (lambda (descrip-key-cmd)
+		  (and (setq hkey (cadr descrip-key-cmd))
+		       ;; To see the key name, use: (key-description hkey)
+		       (setq binding (local-key-binding hkey))
+		       ;; A number indicates an invalid key prefix, so
+		       ;; there is not actually a local binding for
+		       ;; this key sequence.
+		       (not (numberp binding))
+		       (local-unset-key hkey)))
+		hkey-previous-bindings)))))
 
 (defun hkey-install-override-local-bindings ()
   ;; Run after any major-mode change within any buffer.
@@ -430,7 +483,7 @@ With optional ARG, override them iff ARG is positive."
 ;; Koutliner autoloads in the kotl/ subdirectory are generated by 'make pkg'.
 ;; This next line ensures they are loaded by hyperbole-autoloads whenever
 ;; the Hyperbole package is activated in an Emacs session.
-;;;###autoload (load "kotl/kotl-loaddefs" nil 'nowarn)
+;;;###autoload (load "kotl/kotl-autoloads" nil 'nowarn)
 
 ;; Before the 6.0.1 release, Hyperbole used to patch the package-generate-autoloads 
 ;; function to ensure that kotl/ subdirectories were autoloaded.  This
@@ -635,6 +688,7 @@ If FLAG is nil then text is shown, while if FLAG is t the text is hidden."
 (defun hyperb:init ()
   "Standard configuration routine for Hyperbole."
   (interactive)
+  (message "Initializing Hyperbole...")
   (run-hooks 'hyperbole-init-hook)
   (hyperb:check-dir-user)
   (or (stringp hyperb:user-email)
@@ -665,20 +719,23 @@ If FLAG is nil then text is shown, while if FLAG is t the text is hidden."
   ;; removal of further local bindings.
   (if (featurep 'hyperbole)
       (hkey-install-override-local-bindings)
-    (add-hook 'after-load-alist #'(hyperbole hkey-install-override-local-bindings))))
+    (add-hook 'after-load-alist '(hyperbole hkey-install-override-local-bindings)))
+  ;;
+  ;; Hyperbole initialization is complete. 
+  (message "Initializing Hyperbole...done")
+  (message "Hyperbole %s is ready for action." hyperb:version))
 
-;; This call loads the whole Hyperbole system.
+;; This call loads the rest of the Hyperbole system.
 (require 'hinit)
-;; This call initializes Hyperbole.
+
 (if after-init-time
+    ;; This call initializes Hyperbole key bindings and hooks.
     (hyperb:init)
   ;; Initialize after other key bindings are loaded at startup.
-  (add-hook 'after-init-hook #'hyperb:init))
+  (add-hook 'after-init-hook #'hyperb:init t))
 
 (makunbound 'hyperbole-loading)
 
 (provide 'hyperbole)
-
-(message "Hyperbole %s is ready for action." hyperb:version)
 
 ;;; hyperbole.el ends here

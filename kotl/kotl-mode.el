@@ -4,7 +4,7 @@
 ;;
 ;; Orig-Date:    6/30/93
 ;;
-;; Copyright (C) 1993-2016  Free Software Foundation, Inc.
+;; Copyright (C) 1993-2017  Free Software Foundation, Inc.
 ;; See the "../HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
@@ -91,9 +91,11 @@ It provides the following keys:
   ;; Used by kimport.el functions.
   (unless (and (boundp 'kotl-previous-mode) kotl-previous-mode)
     (setq kotl-previous-mode major-mode
-	  ;; Remove outline indication due to selective-display.
+	  ;; Remove outline minor-mode mode-line indication.
 	  minor-mode-alist (copy-sequence minor-mode-alist)
-	  minor-mode-alist (set:remove '(selective-display " Outline")
+	  minor-mode-alist (set:remove '(outline-minor-mode " Outl")
+				       minor-mode-alist)
+ 	  minor-mode-alist (set:remove '(selective-display " Outline")
 				       minor-mode-alist)
 	  minor-mode-alist (set:remove '(selective-display " Otl")
 				       minor-mode-alist)
@@ -1967,10 +1969,11 @@ If key is pressed:
      a cell, then move point to prior location and begin creation of a
      klink to some other outline cell; hit the Action Key twice to select the
      link referent cell;
- (4) anywhere else, scroll up a windowful."
+ (4) anywhere else, invoke `action-key-eol-function', typically to scroll up
+     a windowful."
   (interactive)
   (cond	((kotl-mode:eobp) (kotl-mode:show-all))
-	((kotl-mode:eolp) (smart-scroll-up))
+	((kotl-mode:eolp) (funcall action-key-eol-function))
 	((not (kview:valid-position-p))
 	 (if (markerp action-key-depress-prev-point)
 	     (progn (select-window
@@ -2001,10 +2004,11 @@ If assist-key is pressed:
      a cell, then move point to prior location and prompt to move one tree to
      a new location in the outline; hit the Action Key twice to select the
      tree to move and where to move it;
- (4) anywhere else, scroll down a windowful."
+ (4) anywhere else, invoke `assist-key-eol-function', typically to scroll down
+     a windowful."
   (interactive)
   (cond ((kotl-mode:eobp) (kotl-mode:overview))
-	((kotl-mode:eolp) (smart-scroll-down))
+	((kotl-mode:eolp) (funcall assist-key-eol-function))
 	((not (kview:valid-position-p))
 	 (if (markerp assist-key-depress-prev-point)
 	     (progn (select-window

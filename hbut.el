@@ -255,19 +255,21 @@ represent the output of particular document formatters."
 		pos (1+ pos)))
 	lbl)))
 
-(defun    ebut:label-p (&optional as-label start-delim end-delim pos-flag)
+(defun    ebut:label-p (&optional as-label start-delim end-delim pos-flag two-lines-flag)
   "Returns key for Hyperbole button label that point is within.
-Returns nil if not within a label.
-Assumes point is within first line of button label, if at all.
-If optional AS-LABEL is non-nil, label is returned rather than the key
-derived from the label.  Optional START-DELIM and END-DELIM are strings
-that override default button delimiters.  With optional POS-FLAG non-nil,
-returns list of label-or-key, but-start-position, but-end-position.
-Positions include delimiters."
+Returns nil if not within a label.  Assumes point is within first line
+  of button label, if at all.
+All following arguments are optional.  If AS-LABEL is non-nil, label
+is returned rather than the key derived from the label.  START-DELIM
+and END-DELIM are strings that override default button delimiters.
+With POS-FLAG non-nil, returns list of label-or-key,
+but-start-position, but-end-position.  Positions include delimiters.
+With TWO-LINES-FLAG non-nil, constrains label search to two lines."
   (let ((opoint (point))
 	(npoint)
 	(quoted "\\(^\\|[^\\{]\\)")
 	(start)
+	(ebut:max-len ebut:max-len)
 	lbl-key end but-start but-end)
     (or start-delim (setq start-delim ebut:start))
     (or end-delim (setq end-delim ebut:end))
@@ -295,6 +297,10 @@ Positions include delimiters."
 		  (forward-char -2))
 	      (error (goto-char (1- opoint))))
 	  (goto-char (1- opoint)))
+	(when two-lines-flag
+	  (save-excursion
+	    (forward-line 2)
+	    (setq ebut:max-len (- (point) start))))
 	(and (< (point) (+ start ebut:max-len))
 	     (re-search-forward (concat quoted (regexp-quote end-delim))
 				(+ start ebut:max-len) t)
@@ -386,7 +392,7 @@ expression which matches an entire button string."
   (let* ((regexp (symbolp end-delim))
 	 (end-sym (or regexp (substring end-delim -1)))
 	 (rtn)
-	 (quoted)
+	 (ignore)
 	 start end but lbl)
     (save-excursion
       (goto-char (point-min))
@@ -400,13 +406,16 @@ expression which matches an entire button string."
 	(setq start (match-beginning include-delims)
 	      end (match-end include-delims)
 	      but (buffer-substring (match-beginning 0) (match-end 0))
-	      lbl (buffer-substring (match-beginning 1) (match-end 1)))
+	      lbl (buffer-substring (match-beginning 1) (match-end 1))
+	      ;; If within a programming language buffer, ignore matches outside comments.
+	      ignore (and (derived-mode-p 'prog-mode)
+			  ;; Match is outside of a programming language comment
+			  (not (nth 4 (syntax-ppss)))))
 	(save-excursion
 	  (goto-char start)
-	  (if (or (eq (preceding-char) ?\\) (eq (preceding-char) ?\{))
-	      ;; Ignore matches with quoted delimiters.
-	      (setq quoted t)))
-	(cond (quoted (setq quoted nil))
+	  ;; Ignore matches with quoted delimiters.
+	  (or ignore (setq ignore (memq (preceding-char) '(?\\ ?\{)))))
+	(cond (ignore (setq ignore nil))
 	      ((or (not regexp-match)
 		   (string-match regexp-match but))
 	       (setq rtn (cons (funcall but-func lbl start end) rtn))))))
@@ -442,7 +451,7 @@ move to the first occurrence of the button."
       (goto-char (+ (match-beginning 0) (length ebut:start)))))
 
 (defun    ebut:operate (curr-label new-label)
-  "Operates on a new or existing Hyperbole button given by CURR-LABEL.
+  "Operates on and modifies properties of a new or existing Hyperbole button given by CURR-LABEL.
 When NEW-LABEL is non-nil, this is substituted for CURR-LABEL and the
 associated button is modified.  Otherwise, a new button is created.
 Returns instance string appended to label to form unique label, nil if
@@ -487,14 +496,14 @@ in the current buffer."
 				buf-lbl (buffer-substring start end))
 			  (equal buf-lbl curr-label))
 		     nil)
-		    ((looking-at (regexp-quote curr-label))
+		    ((progn (if start (goto-char start))
+			    (looking-at (regexp-quote curr-label)))
 		     (setq start (point)
 			   end (match-end 0)))
 		    (t (setq start (point))
 		       (insert curr-label)
 		       (setq end (point))))
-	      (ebut:delimit start end instance-flag))
-	    )
+	      (ebut:delimit start end instance-flag)))
 	  ;; Position point
 	  (let ((new-key (ebut:label-to-key new-label)))
 	    (cond ((equal (ebut:label-p) new-key)
@@ -714,7 +723,7 @@ Inserts INSTANCE-STR after END, before ending delimiter."
       )))
 
 (defun    hattr:copy (from-hbut to-hbut)
-  "Copies attributes FROM-HBUT TO-HBUT, eliminating attributes TO-HBUT had.
+  "Copies attributes FROM-HBUT TO-HBUT, overwriting TO-HBUT attribute values.
 Returns TO-HBUT."
   (mapc (lambda (hbut)
 	  (or (and hbut (symbolp hbut))
@@ -795,7 +804,7 @@ Suitable for use as part of `write-file-functions'."
   nil)
 
 (defun    hattr:set (obj-symbol attr-symbol attr-value)
-  "Sets OBJ-SYMBOL's attribute ATTR-SYMBOL to ATTR-VALUE."
+  "Sets OBJ-SYMBOL's attribute ATTR-SYMBOL to ATTR-VALUE and returns ATR-VALUE."
   (put obj-symbol attr-symbol attr-value))
 
 (defalias    'hattr:summarize 'hattr:report)
@@ -993,7 +1002,7 @@ Returns number of buttons reported on or nil if none."
   "Returns Hyperbole source buffer or file given at point.
 If a file, always returns a full path if optional FULL is non-nil."
   (goto-char (match-end 0))
-  (cond ((looking-at "#<buffer \"?\\([^ \n\"]+\\)\"?>")
+  (cond ((looking-at "#<buffer \"?\\([^\n\"]+\\)\"?>")
 	 (get-buffer (buffer-substring (match-beginning 1)
 				       (match-end 1))))
 	((looking-at "\".+\"")
@@ -1091,7 +1100,11 @@ arguments."
 PARAMS are presently ignored.
 
   AT-P is a boolean form of no arguments which determines whether or not point
-is within a button of this type.
+is within a button of this type and if it is, calls `hact' with an
+action to be performed whenever a button of this type is activated.
+The action may be a regular Emacs Lisp function or a Hyperbole action
+type created with `defact'.
+
   Optional TO-P is a boolean form which moves point immediately after the next
 button of this type within the current buffer and returns a list of (button-
 label start-pos end-pos), or nil when none is found.

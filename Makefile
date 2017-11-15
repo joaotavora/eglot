@@ -4,7 +4,7 @@
 #
 # Orig-Date:    15-Jun-94 at 03:42:38
 #
-# Copyright (C) 1994-2016  Free Software Foundation, Inc.
+# Copyright (C) 1994-2017  Free Software Foundation, Inc.
 # See the file HY-COPY for license information.
 #
 # This file is part of GNU Hyperbole.
@@ -32,14 +32,16 @@
 #   USAGE:	For those installing GNU Hyperbole, use:
 #   	             make help
 #
-#               For OO-Browser maintainers:
-#                 To assemble a Hyperbole Emacs package for testing:
+#               To build only the output formats of the Hyperbole MANUAL:
+#		     make doc
+#
+#               To assemble a Hyperbole Emacs package for testing:
 #		     make pkg
-#                 To release a Hyperbole Emacs package to ELPA and ftp.gnu.org:
+#
+#               To release a Hyperbole Emacs package to ELPA and ftp.gnu.org:
 #		     make release
 #
 #               The Hyperbole Manual is included in the package in four forms:
-#
 #                  "man/hyperbole.info"   - GNU browsable version
 #                  "man/hyperbole.html"   - Web browsable version
 #                  "man/hyperbole.pdf"    - Printable version
@@ -52,7 +54,7 @@
 
 # This ver setup won't work under any make except GNU make, so set it manually.
 #HYPB_VERSION = "`head -3 hversion.el | tail -1 | sed -e 's/.*|\(.*\)|.*/\1/'`"
-HYPB_VERSION = 6.0.2
+HYPB_VERSION = 7.0.0
 
 # Emacs executable used to byte-compile .el files into .elc's.
 # Possibilities include: emacs, infodock, xemacs, etc.
@@ -80,7 +82,7 @@ TEXI2INFO = makeinfo --no-split
 # Command used to build the .html version of the user manual.
 # TEXI2HTML = id-texi2html -html_only -number -split_chapter # InfoDock-specific command
 # TEXI2HTML = makeinfo --html --split=chapter # Chapter splitting doesn't seem to work in 6.0
-TEXI2HTML = makeinfo --html --no-split
+TEXI2HTML = makeinfo --html --no-split --css-ref="hyperbole.css"
 
 # Command used to build the .pdf version of the user manual.
 TEXI2PDF = makeinfo --pdf --no-split
@@ -118,7 +120,7 @@ ZIP = \zip -qry
 
 # Directory in which to create new package distributions of Hyperbole.
 pkg_dir = /tmp
-pkg_hyperbole = $(pkg_dir)/hyperbole-$(HYPB_VERSION)
+pkg_hyperbole = $(pkg_dir)/hyperbole
 
 # Temp file to use to build .elc files.
 ELISP_TO_COMPILE = $(pkg_dir)/elc-${USER}
@@ -149,7 +151,7 @@ EL_COMPILE = hact.el hactypes.el hargs.el hbdata.el hbmap.el hbut.el \
 	     hpath.el hrmail.el hsettings.el hsmail.el hsys-org.el hsys-www.el htz.el \
 	     hycontrol.el hui-jmenu.el hui-menu.el hui-mini.el hui-mouse.el hui-select.el \
 	     hui-window.el hui.el hvar.el hversion.el hvm.el hypb.el hyperbole.el \
-	     hyrolo-logic.el hyrolo-menu.el hyrolo.el hywconfig.el set.el
+	     hyrolo-demo.el hyrolo-logic.el hyrolo-menu.el hyrolo.el hywconfig.el set.el
 
 EL_KOTL = kotl/kexport.el kotl/kfile.el kotl/kfill.el kotl/kimport.el kotl/klabel.el \
 	  kotl/klink.el kotl/kmenu.el kotl/knode.el kotl/kotl-mode.el \
@@ -164,7 +166,7 @@ ELC_COMPILE =  hactypes.elc hibtypes.elc hib-debbugs.elc hib-doc-id.elc hib-kbd.
 	     hpath.elc hrmail.elc hsettings.elc hsmail.elc hsys-org.elc hsys-www.elc htz.elc \
 	     hycontrol.elc hui-jmenu.elc hui-menu.elc hui-mini.elc hui-mouse.elc hui-select.elc \
 	     hui-window.elc hui.elc hvar.elc hversion.elc hvm.elc hypb.elc hyperbole.elc \
-	     hyrolo-logic.elc hyrolo-menu.elc hyrolo.elc hywconfig.elc set.elc
+	     hyrolo-demo.elc hyrolo-logic.elc hyrolo-menu.elc hyrolo.elc hywconfig.elc set.elc
 
 ELC_KOTL = kotl/kexport.elc kotl/kfile.elc kotl/kfill.elc kotl/kimport.elc kotl/klabel.elc \
 	   kotl/klink.elc kotl/kmenu.elc kotl/knode.elc kotl/kotl-mode.elc \
@@ -173,9 +175,9 @@ ELC_KOTL = kotl/kexport.elc kotl/kfile.elc kotl/kfill.elc kotl/kimport.elc kotl/
 
 HYPERBOLE_FILES = dir hyperbole-pkg.el info html $(EL_SRC) $(EL_COMPILE) $(EL_KOTL) \
 	$(ELC_COMPILE) Changes COPYING Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS \
-	HY-WHY.kotl INSTALL DEMO MANIFEST README _hypb .hypb file-newer smart-clib-sym \
-	hyperbole-banner.png $(man_dir)/hkey-help.txt \
-	$(man_dir)/hyperbole.texi $(man_dir)/version.texi
+	HY-WHY.kotl INSTALL DEMO DEMO-ROLO.otl MANIFEST README _hypb .hypb file-newer smart-clib-sym \
+	topwin.py hyperbole-banner.png $(man_dir)/hkey-help.txt \
+	$(man_dir)/hyperbole.texi $(man_dir)/hyperbole.css $(man_dir)/version.texi
 
 EL_TAGS = $(EL_SRC) $(EL_COMPILE) $(EL_KOTL)
 
@@ -189,6 +191,16 @@ help:
 	@ echo ""
 	@ echo "For Hyperbole maintainers, the Hyperbole distribution package is built with:"
 	@ echo "     make pkg"
+	@ echo "  To build documentation formats only, use:"
+	@ echo "     make doc"
+	@ echo "  To release a Hyperbole Emacs package to ELPA and ftp.gnu.org:"
+	@ echo "     make release"
+	@ echo ""
+	@ echo "The Hyperbole Manual is included in the package in four forms:"
+	@ echo "    man/hyperbole.info    - GNU browsable version"
+	@ echo "    man/hyperbole.html    - Web browsable version"
+	@ echo "    man/hyperbole.pdf     - Printable version"
+	@ echo "    man/hyperbole.texi    - source form"
 
 all: help
 
@@ -201,9 +213,9 @@ $(info_dir)/hyperbole.info: $(man_dir)/hyperbole.info
 	  $(INSTALL) im/*.{png,eps} $(info_dir)/im
 
 install-html: $(html_dir)/hyperbole.html
-$(html_dir)/hyperbole.html: $(man_dir)/hyperbole.html
+$(html_dir)/hyperbole.html: $(man_dir)/hyperbole.html $(man_dir)/hyperbole.css
 	$(MKDIR) $(html_dir)/im; \
-	  cd $(man_dir); $(INSTALL) hyperbole.html* $(html_dir); \
+	  cd $(man_dir); $(INSTALL) hyperbole.html* hyperbole.css $(html_dir); \
 	  $(INSTALL) im/*.{png,eps} $(html_dir)/im
 
 $(data_dir)/hkey-help.txt: $(man_dir)/hkey-help.txt
@@ -238,30 +250,35 @@ TAGS: $(EL_TAGS)
 version: doc
 	@ echo ""
 	@ echo "Any fgrep output means the version number has not been updated in that file."
-	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-ANNOUNCE HY-NEWS hversion.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
+	fgrep -L $(HYPB_VERSION) Makefile HY-ABOUT HY-NEWS README.md hversion.el hyperbole.el hyperbole-pkg.el man/hyperbole.texi man/version.texi
 	@ echo ""
 
-# Build the Info, HTML and Postscript versions of the user manual.
-doc: info html pdf
+# Build the Info, HTML and Postscript versions of the user manual and README.md.html.
+doc: info html pdf README.md.html
 
 info: $(man_dir)/hyperbole.info
 $(man_dir)/hyperbole.info: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt
 	cd $(man_dir) && $(TEXI2INFO) hyperbole.texi
 
 html: $(man_dir)/hyperbole.html
-$(man_dir)/hyperbole.html: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt
+$(man_dir)/hyperbole.html: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt $(man_dir)/hyperbole.css
 	cd ${man_dir} && $(TEXI2HTML) hyperbole.texi
 
 pdf: $(man_dir)/hyperbole.pdf
 $(man_dir)/hyperbole.pdf: $(man_dir)/hyperbole.texi $(man_dir)/version.texi $(man_dir)/hkey-help.txt
 	cd $(man_dir) && $(TEXI2PDF) hyperbole.texi
 
+# github-markdown is an npm, installed with: npm install markdown-to-html -g
+#   Documentation is here: https://www.npmjs.com/package/markdown-to-html
+README.md.html: README.md
+	github-markdown README.md > README.md.html
+
 # Generate a Hyperbole package suitable for distribution via the Emacs package manager.
 pkg: package
-package: git-pull doc kotl/kotl-loaddefs.el $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
+package: git-pull doc kotl/kotl-autoloads.el $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig
 
 # Generate and distribute a Hyperbole release to GNU ELPA and ftp.gnu.org.
-# One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-loaddefs.el.
+# One step in this is to generate an autoloads file for the Koutliner, kotl/kotl-autoloads.el.
 release: package git-push $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.gz elpa ftp
 	@ echo; echo "Hyperbole $(HYPB_VERSION) released to elpa and ftp.gnu.org successfully."
 
@@ -286,8 +303,9 @@ elpa-test: package
 ftp: package
 	cd $(pkg_dir) && $(GNUFTP) hyperbole-$(HYPB_VERSION).tar.gz
 
-kotl/kotl-loaddefs.el: $(EL_KOTL)
-	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-loaddefs.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && sed -i '3 i ;; Copyright (C) 2016  Free Software Foundation, Inc.\n;;' $@ && $(RM) kotl/kotl-loaddefs.el~
+kotl/kotl-autoloads.el: $(EL_KOTL)
+	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && $(RM) kotl/kotl-autoloads.el~
+#	$(EMACS) $(BATCHFLAGS) -eval '(progn (let ((generated-autoload-file (expand-file-name "kotl/kotl-autoloads.el"))) (update-directory-autoloads (expand-file-name "kotl/"))))' && sed -i '3 i ;; Copyright (C) 2017  Free Software Foundation, Inc.\n;;' $@ && $(RM) kotl/kotl-autoloads.el~
 
 # Used for ftp.gnu.org tarball distributions.
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.gz:
@@ -300,19 +318,21 @@ $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar.sig: $(pkg_dir)/hyperbole-$(HYPB_VERSIO
 
 $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar: $(HYPERBOLE_FILES)
 	make version
-	$(RM) -r $(pkg_hyperbole)
-	cd .. && COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/h.tar hyperbole-$(HYPB_VERSION)
+	cd $(pkg_dir) && $(RM) -fr $(pkg_hyperbole) $(pkg_hyperbole)-$(HYPB_VERSION)
+	cd .. && COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/h.tar hyperbole
 	cd $(pkg_dir) && COPYFILE_DISABLE=1 $(TAR) xf h.tar && cd $(pkg_hyperbole) && $(MAKE) packageclean
-	cd $(pkg_hyperbole) && make kotl/kotl-loaddefs.el && \
+	cd $(pkg_hyperbole) && make kotl/kotl-autoloads.el && chmod 755 topwin.py && \
 	cd $(pkg_dir) && $(RM) h.tar; \
+	  mv $(pkg_hyperbole) $(pkg_hyperbole)-$(HYPB_VERSION) && \
 	  COPYFILE_DISABLE=1 $(TAR) -clf $(pkg_dir)/hyperbole-$(HYPB_VERSION).tar hyperbole-$(HYPB_VERSION)
 	$(INSTALL) HY-ABOUT HY-ANNOUNCE HY-NEWS HY-WHY.kotl INSTALL README $(pkg_dir)/; chmod 644 $(pkg_dir)/*.tar
 
 pkgclean: packageclean
 packageclean:
 	if [ -d $(pkg_hyperbole) ]; then \
-	  cd $(pkg_hyperbole) && $(RM) -r .git* videos ChangeLog.* *autoloads.* *.elc TAGS TODO* .DS_Store \
-	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id; fi
+	  cd $(pkg_hyperbole) && $(RM) -r .git* videos ChangeLog.* *autoloads.* *.elc TAGS TODO* HY-ANNOUNCE-* .DS_Store \
+	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore GNUmakefile.id \
+	    && gsed '/\f/,/\f/{/\f/!d}' .hypb | tail +2 > .hypb2 && rm -f .hypb && mv .hypb2 .hypb; fi # Filter out unneeded TODO file hbut data from .hypb
 	if [ -d $(pkg_hyperbole)/kotl ]; then \
 	  cd $(pkg_hyperbole)/kotl && $(RM) -r *autoloads.* *.elc TAGS TODO* .DS_Store \
 	    core .place* ._* .*~ *~ *\# *- *.orig *.rej .nfs* CVS .cvsignore; fi
@@ -322,4 +342,3 @@ packageclean:
 	if [ -d $(pkg_hyperbole)/man/im ]; then \
 	  cd $(pkg_hyperbole)/man/im && $(RM) -r .DS_Store core .place* ._* .*~ *~ \
 	    *.ps *\# *- *.orig *.rej .nfs* CVS .cvsignore; fi
-

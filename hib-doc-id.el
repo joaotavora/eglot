@@ -143,7 +143,7 @@ signalled."
 			delim-doc-id)))))))
 
 (defib doc-id ()
-  "Displays an index entry for a site-specific document given its id.
+  "Displays a document from a local document library given its id.
 Ids must be delimited by `doc-id-start' and `doc-id-end' and must
 match the function stored in `doc-id-p'."
   (and (not (bolp))

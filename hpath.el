@@ -43,22 +43,33 @@ Default is `nil' since this can slow down normal file finding."
 ;;; FILE VIEWER COMMAND SETTINGS
 ;;; ************************************************************************
 
-(defcustom hpath:external-display-alist-macos '(("\\.\\(adaptor\\|app\\|bshlf\\|clr\\|concur\\|create\\|diagram\\|dp\\|e?ps\\|frame\\|gif\\|locus\\|Mesa\\|nib\\|pdf\\|project\\|rtf\\|sense\\|tiff\\|tree\\)$" . "open"))
-  "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST) elements for the Macintosh window system.
+(defcustom hpath:external-open-office-suffixes "doc[mx]?\\|od[st]\\|ppsx?\\|ppt[mx]?\\|xls[mx]?"
+  "*Regexp of Open Office document suffix alternatives to display externally.
+See http://www.openwith.org/programs/openoffice for a full list of
+possible suffixes."
+  :type 'string
+  :group 'hyperbole-commands)
+
+(defcustom hpath:external-display-alist-macos (list (cons (format "\\.\\(app\\|%s\\|adaptor\\|app\\|bshlf\\|clr\\|concur\\|create\\|diagram\\|dp\\|e?ps\\|frame\\|gif\\|locus\\|Mesa\\|nib\\|pdf\\|project\\|rtf\\|sense\\|tiff\\|tree\\)$"
+								  hpath:external-open-office-suffixes)
+							  "open"))
+  "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST) elements for the macOS window system.
 See the function `hpath:get-external-display-alist' for detailed format documentation."
   :type 'regexp
   :group 'hyperbole-commands)
 
-(defvar hpath:external-display-alist-mswindows nil
+(defvar hpath:external-display-alist-mswindows (list (cons (format "\\.\\(%s\\)$" hpath:external-open-office-suffixes)
+							   "openoffice.exe"))
     "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST) elements for MS Windows.
 See the function `hpath:get-external-display-alist' for detailed format documentation.")
 
-(defvar hpath:external-display-alist-x '(("\\.e?ps$" . "ghostview")
-					  ("\\.dvi$"  . "xdvi")
-					  ("\\.pdf$"  . ("xpdf" "acroread"))
-					  ("\\.ps\\.g?[zZ]$" . "zcat %s | ghostview -")
-					  ("\\.\\(gif\\|tiff?\\|xpm\\|xbm\\|xwd\\|pm\\|pbm\\|jpe?g\\)"  . "xv")
-					  ("\\.ra?s$" . "snapshot -l"))
+(defvar hpath:external-display-alist-x (list '("\\.e?ps$" . "ghostview")
+					     '("\\.dvi$"  . "xdvi")
+					     (cons (format "\\.\\(%s\\)$" hpath:external-open-office-suffixes) "openoffice")
+					     '("\\.pdf$"  . ("xpdf" "acroread"))
+					     '("\\.ps\\.g?[zZ]$" . "zcat %s | ghostview -")
+					     '("\\.\\(gif\\|tiff?\\|xpm\\|xbm\\|xwd\\|pm\\|pbm\\|jpe?g\\)"  . "xv")
+					     '("\\.ra?s$" . "snapshot -l"))
   "*An alist of (FILENAME-REGEXP . DISPLAY-PROGRAM-STRING-OR-LIST) elements for the X Window System.
 See the function `hpath:get-external-display-alist' for detailed format documentation.")
 
@@ -203,12 +214,12 @@ When embedded within a path, the format is ${variable}."
 ;;; Other public variables
 ;;; ************************************************************************
 
-(defvar hpath:rfc "/anonymous@ftp.ietf.org:rfc/rfc%s.txt"
+(defvar hpath:rfc "/ftp:anonymous@ftp.ietf.org:rfc/rfc%s.txt"
   "*String to be used in the call: (hpath:rfc rfc-num)
 to create a path to the RFC document for `rfc-num'.")
 
 (defcustom hpath:suffixes '(".gz" ".Z")
-  "*List of filename suffixes to add or remove within (hpath:exists-p) calls."
+  "*List of filename suffixes to add or remove within `hpath:exists-p' and `hpath:substitute-dir' calls."
   :type '(repeat string)
   :group 'hyperbole-commands)
 
@@ -217,6 +228,7 @@ to create a path to the RFC document for `rfc-num'.")
 
 ;; WWW URL format:  [URL[:=]]<protocol>:/[<user>@]<domain>[:<port>][/<path>]
 ;;             or   [URL[:=]]<protocol>://[<user>@]<domain>[:<port>][<path>]
+;;             or   URL[:=][<user>@]<domain>[:<port>][<path>]  (no protocol specified)
 ;; Avoid [a-z]:/path patterns since these may be disk paths on OS/2, DOS or
 ;; Windows.
 (defvar hpath:url-regexp "<?\\(URL[:=]\\)?\\(\\([a-zA-Z][a-zA-Z]+\\)://?/?\\([^/:@ \t\n\r\"`'|]+@\\)?\\([^/:@ \t\n\r\"`'|]+\\)\\(\\)\\(:[0-9]+\\)?\\([/~]\\([^\]\[@ \t\n\r\"`'|(){}<>]+[^\]\[@ \t\n\r\"`'|(){}<>.,?#!*]\\)*\\)?\\)>?"
@@ -250,23 +262,39 @@ Its match groupings and their names are:
   7 = hpath:portnumber-grpn  = optional port number to use
   8 = hpath:pathname-grpn    = optional pathname to access.")
 
+(defvar hpath:url-regexp3
+  (concat
+   "<?\\(URL[:=]\\)\\(\\(\\)\\(\\)"
+   "\\([a-zA-Z0-9][^/:@ \t\n\r\"`'|]*\\.[^/:@ \t\n\r\"`'|]+\\)"
+   ":?\\([0-9]+\\)?\\([/~]\\([^\]\[@ \t\n\r\"`'|(){}<>]+[^\]\[@ \t\n\r\"`'|(){}<>.,?#!*]\\)*\\)?\\)>?")
+  "Regular expression which matches a Url in a string or buffer.
+  Its match groupings and their names are:
+  1 = hpath:url-keyword-grpn = required `URL:' or `URL=' literal
+  2 = hpath:url-grpn         = the whole URL
+  3 = unused                 = for compatibility with hpath:url-regexp
+  4 = unused                 = for compatibility with hpath:url-regexp
+  5 = hpath:sitename-grpn    = URL site to connect to
+  6 = hpath:hostname-grpn    = hostname used to determine the access protocol, e.g. ftp.domain.com
+  7 = hpath:portnumber-grpn  = optional port number to use
+  8 = hpath:pathname-grpn    = optional pathname to access.")
+
 (defconst hpath:url-keyword-grpn 1
-  "Optional `URL:' or `URL=' literal.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Optional `URL:' or `URL=' literal.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:url-grpn 2
-  "The whole URL.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "The whole URL.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:protocol-grpn 3
-  "Access protocol.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Access protocol.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:username-grpn 4
-  "Optional username.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Optional username.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:sitename-grpn 5
-  "URL site to connect to.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "URL site to connect to.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:hostname-grpn 6
   "Hostname used to determine the access protocol, e.g. ftp.domain.com.
-See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:portnumber-grpn 7
-  "Optional port number to use.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Optional port number to use.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 (defconst hpath:pathname-grpn 8
-  "Optional pathname to access.  See doc for `hpath:url-regexp' and `hpath:url-regexp2'.")
+  "Optional pathname to access.  See doc for `hpath:url-regexp' and `hpath:url-regexp[2,3]'.")
 
 (defvar hpath:string-url-regexp (concat "\\`" hpath:url-regexp "\\'")
   "Regular expression that matches to a string that contains a possibly delimited Url and nothing else.
@@ -274,6 +302,11 @@ See the documentation for `hpath:url-regexp' for match groupings to
 use with string-match.")
 
 (defvar hpath:string-url-regexp2 (concat "\\`" hpath:url-regexp2 "\\'")
+  "Regular expression that matches to a string that contains a possibly delimited terse Url and nothing else.
+See the documentation for `hpath:url-regexp' for match groupings to
+use with string-match.")
+
+(defvar hpath:string-url-regexp3 (concat "\\`" hpath:url-regexp3 "\\'")
   "Regular expression that matches to a string that contains a possibly delimited terse Url and nothing else.
 See the documentation for `hpath:url-regexp' for match groupings to
 use with string-match.")
@@ -295,7 +328,7 @@ use with string-match.")
   "Regexp that matches to a Markdown file suffix.")
 
 (defconst hpath:markup-link-anchor-regexp
- (concat "\\`\\(#?[^#]+\\)\\(#\\)\\([^\]\[#^{}<>\"`'\\\n\t\f\r]*\\)")
+  (concat "\\`\\(#?[^#]+\\)\\(#\\)\\([^\]\[#^{}<>\"`'\\\n\t\f\r]*\\)")
   "Regexp that matches an markup filename followed by a hash (#) and an optional in-file anchor name.")
 
 (defconst hpath:outline-section-pattern "^\*+[ \t]+%s\\([ \t[:punct:]]*\\)$"
@@ -353,12 +386,14 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 	      (cond
 	       ((and (eq remote-package 'tramp)
 		     ;; Remove match to bol in this regexp before testing.
-		     (looking-at (substring-no-properties (car tramp-file-name-structure) 1)))
+		     (looking-at (substring-no-properties (car (if (fboundp 'tramp-file-name-structure)
+								   (tramp-file-name-structure)
+								 tramp-file-name-structure)) 1)))
 		(match-string-no-properties 0))
 	       ((looking-at hpath:url-regexp)
 		(if (string-equal (match-string-no-properties hpath:protocol-grpn) "ftp")
 		    (concat
-		     "/"
+		     "/ftp:"
 		     ;; user
 		     (if (match-beginning hpath:username-grpn)
 			 (match-string-no-properties hpath:username-grpn)
@@ -372,10 +407,11 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 			 (match-string-no-properties hpath:pathname-grpn)))
 		  ;; else ignore this other type of WWW path
 		  ))
-	       ((looking-at hpath:url-regexp2)
+	       ((or (looking-at hpath:url-regexp2)
+		    (looking-at hpath:url-regexp3))
 		(if (string-equal (match-string-no-properties hpath:hostname-grpn) "ftp")
 		    (concat
-		     "/" user "@"
+		     "/ftp:" user "@"
 		     ;; site
 		     (hpath:delete-trailer
 		      (match-string-no-properties hpath:sitename-grpn))
@@ -434,7 +470,8 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 			  (match-string-no-properties hpath:pathname-grpn path)))
 		   ;; else ignore this other type of WWW path
 		   ))
-		((string-match hpath:string-url-regexp2 path)
+		((or (string-match hpath:string-url-regexp2 path)
+		     (string-match hpath:string-url-regexp3 path))
 		 (if (string-equal "ftp" (match-string-no-properties hpath:hostname-grpn path))
 		     (concat
 		      "/" user "@"
@@ -447,30 +484,30 @@ Always returns nil if (hpath:remote-available-p) returns nil."
 			  (match-string-no-properties hpath:pathname-grpn path)))
 		   ;; else ignore this other type of WWW path
 		   ))
-		 ;; user, site and path
-		 ((string-match "/?[^/:@ \t\n\r\"`'|]+@[^/:@ \t\n\r\"`'|]+:[^]@ \t\n\r\"`'|\)\}]*"
-				path)
-		  (match-string-no-properties 0 path))
-		 ;; @site and path
-		 ((string-match "@[^/:@ \t\n\r\"`'|]+:[^]@ \t\n\r\"`'|\)\}]*"
-				path)
-		  (concat "/" user (match-string-no-properties 0 path)))
-		 ;; site and path
-		 ((and (string-match
-			 "/?\\(\\([^/:@ \t\n\r\"`'|]+\\):[^]@:, \t\n\r\"`'|\)\}]*\\)"
-			 path)
-		       (setq result (match-string-no-properties 1 path))
-		       (string-match "[^.]\\.[^.]"
-				     (match-string-no-properties 2 path)))
-		  (concat "/" user "@" result))
-		 ;; host and path
-		 ((and (string-match
-			 "/\\([^/:@ \t\n\r\"`'|]+:[^]@:, \t\n\r\"`'|\)\}]*\\)"
-			 path)
-		       (setq result (match-string-no-properties 1 path)))
-		  (concat "/" user "@" result))
-		 ))
-	(hpath:delete-trailer result))))
+		;; user, site and path
+		((string-match "/?[^/:@ \t\n\r\"`'|]+@[^/:@ \t\n\r\"`'|]+:[^]@ \t\n\r\"`'|\)\}]*"
+			       path)
+		 (match-string-no-properties 0 path))
+		;; @site and path
+		((string-match "@[^/:@ \t\n\r\"`'|]+:[^]@ \t\n\r\"`'|\)\}]*"
+			       path)
+		 (concat "/" user (match-string-no-properties 0 path)))
+		;; site and path
+		((and (string-match
+		       "/?\\(\\([^/:@ \t\n\r\"`'|]+\\):[^]@:, \t\n\r\"`'|\)\}]*\\)"
+		       path)
+		      (setq result (match-string-no-properties 1 path))
+		      (string-match "[^.]\\.[^.]"
+				    (match-string-no-properties 2 path)))
+		 (concat "/" user "@" result))
+		;; host and path
+		((and (string-match
+		       "/\\([^/:@ \t\n\r\"`'|]+:[^]@:, \t\n\r\"`'|\)\}]*\\)"
+		       path)
+		      (setq result (match-string-no-properties 1 path)))
+		 (concat "/" user "@" result))
+		))
+	 (hpath:delete-trailer result))))
 
 (defun hpath:at-p (&optional type non-exist)
   "Returns delimited path or non-delimited remote path at point, if any.
@@ -485,13 +522,14 @@ paths are allowed.  Absolute pathnames must begin with a `/' or `~'."
    ;; ((hpath:is-p (hargs:delimited "file://" "[ \t\n\r\"\'\}]" nil t)))
    ((hpath:remote-at-p))
    ((hpath:www-at-p) nil)
-   ((hpath:is-p (hpath:delimited-possible-path) type non-exist))))
+   ((hpath:is-p (hpath:delimited-possible-path non-exist) type non-exist))))
 
 (defun hpath:delimited-possible-path (&optional non-exist)
   "Returns delimited possible path or non-delimited remote path at point, if any.
 No validity checking is done on the possible path.  Delimiters may be:
 double quotes, open and close single quote, whitespace, or Texinfo file references.
-With optional NON-EXIST, nonexistent local paths are allowed.  Absolute pathnames must begin with a `/' or `~'."
+With optional NON-EXIST, nonexistent local paths are allowed.  Absolute pathnames
+must begin with a `/' or `~'."
   (or (hargs:delimited "\"" "\"") 
       ;; Filenames in Info docs or Python files
       (hargs:delimited "[`'‘]" "[`'’]" t t)
@@ -648,7 +686,7 @@ program)."
 
 (defun hpath:to-markup-anchor (hash anchor)
   "Move point to the definition of ANCHOR if found or if only HASH is non-nil, move to the beginning of the buffer."
-  (cond ((and (stringp anchor) (not (string-empty-p anchor)))
+  (cond ((and (stringp anchor) (not (equal anchor "")))
 	 (cond ((memq major-mode hui-select-markup-modes)
 		;; In HTML-like mode where link ids are case-sensitive.
 		(let ((opoint (point))
@@ -780,7 +818,7 @@ nonexistent local paths are allowed."
 	 ;; strip them, if any, before checking path.
 	 (if (string-match "\\`[^#][^#,]*\\([ \t\n\r]*[#,]\\)" path)
 	     (setq rtn-path (concat (substring path 0 (match-beginning 1))
-				     "%s" (substring path (match-beginning 1)))
+				    "%s" (substring path (match-beginning 1)))
 		   path (substring path 0 (match-beginning 1)))
 	   (setq rtn-path (concat rtn-path "%s")))
 	 ;; If path is just a local reference that begins with #,
@@ -839,10 +877,16 @@ nonexistent local paths are allowed."
 			     (file-directory-p path))
 			    (t))))
 	       (progn
-		 ;; Quote any %s except for one at the end of the path
-		 ;; part of rtn-path (immediately preceding a # or ,
-		 ;; character or the end of string).
-		 (setq rtn-path (hypb:replace-match-string "%s" rtn-path "%%s")
+		 ;; Might be an encoded URL with % characters, so
+		 ;; decode it before calling format below.
+		 (when (string-match "%" rtn-path)
+		   (let (decoded-path)
+		     (while (not (equal rtn-path (setq decoded-path (hypb:decode-url rtn-path))))
+		       (setq rtn-path decoded-path))))
+		 ;; Quote any % except for one %s at the end of the
+		 ;; path part of rtn-path (immediately preceding a #
+		 ;; or , character or the end of string).
+		 (setq rtn-path (hypb:replace-match-string "%" rtn-path "%%")
 		       rtn-path (hypb:replace-match-string "%%s\\([#,]\\|\\'\\)" rtn-path "%s\\1"))
 		 ;; Return path if non-nil return value.
 		 (if (stringp suffix) ;; suffix could = t, which we ignore
@@ -900,8 +944,8 @@ See the documentation of the `hpath:rfc' variable."
   (format hpath:rfc rfc-num))
 
 (defun hpath:substitute-value (path)
-  "Substitutes matching value for Emacs Lisp variables and environment variables in PATH.
-Returns path with variable values substituted."
+  "Substitutes matching value for Emacs Lisp variables and environment variables in PATH and returns PATH."
+  ;; Uses free variables `match' and `start' from `hypb:replace-match-string'.
   (substitute-in-file-name
     (hypb:replace-match-string
       "\\$\{[^\}]+}"
@@ -911,17 +955,17 @@ Returns path with variable values substituted."
 	       (var-name (substring path (+ match 2) (1- start)))
 	       (rest-of-path (substring path start))
 	       (sym (intern-soft var-name)))
-	  (if (file-name-absolute-p rest-of-path)
-	      (setq rest-of-path (substring rest-of-path 1)))
-	  (if (and sym (boundp sym))
+	  (when (file-name-absolute-p rest-of-path)
+	    (setq rest-of-path (substring rest-of-path 1)))
+	  (if (or (and sym (boundp sym)) (getenv var-name))
 	      (directory-file-name
 	       (hpath:substitute-dir var-name rest-of-path))
 	    var-group)))
       t)))
 
 (defun hpath:substitute-var (path)
-  "Replaces up to one match in PATH with the first matching variable from `hpath:variables'.
-When embedded within a path, the format is ${variable}."
+  "Replaces up to one match in PATH with the first variable from `hpath:variables' whose value contains a string match to PATH.
+After any match, the resulting path will contain a varible reference like ${variable}."
   (if (not (and (stringp path) (string-match "/" path) (hpath:is-p path)))
       path
     (setq path (hpath:symlink-referent path))
@@ -1029,21 +1073,20 @@ to it."
 ;; available.
 (defun hpath:handle-urls ()
   (let ((remote-fs-package (hpath:remote-available-p)))
-      (progn
-	;; www-url functions are defined in "hsys-www.el".
-	(put 'expand-file-name   remote-fs-package   'www-url-expand-file-name)
-	(put 'find-file-noselect remote-fs-package   'www-url-find-file-noselect)
-	;; Necessary since Dired overrides other file-name-handler-alist
-	;; settings.
-	(put 'expand-file-name   'dired 'www-url-expand-file-name)
-	(put 'find-file-noselect 'dired 'www-url-find-file-noselect)
+    ;; www-url functions are defined in "hsys-www.el".
+    (put 'expand-file-name   remote-fs-package   'www-url-expand-file-name)
+    (put 'find-file-noselect remote-fs-package   'www-url-find-file-noselect)
+    ;; Necessary since Dired overrides other file-name-handler-alist
+    ;; settings.
+    (put 'expand-file-name   'dired 'www-url-expand-file-name)
+    (put 'find-file-noselect 'dired 'www-url-find-file-noselect)
 
-	(if (not (fboundp 'hyperb:substitute-in-file-name))
-	    (progn
+    (unless (fboundp 'hyperb:substitute-in-file-name)
+      (progn
 
 ;; Overload `substitute-in-file-name' to eliminate truncation of URL prefixes 
 ;; such as http://.
-(or (fboundp 'hyperb:substitute-in-file-name)
+(unless (fboundp 'hyperb:substitute-in-file-name)
 (defalias 'hyperb:substitute-in-file-name
   (symbol-function 'substitute-in-file-name)))
 
@@ -1059,7 +1102,7 @@ If `/~' appears, all of FILENAME through that `/' is discarded."
        filename)
       (substring filename (match-beginning 2))
     (hyperb:substitute-in-file-name filename)))
-)))))
+))))
 
 (defun hpath:enable-find-file-urls ()
   "Enable the use of ftp and www Urls as arguments to `find-file' commands."
@@ -1136,7 +1179,8 @@ off otherwise."
 (defun hpath:url-at-p ()
   "Return world-wide-web universal resource locator (url) that point immediately precedes or nil.
 See the documentation for `hpath:url-regexp' for match-string groupings."
-  (if (or (looking-at hpath:url-regexp) (looking-at hpath:url-regexp2))
+  (if (or (looking-at hpath:url-regexp) (looking-at hpath:url-regexp2)
+	  (looking-at hpath:url-regexp3))
       (save-excursion
 	(goto-char (match-end hpath:url-grpn))
 	(skip-chars-backward ".,?#!*()")
@@ -1148,7 +1192,8 @@ See the documentation for `hpath:url-regexp' for match groupings to
 use with string-match."
   (and (stringp obj)
        (or (string-match hpath:string-url-regexp obj)
-	   (string-match hpath:string-url-regexp2 obj))
+	   (string-match hpath:string-url-regexp2 obj)
+	   (string-match hpath:string-url-regexp3 obj))
        t))
 
 (defun hpath:www-at-p (&optional include-start-and-end-p)
@@ -1159,7 +1204,8 @@ With optional INCLUDE-START-AND-END-P non-nil, returns list of:
     (skip-chars-backward "^\[ \t\n\r\f\"`'|\(\{<")
     (cond ((not include-start-and-end-p)
 	   (hpath:url-at-p))
-	  ((or (looking-at hpath:url-regexp) (looking-at hpath:url-regexp2))
+	  ((or (looking-at hpath:url-regexp) (looking-at hpath:url-regexp2)
+	       (looking-at hpath:url-regexp3))
 	   (goto-char (match-end hpath:url-grpn))
 	   (skip-chars-backward ".,?#!*()")
 	   (list (buffer-substring-no-properties (match-beginning hpath:url-grpn) (point))
@@ -1181,7 +1227,7 @@ be integrated, otherwise the filename is appended as an argument."
   ;; Permit %s substitution of filename within program.
   (if (string-match "[^%]%s" cmd)
       (format cmd filename)
-    (concat cmd " " filename)))
+    (format "%s \"%s\"" cmd filename)))
 
 (defun hpath:remote-available-p ()
   "Return non-nil if a remote file access package is available, nil otherwise.
@@ -1275,15 +1321,15 @@ from path or t."
 Return nil if FILENAME is a directory name or an image file that emacs can display.
 See also documentation for the function (hpath:get-external-display-alist) and the variable
 `hpath:internal-display-alist'."
-  (cond ((and (stringp filename) (file-directory-p filename))
+  (cond ((let ((case-fold-search t))
+	   (hpath:match filename (hpath:get-external-display-alist))))
+	((let ((case-fold-search nil))
+	   (hpath:match filename hpath:internal-display-alist)))
+	((and (stringp filename) (file-directory-p filename))
 	 nil)
 	((and (fboundp 'image-mode)
 	      (string-match hpath:native-image-suffixes filename))
 	 nil)
-	((let ((case-fold-search t))
-	   (hpath:match filename (hpath:get-external-display-alist))))
-	((let ((case-fold-search nil))
-	     (hpath:match filename hpath:internal-display-alist)))
 	(t (hpath:find-file-mailcap filename))))
 
 (defun hpath:match (filename regexp-alist)
@@ -1307,28 +1353,42 @@ list, the first directory prepended to REST-OF-PATH which produces a valid
 local pathname is returned."
   (let (sym val)
     (cond ((not (stringp var-name))
-	   (error "(hpath:substitute-dir): VAR-NAME arg, `%s', must be a string" var-name))
-	  ((not (and (setq sym (intern-soft var-name))
-		     (boundp sym)))
-	   (error "(hpath:substitute-dir): VAR-NAME arg, \"%s\", is not a bound variable"
+	   (error "(hpath:substitute-dir): VAR-NAME, `%s', must be a string" var-name))
+	  ((not (or (and (setq sym (intern-soft var-name))
+			 (boundp sym))
+		    (getenv var-name)))
+	   (error "(hpath:substitute-dir): VAR-NAME, \"%s\", is not a bound variable nor a set environment variable"
 		  var-name))
-	  ((stringp (setq val (symbol-value sym)))
+	  ((let ((case-fold-search t))
+	     (stringp (setq val (cond ((and (boundp sym) sym)
+				       (symbol-value sym))
+				      ((string-match "path" var-name)
+				       (split-string (getenv var-name) ":"))
+				      (t (getenv var-name))))))
 	   (if (hpath:validate (expand-file-name rest-of-path val))
 	       val))
 	  ((listp val)
-	   (let ((dir))
-	     (while (and val (not dir))
-	       (setq dir (car val) val (cdr val))
-	       (or (and (stringp dir)
-			(file-name-absolute-p dir)
-			(file-readable-p (expand-file-name rest-of-path dir)))
-		   (setq dir nil)))
-	     (if dir (hpath:validate (directory-file-name dir))
+	   (let* ((path (locate-file rest-of-path val (cons "" hpath:suffixes)))
+		  (dir (if path (file-name-directory path))))
+	     (if dir
+		 (hpath:validate (directory-file-name dir))
 	       (error "(hpath:substitute-dir): Can't find match for \"%s\""
-		      (concat "$\{" var-name "\}/" rest-of-path))
-	       )))
-	  (t (error "(hpath:substitute-dir): Value of VAR-NAME, \"%s\", must be a string or list" var-name))
-	  )))
+		      (concat "$\{" var-name "\}/" rest-of-path))))
+	   ;; Code prior to utilizing locate-file.
+;; 	   (let (dir path)
+;; 	     (while (and val (not dir))
+;; 	       (setq dir (car val) val (cdr val))
+;; 	       (or (and (stringp dir)
+;; 			(file-name-absolute-p dir)
+;; 			(setq path (hpath:exists-p (expand-file-name rest-of-path dir)))
+;; 			(file-readable-p path))
+;; 		   (setq dir nil)))
+;; 	     (if dir
+;; 		 (hpath:validate (directory-file-name dir))
+;; 	       (error "(hpath:substitute-dir): Can't find match for \"%s\""
+;; 		      (concat "$\{" var-name "\}/" rest-of-path))))
+	   )
+	  (t (error "(hpath:substitute-dir): Value of VAR-NAME, \"%s\", must be a string or list" var-name)))))
 
 (defun hpath:substitute-var-name (var-symbol var-dir-val path)
   "Replaces with VAR-SYMBOL any occurrences of VAR-DIR-VAL in PATH.

@@ -19,12 +19,12 @@
 ;;  If you want to use your shift-middle mouse button to select Hyperbole menu
 ;;  items and Hyperbole buttons, follow these instructions.
 ;;
-;;  If you plan to use a mouse only with X windows (XEmacs, GNU Emacs
-;;  19, or InfoDock), Mac OS X, or NEXTSTEP, and you want to use the
+;;  If you plan to use a mouse only with the X window system (XEmacs, GNU Emacs
+;;  19, or InfoDock), macOS, or NEXTSTEP, and you want to use the
 ;;  shift-middle and shift-right buttons, you need not do any mouse
 ;;  configuration.  Your Emacs executable must have been built so as to
 ;;  include the mouse support files for your window system, however.  These
-;;  are in the Emacs "src" directory: for X "x*.c".
+;;  are in the Emacs "src" directory: for X - "x*.c", for macOS - "ns*.c".
 ;;
 ;;  To use a different mouse key or a different window system, modify the
 ;;  mouse key bindings in "hmouse-sh.el".
@@ -38,6 +38,10 @@
 ;;; ************************************************************************
 
 (require 'hbut)
+(unless (fboundp 'smart-info)
+  (require 'hmouse-info))
+(unless (fboundp 'smart-c-at-tag-p)
+  (require 'hmouse-tag))
 
 ;;; ************************************************************************
 ;;; Public variables
@@ -47,9 +51,9 @@
   "*Command that sets point to the mouse cursor position.")
 
 (defun action-key-error ()
-  (hypb:error "(Action Key): No action defined for this context; try another location."))
+  (hypb:error "(Hyperbole Action Key): No action defined for this context; try another location."))
 (defun assist-key-error ()
-  (hypb:error "(Assist Key): No action defined for this context; try another location."))
+  (hypb:error "(Hyperbole Assist Key): No action defined for this context; try another location."))
 
 (defcustom action-key-default-function #'action-key-error
   "*Function run by the Action Key in an unspecified context.
@@ -86,14 +90,16 @@ Its default value is #'smart-scroll-down."
   '(
     ;; Handle Emacs push buttons in buffers
     ((and (fboundp 'button-at) (button-at (point))) .
-     ((push-button) . (smart-push-button-help)))
+     ((push-button nil (mouse-event-p last-command-event))
+      . (smart-push-button-help nil (mouse-event-p last-command-event))))
     ;;
     ;; If click in the minibuffer and reading an argument,
     ;; accept argument or give completion help.
     ((and (> (minibuffer-depth) 0)
 	  (eq (selected-window) (minibuffer-window))
-	  (not (eq hargs:reading-p 'hmenu))) .
-     ((exit-minibuffer) . (smart-completion-help)))
+	  (not (eq hargs:reading-p 'hmenu))
+	  (not (smart-helm-alive-p))) .
+	  ((funcall (key-binding (kbd "RET"))) . (smart-completion-help)))
     ;;
     ;; If reading a Hyperbole menu item or a Hyperbole completion-based
     ;; argument, allow selection of an item at point.
@@ -102,25 +108,30 @@ Its default value is #'smart-scroll-down."
       (hargs:select-p hkey-value 'assist)))
     ;;
     ;; If reading a Hyperbole menu item and nothing is selected, just return.
+    ;; Or if in a helm session with point in the minibuffer, quit the
+    ;; session and activate the selected item.
     ((and (> (minibuffer-depth) 0)
 	  (eq (selected-window) (minibuffer-window))
-	  (eq hargs:reading-p 'hmenu)) .
-     ((exit-minibuffer) . (exit-minibuffer)))
+	  (or (eq hargs:reading-p 'hmenu)
+	      (smart-helm-alive-p))) .
+	  ((funcall (key-binding (kbd "RET"))) . (funcall (key-binding (kbd "RET")))))
     ;;
     ;; The ID-edit package supports rapid killing, copying, yanking and
     ;; display management. It is available only as a part of InfoDock.
     ;; It is not included with Hyperbole.
     ((and (boundp 'id-edit-mode) id-edit-mode
-	  (not buffer-read-only)) .
-     ((id-edit-yank) . (id-edit-yank)))
+	  (not buffer-read-only)
+	  (not (smart-helm-alive-p))) .
+	  ((id-edit-yank) . (id-edit-yank)))
     ;;
     ((and (fboundp 'xref--item-at-point) (xref--item-at-point)) .
      ((xref-goto-xref) . (xref-show-location-at-point)))
     ;;
+    ;; If at the end of a line (eol), invoke the associated Smart Key handler EOL handler.
     ((if (eq major-mode 'kotl-mode)
-	(and (not (kotl-mode:eobp)) (kotl-mode:eolp))
-      (and (not (eobp)) (or (eolp) (and selective-display (eq (following-char) ?\r))))) .
-     ((funcall action-key-eol-function) . (funcall assist-key-eol-function)))
+	 (and (not (kotl-mode:eobp)) (kotl-mode:eolp))
+       (smart-eolp)) .
+       ((funcall action-key-eol-function) . (funcall assist-key-eol-function)))
     ;;
     ;; The Smart Menu system provides menus within Emacs on a dumb terminal.
     ;; It is a part of InfoDock, but may also be obtained as a separate
@@ -128,7 +139,7 @@ Its default value is #'smart-scroll-down."
     ((eq major-mode 'smart-menu-mode) . 
      ((smart-menu-select) . (smart-menu-help)))
     ;;
-    ((eq major-mode 'dired-mode) . 
+    ((derived-mode-p 'dired-mode) . 
      ((smart-dired) . (smart-dired-assist)))
     ;;
     ;; If on a Hyperbole button, perform action or give help.
@@ -153,6 +164,14 @@ Its default value is #'smart-scroll-down."
 	     (goto-char (point-max)))
 	    (t (scroll-up))) .
 	    (scroll-down)))
+    ;;
+    ;; Direct access selection of helm-major-mode completions
+    ((setq hkey-value (and (or (eq major-mode 'helm-major-mode)
+			       (and (featurep 'helm) (equal helm-action-buffer (buffer-name))))
+			   (or (eolp)
+			       (smart-helm-at-header)
+			       (smart-helm-line-has-action)))) .
+     ((smart-helm) . (smart-helm-assist)))
     ;;
     ;; Support the OO-Browser when available.  It is a separate Emacs
     ;; package not included with Hyperbole.  Within an OO-Browser
@@ -200,10 +219,14 @@ Its default value is #'smart-scroll-down."
 	 (string-match "^\\*Help\\|Help\\*$" (buffer-name))) .
 	 ((hkey-help-hide) . (hkey-help-hide)))
     ;;
+    ;; Pages directory listing mode (page-ext.el)
+    ((eq major-mode 'pages-directory-mode) .
+     ((pages-directory-goto) . (pages-directory-goto)))
+    ;;
     ;; Imenu listing in GNU Emacs
-    ((smart-imenu-item-at-p) .
-     ((smart-imenu-display-item-where (car hkey-value) (cdr hkey-value)) .
-      (imenu-choose-buffer-index)))
+    ((smart-imenu-item-at-p)
+     . ((smart-imenu-display-item-where (car hkey-value) (cdr hkey-value)) .
+	(imenu-choose-buffer-index)))
     ;;
     ;; Function menu listing mode in XEmacs
     ((eq major-mode 'fume-list-mode) .
@@ -238,9 +261,10 @@ Its default value is #'smart-scroll-down."
     ((and (memq major-mode '(js2-mode js-mode js3-mode javascript-mode html-mode web-mode))
 	  buffer-file-name
 	  (smart-javascript-at-tag-p)) .
-     ((smart-javascript) . (smart-javascript nil 'next-tag)))
+	  ((smart-javascript) . (smart-javascript nil 'next-tag)))
     ;;
-    ((and (eq major-mode 'python-mode) buffer-file-name
+    ((and (or (and (eq major-mode 'python-mode) buffer-file-name)
+	      (string-match "^Pydoc:\\|\\*?Python" (buffer-name)))
 	  (smart-python-at-tag-p)) .
 	  ((smart-python) . (smart-python nil 'next-tag)))
     ;;
@@ -297,15 +321,16 @@ Its default value is #'smart-scroll-down."
     ;;
     ;; Follow references in man pages.
     ((setq hkey-value (smart-man-entry-ref)) .
-     ((smart-man-display hkey-value) .
-      (smart-man-display hkey-value)))
+     ((smart-man-display hkey-value) . (smart-man-display hkey-value)))
     ;;
     ((eq major-mode 'w3-mode) . 
      ((w3-follow-link) . (w3-goto-last-buffer)))
     ;;
-    ((if (boundp 'hyrolo-display-buffer)
-	 (equal (buffer-name) hyrolo-display-buffer)) .
-	 ((smart-hyrolo) . (smart-hyrolo-assist)))
+    ((and (boundp 'hyrolo-display-buffer) (equal (buffer-name) hyrolo-display-buffer)) .
+     ((smart-hyrolo) . (smart-hyrolo-assist)))
+    ;;
+    ((eq major-mode 'image-dired-thumbnail-mode) .
+     ((smart-image-dired-thumbnail) . (smart-image-dired-thumbnail-assist)))
     ;;
     ;; Gomoku game
     ((eq major-mode 'gomoku-mode) . 
@@ -321,10 +346,13 @@ Its default value is #'smart-scroll-down."
     ((and (boundp 'outline-minor-mode) outline-minor-mode) .
      ((smart-outline) . (smart-outline-assist)))
     )
-  "Alist of predicates and form-conses for Action and Assist Keys.
+  "Alist of predicates and form-conses for the Action and Assist Keyboard Keys.
 Each element is: (predicate-form . (action-key-form . assist-key-form)).
 When the Action or Assist Key is pressed, the first or second form,
-respectively, associated with the first non-nil predicate is evaluated.")
+respectively, associated with the first non-nil predicate is evaluated.
+
+See also `hmouse-alist' for a superset of this list utilized by the
+Action and Assist Mouse Keys.")
 
 ;;; ************************************************************************
 ;;; driver code
@@ -337,10 +365,15 @@ respectively, associated with the first non-nil predicate is evaluated.")
 (require 'hargs)
 (require 'hmouse-key)
 (defvar hmouse-alist hkey-alist
-  "Alist of predicates and form-conses for context-sensitive smart key mouse actions.
-When the action-key or the assist-key is pressed, the first or second
+  "Alist of predicates and form-conses for the Action and Assist Mouse Keys.
+When the Action Mouse Key or Assist Mouse Key is pressed, the first or second
 form, respectively, associated with the first non-nil predicate is
-evaluated.")
+evaluated.
+
+The `hkey-alist' variable is the subset of this alist used by the
+smart keyboard keys.")
+
+;; This next library adds drag actions to `hmouse-alist'.
 (load "hui-window")
 
 ;;; ************************************************************************
@@ -365,7 +398,7 @@ evaluated.")
   (save-excursion (end-of-line) (eobp)))
 
 (defun smart-completion-help ()
-  "Offer completion help for current minibuffer argument, if any."
+  "Offers completion help for current minibuffer argument, if any."
   (if (where-is-internal 'minibuffer-completion-help (current-local-map))
       (minibuffer-completion-help)))
 
@@ -383,6 +416,18 @@ evaluated.")
 ;;; ************************************************************************
 ;;; smart-buffer-menu functions
 ;;; ************************************************************************
+
+(defun smart-buffer-menu-no-marks ()
+  "Display this line's buffer in this window and bury the buffer menu unless other buffers are marked.
+If buffer menu items are marked, return nil, else t."
+  (let* ((this-buffer (Buffer-menu-buffer t))
+	 (menu-buffer (current-buffer))
+	 (others (delq this-buffer (Buffer-menu-marked-buffers t))))
+    (unless others
+      (switch-to-buffer this-buffer)
+      (unless (eq menu-buffer this-buffer)
+	(bury-buffer menu-buffer))
+      t)))
 
 (defun smart-buffer-menu ()
   "Uses a single key or mouse key to manipulate buffer-menu entries.
@@ -405,11 +450,12 @@ If key is pressed:
   (interactive)
   (cond ((last-line-p) (Buffer-menu-execute))
 	((bolp) (Buffer-menu-mark))
-        ((save-excursion
-             (goto-char (1- (point)))
-	     (bolp))
+	((save-excursion
+	   (goto-char (1- (point)))
+	   (bolp))
 	 (Buffer-menu-save))
 	((br-in-browser) (br-buffer-menu-select))
+	((smart-buffer-menu-no-marks))
 	(t (Buffer-menu-select))))
 
 (defun smart-buffer-menu-assist ()
@@ -431,14 +477,26 @@ If assist-key is pressed:
   (cond ((last-line-p) (progn (list-buffers) (forward-line 3)))
 	((bolp) (Buffer-menu-unmark))
         ((save-excursion
-             (goto-char (1- (point)))
-	     (bolp))
+	   (goto-char (1- (point)))
+	   (bolp))
 	 (Buffer-menu-unmark))
 	(t (Buffer-menu-delete))))
 
 ;;; ************************************************************************
 ;;; smart-ibuffer-menu functions
 ;;; ************************************************************************
+
+(defun smart-ibuffer-menu-no-marks ()
+  "Display this line's buffer in this window and bury the buffer menu unless other buffers are marked.
+If buffer menu items are marked, return nil, else t."
+  (let* ((this-buffer (ibuffer-current-buffer t))
+	 (menu-buffer (current-buffer))
+	 (others (delq this-buffer (ibuffer-get-marked-buffers))))
+    (unless others
+      (switch-to-buffer this-buffer)
+      (unless (eq menu-buffer this-buffer)
+	(bury-buffer menu-buffer))
+      t)))
 
 (defun smart-ibuffer-menu ()
   "Uses a single key or mouse key to manipulate ibuffer entries.
@@ -462,8 +520,9 @@ If key is pressed:
 	((or (bolp) (save-excursion
 		      (goto-char (1- (point)))
 		      (bolp)))
-	 (ibuffer-mark-forward 1))
+	 (ibuffer-mark-forward nil nil 1))
 	((br-in-browser) (br-buffer-menu-select))  
+	((smart-ibuffer-menu-no-marks))
 	(t (ibuffer-do-view))))
 
 (defun smart-ibuffer-menu-assist ()
@@ -483,12 +542,14 @@ If assist-key is pressed:
 
   (interactive)
   (cond ((or (first-line-p) (last-line-p))
-	 (ibuffer-unmark-all 0))
+	 (if (fboundp 'ibuffer-unmark-all-marks)
+	     (ibuffer-unmark-all-marks)
+	   (ibuffer-unmark-all 0)))
 	((or (bolp) (save-excursion
 		      (goto-char (1- (point)))
 		      (bolp)))
-	 (ibuffer-unmark-forward 1))
-	(t (ibuffer-mark-for-delete 1))))
+	 (ibuffer-unmark-forward nil nil 1))
+	(t (ibuffer-mark-for-delete nil nil 1))))
 
 ;;; ************************************************************************
 ;;; smart-calendar functions
@@ -541,6 +602,22 @@ If assist-key is pressed:
 ;;; smart-dired functions
 ;;; ************************************************************************
 
+(defun smart-dired-pathname-up-to-point ()
+  "Assume point is on the first line of a Dired buffer.  Return the part of the pathname up through point, else the current directory path.
+Use for direct selection of an ancestor directory of this directory."
+  (interactive)
+  (if (not (looking-at "\\s-*$"))
+      (save-excursion
+	(re-search-forward "[/:\n]" nil t)
+	(buffer-substring-no-properties
+	 (if (and (not (bobp)) (= (preceding-char) ?/))
+	     (point)
+	   (1- (point)))
+	 (progn (beginning-of-line)
+		(skip-syntax-forward "-")
+		(point))))
+    default-directory))
+
 (defun smart-dired ()
   "Uses a single key or mouse key to manipulate directory entries.
 
@@ -549,24 +626,40 @@ caller has already checked that the key was pressed in an appropriate buffer
 and has moved the cursor there.
 
 If key is pressed:
- (1) within an entry line, the selected file/directory is displayed for
-     editing in the other window;
- (2) on the first line of the buffer, if any deletes are to be
-     performed, they are executed after user verification; otherwise, nothing
-     is done;
- (3) on or after the last line in the buffer, this dired invocation is quit."
+ (1) within an entry line, the selected file/directory is displayed
+     for editing, normally in another window but if an entry has been dragged
+     for display in another window, then this entry is displayed in the current
+     window (DisplayHere minor mode is shown in the mode-line; use {g}
+     to disable it)
+ (2) on the first line of the buffer (other than the end of line):
+     (a) within the leading whitespace, then if any deletes are to be
+         performed, they are executed after user verification; otherwise,
+         nothing is done;
+     (b) otherwise, dired is run in another window on the ancestor directory
+         of the current directory path up through the location of point;
+         if point is before the first character, then the / root directory
+         is used.
+ (3) on or after the last line in the buffer or at the end of the first line,
+     this dired invocation is quit."
 
   (interactive)
   (cond ((first-line-p)
-	 (if (save-excursion
-	       (goto-char (point-min))
-	       (re-search-forward "^D" nil t))
-	     (cond ;; For Tree-dired compatibility
-	      ((fboundp 'dired-do-flagged-delete)
-	       (dired-do-flagged-delete))
-	      ((fboundp 'dired-do-deletions)
-	       (dired-do-deletions))
-	      (t (error "(smart-dired): No Dired expunge function.")))))
+	 (cond ((eolp) (quit-window))
+	       ((and (looking-at "\\s-")
+		     (save-excursion
+		       (skip-syntax-backward "-"))
+		     (bolp))
+		;; In whitespace at beginning of 1st line, perform deletes.
+		(if (save-excursion
+		      (goto-char (point-min))
+		      (re-search-forward "^D" nil t))
+		    (cond ;; For Tree-dired compatibility
+		     ((fboundp 'dired-do-flagged-delete)
+		      (dired-do-flagged-delete))
+		     ((fboundp 'dired-do-deletions)
+		      (dired-do-deletions))
+		     (t (error "(smart-dired): No Dired expunge function.")))))
+	       (t (hpath:find (smart-dired-pathname-up-to-point)))))
 	((last-line-p)
 	 (quit-window))
 	(t (hpath:find (dired-get-filename)))))
@@ -585,11 +678,11 @@ If assist-key is pressed:
      deletion;
  (3) anywhere else within an entry line, the current entry is marked for
      deletion;
- (4) on or after the last line in the buffer, all delete marks on all entries
-     are undone."
+ (4) on or after the last line in the buffer or at the end of the
+     first line, all delete marks on all entries are undone."
 
   (interactive)
-  (cond ((last-line-p)
+  (cond ((or (last-line-p) (and (first-line-p) (eolp)))
 	 (dired-unmark-all-files ?D)
 	 (goto-char (point-max)))
 	((looking-at "~") (dired-flag-backup-files))
@@ -664,7 +757,7 @@ If key is pressed within:
 	 (if gnus-current-article
 	     (progn (goto-char (point-min))
 		    (re-search-forward
-		      (format "^.[ ]+%d:" gnus-current-article) nil t)
+		     (format "^.[ ]+%d:" gnus-current-article) nil t)
 		    (setq this-command 'gnus-summary-next-page)
 		    (call-interactively 'gnus-summary-next-page))
 	   (goto-char (point-min))
@@ -745,6 +838,184 @@ If assist-key is pressed within:
 	     (if artic (select-window artic)))))
 	((and (not (eolp)) (Info-handle-in-note)))
 	(t (smart-scroll-down))))
+
+;;; ************************************************************************
+;;; smart-helm functions
+;;; ************************************************************************
+
+(defun smart-helm-at-header ()
+  "Returns t iff Action Key depress was on the first fixed header line or a helm section header of the current buffer."
+  (or (helm-pos-header-line-p)
+      (and (eventp action-key-depress-args)
+	   (eq (posn-area (event-start action-key-depress-args))
+	       'header-line))))
+
+(defun smart-helm-line-has-action ()
+  "Marks and returns the actions for the helm selection item at the point of Action Key depress, or nil if line lacks any action.
+Assumes Hyperbole has already checked that helm is active."
+  (let ((helm-buffer (if (equal helm-action-buffer (buffer-name)) helm-buffer (buffer-name))))
+    (save-excursion
+      (with-helm-buffer
+	(setq cursor-type hkey-debug) ; For testing where mouse presses set point.
+	(and (eventp action-key-depress-args)
+	     (goto-char (posn-point (event-start action-key-depress-args))))
+	(when (not (or (eobp)
+		       (smart-helm-at-header)
+		       (helm-pos-candidate-separator-p)))
+	  (let ((helm-selection-point (point)))
+	    (helm-mark-current-line)
+	    (helm-get-current-action)))))))
+
+(defun smart-helm-alive-p ()
+  ;; Handles case where helm-action-buffer is visible but helm-buffer
+  ;; is not; fixed in helm with commit gh#emacs-helm/helm/cc15f73.
+  (and (featurep 'helm)
+       helm-alive-p
+       (window-live-p (helm-window))
+       (minibuffer-window-active-p (minibuffer-window))))
+
+(defun smart-helm-resume-helm ()
+  "Resumes helm session for the current buffer if not already active."
+  (unless (smart-helm-alive-p)
+    (unless (equal helm-action-buffer (buffer-name))
+      ;; helm-resume doesn't seem to set this properly.
+      (setq helm-buffer (buffer-name)))
+    (helm-resume helm-buffer)
+    (sit-for 0.2)))
+
+(defun smart-helm-at (depress-event)
+  "Returns non-nil iff Smart Mouse DEPRESS-EVENT was on a helm section header, candidate separator or at eob or eol.
+If non-nil, returns a property list of the form: (section-header <bool> separator <bool> eob <bool> or eol <bool>).
+If a section-header or separator, selects the first following candidate line.
+Assumes Hyperbole has already checked that helm is active."
+  (and (eventp depress-event)
+       ;; Nil means in the buffer text area
+       (not (posn-area (event-start depress-event)))
+       (with-helm-buffer
+	 (let ((opoint (point))
+	       things)
+	   (mouse-set-point depress-event)
+	   (setq things (list 'section-header (helm-pos-header-line-p)
+			      'separator (helm-pos-candidate-separator-p)
+			      'eob (eobp)
+			      'eol (eolp)))
+	   (cond ((or (plist-get things 'section-header) (plist-get things 'separator))
+		  (helm-next-line 1)
+		  things)
+		 ((plist-get things 'eol)
+		  (helm-mark-current-line)
+		  things)
+		 ((plist-get things 'eob)
+		  things)
+		 (t
+		  (goto-char opoint)
+		  nil))))))
+
+(defun smart-helm-to-minibuffer ()
+  "Selects minibuffer window when it is active."
+  (if (> (minibuffer-depth) 0)
+      (select-window (minibuffer-window))))
+
+(defun smart-helm()
+  "Executes helm actions based on Action Key click locations:
+  At the end of the buffer, quits from helm and exits the minibuffer.
+  On a candidate line, performs the candidate's first action and remains in the minibuffer;
+  On the top, fixed header line, toggles display of the selected candidate's possible actions;
+  On an action list line, performs the action after exiting the minibuffer;
+  On a source section header, moves to the next source section or first if on last.
+  On a candidate separator line, does nothing.
+  In the minibuffer window, ends the helm session and performs the selected item's action."
+  (unless (hmouse-check-action-key)
+    (error "(smart-helm): Hyperbole Action Mouse Key - either depress or release event is improperly configured"))
+  (let* ((non-text-area-p (and (eventp action-key-depress-args)
+			       (posn-area (event-start action-key-depress-args))))
+	 (at-plist (smart-helm-at action-key-depress-args))
+	 (section-hdr (plist-get at-plist 'section-header))
+	 (separator (plist-get at-plist 'separator))
+	 (eob (plist-get at-plist 'eob))
+	 (eol (plist-get at-plist 'eol)))
+    (smart-helm-resume-helm)
+    ;; Handle end-of-line clicks.
+    (if (and eol (not eob) (not non-text-area-p))
+	(progn (with-helm-buffer (funcall action-key-eol-function))
+	       (smart-helm-to-minibuffer))
+      (smart-helm-to-minibuffer)
+      (when (and (smart-helm-alive-p) (not separator))
+	(let* ((key (kbd (cond
+			  ;; Exit
+			  (eob "C-g")
+			  ;; Move to next source section or first if on last.
+			  (section-hdr "C-o")
+			  ;; If line of the key press is the first /
+			  ;; header line in the window or outside the
+			  ;; buffer area, then use {TAB} command to
+			  ;; switch between match list and action list.
+			  (non-text-area-p "TAB")
+			  ;; RET: Performs action of selection and exits the minibuffer.
+			  ;; C-j: Performs action of selection and stays in minibuffer.
+			  (hkey-value
+			   (if (helm-action-window) "RET" "C-j"))
+			  (t "RET"))))
+	       (binding (key-binding key)))
+	  (if hkey-debug
+	      (message "(HyDebug): In smart-helm, key to execute is: {%s}; binding is: %s"
+		       (key-description key) binding))
+	  (call-interactively binding))))))
+
+(defun smart-helm-assist()
+  "Executes helm actions based on Assist Key click locations:
+  At the end of the buffer, quits from helm and exits the minibuffer.
+  On a candidate line, display's the candidate's first action and remains in the minibuffer;
+  On the top, fixed header line, toggles display of the selected candidate's possible actions;
+  On an action list line, performs the action after exiting the minibuffer;
+  On a source section header, moves to the previous source section or last if on first.
+  On a candidate separator line, does nothing.
+  In the minibuffer window, ends the helm session and performs the selected item's action."
+  ;; Hyperbole has checked that this line has an action prior to
+  ;; invoking this function.
+  (unless (hmouse-check-assist-key)
+    (error "(smart-helm-assist): Hyperbole Assist Mouse Key - either depress or release event is improperly configured"))
+  (let* ((non-text-area-p (and (eventp assist-key-depress-args)
+			       (posn-area (event-start assist-key-depress-args))))
+	 (at-plist (smart-helm-at assist-key-depress-args))
+	 (section-hdr (plist-get at-plist 'section-header))
+	 (separator (plist-get at-plist 'separator))
+	 (eob (plist-get at-plist 'eob))
+	 (eol (plist-get at-plist 'eol))
+	 (key))
+    (unwind-protect
+	(smart-helm-resume-helm)
+      ;; Handle end-of-line clicks.
+      (cond ((and eol (not eob) (not non-text-area-p))
+	     (with-helm-buffer (funcall assist-key-eol-function)))
+	    ((and (smart-helm-alive-p) (not separator))
+	     (setq key (cond
+			;; Exit
+			(eob "C-g")
+			;; Move to previous source section or last if on last.
+			(section-hdr "M-o")
+			;; If line of the key press is the first /
+			;; header line in the window or outside the
+			;; buffer area, then use {TAB} command to
+			;; switch between match list and action list.
+			(non-text-area-p "TAB")
+			;; Display action for the current line and
+			;; return nil.
+			(t (with-help-window "*Helm Help*"
+			     (let ((helm-buffer (if (equal helm-action-buffer (buffer-name))
+						    helm-buffer (buffer-name))))
+			       (with-helm-buffer
+				 (princ "The current helm selection item is:\n\t")
+				 (princ (helm-get-selection (helm-buffer-get)))
+				 (princ "\nwith an action of:\n\t")
+				 (princ (helm-get-current-action)))
+			       nil)))))
+	     (if hkey-debug
+		 (message "(HyDebug): In smart-helm-assist, key to execute is: {%s}; binding is: %s"
+			  (if key (key-description key) "Help")
+			  (if key (key-binding key) "None")))))
+      (smart-helm-to-minibuffer))
+    (if key (call-interactively (key-binding (kbd key))))))
 
 ;;; ************************************************************************
 ;;; smart-hmail functions
@@ -833,6 +1104,20 @@ buffer and has moved the cursor to the selected buffer."
 (defalias 'smart-hyrolo-assist 'smart-hyrolo)
 
 ;;; ************************************************************************
+;;; smart-image-dired functions
+;;; ************************************************************************
+
+(defun smart-image-dired-thumbnail ()
+  "Selects thumbnail and scales its image for display in another Emacs window."
+  (image-dired-mouse-select-thumbnail action-key-release-args)
+  (image-dired-display-thumbnail-original-image))
+
+(defun smart-image-dired-thumbnail-assist ()
+  "Selects thumbnail and uses the external viewer named by `image-dired-external-viewer' to display it."
+  (image-dired-mouse-select-thumbnail assist-key-release-args)
+  (image-dired-thumbnail-display-external))
+
+;;; ************************************************************************
 ;;; smart-imenu functions
 ;;; ************************************************************************
 
@@ -850,8 +1135,12 @@ Does nothing unless imenu has been loaded and an index has been
 created for the current buffer.  When return value is non-nil, also
 sets `hkey-value' to (identifier . identifier-definition-buffer-position)."
   (and (featurep 'imenu) imenu--index-alist
-       (setq hkey-value (hargs:find-tag-default))
-       (setq hkey-value (cons hkey-value (smart-imenu-item-p hkey-value variable-flag)))
+       ;; Ignore non-alias identifiers on the first line of a Lisp def.
+       (not (and (smart-lisp-mode-p) (smart-lisp-at-definition-p)))
+       ;; Ignore Lisp loading expressions
+       (not (smart-lisp-at-load-expression-p))
+       (setq hkey-value (hargs:find-tag-default)
+	     hkey-value (cons hkey-value (smart-imenu-item-p hkey-value variable-flag)))
        (cdr hkey-value)))
 
 ;; Derived from `imenu' function in the imenu library.
@@ -861,25 +1150,25 @@ If INDEX-ITEM is both a function and a variable, the function
 definition is used by default; in such a case, when optional
 VARIABLE-FLAG is non-nil, the variable definition is used instead."
   (when (stringp index-item)
-      ;; Convert a string to an alist element.
-      (if variable-flag
-	  ;; Match to variable definitions only.
-	  (setq index-item (assoc index-item
-				  (cdr (assoc "Variables" (imenu--make-index-alist)))))
-	;; First try to match a function definition and if that fails,
-	;; then allow variable definitions and other types of matches as well.
-	(let ((alist (imenu--make-index-alist)))
-	  (setq index-item (or (assoc index-item alist)
-			       ;; Does nothing unless the dash Emacs Lisp
-			       ;; library is available for the -flatten function.
-			       (and (require 'dash nil t)
-				    (assoc index-item (-flatten alist)))))))
-      (if index-item (cdr index-item))))
+    ;; Convert a string to an alist element.
+    (if variable-flag
+	;; Match to variable definitions only.
+	(setq index-item (assoc index-item
+				(cdr (assoc "Variables" (imenu--make-index-alist)))))
+      ;; First try to match a function definition and if that fails,
+      ;; then allow variable definitions and other types of matches as well.
+      (let ((alist (imenu--make-index-alist)))
+	(setq index-item (or (assoc index-item alist)
+			     ;; Does nothing unless the dash Emacs Lisp
+			     ;; library is available for the -flatten function.
+			     (and (require 'dash nil t)
+				  (assoc index-item (-flatten alist)))))))
+    (if index-item (cdr index-item))))
 
 ;;; ************************************************************************
 ;;; smart-info functions
 ;;; ************************************************************************
-;;; Autoloaded in "hmouse-info.el".
+;;; In "hmouse-info.el".
 
 ;;; ************************************************************************
 ;;; smart-man functions
@@ -1036,6 +1325,14 @@ If not on a file name, returns nil."
 			     (setq smart-outline-cut nil))))
 	  '(outline-mode-hook outline-minor-mode-hook)))
 
+(defun smart-outline-level ()
+  "Return current outline level if point is on a line that begins with `outline-regexp', else 0."
+  (save-excursion
+    (beginning-of-line)
+    (if (looking-at outline-regexp)
+	(funcall outline-level)
+      0)))
+
 (defun smart-outline ()
   "Collapses, expands, and moves outline entries.
 Invoked via a key press when in outline-mode.  It assumes that
@@ -1048,9 +1345,10 @@ If key is pressed:
  (2) at the end of buffer, show all buffer text 
  (3) at the beginning of a heading line, cut the headings subtree from the
      buffer;
- (4) on a header line but not at the beginning or end, if headings subtree is
+ (4) on a heading line but not at the beginning or end, if headings subtree is
      hidden then show it, otherwise hide it;
- (5) anywhere else, scroll up a windowful."
+ (5) anywhere else, invoke `action-key-eol-function', typically to scroll up
+     a windowful."
 
   (interactive)
   (cond (smart-outline-cut
@@ -1063,12 +1361,11 @@ If key is pressed:
 	  (or (outline-get-next-sibling)
 	      ;; Skip past start of current entry
 	      (progn (re-search-forward outline-regexp nil t)
-		     (smart-outline-to-entry-end t (outline-level))))))
+		     (smart-outline-to-entry-end t (funcall outline-level))))))
 
-	((or (eolp) (zerop (save-excursion (beginning-of-line)
-					   (outline-level))))
-	 (smart-scroll-up))
-	;; On an outline header line but not at the start/end of line.
+	((or (eolp) (zerop (smart-outline-level)))
+	 (funcall action-key-eol-function))
+	;; On an outline heading line but not at the start/end of line.
 	((smart-outline-subtree-hidden-p)
 	 (outline-show-subtree))
 	(t (outline-hide-subtree))))
@@ -1087,9 +1384,10 @@ If assist-key is pressed:
  (2) at the end of buffer, hide all bodies in buffer;
  (3) at the beginning of a heading line, cut the current heading (sans
      subtree) from the buffer;
- (4) on a header line but not at the beginning or end, if heading body is
+ (4) on a heading line but not at the beginning or end, if heading body is
      hidden then show it, otherwise hide it;
- (5) anywhere else, scroll down a windowful."
+ (5) anywhere else, invoke `assist-key-eol-function', typically to scroll down
+     a windowful."
 
   (interactive)
   (cond (smart-outline-cut (yank))
@@ -1100,50 +1398,70 @@ If assist-key is pressed:
 		      ;; Skip past start of current entry
 		      (progn (re-search-forward outline-regexp nil t)
 			     (smart-outline-to-entry-end
-			      nil (outline-level)))))
-	((or (eolp) (zerop (save-excursion (beginning-of-line)
-					   (outline-level))))
-	 (smart-scroll-down))
-	;; On an outline header line but not at the start/end of line.
+			      nil (funcall outline-level)))))
+	((or (eolp) (zerop (smart-outline-level)))
+	 (funcall assist-key-eol-function))
+	;; On an outline heading line but not at the start/end of line.
 	((smart-outline-subtree-hidden-p)
 	 (outline-show-entry))
 	(t (outline-hide-entry))))
 
-(defun smart-outline-to-entry-end
-  (&optional include-sub-entries curr-entry-level)
+(defun smart-outline-to-entry-end (&optional include-sub-entries curr-entry-level)
   "Goes to end of whole entry if optional INCLUDE-SUB-ENTRIES is non-nil.
 CURR-ENTRY-LEVEL is an integer representing the length of the current level
 string which matched to `outline-regexp'.  If INCLUDE-SUB-ENTRIES is nil,
 CURR-ENTRY-LEVEL is not needed."
   (let (next-entry-exists)
-    (while (and (setq next-entry-exists
-		      (re-search-forward outline-regexp nil t))
+    (while (and (setq next-entry-exists (re-search-forward outline-regexp nil t))
 		include-sub-entries
 		(save-excursion
 		  (beginning-of-line)
-		  (> (outline-level)
-		     curr-entry-level))))
+		  (> (funcall outline-level) curr-entry-level))))
     (if next-entry-exists
 	(progn (beginning-of-line) (point))
       (goto-char (point-max)))))
 
 (defun smart-outline-subtree-hidden-p ()
   "Returns t if at least initial subtree of heading is hidden, else nil."
-  (outline-invisible-in-p (point) (or (save-excursion (re-search-forward "[\n\r]" nil t)) (point))))
+  (and (outline-on-heading-p t)
+       (outline-invisible-in-p
+	(point) (or (save-excursion (re-search-forward "[\n\r]" nil t)) (point)))))
+
+(defun smart-outline-char-invisible-p (&optional pos)
+  "Return t if the character after point is invisible/hidden, else nil."
+  (or pos (setq pos (point)))
+  (when (or
+	 ;; New-style Emacs outlines with invisible properties to hide lines
+	 (outline-invisible-p pos)
+	 (delq nil (mapcar (lambda (o) (overlay-get o 'invisible))
+			   (overlays-at (or pos (point)))))
+	 ;; Old-style Emacs outlines using \r (^M) characters to hide lines
+	 (and selective-display (eq (following-char) ?\r)))
+    t))
+
+(defun smart-eolp ()
+  "Return t if point is at the end of a visible line but not the end of the buffer."
+  ;; smart-helm handles eol for helm buffers
+  (unless (and (smart-helm-alive-p) (equal (helm-buffer-get) (buffer-name)))
+    (and (not (eobp)) (eolp) (or (not (smart-outline-char-invisible-p))
+				 (not (smart-outline-char-invisible-p (1- (point))))))))
 
 ;;; ************************************************************************
 ;;; smart-push-button functions
 ;;; ************************************************************************
 
 ;; Emacs push button support
-(defun smart-push-button-help (&optional pos)
+(defun smart-push-button-help (&optional pos use-mouse-action)
   "Show help about a push button's action at optional POS or at point in the current buffer."
-  (let ((expr (button-get (button-at (or pos (point))) 'action))
+  (let* ((button (button-at (or pos (point))))
+	 (action (or (and use-mouse-action (button-get button 'mouse-action))
+		     (button-get button 'action)))
 	 ;; Ensure these do not invoke with-output-to-temp-buffer a second time.
 	 (temp-buffer-show-hook)
 	 (temp-buffer-show-function))
-    (if (functionp expr) (describe-function expr)
-      (with-help-window (print (format "Button's action is: '%s'" expr))))))
+    (if (functionp action)
+	(describe-function action)
+      (with-help-window (print (format "Button's action is: '%s'" action))))))
 
 ;;; ************************************************************************
 ;;; smart-tar functions

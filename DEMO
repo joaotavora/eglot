@@ -1,10 +1,26 @@
-* GNU Hyperbole Demonstration and Introduction by Bob Weiner
+* GNU Hyperbole Demonstration by Bob Weiner
+
+    Table of Contents
+    -----------------
+    * Introduction
+    * Smart Keys 
+    * Koutliner
+    * HyControl
+    * HyRolo
+    * History
+    * Implicit Buttons
+    * Explicit Buttons
+    * Smart Mouse Keys
+    * Epilog
+    * References
+
+* Introduction
 
 Welcome to GNU Hyperbole.  Hyperbole will super-charge your GNU Emacs
 experience, allowing you to work faster, utilize fewer key bindings, recall
 more information and link it all together by learning just a few concepts and
-keys.  Invest an hour learning Hyperbole now and save many hours for years to
-come.
+keys.  Invest an hour learning Hyperbole now and speed your daily information
+management for years to come.
 
 If you simply want to know what Hyperbole is, see the file "HY-ABOUT".
 Hyperbole displays that file when you press {C-h h d a}.  Hyperbole assumes
@@ -26,28 +42,37 @@ terms used here are unfamiliar to you.
 
 * Smart Keys 
 
-Hyperbole provides two context-sensitive keys, the Action Key and the
-Assist Key, jointly referred to as Smart Keys that each do dozens of
-things, essentially whatever is most helpful in any given textual
-context where they are pressed.  The Action Key is {M-RET} (ESC RETURN
-if you are unsure) on the keyboard and the shift-middle mouse button
-on a 3-button mouse or the shift-left button on a two button mouse.  The
-Assist Key is {C-u M-RET} and the shift-right mouse button. Memorize
-these keys; you will use them a lot.  To distinguish the mouse buttons
-from the keyboard keys, we will often refer to the Action Mouse Key or
-Assist Mouse Key.
+Hyperbole provides two context-sensitive keys, the Action Key and the Assist
+Key, jointly referred to as Smart Keys that each do dozens of things,
+essentially whatever is most helpful in any given textual context where they
+are pressed.  The Action Key is {M-RET} (ESC RETURN if you are unsure) on the
+keyboard and the shift-middle mouse button on a 3-button mouse or the
+shift-left button on a two button mouse.  The Assist Key is {C-u M-RET} and
+the shift-right mouse button.  Memorize these keys; you will use them a lot.
+To distinguish the mouse buttons from the keyboard keys, we will often refer
+to the Action Mouse Key or Assist Mouse Key.  (It is possible to rebind these
+keys to the unshifted middle and right mouse buttons, if desired.  See the
+Smart Key Bindings section of the Hyperbole Manual, "(hyperbole)Smart Key
+Bindings").
 
-The Action Key selects entities, creates links and activates buttons.
-The Assist Key provides help, such as reporting on a button's
-attributes, or serves a complementary function to whatever the Action
-Key does within a context.  Press the Action Key within this
-<(button)> to see all of the contexts and operations of the Smart
-Keys.  SPACE scrolls forward and backwards DELETE scrolls backward
-within the Smart Key summary; {q} quits and returns here.
+The Action Key selects entities, creates links and activates buttons.  The
+Assist Key provides help, such as reporting on a button's attributes, or
+serves a complementary function to whatever the Action Key does within a
+context.  Press the Action Key within this <(button)> to see all of the
+contexts and operations of the Smart Keys.  SPACE scrolls forward and
+backwards DELETE scrolls backward within the Smart Key summary; {q} quits
+and returns here.
 
 See also the later section, <(Smart Mouse Keys)>.
 
 Now let's look at many of the things you can do with the Smart Keys.
+
+** Table of Contents Browsing
+
+In DEMO, README and TUTORIAL files, Hyperbole recognizes table of contents
+entries and jumps to their associated sections (by default, in another
+window) with a press of the Action Key.  Go back to the table of contents at
+the start of this file and try navigating to different sections.
 
 ** Smart Scrolling
 
@@ -57,8 +82,8 @@ the current line is placed at the top of the window; the Assist Key does the
 reverse when pressed at the end of line; it places the current line at the
 bottom of the window.  This is called proportional scrolling because the
 amount of scrolling is relative to the point's position in the window.  Try
-it with this DEMO buffer to see how you can precisely control what is displayed
-in a window and then come back here.
+it with this DEMO buffer to see how you can precisely control what is
+displayed in a window and then come back here.
 
 Alternatively, if this variable is set to nil (FALSE), the Smart Keys scroll
 forward or backward a windowful when at the end of a line, regardless of
@@ -114,6 +139,7 @@ You can change which browser is used with {C-h h c w}, the Cust/Web-Search
 menu.  Advanced users can change the search engines listed by editing the
 option, <(hyperbole-web-search-alist)>.
 
+
 ** Help Buffers
 
 Since the Smart Keys do so many things, it is helpful to see what they will
@@ -122,6 +148,14 @@ learning Hyperbole.  {C-h A} shows you what the Action Key will do in the
 current context; {C-u C-h A} displays the same kind of help for the Assist
 Key.  Only a capital A will work, so be sure to press shift.  Try these
 help commands.
+
+You can also see what mouse-only events like modeline clicks and drags across
+frames will do.  Depress the Smart Mouse Key you are interested in at
+a location, then while holding it down, depress the other Smart Mouse Key, move
+to any release point and then release both keys.  The help displayed will show
+you exactly what will happen in that context.  Try this for the Action Mouse Key
+by dragging horizontally at least 10 characters in this buffer and depressing
+the Assist Mouse Key before you finish the drag.
 
 Any buffer whose name ends in `Help*' is presumed to be a temporary buffer
 that you want to inspect and then remove from view.  If you press either the
@@ -137,23 +171,20 @@ generated it.
 
 * Koutliner
 
-A unique feature of Hyperbole for those who like to outline thoughts and be
-able to easily identify each outline entry and hyperlink to it is the
-Koutliner.
-
-The Hyperbole Koutliner should work under any modern version of GNU Emacs.
-Your Emacs supports the Koutliner if when you press {C-h h} to display the
-Hyperbole menu, you have a Kotl/ entry in the menu.
+A unique feature of Hyperbole is the Koutliner; it is for outlining thoughts,
+developing requirements or listing tasks and hyperlinking them to other
+documents.
 
 The Hyperbole Koutliner produces structured, autonumbered documents composed
 of hierarchies of cells.  Each cell has two identifiers, a relative
 autonumber indicating its present position within the outline and a permanent
 identifier suitable for use within hyperlink references to the cell.
 
-The Kotl/Example menu entry on {C-h h k e} gives you an editable copy of
-Hyperbole's example Koutliner file.  This explains the Koutliner commands
-and lets you try them out as you learn.  Additional documentation can be
-found in "(hyperbole)Koutliner".  "(hyperbole)Koutliner Keys" summarizes in
+A demonstration of the Koutliner is found on the Hyperbole Kotl/Example menu
+entry.  {C-h h k e}, gives you an editable copy of Hyperbole's example
+Koutliner file.  This explains the Koutliner commands and lets you try them
+out as you learn.  Additional documentation can be found in
+"(hyperbole)Koutliner".  "(hyperbole)Koutliner Keys" summarizes in
 alphabetical order the Koutliner commands which are bound to keys.
 
 
@@ -161,29 +192,198 @@ alphabetical order the Koutliner commands which are bound to keys.
 
 Hyperbole includes the fastest, easiest-to-use Emacs window and frame
 management system available, HyControl, found under the Hyperbole Screen
-menu.  If you use a lot of Emacs windows or frames (typically, window system
-windows) then this tool is for you.  A long video demonstrating most of
-HyControl's features is available at https://youtu.be/M3-aMh1ccJk.
+menu, {C-h h s}.  If you use a lot of Emacs windows or frames (native window
+system windows), then this tool is for you.  A long video demonstrating most
+of HyControl's features is available at https://youtu.be/M3-aMh1ccJk.
 
-HyControl interactively adjusts the layout of your windows and frames
-down to the pixel-level if desired.  You adjust the location, size and
-display elements of your windows and frames until they look as you like
-and then simply quit HyControl and go back to work.  It has smart features to
-avoid covering toolbars anchored at the edges of your screen and allows you
-to quickly set numeric arguments to apply to operations, like resizing a
-frame to a percentage of your screen size.
+HyControl interactively adjusts the layout of your windows and frames down to
+the pixel-level, if desired.  You adjust the location, size and display
+elements of your windows and frames until they look as you like and then
+simply quit HyControl and go back to work.  It has smart features for laying
+out large grids of windows, avoiding having frames cover graphical toolbars
+anchored at the edges of your screen, and allows you to quickly set numeric
+arguments to apply to operations, like resizing a frame to a percentage of
+your screen size.
 
-Hyperbole binds {C-c \} to invoke HyControl window control; otherwise, the
+There are two submodes of HyControl: one for controlling windows and one for
+controlling frames, although a number of commands are available in both modes
+where they are useful.
+
+Hyperbole binds {C-c \} to invoke HyControl windows control; otherwise, the
 Hyperbole minibuffer menu item, Screen/WindowsControl {C-h h s w}, will do
 the same thing.
 
 Once in HyControl, your minibuffer window at the bottom of the selected frame
 will display a summary of keys you may use to adjust your windows until you
-press {q} to quit from HyControl.  The key, {t}, will always switch you
-between controlling frames and windows, the "submodes" of HyControl, with the
-upper left of the minibuffer prompt showing which type of control is active.
-
+press {q} to quit from HyControl.  If you don't see it, press {?}, to turn on
+this help display.  The key, {t}, will always switch you between controlling
+frames and windows, the minor modes of HyControl, with a modeline indicator
+of either "HyFrm" or HyWin" depending on which type of control is active.
 See "(hyperbole)HyControl" for full usage information.
+
+** Frame Commands
+
+Let's try some of the more interesting commands.  You can either type the
+following key sequences (ignoring the braces) for practice or simply press
+the Action Key within them to see what they look like.
+
+   {C-h h s f}  - enter HyControl Frames mode
+
+   {.50 %}      - make frame 50% of screen size
+   { c }        - use this multiple times to move frame around screen edges
+   { a }        - use this multiple times to adjust frame width
+   { A }        - use this multiple times to adjust frame height
+
+The following 4 commands use the prefix argument as a percentage of the
+screen height, except that no argument or an argument of 1 mean 50% since
+the argument is used to adjust one dimension of the frame.
+
+   { i }        - move to top edge, next press cuts height by ARG %
+   { m }        - move to bottom edge, next press cuts height by ARG %
+   { j }        - move to left edge, next press cuts width by ARG %
+   { k }        - move to right edge, next press cuts width by ARG %
+
+   { f }        - clone the selected window to a new frame
+   { F }        - tear off the selected window (if more than one window)
+		  into a new frame
+
+** Windows Grid
+
+The {@} command splits a frame into a grid of up to 9 rows by 9 columns of
+windows, showing a different buffer in each window, if available.  First
+let's expand our frame to full screen with the {.1 %} command and then show
+a 2 x 3 grid.  We can do multiple commands in one key sequence.  Press the
+action key here: {.1 % .23 @}.
+
+You can even write something like this to do the whole thing in one sequence.
+First, let's quit out of HyControl Frames mode with {q}.  Then go back to one
+window with {C-x 1}.  Now we can execute a single sequence from any buffer that
+creates our 2x3 window grid:  {C-h h s f  .1 %  .23 @  q}.  Pretty amazing,
+right?  You can separate each command by any number of spaces or even jam them
+all together: {C-hhsf.1%.23@q}.
+
+A zero argument to the {@} command is special.  It means you want to display
+buffers with a particular major mode first, e.g. c-mode.  You will be
+prompted for the major mode and then the size of the grid.
+
+To try it, activate: {C-hhsf .0 @}.
+
+If you ever need to experiment with different sized window grids, use {M-x
+hycontrol-window-grid-repeatedly RET}.  It will repeatedly prompt you for a
+grid size and then display it.  When you are done, simply press {RET} to
+exit.
+
+Outside of HyControl, you can invoke the grid of windows command with {C-c @}
+in most buffers.
+
+There is lots more to discover in HyControl as you explore.
+
+
+* HyRolo
+
+HyRolo is an advanced hierarchical, record-oriented retrieval system that
+uses text files for storing its records.  Most often this is used for contact
+management but it can quickly be adapted to most any record-oriented lookup
+task requiring fast retrieval.
+
+HyRolo manages and searches rolo files which consist of an optional header
+that starts and ends with a line of equal signs (at least three equal signs
+starting at the beginning of a line), followed by zero or more rolo records.
+You must manually add a header to any rolo file if you want it to have one.
+
+We call rolo records, entries.  Entries begin with a delimiter of one or more
+`*' characters at the beginning of a line.  Entries may be arranged in a
+hierarchy, where child entries start with one more `*' character than do
+their parents.  Top-level entries begin with a single `*'.
+
+Beyond this initial delimiter, entries are completely free-form text.  It is
+best to use a "lastname, firstname" format, however, when adding contact
+entries into a rolo.  Then HyRolo will automatically keep your entries
+alphabetized as you enter them.  Then you can sort the entries if you ever
+need.
+
+HyRolo commands are invoked from the Hyperbole Rolo menu.  See
+"(hyperbole)HyRolo" for a full reference on commands including adding
+entries, regular expression searches and manipulating the HyRolo search
+results buffer.
+
+For demonstration purposes, we discuss only the most common searches and use
+a global key binding for quick access to HyRolo searches of existing entries.
+Below is a sample rolo file (indented 3 spaces) that we will work with in
+this DEMO.  The date at the end of each record is automatically added by
+HyRolo whenever a new record is added.
+
+   ==================================================================
+			  DEMO ROLO
+   ==================================================================
+   *    HiHo Industries
+   **     Strong, Hugo            <hs@hiho.com>  W708-555-9821
+		Manager
+		04/12/2017
+   ***      Smith, John           <js@hiho.com>  W708-555-2001
+		Chief Ether Maintainer
+		05/24/2017
+   *    Work Industries
+   **     Hansen, Dan             <dh@work.com>  W218-555-2311
+		Manager
+		02/18/2017
+   ***      Dunn, John            <md@work.com>  W218-555-3233
+		Media Maker
+		11/2/2017
+
+** String Searches
+
+Any search done on the rolo scans the full text of each entry and ignores the
+case of the text.  During a search, the rolo file header separator lines and
+anything in between are appended to the buffer of matched entries before any
+entries are retrieved from the file.  Whenever an entry is matched, it and
+all of its descendant entries are retrieved.  If your emacs version supports
+textual highlighting, each search match is highlighted for quick, visual
+location.
+
+Let's try the HyRolo.  First load the HyRolo demo commands with an Action Key
+click on "-hyrolo-demo.el".  Now {C-x 4 r} will search the DEMO ROLO file.
+Action Key click on {C-x4r work RET} to search for all entries from Work
+Industries; then type {q} to quit from the HyRolo search results buffer.
+{C-x4r manager RET} finds all managers plus their staff across companies.
+{C-x4r Dunn,\ J RET} finds just that staffer.  Notice that you must quote the
+space with a backslash when including it in a key sequence search string or
+else the space will be removed; when just typing the same string
+interactively, don't add the backslash.
+
+A prefix argument used with any of the find commands listed above limits the
+search to a maximum number of matches given by the argument.  For example
+{C-u 1 C-x4r John RET}, finds only the John Smith entry and ignores John
+Dunn.
+
+** Logical Searches
+
+The same search command can be used to perform logical searches of the HyRolo
+files.  A simple parenthesis delimited prefix format is used with the
+following logical operators.
+
+Operator Name   Number of Arguments    Description
+=====================================================================
+and             two or more            Match entries with all args
+or              two or more            Match entries with any args
+xor             two or more            Match entries with 1 arg only
+not             one                    Match entries without the arg
+=====================================================================
+
+So for example, {C-x4r (or smith dunn) RET} finds both the Smith and Dunn
+entries.  (Note that you do not need to backslash quote spaces within
+parentheses, square brackets, angle brackets or double quotes when used in
+key sequences).  To find any Managers and their staffers at HiHo Industries,
+use: {C-x4r (and manager hiho) RET}.  To find managers anywhere but at HiHo:
+{C-x4r (and manager (not hiho)) RET}.  Finally, this will find all people who
+are not managers at HiHo: {C-x4r (not (and manager hiho)) RET}.
+
+See "(hyperbole)HyRolo Keys" for how to navigate the HyRolo Matches buffer
+when many entries are found or how to edit a matched entry.
+
+We are now finished with the HyRolo section of the demo.  Activate this
+to remove the HyRolo demo code and restore any prior key binding:
+{M-x hyrolo-demo-quit RET}.
 
 
 * History
@@ -201,7 +401,7 @@ command to return to this DEMO later.
 An incredibly powerful feature of Hyperbole is known as implicit buttons,
 i.e. a specific format of text within a buffer that Hyperbole recognizes as a
 button and lets you activate.  Hyperbole recognizes these by context and does
-require much of any specialized markup.
+not require any specialized markup.
 
 Note that you must press a Smart Key on the first line of an implicit button
 to utilize it if it spans multiple lines and always press on a regular
@@ -211,7 +411,7 @@ used to select groups of text.
 Hyperbole has many built-in implicit button types, a number of which you will
 see here, and allows you to create your own.  Once a type is known, you can
 embed an infinite number of buttons of that type within your text simply by
-typing them.  Let's look at some of these buttontypes and how you can use
+typing them.  Let's look at some of these button types and how you can use
 them.
 
 ** Key Sequence Buttons
@@ -219,9 +419,9 @@ them.
 Any Emacs key sequence delimited with curly braces is an implicit button.
 Press the Action Key with {C-u C-p} for example and the point should move
 four lines upward.  An Assist Key press on the key sequence displays the
-documentation for its command binding, i.e. what it does.  If it does not
-represent a bound key sequence, it will not be treated as a key sequence
-button.
+documentation for its command binding, i.e. what it does.  Key sequences
+together with the arguments their commands prompt for also may be given,
+e.g. {M-x apropos RET hyperbole RET}.  Click in the braces to try it out.
 
 Hyperbole minibuffer menu items may also be activated as key sequences.  For
 example, {C-h h d i} displays the online browsable Info version of the
@@ -251,16 +451,17 @@ Any existing absolute or relative pathname (whether doubly quoted or not)
 acts as an implicit button that either displays the referenced path within a
 buffer, passes it to an external viewer program, or runs a function that
 operates upon the path.  These are `pathname' implicit buttons.  For example,
-activate "HY-ABOUT".  HY-ABOUT or `HY-ABOUT' would work as well or
-"~/.emacs".
+activate "HY-ABOUT".  HY-ABOUT or `HY-ABOUT' would work as well.   Or try
+"~/.emacs".  Pathname implicit buttons provide one example of how Hyperbole
+can improve your working environment without requiring any work from you.
 
 *** Paths with Line and Column Numbers
 
 If you want to display a path at a specific line number and optionally column
 number, then add each number preceded by a colon at the end of the path.
 For example, "HY-ABOUT:10" displays HY-ABOUT at line 10, the second
-paragraph, with point at the start of the line.  "HY-ABOUT:18:7" shows the
-first numbered item on line 18 at column 7, where the text starts.
+paragraph, with point at the start of the line.  "HY-ABOUT:17:7" shows the
+first numbered item on line 17 at column 7, where the text starts.
 
 *** HTML Markdown and Emacs Outline Hash Links
 
@@ -303,13 +504,13 @@ to know whether the file is compressed or not or what values are set for
 load-path at your particular location.  Thus, you can provide path links that
 vary from site to site, especially handy if you email Hyperbole buttons to
 your associates.  Shell environment variables also work.  To see your home
-directory, try "${HOME}".  Press the Action Key within "(hyperbole)Link
-Variable Substitution" for a bit more on this topic.
+directory, try "${HOME}".  Press the Action Key within the quoted text of
+"(hyperbole)Link Variable Substitution" for a bit more on this topic.
 
-For the special cases of Emacs Lisp files and Info manual files, you don't
-even need to give the variable of directories to search since Hyperbole knows
-them already.  Thus an Action Key press on "simple.el", "hyperbole.info"
-or even "(hyperbole)" will display these properly as well.
+For the special cases of Emacs Lisp files and Info manual files, you can omit
+the variable of directories to search since Hyperbole knows them already.
+Thus an Action Key press on "simple.el", "hyperbole.info" or even
+"(hyperbole)" will display these properly as well.
 
 Some file types require external programs to view them, such as pdf files.
 The function (hpath:get-external-display-alist) determines the file
@@ -321,11 +522,10 @@ hpath:external-display-alist-macos, hpath:external-display-alist-mswindows,
 and hpath:external-display-alist-x.  Examine and modify these
 values to suit your needs.
 
-Under the X WINDOW SYSTEM, if you have the `xv' program, all of the
-following file formats may be displayed as images: gif, tiff, xbm, pm, pbm,
+Under the X Window System, if you have the `xv' program, all of the following
+file formats may be displayed externally as images: gif, tiff, xbm, pm, pbm,
 and jpeg.  Under X or Mac OS, try a press of the Action Key on
-"man/hyperbole.pdf" to browse the printable version of the Hyperbole
-Manual.
+"man/hyperbole.pdf" to browse the printable version of the Hyperbole Manual.
 
 *** Path Prefixes
 
@@ -336,8 +536,8 @@ non-windowed shell program.  For example, try "!/bin/date" on UNIX.  This
 will run the program in a subshell within Emacs.  An ampersand prefix means
 run the full pathname as a windowed program, outside of Emacs.  Under the X
 window system, try "&/usr/X11/bin/xeyes".  Finally, a hyphen indicates that
-the filename should be executed as an Emacs Lisp library,
-e.g. "-hibtypes.elc", rather than displayed.
+the filename should be executed as an Emacs Lisp library, e.g. "-subr.elc",
+rather than displayed.
 
 *** Info Paths
 
@@ -349,27 +549,23 @@ the filename.
 
 Refname can be an Info node name or any Info index item (an item listed in
 any of a manual's indices).  Index items let you jump to a specific,
-referenced point within an Info node.  As an example, suppose you want
-quick access to a summary of Hyperbole's key bindings.  Store
-"(hyperbole)key binding list" in your personal file of buttons (accessed with
-{C-h h b p}) and it will always be there.  Press the Action Key on it and
-try it.  Press the Action Key on the key binding of your personal button
-file and then store the implicit link there if you like.
-
-If you want to learn a rapid way to create explicit buttons, see "(hyperbole)By
-Dragging".
+referenced point within an Info node.  As an example, suppose you want quick
+access to a summary of Hyperbole's key bindings.  Store "(hyperbole)key
+binding list" in your personal file of buttons (accessed with {C-h h b p})
+and you will always have quick access to a list of Hyperbole's global key
+bindings.  Press the Action Key on the Info reference and try it.  Press the
+Action Key on the key binding of your personal button file and then store the
+implicit link there if you like.
 
 Since Emacs and most GNU programs include Info manuals, you now a simple way to
-link to and jump to any marked item within any manual.  Pathname implicit buttons
-provide one example of how Hyperbole can improve your working environment without
-requiring any work from you.
+link to and jump to any named item within a manual.
 
 *** Remote Paths
 
 If you use the standard Emacs library "tramp.el" for working with remote
 files and directories, then remote pathnames of the form:
 
-	  /user@host.domain:/path
+	/protocol:user@host.domain:/path
 
 will be recognized by Hyperbole.
 
@@ -377,17 +573,16 @@ Once you have Tramp configured for loading and are on the Internet, you can
 click on any of the following to jump to the ftp site of Hyperbole tarball
 distributions:
 
-        "/anonymous@ftp.gnu.org:/pub/gnu/hyperbole/"
-	 ftp.gnu.org:/pub/gnu/hyperbole/
+        /ftp:anonymous@ftp.gnu.org:/pub/gnu/hyperbole/
 
-You can see that for Tramp pathnames, Hyperbole recognizes them with or
-without the double quote delimiters.
+For Tramp pathnames, Hyperbole recognizes them with or without double quote
+delimiters.
 
 If you enable the Hyperbole option to use URLs when finding files with
 the {C-x C-f} (find-file) command via the {C-h h c f} key sequence, then
 you can also use paths of the form:
 
-	 ftp://ftp.gnu.org/pub/
+	ftp://ftp.gnu.org/pub/
 
 ** Internet Request For Comments (RFC) Document Browsing
 
@@ -443,23 +638,68 @@ includes your system information.
 
 ** Social Media Hashtags and Usernames
 
-An Action Key press a social media hashtag or username reference at point
+An Action Key press on a social media hashtag or username reference at point
 displays the web page associated with the reference at the associated
 service.  References are of the form:
-[facebook|instagram|twitter]?[#@]<hashtag-or-username> or
-[fb|in|tw]?[#@]<hashtag-or-username>.  If no service is given, it defaults to
-the value of @code{hibtypes-social-default-service} which is initially
-"twitter".
 
-So all of the following make the same hashtag reference: #gnu twitter#gnu
-tw#gnu and display the page for tweets with that hashtag.  Similarly,
-in@lostart or instagram@lostart would display the page for the user lostart
-at instagram.  Try pressing the Action Key on these if you like.
+             [facebook|instagram|twitter][#@]<hashtag-or-username>
+          or
+             [fb|in|tw][#@]<hashtag-or-username>.
+
+If the service is omitted and there is no other usage of a hash reference
+without a prefix in the buffer, then the service defaults to the value of
+`hibtypes-social-default-service', which is initially "twitter".
+
+For example, these make the same hashtag reference: twitter#gnu or tw#gnu
+and display the page for tweets with that hashtag.  Similarly, in@lostart or
+instagram@lostart would display the page for the user lostart at instagram.
+Try pressing the Action Key on these if you like.
 
 The file "hib-social.el" has more details on this.
 
-** Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer
-   Lines
+** Github (Remote) References
+
+For software developers who use Github for publishing and version control,
+Github links are similar to social media links but reference specific Github
+web pages.
+
+Press the Action Key on github@rswgnu to go to RSW's gihub home page.
+gh@rswgnu works too. 
+
+References to project home pages look like this (the / is required):
+
+  github#/hyperbole           (uses user default setting)
+  github#/rswgnu/hyperbole
+
+References to specific commits use the # hash symbol and short versions
+of the git commit hash code:
+
+  gh#rswgnu/hyperbole/5ae3550 (if include user, must include project)
+  github#hyperbole/5ae3550    (project can be given with user default)
+  gh#5ae3550                  (user and project defaults are used)
+
+An Action Key press on the first commit reference above works because
+user, project and commit hash code are all included.  The second and
+third versions require the setup of default values, as explained in
+the commentary near the top of "hib-social.el".
+
+** Git (Local) References
+
+Similarly, again for software developers, git references work on local
+git repositories.  If you have a clone of the Hyperbole git repository
+on your local system, then you can activate all of the following buttons.
+
+  git#/hyperbole            (displays the top directory of the hyperbole repository)
+  git#/hyperbole/55a1f0     (displays hyperbole git commit diff)
+  git#=hactypes.el          (displays a git-versioned file regardless of directory)
+  git#=master:kotl/kview.el (displays file in subdirectory from master branch)
+  gt#55a1f0                 (when within a git repo, displays its commit diff)
+
+The first four examples work anywhere regardless of the buffer since Hyperbole
+locates all git repositories for you by repository/project name.  If you set a
+default project, then the last example will work anywhere as well.
+
+** Grep, Occurrence, Debugger and Compiler Error Buttons, and Cscope Analyzer Lines
 
 The output of `grep -n', the UNIX line pattern matcher, can be activated as
 buttons that jump to each matched line within its source file; use {M-x grep
@@ -471,7 +711,7 @@ along with GDB breakpoint listing lines also link to source lines.
 
 {C-h h f o} or {M-x occur RET} (find matches in a single buffer) and {C-h h f
 m} or {M-x moccur RET} (find matches across multiple buffers and files) also
-produce implicit button output that displays associated source lines.
+produce implicit button output that display associated source lines.
 
 If you have the Cscope C/C++ code analyzer from the AT&T Toolchest and have
 loaded the cscope.el library add-on for GNU Emacs, then the output lines
@@ -480,14 +720,15 @@ source lines.  Cscope goes beyond the basic Emacs tags facility to allow you
 to see the callers of a function and the functions called by a specific
 routine.
 
-Many of these `find a line' features exist in the Hyperbole Find/ menu.  Give
-it a try, e.g. to filter a file to just lines that don't match a pattern.
+Many of these find-a-line features exist in the Hyperbole Find/ menu,
+{C-h h f}.  Give it a try for fast access to complex file line filters,
+e.g. filter a file to just lines that don't match a pattern (RemoveLines).
 
 ** Annotated Bibliography Buttons
 
-Here's a use of an annotated bibliography reference implicit button which
-allows you to see a bibliography entry such as [FSF 16] when you activate the
-button between brackets.
+Annotated Bibliography references such as [FSF 16] may be embedded in any file
+and activated with the Action Key to find the reference at the end of the file.
+Try that one by pressing between the square brackets.
 
 ** Completion Selection
 
@@ -500,8 +741,8 @@ displayed.  Test this technique with a {C-x C-f} (find-file) and then a {?}.
 
 ** Hyperbole Source Buttons
 
-If you ask for help with the Assist Key or {C-u C-h A} from within the [FSF
-16] button, the first line of the help buffer will look like this:
+If you ask for help with the Assist Key or {C-u C-h A} from within the
+[FSF 16] button, the first line of the help buffer will look like this:
 
 @loc> "DEMO"
 
@@ -515,8 +756,8 @@ If you click the Action Key on the buffer name, the buffer will be displayed
 just as a file buffer would.  This type of implicit button is called a
 `hyp-source' button.
 
-You can also activate any explicit buttons shown in help buffers thanks to
-hyp-source buttons.
+You can also activate any explicit buttons (see "#Explicit Buttons") shown in
+help buffers thanks to hyp-source buttons.
 
 ** UNIX Man Apropos Buttons
 
@@ -720,9 +961,10 @@ USENET news messages has not yet been updated for use with Emacs 24 and 25,
 so these features are disabled by default.  If you want to try them knowing
 this, {C-h h c m} will toggle this feature on and off.
 
+
 * Smart Mouse Keys
 
-If you use Emacs with mouse support under the OS X window system, the X
+If you use Emacs with mouse support under the macOS window system, the X
 Window System or MS Windows, Hyperbole automatically configures your mouse
 keys for use as Smart Keys and provides additional display-oriented
 operations as demonstrated here.
@@ -745,16 +987,17 @@ For example:
 
 ** Thing Selection
 
-Hyperbole has some radically cool ways to select regions of structured text
-or source code and to copy or move them between buffers with a single mouse
-drag or two key presses.  A great deal of smarts are built-in so that it
-does the right thing most of the time.
+Hyperbole has some radically cool ways to select, copy and move
+regions of structured text or source code that we call `things'.  You
+can copy or move things between buffers with a single mouse drag or
+two key presses.  A great deal of smarts are built-in so that it does
+the right thing most of the time.
 
-We use the term things to refer to structured entities that Hyperbole can
-select.  These include: delimited pairs of (), {}, <>, [] and quote marks,
-source code functions, source code comments and matching tag pairs in HTML
-and SGML modes.  Delimited things are those things that contain a
-selectable delimiter such as an opening parenthesis.
+Things are structured entities that Hyperbole can select and
+manipulate.  These include: delimited pairs of (), {}, <>, [] and
+quote marks, source code functions, source code comments and matching
+tag pairs in HTML and SGML modes.  Delimited things are those things
+that contain a selectable delimiter such as an opening parenthesis.
 
 The best way to mark a delimited thing is to move your cursor to the
 starting delimiter of the thing and then press the Action Key.  Typically,
@@ -770,7 +1013,7 @@ somewhere outside of the thing, either within the same window or within
 another window.  The thing will be copied to the point of release.  If you
 want to move a thing, simply perform the same drag but with the Assist
 Mouse Key.  Ensure that you do not move any explicit buttons from one
-buffer to another as that does not presently work.
+buffer to another as that does not work.
 
 Try out some of these operations in HTML or source code files to see
 how they can speed your editing.
@@ -803,7 +1046,8 @@ is important to have context-sensitive help available.  The earlier section
 on Help Buffers explained how to display such help from the keyboard.  The
 same help can be displayed using the mouse by depressing the Smart Key for
 which you want help, performing any action necessary to register a context,
-such as a drag motion, and then pressing the other Smart Key.
+such as a drag motion, and then pressing the other Smart Key and releasing
+both.
 
 Here is an example.  Depress the Action Key somewhere within this paragraph
 and while holding it down, depress the Assist Key.  Then release the keys in
@@ -818,7 +1062,7 @@ without having to trigger any of them.
 ** Creating and Deleting Windows
 
 Horizontal and vertical drags of the Smart Mouse Keys are used to split and
-to delete Emacs windows.
+delete Emacs windows.
 
 An Action Mouse Key horizontal drag of five or more characters in either
 direction within a single window creates a new window by splitting the
@@ -829,13 +1073,13 @@ within a single window, deletes that window.
 
 Let's try these.  You need only move your mouse pointer a few characters to
 register a drag.  First, split this window with an Action Key horizontal
-drag.  Then click the Action Key in the first few characters of the modeline
-of one of the windows to change the buffer that it displays so you can tell
-the windows apart.  Then delete either one of the windows with a horizontal
-drag of the Assist Key within the window.  If you split windows many times
-and then delete a number of the windows, you'll be left with windows of
-differing heights.  Use {C-x +} to re-balance the heights of the remaining
-windows, so they are fairly even.
+drag.  Then click the Assist Key on the buffer name in the modeline of one of
+the windows to change the buffer that it displays, so you can tell the windows
+apart.  Then delete either one of the windows with a horizontal drag of the
+Assist Key within the window.  If you split windows many times and then
+delete a number of the windows, you'll be left with windows of differing
+heights.  Use {C-x +} to re-balance the sizes of the remaining windows, so
+they are fairly even.
 
 Now try a side-by-side window split.  Drag vertically with the Action Key by
 three or more lines to split the window.  Again, change the buffer of one of
@@ -849,9 +1093,9 @@ You can easily resize Emacs windows by dragging their window separators
 Smart Key on a modeline or near a window side, hold it down while you drag
 to a new location and then release.  The window separator will then jump to
 the location of release.  Basically, just drag the window separator to where
-you want it.  Nowadays a better version of stacked window resizing exists on
-the left mouse key.  A drag from a blank area of a modeline with this key
-shows visible feedback as the window is resized.
+you want it.  Nowadays a better version of Emacs window resizing exists on
+the left mouse key.  A drag with this key from a blank area of a modeline or
+a window side divider shows visible feedback as the window is resized.
 
 Did you follow all that?  Let's try it to be sure.  First, you need at least
 two windows, so create a new one with the drag techniques you just learned.
@@ -863,19 +1107,58 @@ window.
 Try to drag the bottom modeline.  You see that you can't; you would have to
 resize the frame to move the bottom up.
 
-** Swapping Buffers
+** Dragging Buffers, Windows and Items
+
+*** Swapping Buffers
 
 Swapping buffer locations is quick and easy with Hyperbole.  Simply drag from
-one window to another with the Assist Key (remember the Action Key creates
-buttons when you use the same drag).
+one window to another with the Assist Key (not the Action Key).
 
 Split the current window into two, one above the other.  Drag the upper
-modeline so that one window is clearly bigger than the other.
+modeline so that one window is clearly bigger than the other.  Now switch to
+another buffer in one of the windows.  Then depress your Assist (not Action)
+Mouse Key within one window, drag to the other window and release the key.
+Boom, the buffers are swapped.  This works across frames as well.
 
-Then use this Hyperbole minibuffer menu key sequence to swap the buffers and
-quit from the menu: {C-h h s w ~ q}.
+If you have just two windows in an Emacs frame, you can swap their buffers
+from the keyboard.  Use this Hyperbole minibuffer menu key sequence to swap
+the buffers and quit from the Hyperbole minibuffer menu: {C-h h s w ~ q}.
 
-** Saving and Restoring Window Configurations
+*** Displaying Buffers
+
+What if you want to display the same buffer in another window and not swap
+buffers?  Depress the Action Key in the open area of the modeline of the source
+window and drag to the text area of the destination window.  Voila, the buffer
+appears in the new location as well as the old one.
+
+If you want a new window where you release (so the original destination window's
+buffer stays onscreen), just drag to a window's modeline; that window will be
+split before the buffer is displayed.
+
+*** Cloning Windows
+
+To clone a window with its buffer to a new frame, simply drag the Action Mouse
+Key from the window to outside of Emacs and release the key.  A new frame will
+be created, selected and sized according to the original window.  Do the same
+thing with the Assist Mouse Key and the original window will be deleted as well,
+unless it is the only window in that frame.  Create a few windows and try these
+actions.
+
+*** Displaying File and Buffer Items
+
+You can do the same thing with items in dired, buffer menu and ibuffer menus
+rather than buffers themselves.  Drag with the Action Mouse Key and the selected
+item will be displayed in any Emacs window in which you release.  Drag outside
+Emacs and it will be displayed in a new frame.
+
+So now you can rapidly put a bunch of buffers and files on your screen wherever
+you like.  Typically, a brief visual pulse is shown first at the source item and
+then in the whole destination window, to help you see that the transfer has been
+made.  An Assist Key Drag will move the the item list buffer to the destination
+(swapping buffers), just as it does with other buffers.  Practice these drags as
+they will prove very beneficial across time.
+
+** Window Configuration Drags
 
 A window configuration consists of the set of windows within a single Emacs
 frame.  This includes their locations, buffers, and scrolled positions of
@@ -899,11 +1182,11 @@ restoring them.
 ** Modeline Mouse Clicks
 
 Smart Mouse Key clicks on window modelines are treated specially by
-Hyperbole.  They are broken up into three regions, each with their own Smart
-Mouse Key operations.  The regions are: the left edge, the right edge, and
-the blank middle portion (the non-edge part of the modeline).  The edge
-regions are the left or rightmost three characters of the modeline, by
-default.
+Hyperbole.  They are broken up into separate regions, each with their own
+Smart Mouse Key operations.  The regions are: the left edge, the buffer ID,
+the blank middle portion (the non-edge part of the modeline), and the right
+edge.  The edge regions are the left first character and the rightmost three
+characters of the modeline, by default.
 
 *** Switching to Another Buffer
 
@@ -911,7 +1194,18 @@ An Action Key click in the left edge of a modeline buries the current buffer,
 i.e. puts it on the bottom of the buffer list and removes it from view, if it
 is not the only available buffer.  An Assist Key click in the left edge of a
 modeline unburies the bottom buffer.  Repeated clicks of either key allow you
-to cycle through buffers to get to the one you want.  Try this out.
+to cycle through buffers to get to the one you want.  Try this out.  A
+similar thing can be accomplished by using the left mouse key and the Assist
+Mouse Key on the modeline buffer name if you need a wider space as a target.
+
+*** Running Dired on the Current Directory
+
+An Action Key click on the modeline buffer name runs dired on the current
+directory.  An Action key click on an item in the dired buffer, displays the
+item.  An Action Key click on part of the directory name in the first line of
+the dired buffer runs dired on the ancestor directory given by the text to
+the left of the click location.  A click at the end of the first line quits
+the dired session.
 
 *** Displaying Documentation
 
@@ -932,27 +1226,36 @@ you must click on the modeline of the window displaying the summary.
 
 *** Buffer Menu and Screen Control
 
-An Action Key click in the center portion of a modeline displays a buffer
-menu, a summary of available buffers.  An Action Key click on any buffer menu
-line then displays that buffer.
+An Action Key click in the blank center portion of a modeline displays
+a buffer menu, a summary of available buffers.  An Action Key click on
+any buffer menu line then displays that buffer and closes the buffer
+menu.
 
-An Assist Key click in the center portion of a modeline pops up a menu of
-convenient screen commands that lets you select buffers grouped by major
-mode, use HyControl, or jump to specific windows, window configurations or
-frames.
+If you want to display several buffers, first create some new windows, then
+display the buffer menu and drag from each buffer name to the window in which
+you want it displayed.  This works across frames and also works in ibuffer
+and dired modes too!  Try it now.
+
+Alternatively, you may display the buffer menu, use its {m} command to mark
+buffers and then use the {@} command to display the marked buffers in a grid
+of popup windows whose number of rows and columns you specify at the prompt
+or via a prefix argument.  This also works in ibuffer-menu and dired modes.
+
+An Assist Key click in the blank center portion of a modeline pops up
+a menu of convenient screen commands that lets you select buffers
+grouped by major mode, use HyControl, or jump to specific windows,
+window configurations or frames.
 
 See "(hyperbole)action-key-modeline-function" for how to adjust this
 behavior.
 
 * Epilog
 
-We hope you have enjoyed this introduction to Hyperbole and see how it can
-help you as an every-ready sidekick as you work with information every day.
-Explore the Hyperbole menus to learn more interactively.  For reference, the
-Hyperbole Manual has more detail about the many things that Hyperbole does
-when you are ready to dive deeper.  Read it online with the GNU Info reader
-at "(hyperbole)Top".
-
+We hope you have enjoyed this introduction to Hyperbole. It can be your
+ever-ready sidekick in your daily knowledge work.  Explore the Hyperbole
+menus to learn more interactively.  For reference, the Hyperbole Manual, has
+extensive detail about the many things that Hyperbole does when you are ready
+to dive deeper.  Read it online with the GNU Info reader at "(hyperbole)Top".
 
 * References
 

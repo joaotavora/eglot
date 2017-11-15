@@ -1,12 +1,17 @@
-# GNU Hyperbole - Version 6.0.2
+# GNU Hyperbole 7.0.0 - The Everyday Hypertextual Information Manager
 
 <!-- START doctoc generated TOC -->
 **Table of Contents**
 
 - [Summary](#summary)
+- [Mailing Lists](#mailing-lists)
+- [Ftp and Git Repository Downloads](#ftp-and-git)
 - [Installation](#installation)
 - [Invocation](#invocation)
-- [Details](#details)
+- [Hyperbole Components](#hyperbole-components)
+- [Hyperbole Buttons](#hyperbole-buttons)
+- [Important Features](#important-features)
+- [Hyperbole Uses](#hyperbole-uses)
 - [Files](#files)
 - [Programmer Quick Reference](#programmer-quick-reference)
 - [User Quotes](#user-quotes)
@@ -14,19 +19,55 @@
 
 <!-- END doctoc generated TOC -->
 
+![Hyperbole screenshot of the Koutliner, DEMO file and HyRolo](man/im/hyperbole-cv.png)
+
 ## Summary
 
-`GNU Hyperbole` (pronounced Ga-new Hi-per-bo-lee), or just
-`Hyperbole`, is an efficient and programmable hypertextual information
-management system implemented as a GNU Emacs package.  It works well
-on GNU Emacs 24.4 or above.  It is designed and written by Bob Weiner.
-Its main distribution site is: <https://www.gnu.org/software/hyperbole/>.
+`GNU Hyperbole` (pronounced Ga-new Hi-per-bo-lee), or just `Hyperbole`,
+is an easy-to-use, yet powerful and programmable hypertextual information
+management system implemented as a GNU Emacs package.  It offers rapid views
+and interlinking of all kinds of textual information, utilizing Emacs for
+editing.  It can dramatically increase your productivity and greatly reduce
+the number of keyboard/mouse keys you'll need to work efficiently.
 
-It includes easy-to-use, powerful hypertextual button types without
-the need to learn a markup language; a hierarchical, record-based
-contact manager; a rapid window and frame control system; and a
-powerful multi-level auto-numbered outliner.  All features are aimed
-at making textual information management and display fast and easy.
+Hyperbole lets you:
+
+   1. Quickly create hyperlink buttons either from the keyboard or by dragging
+      between a source and destination window with a mouse button depressed.
+      Later, activate buttons by pressing/clicking on them or by giving the
+      name of the button.
+
+   2. Activate many kinds of `implicit buttons` recognized by context
+      within text buffers, e.g. URLs, grep output lines, and git commits.
+      A single key or mouse button automatically does the right thing in
+      dozens of contexts; just press and go.
+
+   3. Build outlines with multi-level numbered outline nodes, e.g. 1.4.8.6,
+      that all renumber automatically as any node or tree is moved in the
+      outline.  Each node also has a permanent hyperlink anchor that you can
+      reference from any other node;
+
+   4. Manage all your contacts quickly with hierarchical categories and
+	  embed hyperlinks within each entry.  Or create an archive of documents
+	  with hierarchical entries and use the same search mechanism to quickly
+      find any matching entry;
+
+   5. Use single keys to easily manage your Emacs windows or frames and
+      quickly retrieve saved window and frame configurations;
+
+   6. Search for things in your current buffers, in a directory tree or
+	  across major web search engines with the touch of a few keys.
+
+The common thread in all these features is making retrieval,
+management and display of information fast and easy.  That is
+Hyperbole's purpose.  It may be broad but it works amazingly well.  If
+it is textual information, Hyperbole can work with it.  In contrast to
+Org mode, Hyperbole works across all Emacs modes and speeds your work
+by turning all kinds of references into clickable hyperlinks and
+allowing you to create new hyperlinks by dragging between two windows.
+The [Hyperbole wiki page](https://www.emacswiki.org/emacs/Hyperbole)
+explains the many ways it differs from and is complementary to Org
+mode.
 
 Hyperbole allows hypertext buttons to be embedded within unstructured
 and structured files, mail messages and news articles.  It offers
@@ -34,23 +75,59 @@ intuitive keyboard and mouse-based control of information display
 within multiple windows.  It also provides point-and-click access to
 World-Wide Web URLs, Info manuals, ftp archives, etc.
 
-The [Hyperbole wiki page](https://www.emacswiki.org/emacs/Hyperbole)
-explains the many ways it differs from and is complementary to Org mode.
+Hyperbole includes easy-to-use, powerful hypertextual button types
+without the need to learn a markup language.  Hyperbole's button types
+are written in Lisp and can be wholly independent of the web, i.e. web
+links are one type of Hyperbole link, not fundamental to its link
+architecture.  However, Hyperbole is a great assistant when editing
+HTML or Javascript or when browsing web pages and links.
 
-![Hyperbole screenshot of the Koutliner, DEMO file and HyRolo](man/im/hyperbole-cv.png)
+Hyperbole is something to be experienced and interacted with, not
+understood from reading alone.  If you like an Emacs package to do
+only one thing than Hyperbole is not for you, but if you would
+rather learn fewer packages and get more work done faster, then
+Hyperbole is for you.
 
-## Browsing the Source
+Hyperbole works well on GNU Emacs 24.4 or above.  It is designed and
+written by Bob Weiner.  It is maintained by him and Mats Lidell.  Its
+main distribution site is: <https://www.gnu.org/software/hyperbole/>.
+If any term in here is new or unfamiliar to you, you can look it up in the
+[Hyperbole Glossary](man/hyperbole.html#Glossary).
 
-To explore the Hyperbole source code rather than installing it for use,
-download a tar.gz source archive from either:
+Hyperbole is available for [download and installation](#installation)
+through the GNU Emacs package manager.
 
-  - <ftp://ftp.gnu.org/gnu/hyperbole/>
+## Mailing Lists
 
-or
+   - **hyperbole-users@gnu.org** - User list for GNU Hyperbole
 
-  - <http://ftpmirror.gnu.org/hyperbole/>
+       [info and subscription]: http://lists.gnu.org/mailman/listinfo/hyperbole-users
+       [web archive]: http://lists.gnu.org/pipermail/hyperbole-users/
+
+   - **bug-hyperbole@gnu.org** - List for bug reporting
+
+       [info and subscription]: http://lists.gnu.org/mailman/listinfo/bug-hyperbole
+       [web archive]: http://lists.gnu.org/archive/html/bug-hyperbole/
+
+## Ftp and Git Repository Downloads
+
+To inspect the Hyperbole source code online rather than installing it for
+use (which will also give you the source code), open a web page to:
+
+   - https://git.savannah.gnu.org/cgit/hyperbole.git/tree/
+
+Alternatively, you may download a tar.gz source archive from either:
+
+   - ftp://ftp.gnu.org/gnu/hyperbole/
+
+   - http://ftpmirror.gnu.org/hyperbole/
 
 which will find the closest mirror of the GNU ftp site and show it to you.
+
+If you want to follow along with Hyperbole development and maintain a
+copy/clone of the current version-controlled git tree, use a
+[command listed here](https://savannah.gnu.org/git/?group=hyperbole)
+to clone the Hyperbole project tree.
 
 ## Installation
 
@@ -113,7 +190,7 @@ button capabilities.
 
 ![Hyperbole screenshot of the DEMO](man/im/demo.png)
 
-{C-h h k e} offers a interactive demonstration of the Koutliner,
+{C-h h k e} offers an interactive demonstration of the Koutliner,
 Hyperbole's multi-level autonumbered hypertextual outliner.
 
 ![Hyperbole screenshot of the Koutliner](man/im/koutliner.png)
@@ -123,7 +200,7 @@ system, use {C-h h s w} for window control or {C-h h s f} for frame
 control.  {t} switches between window and frame control once in one of
 them.  Hyperbole also binds {C-c \} for quick access to HyControl's
 window control menu if it was not already bound prior to Hyperbole's
-initialization.  A long video demonstrating most of HyControl's
+initialization.  A long video demonstrating many of HyControl's
 features is available at https://youtu.be/M3-aMh1ccJk.
 
 The above are the best interactive ways to learn about Hyperbole.
@@ -144,7 +221,7 @@ wherever the Hyperbole package directory is on your system; often this is:
 "~/.emacs.d/elpa/hyperbole-${hyperb:version}/".
 
 
-## Details
+## Hyperbole Components
 
 Hyperbole consists of five parts:
 
@@ -156,6 +233,14 @@ Hyperbole consists of five parts:
        e.g. bug#24568 displays the bug status information for that bug
        number.
        
+       These actions may be links or arbitrary Lisp expressions.  So
+       for example, you could create your own button type of
+       Wikipedia searches that jumped to the named Wikipedia page
+       whenever point was within text of the form [wp<search term>].
+       You define the pattern so {<search term>} might do the same
+       thing if you preferred.  And this works within any Emacs
+       buffer you want it to, regardless of major or minor mode.
+
        Buttons are accessed by clicking on them or referenced by name
        (global buttons), so they can be activated regardless of what is
        on screen.  Users can make simple changes to button types and
@@ -167,7 +252,7 @@ Hyperbole consists of five parts:
        context-sensitive operations across emacs usage, including
        activating and showing help for Hyperbole buttons.  In many
        popular Emacs modes, they allow you to perform common, sometimes
-       complex operations without having to a different key for each
+       complex operations without having to use a different key for each
        operation.  Just press a Smart Key and the right thing happens;
 
    2.  **Contact and Text Finder**: an interactive textual information
@@ -180,12 +265,20 @@ Hyperbole consists of five parts:
 
 	   ![HyRolo Menubar Menu](man/im/menu-rolo.png)
 
-   3.  **Screen Control**: the fastest, easiest-to-use window and frame
-       control available for GNU Emacs.  With just a few keystrokes,
-       you can shift from increasing a window's height by 5 lines
-       to moving a frame by 220 pixels or immediately moving it to a
-       screen corner.  Text in each window or frame may be enlarged
-       or shrunk (zoomed) for easy viewing, plus many other features;
+   3.  **Screen Control**: Hyperbole includes HyControl, the fastest,
+       easiest-to-use window and frame control available for GNU
+       Emacs.  With just a few keystrokes, you can shift from
+       increasing a window's height by 5 lines to moving a frame by
+       220 pixels or immediately moving it to a screen corner.  Text
+       in each window or frame may be enlarged or shrunk (zoomed) for
+       easy viewing, plus many other features;
+
+	   The broader vision for HyControl is to support persistent
+   	   window and frame configurations as link targets.  Then a user
+   	   will be able to create the views of information he wants and
+   	   store them as links for rapid display.  Work remains to
+   	   implement this feature but it helps explain the connection of
+   	   HyControl to the rest of Hyperbole;
 
    4.  **The Koutliner**: an advanced outliner with multi-level
        autonumbering and permanent ids attached to each outline node for
@@ -199,6 +292,14 @@ Hyperbole consists of five parts:
        Hyperbole is written in Emacs Lisp for ease of modification.
        Hyperbole has been engineered for real-world usage and is well
        structured).
+
+We find Hyperbole's parts are more powerful as one package, i.e. the
+sum is greater than the parts, so we don't offer them separately.
+Hyperbole is free software, however, so you may modify it as you see
+fit.
+
+
+## Hyperbole Buttons
 
 A Hyperbole hypertext user works with buttons; he may create, modify, move
 or delete buttons.  Each button performs a specific action, such as linking
@@ -232,6 +333,8 @@ large or small chunks as you see fit, organizing each bit as time allows.
 The Hyperbole Koutliner and HyRolo tools organize textual hierarchies and
 may also contain links to external information sources.
 
+## Important Features
+
 Some of Hyperbole's most important features include:
 
  - Buttons may link to information or may execute commands, such as
@@ -254,6 +357,8 @@ Some of Hyperbole's most important features include:
 
  - Other hypertext and information retrieval systems may be
    encapsulated under a Hyperbole user interface very easily.
+
+## Hyperbole Uses
 
 Typical Hyperbole applications include:
 
@@ -361,11 +466,11 @@ Keys).
 
   One of the nicest things about Hyperbole is that it's available
   everywhere. Org-mode is a mode and its features are only available in
-  *.org files. For instance if you dropped into `eshell' or `ansi-term' and
+  Org files. For instance if you dropped into `eshell' or `ansi-term' and
   did `ls', you can move point to any of the directory's contents, do M-RET
   (or Shift-Button2) and jump to that file.  And that's just one example.
   Note that this means that all Hyperbole functionality is available in
-  *.org files as well.  To me, except for the Hyperbole outliner, that means
+  Org files as well.  To me, except for the Hyperbole outliner, that means
   complementary not conflicting. It's Hyperbole *and* org-mode, not
   Hyperbole vs. org-mode.
 

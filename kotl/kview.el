@@ -4,7 +4,7 @@
 ;;
 ;; Orig-Date:    6/30/93
 ;;
-;; Copyright (C) 1993-2016  Free Software Foundation, Inc.
+;; Copyright (C) 1993-2017  Free Software Foundation, Inc.
 ;; See the "../HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
@@ -525,10 +525,10 @@ level."
 (defun kview:char-invisible-p (&optional pos)
   "Return t if the character after point is invisible/hidden, else nil."
   (or pos (setq pos (point)))
-  (if (or (kproperty:get pos 'invisible)
-	  (delq nil (mapcar (lambda (o) (overlay-get o 'invisible))
-			    (overlays-at (or pos (point))))))
-      t))
+  (when (or (kproperty:get pos 'invisible)
+	    (delq nil (mapcar (lambda (o) (overlay-get o 'invisible))
+			      (overlays-at (or pos (point))))))
+    t))
 
 (defun kview:char-visible-p (&optional pos)
   "Return t if the character after point is visible, else nil."

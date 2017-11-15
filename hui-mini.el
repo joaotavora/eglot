@@ -64,7 +64,7 @@ non-nil means show documentation for any item that is selected by the
 user.  HELP-STRING-FLAG non-nil means show only the first line of the
 documentation, not the full text."
 
-  (interactive (list nil nil (if current-prefix-arg t) (if current-prefix-arg t)))
+  (interactive (list nil nil nil nil))
   (if (and hui:menu-p (> (minibuffer-depth) 0))
       (progn (beep) nil)
     (unwind-protect
@@ -157,11 +157,11 @@ With optional HELP-STRING-FLAG, instead returns the one line help string for the
 	   (if (eventp input)
 	       (setq input (event-to-character input)))))
     (if (or (symbolp input)
-	    (and (integerp input)
-		 (= input ?\r)))
+	    (and (integerp input) (= input ?\r)))
 	(setq input (hargs:at-p)))
     (erase-buffer)
-    (or (symbolp input) (null input) (insert input)))
+    (when (or (characterp input) (stringp input))
+      (insert input)))
   (exit-minibuffer))
 
 (defun hui:menu-forward-item ()
@@ -320,8 +320,12 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 		  (and doc-flag
 		       ;; Not another menu to display
 		       (not (and (listp act-form) (atom (car act-form)) (atom (cdr act-form))))))
-	      (let ((help-str (or (car (cdr (cdr label-act-help-list)))
-				  "No help documentation for this item.")))
+	      (let* ((help-str (car (cdr (cdr label-act-help-list))))
+		     (cmd (if help-str nil (car (cdr label-act-help-list))))
+		     (doc-str (if help-str nil (and (functionp cmd) (documentation cmd)))))
+		(and doc-str (string-match "\n" doc-str)
+		     (setq doc-str (substring doc-str 0 (match-beginning 0))))
+		(setq help-str (or help-str doc-str "No help documentation for this item."))
 		(if help-string-flag
 		    help-str
 		  (concat (car label-act-help-list) "\n  "
@@ -341,6 +345,7 @@ constructs.  If not given, the top-level Hyperbole menu is used."
       menu-line)))
 
 (defun hui:menu-web-search ()
+  "Hyperbole minibuffer menu of web search engines."
   (let ((web-mini-menu
 	 (cons 'web
 	       (cons '("Web>")
@@ -476,13 +481,16 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("Windowful"      (setq smart-scroll-proportional nil))))
        '(cust-keys .
          (("Change Keys>")
-	  ("ActionKey"   (hui:bind-key #'hkey-either))            ;; {M-RET}
-	  ("ButRename"   (hui:bind-key #'hui:ebut-rename))        ;; {C-c C-r}
-	  ("DragKey"     (hui:bind-key #'hkey-operate))           ;; {M-o}
-	  ("HypbMenu"    (hui:bind-key #'hyperbole))              ;; {C-h h}
-	  ("MarkThing"   (hui:bind-key #'hui-select-thing))       ;; {C-c RET}
-	  ("SmartHelp"   (hui:bind-key #'hkey-help))              ;; {C-h A}
-	  ("WinControl"  (hui:bind-key #'hycontrol-windows))      ;; {C-c \}
+	  ("ActionKey"     (hui:bind-key #'hkey-either))                        ;; {M-RET}
+	  ("ButRename"     (hui:bind-key #'hui:ebut-rename))                    ;; {C-c C-r}
+	  ("DragKey"       (hui:bind-key #'hkey-operate))                       ;; {M-o}
+	  ("FindWeb"       (hui:bind-key #'hui-search-web)) 	                ;; {C-c /}
+	  ("GridOfWindows" (hui:bind-key #'hycontrol-windows-grid))             ;; {C-c @}
+	  ("HypbMenu"      (hui:bind-key #'hyperbole))                          ;; {C-h h}
+	  ("JumpThing"     (hui:bind-key #'hui-select-goto-matching-delimiter)) ;; {C-c .}
+	  ("MarkThing"     (hui:bind-key #'hui-select-thing))                   ;; {C-c RET}
+	  ("SmartHelp"     (hui:bind-key #'hkey-help))                          ;; {C-h A}
+	  ("WinControl"    (hui:bind-key #'hycontrol-enable-windows-mode))      ;; {C-c \}
 	  )) 
        '(cust-referents .
          (("Ref Display>")
@@ -525,7 +533,7 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("Demo"         (hypb:display-file-with-logo
 			    (expand-file-name "DEMO" hyperb:dir))
 	   "Demonstrates Hyperbole features.")
-	  ("Files"        (find-file-read-only
+	  ("Files"        (hypb:display-file-with-logo
 			    (expand-file-name "MANIFEST" hyperb:dir))
 	   "Summarizes Hyperbole system files.  Click on an entry to view it.")
 	  ("Glossary"
@@ -536,10 +544,12 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ("New"          (hypb:display-file-with-logo
 			   (expand-file-name "HY-NEWS" hyperb:dir))
 	   "Recent changes to Hyperbole.")
-	  ("SmartKeys"    (find-file-read-only (hypb:hkey-help-file))
+	  ("SmartKeys"    (hkey-summarize 'current-window)
 	   "Summarizes Smart Key mouse or keyboard handling.")
 	  ("Types/"       (menu . types)
 	   "Provides documentation on Hyperbole types.")
+	  ("WhyUse"       (find-file (expand-file-name "HY-WHY.kotl" hyperb:dir))
+	   "Lists use cases for Hyperbole Hyperbole.")
 	 ))
        '(ebut .
 	 (("EButton>")
@@ -674,9 +684,9 @@ constructs.  If not given, the top-level Hyperbole menu is used."
 	  ))
        '(screen .
 	 (("Screen>")
-	  ("FramesControl"    hycontrol-frames
+	  ("FramesControl"    hycontrol-enable-frames-mode
 	   "Interactively delete, jump to, move, replicate, and resize frames.")
-	  ("WindowsControl"   hycontrol-windows
+	  ("WindowsControl"   hycontrol-enable-windows-mode
 	   "Interactively delete, jump to, rebalance, resize, and split windows.")))
        '(types .
 	 (("Types>")

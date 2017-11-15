@@ -1,6 +1,8 @@
 --- INTRODUCTION ---
 COPYING             - GNU General Public License
-DEMO                - Demonstration of basic GNU Hyperbole button capabilities
+DEMO                - Interactive Demonstration of many GNU Hyperbole capabilities
+DEMO-ROLO.otl       - Sample Hyperbole Rolo file for use with DEMO
+hyrolo-demo.el      - Code to support DEMO introduction to HyRolo
 HY-ABOUT            - Introductory description of GNU Hyperbole
 HY-ANNOUNCE         - GNU Hyperbole release announcement
 HY-COPY             - GNU Hyperbole Copyright
@@ -16,7 +18,7 @@ hyperbole.el        - Loads and initializes GNU Hyperbole
 Changes             - Summary of changes in recent GNU Hyperbole releases
 
 --- DOCUMENTATION ---
-dir                 - GNU Hyperbole Info directory tree entry
+man/dir             - GNU Hyperbole Info directory tree entry
 man/hyperbole.html  - The GNU Hyperbole Manual  (web version)
 man/hyperbole.info  - The GNU Hyperbole Manual  (GNU Info version)
 man/hyperbole.pdf   - The GNU Hyperbole Manual  (printable version)
@@ -27,7 +29,7 @@ man/hkey-help.txt   - Summarizes Smart Key behaviors in different contexts
 hmouse-info.el      - Walks through Info networks using one key
 hmouse-drv.el       - Smart Key/Mouse driver functions
 hmouse-key.el       - Setup Smart Key mouse bindings
-hmouse-mod.el       - Action Key acts as CONTROL modifier and Assist Key as META modifier (Optional)
+hmouse-mod.el       - Action Key acts as CONTROL modifier and Assist Key as META modifier (Unused)
 hmouse-sh.el        - System-dependent Smart Mouse Key bindings
 hmouse-tag.el       - Smart Key support of programming language tags location
 hycontrol.el        - Interactive sizing, moving, replicating and deleting of windows and frames
@@ -58,7 +60,6 @@ hyrolo-logic.el     - Logic functions for GNU Hyperbole Rolo files
 hywconfig.el        - Save ring of window configurations
 set.el              - General mathematical operators for unordered sets
 
-
 --- MAIL SYSTEM SUPPORT ---
 hmh.el              - GNU Hyperbole buttons in mail reader:   Mh
 hrmail.el           - GNU Hyperbole buttons in mail reader:   Rmail
@@ -80,7 +81,7 @@ hibtypes.el         - GNU Hyperbole default implicit button types
 hib-debbugs.el      - Implicit button type for browsing GNU debbugs issues
 hib-doc-id.el       - Implicit button type for document id index entries
 hib-kbd.el          - Implicit button type for key sequences delimited with {}
-hib-social.el       - Implicit button type for social media hashtag and username references
+hib-social.el       - Implicit button type for social media/git hashtag and username references
 hinit.el            - Standard initializations for GNU Hyperbole
 hload-path.el       - GNU Hyperbole load-path setup
 hlvar.el            - GNU Hyperbole variables in local variable lists
@@ -88,6 +89,7 @@ hsettings.el        - Hyperbole settings which may require customization
 hvar.el             - Variable manipulation routines for GNU Hyperbole
 hyperbole-banner.png- Graphic of GNU Hyperbole for display with About Hyperbole
 smart-clib-sym      - Test whether symbol appears within a set of C libraries
+topwin.py           - Python script to find the topmost macOS app window at a screen position
 .hypb & _hypb       - Button data files used by the Hyperbole DEMO file
 
 --- EXTERNAL SYSTEM ENCAPSULATIONS ---

@@ -8,9 +8,15 @@
 ;; See the "HY-COPY" file for license information.
 ;;
 ;; This file is part of Hyperbole.  It requires the Emacs package
-;; Debbugs 0.9.7 or higher.
+;; Debbugs 0.9.7 or higher; there were bugs in earlier versions
+;; that made it incompatible with the queries Hyperbole issues.
 ;;
 ;;; Commentary:
+;;
+;;   NOTE: Although Emacs now comes with the library "bug-reference-mode.el"
+;;         which displays bug numbers, this library provides a much broader
+;;         set of facilities and is activated via the Smart Keys, so no
+;;         new key bindings are necessary.
 ;;
 ;;   Debbugs is a client-server issue tracker used by Gnu projects
 ;;   to manage issues and maintain threads of discussion around them.
@@ -21,7 +27,6 @@
 ;;   queries when pressed within any of the following buffer text
 ;;   formats (with point prior to any attribute):
 ;;
-;;      #id-number
 ;;      bug#id-number, bug# id-number, bug #id-number, or bug id-number
 ;;      bug?attr1=val1&attr2=val2&attr3=val3
 ;;      bug#id-number?attr1=val1&attr2=val2&attr3=val3
@@ -62,7 +67,7 @@
 ;;; Other required Elisp libraries
 ;;; ************************************************************************
 
-(eval-and-compile (mapc #'require '(hactypes package)))
+(eval-and-compile (mapc #'require '(hactypes)))
 (eval-when-compile (require 'debbugs-gnu nil t))
 
 ;;; ************************************************************************
@@ -83,14 +88,13 @@ If the query includes a single id number, displays the original message
 submission for that id and allows browsing of the followup discussion.
 The following buffer text formats are accepted (with point prior to any
 attribute): 
-   id-number
-   #id-number
+
    bug#id-number or bug# id-number or bug #id-number
    bug?attr1=val1&attr2=val2&attr3=val3
    bug#id-number?attr1=val1&attr2=val2&attr3=val3
 
 Note that `issue' or `debbugs' may be used as well in place of `bug'."
-  (when (package-installed-p 'debbugs (version-to-list "0.9.7"))
+  (when (debbugs-version-sufficient-p)
     (if (debbugs-query:at-p)
 	(cond ((and (match-beginning 3) (string-equal "?" (match-string 3)))
 	       (hact 'debbugs-gnu-query:string (buffer-substring-no-properties
@@ -108,7 +112,7 @@ Note that `issue' or `debbugs' may be used as well in place of `bug'."
 (defun debbugs-gnu-query:help (but)
   "Makes a Gnu debbugs id number at point (optionally prefixed with a # sign) display the pretty pretted status of the bug id.
 Ignores other types of Gnu debbugs query strings."
-  (if (and (package-installed-p 'debbugs (version-to-list "0.9.7"))
+  (if (and (debbugs-version-sufficient-p)
 	   (debbugs-query:at-p)
 	   (match-beginning 2))
       (debbugs-query:status (string-to-number (match-string 2)))
@@ -169,7 +173,7 @@ severity, and package."
   (require 'debbugs-gnu)
   (setq debbugs-gnu-current-query nil)
   (dolist (attr query-attribute-list)
-    (add-to-list #'debbugs-gnu-current-query
+    (add-to-list 'debbugs-gnu-current-query
 		 (cons (if (symbolp (car attr)) (car attr) (intern (car attr)))
 		       (cdr attr))))
   (debbugs-gnu-show-reports))
@@ -200,10 +204,12 @@ If this is a query with attributes, then (match-string 3) = \"?\" and (match-str
 	  (skip-chars-backward " \t\n\r\f")
 	  (skip-chars-backward "bugdiseBUGDISE#") ;; bug, debbugs or issue
 	  ;; Allow for bug#222?package=hyperbole&severity=high as well as
-	  ;; bug222, bug#222, or #222.
+	  ;; bug222, or bug#222.
 	  (or (looking-at "[ \t\n\r\f]*\\(bug#?\\|debbugs#?\\|issue#?\\)[ \t\n\r\f]*#?\\([1-9][0-9]*\\)?\\(\\?\\)\\([a-z=&0-9%;()]+\\)")
 	      (looking-at "[ \t\n\r\f]*\\(bug#?\\|debbugs#?\\|issue#?\\)[ \t\n\r\f]*#?\\([1-9][0-9]*\\)[\].,;?!\)\>\}]?\\([ \t\n\r\f]\\|\\'\\)")
-	      (looking-at "[ \t\n\r\f]*\\(bug\\|debbugs\\|issue\\)?[ \t\n\r\f]*#\\([1-9][0-9]*\\)[\].,;?!\)\>\}]?\\([ \t\n\r\f]\\|\\'\\)"))))))
+	      ;; Ignore matches like  #222, so this is not confused with "hib-social.el" social references.
+	      ;; (looking-at "[ \t\n\r\f]*\\(bug\\|debbugs\\|issue\\)?[ \t\n\r\f]*#\\([1-9][0-9]*\\)[\].,;?!\)\>\}]?\\([ \t\n\r\f]\\|\\'\\)")
+	      )))))
 
 (defun debbugs-query:status (id)
   "Pretty prints to standard-output the status attributes of debbugs ID (a positive integer).
@@ -229,6 +235,15 @@ Ignores nil valued attributes.  Returns t unless no attributes are printed."
 		  len (number-to-string (max (- 16 (length (symbol-name attr))) 1)))
 	    (princ (format (concat "   %s:%" len "s%S\n") attr " " val))))
 	has-attr))))
+
+(defun debbugs-version-sufficient-p ()
+  "Return t iff debbugs version is sufficient for use with Hyperbole (greater than equal to 0.9.7)."
+  (let ((debbugs-src (locate-file "debbugs" load-path '(".el")))
+	version)
+    (when debbugs-src
+      (setq version (shell-command-to-string (format "fgrep -m1 Version: %s | sed -e 's/[^.0-9]//g' | tr -d '\n'" debbugs-src)))
+      (when (not (equal version ""))
+	(version-list-<= (version-to-list "0.9.7") (version-to-list version))))))
 
 (provide 'hib-debbugs)
 
