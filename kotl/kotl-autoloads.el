@@ -1,11 +1,9 @@
 ;;; kotl-autoloads.el --- automatically extracted autoloads
 ;;
-;; Copyright (C) 2017  Free Software Foundation, Inc.
-;;
 ;;; Code:
 
 
-;;;### (autoloads nil "kexport" "kexport.el" (23052 37373 0 0))
+;;;### (autoloads nil "kexport" "kexport.el" (23052 38385 0 0))
 ;;; Generated autoloads from kexport.el
 
 (autoload 'kexport:html "kexport" "\
@@ -20,7 +18,7 @@ STILL TODO:
 
 ;;;***
 
-;;;### (autoloads nil "kfile" "kfile.el" (22415 50714 78447 943000))
+;;;### (autoloads nil "kfile" "kfile.el" (22412 20800 0 0))
 ;;; Generated autoloads from kfile.el
 
 (autoload 'kfile:find "kfile" "\
@@ -41,7 +39,7 @@ View an existing kotl version-2 file FILE-NAME in a read-only mode.
 
 ;;;***
 
-;;;### (autoloads nil "kimport" "kimport.el" (23051 38597 0 0))
+;;;### (autoloads nil "kimport" "kimport.el" (23052 38368 0 0))
 ;;; Generated autoloads from kimport.el
 
 (defvar kimport:mode-alist '((t . kimport:text) (outline-mode . kimport:star-outline)) "\
@@ -140,7 +138,7 @@ See documentation for `kcell:ref-to-id' for valid cell-ref formats.
 
 ;;;***
 
-;;;### (autoloads nil "kotl-mode" "kotl-mode.el" (22989 19633 0 0))
+;;;### (autoloads nil "kotl-mode" "kotl-mode.el" (23052 38304 0 0))
 ;;; Generated autoloads from kotl-mode.el
 
 (autoload 'kotl-mode "kotl-mode" "\
@@ -193,7 +191,7 @@ Signal an error if current buffer is not a Hyperbole outline, else return t.
 
 ;;;### (autoloads nil nil ("kcell.el" "kfill.el" "klabel.el" "kmenu.el"
 ;;;;;;  "knode.el" "kprop-em.el" "kprop-xe.el" "kproperty.el" "kview.el"
-;;;;;;  "kvspec.el") (22989 23220 0 0))
+;;;;;;  "kvspec.el") (23052 38356 0 0))
 
 ;;;***
 
