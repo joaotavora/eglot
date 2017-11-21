@@ -4992,6 +4992,7 @@ For finding matches within only BBDB, there are the commands
 @code{hyrolo-bbdb-fgrep} (string finding) and @code{hyrolo-bbdb-grep}
 (regular expression finding).  They may be bound to keys if desired.
 
+@cindex contacts, Google
 @cindex Google Contacts
 @cindex Gmail Contacts
 If you use Google/Gmail Contacts, you can configure the HyRolo to
@@ -5006,8 +5007,9 @@ Contacts to your searches.
 
 When you next do a search, you will be prompted for your Google
 Contacts password and may also have to enter an authorization code
-that will be displayed on your screen.  After authorization, you may
-at times be re-prompted for your password.
+that will be displayed on your screen.  After authorization, your
+your information will be cached so that you are not prompted for
+it again within this Emacs session.
 
 @findex hyrolo-google-contacts-fgrep
 @findex hyrolo-google-contacts-grep
@@ -5017,10 +5019,9 @@ For finding matches within only Google Contacts, there are the commands
 may be bound to keys if desired.
 
 @vindex hyrolo-google-contacts-flag
-Because Google can require frequent reauthorization to search your
-contacts, there is a flag, @code{hyrolo-google-contacts-flag}, which
-when set to @samp{nil} disables searching of your Google Contacts.
-
+If you ever need to disable Google Contacts usage, there is a
+flag, @code{hyrolo-google-contacts-flag}, which when set to @samp{nil}
+disables searching of your Google Contacts.
 
 @noindent
 Below are the rest of the settings available with HyRolo:

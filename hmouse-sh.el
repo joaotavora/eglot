@@ -560,6 +560,13 @@ With optional MIDDLE-KEY-ONLY-FLAG non-nil, binds only the middle mouse key."
   (interactive)
   (cond	;; GNU Emacs
    (hyperb:emacs-p
+    ;; Unbind Emacs push-button mouse keys since Hyperbole handles them.
+    (define-key button-map [mouse-2] nil)
+    (define-key button-map [mode-line mouse-2] nil)
+    (define-key button-map [header-line mouse-2] nil)
+    ;; Remove push-button help echo string for mouse-2 key.
+    (put 'default-button 'help-echo nil)
+    ;;
     ;; In Info-mode, Emacs uses key-translation-map to link mouse-1 to
     ;; do whatever mouse-2 does but because Hyperbole uses both down
     ;; and up bindings on mouse2, this does work.  So we rebind

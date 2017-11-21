@@ -4,7 +4,7 @@
 ;;
 ;; Orig-Date:    04-Feb-90
 ;;
-;; Copyright (C) 1989-2016  Free Software Foundation, Inc.
+;; Copyright (C) 1989-2017  Free Software Foundation, Inc.
 ;; See the "HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
@@ -16,6 +16,7 @@
 ;;; Other required Elisp libraries
 ;;; ************************************************************************
 
+(eval-when-compile (require 'hui-window)) ;; for `hmouse-drag-item-to-display'
 (require 'hypb)
 
 ;; Quiet byte compiler warnings for these free variables.
@@ -127,6 +128,12 @@ This permits the Smart Keys to behave as paste keys.")
 ;;; Hyperbole context-sensitive key driver functions
 ;;; ************************************************************************
 
+(defun hkey-absolute-pixel-position ()
+  "Return the display terminal absolute pixel position of the mouse (if in a mouse event) or the selected window's point."
+  (if (mouse-event-p last-input-event)
+      (mouse-absolute-pixel-position)
+    (window-absolute-pixel-position)))
+
 ;;; Smart Key Depress Functions
 (defun action-key-depress (&rest args)
   (interactive)
@@ -139,7 +146,7 @@ This permits the Smart Keys to behave as paste keys.")
 	action-key-depress-args (hmouse-set-point args)
 	action-key-depress-window (or (hmouse-depress-inactive-minibuffer-p args)
 				      (selected-window))
-	action-key-depress-position (mouse-absolute-pixel-position)
+	action-key-depress-position (hkey-absolute-pixel-position)
 	action-key-release-args nil
 	action-key-release-window nil
 	action-key-release-prev-point nil)
@@ -156,7 +163,7 @@ This permits the Smart Keys to behave as paste keys.")
 	assist-key-depress-args (hmouse-set-point args)
 	assist-key-depress-window (or (hmouse-depress-inactive-minibuffer-p args)
 				      (selected-window))
-	assist-key-depress-position (mouse-absolute-pixel-position)
+	assist-key-depress-position (hkey-absolute-pixel-position)
 	assist-key-release-args nil
 	assist-key-release-window nil
 	assist-key-release-prev-point nil)
@@ -190,7 +197,7 @@ Any ARGS will be passed to `hmouse-function'."
   ;; Make this a no-op if some local mouse key binding overrode the global
   ;; action-key-depress command invocation.
   (when action-key-depressed-flag
-    (setq action-key-release-position (mouse-absolute-pixel-position))
+    (setq action-key-release-position (hkey-absolute-pixel-position))
     (let ((hkey-alist hmouse-alist))
       (setq action-key-depressed-flag nil)
       (cond (action-key-cancelled
@@ -214,7 +221,7 @@ Any ARGS will be passed to `hmouse-function'."
   ;; Make this a no-op if some local mouse key binding overrode the global
   ;; assist-key-depress command invocation.
   (when assist-key-depressed-flag
-    (setq assist-key-release-position (mouse-absolute-pixel-position))
+    (setq assist-key-release-position (hkey-absolute-pixel-position))
     (let ((hkey-alist hmouse-alist))
       (setq assist-key-depressed-flag nil)
       (cond (assist-key-cancelled
@@ -321,6 +328,71 @@ bound to a valid function."
 		   (hypb:format-quote (format "%s" hkey-action))
 		   (current-buffer) major-mode (minibuffer-depth))))
 
+;;;###autoload
+(defun hkey-drag (release-window)
+  "Emulate Smart Mouse Key drag from selected window to RELEASE-WINDOW.
+The drag action determines the final selected window.
+
+Optional prefix ARG non-nil means emulate Assist Key rather than the
+Action Key.
+
+Only works when running under a window system, not from a dumb terminal."
+  ;; Cancel any partial drag that may have been recorded.
+  (if current-prefix-arg
+      (setq assist-key-depressed-flag nil)
+    (setq action-key-depressed-flag nil))
+  (hkey-operate current-prefix-arg)
+  (when (window-live-p release-window)
+    (select-window release-window))
+  (hkey-operate current-prefix-arg))
+
+;;;###autoload
+(defun hkey-drag-jump (release-window)
+  "Emulate Smart Mouse Key drag from selected window to RELEASE-WINDOW.
+If an item is dragged to RELEASE-WINDOW, then RELEASE-WINDOW is selected;
+otherwise, the drag action determines the selected window.
+
+Optional prefix ARG non-nil means emulate Assist Key rather than the
+Action Key.
+
+Only works when running under a window system, not from a dumb terminal."
+  (if (and (hmouse-drag-item-to-display) (window-live-p release-window))
+      (progn (hkey-drag release-window)
+	     ;; Leave release window selected
+	     (when (window-live-p release-window)
+	       (select-window release-window)))
+    ;; Leave hkey-drag to choose selected window
+    (hkey-drag release-window)))
+
+(defun hkey-ace-window-setup ()
+  "Setup keyboard-based display of items in windows specified by short ids.
+
+The ace-window package, (see "https://elpa.gnu.org/packages/ace-window.html"),
+assigns short ids to each Emacs window and lets you jump to or
+operate upon a specific window by giving its letter.  Hyperbole
+can insert an operation into ace-window that allows you to
+display items such as dired or buffer menu items in a specific
+window.
+
+To enable this feature, in your Emacs initialization file after
+Hyperbole is initialized, call:
+
+ (hkey-ace-window-setup)
+
+and then bind the function `ace-window' to a key of your choice, say
+{M-o}:
+
+ (global-set-key "\M-o" 'ace-window)
+  
+Then whenever point is on an item you want displayed in another
+window, use {M-o i <id-of-window-to-display-item-in>} and watch the
+magic happen."
+  (require 'ace-window)
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+	aw-dispatch-always t)
+  (push '(?i hkey-drag-jump "Hyperbole Display Item") aw-dispatch-alist)
+  (ace-window-display-mode 1))
+
 (defun hkey-execute (assist-flag)
   "Evaluate Action Key form (or Assist Key form with ASSIST-FLAG non-nil) for first non-nil predicate from `hkey-alist'.
 Non-nil ASSIST-FLAG means evaluate second form, otherwise evaluate first form.
@@ -344,7 +416,7 @@ Return non-nil iff a non-nil predicate is found."
 With optional ASSIST-FLAG non-nil, display help for the Assist Key command.
 Return non-nil iff associated help documentation is found."
   (interactive "P")
-  (let ((hkey-forms hkey-alist)
+  (let ((hkey-forms hmouse-alist)
 	hkey-form pred-value call calls cmd-sym doc)
     (while (and (null pred-value) (setq hkey-form (car hkey-forms)))
       (or (setq pred-value (eval (car hkey-form)))
@@ -543,20 +615,22 @@ Only works when running under a window system, not from a dumb terminal."
   (if arg
       (if assist-key-depressed-flag
 	  (progn (assist-mouse-key)
-		 (message "Assist Key released."))
+		 (when (called-interactively-p 'interactive)
+		   (message "Assist Key released.")))
 	(assist-key-depress)
-	(message
-	  "Assist Key depressed; go to release point and hit {%s %s}."
-	  (substitute-command-keys "\\[universal-argument]")
-	  (substitute-command-keys "\\[hkey-operate]")
-	  ))
+	(when (called-interactively-p 'interactive)
+	  (message
+	   "Assist Key depressed; go to release point and hit {%s %s}."
+	   (substitute-command-keys "\\[universal-argument]")
+	   (substitute-command-keys "\\[hkey-operate]"))))
     (if action-key-depressed-flag
 	(progn (action-mouse-key)
-	       (message "Action Key released."))
+	       (when (called-interactively-p 'interactive)
+		 (message "Action Key released.")))
       (action-key-depress)
-      (message "Action Key depressed; go to release point and hit {%s}."
-	       (substitute-command-keys "\\[hkey-operate]"))
-      )))
+      (when (called-interactively-p 'interactive)
+	(message "Action Key depressed; go to release point and hit {%s}."
+		 (substitute-command-keys "\\[hkey-operate]"))))))
 
 (defun hkey-summarize (&optional current-window)
   "Display smart key operation summary in help buffer.
@@ -614,8 +688,11 @@ With optional ARG, override them iff ARG is positive."
     spacing))
 
 (defun hmouse-window-at-absolute-pixel-position (&optional position release-flag)
-  "Return the top-most Emacs window at optional POSITION ((x . y) in absolute pixels) or mouse position.
-If POSITION is not in a window, return nil.  Considers all windows on
+  "Return the top-most Emacs window at optional POSITION ((x . y) in absolute pixels).
+If POSITION is nil, use mouse position if last input event was a mouse
+event, otherwise, use the position of point in the selected window.
+
+If the position used is not in a window, return nil.  Considers all windows on
 the same display as the selected frame.
 
 If optional RELEASE-FLAG is non-nil, this is part of a Smart Key
@@ -623,11 +700,14 @@ release computation, so optimize window selection based on the depress
 window already computed.
 
 If the selected frame is a graphical macOS window and
-`hmouse-verity-release-window-flag' is non-nil, then return the
+`hmouse-verify-release-window-flag' is non-nil, then return the
 top-most Emacs window only if it is the top-most application window at
 the position (not below another application's window)."
   (interactive)
-  (setq position (or position (mouse-absolute-pixel-position)))
+  (setq position (or position
+		     (if (mouse-event-p last-input-event)
+			 (mouse-absolute-pixel-position)
+		       (hkey-absolute-pixel-position))))
   ;; Proper top-to-bottom listing of frames is available only in Emacs
   ;; 26 and above.  For prior versions, the ordering of the frames
   ;; returned is not guaranteed, so the frame whose window is returned
@@ -846,7 +926,7 @@ return current point as a marker."
 			    (+ (nth 1 args) (nth 0 (window-edges win)))
 			    (+ (nth 2 args) (nth 1 (window-edges win))))))
 		   (t args)))
-    (posn-at-point)))
+    (list 'keyboard-drag (posn-at-point))))
 
 (defun hmouse-set-point-at (set-point-arg-list)
   "Set point to cursor position using SET-POINT-ARG-LIST and returns t.

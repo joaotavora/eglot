@@ -229,13 +229,19 @@ For example:  To: hyperbole-users-join@gnu.org\n")))
 	    (t (hpath:find buf-str-or-file)))
     (hypb:error "(hyp-source): Non-string argument: %s" buf-str-or-file)))
 
-(defact link-to-buffer-tmp (buffer)
-  "Displays a BUFFER.
+(defact link-to-buffer-tmp (buffer &optional point)
+  "Displays a BUFFER scrolled to optional POINT.
+If POINT is given, the buffer is displayed with POINT at the top of
+the window.
+
 This type of link generally can only be used within a single editor session.
 Use `link-to-file' instead for a permanent link."
   (interactive "bBuffer to link to: ")
   (if (or (stringp buffer) (bufferp buffer))
-      (hpath:display-buffer buffer)
+      (and (hpath:display-buffer buffer)
+	   (integerp point)
+	   (progn (goto-char (min (point-max) point))
+		  (recenter 0)))
     (hypb:error "(link-to-buffer-tmp): Not a current buffer: %s" buffer)))
 
 (defact link-to-directory (directory)

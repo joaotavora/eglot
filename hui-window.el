@@ -127,7 +127,11 @@ of screen control commands."
 						;; release window.
 						(prog1 (current-buffer)
 						  (hmouse-pulse-buffer)
-						  (bury-buffer))))))
+						  (bury-buffer))))
+     (treemacs-mode (if (fboundp 'treemacs-node-buffer-and-position)
+			(treemacs-node-buffer-and-position))
+		    (error "(hmouse-item-to-window): %s the treemacs package for item dragging support"
+			   (if (fboundp 'treemacs) "Update" "Install")))))
   "List of (major-mode lisp-form) lists.
 The car of an item must be a major-mode symbol.  The cadr of an item
 is a Lisp form to evaluate to get the item name at point (typically a
@@ -451,12 +455,12 @@ Signals an error if the buffer is read-only."
   "Returns non-nil if last Action Key depress and release were in different frames.
 If free variable `assist-flag' is non-nil, uses Assist Key."
   (if assist-flag
-      (and (window-valid-p assist-key-depress-window)
-	   (window-valid-p assist-key-release-window)
+      (and (window-live-p assist-key-depress-window)
+	   (window-live-p assist-key-release-window)
 	   (not (eq (window-frame assist-key-depress-window)
 		    (window-frame assist-key-release-window))))
-    (and (window-valid-p action-key-depress-window)
-	 (window-valid-p action-key-release-window)
+    (and (window-live-p action-key-depress-window)
+	 (window-live-p action-key-release-window)
 	 (not (eq (window-frame action-key-depress-window)
 		  (window-frame action-key-release-window))))))
 
@@ -464,27 +468,31 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
   "Returns non-nil if last Action Key depress and release were in different windows.
 If free variable `assist-flag' is non-nil, uses Assist Key."
   (if assist-flag
-      (and assist-key-depress-window assist-key-release-window
+      (and (window-live-p assist-key-depress-window)
+	   (window-live-p assist-key-release-window)
 	   (not (eq assist-key-depress-window
 		    assist-key-release-window)))
-    (and action-key-depress-window action-key-release-window
+    (and (window-live-p action-key-depress-window)
+	 (window-live-p action-key-release-window)
 	 (not (eq action-key-depress-window action-key-release-window)))))
 
 (defun hmouse-drag-same-window ()
   "Returns non-nil if last Action Key depress and release were in the same window.
 If free variable `assist-flag' is non-nil, uses Assist Key."
   (if assist-flag
-      (and assist-key-depress-window assist-key-release-window
+      (and (window-live-p assist-key-depress-window)
+	   (window-live-p assist-key-release-window)
 	   (eq assist-key-depress-window assist-key-release-window))
-    (and action-key-depress-window action-key-release-window
+    (and (window-live-p action-key-depress-window)
+	 (window-live-p action-key-release-window)
 	 (eq action-key-depress-window action-key-release-window))))
 
 (defun hmouse-drag-outside-all-windows ()
   "Returns non-nil if last Action Key release was outside of an Emacs window.
 If free variable `assist-flag' is non-nil, uses Assist Key."
-  (null (if assist-flag
-	    assist-key-release-window
-	  action-key-release-window)))
+  (if assist-flag
+      (and (window-live-p assist-key-depress-window) (not assist-key-release-window))
+    (and (window-live-p action-key-depress-window) (not action-key-release-window))))
 
 (defun hmouse-drag-item-to-display (&optional new-window)
   "Depress on a buffer name in Buffer-menu/ibuffer mode or on a file/directory in dired mode and release where the item is to be displayed.
@@ -501,7 +509,7 @@ not on an item, then nil.
 
 See `hmouse-drag-item-mode-forms' for how to allow for draggable
 items in other modes."
-  (let* ((buf (and action-key-depress-window (window-buffer action-key-depress-window)))
+  (let* ((buf (and (window-live-p action-key-depress-window) (window-buffer action-key-depress-window)))
 	 (mode (and buf (cdr (assq 'major-mode (buffer-local-variables buf))))))
     (when (and buf (with-current-buffer buf
 		     ;; Point must be on an item, not after one
@@ -621,9 +629,9 @@ If free variable `assist-flag' is non-nil, uses Assist Key."
 				action-key-release-args))
 		(wd (smart-window-of-coords depress-args))
 		(wr (smart-window-of-coords release-args))
-		(right-side-ln (and wd (1- (nth 2 (window-edges wd)))))
-		(last-press-x   (and wd depress-args (hmouse-x-coord depress-args)))
-		(last-release-x (and wr release-args (hmouse-x-coord release-args))))
+		(right-side-ln (and (window-live-p wd) (1- (nth 2 (window-edges wd)))))
+		(last-press-x   (and (window-live-p wd) depress-args (hmouse-x-coord depress-args)))
+		(last-release-x (and (window-live-p wr) release-args (hmouse-x-coord release-args))))
 	   (and last-press-x last-release-x right-side-ln
 		(/= last-press-x last-release-x)
 		(not (<= (abs (- right-side-ln (frame-width))) 5))
@@ -826,8 +834,9 @@ item, this moves the menu buffer itself to the release location."
 	 ;; create a new frame and window.
 	 (w2 (or action-key-release-window (frame-selected-window (hycontrol-make-frame))))
 	 (buf-name)
-	 (w1-ref))
-    (when (and w1 w2)
+	 (w1-ref)
+	 (pos))
+    (when (and (window-live-p w1) (window-live-p w2))
       (unwind-protect
 	  (progn (select-window w1)
 		 (if (eq (posn-area (event-start action-key-depress-args)) 'header-line)
@@ -844,18 +853,25 @@ item, this moves the menu buffer itself to the release location."
 	(when (and new-window action-key-release-window)
 	  (hmouse-split-window))))
     (unwind-protect
-	(cond ((not w1-ref)
-	       (if (not (window-live-p w1))
-		   (error "(hmouse-item-to-window): Action Mouse Key item drag must start in a live window")
-		 (error "(hmouse-item-to-window): No item to display at start of Action Mouse Key drag")))
-	      ((buffer-live-p w1-ref)
-	       (set-window-buffer w2 w1-ref)
-	       (set-buffer w1-ref)
-	       (hmouse-pulse-buffer))
-	      ((and (stringp w1-ref) (file-readable-p w1-ref))
-	       (set-window-buffer w2 (set-buffer (find-file-noselect w1-ref)))
-	       (hmouse-pulse-buffer))
-	      (t (error "(hmouse-item-to-window): Cannot find or read `%s'" w1-ref)))
+	(progn
+	  (when (and w1-ref (not (stringp w1-ref)) (sequencep w1-ref))
+	    ;; w1-ref is a list or vector of `buffer' and `position' elements.
+	    (setq pos (seq-elt w1-ref 1)
+		  w1-ref (seq-elt w1-ref 0)))
+	  (cond ((not w1-ref)
+		 (if (not (window-live-p w1))
+		     (error "(hmouse-item-to-window): Action Mouse Key item drag must start in a live window")
+		   (error "(hmouse-item-to-window): No item to display at start of Action Mouse Key drag")))
+		((buffer-live-p w1-ref)
+		 (set-window-buffer w2 w1-ref)
+		 (set-buffer w1-ref))
+		((and (stringp w1-ref) (file-readable-p w1-ref))
+		 (set-window-buffer w2 (set-buffer (find-file-noselect w1-ref))))
+		(t (error "(hmouse-item-to-window): Cannot find or read `%s'" w1-ref)))
+	  (if pos
+	      (progn (goto-char pos)
+		     (hmouse-pulse-line))
+	    (hmouse-pulse-buffer)))
       ;; If helm is active, end in the minibuffer window.
       (if (smart-helm-alive-p)
 	  (smart-helm-to-minibuffer)))))
@@ -881,7 +897,7 @@ If the Action Key is:
     (if w (select-window w))
     (cond ((hmouse-modeline-click)
 	   (cond ((hmouse-emacs-at-modeline-buffer-id-p)
-		  (dired-jump))
+		  (funcall action-key-modeline-buffer-id-function))
 		 ((hmouse-release-left-edge) (bury-buffer))
 		 ((hmouse-release-right-edge)
 		  (if (eq major-mode 'Info-mode)
@@ -935,8 +951,7 @@ If the Assist Key is:
   (or (and (eventp event) (eq (posn-area (event-start event)) 'mode-line))
       ;; If drag release was to an unselected frame mode-line, on
       ;; click-to-focus systems, the release event will not include
-      ;; the mode-line area when release was on the mode-line, so
-      ;; manually compute if that was the location.
+      ;; the mode-line area, so manually compute if that was the location.
       (let* ((w (smart-window-of-coords event))
 	     ;; Do all calculations in pixels if possible.
 	     (line-height (if w (frame-char-height (window-frame w))))
@@ -1210,7 +1225,7 @@ of the Smart Key."
       )))
 
 (defun hmouse-x-coord (args)
-  "Returns x coordinate in characters from window system dependent ARGS."
+  "Returns x coordinate in characters from window system dependent ARGS or nil."
   (let ((x (if (markerp args)
 	       (save-excursion
 		 (hypb:goto-marker args)
@@ -1231,10 +1246,10 @@ of the Smart Key."
 				 ("xterm"  .  (car args))
 				 ("next"   .  (nth 1 args))
 				 )))))))
-    (if (integerp x) x (error "(hmouse-x-coord): invalid X coord: %s" x))))
+    (if (integerp x) x)))
 
 (defun hmouse-y-coord (args)
-  "Returns y coordinate in frame lines from window system dependent ARGS."
+  "Returns y coordinate in frame lines from window system dependent ARGS or nil."
   (let ((y (eval (cdr (assoc (hyperb:window-system)
 			     '(("emacs" . (progn (if (eventp args) (setq args (event-start args)))
 						 (cond ((posnp args)
@@ -1250,8 +1265,7 @@ of the Smart Key."
 			       ("xterm"  .  (nth 1 args))
 			       ("next"   .  (nth 2 args))
 			       ))))))
-    (if (integerp y) y (error "(hmouse-y-coord): invalid Y coord: %s" y))))
-
+    (if (integerp y) y)))
 
 ;;; ************************************************************************
 ;;; Private variables

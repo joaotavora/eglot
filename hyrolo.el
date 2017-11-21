@@ -79,7 +79,7 @@ executable must be found as well (for Oauth security)."
 
 ;;;###autoload
 (defun hyrolo-initialize-file-list ()
-  "Initialize the list of files to use for HyRolo searches."
+  "Initialize the list of files used for HyRolo searches."
   (interactive)
   (let* ((gcontacts (if (hyrolo-google-contacts-p) google-contacts-buffer-name))
 	 (ms "c:/_rolo.otl")
@@ -89,9 +89,10 @@ executable must be found as well (for Oauth security)."
 				 (list ms bbdb-file gcontacts)
 			       (list  "~/.rolo.otl" bbdb-file gcontacts))
 			   (if hyperb:microcruft-os-p (list ms gcontacts) (list unix gcontacts))))))
-      (when (called-interactively-p 'interactive)
-	(message "HyRolo Search List: %S" list))
-      list))
+    (setq hyrolo-file-list list)
+    (when (called-interactively-p 'interactive)
+      (message "HyRolo Search List: %S" list))
+    list))
 
 (defvar hyrolo-file-list (hyrolo-initialize-file-list)
   "*List of files containing rolo entries.
@@ -990,8 +991,8 @@ Returns number of matching entries found."
 ;; Derived from google-contacts.el.
 (defun hyrolo-google-contacts-insert-generic-list (items title &optional get-value)
   "Insert a text for rendering ITEMS with TITLE.
-Use GET-VALUE to get the value from the cdr of the item,
-otherwise just put the cdr of item."
+Use GET-VALUE fuction to retrieve the value from the cdr of the item,
+otherwise just use the cdr of the item."
   (when items
     (insert "\n" (google-contacts-margin-element) (concat title ":\n"))
     (dolist (item items)
@@ -1008,15 +1009,19 @@ otherwise just put the cdr of item."
    (list (read-string "Look for: " (car google-contacts-history)
                       'google-contacts-history)
          current-prefix-arg))
-  (let ((buffer (google-contacts-make-buffer))
-        (token (google-contacts-oauth-token))
-        (google-contacts-expire-time (if force-refresh 0 google-contacts-expire-time))
-        (inhibit-read-only t))
+  ;; Without this first let binding, the user would be prompted for
+  ;; his passphrase on every hyrolo search.  This way it is cached.
+  (let* ((plstore-cache-passphrase-for-symmetric-encryption t)
+	 (buffer (google-contacts-make-buffer))
+         (token (google-contacts-oauth-token))
+         (google-contacts-expire-time (if force-refresh 0 google-contacts-expire-time))
+         (inhibit-read-only t))
     (with-current-buffer buffer
       (setq google-contacts-query-string query-string)
-      (hyrolo-google-contacts-insert-data (xml-get-children (google-contacts-data query-string token)
-							    'entry)
-					  token "* "))))
+      (hyrolo-google-contacts-insert-data
+       (xml-get-children (google-contacts-data query-string token)
+			 'entry)
+       token "* "))))
 
 ;;; ************************************************************************
 ;;; Public functions

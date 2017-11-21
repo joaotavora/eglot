@@ -67,6 +67,13 @@ Set it to #'hkey-summarize if you want it to display a summary of Smart Key beha
   :type 'function
   :group 'hyperbole-keys)
 
+(defcustom action-key-modeline-buffer-id-function #'dired-jump
+  "*Function to call when the Action Mouse Key is clicked on the buffer id portion of a modeline.
+Its default value is #'dired-jump; set it to #'smart-treemacs-modeline
+to use the Treemacs file manager package instead."
+  :type 'function
+  :group 'hyperbole-keys)
+
 (defcustom action-key-eol-function #'smart-scroll-up
   "*Function run by the Action Key at the end of a line.
 Its default value is #'smart-scroll-up."
@@ -88,6 +95,9 @@ Its default value is #'smart-scroll-down."
 
 (defvar hkey-alist
   '(
+    ((eq major-mode 'treemacs-mode) . 
+     ((smart-treemacs) . (smart-treemacs)))
+    ;;
     ;; Handle Emacs push buttons in buffers
     ((and (fboundp 'button-at) (button-at (point))) .
      ((push-button nil (mouse-event-p last-command-event))
@@ -133,9 +143,12 @@ Its default value is #'smart-scroll-down."
        (smart-eolp)) .
        ((funcall action-key-eol-function) . (funcall assist-key-eol-function)))
     ;;
-    ;; The Smart Menu system provides menus within Emacs on a dumb terminal.
-    ;; It is a part of InfoDock, but may also be obtained as a separate
-    ;; package.  It is not included with Hyperbole.
+    ;; The Smart Menu system is an attractive in-buffer menu system
+    ;; that works on any display system that supports Emacs.  It
+    ;; predates Emacs' menu systems; it is a part of InfoDock.
+    ;; It is not included with Hyperbole.
+    ;;
+    ;; This selects or gives help for a menu item.
     ((eq major-mode 'smart-menu-mode) . 
      ((smart-menu-select) . (smart-menu-help)))
     ;;
@@ -146,8 +159,7 @@ Its default value is #'smart-scroll-down."
     ((hbut:at-p) .
      ((hui:hbut-act 'hbut:current) . (hui:hbut-help 'hbut:current)))
     ;;
-    ;; The Smart Menu system is an attractive in-buffer menu system
-    ;; that predates Emacs menu systems; it is included in InfoDock.
+    ;; This potentially displays a Smart Menu.
     ((and (fboundp 'smart-menu-choose-menu)
 	  (setq hkey-value (and hkey-always-display-menu
 				(smart-menu-choose-menu)))

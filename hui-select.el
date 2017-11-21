@@ -136,7 +136,13 @@
   (append '(altmath-mode asm-mode csh-mode eiffel-mode ksh-mode
             math-mode miranda-mode python-mode pascal-mode sather-mode)
 	  hui-select-text-modes)
-  "*List of language major modes which use mostly indentation to define syntactic structure."
+  "*List of language major modes that use indentation mostly to define syntactic structure."
+  :type '(repeat (function :tag "Mode"))
+  :group 'hyperbole-commands)
+
+(defcustom hui-select-ignore-quoted-sexp-modes
+  '(debugger-mode emacs-lisp-mode lisp-mode lisp-interaction-mode slime-mode cider-mode)
+  "*List of language major modes in which to ignore quoted sexpressions for syntactic matches."
   :type '(repeat (function :tag "Mode"))
   :group 'hyperbole-commands)
 
@@ -586,17 +592,20 @@ If an error occurs during syntax scanning, it returns nil."
 
 (defun hui-select-at-delimited-thing-p ()
   "Returns non-nil if point is at a markup pair, list, array/vector, set, comment or string, else nil.
-The non-nil value returned is the function to call to select that syntactic unit."
-  (setq hkey-value (hui-select-delimited-thing-call #'hui-select-at-p))
-  (cond ((eq hkey-value 'hui-select-punctuation)
-	 (if (hui-select-comment (point))
-	     (setq hkey-value #'hui-select-comment)
-	   ;; Else here used to be `hkey-value' but then we are returning a
-	   ;; value for any punctuation character without knowing if
-	   ;; it is part of a delimited thing.  Nil should be the
-	   ;; right thing here but need to test this.
-	   nil))
-	(t hkey-value)))
+The non-nil value returned is the function to call to select that syntactic unit.
+
+Ignores any match if on an Emacs button and instead returns nil."
+  (unless (button-at (point))
+    (setq hkey-value (hui-select-delimited-thing-call #'hui-select-at-p))
+    (cond ((eq hkey-value 'hui-select-punctuation)
+	   (if (hui-select-comment (point))
+	       (setq hkey-value #'hui-select-comment)
+	     ;; Else here used to be `hkey-value' but then we are returning a
+	     ;; value for any punctuation character without knowing if
+	     ;; it is part of a delimited thing.  Nil should be the
+	     ;; right thing here.
+	     nil))
+	  (t hkey-value))))
 
 (defun hui-select-delimited-thing ()
   "Selects a markup pair, list, array/vector, set, comment or string at point and returns t, else nil."
@@ -692,7 +701,7 @@ mail and news reply modes."
 (defun hui-select-delimited-thing-call (func)
   "Selects a markup pair, list, vector/array, set, comment or string at point and returns non-nil, else nil.
 The non-nil value returned is the function to call to select that syntactic unit."
-  (unless (and (memq major-mode '(emacs-lisp-mode lisp-mode lisp-interaction-mode slime-mode cider-mode))
+  (unless (and (memq major-mode hui-select-ignore-quoted-sexp-modes)
 	       ;; Ignore quoted identifier sexpressions, like #'function
 	       (char-after) (memq (char-after) '(?# ?\')))
       (let ((hui-select-char-p)

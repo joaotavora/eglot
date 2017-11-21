@@ -150,7 +150,7 @@ EL_COMPILE = hact.el hactypes.el hargs.el hbdata.el hbmap.el hbut.el \
 	     hmouse-drv.el hmouse-key.el hmouse-mod.el hmouse-sh.el hmouse-tag.el \
 	     hpath.el hrmail.el hsettings.el hsmail.el hsys-org.el hsys-www.el htz.el \
 	     hycontrol.el hui-jmenu.el hui-menu.el hui-mini.el hui-mouse.el hui-select.el \
-	     hui-window.el hui.el hvar.el hversion.el hvm.el hypb.el hyperbole.el \
+	     hui-treemacs.el hui-window.el hui.el hvar.el hversion.el hvm.el hypb.el hyperbole.el \
 	     hyrolo-demo.el hyrolo-logic.el hyrolo-menu.el hyrolo.el hywconfig.el set.el
 
 EL_KOTL = kotl/kexport.el kotl/kfile.el kotl/kfill.el kotl/kimport.el kotl/klabel.el \
@@ -165,7 +165,7 @@ ELC_COMPILE =  hactypes.elc hibtypes.elc hib-debbugs.elc hib-doc-id.elc hib-kbd.
 	     hmouse-drv.elc hmouse-key.elc hmouse-mod.elc hmouse-sh.elc hmouse-tag.elc \
 	     hpath.elc hrmail.elc hsettings.elc hsmail.elc hsys-org.elc hsys-www.elc htz.elc \
 	     hycontrol.elc hui-jmenu.elc hui-menu.elc hui-mini.elc hui-mouse.elc hui-select.elc \
-	     hui-window.elc hui.elc hvar.elc hversion.elc hvm.elc hypb.elc hyperbole.elc \
+	     hui-treemacs.elc hui-window.elc hui.elc hvar.elc hversion.elc hvm.elc hypb.elc hyperbole.elc \
 	     hyrolo-demo.elc hyrolo-logic.elc hyrolo-menu.elc hyrolo.elc hywconfig.elc set.elc
 
 ELC_KOTL = kotl/kexport.elc kotl/kfile.elc kotl/kfill.elc kotl/kimport.elc kotl/klabel.elc \
@@ -292,11 +292,11 @@ git-push:
 # git, ELPA will automatically check and build its Hyperbole archive, allowing users to
 # update their packages of Hyperbole.  ELPA does this twice a day now.
 elpa: package
-	cd $(elpa_hypb_dir) && git pull http://git.sv.gnu.org:/srv/git/hyperbole.git master \
+	cd $(elpa_hypb_dir) && git pull http://git.savannah.gnu.org/r/hyperbole.git master \
 	&& git tag -s hyperbole-$(HYPB_VERSION) && git push
 
 elpa-test: package
-	cd $(elpa_hypb_dir) && git pull http://git.sv.gnu.org:/srv/git/hyperbole.git master
+	cd $(elpa_hypb_dir) && git pull http://git.savannah.gnu.org/r/hyperbole.git master
 
 # Send compressed tarball for uploading to GNU ftp site; this must be done from the directory
 # containing the tarball to upload.
