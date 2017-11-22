@@ -364,10 +364,10 @@ Only works when running under a window system, not from a dumb terminal."
     ;; Leave hkey-drag to choose selected window
     (hkey-drag release-window)))
 
-(defun hkey-ace-window-setup ()
-  "Setup keyboard-based display of items in windows specified by short ids.
+(defun hkey-ace-window-setup (&optional key)
+  "Bind optional keyboard KEY and setup display of items in windows specified by short ids.
 
-The ace-window package, (see "https://elpa.gnu.org/packages/ace-window.html"),
+The ace-window package, (see \"https://elpa.gnu.org/packages/ace-window.html\"),
 assigns short ids to each Emacs window and lets you jump to or
 operate upon a specific window by giving its letter.  Hyperbole
 can insert an operation into ace-window that allows you to
@@ -375,22 +375,25 @@ display items such as dired or buffer menu items in a specific
 window.
 
 To enable this feature, in your Emacs initialization file after
-Hyperbole is initialized, call:
+Hyperbole is initialized, if you already have a key bound for
+ace-window, then call:
 
  (hkey-ace-window-setup)
 
-and then bind the function `ace-window' to a key of your choice, say
-{M-o}:
+otherwise, choose a binding like {M-o} and send it to the same
+function to bind it:
 
- (global-set-key "\M-o" 'ace-window)
-  
+ (hkey-ace-window-setup \"\M-o\")
+
 Then whenever point is on an item you want displayed in another
 window, use {M-o i <id-of-window-to-display-item-in>} and watch the
 magic happen."
   (require 'ace-window)
+  (when key (global-set-key key 'ace-window))
+  (push '(?i hkey-drag-jump "Hyperbole Drag To") aw-dispatch-alist)
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+	;; allows {i} operation to work when only 2 windows exist
 	aw-dispatch-always t)
-  (push '(?i hkey-drag-jump "Hyperbole Display Item") aw-dispatch-alist)
   (ace-window-display-mode 1))
 
 (defun hkey-execute (assist-flag)

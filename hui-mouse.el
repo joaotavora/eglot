@@ -4,7 +4,7 @@
 ;;
 ;; Orig-Date:    04-Feb-89
 ;;
-;; Copyright (C) 1991-2016  Free Software Foundation, Inc.
+;; Copyright (C) 1991-2017  Free Software Foundation, Inc.
 ;; See the "HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
@@ -672,8 +672,7 @@ If key is pressed:
 		      (dired-do-deletions))
 		     (t (error "(smart-dired): No Dired expunge function.")))))
 	       (t (hpath:find (smart-dired-pathname-up-to-point)))))
-	((last-line-p)
-	 (quit-window))
+	((last-line-p) (quit-window))
 	(t (hpath:find (dired-get-filename)))))
 
 (defun smart-dired-assist ()

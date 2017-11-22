@@ -1135,6 +1135,32 @@ If you want a new window where you release (so the original destination window's
 buffer stays onscreen), just drag to a window's modeline; that window will be
 split before the buffer is displayed.
 
+*** Displaying File and Buffer Items
+
+You can do the same thing with items in dired, buffer menu and ibuffer menu
+listing buffers rather than buffers themselves.  Drag with the Action Mouse Key
+and the selected item will be displayed in any Emacs window in which you
+release.  Drag outside Emacs and it will be displayed in a new frame.  To
+display the last item you want, press the Action Key on it and it will display
+within the listing window itself.  (If you use the Treemacs file viewer package,
+item dragging works there as well).
+
+So now you can rapidly put a bunch of buffers and files on your screen wherever
+you like.  Typically, a brief visual pulse is shown first at the source item and
+then in the destination window, to help you see that the transfer has been
+made.  An Assist Key Drag will move the the item list buffer to the destination
+(swapping buffers), just as it does with other buffers.  Practice these drags as
+they will prove very beneficial across time.
+
+For even faster keyboard-based drag emulation, use the Emacs package
+'ace-window' (see "(hyperbole)Keyboard Drags" for setup).  Once this is
+configured, the leftmost character or two of each window's modeline will show
+the ID to type to use that window as the drag destination.  Then whenever point
+is on an item you want displayed in another window, use M-o i
+<id-of-window-to-display-item-in> and watch the magic happen.  You can also use
+this to create explicit button links to other window buffers when in an editable
+buffer.
+
 *** Cloning Windows
 
 To clone a window with its buffer to a new frame, simply drag the Action Mouse
@@ -1143,20 +1169,6 @@ be created, selected and sized according to the original window.  Do the same
 thing with the Assist Mouse Key and the original window will be deleted as well,
 unless it is the only window in that frame.  Create a few windows and try these
 actions.
-
-*** Displaying File and Buffer Items
-
-You can do the same thing with items in dired, buffer menu and ibuffer menus
-rather than buffers themselves.  Drag with the Action Mouse Key and the selected
-item will be displayed in any Emacs window in which you release.  Drag outside
-Emacs and it will be displayed in a new frame.
-
-So now you can rapidly put a bunch of buffers and files on your screen wherever
-you like.  Typically, a brief visual pulse is shown first at the source item and
-then in the whole destination window, to help you see that the transfer has been
-made.  An Assist Key Drag will move the the item list buffer to the destination
-(swapping buffers), just as it does with other buffers.  Practice these drags as
-they will prove very beneficial across time.
 
 ** Window Configuration Drags
 

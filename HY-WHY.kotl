@@ -60,14 +60,19 @@
       and frames with mouse drags and the Hyperbole HyControl system.
       See "DEMO#HyControl".
 
-    11a. Drag Buffer Menu or Dired items to other windows to display
-         them wherever you want.  Drag-and-drop text regions across
-         Emacs frames.  See "DEMO#Displaying File and Buffer Items".
+    11a. Drag Buffer Menu, Dired or Treemacs items to other windows to
+         display them wherever you want.  Integrate with the Ace
+         Window package to `throw' items to specific windows with
+         quick key sequences.  See "DEMO#Displaying File and Buffer
+         Items".
 
-    11b. Swap buffers in windows across frames with a mouse drag.
+    11b. Drag-and-drop text regions across Emacs frames.  See
+         "DEMO#Things".
+
+    11c. Swap buffers in windows across frames with a mouse drag.
          See "DEMO#Swapping Buffers".
 
-    11c. With one command, rapidly create a grid of tiled windows
+    11d. With one command, rapidly create a grid of tiled windows
          displaying either selected buffers, buffers with a specific
          major mode or the most recently used buffer list, e.g.
          {63 C-c @} creates 6 rows, each with 3 columns of windows (18
@@ -77,22 +82,22 @@
          same above command to display them in a grid of windows.  See
          "DEMO#Windows Grid".
 
-    11d. Use a quick mouse key press to scroll any window line to the
+    11e. Use a quick mouse key press to scroll any window line to the
          top or bottom of a window, to see exactly what you want on
          screen.  See "DEMO#Smart Scrolling".
 
-    11e. Clone or tear off a window into its own frame with a quick
+    11f. Clone or tear off a window into its own frame with a quick
          mouse drag.  See "DEMO#Cloning Windows".
 
-    11f. Each frame can store a series of window configurations
+    11g. Each frame can store a series of window configurations
          (layouts) which support working with sets of buffers and
          rapidly moving among them.  See "DEMO#Window Configuration
          Drags".
 
-    11g. Easily adjust the height and width of windows and frames as
+    11h. Easily adjust the height and width of windows and frames as
          needed.  See "DEMO#Frame Commands".
 
-    11h. Quick clicks on different areas of a buffer's modeline will
+    11i. Quick clicks on different areas of a buffer's modeline will
          rotate through your working list of buffers, changing what
          each window displays.  A popup menu gives you quick access to
          Hyperbole commands plus frame, window and buffer selection
@@ -102,7 +107,7 @@
 
 
 "ben" ;; kvspec:current
-36 ;; id-counter
+37 ;; id-counter
 alpha ;; label-type
 4 ;; label-min-width
 ". " ;; label-separator
@@ -110,7 +115,7 @@ alpha ;; label-type
 
 ;; depth-first kcell attributes
 [[0
-  (creator "rsw@gnu.org" create-time "20171114:17:51:59" id-counter 36 file "/Users/bk/sw-dev/emacs/hyperbole/HY-WHY.kotl")]
+  (creator "rsw@gnu.org" create-time "20171122:02:34:20" id-counter 37 file "/Users/bk/Dropbox/emacs/hyperbole/HY-WHY.kotl")]
  [1
   (creator "rsw@gnu.org" create-time "20160524:15:04:17" no-fill t)]
  [17
@@ -135,6 +140,8 @@ alpha ;; label-type
   (creator "rsw@gnu.org" create-time "20160524:15:32:11" no-fill t)]
  [20
   (creator "rsw@gnu.org" create-time "20171019:22:07:29" no-fill t)]
+ [37
+  (idstamp 20 creator "rsw@gnu.org" create-time "20171019:22:07:29" no-fill t)]
  [23
   (creator "rsw@gnu.org" create-time "20171108:01:15:39" no-fill t)]
  [22

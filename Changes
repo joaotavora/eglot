@@ -1,5 +1,17 @@
 2017-11-21  Bob Weiner  <rsw@gnu.org>
 
+* hversion.el: Updated to 7.0.1 for release.
+
+* DEMO (Displaying File and Buffer Items): Added description of ace-window integration.
+
+* HY-WHY.kotl: Added link to Delimited Thing drags; mention of Treemacs
+
+* man/hyperbole.texi (Smart Key - Treemacs): Added and updated with other improvements for this release.
+                     (Keyboard Drags): Added this section and documented integration with ace-window package.
+
+* hui-window.el (hmouse-modeline-click): Loosened check to allow a small movement between press and release
+    as long as it is less than whatever amount of movement registers a drag (used to require exact pixel match).
+
 * hmouse-drv.el (hkey-ace-window-setup): Setup keyboard-based display of items in windows specified by
     short ids.  See its doc string for how to use.
                 (hkey-drag, hkey-drag-jump): Added for mouse drag emulation via keyboard from a single

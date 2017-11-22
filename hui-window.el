@@ -941,10 +941,9 @@ If the Assist Key is:
 	  (t (hmouse-modeline-resize-window)))))
 
 (defun hmouse-modeline-click ()
-  "Returns non-nil if last Smart Key depress and release were at a single point in a modeline."
+  "Returns non-nil if last Smart Key depress and release were at a single point (less than drag tolerance apart) in a modeline."
   (and (hmouse-modeline-release) (hmouse-modeline-depress)
-       (equal (if assist-flag assist-key-depress-position action-key-depress-position)
-	      (if assist-flag assist-key-release-position action-key-release-position))))
+       (not (or (hmouse-drag-horizontally) (hmouse-drag-vertically) (hmouse-drag-diagonally)))))
 
 (defun hmouse-emacs-modeline-event-p (event)
   "GNU Emacs: Returns non-nil if EVENT happened on a window mode line."

@@ -151,8 +151,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 7.0.0
-Printed November 15, 2017.
+Edition 7.0.1
+Printed November 21, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed November 15, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 7.0.0, November 15, 2017.
+@center Edition 7.0.1, November 21, 2017.
 
 @sp 2
 @noindent
@@ -297,6 +297,7 @@ Dragging Buffers, Windows and Items
 * Displaying Buffers::
 * Cloning Windows::
 * Displaying File and Buffer Items::
+* Keyboard Drags::
 
 Buttons
 
@@ -412,6 +413,7 @@ Smart Mouse Keys
 
 Smart Keyboard Keys
 
+* Smart Key - Treemacs::
 * Smart Key - Emacs Pushbuttons::
 * Smart Key - Argument Completion::
 * Smart Key - ID Edit Mode::
@@ -460,7 +462,7 @@ Smart Keyboard Keys
 @chapter Introduction
 
 This edition of the GNU Hyperbole Manual is for use with any version
-7.0.0 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+7.0.1 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 
 This chapter summarizes the structure of the rest of the manual,
@@ -1082,8 +1084,8 @@ kill (delete) the thing.
 @cindex cut region
 @cindex copy region
 @cindex paste region
-Even better are Smart Mouse Key drags which let you copy or move
-delimited things in one operation without even highlighting them.  To
+Even better are Smart Mouse Key thing drags which let you copy or move
+delimited things in one operation without having to select a region.  To
 copy, simply drag with the Action Key from a thing's opening delimiter
 and release somewhere outside of the thing, either within the same
 window or within another window.  The thing will be copied to the
@@ -1091,9 +1093,6 @@ point of release.  If you want to move a thing, simply perform the
 same drag but with the Assist Mouse Key.  Ensure that you do not move
 any explicit buttons from one buffer to another as that does not
 work.
-
-Try out some of these operations in HTML or source code files to see
-how they can speed your editing.
 
 @noindent
 Hyperbole also binds two convenience keys for working with things.
@@ -1156,6 +1155,8 @@ you can click anywhere on the buffer identifier.
 @item Buffer ID Element
 
 @cindex dired
+@cindex directory editor
+@findex dired-jump
 @cindex modeline, dired
 @cindex buffer id
 @cindex modeline, buffer id
@@ -1167,11 +1168,21 @@ Then Action Key clicks on directory items in the dired buffer display the
 items selected in other windows.  An Action Key drag from an item to
 another window displays the item in that window.
 
-An Action Key click on the first line in a dired buffer which contains the
-current directory path, specifically on any ancestor part of the path (the
-part to the left of the click point), starts another dired session on the
-ancestor directory.  Click at the end of this line to end the dired session
-(bury its buffer).
+An Action Key click on the first line in a dired buffer which contains
+the current directory path, specifically on any ancestor part of the
+path (the part to the left of the click point), starts another dired
+session on the ancestor directory.  Click at the end of this line or
+on the last line to end the dired session (bury its buffer).
+
+@cindex Treemacs
+@cindex file viewer, Treemacs
+If you use the Treemacs file viewer Emacs package, you can configure Hyperbole
+to use this instead of Dired when you click on a modeline buffer id.
+
+Since this is a customization option, it may be change permanently like so.
+Use @bkbd{M-x customize-set-variable @key{RET} action-key-modeline-buffer-id-function @key{RET}}.
+Change the value to @code{smart-treemacs-modeline}.  Then press @key{RET}.  To change it back
+to Hyperbole's default, use the value, @code{dired-jump}.
 
 @item Large Blank Area
 
@@ -1236,25 +1247,16 @@ use that with the following in your Emacs initialization file:
 To set it back to the default use:
 @code{(setq action-key-modeline-function #'hmouse-context-menu)}.
 
-@findex dired-jump
 @findex hui-menu-screen-commands
-@cindex directory editor
-@cindex dired
 @cindex modeline, screen command menu
 The default @code{assist-key-modeline-function} is to pop up a menu of
 convenient screen commands that lets you select buffers grouped by
 major mode, use HyControl, or jump to specific windows, window
-configurations or frames.  If you would prefer it runs the directory
-editor @code{dired} on the directory associated with the window of the
-modeline press, use this: @code{(setq assist-key-modeline-function #'dired-jump)}.
-To set it back to the default use:
-@code{(setq assist-key-modeline-function #'hui-menu-screen-commands)}.
+configurations or frames.
 
-These variables may also be changed permanently with the Emacs
-interactive customization interface.  Use @bkbd{M-x customize-variable
-@key{RET} assist-key-modeline-function @key{RET}}.  In the Assist
-Modeline Function text field that appears, change the value
-to @code{dired-jump}.  Then press the ``Apply and Save'' button.
+Since these are customization options, they may be change permanently like so.
+Use @bkbd{M-x customize-set-variable @key{RET} assist-key-modeline-function @key{RET}}.
+Change the value to your desired command.  Then press @key{RET}.
 @end itemize
 
 @node Smart Mouse Key Drags,  , Smart Mouse Key Modeline Clicks, Smart Keys
@@ -1352,6 +1354,7 @@ locations with drags.  Below we explore these drag actions.
 * Displaying Buffers::
 * Cloning Windows::
 * Displaying File and Buffer Items::
+* Keyboard Drags::
 @end menu
 
 @node Swapping Buffers, Displaying Buffers, Dragging Buffers, Dragging Buffers
@@ -1397,23 +1400,83 @@ be created, selected and sized according to the original window.  Do the same
 thing with the Assist Mouse Key and the original window will be deleted as well,
 unless it is the only window in that frame.
 
-@node Displaying File and Buffer Items,  , Cloning Windows, Dragging Buffers
+@node Displaying File and Buffer Items, Keyboard Drags, Cloning Windows, Dragging Buffers
 @subsubsection Displaying File and Buffer Items
 
 @cindex dired item drag
 @cindex buffer menu item drag
+@cindex Treemacs item drag
 @cindex drag, dired item
 @cindex drag, buffer menu item
-You can do the same thing with items in dired, buffer menu and ibuffer menus
-rather than buffers themselves.  Drag with the Action Mouse Key and the selected
-item will be displayed in any Emacs window in which you release.  Drag outside
-Emacs and it will be displayed in a new frame.
+@cindex drag, Treemacs item
+You can do the same thing with items in dired, buffer menu and ibuffer menu
+listing buffers rather than buffers themselves.  Drag with the Action Mouse Key
+and the selected item will be displayed in any Emacs window in which you
+release.  Drag outside Emacs and it will be displayed in a new frame.  To
+display the last item you want, press the Action Key on it and it will display
+within the listing window itself.  (If you use the Treemacs file viewer package,
+item dragging works there as well).  Remember that you can emulate these drags
+from the keyboard when needed, @pxref{Smart Mouse Key Drags}.
 
 So now you can put a bunch of buffers and files on your screen wherever
 you like.  Typically, a brief visual pulse is shown first at the source item and
-then in the whole destination window, to help you see that the transfer has been
+then in the destination window, to help you see that the transfer has been
 made.  An Assist Key Drag will move the the item list buffer to the
 destination (swapping buffers), just as it does with other buffers.
+
+@node Keyboard Drags,  , Displaying File and Buffer Items, Dragging Buffers
+@subsubsection Keyboard Drags
+
+@kindex M-o
+@kindex C-u M-o
+@kindex C-x o
+@findex hkey-operate
+@cindex drag emulation
+@cindex emulation, drag
+@cindex keyboard drags
+If you run Emacs under a window system and there is no prior key binding
+on @bkbd{M-o} when you load Hyperbole, then many Action Key drags can be
+emulated from the keyboard.  To do so, press @bkbd{M-o}, the
+@code{hkey-operate} command, at the button source location, move
+to the link destination, e.g.@: with @bkbd{C-x o}, and then press
+@bkbd{M-o} again.  This simulates a depress and release of the
+Action Key.  @bkbd{C-u M-o} emulates drags of the Assist Key.
+This will not work when Hyperbole is run from a dumb terminal Emacs
+session since drag actions are not supported without a window system.
+
+@findex ace-window
+@findex hkey-ace-window-setup
+@cindex ace-window
+@cindex window by letter
+@cindex jump to window by letter
+@cindex keyboard, jump to window
+For even faster keyboard-based drag emulation, use the Emacs
+package @code{ace-window} (see @url{https://elpa.gnu.org/packages/ace-window.html}).
+
+The ace-window package assigns short letter IDs to each Emacs window and lets
+you jump to or operate upon a specific window by giving its ID.  Hyperbole can
+add an operation to ace-window that replaces the two-step drag emulation key
+described above with a single key sequence that jumps directly to the
+destination window desired.  This is most useful when working with dired or
+buffer menu @emph{items}, so the drag operation uses the @{i@} key
+within @code{ace-window}.
+
+To enable this feature, in your Emacs initialization file after
+Hyperbole is initialized, if you do not have a key bound for
+@code{ace-window}, then call: @code{(hkey-ace-window-setup \"\M-o\")}
+to bind it to @bkbd{M-o}.  Otherwise, call the setup function without
+a key: @code{(hkey-ace-window-setup)}.
+
+@cindex link creation from keyboard
+@cindex keyboard link creation
+After setup, the leftmost character or two of each window's modeline will show
+the ID to type to use that window as the drag destination.  Then whenever point
+is on an item you want displayed in another window, use @bkbd{M-o i
+<id-of-window-to-display-item-in>} and watch the magic happen.  You can also use
+this to create explicit button links to other window buffers when in an editable
+buffer.
+
+@c -------
 
 @c @node Smart Mouse Key Modifiers,  , Smart Mouse Key Drags, Smart Keys
 @c @section   Smart Mouse Key Modifiers
@@ -2546,21 +2609,6 @@ Buffer without File      link-to-buffer-tmp
 @end example
 @end format
 
-@kindex M-o
-@kindex C-u M-o
-@kindex C-x o
-@findex hkey-operate
-@cindex emulation, Action Key drag 
-@cindex keyboard drag emulation
-If you run Emacs under a window system and there is no prior key
-binding on @bkbd{M-o} when you load Hyperbole, then you can emulate
-an Action Key drag from the keyboard by typing @bkbd{M-o}, the
-@code{hkey-operate} command, at the button source location, moving
-to the link destination, e.g.@: with @bkbd{C-x o}, and then typing
-@bkbd{M-o} again.  This simulates a depress and then release of the
-Action Key.  @bkbd{C-u M-o} emulates drags of the Assist Key.
-This will not work when Hyperbole is run from a dumb terminal Emacs
-session since drag actions are not supported without a window system.
 
 @node By Menu,  , By Dragging, Creation
 @subsubsection Creation Via Menus
@@ -7736,6 +7784,7 @@ If dragged from an Emacs window to outside of Emacs:
 @section   Smart Keyboard Keys
 
 @menu
+* Smart Key - Treemacs::
 * Smart Key - Emacs Pushbuttons::
 * Smart Key - Argument Completion::
 * Smart Key - ID Edit Mode::
@@ -7778,7 +7827,36 @@ If dragged from an Emacs window to outside of Emacs:
 * Smart Key - Default Context::
 @end menu
 
-@node Smart Key - Emacs Pushbuttons, Smart Key - Argument Completion, Smart Keyboard Keys, Smart Keyboard Keys
+@node Smart Key - Treemacs, Smart Key - Emacs Pushbuttons, Smart Keyboard Keys, Smart Keyboard Keys
+@subsection Smart Key - Treemacs
+
+@cindex Treemacs
+Treemacs is an add-on Emacs package that offers a fixed, per-frame, graphical
+window for hierarchically browsing and operating upon directories, files and
+programming tags within files.  Use the Emacs package manager to install it and
+then invoke it with @bkbd{M-x treemacs @key{RET}} and quit with @bkbd{q}.
+
+@noindent
+Treemacs items may be dragged with the Action Key to other windows for display.
+@xref{Displaying File and Buffer Items}.
+
+@format
+@group
+When in a Treemacs file browser buffer:
+  ACTION KEY or ASSIST KEY
+     (1) on an entry icon, the treemacs TAB command is run to expand and
+         collapse the entry;
+     (2) elsewhere within an entry line, the item is displayed for editing,
+         normally in another window;
+     (3) on the first line of the buffer (other than the end of line),
+         dired is run on the current directory of this Treemacs;
+     (4) at the end of the first or last line of the buffer,
+         this Treemacs invocation is quit.
+@end group
+@end format
+
+
+@node Smart Key - Emacs Pushbuttons, Smart Key - Argument Completion, Smart Key - Treemacs, Smart Keyboard Keys
 @subsection Smart Key - Emacs Pushbuttons
 
 @format

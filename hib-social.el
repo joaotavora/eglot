@@ -4,7 +4,7 @@
 ;;
 ;; Orig-Date:    20-Jul-16 at 22:41:34
 ;;
-;; Copyright (C) 2016  Free Software Foundation, Inc.
+;; Copyright (C) 2016-2017  Free Software Foundation, Inc.
 ;; See the "HY-COPY" file for license information.
 ;;
 ;; This file is part of GNU Hyperbole.
@@ -66,14 +66,14 @@
 ;;                                               is set, display current project's local
 ;;                                               git commit diff
 ;;     git#master                                Show latest commit entry and diff for branch
-;;     git#hyperbole-6.0.2                       From any buffer, show the commit diff
-;;                                               for tag `hyperbole-6.0.2'
+;;     git#hyperbole-7.0.0                       From any buffer, show the commit diff
+;;                                               for tag `hyperbole-7.0.0'
 ;;
 ;;     When you want to be more explicit, use:
 ;;       
 ;;       git#commit/55a1f0
 ;;       git#branch/master
-;;       git#tag/hyperbole-6.0.2
+;;       git#tag/hyperbole-7.0.0
 ;;
 ;;     To edit and view git managed files (note the =):
 ;;
