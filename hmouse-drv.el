@@ -347,7 +347,7 @@ Only works when running under a window system, not from a dumb terminal."
   (hkey-operate current-prefix-arg))
 
 ;;;###autoload
-(defun hkey-drag-jump (release-window)
+(defun hkey-drag-to (release-window)
   "Emulate Smart Mouse Key drag from selected window to RELEASE-WINDOW.
 If an item is dragged to RELEASE-WINDOW, then RELEASE-WINDOW is selected;
 otherwise, the drag action determines the selected window.
@@ -390,7 +390,7 @@ window, use {M-o i <id-of-window-to-display-item-in>} and watch the
 magic happen."
   (require 'ace-window)
   (when key (global-set-key key 'ace-window))
-  (push '(?i hkey-drag-jump "Hyperbole Drag To") aw-dispatch-alist)
+  (push '(?i hkey-drag-to "Hyperbole Drag To") aw-dispatch-alist)
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
 	;; allows {i} operation to work when only 2 windows exist
 	aw-dispatch-always t)
@@ -572,9 +572,10 @@ the current window.  By default, it is displayed according to the setting of
 	  ;; selection.
 	  (unless (or (where-is-internal 'quit-window (current-local-map))
 		      (where-is-internal 'hkey-help-hide (current-local-map)))
-	    (if (string-match "^\\*Help\\|Help\\*$" (buffer-name))
-		(help-mode))
-	    (local-set-key "q" #'hkey-help-hide))))
+	    (when (string-match "^\\*Help\\|Help\\*$" (buffer-name))
+	      (help-mode))
+	    (when (derived-mode-p 'help-mode)
+	      (local-set-key "q" #'hkey-help-hide)))))
     ;; If in a *Completions* buffer, re-select the window that
     ;; generated the completions.
     (if (buffer-live-p completion-reference-buffer)

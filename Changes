@@ -1,6 +1,9 @@
-2017-11-21  Bob Weiner  <rsw@gnu.org>
+2017-11-22  Bob Weiner  <rsw@gnu.org>
 
-* hversion.el: Updated to 7.0.1 for release.
+* hmouse-drv.el (hkey-help-show): Limited local binding of {q} to hkey-help-hide only
+    when in a help-mode (or derived) buffer.
+
+2017-11-21  Bob Weiner  <rsw@gnu.org>
 
 * DEMO (Displaying File and Buffer Items): Added description of ace-window integration.
 
@@ -14,9 +17,9 @@
 
 * hmouse-drv.el (hkey-ace-window-setup): Setup keyboard-based display of items in windows specified by
     short ids.  See its doc string for how to use.
-                (hkey-drag, hkey-drag-jump): Added for mouse drag emulation via keyboard from a single
+                (hkey-drag, hkey-drag-to): Added for mouse drag emulation via keyboard from a single
     function that uses the selected window point for depress location and the parameter RELEASE-WINDOW
-    for the window and its point for release.  hkey-drag-jump is useful as a command in the ace-window
+    for the window and its point for release.  hkey-drag-to is useful as a command in the ace-window
     package's aw-dispatch-alist, e.g. {i} for insert item, because it leaves RELEASE-WINDOW selected.
 
 * hui-select.el (hui-select-ignore-quoted-sexp-modes): Added so major modes to ignore for syntactic pair
@@ -55,6 +58,8 @@
   hactypes.el (link-to-buffer-tmp): Added optional 2nd parameter of POINT to display.
 
 2017-11-19  Bob Weiner  <rsw@gnu.org>
+
+* hversion.el: Updated to 7.0.1 for release.
 
 * hui-window.el (hmouse-item-to-window): Added support for hmouse-drag-item-mode-forms sending
     a sequence of (buffer position) rather than just buffer.
@@ -289,7 +294,7 @@ V7.0.1 changes ^^^^:
 
 2017-10-30  Bob Weiner  <rsw@gnu.org>
 
-* man/hyperbole.texi (Glossary): Removed mention of old remote file access packages: ange-ftp and EFS.  Use Tramp only
+* man/hyperbole.texi (Glossary): Removed mention of old remote file access packages: ange-ftp and EFS.  Use Tamrp only
     now.
                      (Searching and Summarizing): Renamed from Location.
 

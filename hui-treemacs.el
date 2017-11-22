@@ -16,7 +16,7 @@
 ;;; Other required Elisp libraries
 ;;; ************************************************************************
 
-(eval-when-compile (require 'treemacs nil t))
+(eval-and-compile (require 'treemacs nil t))
 
 ;;; ************************************************************************
 ;;; smart-treemacs functions
@@ -95,8 +95,8 @@ Suitable for use as a value of `action-key-modeline-buffer-id-function'."
 ;;; treemacs function updates
 ;;; ************************************************************************
 
-;; Add this defsubst in treemacs-tags.el
-(defsubst treemacs--imenu-tag-noselect (file tag-path)
+;; Add this in treemacs-tags.el
+(defun treemacs--imenu-tag-noselect (file tag-path)
   "Return a list of the source buffer for FILE and the position of the tag from TAG-PATH."
   (let ((tag (car tag-path))
         (path (cdr tag-path)))
@@ -197,6 +197,10 @@ under or below it."
 				 state ',valid-states)))
 		(when ,save-window
                   (select-window current-window))))))))))
+
+;; Reload source form of this library so updated version of
+;; `treemacs--execute-button-action' above is used throughout.
+(load "treemacs-interface.el")
 
 ;; Add to treemacs-interface.el.
 ;;;###autoload
