@@ -591,12 +591,12 @@ DEFAULT-ACTYPE may be a valid symbol or symbol-name."
     ;;     Commented error out since some people want to be able to create
     ;;     buttons within files which they have purposely marked read-only.
     ;;     (setq err 
-    ;;	     (format "(ebut-modify): You are not allowed to modify '%s'."
+    ;;	     (format "(ebut-modify): Hyperbole lacks permission to write to '%s'."
     ;;		     (file-name-nondirectory buffer-file-name))))
     (if buffer-read-only
 	(setq err
-	      (format "Button buffer '%s' is read-only.  Use {%s} to change it."
-		      (buffer-name but-buf) (hmouse-read-only-toggle-key))))
+	      (format "(%s) Hyperbole button buffer '%s' cannot be edited.  Use {%s} to enable edits."
+		      func-name (buffer-name but-buf) (hmouse-read-only-toggle-key))))
     (set-buffer obuf)
     (if err (progn (pop-to-buffer but-buf) (hypb:error err)))))
 

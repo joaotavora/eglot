@@ -1,5 +1,12 @@
 2017-11-22  Bob Weiner  <rsw@gnu.org>
 
+* hversion.el: Released 7.0.1.
+
+* hui.el (hui:buf-writable-err): Added previously unused func-name parameter to error msg.
+
+* hypb.el (hypb:error): Fixed issue when a literal string with % characters in it was sent to format
+    and triggered an error, e.g. when a buffer or file name contains a %.
+
 * hmouse-drv.el (hkey-help-show): Limited local binding of {q} to hkey-help-hide only
     when in a help-mode (or derived) buffer.
 
@@ -58,8 +65,6 @@
   hactypes.el (link-to-buffer-tmp): Added optional 2nd parameter of POINT to display.
 
 2017-11-19  Bob Weiner  <rsw@gnu.org>
-
-* hversion.el: Updated to 7.0.1 for release.
 
 * hui-window.el (hmouse-item-to-window): Added support for hmouse-drag-item-mode-forms sending
     a sequence of (buffer position) rather than just buffer.
