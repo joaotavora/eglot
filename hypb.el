@@ -220,7 +220,7 @@ Global keymap is used unless optional KEYMAP is given."
 
 (defun hypb:error (&rest args)
   "Signals an error typically to be caught by `hyperbole'."
-  (let ((msg (apply 'format args)))
+  (let ((msg (if (< (length args) 2) (car args) (apply 'format args))))
     (put 'error 'error-message msg)
     (error msg)))
 

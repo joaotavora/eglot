@@ -1,3 +1,94 @@
+2017-11-22  Bob Weiner  <rsw@gnu.org>
+
+* hversion.el: Released 7.0.1.
+
+* hui.el (hui:buf-writable-err): Added previously unused func-name parameter to error msg.
+
+* hypb.el (hypb:error): Fixed issue when a literal string with % characters in it was sent to format
+    and triggered an error, e.g. when a buffer or file name contains a %.
+
+* hmouse-drv.el (hkey-help-show): Limited local binding of {q} to hkey-help-hide only
+    when in a help-mode (or derived) buffer.
+
+2017-11-21  Bob Weiner  <rsw@gnu.org>
+
+* DEMO (Displaying File and Buffer Items): Added description of ace-window integration.
+
+* HY-WHY.kotl: Added link to Delimited Thing drags; mention of Treemacs
+
+* man/hyperbole.texi (Smart Key - Treemacs): Added and updated with other improvements for this release.
+                     (Keyboard Drags): Added this section and documented integration with ace-window package.
+
+* hui-window.el (hmouse-modeline-click): Loosened check to allow a small movement between press and release
+    as long as it is less than whatever amount of movement registers a drag (used to require exact pixel match).
+
+* hmouse-drv.el (hkey-ace-window-setup): Setup keyboard-based display of items in windows specified by
+    short ids.  See its doc string for how to use.
+                (hkey-drag, hkey-drag-to): Added for mouse drag emulation via keyboard from a single
+    function that uses the selected window point for depress location and the parameter RELEASE-WINDOW
+    for the window and its point for release.  hkey-drag-to is useful as a command in the ace-window
+    package's aw-dispatch-alist, e.g. {i} for insert item, because it leaves RELEASE-WINDOW selected.
+
+* hui-select.el (hui-select-ignore-quoted-sexp-modes): Added so major modes to ignore for syntactic pair
+    selection can be customized.
+                (hui-select-at-delimited-thing-p): Changed to not trigger when on an Emacs button.
+
+* hui-window.el (hmouse-drag-between-frames): Replaced calls to window-valid-p with window-live-p.
+                (hmouse-drag-window-side, hmouse-drag-between-windows, hmouse-drag-same-window,
+		 hmouse-drag-outside-all-windows, hmouse-drag-item-to-display,
+		 hmouse-item-to-window): Added window-live-p checks for cases where a window has
+    been deleted between depress and release.
+
+* hmouse-drv.el (hmouse-window-at-absolute-pixel-position): Updated to support keyboard drag emulation.
+                (hkey-help): Changed hkey-forms to use hmouse-alist instead of hkey-alist so mouse
+    drags are accounted for when emulating drags from the keyboard and then invoking {C-h A} for help.
+  hui-window.el (hmouse-drag-outside-all-windows): Triggered only if an action/assist-key press has
+    occurred, e.g. could be called by hkey-help when no press has occurred.
+                (hmouse-x-coord, hmouse-y-coord): Removed error when there is no valid coordinate and
+    returned nil instead to support keyboard drag emulation help.
+
+2017-11-20  Bob Weiner  <rsw@gnu.org>
+
+* hmouse-drv.el (hkey-absolute-pixel-position): Added and used in Action/Assist Key functions.
+                (hmouse-set-point): Fixed hkey-operate bug by wrapping final (posn-at-point) in
+    a list with an event type symbol so if called from a keyboard event, returns a proper format
+    event.
+                (hkey-operate): Changed so output messages only when called interactively.
+
+* hui-treemacs.el: Added for Smart Key support of the Treemacs file manager.
+                   (smart-treemacs): Added.
+                   (smart-treemacs-modeline): Added to allow toggling of Treemacs display on
+    Action Key clicks on buffer id of modeline.
+  hui-mouse.el (hkey-alist, action-key-modeline-buffer-id-function): Added Smart Key treemacs
+    package support.
+  hui-window.el (action-key-modeline): Updated to call action-key-modeline-buffer-id-function.
+  hactypes.el (link-to-buffer-tmp): Added optional 2nd parameter of POINT to display.
+
+2017-11-19  Bob Weiner  <rsw@gnu.org>
+
+* hui-window.el (hmouse-item-to-window): Added support for hmouse-drag-item-mode-forms sending
+    a sequence of (buffer position) rather than just buffer.
+                (hmouse-drag-item-mode-forms): Added support for dragging items from the treemacs
+    hierachical file viewer package.
+
+2017-11-17  Bob Weiner  <rsw@gnu.org>
+
+* hyrolo.el (hyrolo-initialize-file-list): Fixed to set hyrolo-file-list.
+            (hyrolo-retrieve-google-contacts): Updated to cache Google passphrase whenever Google contacts
+    are used so the user is not prompted for his passphrase on every HyRolo search.
+  man/hyperbole.texi (HyRolo Settings): Updated Google Contacts settings handling to document this caching.
+
+* man/im/C-hh.png - Added showing Hyperbole mini-buffer menu prefix key binding.
+
+2017-11-16  Bob Weiner  <rsw@gnu.org>
+
+* hywconfig.el (hywconfig-delete-pop): Fixed bug that removed the ring entry before using it to restore
+    the window configuration.
+
+==============================================================================
+V7.0.1 changes ^^^^:
+==============================================================================
+
 2017-11-15  Bob Weiner  <rsw@gnu.org>
 
 * hversion.el: Updated to 7.0.0 for major release.
@@ -205,7 +296,7 @@
 
 2017-10-30  Bob Weiner  <rsw@gnu.org>
 
-* man/hyperbole.texi (Glossary): Removed mention of old remote file access packages: ange-ftp and EFS.  Use Tramp only
+* man/hyperbole.texi (Glossary): Removed mention of old remote file access packages: ange-ftp and EFS.  Use Tamrp only
     now.
                      (Searching and Summarizing): Renamed from Location.
 
@@ -1300,7 +1391,7 @@ Python (case-sensitive).
   hvar.el (var:append): Removed improper function quoting of variable.
 
 ==============================================================================
-V6.0.3 changes ^^^^:
+V7.0.0 changes ^^^^:
 ==============================================================================
 
 2016-08-08  Bob Weiner  <rsw@gnu.org>

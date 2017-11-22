@@ -40,6 +40,7 @@ hui-menu.el         - Menubar menu of GNU Hyperbole commands
 hui-mini.el         - Single line command menus for GNU Hyperbole
 hui-mouse.el        - Use key or mouse key for many functions, e.g. GNU Hyperbole menus
 hui-select.el       - Select delimited or larger and larger syntax-driven regions in a buffer
+hui-treemacs.el     - Hyperbole Smart Key support for the Treemacs file manager package
 hui-window.el       - Smart Mouse Key window and modeline depress/release actions
 hui-xe-but.el       - XEmacs button highlighting and flashing support
 hui.el              - GNU Hyperbole button and hyperlink user interface

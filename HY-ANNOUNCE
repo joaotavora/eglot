@@ -1,40 +1,42 @@
-To: hyperbole-users@gnu.org, emacs-devel@gnu.org, emacs-tangents@gnu.org
-ANNOUNCE: GNU Hyperbole 7, a.k.a the Git Ready for Action Release
+To: info-gnu@gnu.org, hyperbole-users@gnu.org, emacs-devel@gnu.org, gnu-emacs-sources@gnu.org, emacs-tangents@gnu.org
+ANNOUNCE: GNU Hyperbole 7, a.k.a the Git Ready for Action Release, is now available
 
-This is the main public release of GNU Hyperbole for 2017.  It offers many
-new productivity-enhancing features including Git and Github object links
-as summarized here:
+This is the main public release of GNU Hyperbole for 2017 and it is
+bursting with new features and further quality improvements.  New
+capabilities, including Git and Github object links, are summarized
+here:
 
   https://git.savannah.gnu.org/cgit/hyperbole.git/plain/HY-NEWS
 
-A short explanation of Hyperbole is included below.  For more detail
-or how to obtain and install it, see:
+A short explanation of Hyperbole is included below.  For more
+detail or how to obtain and install it, see:
 
-  https://www.gnu.org/software/hyperbole
+  https://www.gnu.org/s/hyperbole
 
 For a list of use cases, see:
 
-  https://www.gnu.org/software/hyperbole/HY-WHY.html
+  https://www.gnu.org/s/hyperbole/HY-WHY.html
 
 For what users think about Hyperbole, see:
 
-  https://www.gnu.org/software/hyperbole/hyperbole.html#user-quotes
+  https://www.gnu.org/s/hyperbole/hyperbole.html#user-quotes
 
 ----
 
-GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole, is an
-amazing, programmable hypertextual information management system
-implemented as a GNU Emacs package and extensively documented.  Hyperbole
-has been greatly expanded and updated for use with the latest Emacs 26
-releases; it supports GNU Emacs 24.4 or above.
+GNU Hyperbole (pronounced Ga-new Hi-per-bo-lee), or just Hyperbole,
+is an amazing, programmable hypertextual information management
+system implemented as a GNU Emacs package and extensively
+documented.  Hyperbole has been greatly expanded and updated for
+use with the latest Emacs 26 releases; it supports GNU Emacs 24.4
+or above.
 
-Hyperbole can boost your day-to-day productivity with Emacs and your
-ability to manage information stored across many different machines on the
-internet.  People who get used to Hyperbole often find they prefer never to
-use Emacs without it.
+Hyperbole can boost your day-to-day productivity with Emacs and
+your ability to manage information stored across many different
+machines on the internet.  People who get used to Hyperbole often
+find they prefer never to use Emacs without it.
 
-Hyperbole includes its own easy-to-use hypertextual buttons and links that
-can be created without the need for any markup language.
+Hyperbole includes its own easy-to-use hypertextual buttons and
+links that can be created without the need for any markup language.
 
 It also comes out-of-the-box with:
 
@@ -44,32 +46,33 @@ It also comes out-of-the-box with:
 
   - a powerful multi-level auto-numbered outliner
 
-  - and two very smart context-dependent mouse and keyboard keys that
-    simplify operations in many editing and browsing modes.  All features
-    are aimed at making textual information management and display fast and
-    easy.
+  - and two very smart context-dependent mouse and keyboard keys
+    that simplify operations in many editing and browsing modes.
+    All features are aimed at making textual information management
+    and display fast and easy.
 
-Bob Weiner designed and programmed GNU Hyperbole.  He and Mats Lidell
-maintain it with the Free Software Foundation.  It includes an interactive
-demo to introduce you to its features as well as a detailed reference manual,
-as explained here:
+Bob Weiner designed and programmed GNU Hyperbole.  He and Mats
+Lidell maintain it with the Free Software Foundation.  It includes
+an interactive demo to introduce you to its features as well as a
+detailed reference manual, as explained here:
 
-  https://www.gnu.org/software/hyperbole/hyperbole.html#invocation-and-doc
+  https://www.gnu.org/s/hyperbole/hyperbole.html#invocation-and-doc
 
 ----
 
-Please give Hyperbole a try.  It's free, man.  It adapts to your needs.
-It connects everything.  It rewires your brain.  It speeds your web
-searches for `carpal tunnel syndrome'.  It makes you feel like the
-sun is out on a gray winter day :-)
+Please give Hyperbole a try.  It's free, man.  It adapts to your
+needs. It connects everything.  It rewires your brain.  It speeds
+your web searches for `carpal tunnel syndrome'.  It makes you feel
+like the sun is out on a gray winter day :-)
 
-But wait, there's more and this part is serious.  For a limited time,
-to encourage use and feedback, the first 30 people who try out the
-Hyperbole DEMO or read the Hyperbole Manual and send a few thoughtful
-sentences to <rsw at gnu dot org> will receive either of their choice of
-the following as yet unpublished single file Emacs Lisp libraries:
+But wait, there's more and this part is serious.  For a limited
+time, to encourage use and feedback, the first 30 people who try
+out the Hyperbole DEMO or read the Hyperbole Manual and send a few
+thoughtful sentences to <rsw at gnu dot org> will receive either of
+their choice of the following as yet unpublished single file Emacs
+Lisp libraries:
 
-;;  rsw-linecol.el: User-editable mode-line column and line number display formats
+;;  rsw-linecol.el: User-editable mode-line col/line number formats
 ;;
 ;;  GNU Emacs buries the formatting of mode-line line and column
 ;;  numbers in a way that makes it virtually impossible for a user
@@ -79,18 +82,17 @@ the following as yet unpublished single file Emacs Lisp libraries:
 
 or
 
-;;  rsw-chrome-macos.el: Open a URL or file in Google Chrome and reuse an existing
-;;    tab/window if already displayed.
+;;  rsw-chrome-macos.el: Open a URL in Google Chrome and reuse an
+;;     existing tab/window if already displayed.
 ;;
-;;  This library resolves the many problems of sending URLs to Google Chrome
-;;  on MacOS.  It properly sends # hash in-file links (these are
-;;  typically stripped when Chrome is called as a MacOS application).
-;;  It reuses any tab already displaying any matching URL that is sent
-;;  and it does this even if the ultimately displayed URL goes through
-;;  several redirects before display.
+;;  This library resolves the many problems of sending URLs to
+;;  Google Chrome on MacOS.  It properly sends # hash in-file links
+;;  (these are typically stripped when Chrome is called as a MacOS
+;;  application).  It reuses any tab already displaying any
+;;  matching URL that is sent and it does this even if the
+;;  ultimately displayed URL goes through several redirects before
+;;  display.
 
 Enjoy,
 
-Bob and Mats
-
-
+Bob Weiner and Mats Lidell

@@ -2,6 +2,31 @@
 				 by Bob Weiner
 
 ===========================================================================
+*                                   V7.0.1
+===========================================================================
+
+  SMART (ACTION AND ASSIST) KEYS
+
+    - Keyboard Drags: Keyboard emulation of many Smart Mouse Key drag actions.
+      See "(hyperbole)Keyboard Drags".
+  
+    - Keyboard Help: When {M-o} is bound to the `hkey-operate' command to
+      emulate drag depress and release events; when in the release window
+      prior to pressing the second {M-o}, the {C-h A} now reports the drag
+      action associated with the current release point.  See "(hyperbole)C-h A".
+
+    - Smart Treemacs: Smart Key and item drag support for the Treemacs package.
+      See "(hyperbole)Smart Key - Treemacs".
+
+    - Ace Window: Integrated Hyperbole item drag and link creation with this
+      package's direct window selection.  See "(hyperbole)Keyboard Drags".
+
+  HYROLO
+
+    - Fixed Google Contacts support to prompt only once for authorization.
+
+
+===========================================================================
 *                                   V7.0.0
 ===========================================================================
 
