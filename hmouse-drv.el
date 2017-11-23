@@ -16,7 +16,10 @@
 ;;; Other required Elisp libraries
 ;;; ************************************************************************
 
-(eval-when-compile (require 'hui-window)) ;; for `hmouse-drag-item-to-display'
+(eval-when-compile 
+  (defvar hmouse-alist nil)
+  (require 'hui-window)
+  (makunbound 'hmouse-alist)) ;; for `hmouse-drag-item-to-display'
 (require 'hypb)
 
 ;; Quiet byte compiler warnings for these free variables.
@@ -364,6 +367,26 @@ Only works when running under a window system, not from a dumb terminal."
     ;; Leave hkey-drag to choose selected window
     (hkey-drag release-window)))
 
+;;;###autoload
+(defun hkey-throw (release-window)
+  "Emulate Smart Mouse Key drag from selected window to RELEASE-WINDOW.
+After the drag, the selected window remains the same as it was before
+the drag.
+
+Optional prefix ARG non-nil means emulate Assist Key rather than the
+Action Key.
+
+Only works when running under a window system, not from a dumb terminal."
+  (let ((start-win (selected-window)))
+    (condition-case nil
+	;; This may trigger a No Action error if start-win and
+	;; release-win are the same.
+	(hkey-drag release-window)
+      (error (when (eq start-win release-window)
+	       (hmouse-drag-item-to-displ
+		ay))))
+    (when (window-live-p start-win) (select-window start-win))))
+
 (defun hkey-ace-window-setup (&optional key)
   "Bind optional keyboard KEY and setup display of items in windows specified by short ids.
 
@@ -391,6 +414,7 @@ magic happen."
   (require 'ace-window)
   (when key (global-set-key key 'ace-window))
   (push '(?i hkey-drag-to "Hyperbole Drag To") aw-dispatch-alist)
+  (push '(?t hkey-throw   "Hyperbole Throw") aw-dispatch-alist)
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
 	;; allows {i} operation to work when only 2 windows exist
 	aw-dispatch-always t)

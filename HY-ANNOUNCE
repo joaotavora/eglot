@@ -1,3 +1,78 @@
+----------------------------------------------------------------------
+7.0.2 Announcement
+----------------------------------------------------------------------
+From: Bob Weiner <rsw@gnu.org>
+To: info-gnu@gnu.org, hyperbole-users@gnu.org, emacs-devel@gnu.org, gnu-emacs-sources@gnu.org, emacs-tangents@gnu.org
+Subject: GNU Hyperbole 7.0.1-7.0.2 is now available
+Date: Wed, 23 Nov 2017
+--text follows this line--
+This is a minor release with a number of small issues resolved and the following
+new features:
+
+  SMART (ACTION AND ASSIST) KEYS
+
+    - Keyboard Drags: Keyboard emulation of many Smart Mouse Key drag actions.
+      See "(hyperbole)Keyboard Drags".
+  
+    - Keyboard Help: When {M-o} is bound to the `hkey-operate' command to
+      emulate drag depress and release events, then when in the release window
+      prior to pressing the second {M-o}, {C-h A} now reports the drag
+      action associated with the current release point.  See "(hyperbole)C-h A".
+
+    - Ace Window: Integrated Hyperbole item drag and link creation with this
+      package's direct window selection.  Use {M-o i <window-id>}.
+      You typically can display any Dired or Buffer Menu item in any window
+      with a single 3 keystroke command!
+
+      Also added the ability to 'throw' an item to a window while leaving the
+      selected window the same.  Use {M-o t <window-id>}.  This
+      works in Dired, Buffer Menu, iBuffer Menu and Treemacs modes and lets
+      you throw multiple items to multiple windows quickly.
+
+      See "(hyperbole)Keyboard Drags" for setup and use instructions.
+
+    - Smart Treemacs: Smart Key and item drag support for the Treemacs package.
+      See "(hyperbole)Smart Key - Treemacs".
+
+  HYROLO
+
+    - Fixed Google Contacts support to prompt for authorization only during
+      first time use.
+
+-----
+
+For details on what Hyperbole is and how to obtain and install it, see:
+
+  https://www.gnu.org/s/hyperbole
+
+For a list of use cases, see:
+
+  https://www.gnu.org/s/hyperbole/HY-WHY.html
+
+For a full list of new features in Hyperbole 7, see:
+
+  https://git.savannah.gnu.org/cgit/hyperbole.git/plain/HY-NEWS
+
+For what users think about Hyperbole, see:
+
+  https://www.gnu.org/s/hyperbole/hyperbole.html#user-quotes
+
+Bob Weiner designed and wrote GNU Hyperbole.  He and Mats
+Lidell maintain it with the Free Software Foundation.  It includes
+an interactive demo to introduce you to its features as well as a
+detailed reference manual, as explained here:
+
+  https://www.gnu.org/s/hyperbole/hyperbole.html#invocation-and-doc
+
+
+Happy Thanksgiving,
+
+Bob Weiner and Mats Lidell
+
+
+----------------------------------------------------------------------
+7.0.0 Announcement
+----------------------------------------------------------------------
 To: info-gnu@gnu.org, hyperbole-users@gnu.org, emacs-devel@gnu.org, gnu-emacs-sources@gnu.org, emacs-tangents@gnu.org
 ANNOUNCE: GNU Hyperbole 7, a.k.a the Git Ready for Action Release, is now available
 

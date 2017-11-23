@@ -246,6 +246,16 @@ drag release window.")
 ;;; Public functions
 ;;; ************************************************************************
 
+(defun hmouse-at-item-p ()
+  "Return t if point is on an item draggable by Hyperbole, otherwise nil."
+  (let* ((buf (and (window-live-p action-key-depress-window) (window-buffer action-key-depress-window)))
+	 (mode (and buf (cdr (assq 'major-mode (buffer-local-variables buf))))))
+    (and buf (with-current-buffer buf
+	       ;; Point must be on an item, not after one
+	       (not (looking-at "\\s-*$")))
+	 (memq mode (mapcar #'car hmouse-drag-item-mode-forms))
+	 t)))
+
 (defun hmouse-context-menu ()
   "If running under a window system, display or hide the buffer menu.
 If not running under a window system and Smart Menus are loaded, display the
@@ -509,14 +519,9 @@ not on an item, then nil.
 
 See `hmouse-drag-item-mode-forms' for how to allow for draggable
 items in other modes."
-  (let* ((buf (and (window-live-p action-key-depress-window) (window-buffer action-key-depress-window)))
-	 (mode (and buf (cdr (assq 'major-mode (buffer-local-variables buf))))))
-    (when (and buf (with-current-buffer buf
-		     ;; Point must be on an item, not after one
-		     (not (looking-at "\\s-*$")))
-	       (memq mode (mapcar #'car hmouse-drag-item-mode-forms)))
-      (hmouse-item-to-window new-window)
-      t)))
+  (when (hmouse-at-item-p)
+    (hmouse-item-to-window new-window)
+    t))
 
 (defun hmouse-drag-diagonally ()
   "Returns non-nil iff last Action Key use was a diagonal drag within a single window.

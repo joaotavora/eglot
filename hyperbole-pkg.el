@@ -1,5 +1,5 @@
 ;; -*- no-byte-compile: t -*-
-(define-package "hyperbole" "7.0.1" "GNU Hyperbole: The Everyday Hypertextual Information Manager"
+(define-package "hyperbole" "7.0.2" "GNU Hyperbole: The Everyday Hypertextual Information Manager"
   '((emacs "24.4"))
   :url "http://www.gnu.org/software/hyperbole"
   :keywords '("comm" "convenience" "files" "frames" "hypermedia" "languages"

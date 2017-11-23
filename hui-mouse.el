@@ -375,7 +375,6 @@ Action and Assist Mouse Keys.")
 (autoload 'var:append "hvar" "Append to a list variable." nil)
 
 (require 'hargs)
-(require 'hmouse-key)
 (defvar hmouse-alist hkey-alist
   "Alist of predicates and form-conses for the Action and Assist Mouse Keys.
 When the Action Mouse Key or Assist Mouse Key is pressed, the first or second
@@ -384,6 +383,11 @@ evaluated.
 
 The `hkey-alist' variable is the subset of this alist used by the
 smart keyboard keys.")
+
+;; This must be required after hmouse-alist is defined since this will
+;; recursively require hmouse-drv which requires hui-window when being
+;; compiled and that library requires that hmouse-alist be defined.
+(require 'hmouse-key)
 
 ;; This next library adds drag actions to `hmouse-alist'.
 (load "hui-window")

@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <!-- This manual is for GNU Hyperbole
-(Edition 7.0.1, Published November 21, 2017).
+(Edition 7.0.2, Published November 23, 2017).
 
 Copyright (C) 1989-2017  Free Software Foundation, Inc.
 
@@ -340,8 +340,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 7.0.1
-Printed November 21, 2017.
+Edition 7.0.2
+Printed November 23, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -788,7 +788,7 @@ Next: <a href="#Smart-Keys" accesskey="n" rel="next">Smart Keys</a>, Previous: <
 <h2 class="chapter">1 Introduction</h2>
 
 <p>This edition of the GNU Hyperbole Manual is for use with any version
-7.0.1 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+7.0.2 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 </p>
 <p>This chapter summarizes the structure of the rest of the manual,
@@ -1970,7 +1970,7 @@ release.  Drag outside Emacs and it will be displayed in a new frame.  To
 display the last item you want, press the Action Key on it and it will display
 within the listing window itself.  (If you use the Treemacs file viewer package,
 item dragging works there as well).  Remember that you can emulate these drags
-from the keyboard when needed, see <a href="#Smart-Mouse-Key-Drags">Smart Mouse Key Drags</a>.
+from the keyboard when needed, see <a href="#Keyboard-Drags">Keyboard Drags</a>.
 </p>
 <p>So now you can put a bunch of buffers and files on your screen wherever
 you like.  Typically, a brief visual pulse is shown first at the source item and
@@ -2010,16 +2010,14 @@ session since drag actions are not supported without a window system.
 <a name="index-window-by-letter"></a>
 <a name="index-jump-to-window-by-letter"></a>
 <a name="index-keyboard_002c-jump-to-window"></a>
-<p>For even faster keyboard-based drag emulation, use the Emacs
+<p>For even faster keyboard-based display of items, use the Emacs
 package <code>ace-window</code> (see <a href="https://elpa.gnu.org/packages/ace-window.html">https://elpa.gnu.org/packages/ace-window.html</a>).
 </p>
 <p>The ace-window package assigns short letter IDs to each Emacs window and lets
 you jump to or operate upon a specific window by giving its ID.  Hyperbole can
-add an operation to ace-window that replaces the two-step drag emulation key
-described above with a single key sequence that jumps directly to the
-destination window desired.  This is most useful when working with dired or
-buffer menu <em>items</em>, so the drag operation uses the {i} key
-within <code>ace-window</code>.
+add commands to ace-window that replace the two-step drag emulation key
+described above with a single key sequence that displays dired or
+buffer menu <em>items</em>.
 </p>
 <p>To enable this feature, in your Emacs initialization file after
 Hyperbole is initialized, if you do not have a key bound for
@@ -2029,12 +2027,20 @@ a key: <code>(hkey-ace-window-setup)</code>.
 </p>
 <a name="index-link-creation-from-keyboard"></a>
 <a name="index-keyboard-link-creation"></a>
+<a name="index-M_002do-i-_003cwindow_002did_003e"></a>
+<a name="index-M_002do-t-_003cwindow_002did_003e"></a>
+<a name="index-drag-item"></a>
+<a name="index-throw-item"></a>
+<a name="index-item-drag"></a>
+<a name="index-item-throw"></a>
 <p>After setup, the leftmost character or two of each window&rsquo;s modeline will show
 the ID to type to use that window as the drag destination.  Then whenever point
 is on an item you want displayed in another window, use <kbd>{M-o i
 &lt;id-of-window-to-display-item-in&gt;}</kbd> and watch the magic happen.  You can also use
-this to create explicit button links to other window buffers when in an editable
-buffer.
+this command to create explicit button links to other window buffers when in an editable
+buffer rather than on an item.  If you want to display multiple items in different
+windows, instead use the <kbd>{M-o t &lt;id-of-window-to-display-item-in&gt;}</kbd> key sequence to
+<em>throw</em> the item to the window.
 </p>
 
 
@@ -11411,6 +11417,8 @@ Next: <a href="#Function" accesskey="n" rel="next">Function</a>, Previous: <a hr
 <tr><td></td><td valign="top"><a href="#index-M_002df"><code>M-f</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002do"><code>M-o</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Keyboard-Drags">Keyboard Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002do-1"><code>M-o</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-M_002do-i-_003cwindow_002did_003e"><code>M-o i &lt;window-id&gt;</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Keyboard-Drags">Keyboard Drags</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-M_002do-t-_003cwindow_002did_003e"><code>M-o t &lt;window-id&gt;</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Keyboard-Drags">Keyboard Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002dRET"><code>M-<span class="key">RET</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Bindings">Smart Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002dRET-1"><code>M-<span class="key">RET</span></code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Global-Key-Bindings">Global Key Bindings</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002dx-kotl_002dmode_003ashow_002dsubtree"><code>M-x kotl-mode:show-subtree</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Hiding-and-Showing">Hiding and Showing</a></td></tr>
@@ -12511,6 +12519,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-drag-1">drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag-2">drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag-emulation">drag emulation</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Keyboard-Drags">Keyboard Drags</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-drag-item">drag item</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Keyboard-Drags">Keyboard Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag_002c-buffer-menu-item">drag, buffer menu item</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Displaying-File-and-Buffer-Items">Displaying File and Buffer Items</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag_002c-buffer-swap">drag, buffer swap</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Swapping-Buffers">Swapping Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-drag_002c-clone-window">drag, clone window</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Cloning-Windows">Cloning Windows</a></td></tr>
@@ -12750,6 +12759,8 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-invoking-Hyperbole">invoking Hyperbole</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Menus">Menus</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-isearch">isearch</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Invisible-Text-Searches">Invisible Text Searches</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-issue-tracking">issue tracking</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-item-drag">item drag</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Keyboard-Drags">Keyboard Drags</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-item-throw">item throw</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Keyboard-Drags">Keyboard Drags</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th><a name="Concept-Index_cp_letter-J">J</a></th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-jump-menu">jump menu</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Mouse-Key-Modeline-Clicks">Smart Mouse Key Modeline Clicks</a></td></tr>
@@ -13185,6 +13196,7 @@ Previous: <a href="#Function" accesskey="p" rel="prev">Function</a>, Up: <a href
 <tr><td></td><td valign="top"><a href="#index-thing">thing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Thing-Selection">Thing Selection</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-thing-1">thing</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Delimited-Things">Smart Key - Delimited Things</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-things">things</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-Thing-Selection">Smart Key Thing Selection</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-throw-item">throw item</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Keyboard-Drags">Keyboard Drags</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-thumbnails">thumbnails</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Smart-Key-_002d-Image-Thumbnails">Smart Key - Image Thumbnails</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-toc-action-type">toc action type</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Action-Types">Action Types</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-toc-implicit-button-type">toc implicit button type</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Implicit-Buttons">Implicit Buttons</a></td></tr>
