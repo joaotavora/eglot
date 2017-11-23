@@ -1152,14 +1152,15 @@ made.  An Assist Key Drag will move the the item list buffer to the destination
 (swapping buffers), just as it does with other buffers.  Practice these drags as
 they will prove very beneficial across time.
 
-For even faster keyboard-based drag emulation, use the Emacs package
-'ace-window' (see "(hyperbole)Keyboard Drags" for setup).  Once this is
-configured, the leftmost character or two of each window's modeline will show
-the ID to type to use that window as the drag destination.  Then whenever point
-is on an item you want displayed in another window, use M-o i
-<id-of-window-to-display-item-in> and watch the magic happen.  You can also use
-this to create explicit button links to other window buffers when in an editable
-buffer.
+For even faster keyboard-based drag emulation, use the Emacs package 'ace-window'
+(see "(hyperbole)Keyboard Drags" for setup).  Once this is configured, the
+leftmost character or two of each window's modeline will show the ID to type to
+use that window as the drag destination. Then whenever point is on an item you
+want displayed in another window, use M-o i <window-id> and watch the magic
+happen.  You can also use this to create explicit button links to other window
+buffers when in an editable buffer.  If you want to display multiple items in
+different windows, instead use the M-o t <window-id> key sequence to @emph{throw}
+the item to the window.
 
 *** Cloning Windows
 

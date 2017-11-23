@@ -151,8 +151,8 @@ WITHOUT ANY WARRANTY, without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</P>
 
 <PRE>
-Edition 7.0.1
-Printed November 21, 2017.
+Edition 7.0.2
+Printed November 23, 2017.
 
   Published by the Free Software Foundation, Inc.
   Author:    Bob Weiner
@@ -176,7 +176,7 @@ Printed November 21, 2017.
 
 @center The Everyday Hypertextual Information Manager
 
-@center Edition 7.0.1, November 21, 2017.
+@center Edition 7.0.2, November 23, 2017.
 
 @sp 2
 @noindent
@@ -462,7 +462,7 @@ Smart Keyboard Keys
 @chapter Introduction
 
 This edition of the GNU Hyperbole Manual is for use with any version
-7.0.1 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
+7.0.2 or greater of GNU Hyperbole.  Hyperbole runs atop GNU Emacs 24.3
 or higher.  It will trigger an error if your Emacs is older.
 
 This chapter summarizes the structure of the rest of the manual,
@@ -1416,7 +1416,7 @@ release.  Drag outside Emacs and it will be displayed in a new frame.  To
 display the last item you want, press the Action Key on it and it will display
 within the listing window itself.  (If you use the Treemacs file viewer package,
 item dragging works there as well).  Remember that you can emulate these drags
-from the keyboard when needed, @pxref{Smart Mouse Key Drags}.
+from the keyboard when needed, @pxref{Keyboard Drags}.
 
 So now you can put a bunch of buffers and files on your screen wherever
 you like.  Typically, a brief visual pulse is shown first at the source item and
@@ -1450,16 +1450,14 @@ session since drag actions are not supported without a window system.
 @cindex window by letter
 @cindex jump to window by letter
 @cindex keyboard, jump to window
-For even faster keyboard-based drag emulation, use the Emacs
+For even faster keyboard-based display of items, use the Emacs
 package @code{ace-window} (see @url{https://elpa.gnu.org/packages/ace-window.html}).
 
 The ace-window package assigns short letter IDs to each Emacs window and lets
 you jump to or operate upon a specific window by giving its ID.  Hyperbole can
-add an operation to ace-window that replaces the two-step drag emulation key
-described above with a single key sequence that jumps directly to the
-destination window desired.  This is most useful when working with dired or
-buffer menu @emph{items}, so the drag operation uses the @{i@} key
-within @code{ace-window}.
+add commands to ace-window that replace the two-step drag emulation key
+described above with a single key sequence that displays dired or
+buffer menu @emph{items}.
 
 To enable this feature, in your Emacs initialization file after
 Hyperbole is initialized, if you do not have a key bound for
@@ -1469,12 +1467,20 @@ a key: @code{(hkey-ace-window-setup)}.
 
 @cindex link creation from keyboard
 @cindex keyboard link creation
+@kindex M-o i <window-id>
+@kindex M-o t <window-id>
+@cindex drag item
+@cindex throw item
+@cindex item drag
+@cindex item throw
 After setup, the leftmost character or two of each window's modeline will show
 the ID to type to use that window as the drag destination.  Then whenever point
 is on an item you want displayed in another window, use @bkbd{M-o i
 <id-of-window-to-display-item-in>} and watch the magic happen.  You can also use
-this to create explicit button links to other window buffers when in an editable
-buffer.
+this command to create explicit button links to other window buffers when in an editable
+buffer rather than on an item.  If you want to display multiple items in different
+windows, instead use the @bkbd{M-o t <id-of-window-to-display-item-in>} key sequence to
+@emph{throw} the item to the window.
 
 @c -------
 

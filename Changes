@@ -1,3 +1,20 @@
+2017-11-23  Bob Weiner  <rsw@gnu.org>
+
+* hversion.el: Released 7.0.2.
+
+* hui-window.el (hmouse-at-item-p): Added to test if on a draggable item.
+
+* hmouse-drv.el (hkey-throw): Added to throw a drag item to a specific window via the
+    ace-window package and the key sequence {M-o t <window-id>}, leaving the original
+    source window selected.
+* man/hyperbole.texi (Keyboard Drags): Added description of throwing an item.
+
+* hui-mouse.el: Fixed a compilation time problem with when hmouse-alist was defined.
+
+==============================================================================
+V7.0.2 changes ^^^^:
+==============================================================================
+
 2017-11-22  Bob Weiner  <rsw@gnu.org>
 
 * hversion.el: Released 7.0.1.
