@@ -9,5 +9,5 @@ Coming soon.
 (add-to-list 'load-path "/path/to/eglot")
 (require 'eglot)
 
-M-x eglot-new-process
+M-x eglot
 ```
