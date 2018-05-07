@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/joaotavora/eglot.png)](https://travis-ci.org/joaotavora/eglot)
 Eglot
 -----
 
