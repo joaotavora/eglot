@@ -11,14 +11,41 @@ M-x eglot
 ```
 
 *That's it*. Either this guesses the local LSP program to start for
-the language of your choice or it prompts you for such a thing. You
-can also enter a `server:port` pattern to connect to an LSP server. To
-skip the guess and always be prompted use `C-u M-x eglot`.
+the language of your choice or it prompts you for such a
+thing. Currently, if you have these programs installed, it works
+out-of-the-box for:
 
-## Differences to lsp-mode.el
+* Javascript's [javascript-typescript-stdio][javascript-typescript-langserver]
+* Rust's [rls][rls]
+* Python's [pyls][pyls]
+
+You can also enter a `server:port` pattern to connect to an LSP
+server. To skip the guess and always be prompted use `C-u M-x eglot`.
+
+# Supported Protocol features
+
+- [x] textDocument/didChange (incremental)
+- [x] textDocument/didClose
+- [x] textDocument/didOpen
+- [x] textDocument/didSave
+
+- [ ] textDocument/codeAction
+- [ ] textDocument/completion (incl. completion/resolve)
+- [x] textDocument/definition
+- [ ] textDocument/documentHighlight
+- [ ] textDocument/documentSymbol
+- [ ] textDocument/executeCommand
+- [ ] textDocument/format
+- [ ] textDocument/hover
+- [ ] textDocument/rename
+- [x] textDocument/references
+- [ ] textDocument/signatureHelp
+- [x] workspace/symbol
+
+# Differences to lsp-mode.el
 
 This is really beta and currently does less than
-[lsp-mode.el](https://github.com/emacs-lsp/lsp-mode) which is more
+[lsp-mode.el][emacs-lsp] which is more
 mature. Though I think `eglot.el` will eventually beat it, you could
 be better served with `lsp-mode.el` for now.
 
@@ -44,6 +71,11 @@ Differences under the hood:
 - send `textDocument/didChange` for groups of edits, not one per each
   tiny change. 
 - Its missing tests! This is *not good*
+
+[rls]: https://github.com/rust-lang-nursery/rls
+[pyls]: https://github.com/palantir/python-language-server
+[javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
+[emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 
 
    
