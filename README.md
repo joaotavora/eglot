@@ -38,7 +38,7 @@ server. To skip the guess and always be prompted use `C-u M-x eglot`.
 - [ ] textDocument/documentSymbol
 - [ ] textDocument/executeCommand
 - [ ] textDocument/format
-- [ ] textDocument/hover
+- [x] textDocument/hover
 - [ ] textDocument/rename
 - [x] textDocument/references
 - [ ] textDocument/signatureHelp
