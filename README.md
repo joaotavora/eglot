@@ -34,7 +34,7 @@ server. To skip the guess and always be prompted use `C-u M-x eglot`.
 - [x] textDocument/completion
 - [ ] completionItem/resolve
 - [x] textDocument/definition
-- [ ] textDocument/documentHighlight
+- [x] textDocument/documentHighlight
 - [x] textDocument/documentSymbol
 - [ ] textDocument/executeCommand
 - [ ] textDocument/format
@@ -46,17 +46,18 @@ server. To skip the guess and always be prompted use `C-u M-x eglot`.
 
 # Differences to lsp-mode.el
 
-This is really beta and currently does less than
-[lsp-mode.el][emacs-lsp] which is more
-mature. Though I think `eglot.el` will eventually beat it, you could
-be better served with `lsp-mode.el` for now.
+This is really beta and currently does a little less than
+[lsp-mode.el][emacs-lsp] which is more mature. Though I think
+`eglot.el` will eventually beat it, you could be better served with
+`lsp-mode.el` for now.
 
 User-visible differences:
 
 - Single entry point, `M-x eglot` to enable LSP in a project.
   Automatically detects current and future opened files under that
   project and syncs with server.
-- Easy way to restart a server
+- Easy way to quit/restart a server, just middle/right click on the
+  connection name.
 - Pretty interactive mode-line section for live tracking of server
   communication.
    
