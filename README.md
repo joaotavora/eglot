@@ -111,19 +111,21 @@ User-visible differences:
 - Automatically restarts frequently crashing servers (like RLS).
 - Server-initiated edits are confirmed with the user.
 - Diagnostics work out-of-the-box (no `flycheck.el` needed).
+- Smoother/more responsive (read below).
    
 Under the hood:
 
 - Message parser is much much simpler.
-- Easier to read and maintain elisp. Yeah I know, *extremely
-  subjective*, so judge for yourself.
+- Defers signature requests like `textDocument/hover` until server is
+  ready. Also sends `textDocument/didChange` for groups of edits, not
+  one per each tiny change.
+- Easier to read and maintain elisp. Yeah I know, *very subjective*,
+  so judge for yourself.
 - About 1k LOC lighter.
 - Development doesn't require Cask, just Emacs.
 - Project support doesn't need `projectile.el`, uses Emacs's `project.el`
 - Requires the upcoming Emacs 26
 - Contained in one file
-- Sends `textDocument/didChange` for groups of edits, not one per each
-  tiny change.
 - Its missing tests! This is *not good*
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
