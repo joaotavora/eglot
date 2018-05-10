@@ -12,17 +12,25 @@ Eglot
 M-x eglot
 ```
 
-*That's it*. Either this guesses the LSP executable to start for the
-language of your choice, or it prompts you to enter the program.
+*That's it*. If you're lucky, this guesses the LSP executable to start
+for the language of your choice, or it prompts you to enter one:
 
-If you have these programs installed, `M-x eglot` works out-of-the-box
-with:
+`M-x eglot` currently guesses and works out-of-the-box with:
 
 * Javascript's [javascript-typescript-stdio][javascript-typescript-langserver]
 * Rust's [rls][rls]
 * Python's [pyls][pyls]
+* Bash's [bash-language-server][bash-language-server]
 
-You can also enter a `server:port` pattern to connect to an LSP
+I'll add more as I test more features. In the meantime you can
+customize `eglot-server-programs`:
+
+```lisp
+(add-to-list 'eglot-server-programs '(fancy-mode . ("fancy-language-server" "--args"")))
+```
+
+Let me know how well it works and I'll add it to the list, or submit a
+PR.  You can also enter a `server:port` pattern to connect to an LSP
 server. To skip the guess and always be prompted use `C-u M-x eglot`.
 
 # Supported Protocol features
@@ -89,21 +97,22 @@ server. To skip the guess and always be prompted use `C-u M-x eglot`.
 
 # Differences to lsp-mode.el
 
-Eglot is **really beta** and may currently underperform
-[lsp-mode.el][emacs-lsp], which is more mature and has a host of
-[plugins][emacs-lsp-plugins] for bells and whistles.  If you think the minimalist approach
-of `eglot.el` is not for you, you could be better served with
-`lsp-mode.el` for now.
+Eglot is **beta**. It may currently underperform
+[lsp-mode.el][emacs-lsp], both in functionality and correctness. That
+other extension is much more mature and has a host of
+[plugins][emacs-lsp-plugins] for bells and whistles.  If you don't
+like the minimalist approach of `eglot.el`, you could be better served
+with `lsp-mode.el` for now.
 
 User-visible differences:
 
-- Single entry point `M-x eglot`, not `M-x eglot-<language>`. Also no
-  `eglot-<language>` extra packages.
+- Single and friendly entry point `M-x eglot`, not `M-x
+  eglot-<language>`. Also no `eglot-<language>` extra packages.
 - No "whitelisting" or "blacklisting" directories to languages. `M-x
   eglot` starts servers to handle major modes inside a specific
   project. Uses Emacs's built-in `project.el` library to discover
-  projects. Automatically detects current and future opened files under that
-  project and syncs with server.
+  projects. Automatically detects current and future opened files
+  under that project and syncs with server.
 - Easy way to quit/restart a server, just middle/right click on the
   connection name.
 - Pretty interactive mode-line section for live tracking of server
@@ -134,6 +143,6 @@ Under the hood:
 [javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
-
+[bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 
    
