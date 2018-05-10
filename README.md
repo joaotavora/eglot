@@ -74,7 +74,7 @@ server. To skip the guess and always be prompted use `C-u M-x eglot`.
 
 ## Language features
 - [x] textDocument/completion
-- [ ] completionItem/resolve
+- [x] completionItem/resolve (works quite well with [company-mode][company-mode])
 - [x] textDocument/hover
 - [ ] textDocument/signatureHelp
 - [x] textDocument/definition
@@ -144,5 +144,6 @@ Under the hood:
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
+[company-mode]: https://github.com/company-mode/company-mode
 
    
