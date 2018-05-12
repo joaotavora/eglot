@@ -37,20 +37,22 @@ server. To skip the guess and always be prompted use `C-u M-x eglot`.
 
 Here's a summary of available commands:
 
-- `M-x eglot-reconnect` reconnects to the server
+- `M-x eglot`, as described above;
+
+- `M-x eglot-reconnect` reconnects to the server;
 
 - `M-x eglot-rename` asks the server to rename the symbol at point
 
 - `M-x eglot-help-at-point` asks the server for help for symbol at
   point. Currently this is what `eldoc-mode` displays in the echo
-  area.
+  area;
 
 - `M-x eglot-events-buffer` jumps to the events buffer for debugging
   communication with the server.
 
 There are *no keybindings* specific to Eglot, but you can bind stuff
 in `eglot-mode-map`, which is active as long as Eglot is managing a
-file in your project. The commands don't need to be eglot-specific,
+file in your project. The commands don't need to be Eglot-specific,
 either:
 
 ```
