@@ -33,6 +33,31 @@ Let me know how well it works and I'll add it to the list, or submit a
 PR.  You can also enter a `server:port` pattern to connect to an LSP
 server. To skip the guess and always be prompted use `C-u M-x eglot`.
 
+# Commands and keybindings
+
+Here's a summary of available commands:
+
+- `M-x eglot-reconnect` reconnects to the server
+
+- `M-x eglot-rename` asks the server to rename the symbol at point
+
+- `M-x eglot-help-at-point` asks the server for help for symbol at
+  point. Currently this is what `eldoc-mode` displays in the echo
+  area.
+
+- `M-x eglot-events-buffer` jumps to the events buffer for debugging
+  communication with the server.
+
+There are *no keybindings* specific to Eglot, but you can bind stuff
+in `eglot-mode-map`, which is active as long as Eglot is managing a
+file in your project. The commands don't need to be eglot-specific,
+either:
+
+```
+(define-key eglot-mode-map (kbd "C-c h") 'eglot-help-at-point)
+(define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
+```
+
 # Supported Protocol features
 
 ## General
