@@ -8,12 +8,12 @@ Eglot
 (add-to-list 'load-path "/path/to/eglot")
 (require 'eglot) ; Requires emacs 26!
 
-;; Now find some project file inside some Git-controlled dir
+;; Now find some source file, any source file
 M-x eglot
 ```
 
 *That's it*. If you're lucky, this guesses the LSP executable to start
-for the language of your choice, or it prompts you to enter one:
+for the language of your choice. Otherwise, it prompts you to enter one:
 
 `M-x eglot` currently guesses and works out-of-the-box with:
 
@@ -29,9 +29,9 @@ customize `eglot-server-programs`:
 (add-to-list 'eglot-server-programs '(fancy-mode . ("fancy-language-server" "--args"")))
 ```
 
-Let me know how well it works and I'll add it to the list, or submit a
-PR.  You can also enter a `server:port` pattern to connect to an LSP
-server. To skip the guess and always be prompted use `C-u M-x eglot`.
+Let me know how well it works and we can add it to the list.  You can
+also enter a `server:port` pattern to connect to an LSP server. To
+skip the guess and always be prompted use `C-u M-x eglot`.
 
 # Commands and keybindings
 
