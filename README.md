@@ -162,7 +162,8 @@ Under the hood:
 - Project support doesn't need `projectile.el`, uses Emacs's `project.el`
 - Requires the upcoming Emacs 26
 - Contained in one file
-- Its missing tests! This is *not good*
+- Has automated tests that check against actual LSP servers
+  
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
