@@ -103,7 +103,7 @@ either:
 - [x] textDocument/completion
 - [x] completionItem/resolve (works quite well with [company-mode][company-mode])
 - [x] textDocument/hover
-- [ ] textDocument/signatureHelp
+- [x] textDocument/signatureHelp (fancy stuff with Python's [pyls[pyls]])
 - [x] textDocument/definition
 - [ ] textDocument/typeDefinition (3.6.0)
 - [ ] textDocument/implementation (3.6.0)
