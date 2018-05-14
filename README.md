@@ -76,15 +76,16 @@ either:
 - [x] telemetry/event
 
 ## Client
-- [ ] client/registerCapability
-- [ ] client/unregisterCapability
+- [x] client/registerCapability (but only
+  `workspace/didChangeWatchedFiles`, like RLS asks)
+- [x] client/unregisterCapability  (ditto)
 
 ## Workspace
 - [ ] workspace/workspaceFolders (3.6.0)
 - [ ] workspace/didChangeWorkspaceFolders (3.6.0)
 - [ ] workspace/didChangeConfiguration
 - [ ] workspace/configuration (3.6.0)
-- [ ] workspace/didChangeWatchedFiles
+- [x] workspace/didChangeWatchedFiles
 - [x] workspace/symbol is
 - [x] workspace/applyEdit
 
