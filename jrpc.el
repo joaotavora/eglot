@@ -117,6 +117,11 @@ A list (WHAT SERIOUS-P).")
 (jrpc-define-process-var jrpc-contact nil
   "Method used to contact a server.")
 
+(jrpc-define-process-var jrpc--shutdown-hook nil
+  "Hook run when JSON-RPC server is dying.
+Run after running any error handlers for outstanding requests.
+Each hook function is passed the process object for the server.")
+
 (jrpc-define-process-var jrpc--deferred-actions
     (make-hash-table :test #'equal)
   "Actions deferred to when server is thought to be ready.")
@@ -159,7 +164,7 @@ CONTACT is as `jrpc-contact'.  Returns a process object."
   ;; the indenting of literal plists, i.e. is basically `list'
   `(list ,@what))
 
-(cl-defun jrpc-connect (name contact prefix)
+(cl-defun jrpc-connect (name contact prefix &optional on-shutdown)
   "Connect to JSON-RPC server hereafter known as NAME through CONTACT.
 
 NAME is a string naming the server.
@@ -172,22 +177,23 @@ PREFIX specifies how the server-invoked methods find their Elisp
 counterpart. If a server invokes method \"FooBar\" and PREFIX is
 \"fancy-mode-\", then the function `fancy-mode-FooBar' will be
 called with arguments (PROCESS [JSON]). JSON is either a plist of
-key-value pairs or, for JSON arrays, a non-list sequence."
+key-value pairs or, for JSON arrays, a non-list sequence.
+
+ON-SHUTDOWN, when non-nil, is a function called on server exit
+and passed the moribund process object.
+
+Returns a process object representing the server."
   (let* ((proc (jrpc--make-process name contact))
          (buffer (process-buffer proc)))
     (setf (jrpc-contact proc) contact
           (jrpc-name proc) name
-          (jrpc--method-prefix proc) prefix)
+          (jrpc--method-prefix proc) prefix
+          (jrpc--shutdown-hook proc) on-shutdown)
     (with-current-buffer buffer
       (let ((inhibit-read-only t))
         (erase-buffer)
         (read-only-mode t)
         proc))))
-
-(defvar jrpc-server-moribund-hook nil
-  "Hook run when JSON-RPC server is dying.
-Run after running any error handlers for outstanding requests.
-Each hook function is passed the process object for the server.")
 
 (defun jrpc--process-sentinel (proc change)
   "Called when PROC undergoes CHANGE."
@@ -208,7 +214,7 @@ Each hook function is passed the process object for the server.")
                      (funcall error :code -1 :message (format "Server died"))))
                  (jrpc--pending-continuations proc))
       (jrpc-message "Server exited with status %s" (process-exit-status proc))
-      (run-hook-with-args 'jrpc-server-moribund-hook proc)
+      (funcall (or (jrpc--shutdown-hook proc) #'identity) proc)
       (delete-process proc))))
 
 (defun jrpc--process-filter (proc string)
