@@ -117,10 +117,10 @@ A list (WHAT SERIOUS-P).")
 (jrpc-define-process-var jrpc-contact nil
   "Method used to contact a server.")
 
-(jrpc-define-process-var jrpc--shutdown-hook nil
-  "Hook run when JSON-RPC server is dying.
+(jrpc-define-process-var jrpc--on-shutdown nil
+  "Function run when JSON-RPC server is dying.
 Run after running any error handlers for outstanding requests.
-Each hook function is passed the process object for the server.")
+A function passed the process object for the server.")
 
 (jrpc-define-process-var jrpc--deferred-actions
     (make-hash-table :test #'equal)
@@ -188,7 +188,7 @@ Returns a process object representing the server."
     (setf (jrpc-contact proc) contact
           (jrpc-name proc) name
           (jrpc--method-prefix proc) prefix
-          (jrpc--shutdown-hook proc) on-shutdown)
+          (jrpc--on-shutdown proc) on-shutdown)
     (with-current-buffer buffer
       (let ((inhibit-read-only t))
         (erase-buffer)
@@ -214,7 +214,7 @@ Returns a process object representing the server."
                      (funcall error :code -1 :message (format "Server died"))))
                  (jrpc--pending-continuations proc))
       (jrpc-message "Server exited with status %s" (process-exit-status proc))
-      (funcall (or (jrpc--shutdown-hook proc) #'identity) proc)
+      (funcall (or (jrpc--on-shutdown proc) #'identity) proc)
       (delete-process proc))))
 
 (defun jrpc--process-filter (proc string)

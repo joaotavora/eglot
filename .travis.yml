@@ -1,5 +1,7 @@
-language: generic
+language: rust
 sudo: false
+rust:
+  - stable
 
 env:
   global:
@@ -13,7 +15,10 @@ install:
   # Configure $PATH: Emacs installed to /tmp/emacs
   - export PATH=/tmp/emacs/bin:${PATH}
   - emacs --version
-
+  # Install RLS
+  - rustup update
+  - rustup component add rls-preview rust-analysis rust-src
+    
 script:
   - make check
 

@@ -8,12 +8,12 @@ Eglot
 (add-to-list 'load-path "/path/to/eglot")
 (require 'eglot) ; Requires emacs 26!
 
-;; Now find some project file inside some Git-controlled dir
+;; Now find some source file, any source file
 M-x eglot
 ```
 
 *That's it*. If you're lucky, this guesses the LSP executable to start
-for the language of your choice, or it prompts you to enter one:
+for the language of your choice. Otherwise, it prompts you to enter one:
 
 `M-x eglot` currently guesses and works out-of-the-box with:
 
@@ -29,9 +29,9 @@ customize `eglot-server-programs`:
 (add-to-list 'eglot-server-programs '(fancy-mode . ("fancy-language-server" "--args"")))
 ```
 
-Let me know how well it works and I'll add it to the list, or submit a
-PR.  You can also enter a `server:port` pattern to connect to an LSP
-server. To skip the guess and always be prompted use `C-u M-x eglot`.
+Let me know how well it works and we can add it to the list.  You can
+also enter a `server:port` pattern to connect to an LSP server. To
+skip the guess and always be prompted use `C-u M-x eglot`.
 
 # Commands and keybindings
 
@@ -60,7 +60,7 @@ either:
 (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
 ```
 
-# Supported Protocol features
+# Supported Protocol features (3.6)
 
 ## General
 - [x] initialize
@@ -76,23 +76,24 @@ either:
 - [x] telemetry/event
 
 ## Client
-- [ ] client/registerCapability
-- [ ] client/unregisterCapability
+- [x] client/registerCapability (but only
+  `workspace/didChangeWatchedFiles`, like RLS asks)
+- [x] client/unregisterCapability  (ditto)
 
 ## Workspace
 - [ ] workspace/workspaceFolders (3.6.0)
 - [ ] workspace/didChangeWorkspaceFolders (3.6.0)
 - [ ] workspace/didChangeConfiguration
 - [ ] workspace/configuration (3.6.0)
-- [ ] workspace/didChangeWatchedFiles
-- [x] workspace/symbol
+- [x] workspace/didChangeWatchedFiles
+- [x] workspace/symbol is
 - [x] workspace/applyEdit
 
 ## Text Synchronization
 - [x] textDocument/didOpen
 - [x] textDocument/didChange (incremental or full)
 - [x] textDocument/willSave
-- [ ] textDocument/willSaveWaitUntil
+- [x] textDocument/willSaveWaitUntil
 - [x] textDocument/didSave
 - [x] textDocument/didClose
 
@@ -103,7 +104,7 @@ either:
 - [x] textDocument/completion
 - [x] completionItem/resolve (works quite well with [company-mode][company-mode])
 - [x] textDocument/hover
-- [ ] textDocument/signatureHelp
+- [x] textDocument/signatureHelp (fancy stuff with Python's [pyls[pyls]])
 - [x] textDocument/definition
 - [ ] textDocument/typeDefinition (3.6.0)
 - [ ] textDocument/implementation (3.6.0)
@@ -162,7 +163,8 @@ Under the hood:
 - Project support doesn't need `projectile.el`, uses Emacs's `project.el`
 - Requires the upcoming Emacs 26
 - Contained in one file
-- Its missing tests! This is *not good*
+- Has automated tests that check against actual LSP servers
+  
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
