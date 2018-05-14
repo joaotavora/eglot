@@ -25,14 +25,6 @@
 ;; Originally extracted from eglot.el (Emacs LSP client)
 ;;
 ;;
-;; code	message	meaning
-;; -32700	Parse error	Invalid JSON was received by the server.
-;; An error occurred on the server while parsing the JSON text.
-;; -32600	Invalid Request	The JSON sent is not a valid Request object.
-;; -32601	Method not found	The method does not exist / is not available.
-;; -32602	Invalid params	Invalid method parameter(s).
-;; -32603	Internal error	Internal JSON-RPC error.
-
 ;;; Code:
 
 (require 'cl-lib)
@@ -98,8 +90,8 @@ INITVAL is the default value.  DOC is the documentation."
 (jrpc-define-process-var jrpc-name nil
   "A name for the process")
 
-(jrpc-define-process-var jrpc--method-prefix nil
-  "Emacs-lisp function prefix for server-invoked methods.")
+(jrpc-define-process-var jrpc--dispatcher nil
+  "Emacs-lisp function for server-invoked methods.")
 
 (jrpc-define-process-var jrpc-status `(:unknown nil)
   "Status as declared by the server.
@@ -108,8 +100,11 @@ A list (WHAT SERIOUS-P).")
 (jrpc-define-process-var jrpc--expected-bytes nil
   "How many bytes declared by server")
 
-(jrpc-define-process-var jrpc--pending-continuations (make-hash-table)
-  "A hash table of request ID to continuation lambdas")
+(jrpc-define-process-var jrpc--request-continuations (make-hash-table)
+  "A hash table of request ID to continuation lambdas.")
+
+(jrpc-define-process-var jrpc--server-request-ids nil
+  "Server-initiated request id that client hasn't replied to.")
 
 (jrpc-define-process-var jrpc--events-buffer nil
   "A buffer pretty-printing the JSON-RPC RPC events")
@@ -128,7 +123,7 @@ A function passed the process object for the server.")
 
 (defun jrpc-outstanding-request-ids (proc)
   "IDs of outstanding JSON-RPC requests for PROC."
-  (hash-table-keys (jrpc--pending-continuations proc)))
+  (hash-table-keys (jrpc--request-continuations proc)))
 
 (defun jrpc--make-process (name contact)
   "Make a process from CONTACT.
@@ -164,7 +159,7 @@ CONTACT is as `jrpc-contact'.  Returns a process object."
   ;; the indenting of literal plists, i.e. is basically `list'
   `(list ,@what))
 
-(cl-defun jrpc-connect (name contact prefix &optional on-shutdown)
+(cl-defun jrpc-connect (name contact dispatcher &optional on-shutdown)
   "Connect to JSON-RPC server hereafter known as NAME through CONTACT.
 
 NAME is a string naming the server.
@@ -173,21 +168,35 @@ CONTACT is either a list of strings (a shell command and
 arguments), or a list of a single string of the form
 <host>:<port>.
 
-PREFIX specifies how the server-invoked methods find their Elisp
-counterpart. If a server invokes method \"FooBar\" and PREFIX is
-\"fancy-mode-\", then the function `fancy-mode-FooBar' will be
-called with arguments (PROCESS [JSON]). JSON is either a plist of
-key-value pairs or, for JSON arrays, a non-list sequence.
-
 ON-SHUTDOWN, when non-nil, is a function called on server exit
 and passed the moribund process object.
 
-Returns a process object representing the server."
+DISPATCHER specifies how the server-invoked methods find their
+Elisp counterpart. It is a function which is passed (PROC METHOD
+ID PARAMS...) as arguments.
+
+PROC is the process object returned by this function.
+
+ID is server identifier for a server request, or nil for a server
+notification.
+
+METHOD is a symbol.
+
+PARAMS contains the method parameters.  If the parameters are a
+JSON object, PARAMS... is a plist of the form (KEY1 VALUE1 KEY2
+VALUE2...).  It they are an array, a string or a number, the
+first and only element of PARAMS is a vector, string or number,
+respectively. If the parameters are a single boolean, PARAMS is
+either the symbol `:json-false' or `t'. In the case of a server
+request, DISPATCHER is reponsible for replying to it with
+`jrpc-reply' (which see).
+
+`jrpc-connect' returns a process object representing the server."
   (let* ((proc (jrpc--make-process name contact))
          (buffer (process-buffer proc)))
     (setf (jrpc-contact proc) contact
           (jrpc-name proc) name
-          (jrpc--method-prefix proc) prefix
+          (jrpc--dispatcher proc) dispatcher
           (jrpc--on-shutdown proc) on-shutdown)
     (with-current-buffer buffer
       (let ((inhibit-read-only t))
@@ -206,13 +215,13 @@ Returns a process object representing the server."
     (maphash (lambda (_id triplet)
                (cl-destructuring-bind (_success _error timeout) triplet
                  (cancel-timer timeout)))
-             (jrpc--pending-continuations proc))
+             (jrpc--request-continuations proc))
     (unwind-protect
         ;; Call all outstanding error handlers
         (maphash (lambda (_id triplet)
                    (cl-destructuring-bind (_success error _timeout) triplet
                      (funcall error :code -1 :message (format "Server died"))))
-                 (jrpc--pending-continuations proc))
+                 (jrpc--request-continuations proc))
       (jrpc-message "Server exited with status %s" (process-exit-status proc))
       (funcall (or (jrpc--on-shutdown proc) #'identity) proc)
       (delete-process proc))))
@@ -322,29 +331,27 @@ is a symbol saying if this is a client or server originated."
 
 (defun jrpc--process-receive (proc message)
   "Process MESSAGE from PROC."
-  (cl-destructuring-bind (&key method id error &allow-other-keys) message
+  (cl-destructuring-bind (&key method id error params &allow-other-keys) message
     (let* ((continuations (and id
                                (not method)
-                               (gethash id (jrpc--pending-continuations proc)))))
+                               (gethash id (jrpc--request-continuations proc)))))
       (jrpc-log-event proc message 'server)
       (when error (setf (jrpc-status proc) `(,error t)))
       (cond (method
-             ;; a server notification or a server request
-             (let* ((handler-sym (intern (concat (jrpc--method-prefix proc)
-                                                 method))))
-               (if (functionp handler-sym)
-                   (apply handler-sym proc (append
-                                            (plist-get message :params)
-                                            (if id `(:id ,id))))
-                 (jrpc-warn "No implementation of method %s yet" method)
-                 (when id
-                   (jrpc-reply
-                    proc id
-                    :error (jrpc-obj :code -32601
-                                     :message "Method unimplemented"))))))
+             (unwind-protect
+                 (if (listp params)
+                     (apply (jrpc--dispatcher proc) proc method id params)
+                   (funcall (jrpc--dispatcher proc) proc method id params))
+               (unless (or (not id)
+                           (member id (jrpc--server-request-ids proc)))
+                 (jrpc-reply
+                  proc id
+                  :error (jrpc-obj :code -32603 :message "Internal error")))
+               (setf (jrpc--server-request-ids proc)
+                     (delete id (jrpc--server-request-ids proc)))))
             (continuations
              (cancel-timer (cl-third continuations))
-             (remhash id (jrpc--pending-continuations proc))
+             (remhash id (jrpc--request-continuations proc))
              (if error
                  (apply (cl-second continuations) error)
                (let ((res (plist-get message :result)))
@@ -356,7 +363,7 @@ is a symbol saying if this is a client or server originated."
       (jrpc--call-deferred proc)
       (force-mode-line-update t))))
 
-(defun jrpc-process-send (proc message)
+(defun jrpc--process-send (proc message)
   "Send MESSAGE to PROC (ID is optional)."
   (let ((json (json-encode message)))
     (process-send-string proc (format "Content-Length: %d\r\n\r\n%s"
@@ -370,10 +377,10 @@ is a symbol saying if this is a client or server originated."
   "Compute the next id for a client request."
   (setq jrpc--next-request-id (1+ jrpc--next-request-id)))
 
-(defun jrpc-forget-pending-continuations (process)
-  "Stop waiting for responses from the current LSP PROCESS."
+(defun jrpc-forget-pending-continuations (proc)
+  "Stop waiting for responses from the current LSP PROC."
   (interactive (list (jrpc-current-process-or-lose)))
-  (clrhash (jrpc--pending-continuations process)))
+  (clrhash (jrpc--request-continuations proc)))
 
 (defun jrpc-clear-status (process)
   "Clear most recent error message from PROCESS."
@@ -417,7 +424,7 @@ timeout keeps counting."
                 (run-with-timer
                  timeout nil
                  (lambda ()
-                   (remhash id (jrpc--pending-continuations proc))
+                   (remhash id (jrpc--request-continuations proc))
                    (funcall (or timeout-fn
                                 (lambda ()
                                   (jrpc-error
@@ -454,11 +461,11 @@ timeout keeps counting."
                          proc (jrpc-obj :message "error ignored, status set"
                                         :id id :error code)))
                    (funcall make-timeout))
-             (jrpc--pending-continuations proc))
-    (jrpc-process-send proc (jrpc-obj :jsonrpc "2.0"
-                                      :id id
-                                      :method method
-                                      :params params))))
+             (jrpc--request-continuations proc))
+    (jrpc--process-send proc (jrpc-obj :jsonrpc "2.0"
+                                       :id id
+                                       :method method
+                                       :params params))))
 
 (defun jrpc-request (proc method params &optional deferred)
   "Like `jrpc-async-request' for PROC, METHOD and PARAMS, but synchronous.
@@ -489,16 +496,17 @@ DEFERRED is passed to `jrpc-async-request', which see."
 
 (cl-defun jrpc-notify (process method params)
   "Notify PROCESS of something, don't expect a reply.e"
-  (jrpc-process-send process (jrpc-obj :jasonrpc  "2.0"
-                                       :method method
-                                       :params params)))
+  (jrpc--process-send process (jrpc-obj :jasonrpc  "2.0"
+                                        :method method
+                                        :params params)))
 
-(cl-defun jrpc-reply (process id &key result error)
-  "Reply to PROCESS's request ID with MESSAGE."
-  (jrpc-process-send
-   process `(:jasonrpc  "2.0" :id ,id
-                        ,@(when result `(:result ,result))
-                        ,@(when error `(:error ,error)))))
+(cl-defun jrpc-reply (proc id &key result error)
+  "Reply to PROCESS's request ID with RESULT or ERROR."
+  (push id (jrpc--server-request-ids proc))
+  (jrpc--process-send
+   proc`(:jasonrpc  "2.0" :id ,id
+                    ,@(when result `(:result ,result))
+                    ,@(when error `(:error ,error)))))
 
 (defun jrpc-mapply (fun seq)
   "Apply FUN to every element of SEQ."
