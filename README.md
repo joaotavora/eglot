@@ -60,7 +60,7 @@ either:
 (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
 ```
 
-# Supported Protocol features
+# Supported Protocol features (3.6)
 
 ## General
 - [x] initialize
@@ -85,14 +85,14 @@ either:
 - [ ] workspace/didChangeConfiguration
 - [ ] workspace/configuration (3.6.0)
 - [ ] workspace/didChangeWatchedFiles
-- [x] workspace/symbol
+- [x] workspace/symbol is
 - [x] workspace/applyEdit
 
 ## Text Synchronization
 - [x] textDocument/didOpen
 - [x] textDocument/didChange (incremental or full)
 - [x] textDocument/willSave
-- [ ] textDocument/willSaveWaitUntil
+- [x] textDocument/willSaveWaitUntil
 - [x] textDocument/didSave
 - [x] textDocument/didClose
 
