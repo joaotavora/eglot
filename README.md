@@ -15,12 +15,13 @@ M-x eglot
 *That's it*. If you're lucky, this guesses the LSP executable to start
 for the language of your choice. Otherwise, it prompts you to enter one:
 
-`M-x eglot` currently guesses and works out-of-the-box with:
+`M-x eglot` can guess and work out-of-the-box with these servers:
 
 * Javascript's [javascript-typescript-stdio][javascript-typescript-langserver]
 * Rust's [rls][rls]
 * Python's [pyls][pyls]
 * Bash's [bash-language-server][bash-language-server]
+* PHP's [php-language-server][php-language-server]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -193,6 +194,7 @@ Under the hood:
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
+[php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
 
    
