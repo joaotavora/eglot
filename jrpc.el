@@ -332,7 +332,7 @@ is a symbol saying if this is a client or server originated."
 
 (defun jrpc--process-receive (proc message)
   "Process MESSAGE from PROC."
-  (cl-destructuring-bind (&key method id error params &allow-other-keys) message
+  (cl-destructuring-bind (&key method id error params result _jsonrpc) message
     (let* ((continuations (and id
                                (not method)
                                (gethash id (jrpc--request-continuations proc)))))
@@ -340,9 +340,7 @@ is a symbol saying if this is a client or server originated."
       (when error (setf (jrpc-status proc) `(,error t)))
       (cond (method
              (unwind-protect
-                 (if (listp params)
-                     (apply (jrpc--dispatcher proc) proc method id params)
-                   (funcall (jrpc--dispatcher proc) proc method id params))
+                 (funcall (jrpc--dispatcher proc) proc method id params)
                (unless (or (not id)
                            (member id (jrpc--server-request-ids proc)))
                  (jrpc-reply
@@ -354,11 +352,8 @@ is a symbol saying if this is a client or server originated."
              (cancel-timer (cl-third continuations))
              (remhash id (jrpc--request-continuations proc))
              (if error
-                 (apply (cl-second continuations) error)
-               (let ((res (plist-get message :result)))
-                 (if (listp res)
-                     (apply (cl-first continuations) res)
-                   (funcall (cl-first continuations) res)))))
+                 (funcall (cl-second continuations) error)
+               (funcall (cl-first continuations) result)))
             (id
              (jrpc-warn "Ooops no continuation for id %s" id)))
       (jrpc--call-deferred proc)
@@ -402,7 +397,8 @@ request request and a process object.")
 
 (cl-defmacro jrpc-lambda (cl-lambda-list &body body)
   (declare (indent 1) (debug (sexp &rest form)))
-  `(cl-function (lambda ,cl-lambda-list ,@body)))
+  (let ((e (gensym "jrpc-lambda-elem")))
+    `(lambda (,e) (apply (cl-function (lambda ,cl-lambda-list ,@body)) ,e))))
 
 (cl-defun jrpc-async-request (proc
                               method
@@ -480,16 +476,10 @@ DEFERRED is passed to `jrpc-async-request', which see."
           (catch tag
             (jrpc-async-request
              proc method params
-             :success-fn (lambda (&rest args)
-                           (throw tag
-                                  `(done ,(if (vectorp (car args))
-                                              (car args) args))))
+             :success-fn (lambda (result) (throw tag `(done ,result)))
              :error-fn (jrpc-lambda (&key code message &allow-other-keys)
-                         (throw tag
-                                `(error ,(format "Oops: %s: %s" code message))))
-             :timeout-fn (lambda ()
-                           (throw tag
-                                  '(error "Timed out")))
+                         (throw tag `(error ,(format "%s: %s" code message))))
+             :timeout-fn (lambda () (throw tag '(error "Timed out")))
              :deferred deferred)
             (while t (accept-process-output nil 30)))))
     (when (eq 'error (car retval)) (jrpc-error (cadr retval)))
@@ -508,10 +498,6 @@ DEFERRED is passed to `jrpc-async-request', which see."
    proc`(:jasonrpc  "2.0" :id ,id
                     ,@(when result `(:result ,result))
                     ,@(when error `(:error ,error)))))
-
-(defun jrpc-mapply (fun seq)
-  "Apply FUN to every element of SEQ."
-  (mapcar (lambda (e) (apply fun e)) seq))
 
 (provide 'jrpc)
 ;;; jrpc.el ends here
