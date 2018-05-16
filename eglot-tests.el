@@ -1,6 +1,6 @@
 ;;; eglot-tests.el --- Tests for eglot.el            -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018  João Távora
+;; Copyright (C) 2018  Free Software Foundation, Inc.
 
 ;; Author: João Távora <joaotavora@gmail.com>
 ;; Keywords: tests

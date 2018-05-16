@@ -4,10 +4,10 @@ Eglot
 
 *E*macs Poly*glot*. An Emacs client to [Language Server Protocol][lsp] servers.
 
-```
-(add-to-list 'load-path "/path/to/eglot")
-(require 'eglot) ; Requires emacs 26!
+Eglot is [in ELPA][gnuelpa]. Installation is straightforward:
 
+```
+(package-install 'eglot) ; Requires Emacs 26!
 ;; Now find some source file, any source file
 M-x eglot
 ```
@@ -15,14 +15,15 @@ M-x eglot
 *That's it*. If you're lucky, this guesses the LSP executable to start
 for the language of your choice. Otherwise, it prompts you to enter one:
 
-`M-x eglot` currently guesses and works out-of-the-box with:
+`M-x eglot` can guess and work out-of-the-box with these servers:
 
 * Javascript's [javascript-typescript-stdio][javascript-typescript-langserver]
 * Rust's [rls][rls]
 * Python's [pyls][pyls]
 * Bash's [bash-language-server][bash-language-server]
+* PHP's [php-language-server][php-language-server]
 
-I'll add more as I test more features. In the meantime you can
+I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
 
 ```lisp
@@ -41,7 +42,9 @@ Here's a summary of available commands:
 
 - `M-x eglot-reconnect` reconnects to the server;
 
-- `M-x eglot-rename` asks the server to rename the symbol at point
+- `M-x eglot-shutdown` says bye-bye to the server;
+
+- `M-x eglot-rename` asks the server to rename the symbol at point;
 
 - `M-x eglot-help-at-point` asks the server for help for symbol at
   point. Currently this is what `eldoc-mode` displays in the echo
@@ -59,6 +62,23 @@ either:
 (define-key eglot-mode-map (kbd "C-c h") 'eglot-help-at-point)
 (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
 ```
+
+# How does this work exactly?
+
+`M-x eglot` starts a server via a shell-command guessed from
+`eglot-server-programs`, using the current major-mode (for whatever
+language you're programming in) as a hint.
+
+If the connection is successful, you see an `[eglot:<server>]`
+indicator pop up in your mode-line.  More importantly, this means
+current *and future* file buffers of that major mode *inside your
+current project* automatically become \"managed\" by the LSP server,
+i.e.  information about their contents is exchanged periodically to
+provide enhanced code analysis via `xref-find-definitions`,
+`flymake-mode`, `eldoc-mode`, `completion-at-point`, among others.
+
+To "unmanage" these buffers, shutdown the server with `M-x
+eglot-shutdown`.
 
 # Supported Protocol features (3.6)
 
@@ -104,7 +124,7 @@ either:
 - [x] textDocument/completion
 - [x] completionItem/resolve (works quite well with [company-mode][company-mode])
 - [x] textDocument/hover
-- [x] textDocument/signatureHelp (fancy stuff with Python's [pyls[pyls]])
+- [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
 - [x] textDocument/definition
 - [ ] textDocument/typeDefinition (3.6.0)
 - [ ] textDocument/implementation (3.6.0)
@@ -152,7 +172,7 @@ User-visible differences:
    
 Under the hood:
 
-- Message parser is much much simpler.
+- Message parser is much simpler.
 - Defers signature requests like `textDocument/hover` until server is
   ready. Also sends `textDocument/didChange` for groups of edits, not
   one per each tiny change.
@@ -169,10 +189,12 @@ Under the hood:
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
 [pyls]: https://github.com/palantir/python-language-server
+[gnuelpa]: https://elpa.gnu.org/packages/eglot.html
 [javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
+[php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
 
    

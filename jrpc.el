@@ -427,9 +427,9 @@ timeout keeps counting."
                    (remhash id (jrpc--request-continuations proc))
                    (funcall (or timeout-fn
                                 (lambda ()
-                                  (jrpc-error
-                                   "Tired of waiting for reply to %s, id=%s"
-                                   method id))))))))))
+                                  (jrpc-log-event
+                                   proc `(:timed-out ,method :id id
+                                                     :params ,params)))))))))))
     (when deferred
       (let* ((buf (current-buffer))
              (existing (gethash (list deferred buf) (jrpc--deferred-actions proc))))
@@ -453,13 +453,13 @@ timeout keeps counting."
     (puthash id
              (list (or success-fn
                        (jrpc-lambda (&rest _ignored)
-                         (jrpc-log-event
-                          proc (jrpc-obj :message "success ignored" :id id))))
+                                    (jrpc-log-event
+                                     proc (jrpc-obj :message "success ignored" :id id))))
                    (or error-fn
                        (jrpc-lambda (&key code message &allow-other-keys)
-                         (setf (jrpc-status proc) `(,message t))
-                         proc (jrpc-obj :message "error ignored, status set"
-                                        :id id :error code)))
+                                    (setf (jrpc-status proc) `(,message t))
+                                    proc (jrpc-obj :message "error ignored, status set"
+                                                   :id id :error code)))
                    (funcall make-timeout))
              (jrpc--request-continuations proc))
     (jrpc--process-send proc (jrpc-obj :jsonrpc "2.0"
