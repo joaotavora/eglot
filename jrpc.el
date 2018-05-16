@@ -128,26 +128,23 @@ A function passed the process object for the server.")
 (defun jrpc--make-process (name contact)
   "Make a process from CONTACT.
 NAME is a name to give the inferior process or connection.
-CONTACT is as `jrpc-contact'.  Returns a process object."
+CONTACT is as explained in `jrpc-connect'.  Returns a process
+object."
   (let* ((readable-name (format "JSON-RPC server (%s)" name)                                                            )
-         (buffer (get-buffer-create
-                  (format "*%s inferior*" readable-name)))
-         singleton
+         (buffer (get-buffer-create (format "*%s inferior*" readable-name)))
          (proc
-          (if (and (setq singleton (and (null (cdr contact)) (car contact)))
-                   (string-match "^[\s\t]*\\(.*\\):\\([[:digit:]]+\\)[\s\t]*$"
-                                 singleton))
-              (open-network-stream readable-name
-                                   buffer
-                                   (match-string 1 singleton)
-                                   (string-to-number
-                                    (match-string 2 singleton)))
-            (make-process :name readable-name
-                          :buffer buffer
-                          :command contact
-                          :connection-type 'pipe
-                          :stderr (get-buffer-create (format "*%s stderr*"
-                                                             name))))))
+          (cond ((processp contact) contact)
+                ((integerp (cadr contact))
+                 (apply #'open-network-stream
+                        readable-name buffer contact))
+                (t
+                 (make-process :name readable-name
+                               :command contact
+                               :connection-type 'pipe
+                               :stderr (get-buffer-create (format "*%s stderr*"
+                                                                  name)))))))
+    (set-process-buffer proc buffer)
+    (set-marker (process-mark proc) (with-current-buffer buffer (point-min)))
     (set-process-filter proc #'jrpc--process-filter)
     (set-process-sentinel proc #'jrpc--process-sentinel)
     proc))
@@ -164,9 +161,13 @@ CONTACT is as `jrpc-contact'.  Returns a process object."
 
 NAME is a string naming the server.
 
-CONTACT is either a list of strings (a shell command and
-arguments), or a list of a single string of the form
-<host>:<port>.
+CONTACT is a list of strings (COMMAND ARGS...) specifying how to
+start a server subprocess to connect to.  If the second element
+in the list is an integer number instead of a string, the list is
+interpreted as (HOST PORT PARAMETERS...) to connect to an
+existing server via TCP, with the remaining PARAMETERS are given
+to `open-network-stream's optional arguments.  CONTACT can also
+be a live connected process object.
 
 ON-SHUTDOWN, when non-nil, is a function called on server exit
 and passed the moribund process object.
@@ -453,13 +454,13 @@ timeout keeps counting."
     (puthash id
              (list (or success-fn
                        (jrpc-lambda (&rest _ignored)
-                                    (jrpc-log-event
-                                     proc (jrpc-obj :message "success ignored" :id id))))
+                         (jrpc-log-event
+                          proc (jrpc-obj :message "success ignored" :id id))))
                    (or error-fn
                        (jrpc-lambda (&key code message &allow-other-keys)
-                                    (setf (jrpc-status proc) `(,message t))
-                                    proc (jrpc-obj :message "error ignored, status set"
-                                                   :id id :error code)))
+                         (setf (jrpc-status proc) `(,message t))
+                         proc (jrpc-obj :message "error ignored, status set"
+                                        :id id :error code)))
                    (funcall make-timeout))
              (jrpc--request-continuations proc))
     (jrpc--process-send proc (jrpc-obj :jsonrpc "2.0"
