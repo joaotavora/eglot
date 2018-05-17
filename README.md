@@ -27,18 +27,16 @@ I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
 
 ```lisp
-(add-to-list 'eglot-server-programs '(fancy-mode . ("fancy-language-server" "--args"")))
+(add-to-list 'eglot-server-programs '(fancy-mode . ("fancy-language-server" "--somearg")))
 ```
-
-Let me know how well it works and we can add it to the list.  You can
-also enter a `server:port` pattern to connect to an LSP server. To
-skip the guess and always be prompted use `C-u M-x eglot`.
+Let me know how well it works and we can add it to the list.
 
 # Commands and keybindings
 
 Here's a summary of available commands:
 
-- `M-x eglot`, as described above;
+- `M-x eglot`, as described above. Try it with `C-u M-x eglot` to be
+  prompted for stuff interactively.
 
 - `M-x eglot-reconnect` reconnects to the server;
 
@@ -80,6 +78,77 @@ provide enhanced code analysis via `xref-find-definitions`,
 To "unmanage" these buffers, shutdown the server with `M-x
 eglot-shutdown`.
 
+# Connecting via TCP
+
+The examples above use a "pipe" to talk to the server, which works
+fine on Linux and OSX but in some cases
+*[[may not work on Windows][windows-subprocess-hang]]*.
+
+To circumvent this (or if you prefer it for some other reason) you can
+use `C-u M-x eglot` and specify a `server:port` pattern to connect to
+a previously started TCP server serving LSP information.
+
+If the server is unreliable or you don't want to start it manually,
+you can have Eglot start it for you. Here's how to start `pyls` this
+way:
+
+```lisp
+(add-to-list 'eglot-server-programs
+             `(python-mode . ,(eglot-inferior-bootstrap '("pyls" "-v" "--tcp"
+                                                          "--host" "localhost"
+                                                          "--port" :port))))
+```
+
+You can see that the element associated with `python-mode` is a now an
+evaluation of `eglot-inferior-bootstrap`, which returns a function of
+zero arguments. You can also see a more complicated invocation of
+`pyls` requesting it to be stated as a server. Notice the `:port`
+symbol in there: it is replaced dynamically by a local port believed
+to be vacant.  Again, let me know how well it works and I can add it
+to the built-in list.
+
+# Differences to lsp-mode.el
+
+Eglot is **beta**. It may currently underperform
+[lsp-mode.el][emacs-lsp], both in functionality and correctness. That
+other extension is much more mature and has a host of
+[plugins][emacs-lsp-plugins] for bells and whistles.  If you don't
+like the minimalist approach of `eglot.el`, you could be better served
+with `lsp-mode.el` for now.
+
+User-visible differences:
+
+- Single and friendly entry point `M-x eglot`, not `M-x
+  eglot-<language>`. Also no `eglot-<language>` extra packages.
+- No "whitelisting" or "blacklisting" directories to languages. `M-x
+  eglot` starts servers to handle major modes inside a specific
+  project. Uses Emacs's built-in `project.el` library to discover
+  projects. Automatically detects current and future opened files
+  under that project and syncs with server.
+- Easy way to quit/restart a server, just middle/right click on the
+  connection name.
+- Pretty interactive mode-line section for live tracking of server
+  communication.
+- Automatically restarts frequently crashing servers (like RLS).
+- Server-initiated edits are confirmed with the user.
+- Diagnostics work out-of-the-box (no `flycheck.el` needed).
+- Smoother/more responsive (read below).
+   
+Under the hood:
+
+- Message parser is much simpler.
+- Defers signature requests like `textDocument/hover` until server is
+  ready. Also sends `textDocument/didChange` for groups of edits, not
+  one per each tiny change.
+- Easier to read and maintain elisp. Yeah I know, *very subjective*,
+  so judge for yourself.
+- About 1k LOC lighter.
+- Development doesn't require Cask, just Emacs.
+- Project support doesn't need `projectile.el`, uses Emacs's `project.el`
+- Requires the upcoming Emacs 26
+- Contained in one file
+- Has automated tests that check against actual LSP servers
+  
 # Supported Protocol features (3.6)
 
 ## General
@@ -143,48 +212,6 @@ eglot-shutdown`.
 - [ ] textDocument/onTypeFormatting
 - [x] textDocument/rename
 
-# Differences to lsp-mode.el
-
-Eglot is **beta**. It may currently underperform
-[lsp-mode.el][emacs-lsp], both in functionality and correctness. That
-other extension is much more mature and has a host of
-[plugins][emacs-lsp-plugins] for bells and whistles.  If you don't
-like the minimalist approach of `eglot.el`, you could be better served
-with `lsp-mode.el` for now.
-
-User-visible differences:
-
-- Single and friendly entry point `M-x eglot`, not `M-x
-  eglot-<language>`. Also no `eglot-<language>` extra packages.
-- No "whitelisting" or "blacklisting" directories to languages. `M-x
-  eglot` starts servers to handle major modes inside a specific
-  project. Uses Emacs's built-in `project.el` library to discover
-  projects. Automatically detects current and future opened files
-  under that project and syncs with server.
-- Easy way to quit/restart a server, just middle/right click on the
-  connection name.
-- Pretty interactive mode-line section for live tracking of server
-  communication.
-- Automatically restarts frequently crashing servers (like RLS).
-- Server-initiated edits are confirmed with the user.
-- Diagnostics work out-of-the-box (no `flycheck.el` needed).
-- Smoother/more responsive (read below).
-   
-Under the hood:
-
-- Message parser is much simpler.
-- Defers signature requests like `textDocument/hover` until server is
-  ready. Also sends `textDocument/didChange` for groups of edits, not
-  one per each tiny change.
-- Easier to read and maintain elisp. Yeah I know, *very subjective*,
-  so judge for yourself.
-- About 1k LOC lighter.
-- Development doesn't require Cask, just Emacs.
-- Project support doesn't need `projectile.el`, uses Emacs's `project.el`
-- Requires the upcoming Emacs 26
-- Contained in one file
-- Has automated tests that check against actual LSP servers
-  
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
@@ -196,5 +223,4 @@ Under the hood:
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
-
-   
+[windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_mono/efaq-w32.html#Subprocess-hang

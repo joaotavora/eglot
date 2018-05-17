@@ -163,9 +163,7 @@ A list (WHAT SERIOUS-P).")
   "If non-nil, don't autoreconnect on unexpected quit.")
 
 (eglot--define-process-var eglot--contact nil
-  "Method used to contact a server.
-Either a list of strings (a shell command and arguments), or a
-list of a single string of the form <host>:<port>")
+  "Method used to contact a server.")
 
 (eglot--define-process-var eglot--deferred-actions
     (make-hash-table :test #'equal)
@@ -174,31 +172,28 @@ list of a single string of the form <host>:<port>")
 (eglot--define-process-var eglot--file-watches (make-hash-table :test #'equal)
   "File system watches for the didChangeWatchedfiles thingy.")
 
+(eglot--define-process-var eglot--inferior nil
+  "Inferior process supporting the server.")
+
 (defun eglot--make-process (name managed-major-mode contact)
   "Make a process from CONTACT.
 NAME is a name to give the inferior process or connection.
 MANAGED-MAJOR-MODE is a symbol naming a major mode.
-CONTACT is as `eglot--contact'.  Returns a process object."
+CONTACT is in `eglot'.  Returns a process object."
   (let* ((readable-name (format "EGLOT server (%s/%s)" name managed-major-mode))
-         (buffer (get-buffer-create
-                  (format "*%s inferior*" readable-name)))
-         singleton
-         (proc
-          (if (and (setq singleton (and (null (cdr contact)) (car contact)))
-                   (string-match "^[\s\t]*\\(.*\\):\\([[:digit:]]+\\)[\s\t]*$"
-                                 singleton))
-              (open-network-stream readable-name
-                                   buffer
-                                   (match-string 1 singleton)
-                                   (string-to-number
-                                    (match-string 2 singleton)))
-            (make-process :name readable-name
-                          :buffer buffer
-                          :command contact
-                          :coding 'no-conversion
-                          :connection-type 'pipe
-                          :stderr (get-buffer-create (format "*%s stderr*"
-                                                             name))))))
+         (buffer (get-buffer-create (format "*%s stdout*" readable-name)))
+         (proc (cond
+                ((processp contact) contact)
+                ((integerp (cadr contact))
+                 (apply #'open-network-stream readable-name buffer contact))
+                (t (make-process
+                    :name readable-name
+                    :command contact
+                    :coding 'no-conversion
+                    :connection-type 'pipe
+                    :stderr (get-buffer-create (format "*%s stderr*" name)))))))
+    (set-process-buffer proc buffer)
+    (set-marker (process-mark proc) (with-current-buffer buffer (point-min)))
     (set-process-filter proc #'eglot--process-filter)
     (set-process-sentinel proc #'eglot--process-sentinel)
     proc))
@@ -247,10 +242,50 @@ CONTACT is as `eglot--contact'.  Returns a process object."
 
 (defvar eglot-connect-hook nil "Hook run after connecting in `eglot--connect'.")
 
+(defun eglot-inferior-bootstrap (command &optional connect-args)
+  "Make a function for connecting to an automatically started server.
+The function will start an asynchronous process, responsible for
+starting a TCP server, then attempt connect to it.  COMMAND is an
+interpolated list used to start server.  One of the list elements
+should be the symbol `:port', which is replaced with a
+dynamically generated TCP port number believed to be vacant.
+CONNECT-ARGS are passed as additional arguments to
+`open-network-stream'."
+  (lambda ()
+    (let* ((port-probe (make-network-process :name "eglot-port-probe-dummy"
+                                             :server t
+                                             :host "localhost"
+                                             :service 0))
+           (port-number (prog1 (process-contact port-probe :service)
+                          (delete-process port-probe)))
+           (name (format "eglot-inferior-server-%s" (car command)))
+           (inferior (make-process
+                      :name name
+                      :buffer (format "*stdout-of-%s*" name)
+                      :stderr (format "*stderr-of-%s*" name)
+                      :command (cl-substitute
+                                (format "%s" port-number) :port command)))
+           (connection (cl-loop
+                        repeat 2
+                        do (accept-process-output nil 0.5)
+                        while (process-live-p inferior)
+                        thereis (apply #'open-network-stream
+                                       (format "eglot-connect-to-%s" name)
+                                       nil "localhost" port-number connect-args))))
+      (unless (process-live-p connection)
+        (unwind-protect
+            (eglot--error "Could not start and connect to %s started with %s"
+                          inferior command)
+          (delete-process inferior)))
+      (setf (eglot--inferior connection) inferior)
+      connection)))
+
 (defun eglot--connect (project managed-major-mode short-name contact _interactive)
   "Connect for PROJECT, MANAGED-MAJOR-MODE, SHORT-NAME and CONTACT.
 INTERACTIVE is t if inside interactive call."
-  (let* ((proc (eglot--make-process short-name managed-major-mode contact))
+  (let* ((proc (eglot--make-process
+                short-name managed-major-mode (if (functionp contact)
+                                                  (funcall contact) contact)))
          (buffer (process-buffer proc)))
     (setf (eglot--contact proc) contact
           (eglot--project proc) project
@@ -309,32 +344,32 @@ INTERACTIVE is t if inside interactive call."
               (mapcar #'symbol-name (eglot--all-major-modes)) nil t
               (symbol-name guessed-mode) nil (symbol-name guessed-mode) nil)))
            (t guessed-mode)))
-         (guessed-command (cdr (assoc managed-mode eglot-server-programs)))
+         (project (or (project-current) `(transient . ,default-directory)))
+         (guessed (cdr (assoc managed-mode eglot-server-programs)))
+         (program (and (listp guessed) (stringp (car guessed)) (car guessed)))
          (base-prompt "[eglot] Enter program to execute (or <host>:<port>): ")
          (prompt
           (cond (current-prefix-arg base-prompt)
-                ((null guessed-command)
-                 (concat (format "[eglot] Sorry, couldn't guess for `%s'!"
-                                 managed-mode)
-                         "\n" base-prompt))
-                ((and (listp guessed-command)
-                      (not (executable-find (car guessed-command))))
+                ((null guessed)
+                 (format "[eglot] Sorry, couldn't guess for `%s'\n%s!"
+                         managed-mode base-prompt))
+                ((and program (not (executable-find program)))
                  (concat (format "[eglot] I guess you want to run `%s'"
-                                 (combine-and-quote-strings guessed-command))
-                         (format ", but I can't find `%s' in PATH!"
-                                 (car guessed-command))
-                         "\n" base-prompt)))))
-    (list
-     managed-mode
-     (or (project-current) `(transient . ,default-directory))
-     (if prompt
-         (split-string-and-unquote
-          (read-shell-command prompt
-                              (if (listp guessed-command)
-                                  (combine-and-quote-strings guessed-command))
-                              'eglot-command-history))
-       guessed-command)
-     t)))
+                                 (combine-and-quote-strings guessed))
+                         (format ", but I can't find `%s' in PATH!" program)
+                         "\n" base-prompt))))
+         (contact
+          (if prompt
+              (let ((s (read-shell-command
+                        prompt
+                        (if program (combine-and-quote-strings guessed))
+                        'eglot-command-history)))
+                (if (string-match "^\\([^\s\t]+\\):\\([[:digit:]]+\\)$"
+                                  (string-trim s))
+                    (list (match-string 1 s) (string-to-number (match-string 2 s)))
+                  (split-string-and-unquote s)))
+            guessed)))
+    (list managed-mode project contact t)))
 
 ;;;###autoload
 (defun eglot (managed-major-mode project command &optional interactive)
@@ -428,14 +463,21 @@ INTERACTIVE is t if called interactively."
       (setf (gethash (eglot--project proc) eglot--processes-by-project)
             (delq proc
                   (gethash (eglot--project proc) eglot--processes-by-project)))
-      (eglot--message "Server exited with status %s" (process-exit-status proc))
+      ;; Say last words
+      (eglot--message "%s exited with status %s" proc (process-exit-status proc))
+      (delete-process proc)
+      ;; Delete the infeior process, if any
+      (let ((inferior (eglot--inferior proc)))
+        (when (process-live-p inferior)
+          (eglot--message "Also killing its inferior %s" inferior)
+          (delete-process inferior)))
+      ;; Consider autoreconnecting
       (cond ((eglot--moribund proc))
             ((not (eglot--inhibit-autoreconnect proc))
              (eglot--warn "Reconnecting after unexpected server exit")
              (eglot-reconnect proc))
             ((timerp (eglot--inhibit-autoreconnect proc))
-             (eglot--warn "Not auto-reconnecting, last on didn't last long.")))
-      (delete-process proc))))
+             (eglot--warn "Not auto-reconnecting, last on didn't last long."))))))
 
 (defun eglot--process-filter (proc string)
   "Called when new data STRING has arrived for PROC."
@@ -934,23 +976,20 @@ Uses THING, FACE, DEFS and PREPEND."
 
 ;;; Protocol implementation (Requests, notifications, etc)
 ;;;
-(defun eglot-shutdown (proc &optional interactive)
+(defun eglot-shutdown (proc &optional _interactive)
   "Politely ask the server PROC to quit.
 Forcefully quit it if it doesn't respond.  Don't leave this
-function with the server still running.  INTERACTIVE is t if
-called interactively."
+function with the server still running."
   (interactive (list (eglot--current-process-or-lose) t))
-  (when interactive (eglot--message "Asking %s politely to terminate" proc))
+  (eglot--message "Asking %s politely to terminate" proc)
   (unwind-protect
       (let ((eglot-request-timeout 3))
         (setf (eglot--moribund proc) t)
-        (eglot--request proc
-                        :shutdown
-                        nil)
-        ;; this one should always fail
+        (eglot--request proc :shutdown nil)
+        ;; this one is supposed to always fail, hence ignore-errors
         (ignore-errors (eglot--request proc :exit nil)))
     (when (process-live-p proc)
-      (eglot--warn "Brutally deleting existing process %s" proc)
+      (eglot--warn "Brutally deleting non-compliant existing process %s" proc)
       (delete-process proc))))
 
 (cl-defun eglot--server-window/showMessage (_process &key type message)
