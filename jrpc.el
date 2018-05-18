@@ -117,6 +117,8 @@
 (require 'json)
 (require 'subr-x)
 (require 'warnings)
+(require 'pcase)
+(require 'array) ; xor
 
 (defgroup jrpc nil
   "Interaction between JSONRPC endpoints"
@@ -294,17 +296,17 @@ type.
         (insert "\n----------b---y---e---b---y---e----------\n")))
     ;; Cancel outstanding timers
     (maphash (lambda (_id triplet)
-               (cl-destructuring-bind (_success _error timeout) triplet
+               (pcase-let ((`(,_success ,_error ,timeout) triplet))
                  (cancel-timer timeout)))
              (jrpc--request-continuations proc))
     (unwind-protect
         ;; Call all outstanding error handlers
         (maphash (lambda (_id triplet)
-                   (cl-destructuring-bind (_success error _timeout) triplet
-                     (funcall error :code -1 :message (format "Server died"))))
+                   (pcase-let ((`(,_success ,error ,_timeout) triplet))
+                     (funcall error `(:code -1 :message "Server died"))))
                  (jrpc--request-continuations proc))
       (jrpc-message "Server exited with status %s" (process-exit-status proc))
-      (funcall (or (jrpc--on-shutdown proc) #'identity) proc)
+      (funcall (or (jrpc--on-shutdown proc) #'ignore) proc)
       (delete-process proc))))
 
 (defun jrpc--process-filter (proc string)
@@ -352,12 +354,19 @@ type.
                             (save-restriction
                               (narrow-to-region (point) message-end)
                               (let* ((json-object-type 'plist)
-                                     (json-message (json-read)))
-                                ;; Process content in another buffer,
-                                ;; shielding buffer from tamper
-                                ;;
-                                (with-temp-buffer
-                                  (jrpc--process-receive proc json-message))))
+                                     (json-message
+                                      (condition-case-unless-debug oops
+                                          (json-read)
+                                        (error
+                                         (jrpc-warn "Invalid JSON: %s %s"
+                                                    (cdr oops) (buffer-string))
+                                         nil))))
+                                (when json-message
+                                  ;; Process content in another
+                                  ;; buffer, shielding proc buffer from
+                                  ;; tamper
+                                  (with-temp-buffer
+                                    (jrpc--process-receive proc json-message)))))
                           (goto-char message-end)
                           (delete-region (point-min) (point))
                           (setq expected-bytes nil))))
@@ -412,36 +421,43 @@ is a symbol saying if this is a client or server originated."
 
 (defun jrpc--process-receive (proc message)
   "Process MESSAGE from PROC."
-  (cl-destructuring-bind (&key method id error params result _jsonrpc) message
-    (let* ((continuations (and id
-                               (not method)
-                               (gethash id (jrpc--request-continuations proc)))))
-      (jrpc-log-event proc message 'server)
-      (when error (setf (jrpc-status proc) `(,error t)))
-      (cond (method
-             (unwind-protect
-                 (funcall (jrpc--dispatcher proc) proc method id params)
-               (unless (or (not id)
-                           (member id (jrpc--server-request-ids proc)))
-                 (jrpc-reply
-                  proc id
-                  :error (jrpc-obj :code -32603 :message "Internal error")))
-               (setf (jrpc--server-request-ids proc)
-                     (delete id (jrpc--server-request-ids proc)))))
-            (continuations
-             (cancel-timer (cl-third continuations))
-             (remhash id (jrpc--request-continuations proc))
-             (if error
-                 (funcall (cl-second continuations) error)
-               (funcall (cl-first continuations) result)))
-            (id
-             (jrpc-warn "Ooops no continuation for id %s" id)))
-      (jrpc--call-deferred proc)
-      (force-mode-line-update t))))
+  (pcase-let ((`(,method ,id ,error ,params ,result)
+               (condition-case-unless-debug oops
+                   (cl-destructuring-bind
+                       (&rest args &key method id error params result _jsonrpc)
+                       message (list method id error params result))
+                 (error (jrpc-warn "Invalid JSONRPC message %s: %s" message
+                                   (cdr oops))
+                        nil)))
+              (continuations))
+    (jrpc-log-event proc message 'server)
+    (when error (setf (jrpc-status proc) `(,error t)))
+    (cond (method
+           (unwind-protect
+               (funcall (jrpc--dispatcher proc) proc method id params)
+             (unless (or (not id)
+                         (member id (jrpc--server-request-ids proc)))
+               (jrpc-reply
+                proc id
+                :error (jrpc-obj :code -32603 :message "Internal error")))
+             (setf (jrpc--server-request-ids proc)
+                   (delete id (jrpc--server-request-ids proc)))))
+          ((setq continuations
+                 (and id (gethash id (jrpc--request-continuations proc))))
+           (let ((timer (nth 2 continuations)))
+             (when timer (cancel-timer timer)))
+           (remhash id (jrpc--request-continuations proc))
+           (if error (funcall (nth 1 continuations) error)
+             (funcall (nth 0 continuations) result)))
+          (id
+           (jrpc-warn "No continuation for id %s" id)))
+    (jrpc--call-deferred proc)
+    (force-mode-line-update t)))
 
 (defun jrpc--process-send (proc message)
   "Send MESSAGE to PROC (ID is optional)."
-  (let ((json (json-encode message)))
+  (let ((json-object-type 'plist)
+        (json (json-encode message)))
     (process-send-string proc (format "Content-Length: %d\r\n\r\n%s"
                                       (string-bytes json)
                                       json))
@@ -550,8 +566,9 @@ Return the request ID, or nil, in case the request was deferred."
                    (or error-fn
                        (jrpc-lambda (&key code message &allow-other-keys)
                          (setf (jrpc-status proc) `(,message t))
-                         proc (jrpc-obj :message "error ignored, status set"
-                                        :id id :error code)))
+                         (jrpc-log-event
+                          proc (jrpc-obj :message "error ignored, status set"
+                                         :id id :error code))))
                    (funcall make-timeout))
              (jrpc--request-continuations proc))
     (jrpc--process-send proc (jrpc-obj :jsonrpc "2.0"
@@ -575,7 +592,7 @@ DEFERRED is passed to `jrpc-async-request', which see."
             (jrpc-async-request
              proc method params
              :success-fn (lambda (result) (throw tag `(done ,result)))
-             :error-fn (jrpc-lambda (&key code message &allow-other-keys)
+             :error-fn (jrpc-lambda (&key code message _data)
                          (throw tag `(error ,(format "%s: %s" code message))))
              :timeout-fn (lambda () (throw tag '(error "Timed out")))
              :deferred deferred)
@@ -585,15 +602,16 @@ DEFERRED is passed to `jrpc-async-request', which see."
 
 (cl-defun jrpc-notify (proc method params)
   "Notify PROC of something, don't expect a reply.e"
-  (jrpc--process-send proc (jrpc-obj :jasonrpc  "2.0"
+  (jrpc--process-send proc (jrpc-obj :jsonrpc  "2.0"
                                      :method method
                                      :params params)))
 
 (cl-defun jrpc-reply (proc id &key result error)
   "Reply to PROC's request ID with RESULT or ERROR."
   (push id (jrpc--server-request-ids proc))
+  (unless (xor result error) (jrpc-error "Can't pass both RESULT and ERROR!"))
   (jrpc--process-send
-   proc`(:jasonrpc  "2.0" :id ,id
+   proc `(:jsonrpc  "2.0" :id ,id
                     ,@(when result `(:result ,result))
                     ,@(when error `(:error ,error)))))
 
