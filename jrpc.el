@@ -24,6 +24,92 @@
 
 ;; Originally extracted from eglot.el (Emacs LSP client)
 ;;
+;; This library implements the JSONRPC 2.0 specification as described
+;; in http://www.jsonrpc.org/.  As the name suggests, JSONRPC is a
+;; generic Remote Procedure Call protocol designed around JSON
+;; objects.
+;;
+;; Quoting from the spec: "[JSONRPC] is transport agnostic in that the
+;; concepts can be used within the same process, over sockets, over
+;; http, or in many various message passing environments."
+;;
+;; To approach this agosticity, jrpc.el uses Emacs's "process"
+;; abstraction since it mostly hides the underlying differences
+;; between local subprocesses and network endpoints.  Thus everywhere
+;; in this library (be it in the internals or in the user-visible
+;; protocol), JSONRPC endpoint is an (augmented) process object.
+;;
+;; The main entry point is `jrpc-connect'.  It is passed a name
+;; identifying the connection and a "contact", which will determine
+;; the connection type to make.  It can a list of strings (a command
+;; and arguments for creating subprocesses) or a (HOST PORT-NUMBER
+;; PARAMS...) for connecting via TCP.  For flexibility, it can also be
+;; a pre-connected process.
+;;
+;; `jrpc-connect' returns a process upon connection.  This value
+;; should be saved to be later given to `jrpc-notify', `jrpc-reply',
+;; `jrpc-request' and `jrpc-async-request' as a way of contacting the
+;; connected remote endpoint.
+;;
+;; `jrpc-connect' is also passed a dispatcher function for handling
+;; handling the contacts asynchronously initiated by the remote
+;; endpoint's, as well as a optional function for cleaning up after
+;; the teardown of the JSONRPC connection.
+;;
+;; The JSON objects are passed to the dispatcher after being read by
+;; `json-read' of Emacs's json.el library.  They are read as plists,
+;; and, likewise, json.el-compatible plists should be given to
+;; `jrpc-notify', `jrpc-request', etc...
+;;
+;; To facilitate handling of key-value plists, this library make
+;; liberal use of cl-lib.el and suggests (but doesn't force) its
+;; clients to do the same.  A macro `jrpc-lambda' can be used to
+;; create a lambda for destructuring a JSON-object like in this
+;; example:
+;;
+;; (jrpc-async-request myproc :frobnicate `(:foo "trix")
+;;                     :success-fn (jrpc-lambda (&key bar baz &allow-other-keys)
+;;                                   (message "Server replied back %s and %s!"
+;;                                            bar baz))
+;;                     :error-fn (jrpc-lambda (&key code message _data)
+;;                                 (message "Sadly, server reports %s: %s"
+;;                                          code message)))
+;;
+;; Finally, here's an example Emacs JSONRPC server that offers a (very
+;; small) subset of Elisp for remote calling:
+;;
+;; (defvar server) (defvar server-endpoint)
+;; (defvar server-allowed-functions '(+ - * / vconcat append sit-for))
+;;
+;; (delete-process server)
+;; (setq server
+;;       (make-network-process
+;;        :name "Emacs RPC server" :server t :host "localhost" :service 9393
+;;        :log (lambda (_server client _message)
+;;               (jrpc-connect
+;;                (process-name client) client
+;;                (lambda (proc method id params)
+;;                  (unless (memq method server-allowed-functions)
+;;                    (signal 'error `((jrpc-error-message . "Sorry, this isn't allowed")
+;;                                     (jrpc-error-code . 32601))))
+;;                  (jrpc-reply proc id :result (apply method (append params nil))))))))
+;;
+;; (setq server-endpoint (jrpc-connect "Emacs RPC client" '("localhost" 9393)
+;;                                     (lambda (_proc method id &rest params)
+;;                                       (message "server wants to %s" method))))
+;;
+;;   ;; returns 3
+;;   (jrpc-request server-endpoint '+ '(1 2))
+;;   ;; errors with -32601
+;;   (jrpc-request server-endpoint 'delete-directory "~/tmp")
+;;   ;; signals an -32603 JSONRPC error
+;;   (jrpc-request server-endpoint '+ '(a 2))
+;;   ;; times out
+;;   (jrpc-request server-endpoint 'sit-for '(5))
+;;   ;; stretching it, but works
+;;   (jrpc-request server-endpoint 'vconcat '([1 2 3] [3 4 5]))
+;;   ;; json.el can't serialize this, json.el errors and request isn't sent
+;;   (jrpc-request server-endpoint 'append '((1 2 3) (3 4 5)))
 ;;
 ;;; Code:
 
