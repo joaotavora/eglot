@@ -131,7 +131,7 @@ NAME is a name to give the inferior process or connection.
 CONTACT is as explained in `jrpc-connect'.  Returns a process
 object."
   (let* ((readable-name (format "JSON-RPC server (%s)" name)                                                            )
-         (buffer (get-buffer-create (format "*%s inferior*" readable-name)))
+         (buffer (get-buffer-create (format "*%s stderr*" readable-name)))
          (proc
           (cond ((processp contact) contact)
                 ((integerp (cadr contact))
@@ -141,6 +141,7 @@ object."
                  (make-process :name readable-name
                                :command contact
                                :connection-type 'pipe
+                               :coding 'no-conversion
                                :stderr (get-buffer-create (format "*%s stderr*"
                                                                   name)))))))
     (set-process-buffer proc buffer)
