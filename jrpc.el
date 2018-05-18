@@ -33,7 +33,7 @@
 ;; concepts can be used within the same process, over sockets, over
 ;; http, or in many various message passing environments."
 ;;
-;; To approach this agosticity, jrpc.el uses Emacs's "process"
+;; To approach this agnosticism, jrpc.el uses Emacs's "process"
 ;; abstraction since it mostly hides the underlying differences
 ;; between local subprocesses and network endpoints.  Thus everywhere
 ;; in this library (be it in the internals or in the user-visible
@@ -54,7 +54,7 @@
 ;; `jrpc-connect' is also passed a dispatcher function for handling
 ;; handling the contacts asynchronously initiated by the remote
 ;; endpoint's, as well as a optional function for cleaning up after
-;; the teardown of the JSONRPC connection.
+;; the tear-down of the JSONRPC connection.
 ;;
 ;; The JSON objects are passed to the dispatcher after being read by
 ;; `json-read' of Emacs's json.el library.  They are read as plists,
@@ -81,7 +81,6 @@
 ;; (defvar server) (defvar server-endpoint)
 ;; (defvar server-allowed-functions '(+ - * / vconcat append sit-for))
 ;;
-;; (delete-process server)
 ;; (setq server
 ;;       (make-network-process
 ;;        :name "Emacs RPC server" :server t :host "localhost" :service 9393
@@ -98,18 +97,18 @@
 ;;                                     (lambda (_proc method id &rest params)
 ;;                                       (message "server wants to %s" method))))
 ;;
-;;   ;; returns 3
-;;   (jrpc-request server-endpoint '+ '(1 2))
-;;   ;; errors with -32601
-;;   (jrpc-request server-endpoint 'delete-directory "~/tmp")
-;;   ;; signals an -32603 JSONRPC error
-;;   (jrpc-request server-endpoint '+ '(a 2))
-;;   ;; times out
-;;   (jrpc-request server-endpoint 'sit-for '(5))
-;;   ;; stretching it, but works
-;;   (jrpc-request server-endpoint 'vconcat '([1 2 3] [3 4 5]))
-;;   ;; json.el can't serialize this, json.el errors and request isn't sent
-;;   (jrpc-request server-endpoint 'append '((1 2 3) (3 4 5)))
+;; ;; returns 3
+;; (jrpc-request server-endpoint '+ '(1 2))
+;; ;; errors with -32601
+;; (jrpc-request server-endpoint 'delete-directory "~/tmp")
+;; ;; signals an -32603 JSONRPC error
+;; (jrpc-request server-endpoint '+ '(a 2))
+;; ;; times out
+;; (jrpc-request server-endpoint 'sit-for '(5))
+;; ;; stretching it, but works
+;; (jrpc-request server-endpoint 'vconcat '([1 2 3] [3 4 5]))
+;; ;; json.el can't serialize this, json.el errors and request isn't sent
+;; (jrpc-request server-endpoint 'append '((1 2 3) (3 4 5)))
 ;;
 ;;; Code:
 
@@ -143,7 +142,7 @@ If nil, don't use a timeout (not recommended)."
       (jrpc-error "No current JSON-RPC process")))
 
 (defun jrpc-error (format &rest args)
-  "Error out with FORMAT with ARGS.
+  "Error out with FORMAT and ARGS.
 If invoked inside a dispatcher function, this function is suitable
 for replying to the remote endpoint with a -32603 error code and
 FORMAT as the message."
@@ -205,7 +204,7 @@ A list (WHAT SERIOUS-P).")
   "Method used to contact a server.")
 
 (jrpc-define-process-var jrpc--on-shutdown nil
-  "Function run when JSON-RPC server is dying.
+  "Function run when JSONRPC server is dying.
 Run after running any error handlers for outstanding requests.
 A function passed the process object for the server.")
 
@@ -214,7 +213,7 @@ A function passed the process object for the server.")
   "Actions deferred to when server is thought to be ready.")
 
 (defun jrpc-outstanding-request-ids (proc)
-  "IDs of outstanding JSON-RPC requests for PROC."
+  "IDs of outstanding JSONRPC requests for PROC."
   (hash-table-keys (jrpc--request-continuations proc)))
 
 (defun jrpc--make-process (name contact)
@@ -276,7 +275,7 @@ contains the method parameters as JSON data.
 
 If ID is non-nil, DISPATCHER is expected to reply to the
 request. If it doesn't, or if it signals an error before doing
-so, jrpc.el will automatially reply with an error. If DISPATCHER
+so, jrpc.el will automatically reply with an error. If DISPATCHER
 signals an error with alist elements `jrpc-error-message' and
 `jrpc-error-code' in its DATA, the corresponding elements are
 used for the automated error reply.
@@ -382,7 +381,7 @@ used for the automated error reply.
           (setf (jrpc--expected-bytes proc) expected-bytes))))))
 
 (defun jrpc-events-buffer (process &optional interactive)
-  "Display events buffer for current LSP connection PROCESS.
+  "Display events buffer for current JSONRPC connection PROCESS.
 INTERACTIVE is t if called interactively."
   (interactive (list (jrpc-current-process-or-lose) t))
   (let* ((probe (jrpc--events-buffer process))
@@ -478,7 +477,7 @@ is a symbol saying if this is a client or server originated."
   (setq jrpc--next-request-id (1+ jrpc--next-request-id)))
 
 (defun jrpc-forget-pending-continuations (proc)
-  "Stop waiting for responses from the current LSP PROC."
+  "Stop waiting for responses from the current JSONRPC PROC."
   (interactive (list (jrpc-current-process-or-lose)))
   (clrhash (jrpc--request-continuations proc)))
 
@@ -497,7 +496,7 @@ is a symbol saying if this is a client or server originated."
   "Special hook of predicates controlling deferred actions.
 If one of these returns nil, a deferrable `jrpc-async-request'
 will be deferred.  Each predicate is passed the symbol for the
-request request and a process object.")
+request and a process object.")
 
 (cl-defmacro jrpc-lambda (cl-lambda-list &body body)
   (declare (indent 1) (debug (sexp &rest form)))
@@ -526,10 +525,9 @@ ERROR-FN and TIMEOUT-FN simply log the events into
 If DEFERRED is non-nil, maybe defer the request to a future time
 when the server is thought to be ready according to
 `jrpc-ready-predicates' (which see).  The request might never be
-sent at all, in case it is overriden by a new request with
-identical DEFERRED and for the same buffer happens in the
-meantime.  However, in that situation, the original timeout is
-kept.
+sent at all, in case it is overridden in the meantime by a new
+request with identical DEFERRED and for the same buffer.
+However, in that situation, the original timeout is kept.
 
 Return a list (ID TIMER). ID is the new request's ID, or nil if
 the request was deferred. TIMER is a timer object set (or nil, if
