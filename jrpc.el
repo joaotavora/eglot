@@ -452,8 +452,7 @@ is a symbol saying if this is a client or server originated."
              (funcall (nth 0 continuations) result)))
           (id
            (jrpc-warn "No continuation for id %s" id)))
-    (jrpc--call-deferred proc)
-    (force-mode-line-update t)))
+    (jrpc--call-deferred proc)))
 
 (defun jrpc--process-send (proc message)
   "Send MESSAGE to PROC (ID is optional)."
