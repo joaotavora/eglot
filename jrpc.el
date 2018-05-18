@@ -33,7 +33,7 @@
 (require 'warnings)
 
 (defgroup jrpc nil
-  "Interaction with Language Server Protocol servers"
+  "Interaction between JSONRPC endpoints"
   :prefix "jrpc-"
   :group 'applications)
 
@@ -157,6 +157,7 @@ object."
   ;; the indenting of literal plists, i.e. is basically `list'
   `(list ,@what))
 
+;;;###autoload
 (cl-defun jrpc-connect (name contact dispatcher &optional on-shutdown)
   "Connect to JSON-RPC server hereafter known as NAME through CONTACT.
 
@@ -168,43 +169,35 @@ in the list is an integer number instead of a string, the list is
 interpreted as (HOST PORT PARAMETERS...) to connect to an
 existing server via TCP, with the remaining PARAMETERS are given
 to `open-network-stream's optional arguments.  CONTACT can also
-be a live connected process object.
+be a live connected process object. In that case its buffer,
+filter and sentinel are overwritten by `jrpc-connect'.
 
-ON-SHUTDOWN, when non-nil, is a function called on server exit
-and passed the moribund process object.
+ON-SHUTDOWN, if non-nil, is a function called on server exit and
+passed the moribund process object as a single argument.
 
 DISPATCHER specifies how the server-invoked methods find their
-Elisp counterpart. It is a function which is passed (PROC METHOD
-ID PARAMS...) as arguments.
+Elisp counterpart. It is a function passed (PROC METHOD ID PARAMS
+as arguments:
 
 PROC is the process object returned by this function.
 
 ID is server identifier for a server request, or nil for a server
-notification.
+notification. In the case of a server request, DISPATCHER is
+reponsible using ID and `jrpc-reply' (which see) to reply.
 
 METHOD is a symbol.
 
-PARAMS contains the method parameters.  If the parameters are a
-JSON object, PARAMS... is a plist of the form (KEY1 VALUE1 KEY2
-VALUE2...).  It they are an array, a string or a number, the
-first and only element of PARAMS is a vector, string or number,
-respectively. If the parameters are a single boolean, PARAMS is
-either the symbol `:json-false' or `t'. In the case of a server
-request, DISPATCHER is reponsible for replying to it with
-`jrpc-reply' (which see).
+PARAMS contains the method parameters: an object, array, or other
+type.
 
 `jrpc-connect' returns a process object representing the server."
-  (let* ((proc (jrpc--make-process name contact))
-         (buffer (process-buffer proc)))
+  (let* ((proc (jrpc--make-process name contact)))
     (setf (jrpc-contact proc) contact
           (jrpc-name proc) name
           (jrpc--dispatcher proc) dispatcher
           (jrpc--on-shutdown proc) on-shutdown)
-    (with-current-buffer buffer
-      (let ((inhibit-read-only t))
-        (erase-buffer)
-        (read-only-mode t)
-        proc))))
+    (with-current-buffer (process-buffer proc)
+      (let ((inhibit-read-only t)) (erase-buffer) (read-only-mode t) proc))))
 
 (defun jrpc--process-sentinel (proc change)
   "Called when PROC undergoes CHANGE."
@@ -408,12 +401,27 @@ request request and a process object.")
                               &key success-fn error-fn timeout-fn
                               (timeout jrpc-request-timeout)
                               (deferred nil))
-  "Make a request to PROCESS, expecting a reply.
-Return the ID of this request. Wait TIMEOUT seconds for response.
-If DEFERRED, maybe defer request to the future, or never at all,
-in case a new request with identical DEFERRED and for the same
-buffer overrides it. However, if that happens, the original
-timeout keeps counting."
+  "Make a request to PROC, expecting a reply, return immediately.
+The JSONRPC request is formed by METHOD, a symbol, and PARAMS a
+JSON object.
+
+The caller can expect SUCCESS-FN or ERROR-FN to be called with a
+JSONRPC `:result' or `:error' object, respectively.  If this
+doesn't happen after TIMEOUT seconds (defaults to
+`jrpc-request-timeout'), the caller can expect TIMEOUT-FN to be
+called with no arguments. The default values of SUCCESS-FN,
+ERROR-FN and TIMEOUT-FN simply log the events into
+`jrpc-events-buffer'.
+
+If DEFERRED is non-nil, maybe defer the request to a future time
+when the server is thought to be ready according to
+`jrpc-ready-predicates' (which see).  The request might never be
+sent at all, in case it is overriden by a new request with
+identical DEFERRED and for the same buffer happens in the
+meantime.  However, in that situation, the original timeout is
+kept.
+
+Return the request ID, or nil, in case the request was deferred."
   (let* ((id (jrpc--next-request-id))
          (existing-timer nil)
          (make-timeout
@@ -463,15 +471,18 @@ timeout keeps counting."
     (jrpc--process-send proc (jrpc-obj :jsonrpc "2.0"
                                        :id id
                                        :method method
-                                       :params params))))
+                                       :params params))
+    id))
 
-(defun jrpc-request (proc method params &optional deferred)
-  "Like `jrpc-async-request' for PROC, METHOD and PARAMS, but synchronous.
-Meaning only return locally if successful, otherwise exit non-locally.
+(cl-defun jrpc-request (proc method params &key deferred)
+  "Make a request to PROC, wait for a reply.
+Like `jrpc-async-request' for PROC, METHOD and PARAMS, but
+synchronous, i.e. doesn't exit until anything
+interesting (success, error or timeout) happens.  Furthermore,
+only exit locally (and return the JSONRPC result object) if the
+request is successful, otherwise exit non-locally with an error.
+
 DEFERRED is passed to `jrpc-async-request', which see."
-  ;; Launching a deferred sync request with outstanding changes is a
-  ;; bad idea, since that might lead to the request never having a
-  ;; chance to run, because `jrpc-ready-predicates'.
   (let* ((tag (cl-gensym "jrpc-request-catch-tag"))
          (retval
           (catch tag
@@ -486,14 +497,14 @@ DEFERRED is passed to `jrpc-async-request', which see."
     (when (eq 'error (car retval)) (jrpc-error (cadr retval)))
     (cadr retval)))
 
-(cl-defun jrpc-notify (process method params)
-  "Notify PROCESS of something, don't expect a reply.e"
-  (jrpc--process-send process (jrpc-obj :jasonrpc  "2.0"
-                                        :method method
-                                        :params params)))
+(cl-defun jrpc-notify (proc method params)
+  "Notify PROC of something, don't expect a reply.e"
+  (jrpc--process-send proc (jrpc-obj :jasonrpc  "2.0"
+                                     :method method
+                                     :params params)))
 
 (cl-defun jrpc-reply (proc id &key result error)
-  "Reply to PROCESS's request ID with RESULT or ERROR."
+  "Reply to PROC's request ID with RESULT or ERROR."
   (push id (jrpc--server-request-ids proc))
   (jrpc--process-send
    proc`(:jasonrpc  "2.0" :id ,id
