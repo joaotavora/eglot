@@ -531,12 +531,14 @@ identical DEFERRED and for the same buffer happens in the
 meantime.  However, in that situation, the original timeout is
 kept.
 
-Return the request ID, or nil, in case the request was deferred."
+Return a list (ID TIMER). ID is the new request's ID, or nil if
+the request was deferred. TIMER is a timer object set (or nil, if
+TIMEOUT is nil)"
   (let* ((id (jrpc--next-request-id))
-         (existing-timer nil)
-         (make-timeout
+         (timer nil)
+         (make-timer
           (lambda ( )
-            (or existing-timer
+            (or timer
                 (when timeout
                   (run-with-timer
                    timeout nil
@@ -550,7 +552,7 @@ Return the request ID, or nil, in case the request was deferred."
     (when deferred
       (let* ((buf (current-buffer))
              (existing (gethash (list deferred buf) (jrpc--deferred-actions proc))))
-        (when existing (setq existing-timer (cadr existing)))
+        (when existing (setq timer (cadr existing)))
         (if (run-hook-with-args-until-failure 'jrpc-ready-predicates
                                               deferred proc)
             (remhash (list deferred buf) (jrpc--deferred-actions proc))
@@ -562,9 +564,11 @@ Return the request ID, or nil, in case the request was deferred."
                               (save-excursion (goto-char point)
                                               (apply #'jrpc-async-request proc
                                                      method params args)))))))
-            (puthash (list deferred buf) (list later (funcall make-timeout))
+            (puthash (list deferred buf)
+                     (list later (setq timer (funcall make-timer)))
                      (jrpc--deferred-actions proc))
-            (cl-return-from jrpc-async-request nil)))))
+            ;; Non-local exit!
+            (cl-return-from jrpc-async-request (list nil timer))))))
     ;; Really send it
     ;;
     (jrpc--process-send proc (jrpc-obj :jsonrpc "2.0"
@@ -582,9 +586,9 @@ Return the request ID, or nil, in case the request was deferred."
                          (jrpc-log-event
                           proc (jrpc-obj :message "error ignored, status set"
                                          :id id :error code))))
-                   (funcall make-timeout))
+                   (setq timer (funcall make-timer)))
              (jrpc--request-continuations proc))
-    id))
+    (list id timer)))
 
 (cl-defun jrpc-request (proc method params &key deferred)
   "Make a request to PROC, wait for a reply.
@@ -596,21 +600,29 @@ request is successful, otherwise exit non-locally with an error.
 
 DEFERRED is passed to `jrpc-async-request', which see."
   (let* ((tag (cl-gensym "jrpc-request-catch-tag"))
+         req-id req-timer
          (retval
-          (catch tag
-            (jrpc-async-request
-             proc method params
-             :success-fn (lambda (result) (throw tag `(done ,result)))
-             :error-fn (jrpc-lambda (&key code message data)
-                         (throw tag `(error (jrpc-error-code . ,code)
-                                            (jrpc-error-message . ,message)
-                                            (jrpc-error-data . ,data))))
-             :timeout-fn (lambda ()
-                           (throw tag '(error (jrpc-error-message . "Timed out"))))
-             :deferred deferred)
-            (while t (accept-process-output nil 30)))))
+          (unwind-protect ; protect against user-quit, for example
+              (catch tag
+                (pcase-let
+                    ((`(,id ,timer)
+                      (jrpc-async-request
+                       proc method params
+                       :success-fn (lambda (result) (throw tag `(done ,result)))
+                       :error-fn (jrpc-lambda (&key code message data)
+                                   (throw tag `(error (jrpc-error-code . ,code)
+                                                      (jrpc-error-message . ,message)
+                                                      (jrpc-error-data . ,data))))
+                       :timeout-fn (lambda ()
+                                     (throw tag '(error (jrpc-error-message . "Timed out"))))
+                       :deferred deferred)))
+                  (setq req-id (or id 'deferred) req-timer timer))
+                (while t (accept-process-output nil 30)))
+            (when req-timer (cancel-timer req-timer)))))
     (when (eq 'error (car retval))
-      (signal 'error (cons "[jrpc] jrpc-request failed:" (cdr retval))))
+      (signal 'error
+              (cons
+               (format "[jrpc] jrpc-request (%s) failed:" req-id) (cdr retval))))
     (cadr retval)))
 
 (cl-defun jrpc-notify (proc method params)
