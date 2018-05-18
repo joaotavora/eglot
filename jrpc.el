@@ -558,8 +558,12 @@ Return the request ID, or nil, in case the request was deferred."
             (puthash (list deferred buf) (list later (funcall make-timeout))
                      (jrpc--deferred-actions proc))
             (cl-return-from jrpc-async-request nil)))))
-    ;; Really run it
+    ;; Really send it
     ;;
+    (jrpc--process-send proc (jrpc-obj :jsonrpc "2.0"
+                                       :id id
+                                       :method method
+                                       :params params))
     (puthash id
              (list (or success-fn
                        (jrpc-lambda (&rest _ignored)
@@ -573,10 +577,6 @@ Return the request ID, or nil, in case the request was deferred."
                                          :id id :error code))))
                    (funcall make-timeout))
              (jrpc--request-continuations proc))
-    (jrpc--process-send proc (jrpc-obj :jsonrpc "2.0"
-                                       :id id
-                                       :method method
-                                       :params params))
     id))
 
 (cl-defun jrpc-request (proc method params &key deferred)
