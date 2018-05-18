@@ -125,8 +125,9 @@
   :prefix "jrpc-"
   :group 'applications)
 
-(defcustom jrpc-request-timeout 10
-  "How many seconds to wait for a reply from the server."
+(defcustom jrpc-request-timeout 3
+  "How many seconds to wait for a JSONRPC from the server.
+If nil, don't use a timeout (not recommended)."
   :type :integer)
 
 (defvar jrpc-find-process-functions nil
@@ -297,7 +298,7 @@ type.
     ;; Cancel outstanding timers
     (maphash (lambda (_id triplet)
                (pcase-let ((`(,_success ,_error ,timeout) triplet))
-                 (cancel-timer timeout)))
+                 (when timeout (cancel-timer timeout))))
              (jrpc--request-continuations proc))
     (unwind-protect
         ;; Call all outstanding error handlers
@@ -529,15 +530,16 @@ Return the request ID, or nil, in case the request was deferred."
          (make-timeout
           (lambda ( )
             (or existing-timer
-                (run-with-timer
-                 timeout nil
-                 (lambda ()
-                   (remhash id (jrpc--request-continuations proc))
-                   (funcall (or timeout-fn
-                                (lambda ()
-                                  (jrpc-log-event
-                                   proc `(:timed-out ,method :id id
-                                                     :params ,params)))))))))))
+                (when timeout
+                  (run-with-timer
+                   timeout nil
+                   (lambda ()
+                     (remhash id (jrpc--request-continuations proc))
+                     (funcall (or timeout-fn
+                                  (lambda ()
+                                    (jrpc-log-event
+                                     proc `(:timed-out ,method :id id
+                                                       :params ,params))))))))))))
     (when deferred
       (let* ((buf (current-buffer))
              (existing (gethash (list deferred buf) (jrpc--deferred-actions proc))))
