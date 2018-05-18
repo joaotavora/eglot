@@ -143,12 +143,15 @@ If nil, don't use a timeout (not recommended)."
       (jrpc-error "No current JSON-RPC process")))
 
 (defun jrpc-error (format &rest args)
-  "Error out with FORMAT with ARGS."
-  (error (apply #'format format args)))
+  "Error out with FORMAT with ARGS.
+If invoked inside a dispatcher function, this function is suitable
+for replying to the remote endpoint with a -32603 error code and
+FORMAT as the message."
+  (signal 'error (format "[jrpc] %s" (apply #'format format args))))
 
 (defun jrpc-message (format &rest args)
   "Message out with FORMAT with ARGS."
-  (message (concat "[jrpc] " (apply #'format format args))))
+  (message "[jrpc] %s" (concat "[jrpc] %s" (apply #'format format args))))
 
 (defun jrpc-warn (format &rest args)
   "Warning message with FORMAT and ARGS."
@@ -266,18 +269,17 @@ passed the moribund process object as a single argument.
 
 DISPATCHER specifies how the server-invoked methods find their
 Elisp counterpart. It is a function passed (PROC METHOD ID PARAMS
-as arguments:
+as arguments. PROC is the process object returned by this
+function. ID is the server identifier for a server request, or
+nil for a server notification. METHOD is a symbol. PARAMS
+contains the method parameters as JSON data.
 
-PROC is the process object returned by this function.
-
-ID is server identifier for a server request, or nil for a server
-notification. In the case of a server request, DISPATCHER is
-reponsible using ID and `jrpc-reply' (which see) to reply.
-
-METHOD is a symbol.
-
-PARAMS contains the method parameters: an object, array, or other
-type.
+If ID is non-nil, DISPATCHER is expected to reply to the
+request. If it doesn't, or if it signals an error before doing
+so, jrpc.el will automatially reply with an error. If DISPATCHER
+signals an error with alist elements `jrpc-error-message' and
+`jrpc-error-code' in its DATA, the corresponding elements are
+used for the automated error reply.
 
 `jrpc-connect' returns a process object representing the server."
   (let* ((proc (jrpc--make-process name contact)))
@@ -430,19 +432,25 @@ is a symbol saying if this is a client or server originated."
                  (error (jrpc-warn "Invalid JSONRPC message %s: %s" message
                                    (cdr oops))
                         nil)))
-              (continuations))
+              (continuations)
+              (lisp-err))
     (jrpc-log-event proc message 'server)
     (when error (setf (jrpc-status proc) `(,error t)))
     (cond (method
-           (unwind-protect
-               (funcall (jrpc--dispatcher proc) proc method id params)
-             (unless (or (not id)
-                         (member id (jrpc--server-request-ids proc)))
-               (jrpc-reply
-                proc id
-                :error (jrpc-obj :code -32603 :message "Internal error")))
-             (setf (jrpc--server-request-ids proc)
-                   (delete id (jrpc--server-request-ids proc)))))
+           (condition-case-unless-debug oops
+               (funcall (jrpc--dispatcher proc) proc (intern method) id params)
+             (error (setq lisp-err oops)))
+           (unless (or (member id (jrpc--server-request-ids proc))
+                       (not (or id lisp-err)))
+             (jrpc-reply
+              proc id
+              :error (jrpc-obj
+                      :code (or (alist-get 'jrpc-error-code (cdr lisp-err))
+                                -32603)
+                      :message (or (alist-get 'jrpc-error-message (cdr lisp-err))
+                                   "Internal error"))))
+           (setf (jrpc--server-request-ids proc)
+                 (delete id (jrpc--server-request-ids proc))))
           ((setq continuations
                  (and id (gethash id (jrpc--request-continuations proc))))
            (let ((timer (nth 2 continuations)))
@@ -593,12 +601,16 @@ DEFERRED is passed to `jrpc-async-request', which see."
             (jrpc-async-request
              proc method params
              :success-fn (lambda (result) (throw tag `(done ,result)))
-             :error-fn (jrpc-lambda (&key code message _data)
-                         (throw tag `(error ,(format "%s: %s" code message))))
-             :timeout-fn (lambda () (throw tag '(error "Timed out")))
+             :error-fn (jrpc-lambda (&key code message data)
+                         (throw tag `(error (jrpc-error-code . ,code)
+                                            (jrpc-error-message . ,message)
+                                            (jrpc-error-data . ,data))))
+             :timeout-fn (lambda ()
+                           (throw tag '(error (jrpc-error-message . "Timed out"))))
              :deferred deferred)
             (while t (accept-process-output nil 30)))))
-    (when (eq 'error (car retval)) (jrpc-error (cadr retval)))
+    (when (eq 'error (car retval))
+      (signal 'error (cons "[jrpc] jrpc-request failed:" (cdr retval))))
     (cadr retval)))
 
 (cl-defun jrpc-notify (proc method params)
@@ -607,10 +619,12 @@ DEFERRED is passed to `jrpc-async-request', which see."
                                      :method method
                                      :params params)))
 
-(cl-defun jrpc-reply (proc id &key result error)
+(cl-defun jrpc-reply (proc id &key (result nil result-supplied-p) error)
   "Reply to PROC's request ID with RESULT or ERROR."
+  (unless id (jrpc-error "Need a non-nil ID"))
+  (unless (xor result-supplied-p error)
+    (jrpc-error "Can't pass both RESULT and ERROR!"))
   (push id (jrpc--server-request-ids proc))
-  (unless (xor result error) (jrpc-error "Can't pass both RESULT and ERROR!"))
   (jrpc--process-send
    proc `(:jsonrpc  "2.0" :id ,id
                     ,@(when result `(:result ,result))
