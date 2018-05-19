@@ -31,7 +31,7 @@
 ;; Helpers
 
 (defmacro eglot--with-dirs-and-files (dirs &rest body)
-  (declare (indent defun) (debug t))
+  (declare (indent 1) (debug t))
   `(eglot--call-with-dirs-and-files
     ,dirs #'(lambda () ,@body)))
 
@@ -113,11 +113,11 @@
   "Visit a file and M-x eglot, then visit a neighbour. "
   (skip-unless (executable-find "rls"))
   (let (proc)
-    (eglot--with-test-timeout 2
-      (eglot--with-dirs-and-files
+    (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla")))
           ("anotherproject" . (("cena.rs" . "bla"))))
+      (eglot--with-test-timeout 2
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (setq proc
@@ -137,10 +137,10 @@
   (skip-unless (executable-find "rls"))
   (let (proc
         (eglot-autoreconnect 1))
-    (eglot--with-test-timeout 3
-      (eglot--with-dirs-and-files
+    (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla"))))
+      (eglot--with-test-timeout 3
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (setq proc
@@ -160,24 +160,22 @@
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
-  (unwind-protect
-      (eglot--with-test-timeout 10
-        (eglot--with-dirs-and-files
-          '(("project" . (("something.py" . "import sys\nsys.exi"))))
-          (with-current-buffer
-              (eglot--find-file-noselect "project/something.py")
-            (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
-            (goto-char (point-max))
-            (completion-at-point)
-            (should (looking-back "sys.exit"))
-            )))))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (eglot--with-test-timeout 4
+      (with-current-buffer
+          (eglot--find-file-noselect "project/something.py")
+        (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
+        (goto-char (point-max))
+        (completion-at-point)
+        (should (looking-back "sys.exit"))))))
 
 (ert-deftest hover-after-completions ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
-  (eglot--with-test-timeout 3
-    (eglot--with-dirs-and-files
+  (eglot--with-dirs-and-files
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (eglot--with-test-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
         (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
