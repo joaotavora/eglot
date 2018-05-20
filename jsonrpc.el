@@ -123,16 +123,6 @@
 (require 'pcase)
 (require 'array) ; xor
 
-(defgroup jsonrpc nil
-  "Interaction between JSONRPC endpoints"
-  :prefix "jsonrpc-"
-  :group 'applications)
-
-(defcustom jsonrpc-request-timeout 3
-  "How many seconds to wait for a JSONRPC from the server.
-If nil, don't use a timeout (not recommended)."
-  :type :integer)
-
 (defvar jsonrpc-find-process-functions nil
   "Special hook to find an active JSON-RPC process.")
 
@@ -505,12 +495,15 @@ request and a process object.")
   (let ((e (gensym "jsonrpc-lambda-elem")))
     `(lambda (,e) (apply (cl-function (lambda ,cl-lambda-list ,@body)) ,e))))
 
+(defconst jrpc-default-request-timeout 10
+  "Time in seconds before timing out a JSONRPC request.")
+
 (cl-defun jsonrpc-async-request (proc
                                  method
                                  params
                                  &rest args
                                  &key success-fn error-fn timeout-fn
-                                 (timeout jsonrpc-request-timeout)
+                                 (timeout jrpc-default-request-timeout)
                                  (deferred nil))
   "Make a request to PROC, expecting a reply, return immediately.
 The JSONRPC request is formed by METHOD, a symbol, and PARAMS a
@@ -591,7 +584,7 @@ TIMEOUT is nil)"
              (jsonrpc--request-continuations proc))
     (list id timer)))
 
-(cl-defun jsonrpc-request (proc method params &key deferred)
+(cl-defun jsonrpc-request (proc method params &key deferred timeout)
   "Make a request to PROC, wait for a reply.
 Like `jsonrpc-async-request' for PROC, METHOD and PARAMS, but
 synchronous, i.e. doesn't exit until anything
@@ -618,7 +611,8 @@ DEFERRED is passed to `jsonrpc-async-request', which see."
                   :timeout-fn
                   (lambda ()
                     (throw tag '(error (jsonrpc-error-message . "Timed out"))))
-                  :deferred deferred))
+                  :deferred deferred
+                  :timeout timeout))
                 (while t (accept-process-output nil 30)))
             (pcase-let ((`(,id ,timer) id-and-timer))
               (when id (remhash id (jsonrpc--request-continuations proc)))
