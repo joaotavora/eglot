@@ -168,17 +168,13 @@ FORMAT as the message."
     (var-sym initval &optional doc)
   "Define VAR-SYM as a generalized process-local variable.
 INITVAL is the default value.  DOC is the documentation."
-  (declare (indent 2))
+  (declare (indent 2) (doc-string 3))
   `(progn
-     (put ',var-sym 'function-documentation ,doc)
-     (defun ,var-sym (proc)
+     (defun ,var-sym (proc) ,doc
        (let* ((plist (process-plist proc))
               (probe (plist-member plist ',var-sym)))
-         (if probe
-             (cadr probe)
-           (let ((def ,initval))
-             (process-put proc ',var-sym def)
-             def))))
+         (if probe (cadr probe)
+           (let ((def ,initval)) (process-put proc ',var-sym def) def))))
      (gv-define-setter ,var-sym (to-store process)
        `(let ((once ,to-store)) (process-put ,process ',',var-sym once) once))))
 
@@ -551,7 +547,7 @@ TIMEOUT is nil)"
                      (funcall (or timeout-fn
                                   (lambda ()
                                     (jsonrpc-log-event
-                                     proc `(:timed-out ,method :id id
+                                     proc `(:timed-out ,method :id ,id
                                                        :params ,params))))))))))))
     (when deferred
       (let* ((buf (current-buffer))
@@ -583,14 +579,14 @@ TIMEOUT is nil)"
     (puthash id
              (list (or success-fn
                        (jsonrpc-lambda (&rest _ignored)
-                                       (jsonrpc-log-event
-                                        proc (jsonrpc-obj :message "success ignored" :id id))))
+                         (jsonrpc-log-event
+                          proc (jsonrpc-obj :message "success ignored" :id id))))
                    (or error-fn
                        (jsonrpc-lambda (&key code message &allow-other-keys)
-                                       (setf (jsonrpc-status proc) `(,message t))
-                                       (jsonrpc-log-event
-                                        proc (jsonrpc-obj :message "error ignored, status set"
-                                                          :id id :error code))))
+                         (setf (jsonrpc-status proc) `(,message t))
+                         (jsonrpc-log-event
+                          proc (jsonrpc-obj :message "error ignored, status set"
+                                            :id id :error code))))
                    (setq timer (funcall make-timer)))
              (jsonrpc--request-continuations proc))
     (list id timer)))
@@ -604,33 +600,34 @@ only exit locally (and return the JSONRPC result object) if the
 request is successful, otherwise exit non-locally with an error.
 
 DEFERRED is passed to `jsonrpc-async-request', which see."
-  (let* ((tag (cl-gensym "jsonrpc-request-catch-tag"))
-         req-id req-timer
+  (let* ((tag (cl-gensym "jsonrpc-request-catch-tag")) id-and-timer
          (retval
           (unwind-protect ; protect against user-quit, for example
               (catch tag
-                (pcase-let
-                    ((`(,id ,timer)
-                      (jsonrpc-async-request
-                       proc method params
-                       :success-fn (lambda (result) (throw tag `(done ,result)))
-                       :error-fn
-                       (jsonrpc-lambda
-                        (&key code message data)
-                        (throw tag `(error (jsonrpc-error-code . ,code)
-                                           (jsonrpc-error-message . ,message)
-                                           (jsonrpc-error-data . ,data))))
-                       :timeout-fn
-                       (lambda ()
-                         (throw tag '(error (jsonrpc-error-message . "Timed out"))))
-                       :deferred deferred)))
-                  (setq req-id (or id 'deferred) req-timer timer))
+                (setq
+                 id-and-timer
+                 (jsonrpc-async-request
+                  proc method params
+                  :success-fn (lambda (result) (throw tag `(done ,result)))
+                  :error-fn
+                  (jsonrpc-lambda
+                      (&key code message data)
+                    (throw tag `(error (jsonrpc-error-code . ,code)
+                                       (jsonrpc-error-message . ,message)
+                                       (jsonrpc-error-data . ,data))))
+                  :timeout-fn
+                  (lambda ()
+                    (throw tag '(error (jsonrpc-error-message . "Timed out"))))
+                  :deferred deferred))
                 (while t (accept-process-output nil 30)))
-            (when req-timer (cancel-timer req-timer)))))
+            (pcase-let ((`(,id ,timer) id-and-timer))
+              (when id (remhash id (jsonrpc--request-continuations proc)))
+              (when timer (cancel-timer timer))))))
     (when (eq 'error (car retval))
       (signal 'error
               (cons
-               (format "[jsonrpc] jsonrpc-request (%s) failed:" req-id) (cdr retval))))
+               (format "[jsonrpc] jsonrpc-request (%s) failed:" (car id-and-timer))
+               (cdr retval))))
     (cadr retval)))
 
 (cl-defun jsonrpc-notify (proc method params)

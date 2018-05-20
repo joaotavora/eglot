@@ -26,11 +26,12 @@
 (require 'eglot)
 (require 'cl-lib)
 (require 'ert)
+(require 'edebug)
 
 ;; Helpers
 
 (defmacro eglot--with-dirs-and-files (dirs &rest body)
-  (declare (indent defun) (debug t))
+  (declare (indent 1) (debug t))
   `(eglot--call-with-dirs-and-files
     ,dirs #'(lambda () ,@body)))
 
@@ -51,24 +52,24 @@
 (defun eglot--call-with-dirs-and-files (dirs fn)
   (let* ((default-directory (make-temp-file "eglot--fixture" t))
          new-buffers new-processes)
-    (with-temp-message ""
-      (unwind-protect
-          (let ((find-file-hook
-                 (cons (lambda () (push (current-buffer) new-buffers))
-                       find-file-hook))
-                (eglot-connect-hook
-                 (lambda (proc) (push proc new-processes))))
-            (mapc #'eglot--make-file-or-dirs dirs)
-            (funcall fn))
-        (eglot--message "Killing buffers %s,  deleting %s, killing %s"
-                        (mapconcat #'buffer-name new-buffers ", ")
-                        default-directory
-                        new-processes)
-        (delete-directory default-directory 'recursive)
-        (let ((eglot-autoreconnect nil))
-          (mapc #'eglot-shutdown
-                (cl-remove-if-not #'process-live-p new-processes)))
-        (mapc #'kill-buffer new-buffers)))))
+    (unwind-protect
+        (let ((find-file-hook
+               (cons (lambda () (push (current-buffer) new-buffers))
+                     find-file-hook))
+              (eglot-connect-hook
+               (lambda (proc) (push proc new-processes))))
+          (mapc #'eglot--make-file-or-dirs dirs)
+          (funcall fn))
+      (eglot--message "Killing buffers %s,  deleting %s, killing %s"
+                      (mapconcat #'buffer-name new-buffers ", ")
+                      default-directory
+                      new-processes)
+      (let ((eglot-autoreconnect nil))
+        (mapc #'eglot-shutdown
+              (cl-remove-if-not #'process-live-p new-processes)))
+      (dolist (buf new-buffers) ;; have to save otherwise will get prompted
+        (with-current-buffer buf (save-buffer) (kill-buffer)))
+      (delete-directory default-directory 'recursive))))
 
 (cl-defmacro eglot--with-test-timeout (timeout &body body)
   (declare (indent 1) (debug t))
@@ -85,8 +86,9 @@
               (catch tag
                 (setq timer
                       (run-with-timer timeout nil
-                                      (lambda () ;; (throw tag timed-out)
-                                        )))
+                                      (lambda ()
+                                        (unless edebug-active
+                                          (throw tag timed-out)))))
                 (funcall fn)))
       (cancel-timer timer)
       (when (eq retval timed-out)
@@ -109,12 +111,13 @@
 
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
+  (skip-unless (executable-find "rls"))
   (let (proc)
-    (eglot--with-test-timeout 2
-      (eglot--with-dirs-and-files
-          '(("project" . (("coiso.rs" . "bla")
-                          ("merdix.rs" . "bla")))
-            ("anotherproject" . (("cena.rs" . "bla"))))
+    (eglot--with-dirs-and-files
+        '(("project" . (("coiso.rs" . "bla")
+                        ("merdix.rs" . "bla")))
+          ("anotherproject" . (("cena.rs" . "bla"))))
+      (eglot--with-test-timeout 2
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (setq proc
@@ -131,12 +134,13 @@
 
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
+  (skip-unless (executable-find "rls"))
   (let (proc
         (eglot-autoreconnect 1))
-    (eglot--with-test-timeout 3
-      (eglot--with-dirs-and-files
-          '(("project" . (("coiso.rs" . "bla")
-                          ("merdix.rs" . "bla"))))
+    (eglot--with-dirs-and-files
+        '(("project" . (("coiso.rs" . "bla")
+                        ("merdix.rs" . "bla"))))
+      (eglot--with-test-timeout 3
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (setq proc
@@ -152,6 +156,35 @@
           (run-with-timer 0.5 nil (lambda () (delete-process proc)))
           (while (process-live-p proc) (accept-process-output nil 0.5))
           (should (not (jsonrpc-current-process))))))))
+
+(ert-deftest basic-completions ()
+  "Test basic autocompletion in a python LSP"
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (eglot--with-test-timeout 4
+      (with-current-buffer
+          (eglot--find-file-noselect "project/something.py")
+        (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
+        (goto-char (point-max))
+        (completion-at-point)
+        (should (looking-back "sys.exit"))))))
+
+(ert-deftest hover-after-completions ()
+  "Test basic autocompletion in a python LSP"
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (eglot--with-test-timeout 4
+      (with-current-buffer
+          (eglot--find-file-noselect "project/something.py")
+        (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
+        (goto-char (point-max))
+        (setq eldoc-last-message nil)
+        (completion-at-point)
+        (should (looking-back "sys.exit"))
+        (while (not eldoc-last-message) (accept-process-output nil 0.1))
+        (should (string-match "^exit" eldoc-last-message))))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
