@@ -76,13 +76,15 @@
 ;;               (message "Sadly, server reports %s: %s"
 ;;                        code message)))
 ;;
+;;;; Usage example:
+;;
 ;; Finally, here's an example Emacs JSONRPC server that offers a (very
 ;; small) subset of Elisp for remote calling:
 ;;
-;;   (defvar server) (defvar server-endpoint)
+;;   (defvar server-server) (defvar server-endpoint)
 ;;   (defvar server-allowed-functions '(+ - * / vconcat append sit-for))
 ;;
-;;   (setq server
+;;   (setq server-server
 ;;         (make-network-process
 ;;          :name "Emacs RPC server" :server t :host "localhost" :service 9393
 ;;          :log (lambda (_server client _message)
@@ -90,9 +92,9 @@
 ;;                  (process-name client) client
 ;;                  (lambda (proc method id params)
 ;;                    (unless (memq method server-allowed-functions)
-;;                      (signal 'error `((jsonrpc-error-message
-;;                                        . "Sorry, this isn't allowed")
-;;                                       (jsonrpc-error-code . 32601))))
+;;                      (signal 'jsonrpc-error `((jsonrpc-error-message
+;;                                                . "Sorry, this isn't allowed")
+;;                                               (jsonrpc-error-code . 32601))))
 ;;                    (jsonrpc-reply proc id :result
 ;;                                   (apply method (append params nil))))))))
 
@@ -135,12 +137,15 @@
   (or (jsonrpc-current-process)
       (jsonrpc-error "No current JSON-RPC process")))
 
+(define-error 'jsonrpc-error "jsonrpc-error")
+
 (defun jsonrpc-error (format &rest args)
   "Error out with FORMAT and ARGS.
 If invoked inside a dispatcher function, this function is suitable
 for replying to the remote endpoint with a -32603 error code and
 FORMAT as the message."
-  (signal 'error (format "[jsonrpc] %s" (apply #'format format args))))
+  (signal 'error
+          (list (apply #'format-message (concat "[jsonrpc] " format) args))))
 
 (defun jsonrpc-message (format &rest args)
   "Message out with FORMAT with ARGS."
@@ -618,9 +623,9 @@ DEFERRED is passed to `jsonrpc-async-request', which see."
               (when id (remhash id (jsonrpc--request-continuations proc)))
               (when timer (cancel-timer timer))))))
     (when (eq 'error (car retval))
-      (signal 'error
+      (signal 'jsonrpc-error
               (cons
-               (format "[jsonrpc] jsonrpc-request (%s) failed:" (car id-and-timer))
+               (format "request id=%s failed:" (car id-and-timer))
                (cdr retval))))
     (cadr retval)))
 
