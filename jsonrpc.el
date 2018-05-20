@@ -507,9 +507,9 @@ request and a process object.")
                                  method
                                  params
                                  &rest args
-                                 &key success-fn error-fn timeout-fn
-                                 (timeout jrpc-default-request-timeout)
-                                 (deferred nil))
+                                 &key _success-fn _error-fn
+                                 _timeout-fn
+                                 _timeout _deferred)
   "Make a request to PROC, expecting a reply, return immediately.
 The JSONRPC request is formed by METHOD, a symbol, and PARAMS a
 JSON object.
@@ -529,9 +529,21 @@ sent at all, in case it is overridden in the meantime by a new
 request with identical DEFERRED and for the same buffer.
 However, in that situation, the original timeout is kept.
 
+Returns nil."
+  (apply #'jsonrpc--async-request-1 proc method params args))
+
+(cl-defun jsonrpc--async-request-1 (proc
+                                    method
+                                    params
+                                    &rest args
+                                    &key success-fn error-fn timeout-fn
+                                    (timeout jrpc-default-request-timeout)
+                                    (deferred nil))
+  "Does actual work for `jsonrpc-async-request'.
+
 Return a list (ID TIMER). ID is the new request's ID, or nil if
 the request was deferred. TIMER is a timer object set (or nil, if
-TIMEOUT is nil)"
+TIMEOUT is nil)."
   (let* ((id (jsonrpc--next-request-id))
          (timer nil)
          (make-timer
@@ -604,7 +616,7 @@ DEFERRED is passed to `jsonrpc-async-request', which see."
               (catch tag
                 (setq
                  id-and-timer
-                 (jsonrpc-async-request
+                 (jsonrpc--async-request-1
                   proc method params
                   :success-fn (lambda (result) (throw tag `(done ,result)))
                   :error-fn
