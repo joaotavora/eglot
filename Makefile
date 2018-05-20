@@ -6,7 +6,7 @@ EMACS=emacs
 
 LOAD_PATH=-L .
 
-ELFILES := eglot.el jrpc.el eglot-tests.el
+ELFILES := eglot.el jsonrpc.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
 all: compile

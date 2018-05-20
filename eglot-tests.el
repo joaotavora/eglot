@@ -78,7 +78,7 @@
   (let* ((tag (make-symbol "tag"))
          (timed-out (make-symbol "timeout"))
          (timer )
-         (jrpc-request-timeout 1)
+         (jsonrpc-request-timeout 1)
          (retval))
     (unwind-protect
         (setq retval
@@ -112,22 +112,22 @@
   (let (proc)
     (eglot--with-test-timeout 2
       (eglot--with-dirs-and-files
-        '(("project" . (("coiso.rs" . "bla")
-                        ("merdix.rs" . "bla")))
-          ("anotherproject" . (("cena.rs" . "bla"))))
+          '(("project" . (("coiso.rs" . "bla")
+                          ("merdix.rs" . "bla")))
+            ("anotherproject" . (("cena.rs" . "bla"))))
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (setq proc
                 (eglot 'rust-mode `(transient . ,default-directory)
                        '("rls")))
-          (should (jrpc-current-process)))
+          (should (jsonrpc-current-process)))
         (with-current-buffer
             (eglot--find-file-noselect "project/merdix.rs")
-          (should (jrpc-current-process))
-          (should (eq (jrpc-current-process) proc)))
+          (should (jsonrpc-current-process))
+          (should (eq (jsonrpc-current-process) proc)))
         (with-current-buffer
             (eglot--find-file-noselect "anotherproject/cena.rs")
-          (should-error (jrpc-current-process-or-lose)))))))
+          (should-error (jsonrpc-current-process-or-lose)))))))
 
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
@@ -135,8 +135,8 @@
         (eglot-autoreconnect 1))
     (eglot--with-test-timeout 3
       (eglot--with-dirs-and-files
-        '(("project" . (("coiso.rs" . "bla")
-                        ("merdix.rs" . "bla"))))
+          '(("project" . (("coiso.rs" . "bla")
+                          ("merdix.rs" . "bla"))))
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (setq proc
@@ -146,12 +146,12 @@
           ;; should have a automatic reconnection.
           (run-with-timer 1.2 nil (lambda () (delete-process proc)))
           (while (process-live-p proc) (accept-process-output nil 0.5))
-          (should (jrpc-current-process))
+          (should (jsonrpc-current-process))
           ;; Now try again too quickly
-          (setq proc (jrpc-current-process))
+          (setq proc (jsonrpc-current-process))
           (run-with-timer 0.5 nil (lambda () (delete-process proc)))
           (while (process-live-p proc) (accept-process-output nil 0.5))
-          (should (not (jrpc-current-process))))))))
+          (should (not (jsonrpc-current-process))))))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
