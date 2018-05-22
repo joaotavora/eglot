@@ -121,9 +121,7 @@
       (eglot--with-test-timeout 2
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
-          (setq server
-                (eglot 'rust-mode `(transient . ,default-directory)
-                       '("rls") 'eglot-lsp-server))
+          (should (setq server (apply #'eglot (eglot--interactive))))
           (should (eglot--current-server)))
         (with-current-buffer
             (eglot--find-file-noselect "project/merdix.rs")
@@ -143,9 +141,7 @@
       (eglot--with-test-timeout 3
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
-          (setq server
-                (eglot 'rust-mode `(transient . ,default-directory)
-                       '("rls") 'eglot-lsp-server))
+          (should (setq server (apply #'eglot (eglot--interactive))))
           ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
           ;; should have a automatic reconnection.
           (run-with-timer 1.2 nil (lambda () (delete-process
@@ -169,8 +165,7 @@
     (eglot--with-test-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
-        (eglot 'python-mode `(transient . ,default-directory) '("pyls")
-               'eglot-lsp-server)
+        (should (apply #'eglot (eglot--interactive)))
         (goto-char (point-max))
         (completion-at-point)
         (should (looking-back "sys.exit"))))))
@@ -183,8 +178,7 @@
     (eglot--with-test-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
-        (eglot 'python-mode `(transient . ,default-directory) '("pyls")
-               'eglot-lsp-server)
+        (should (apply #'eglot (eglot--interactive)))
         (goto-char (point-max))
         (setq eldoc-last-message nil)
         (completion-at-point)
