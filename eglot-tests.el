@@ -223,7 +223,7 @@
     (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla"))))
-      (eglot--with-test-timeout 2
+      (eglot--with-test-timeout 3
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (should (zerop (shell-command "cargo init")))
