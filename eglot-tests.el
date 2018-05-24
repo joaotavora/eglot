@@ -64,12 +64,14 @@
                       (mapconcat #'buffer-name new-buffers ", ")
                       default-directory
                       new-processes)
-      (let ((eglot-autoreconnect nil))
-        (mapc #'eglot-shutdown
-              (cl-remove-if-not #'process-live-p new-processes)))
-      (dolist (buf new-buffers) ;; have to save otherwise will get prompted
-        (with-current-buffer buf (save-buffer) (kill-buffer)))
-      (delete-directory default-directory 'recursive))))
+      (unwind-protect
+          (let ((eglot-autoreconnect nil))
+            (mapc #'eglot-shutdown
+                  (cl-remove-if-not #'process-live-p new-processes)))
+        (mapc #'kill-buffer (mapcar #'eglot--events-buffer new-processes))
+        (dolist (buf new-buffers) ;; have to save otherwise will get prompted
+          (with-current-buffer buf (save-buffer) (kill-buffer)))
+        (delete-directory default-directory 'recursive)))))
 
 (cl-defmacro eglot--with-test-timeout (timeout &body body)
   (declare (indent 1) (debug t))
@@ -98,6 +100,62 @@
   (unless (or noerror
               (file-readable-p file)) (error "%s does not exist" file))
   (find-file-noselect file))
+
+(cl-defmacro eglot--sniffing ((&key server-requests
+                                    server-notifications
+                                    server-replies
+                                    client-requests
+                                    client-notifications
+                                    client-replies)
+                              &rest body)
+  "Run BODY saving LSP JSON messages in variables, most recent first."
+  (declare (indent 1) (debug (sexp &rest form)))
+  (let ((log-event-ad-sym (make-symbol "eglot--event-sniff")))
+    `(unwind-protect
+         (let ,(delq nil (list server-requests
+                               server-notifications
+                               server-replies
+                               client-requests
+                               client-notifications
+                               client-replies))
+           (advice-add
+            #'eglot--log-event :before
+            (lambda (_proc message &optional type)
+              (cl-destructuring-bind (&key method id _error &allow-other-keys)
+                  message
+                (let ((req-p (and method id))
+                      (notif-p method)
+                      (reply-p id))
+                  (cond
+                   ((eq type 'server)
+                    (cond (req-p ,(when server-requests
+                                    `(push message ,server-requests)))
+                          (notif-p ,(when server-notifications
+                                      `(push message ,server-notifications)))
+                          (reply-p ,(when server-replies
+                                      `(push message ,server-replies)))))
+                   ((eq type 'client)
+                    (cond (req-p ,(when client-requests
+                                    `(push message ,client-requests)))
+                          (notif-p ,(when client-notifications
+                                      `(push message ,client-notifications)))
+                          (reply-p ,(when client-replies
+                                      `(push message ,client-replies)))))))))
+            '((name . ,log-event-ad-sym)))
+           ,@body)
+       (advice-remove #'eglot--log-event ',log-event-ad-sym))))
+
+(defmacro eglot--wait-for (events-sym fn)
+  "Spin until FN match in EVENTS-SYM, discard events after it."
+  `(setq ,events-sym
+         (cdr
+          (cl-loop thereis (cl-loop for json in ,events-sym
+                                    when (funcall ,fn json) return (cons t before)
+                                    collect json into before)
+                   do
+                   ;; `read-event' is essential to have the file
+                   ;; watchers come through.
+                   (read-event "" nil 0.1) (accept-process-output nil 0.1)))))
 
 
 ;; `rust-mode' is not a part of emacs. So define these two shims which
@@ -156,6 +214,49 @@
           (run-with-timer 0.5 nil (lambda () (delete-process proc)))
           (while (process-live-p proc) (accept-process-output nil 0.5))
           (should (not (eglot--current-process))))))))
+
+(ert-deftest rls-watches-files ()
+  "Start RLS server.  Notify it when a critical file changes."
+  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "cargo"))
+  (let ((eglot-autoreconnect 1))
+    (eglot--with-dirs-and-files
+        '(("project" . (("coiso.rs" . "bla")
+                        ("merdix.rs" . "bla"))))
+      (eglot--with-test-timeout 2
+        (with-current-buffer
+            (eglot--find-file-noselect "project/coiso.rs")
+          (should (zerop (shell-command "cargo init")))
+          (eglot--sniffing (
+                            :server-requests s-requests
+                            :client-notifications c-notifs
+                            :client-replies c-replies
+                            )
+            (should (eglot 'rust-mode (project-current) '("rls")))
+            ;; Wait for a `client/registerCapability' negotiation to
+            ;; happen
+            ;;
+            (let (register-id)
+              (eglot--wait-for s-requests
+                               (eglot--lambda (&key id method &allow-other-keys)
+                                 (setq register-id id)
+                                 (string= method "client/registerCapability")))
+              (eglot--wait-for c-replies
+                               (eglot--lambda (&key id error &allow-other-keys)
+                                 (and (eq id register-id) (null error)))))
+            ;; Now delete "Cargo.toml" and wait for us to send a
+            ;; :workspace/didChangeWatchedFiles as a consequence of
+            ;; having triggered a file watch.
+            ;;
+            (delete-file "Cargo.toml")
+            (eglot--wait-for
+             c-notifs
+             (eglot--lambda (&key method params &allow-other-keys)
+               (and (eq method :workspace/didChangeWatchedFiles)
+                    (cl-destructuring-bind (&key uri type)
+                        (elt (plist-get params :changes) 0)
+                      (and (string= (eglot--path-to-uri "Cargo.toml") uri)
+                           (= type 3))))))))))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
