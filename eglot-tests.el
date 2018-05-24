@@ -73,15 +73,19 @@
           (with-current-buffer buf (save-buffer) (kill-buffer)))
         (delete-directory default-directory 'recursive)))))
 
-(cl-defmacro eglot--with-test-timeout (timeout &body body)
+(cl-defmacro eglot--with-timeout (timeout &body body)
   (declare (indent 1) (debug t))
-  `(eglot--call-with-test-timeout ,timeout (lambda () ,@body)))
+  `(eglot--call-with-timeout ',timeout (lambda () ,@body)))
 
-(defun eglot--call-with-test-timeout (timeout fn)
-  (let* ((tag (make-symbol "tag"))
+(defun eglot--call-with-timeout (timeout fn)
+  (let* ((tag (gensym "eglot-test-timeout"))
          (timed-out (make-symbol "timeout"))
-         (timer )
-         (eglot-request-timeout 1)
+         (timeout-and-message
+          (if (listp timeout) timeout
+            (list timeout "waiting for test to finish")))
+         (timeout (car timeout-and-message))
+         (message (cadr timeout-and-message))
+         (timer)
          (retval))
     (unwind-protect
         (setq retval
@@ -94,7 +98,7 @@
                 (funcall fn)))
       (cancel-timer timer)
       (when (eq retval timed-out)
-        (error "Test timeout!")))))
+        (error "%s" (concat "Timed out " message))))))
 
 (defun eglot--find-file-noselect (file &optional noerror)
   (unless (or noerror
@@ -145,17 +149,23 @@
            ,@body)
        (advice-remove #'eglot--log-event ',log-event-ad-sym))))
 
-(defmacro eglot--wait-for (events-sym fn)
-  "Spin until FN match in EVENTS-SYM, discard events after it."
-  `(setq ,events-sym
-         (cdr
-          (cl-loop thereis (cl-loop for json in ,events-sym
-                                    when (funcall ,fn json) return (cons t before)
-                                    collect json into before)
-                   do
-                   ;; `read-event' is essential to have the file
-                   ;; watchers come through.
-                   (read-event "" nil 0.1) (accept-process-output nil 0.1)))))
+(defmacro eglot--wait-for (events-sym fn timeout)
+  "Spin until FN match in EVENTS-SYM, flush events after it.
+Pass TIMEOUT to `eglot--with-timeout'."
+  `(eglot--with-timeout ,timeout
+     (let ((event
+            (cl-loop thereis (cl-loop for json in ,events-sym
+                                      when (funcall ,fn json) return
+                                      (cons json before)
+                                      collect json into before)
+                     do
+                     ;; `read-event' is essential to have the file
+                     ;; watchers come through.
+                     (read-event "[eglot] Waiting a bit..." nil 0.1)
+                     (accept-process-output nil 0.1))))
+       (setq ,events-sym (cdr event))
+       (message "[eglot] Event detected:\n%s"
+                (pp-to-string (car event))))))
 
 
 ;; `rust-mode' is not a part of emacs. So define these two shims which
@@ -175,7 +185,7 @@
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla")))
           ("anotherproject" . (("cena.rs" . "bla"))))
-      (eglot--with-test-timeout 2
+      (eglot--with-timeout 2
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (setq proc
@@ -198,7 +208,7 @@
     (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla"))))
-      (eglot--with-test-timeout 3
+      (eglot--with-timeout 3
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (setq proc
@@ -223,7 +233,7 @@
     (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla"))))
-      (eglot--with-test-timeout 3
+      (eglot--with-timeout 10
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (should (zerop (shell-command "cargo init")))
@@ -233,21 +243,16 @@
                             :client-replies c-replies
                             )
             (should (eglot 'rust-mode (project-current) '("rls")))
-            ;; Wait for a `client/registerCapability' negotiation to
-            ;; happen
-            ;;
             (let (register-id)
               (eglot--wait-for s-requests
                                (eglot--lambda (&key id method &allow-other-keys)
                                  (setq register-id id)
-                                 (string= method "client/registerCapability")))
+                                 (string= method "client/registerCapability"))
+                               (1 "waiting for registerCapability request"))
               (eglot--wait-for c-replies
                                (eglot--lambda (&key id error &allow-other-keys)
-                                 (and (eq id register-id) (null error)))))
-            ;; Now delete "Cargo.toml" and wait for us to send a
-            ;; :workspace/didChangeWatchedFiles as a consequence of
-            ;; having triggered a file watch.
-            ;;
+                                 (and (eq id register-id) (null error)))
+                               (1 "waiting for client reply")))
             (delete-file "Cargo.toml")
             (eglot--wait-for
              c-notifs
@@ -256,14 +261,15 @@
                     (cl-destructuring-bind (&key uri type)
                         (elt (plist-get params :changes) 0)
                       (and (string= (eglot--path-to-uri "Cargo.toml") uri)
-                           (= type 3))))))))))))
+                           (= type 3)))))
+             (3 "waiting for didChangeWatchedFiles notification"))))))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
   (eglot--with-dirs-and-files
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
-    (eglot--with-test-timeout 4
+    (eglot--with-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
         (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
@@ -276,7 +282,7 @@
   (skip-unless (executable-find "pyls"))
   (eglot--with-dirs-and-files
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
-    (eglot--with-test-timeout 4
+    (eglot--with-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
         (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
