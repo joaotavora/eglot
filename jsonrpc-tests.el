@@ -36,7 +36,8 @@
                       :name "Emacs RPC server" :server t :host "localhost" :service 44444
                       :log (lambda (_server client _message)
                              (jsonrpc-connect
-                              (process-name client) client
+                              (process-name client)
+                              (make-instance 'jsonrpc-process-connection :process client)
                               (lambda (endpoint method id params)
                                 (unless (memq method '(+ - * / vconcat append sit-for))
                                   (signal 'jsonrpc-error `((jsonrpc-error-message
@@ -52,7 +53,8 @@
            ,@body
          (unwind-protect
              (delete-process ,server)
-           (delete-process (jsonrpc--process ,endpoint-sym)))))))
+           (delete-process
+            (jsonrpc--process ,endpoint-sym)))))))
 
 (ert-deftest returns-3 ()
   "returns 3"

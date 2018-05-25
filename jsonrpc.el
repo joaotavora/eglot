@@ -45,14 +45,14 @@
 ;; sockets). This uses some simple HTTP-style envelopping for JSON
 ;; objects travelling through the wire.
 ;;
-;; Thus, the main entry point `jsonrpc-connect', returns one of these
-;; objects by default.  It is passed a name identifying the connection
-;; and a "contact", which will determine the connection type to make.
-;; This contact can a list of strings (a command and arguments for
-;; creating subprocesses) or a list of the form (HOST PORT-NUMBER
-;; PARAMS...)  for connecting via TCP.  For the providing the
-;; aforementioned flexibility, it can also be a any object of a
-;; subclass of `jsonrpc-connection'.
+;; The entry point `jsonrpc-connect', returns one of these objects by
+;; default.  It is passed a name identifying the connection and a
+;; "contact", which will determine the connection type to make.  This
+;; contact can a list of strings (a command and arguments for creating
+;; subprocesses) or a list of the form (HOST PORT-NUMBER PARAMS...)
+;; for connecting via TCP.  For the providing the aforementioned
+;; flexibility, it can also be a any object of a subclass of
+;; `jsonrpc-connection'.
 ;;
 ;; `jsonrpc-connect' returns a connection upon connection.  This value
 ;; should be saved to be later given to `jsonrpc-notify',
@@ -89,40 +89,41 @@
 ;; Finally, here's an example Emacs JSONRPC server that offers a (very
 ;; small) subset of Elisp for remote calling:
 ;;
-;;   (defvar server-server) (defvar server-endpoint)
-;;   (defvar server-allowed-functions '(+ - * / vconcat append sit-for))
+;; (defvar server-server) (defvar server-endpoint)
+;; (defvar server-allowed-functions '(+ - * / vconcat append sit-for))
 ;;
-;;   (setq server-server
-;;         (make-network-process
-;;          :name "Emacs RPC server" :server t :host "localhost" :service 9393
-;;          :log (lambda (_server client _message)
-;;                 (jsonrpc-connect
-;;                  (process-name client) client
-;;                  (lambda (endpoint method id params)
-;;                    (unless (memq method server-allowed-functions)
-;;                      (signal 'jsonrpc-error `((jsonrpc-error-message
-;;                                                . "Sorry, this isn't allowed")
-;;                                               (jsonrpc-error-code . -32601))))
-;;                    (jsonrpc-reply endpoint id :result
-;;                                   (apply method (append params nil))))))))
-
-;;   (setq server-endpoint (jsonrpc-connect
-;;                          "Emacs RPC client" '("localhost" 9393)
-;;                          (lambda (endpoint method id &rest params)
-;;                            (message "server wants to %s" method))))
+;; (setq server-server
+;;       (make-network-process
+;;        :name "Emacs RPC server" :server t :host "localhost" :service 44444
+;;        :log (lambda (_server client _message)
+;;               (jsonrpc-connect
+;;                (process-name client)
+;;                (make-instance 'jsonrpc-process-connection :process client)
+;;                (lambda (endpoint method id params)
+;;                  (unless (memq method '(+ - * / vconcat append sit-for))
+;;                    (signal 'jsonrpc-error `((jsonrpc-error-message
+;;                                              . "Sorry, this isn't allowed")
+;;                                             (jsonrpc-error-code . -32601))))
+;;                  (jsonrpc-reply endpoint id :result
+;;                                 (apply method (append params nil))))))))
 ;;
-;;   ;; returns 3
-;;   (jsonrpc-request server-endpoint '+ '(1 2))
-;;   ;; errors with -32601
-;;   (jsonrpc-request server-endpoint 'delete-directory "~/tmp")
-;;   ;; signals an -32603 JSONRPC error
-;;   (jsonrpc-request server-endpoint '+ '(a 2))
-;;   ;; times out
-;;   (jsonrpc-request server-endpoint 'sit-for '(5))
-;;   ;; stretching it, but works
-;;   (jsonrpc-request server-endpoint 'vconcat '([1 2 3] [3 4 5]))
-;;   ;; json.el can't serialize this, json.el errors and request isn't sent
-;;   (jsonrpc-request server-endpoint 'append '((1 2 3) (3 4 5)))
+;; (setq server-endpoint (jsonrpc-connect
+;;                        "Emacs RPC client" '("localhost" 9393)
+;;                        (lambda (endpoint method id &rest params)
+;;                          (message "server wants to %s" method))))
+;;
+;; ;; returns 3
+;; (jsonrpc-request server-endpoint '+ '(1 2))
+;; ;; errors with -32601
+;; (jsonrpc-request server-endpoint 'delete-directory "~/tmp")
+;; ;; signals an -32603 JSONRPC error
+;; (jsonrpc-request server-endpoint '+ '(a 2))
+;; ;; times out
+;; (jsonrpc-request server-endpoint 'sit-for '(5))
+;; ;; stretching it, but works
+;; (jsonrpc-request server-endpoint 'vconcat '([1 2 3] [3 4 5]))
+;; ;; json.el can't serialize this, json.el errors and request isn't sent
+;; (jsonrpc-request server-endpoint 'append '((1 2 3) (3 4 5)))
 ;;
 ;;; Code:
 
@@ -132,6 +133,7 @@
 (require 'subr-x)
 (require 'warnings)
 (require 'pcase)
+(require 'ert)
 (require 'array) ; xor
 
 (defvar jsonrpc-find-connection-functions nil
@@ -169,58 +171,44 @@ FORMAT as the message."
                      :warning)))
 
 (defclass jsonrpc-connection ()
-  ((name :accessor jsonrpc-name
-         :documentation "A name for the connection")
-   (-dispatcher :accessor jsonrpc--dispatcher
-                :documentation "Emacs-lisp function for server-invoked methods.")
-   (status :initform `(:unknown nil) :accessor jsonrpc-status
-           :documentation "Status as declared by the server.
-A list (WHAT SERIOUS-P).")
-   (-request-continuations :initform (make-hash-table)
-                           :accessor jsonrpc--request-continuations
-                           :documentation "A hash table of request ID to continuation lambdas.")
-   (-server-request-ids :accessor jsonrpc--server-request-ids
-                        :documentation "Server-initiated request id that client hasn't replied to.")
-   (-events-buffer :accessor jsonrpc--events-buffer
-                   :documentation "A buffer pretty-printing the JSON-RPC RPC events")
-   (contact :accessor jsonrpc-contact
-            :documentation "Method used to contact a server.")
-   (-on-shutdown :accessor jsonrpc--on-shutdown :documentation
-                 "Function run when JSONRPC server is dying.")
-   (-deferred-actions :initform (make-hash-table :test #'equal)
-                      :accessor jsonrpc--deferred-actions
-                      :documentation "Actions deferred to when server is thought to be ready.")))
+  ((name
+    :accessor jsonrpc-name
+    :documentation "A name for the connection")
+   (-dispatcher
+    :accessor jsonrpc--dispatcher
+    :documentation "Emacs-lisp function for server-invoked methods.")
+   (status
+    :initform `(:unknown nil) :accessor jsonrpc-status
+    :documentation "Status (WHAT SERIOUS-P) as declared by the server.")
+   (-request-continuations
+    :initform (make-hash-table)
+    :accessor jsonrpc--request-continuations
+    :documentation "A hash table of request ID to continuation lambdas.")
+   (-server-request-ids
+    :accessor jsonrpc--server-request-ids
+    :documentation "Server-initiated request ids that client hasn't replied to.")
+   (-events-buffer
+    :accessor jsonrpc--events-buffer
+    :documentation "A buffer pretty-printing the JSON-RPC RPC events")
+   (contact
+    :accessor jsonrpc-contact
+    :documentation "Method used to contact a server.")
+   (-on-shutdown
+    :accessor jsonrpc--on-shutdown
+    :documentation "Function run when JSONRPC server is dying.")
+   (-deferred-actions
+    :initform (make-hash-table :test #'equal)
+    :accessor jsonrpc--deferred-actions
+    :documentation "Actions deferred to when server is thought to be ready.")))
 
 (defclass jsonrpc-process-connection (jsonrpc-connection)
-  ((-process :initarg :process :accessor jsonrpc--process
-             :documentation "Process object wrapped by the this connection.")
-   (-expected-bytes :accessor jsonrpc--expected-bytes
-                    :documentation "How many bytes declared by server")))
-
-(defun jsonrpc--make-process-connection (name contact)
-  "Make a `jsonrpc-process-connection' from NAME and CONTACT."
-  (let* ((readable-name (format "JSON-RPC server (%s)" name)                                                            )
-         (buffer (get-buffer-create (format "*%s output*" readable-name)))
-         (proc
-          (cond ((processp contact) contact)
-                ((integerp (cadr contact))
-                 (apply #'open-network-stream readable-name buffer contact))
-                (t
-                 (make-process :name readable-name
-                               :command contact
-                               :connection-type 'pipe
-                               :coding 'no-conversion
-                               :stderr (get-buffer-create (format "*%s stderr*"
-                                                                  name)))))))
-    (set-process-buffer proc buffer)
-    (set-marker (process-mark proc) (with-current-buffer buffer (point-min)))
-    (set-process-filter proc #'jsonrpc--process-filter)
-    (set-process-sentinel proc #'jsonrpc--process-sentinel)
-    (with-current-buffer buffer
-      (let ((inhibit-read-only t)) (erase-buffer) (read-only-mode t) proc))
-    (let ((connection (make-instance 'jsonrpc-process-connection :process proc)))
-      (prog1 connection
-        (process-put proc 'jsonrpc-connection connection)))))
+  ((-process
+    :initarg :process :accessor jsonrpc--process
+    ;; :initform (error "`:process' is a required initarg") ; doesn't work
+    :documentation "Process object wrapped by the this connection.")
+   (-expected-bytes
+    :accessor jsonrpc--expected-bytes
+    :documentation "How many bytes declared by server")))
 
 (defmacro jsonrpc-obj (&rest what)
   "Make WHAT a suitable argument for `json-encode'."
@@ -231,25 +219,31 @@ A list (WHAT SERIOUS-P).")
 
 ;;;###autoload
 (cl-defun jsonrpc-connect (name contact dispatcher &optional on-shutdown)
-  "Connect to JSONRPC endpoint hereafter known as NAME through CONTACT.
+  "Connect to JSONRPC endpoint NAME through CONTACT.
+
+This function creates an object (subprocess or network
+connection) wrapped in a `jsonrpc-process-connection' object.
 
 NAME is a string naming the connection.
 
-CONTACT specifies how to connect. In the most generic case, it is
-a symbol naming a subclass of `jsonrpc-connection' or a
-previously created object of this type.
+In the most common case CONTACT is a list of strings (COMMAND
+ARGS...) specifying how to locally start a server subprocess to
+talk to via JSONRPC.  If the second element in the list is an
+integer number instead of a string, the list is interpreted
+as (HOST PORT PARAMETERS...) and an attempt is made to contact
+HOST on PORT, with the remaining PARAMETERS are given to
+`open-network-stream's optional arguments.
 
-However, for convenience, and when working with
-socket-and-stdio-based JSONRPC connections, it can also be a list
-of strings (COMMAND ARGS...) specifying how to start a server
-subconnection to connect to. Moreover, if the second element in
-the list is an integer number instead of a string, the list is
-interpreted as (HOST PORT PARAMETERS...) and a TCP connection is
-attempted to HOST on PORT, with the remaining PARAMETERS are
-given to `open-network-stream's optional arguments.
+Moreover, if in either of these cases the first element in the
+list is a symbol, that symbol is taken to name a subclass of
+`jsonrpc-process-connection' which is used to create the object
+returned by this function. The remaining arguments are processed
+as described in the previous paragraph.
 
-CONTACT can also be a live connected process object. In that
-case its buffer, filter and sentinel are overwritten by
+CONTACT can also be a an object of the type
+`jsonrpc-process-connection' (or a subclass thereof) containing a
+pre-connected process object. In that case the processes buffer,
+filter and sentinel are henceforth overwritten and managed by
 `jsonrpc-connect'.
 
 ON-SHUTDOWN, if non-nil, is a function called on server exit and
@@ -269,16 +263,43 @@ signals an error with alist elements `jsonrpc-error-message' and
 `jsonrpc-error-code' in its DATA, the corresponding elements are
 used for the automated error reply.
 
-If successful, `jsonrpc-connect' returns a `jsonrpc-connection'
-object representing the remote endpoint."
-  (let* ((connection
-          (cond ((cl-typep contact 'jsonrpc-connection)
-                 contact)
-                ((symbolp contact)
-                 (make-instance contact))
-                ((or (listp contact) (processp contact))
-                 (jsonrpc--make-process-connection name contact)))))
-    (setf (jsonrpc-contact connection) contact
+If successful, `jsonrpc-connect' returns a
+`jsonrpc-process-connection' object representing the remote
+endpoint."
+  (let* ((readable-name (format "JSON-RPC server (%s)" name))
+         (buffer (get-buffer-create (format "*%s output*" readable-name)))
+         (original-contact contact)
+         (connection
+          (cond
+           ((cl-typep contact 'jsonrpc-process-connection)
+            (unless (process-live-p (jsonrpc--process contact))
+              (error "%s doesn't have a live process" contact))
+            contact)
+           ((listp contact)
+            (make-instance
+             (if (symbolp (car contact))
+                 (prog1 (car contact) (setq contact (cdr contact)))
+               'jsonrpc-process-connection)
+             :process
+             (cond ((integerp (cadr contact))
+                    (apply #'open-network-stream readable-name buffer contact))
+                   (t
+                    (make-process :name readable-name
+                                  :command contact
+                                  :connection-type 'pipe
+                                  :coding 'no-conversion
+                                  :stderr (get-buffer-create
+                                           (format "*%s stderr*" name)))))))))
+         (proc (jsonrpc--process connection)))
+    (set-process-buffer proc buffer)
+    (set-marker (process-mark proc) (with-current-buffer buffer (point-min)))
+    (set-process-filter proc #'jsonrpc--process-filter)
+    (set-process-sentinel proc #'jsonrpc--process-sentinel)
+    (with-current-buffer buffer
+      (let ((inhibit-read-only t)) (erase-buffer) (read-only-mode t) proc))
+    (process-put proc 'jsonrpc-connection connection)
+    (setf (jsonrpc--process connection) proc
+          (jsonrpc-contact connection) original-contact
           (jsonrpc-name connection) name
           (jsonrpc--dispatcher connection) dispatcher
           (jsonrpc--on-shutdown connection) (or on-shutdown #'ignore))
@@ -305,7 +326,7 @@ object representing the remote endpoint."
                    (jsonrpc--request-continuations connection))
         (jsonrpc-message "Server exited with status %s" (process-exit-status proc))
         (unwind-protect
-            (funcall (jsonrpc--on-shutdown connection) proc))
+            (funcall (jsonrpc--on-shutdown connection) connection))
         (when (process-live-p proc)
           (jsonrpc-warn "Brutally deleting non-compliant %s"
                         (jsonrpc-name connection))
@@ -595,7 +616,7 @@ TIMEOUT is nil)."
                      (list later (setq timer (funcall make-timer)))
                      (jsonrpc--deferred-actions connection))
             ;; Non-local exit!
-            (cl-return-from jsonrpc-async-request-1 (list nil timer))))))
+            (cl-return-from jsonrpc--async-request-1 (list nil timer))))))
     ;; Really send it
     ;;
     (jsonrpc-connection-send connection (jsonrpc-obj :jsonrpc "2.0"

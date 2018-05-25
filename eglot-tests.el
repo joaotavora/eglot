@@ -51,22 +51,24 @@
 
 (defun eglot--call-with-dirs-and-files (dirs fn)
   (let* ((default-directory (make-temp-file "eglot--fixture" t))
-         new-buffers new-processes)
+         new-buffers new-servers)
     (unwind-protect
         (let ((find-file-hook
                (cons (lambda () (push (current-buffer) new-buffers))
                      find-file-hook))
               (eglot-connect-hook
-               (lambda (proc) (push proc new-processes))))
+               (lambda (server) (push server new-servers))))
           (mapc #'eglot--make-file-or-dirs dirs)
           (funcall fn))
       (eglot--message "Killing buffers %s,  deleting %s, killing %s"
                       (mapconcat #'buffer-name new-buffers ", ")
                       default-directory
-                      new-processes)
+                      (mapcar #'jsonrpc-name new-servers))
       (let ((eglot-autoreconnect nil))
         (mapc #'eglot-shutdown
-              (cl-remove-if-not #'process-live-p new-processes)))
+              (cl-remove-if-not
+               (lambda (server) (process-live-p (jsonrpc--process server)))
+               new-servers)))
       (dolist (buf new-buffers) ;; have to save otherwise will get prompted
         (with-current-buffer buf (save-buffer) (kill-buffer)))
       (delete-directory default-directory 'recursive))))
@@ -78,8 +80,7 @@
 (defun eglot--call-with-test-timeout (timeout fn)
   (let* ((tag (make-symbol "tag"))
          (timed-out (make-symbol "timeout"))
-         (timer )
-         (jsonrpc-request-timeout 1)
+         (timer)
          (retval))
     (unwind-protect
         (setq retval
@@ -112,7 +113,7 @@
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
   (skip-unless (executable-find "rls"))
-  (let (proc)
+  (let (server)
     (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla")))
@@ -120,42 +121,40 @@
       (eglot--with-test-timeout 2
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
-          (setq proc
-                (eglot 'rust-mode `(transient . ,default-directory)
-                       '("rls")))
-          (should (jsonrpc-current-process)))
+          (should (setq server (apply #'eglot (eglot--interactive))))
+          (should (jsonrpc-current-connection)))
         (with-current-buffer
             (eglot--find-file-noselect "project/merdix.rs")
-          (should (jsonrpc-current-process))
-          (should (eq (jsonrpc-current-process) proc)))
+          (should (jsonrpc-current-connection))
+          (should (eq (jsonrpc-current-connection) server)))
         (with-current-buffer
             (eglot--find-file-noselect "anotherproject/cena.rs")
-          (should-error (jsonrpc-current-process-or-lose)))))))
+          (should-error (jsonrpc-current-connection-or-lose)))))))
 
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
   (skip-unless (executable-find "rls"))
-  (let (proc
-        (eglot-autoreconnect 1))
+  (let (server (eglot-autoreconnect 1))
     (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla"))))
       (eglot--with-test-timeout 3
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
-          (setq proc
-                (eglot 'rust-mode `(transient . ,default-directory)
-                       '("rls")))
+          (should (setq server (apply #'eglot (eglot--interactive))))
           ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
           ;; should have a automatic reconnection.
-          (run-with-timer 1.2 nil (lambda () (delete-process proc)))
-          (while (process-live-p proc) (accept-process-output nil 0.5))
-          (should (jsonrpc-current-process))
+          (run-with-timer 1.2 nil (lambda () (delete-process
+                                              (jsonrpc--process server))))
+          (while (process-live-p (jsonrpc--process server))
+            (accept-process-output nil 0.5))
+          (should (jsonrpc-current-connection))
           ;; Now try again too quickly
-          (setq proc (jsonrpc-current-process))
-          (run-with-timer 0.5 nil (lambda () (delete-process proc)))
-          (while (process-live-p proc) (accept-process-output nil 0.5))
-          (should (not (jsonrpc-current-process))))))))
+          (setq server (jsonrpc-current-connection))
+          (let ((proc (jsonrpc--process server)))
+            (run-with-timer 0.5 nil (lambda () (delete-process proc)))
+            (while (process-live-p proc) (accept-process-output nil 0.5)))
+          (should (not (jsonrpc-current-connection))))))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
@@ -165,7 +164,7 @@
     (eglot--with-test-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
-        (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
+        (should (apply #'eglot (eglot--interactive)))
         (goto-char (point-max))
         (completion-at-point)
         (should (looking-back "sys.exit"))))))
@@ -178,7 +177,7 @@
     (eglot--with-test-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
-        (eglot 'python-mode `(transient . ,default-directory) '("pyls"))
+        (should (apply #'eglot (eglot--interactive)))
         (goto-char (point-max))
         (setq eldoc-last-message nil)
         (completion-at-point)
