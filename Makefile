@@ -28,6 +28,11 @@ check: compile
 		-l eglot-tests						\
 		-f ert-run-tests-batch-and-exit				\
 
+jsonrpc-check: jsonrpc.elc
+	$(EMACS) -Q --batch $(LOAD_PATH)				\
+		-l jsonrpc-tests					\
+		-f ert-run-tests-batch-and-exit				\
+
 # Cleanup
 #
 clean:
