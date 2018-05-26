@@ -288,6 +288,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Hover and highlightChanges are tricky in RLS."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
+  (skip-unless (null (getenv "TRAVIS_TESTING")))
   (eglot--with-dirs-and-files
       '(("hover-project" .
          (("main.rs" .
