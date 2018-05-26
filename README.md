@@ -22,6 +22,8 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Python's [pyls][pyls]
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
+* [cquery][cquery] for C/C++
+
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -196,5 +198,7 @@ Under the hood:
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
+[cquery]: https://github.com/cquery-project/cquery
+
 
    
