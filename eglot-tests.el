@@ -232,7 +232,6 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Start RLS server.  Notify it when a critical file changes."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
-  (skip-unless (null (getenv "TRAVIS_TESTING")))
   (let ((eglot-autoreconnect 1))
     (eglot--with-dirs-and-files
         '(("watch-project" . (("coiso.rs" . "bla")
