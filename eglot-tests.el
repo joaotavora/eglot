@@ -64,22 +64,28 @@
                       (mapconcat #'buffer-name new-buffers ", ")
                       default-directory
                       (mapcar #'jsonrpc-name new-servers))
-      (let ((eglot-autoreconnect nil))
-        (mapc #'eglot-shutdown
-              (cl-remove-if-not
-               (lambda (server) (process-live-p (eglot--process server)))
-               new-servers)))
-      (dolist (buf new-buffers) ;; have to save otherwise will get prompted
-        (with-current-buffer buf (save-buffer) (kill-buffer)))
-      (delete-directory default-directory 'recursive))))
+      (unwind-protect
+          (let ((eglot-autoreconnect nil))
+            (mapc #'eglot-shutdown
+                  (cl-remove-if-not (lambda (server) (process-live-p (eglot--process server)))
+                                    new-servers)))
+        (mapc #'kill-buffer (mapcar #'jsonrpc--events-buffer new-servers))
+        (dolist (buf new-buffers) ;; have to save otherwise will get prompted
+          (with-current-buffer buf (save-buffer) (kill-buffer)))
+        (delete-directory default-directory 'recursive)))))
 
-(cl-defmacro eglot--with-test-timeout (timeout &body body)
+(cl-defmacro eglot--with-timeout (timeout &body body)
   (declare (indent 1) (debug t))
-  `(eglot--call-with-test-timeout ,timeout (lambda () ,@body)))
+  `(eglot--call-with-timeout ',timeout (lambda () ,@body)))
 
-(defun eglot--call-with-test-timeout (timeout fn)
-  (let* ((tag (make-symbol "tag"))
+(defun eglot--call-with-timeout (timeout fn)
+  (let* ((tag (gensym "eglot-test-timeout"))
          (timed-out (make-symbol "timeout"))
+         (timeout-and-message
+          (if (listp timeout) timeout
+            (list timeout "waiting for test to finish")))
+         (timeout (car timeout-and-message))
+         (message (cadr timeout-and-message))
          (timer)
          (retval))
     (unwind-protect
@@ -93,22 +99,87 @@
                 (funcall fn)))
       (cancel-timer timer)
       (when (eq retval timed-out)
-        (error "Test timeout!")))))
+        (error "%s" (concat "Timed out " message))))))
 
 (defun eglot--find-file-noselect (file &optional noerror)
   (unless (or noerror
               (file-readable-p file)) (error "%s does not exist" file))
   (find-file-noselect file))
 
+(cl-defmacro eglot--sniffing ((&key server-requests
+                                    server-notifications
+                                    server-replies
+                                    client-requests
+                                    client-notifications
+                                    client-replies)
+                              &rest body)
+  "Run BODY saving LSP JSON messages in variables, most recent first."
+  (declare (indent 1) (debug (sexp &rest form)))
+  (let ((log-event-ad-sym (make-symbol "eglot--event-sniff")))
+    `(unwind-protect
+         (let ,(delq nil (list server-requests
+                               server-notifications
+                               server-replies
+                               client-requests
+                               client-notifications
+                               client-replies))
+           (advice-add
+            #'jsonrpc-log-event :before
+            (lambda (_proc message &optional type)
+              (cl-destructuring-bind (&key method id _error &allow-other-keys)
+                  message
+                (let ((req-p (and method id))
+                      (notif-p method)
+                      (reply-p id))
+                  (cond
+                   ((eq type 'server)
+                    (cond (req-p ,(when server-requests
+                                    `(push message ,server-requests)))
+                          (notif-p ,(when server-notifications
+                                      `(push message ,server-notifications)))
+                          (reply-p ,(when server-replies
+                                      `(push message ,server-replies)))))
+                   ((eq type 'client)
+                    (cond (req-p ,(when client-requests
+                                    `(push message ,client-requests)))
+                          (notif-p ,(when client-notifications
+                                      `(push message ,client-notifications)))
+                          (reply-p ,(when client-replies
+                                      `(push message ,client-replies)))))))))
+            '((name . ,log-event-ad-sym)))
+           ,@body)
+       (advice-remove #'jsonrpc-log-event ',log-event-ad-sym))))
+
+(cl-defmacro eglot--wait-for ((events-sym &optional (timeout 1) message) args &body body)
+  "Spin until FN match in EVENTS-SYM, flush events after it.
+Pass TIMEOUT to `eglot--with-timeout'."
+  (declare (indent 2) (debug (sexp sexp sexp &rest form)))
+  `(eglot--with-timeout (,timeout ,(or message
+                                       (format "waiting for:\n%s" (pp-to-string body))))
+     (let ((event
+            (cl-loop thereis (cl-loop for json in ,events-sym
+                                      when (funcall
+                                            (jsonrpc-lambda ,args ,@body) json)
+                                      return (cons json before)
+                                      collect json into before)
+                     for i from 0
+                     when (zerop (mod i 5))
+                     ;; do (eglot--message "still struggling to find in %s"
+                     ;;                    ,events-sym)
+                     do
+                     ;; `read-event' is essential to have the file
+                     ;; watchers come through.
+                     (read-event "[eglot] Waiting a bit..." nil 0.1)
+                     (accept-process-output nil 0.1))))
+       (setq ,events-sym (cdr event))
+       (eglot--message "Event detected:\n%s"
+                       (pp-to-string (car event))))))
 
 ;; `rust-mode' is not a part of emacs. So define these two shims which
 ;; should be more than enough for testing
 (unless (functionp 'rust-mode)
   (define-derived-mode rust-mode prog-mode "Rust"))
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
-
-
-(ert-deftest dummy () "A dummy test" (should t))
 
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
@@ -118,7 +189,7 @@
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla")))
           ("anotherproject" . (("cena.rs" . "bla"))))
-      (eglot--with-test-timeout 2
+      (eglot--with-timeout 2
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (should (setq server (apply #'eglot (eglot--interactive))))
@@ -138,7 +209,7 @@
     (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla"))))
-      (eglot--with-test-timeout 3
+      (eglot--with-timeout 3
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (should (setq server (apply #'eglot (eglot--interactive))))
@@ -156,12 +227,105 @@
             (while (process-live-p proc) (accept-process-output nil 0.5)))
           (should (not (jsonrpc-current-connection))))))))
 
+(ert-deftest rls-watches-files ()
+  "Start RLS server.  Notify it when a critical file changes."
+  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "cargo"))
+  (skip-unless (null (getenv "TRAVIS_TESTING")))
+  (let ((eglot-autoreconnect 1))
+    (eglot--with-dirs-and-files
+        '(("project" . (("coiso.rs" . "bla")
+                        ("merdix.rs" . "bla"))))
+      (eglot--with-timeout 10
+        (with-current-buffer
+            (eglot--find-file-noselect "project/coiso.rs")
+          (should (zerop (shell-command "cargo init")))
+          (eglot--sniffing (
+                            :server-requests s-requests
+                            :client-notifications c-notifs
+                            :client-replies c-replies
+                            )
+            (should (apply #'eglot (eglot--interactive)))
+            (let (register-id)
+              (eglot--wait-for (s-requests 1)
+                  (&key id method &allow-other-keys)
+                (setq register-id id)
+                (string= method "client/registerCapability"))
+              (eglot--wait-for (c-replies 1)
+                  (&key id error &allow-other-keys)
+                (and (eq id register-id) (null error))))
+            (delete-file "Cargo.toml")
+            (eglot--wait-for
+                (c-notifs 3 "waiting for didChangeWatchedFiles notification")
+                (&key method params &allow-other-keys)
+              (and (eq method :workspace/didChangeWatchedFiles)
+                   (cl-destructuring-bind (&key uri type)
+                       (elt (plist-get params :changes) 0)
+                     (and (string= (eglot--path-to-uri "Cargo.toml") uri)
+                          (= type 3)))))))))))
+
+(ert-deftest rls-basic-diagnostics ()
+  "Hover and highlightChanges are tricky in RLS."
+  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "cargo"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("main.rs" . "bla"))))
+    (eglot--with-timeout 3
+      (with-current-buffer
+          (eglot--find-file-noselect "project/main.rs")
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (:server-notifications s-notifs)
+          (insert "fn main() {\nprintfoo!(\"Hello, world!\");\n}")
+          (apply #'eglot (eglot--interactive))
+          (eglot--wait-for (s-notifs 1)
+              (&key _id method &allow-other-keys)
+            (string= method "textDocument/publishDiagnostics"))
+          (flymake-goto-next-error)
+          (should (eq 'flymake-error (face-at-point))))))))
+
+(ert-deftest rls-hover-after-edit ()
+  "Hover and highlightChanges are tricky in RLS."
+  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "cargo"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("main.rs" . "bla"))))
+    (eglot--with-timeout 3
+      (with-current-buffer
+          (eglot--find-file-noselect "project/main.rs")
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (
+                          :server-notifications s-notifs
+                          :server-requests s-requests
+                          :server-replies s-replies
+                          :client-notifications c-notifs
+                          :client-replies c-replies
+                          :client-requests c-reqs
+                          )
+          (insert "fn test() -> i32 { let test=3; return te; }")
+          (apply #'eglot (eglot--interactive))
+          (goto-char (point-min))
+          (search-forward "return te")
+          (insert "st")
+          (progn
+            ;; simulate these two which don't happen when buffer isn't
+            ;; visible in a window.
+            (eglot--signal-textDocument/didChange)
+            (eglot-eldoc-function))
+          (let (pending-id)
+            (eglot--wait-for (c-reqs)
+                (&key id method &allow-other-keys)
+              (setq pending-id id)
+              (string= method :textDocument/documentHighlight))
+            (eglot--wait-for (s-replies)
+                (&key id &allow-other-keys)
+              (eq id pending-id))))))))
+
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
   (eglot--with-dirs-and-files
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
-    (eglot--with-test-timeout 4
+    (eglot--with-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
         (should (apply #'eglot (eglot--interactive)))
@@ -174,7 +338,7 @@
   (skip-unless (executable-find "pyls"))
   (eglot--with-dirs-and-files
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
-    (eglot--with-test-timeout 4
+    (eglot--with-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
         (should (apply #'eglot (eglot--interactive)))

@@ -5,7 +5,7 @@ rust:
 
 env:
   global:
-    - EGLOT_TESTING=t # For kicks, so I don't forget this syntax
+    - TRAVIS_TESTING=t
   matrix:
     - EMACS_VERSION=26-prerelease
 
