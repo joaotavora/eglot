@@ -67,7 +67,7 @@
       (let ((eglot-autoreconnect nil))
         (mapc #'eglot-shutdown
               (cl-remove-if-not
-               (lambda (server) (process-live-p (jsonrpc--process server)))
+               (lambda (server) (process-live-p (eglot--process server)))
                new-servers)))
       (dolist (buf new-buffers) ;; have to save otherwise will get prompted
         (with-current-buffer buf (save-buffer) (kill-buffer)))
@@ -145,13 +145,13 @@
           ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
           ;; should have a automatic reconnection.
           (run-with-timer 1.2 nil (lambda () (delete-process
-                                              (jsonrpc--process server))))
-          (while (process-live-p (jsonrpc--process server))
+                                              (eglot--process server))))
+          (while (process-live-p (eglot--process server))
             (accept-process-output nil 0.5))
           (should (jsonrpc-current-connection))
           ;; Now try again too quickly
           (setq server (jsonrpc-current-connection))
-          (let ((proc (jsonrpc--process server)))
+          (let ((proc (eglot--process server)))
             (run-with-timer 0.5 nil (lambda () (delete-process proc)))
             (while (process-live-p proc) (accept-process-output nil 0.5)))
           (should (not (jsonrpc-current-connection))))))))
