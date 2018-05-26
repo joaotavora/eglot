@@ -150,33 +150,36 @@
            ,@body)
        (advice-remove #'eglot--log-event ',log-event-ad-sym))))
 
-(defmacro eglot--wait-for (events-sym fn timeout)
+(cl-defmacro eglot--wait-for ((events-sym &optional (timeout 1) message) args &body body)
   "Spin until FN match in EVENTS-SYM, flush events after it.
 Pass TIMEOUT to `eglot--with-timeout'."
-  `(eglot--with-timeout ,timeout
+  (declare (indent 2) (debug (sexp sexp sexp &rest form)))
+  `(eglot--with-timeout (,timeout ,(or message
+                                       (format "waiting for:\n%s" (pp-to-string body))))
      (let ((event
             (cl-loop thereis (cl-loop for json in ,events-sym
-                                      when (funcall ,fn json) return
-                                      (cons json before)
+                                      when (funcall
+                                            (eglot--lambda ,args ,@body) json)
+                                      return (cons json before)
                                       collect json into before)
+                     for i from 0
+                     when (zerop (mod i 5))
+                     ;; do (eglot--message "still struggling to find in %s"
+                     ;;                    ,events-sym)
                      do
                      ;; `read-event' is essential to have the file
                      ;; watchers come through.
                      (read-event "[eglot] Waiting a bit..." nil 0.1)
                      (accept-process-output nil 0.1))))
        (setq ,events-sym (cdr event))
-       (message "[eglot] Event detected:\n%s"
-                (pp-to-string (car event))))))
-
+       (eglot--message "Event detected:\n%s"
+                       (pp-to-string (car event))))))
 
 ;; `rust-mode' is not a part of emacs. So define these two shims which
 ;; should be more than enough for testing
 (unless (functionp 'rust-mode)
   (define-derived-mode rust-mode prog-mode "Rust"))
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
-
-
-(ert-deftest dummy () "A dummy test" (should t))
 
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
@@ -245,25 +248,78 @@ Pass TIMEOUT to `eglot--with-timeout'."
                             )
             (should (apply #'eglot (eglot--interactive)))
             (let (register-id)
-              (eglot--wait-for s-requests
-                               (eglot--lambda (&key id method &allow-other-keys)
-                                 (setq register-id id)
-                                 (string= method "client/registerCapability"))
-                               (1 "waiting for registerCapability request"))
-              (eglot--wait-for c-replies
-                               (eglot--lambda (&key id error &allow-other-keys)
-                                 (and (eq id register-id) (null error)))
-                               (1 "waiting for client reply")))
+              (eglot--wait-for (s-requests 1)
+                  (&key id method &allow-other-keys)
+                (setq register-id id)
+                (string= method "client/registerCapability"))
+              (eglot--wait-for (c-replies 1)
+                  (&key id error &allow-other-keys)
+                (and (eq id register-id) (null error))))
             (delete-file "Cargo.toml")
             (eglot--wait-for
-             c-notifs
-             (eglot--lambda (&key method params &allow-other-keys)
-               (and (eq method :workspace/didChangeWatchedFiles)
-                    (cl-destructuring-bind (&key uri type)
-                        (elt (plist-get params :changes) 0)
-                      (and (string= (eglot--path-to-uri "Cargo.toml") uri)
-                           (= type 3)))))
-             (3 "waiting for didChangeWatchedFiles notification"))))))))
+                (c-notifs 3 "waiting for didChangeWatchedFiles notification")
+                (&key method params &allow-other-keys)
+              (and (eq method :workspace/didChangeWatchedFiles)
+                   (cl-destructuring-bind (&key uri type)
+                       (elt (plist-get params :changes) 0)
+                     (and (string= (eglot--path-to-uri "Cargo.toml") uri)
+                          (= type 3)))))))))))
+
+(ert-deftest rls-basic-diagnostics ()
+  "Hover and highlightChanges are tricky in RLS."
+  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "cargo"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("main.rs" . "bla"))))
+    (eglot--with-timeout 3
+      (with-current-buffer
+          (eglot--find-file-noselect "project/main.rs")
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (:server-notifications s-notifs)
+          (insert "fn main() {\nprintfoo!(\"Hello, world!\");\n}")
+          (apply #'eglot (eglot--interactive))
+          (eglot--wait-for (s-notifs 1)
+              (&key _id method &allow-other-keys)
+            (string= method "textDocument/publishDiagnostics"))
+          (flymake-goto-next-error)
+          (should (eq 'flymake-error (face-at-point))))))))
+
+(ert-deftest rls-hover-after-edit ()
+  "Hover and highlightChanges are tricky in RLS."
+  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "cargo"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("main.rs" . "bla"))))
+    (eglot--with-timeout 3
+      (with-current-buffer
+          (eglot--find-file-noselect "project/main.rs")
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (
+                          :server-notifications s-notifs
+                          :server-requests s-requests
+                          :server-replies s-replies
+                          :client-notifications c-notifs
+                          :client-replies c-replies
+                          :client-requests c-reqs
+                          )
+          (insert "fn test() -> i32 { let test=3; return te; }")
+          (apply #'eglot (eglot--interactive))
+          (goto-char (point-min))
+          (search-forward "return te")
+          (insert "st")
+          (progn
+            ;; simulate these two which don't happen when buffer isn't
+            ;; visible in a window.
+            (eglot--signal-textDocument/didChange)
+            (eglot-eldoc-function))
+          (let (pending-id)
+            (eglot--wait-for (c-reqs)
+                (&key id method &allow-other-keys)
+              (setq pending-id id)
+              (string= method :textDocument/documentHighlight))
+            (eglot--wait-for (s-replies)
+                (&key id &allow-other-keys)
+              (eq id pending-id))))))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
