@@ -266,21 +266,22 @@ Pass TIMEOUT to `eglot--with-timeout'."
                           (= type 3)))))))))))
 
 (ert-deftest rls-basic-diagnostics ()
-  "Hover and highlightChanges are tricky in RLS."
+  "Test basic diagnostics in RLS."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
   (eglot--with-dirs-and-files
-      '(("diag-project" . (("main.rs" . "bla"))))
+      '(("diag-project" . (("main.rs" . "fn main() {\nprintfoo!(\"Hello, world!\");\n}"))))
     (eglot--with-timeout 3
       (with-current-buffer
           (eglot--find-file-noselect "diag-project/main.rs")
         (should (zerop (shell-command "cargo init")))
         (eglot--sniffing (:server-notifications s-notifs)
-          (insert "fn main() {\nprintfoo!(\"Hello, world!\");\n}")
           (apply #'eglot (eglot--interactive))
           (eglot--wait-for (s-notifs 1)
               (&key _id method &allow-other-keys)
             (string= method "textDocument/publishDiagnostics"))
+          (flymake-start)
+          (goto-char (point-min))
           (flymake-goto-next-error)
           (should (eq 'flymake-error (face-at-point))))))))
 
