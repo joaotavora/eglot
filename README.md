@@ -55,6 +55,9 @@ Here's a summary of available commands:
 - `M-x eglot-events-buffer` jumps to the events buffer for debugging
   communication with the server.
 
+- `M-x eglot-stderr-buffer` if the LSP server is printing useful debug
+information in stderr, jumps to a buffer with these contents.
+
 There are *no keybindings* specific to Eglot, but you can bind stuff
 in `eglot-mode-map`, which is active as long as Eglot is managing a
 file in your project. The commands don't need to be Eglot-specific,
