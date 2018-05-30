@@ -234,11 +234,11 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (skip-unless (null (getenv "TRAVIS_TESTING")))
   (let ((eglot-autoreconnect 1))
     (eglot--with-dirs-and-files
-        '(("project" . (("coiso.rs" . "bla")
-                        ("merdix.rs" . "bla"))))
+        '(("watch-project" . (("coiso.rs" . "bla")
+                              ("merdix.rs" . "bla"))))
       (eglot--with-timeout 10
         (with-current-buffer
-            (eglot--find-file-noselect "project/coiso.rs")
+            (eglot--find-file-noselect "watch-project/coiso.rs")
           (should (zerop (shell-command "cargo init")))
           (eglot--sniffing (
                             :server-requests s-requests
@@ -265,21 +265,22 @@ Pass TIMEOUT to `eglot--with-timeout'."
                           (= type 3)))))))))))
 
 (ert-deftest rls-basic-diagnostics ()
-  "Hover and highlightChanges are tricky in RLS."
+  "Test basic diagnostics in RLS."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
   (eglot--with-dirs-and-files
-      '(("project" . (("main.rs" . "bla"))))
+      '(("diag-project" . (("main.rs" . "fn main() {\nprintfoo!(\"Hello, world!\");\n}"))))
     (eglot--with-timeout 3
       (with-current-buffer
-          (eglot--find-file-noselect "project/main.rs")
+          (eglot--find-file-noselect "diag-project/main.rs")
         (should (zerop (shell-command "cargo init")))
         (eglot--sniffing (:server-notifications s-notifs)
-          (insert "fn main() {\nprintfoo!(\"Hello, world!\");\n}")
           (apply #'eglot (eglot--interactive))
           (eglot--wait-for (s-notifs 1)
               (&key _id method &allow-other-keys)
             (string= method "textDocument/publishDiagnostics"))
+          (flymake-start)
+          (goto-char (point-min))
           (flymake-goto-next-error)
           (should (eq 'flymake-error (face-at-point))))))))
 
@@ -287,11 +288,14 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Hover and highlightChanges are tricky in RLS."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
+  (skip-unless (null (getenv "TRAVIS_TESTING")))
   (eglot--with-dirs-and-files
-      '(("project" . (("main.rs" . "bla"))))
+      '(("hover-project" .
+         (("main.rs" .
+           "fn test() -> i32 { let test=3; return te; }"))))
     (eglot--with-timeout 3
       (with-current-buffer
-          (eglot--find-file-noselect "project/main.rs")
+          (eglot--find-file-noselect "hover-project/main.rs")
         (should (zerop (shell-command "cargo init")))
         (eglot--sniffing (
                           :server-notifications s-notifs
@@ -301,7 +305,6 @@ Pass TIMEOUT to `eglot--with-timeout'."
                           :client-replies c-replies
                           :client-requests c-reqs
                           )
-          (insert "fn test() -> i32 { let test=3; return te; }")
           (apply #'eglot (eglot--interactive))
           (goto-char (point-min))
           (search-forward "return te")
@@ -319,6 +322,31 @@ Pass TIMEOUT to `eglot--with-timeout'."
             (eglot--wait-for (s-replies)
                 (&key id &allow-other-keys)
               (eq id pending-id))))))))
+
+(ert-deftest rls-rename ()
+  "Test renaming in RLS."
+  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "cargo"))
+  (eglot--with-dirs-and-files
+      '(("rename-project"
+         . (("main.rs" .
+             "fn test() -> i32 { let test=3; return test; }"))))
+    (eglot--with-timeout 3
+      (with-current-buffer
+          (eglot--find-file-noselect "rename-project/main.rs")
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (
+                          :server-notifications s-notifs
+                          :server-requests s-requests
+                          :server-replies s-replies
+                          :client-notifications c-notifs
+                          :client-replies c-replies
+                          :client-requests c-reqs
+                          )
+          (apply #'eglot (eglot--interactive))
+          (goto-char (point-min)) (search-forward "return te")
+          (eglot-rename "bla")
+          (should (equal (buffer-string) "fn test() -> i32 { let bla=3; return bla; }")))))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
