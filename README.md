@@ -1,10 +1,13 @@
 [![Build Status](https://travis-ci.org/joaotavora/eglot.png)](https://travis-ci.org/joaotavora/eglot)
+[![MELPA](http://melpa.org/packages/eglot-badge.svg)](http://melpa.org/#/eglot)
+
 Eglot
 -----
 
 *E*macs Poly*glot*. An Emacs client to [Language Server Protocol][lsp] servers.
 
-Eglot is [in ELPA][gnuelpa]. Installation is straightforward:
+Eglot is in both [ELPA][gnuelpa] and [MELPA][melpa]. Installation is
+straightforward:
 
 ```
 (package-install 'eglot) ; Requires Emacs 26!
@@ -111,7 +114,8 @@ eglot-shutdown`.
 - [ ] workspace/didChangeConfiguration
 - [ ] workspace/configuration (3.6.0)
 - [x] workspace/didChangeWatchedFiles
-- [x] workspace/symbol is
+- [x] workspace/symbol
+- [ ] workspace/executeCommand
 - [x] workspace/applyEdit
 
 ## Text Synchronization
@@ -195,6 +199,7 @@ Under the hood:
 [rls]: https://github.com/rust-lang-nursery/rls
 [pyls]: https://github.com/palantir/python-language-server
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
+[melpa]: http://melpa.org/#/eglot
 [javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
