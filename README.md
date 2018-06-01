@@ -51,6 +51,11 @@ Here's a summary of available commands:
 
 - `M-x eglot-rename` asks the server to rename the symbol at point;
 
+- `M-x eglot-code-actions` asks the server for any code actions at
+  point. These may tipically be simple fixes, like deleting an unused
+  variable, or fixing an import. Left click on diagnostics to check if
+  there are any there;
+
 - `M-x eglot-help-at-point` asks the server for help for symbol at
   point. Currently this is what `eldoc-mode` displays in the echo
   area;
@@ -115,7 +120,7 @@ eglot-shutdown`.
 - [ ] workspace/configuration (3.6.0)
 - [x] workspace/didChangeWatchedFiles
 - [x] workspace/symbol
-- [ ] workspace/executeCommand
+- [x] workspace/executeCommand
 - [x] workspace/applyEdit
 
 ## Text Synchronization
@@ -140,7 +145,7 @@ eglot-shutdown`.
 - [x] textDocument/references
 - [x] textDocument/documentHighlight
 - [x] textDocument/documentSymbol
-- [ ] textDocument/codeAction
+- [x] textDocument/codeAction
 - [ ] textDocument/codeLens
 - [ ] codeLens/resolve
 - [ ] textDocument/documentLink
@@ -183,17 +188,17 @@ Under the hood:
 
 - Message parser is much simpler.
 - Defers signature requests like `textDocument/hover` until server is
-  ready. Also sends `textDocument/didChange` for groups of edits, not
+  ready.
+- Sends `textDocument/didChange` for groups of edits, not
   one per each tiny change.
 - Easier to read and maintain elisp. Yeah I know, *very subjective*,
   so judge for yourself.
-- About 1k LOC lighter.
-- Development doesn't require Cask, just Emacs.
-- Project support doesn't need `projectile.el`, uses Emacs's `project.el`
-- Requires the upcoming Emacs 26
+- Doesn't *require* anything other than Emacs 26, but will
+  automatically upgrade to work with stuff outside Emacs, like
+  `company`, `markdown-mode`, if you happen to have these installed.
 - Contained in one file
 - Has automated tests that check against actual LSP servers
-  
+
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
