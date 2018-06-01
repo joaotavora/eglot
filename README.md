@@ -4,7 +4,10 @@
 Eglot
 -----
 
-*E*macs Poly*glot*. An Emacs client to [Language Server Protocol][lsp] servers.
+*E*macs Poly*glot*. Emacs client to [Language Server Protocol][lsp]
+servers.  Scroll way down for some [pretty gifs](#animated_gifs).
+
+# Installation and usage
 
 Eglot is in both [ELPA][gnuelpa] and [MELPA][melpa]. Installation is
 straightforward:
@@ -26,7 +29,6 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
 * [cquery][cquery] for C/C++
-
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -156,6 +158,17 @@ eglot-shutdown`.
 - [ ] textDocument/rangeFormatting
 - [ ] textDocument/onTypeFormatting
 - [x] textDocument/rename
+
+<a name="animated_gifs"></a>
+# _Obligatory animated gif section_
+
+![eglot-code-actions](./gif-examples/eglot-code-actions.gif)
+![eglot-completions](./gif-examples/eglot-completions.gif)
+![eglot-diagnostics](./gif-examples/eglot-diagnostics.gif)
+![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
+![eglot-rename](./gif-examples/eglot-rename.gif)
+![eglot-xref-find-definition](./gif-examples/eglot-xref-find-definition.gif)
+![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
 
 # Differences to lsp-mode.el
 
