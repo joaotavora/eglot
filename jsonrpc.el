@@ -621,8 +621,9 @@ TIMEOUT is nil)."
                                              (apply #'jsonrpc-async-request
                                                     connection
                                                     method params args)))))
-                       (or timer (funcall make-timer)) id)
-                 (jsonrpc--deferred-actions connection))))
+                       (or timer (setq timer (funcall make-timer))) id)
+                 (jsonrpc--deferred-actions connection))
+        (cl-return-from jsonrpc--async-request-1 (list nil timer))))
     ;; Really send it
     ;;
     (jsonrpc-connection-send connection (jsonrpc-obj :jsonrpc "2.0"
