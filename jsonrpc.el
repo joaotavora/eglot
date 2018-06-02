@@ -601,6 +601,8 @@ TIMEOUT is nil)."
                      timeout nil
                      (lambda ()
                        (remhash id (jsonrpc--request-continuations connection))
+                       (remhash (list deferred buf)
+                                (jsonrpc--deferred-actions connection))
                        (if timeout-fn (funcall timeout-fn)
                          (jsonrpc--debug
                           connection `(:timed-out ,method :id ,id
