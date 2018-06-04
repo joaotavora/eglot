@@ -115,6 +115,10 @@ lasted more than that many seconds."
   :type '(choice (boolean :tag "Whether to inhibit autoreconnection")
                  (integer :tag "Number of seconds")))
 
+(defcustom eglot-highlight-symbol-at-point-p t
+  "Highlight the symbol under point."
+  :type 'boolean)
+
 
 ;;; API (WORK-IN-PROGRESS!)
 ;;;
@@ -1483,7 +1487,8 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
                          (when-buffer-window
                           (eldoc-message (eglot--hover-info contents range)))))
          :deferred :textDocument/hover))
-      (when (eglot--server-capable :documentHighlightProvider)
+      (when (and eglot-highlight-symbol-at-point-p
+                 (eglot--server-capable :documentHighlightProvider))
         (eglot--async-request
          server :textDocument/documentHighlight position-params
          :success-fn (lambda (highlights)
