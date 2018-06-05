@@ -281,7 +281,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
             (string= method "textDocument/publishDiagnostics"))
           (flymake-start)
           (goto-char (point-min))
-          (flymake-goto-next-error)
+          (flymake-goto-next-error 1 '() t)
           (should (eq 'flymake-error (face-at-point))))))))
 
 (ert-deftest rls-hover-after-edit ()

@@ -1,10 +1,17 @@
 [![Build Status](https://travis-ci.org/joaotavora/eglot.png)](https://travis-ci.org/joaotavora/eglot)
+[![MELPA](http://melpa.org/packages/eglot-badge.svg)](http://melpa.org/#/eglot)
+
 Eglot
 -----
 
-*E*macs Poly*glot*. An Emacs client to [Language Server Protocol][lsp] servers.
+*E*macs Poly*glot*. Emacs client to [Language Server Protocol][lsp]
+servers.  Scroll down this README for some
+[pretty gifs](#animated_gifs).
 
-Eglot is [in ELPA][gnuelpa]. Installation is straightforward:
+# Installation and usage
+
+Eglot is in both [ELPA][gnuelpa] and [MELPA][melpa]. Installation is
+straightforward:
 
 ```
 (package-install 'eglot) ; Requires Emacs 26!
@@ -23,7 +30,6 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
 * [cquery][cquery] for C/C++
-
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -47,6 +53,11 @@ Here's a summary of available commands:
 - `M-x eglot-shutdown` says bye-bye to the server;
 
 - `M-x eglot-rename` asks the server to rename the symbol at point;
+
+- `M-x eglot-code-actions` asks the server for any code actions at
+  point. These may tipically be simple fixes, like deleting an unused
+  variable, or fixing an import. Left click on diagnostics to check if
+  there are any there;
 
 - `M-x eglot-help-at-point` asks the server for help for symbol at
   point. Currently this is what `eldoc-mode` displays in the echo
@@ -111,7 +122,8 @@ eglot-shutdown`.
 - [ ] workspace/didChangeConfiguration
 - [ ] workspace/configuration (3.6.0)
 - [x] workspace/didChangeWatchedFiles
-- [x] workspace/symbol is
+- [x] workspace/symbol
+- [x] workspace/executeCommand
 - [x] workspace/applyEdit
 
 ## Text Synchronization
@@ -136,7 +148,7 @@ eglot-shutdown`.
 - [x] textDocument/references
 - [x] textDocument/documentHighlight
 - [x] textDocument/documentSymbol
-- [ ] textDocument/codeAction
+- [x] textDocument/codeAction
 - [ ] textDocument/codeLens
 - [ ] codeLens/resolve
 - [ ] textDocument/documentLink
@@ -147,6 +159,17 @@ eglot-shutdown`.
 - [ ] textDocument/rangeFormatting
 - [ ] textDocument/onTypeFormatting
 - [x] textDocument/rename
+
+<a name="animated_gifs"></a>
+# _Obligatory animated gif section_
+
+![eglot-code-actions](./gif-examples/eglot-code-actions.gif)
+![eglot-completions](./gif-examples/eglot-completions.gif)
+![eglot-diagnostics](./gif-examples/eglot-diagnostics.gif)
+![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
+![eglot-rename](./gif-examples/eglot-rename.gif)
+![eglot-xref-find-definition](./gif-examples/eglot-xref-find-definition.gif)
+![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
 
 # Differences to lsp-mode.el
 
@@ -179,22 +202,23 @@ Under the hood:
 
 - Message parser is much simpler.
 - Defers signature requests like `textDocument/hover` until server is
-  ready. Also sends `textDocument/didChange` for groups of edits, not
+  ready.
+- Sends `textDocument/didChange` for groups of edits, not
   one per each tiny change.
 - Easier to read and maintain elisp. Yeah I know, *very subjective*,
   so judge for yourself.
-- About 1k LOC lighter.
-- Development doesn't require Cask, just Emacs.
-- Project support doesn't need `projectile.el`, uses Emacs's `project.el`
-- Requires the upcoming Emacs 26
+- Doesn't *require* anything other than Emacs 26, but will
+  automatically upgrade to work with stuff outside Emacs, like
+  `company`, `markdown-mode`, if you happen to have these installed.
 - Contained in one file
 - Has automated tests that check against actual LSP servers
-  
+
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
 [pyls]: https://github.com/palantir/python-language-server
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
+[melpa]: http://melpa.org/#/eglot
 [javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
