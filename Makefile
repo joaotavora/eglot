@@ -6,7 +6,7 @@ EMACS=emacs
 
 LOAD_PATH=-L .
 
-ELFILES := eglot.el jsonrpc.el eglot-tests.el
+ELFILES := eglot.el jsonrpc.el eglot-tests.el jsonrpc-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
 all: compile
@@ -20,15 +20,12 @@ compile: $(ELCFILES)
 
 # Automated tests
 #
-check: compile
-
-check: SELECTOR=t
-check: compile
+check: compile jsonrpc-check
 	$(EMACS) -Q --batch $(LOAD_PATH)				\
 		-l eglot-tests						\
 		-f ert-run-tests-batch-and-exit				\
 
-jsonrpc-check: jsonrpc.elc
+jsonrpc-check: jsonrpc.elc jsonrpc-tests.elc
 	$(EMACS) -Q --batch $(LOAD_PATH)				\
 		-l jsonrpc-tests					\
 		-f ert-run-tests-batch-and-exit				\
