@@ -160,7 +160,7 @@ FORMAT as the message."
 
 (defun jsonrpc-message (format &rest args)
   "Message out with FORMAT with ARGS."
-  (message "[jsonrpc] %s" (concat "[jsonrpc] %s" (apply #'format format args))))
+  (message "[jsonrpc] %s" (apply #'format format args)))
 
 (defun jsonrpc--debug (server format &rest args)
   "Debug message for SERVER with FORMAT and ARGS."
