@@ -450,12 +450,15 @@ originated."
                             (id                    'reply)
                             (t                     'message)))
              (type
-              (format "%s-%s" (or type :internal) subtype)))
+              (concat (format "%s" (or type 'internal))
+                      (if type
+                          (format "-%s" subtype)))))
         (goto-char (point-max))
-        (let ((msg (format "%s%s%s:\n%s\n"
+        (let ((msg (format "%s%s%s %s:\n%s\n"
                            type
                            (if id (format " (id:%s)" id) "")
                            (if error " ERROR" "")
+                           (current-time-string)
                            (pp-to-string message))))
           (when error
             (setq msg (propertize msg 'face 'error)))
