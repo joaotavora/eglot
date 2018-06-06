@@ -133,7 +133,7 @@
 (require 'subr-x)
 (require 'warnings)
 (require 'pcase)
-(require 'ert)
+(require 'ert) ; to escape a `condition-case-unless-debug'
 (require 'array) ; xor
 
 (defvar jsonrpc-find-connection-functions nil
@@ -206,7 +206,11 @@ FORMAT as the message."
     :accessor jsonrpc--deferred-actions
     :documentation "Map (DEFERRED BUF) to (FN TIMER ID).  FN is\
 a saved DEFERRED `async-request' from BUF, to be sent not later\
-than TIMER as ID.")))
+than TIMER as ID.")
+   (-next-request-id
+    :initform 0
+    :accessor jsonrpc--next-request-id
+    :documentation "Next number used for a request")))
 
 (defclass jsonrpc-process-connection (jsonrpc-connection)
   ((-process
@@ -544,9 +548,6 @@ for sending requests immediately."
 (defconst jrpc-default-request-timeout 10
   "Time in seconds before timing out a JSONRPC request.")
 
-(defvar-local jsonrpc--next-request-id 0)
-
-
 (cl-defun jsonrpc-async-request (connection
                                  method
                                  params
@@ -593,7 +594,7 @@ TIMEOUT is nil)."
                (`(,_ ,timer ,old-id)
                 (and deferred (gethash (list deferred buf)
                                        (jsonrpc--deferred-actions connection))))
-               (id (or old-id (cl-incf jsonrpc--next-request-id)))
+               (id (or old-id (cl-incf (jsonrpc--next-request-id connection))))
                (make-timer
                 (lambda ( )
                   (when timeout
