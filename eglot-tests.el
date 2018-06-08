@@ -50,7 +50,8 @@
            (message "[yas] oops don't know this content")))))
 
 (defun eglot--call-with-dirs-and-files (dirs fn)
-  (let* ((default-directory (make-temp-file "eglot--fixture" t))
+  (let* ((fixture-directory (make-temp-file "eglot--fixture" t))
+         (default-directory fixture-directory)
          new-buffers new-servers)
     (unwind-protect
         (let ((find-file-hook
@@ -72,7 +73,7 @@
         (mapc #'kill-buffer (mapcar #'jsonrpc--events-buffer new-servers))
         (dolist (buf new-buffers) ;; have to save otherwise will get prompted
           (with-current-buffer buf (save-buffer) (kill-buffer)))
-        (delete-directory default-directory 'recursive)))))
+        (delete-directory fixture-directory 'recursive)))))
 
 (cl-defmacro eglot--with-timeout (timeout &body body)
   (declare (indent 1) (debug t))
