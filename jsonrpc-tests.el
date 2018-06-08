@@ -30,9 +30,11 @@
 (require 'jsonrpc)
 (require 'eieio)
 
-(defclass jsonrpc-test-conn (jsonrpc-process-connection)
-  ((hold-deferred :initform t :accessor jsonrpc--hold-deferred)
-   (shutdown-complete-p :initform nil :accessor jsonrpc--shutdown-complete-p)))
+(defclass jsonrpc--test-endpoint (jsonrpc-process-connection)
+  ((scp :accessor jsonrpc--shutdown-complete-p)))
+
+(defclass jsonrpc--test-client (jsonrpc--test-endpoint)
+  ((hold-deferred :initform t :accessor jsonrpc--hold-deferred)))
 
 (cl-defmacro jsonrpc--with-emacsrpc-fixture ((endpoint-sym) &body body)
   (declare (indent 1) (debug t))
@@ -44,25 +46,30 @@
               :service 44444
               :log (lambda (_server client _message)
                      (setq ,server
-                           (jsonrpc-connect
-                            (process-name client)
-                            (make-instance 'jsonrpc-test-conn :process client)
-                            (lambda (endpoint method id params)
+                           (make-instance
+                            'jsonrpc--test-endpoint
+                            :name (process-name client)
+                            :process client
+                            :request-dispatcher
+                            (lambda (endpoint method params)
                               (unless (memq method '(+ - * / vconcat append
                                                        sit-for ignore))
                                 (signal 'jsonrpc-error
                                         `((jsonrpc-error-message
                                            . "Sorry, this isn't allowed")
                                           (jsonrpc-error-code . -32601))))
-                              (jsonrpc-reply endpoint id :result
-                                             (apply method (append params nil))))
+                              (let ((result (apply method (append params nil))))
+                                (jsonrpc-reply endpoint :result result)))
+                            :on-shutdown
                             (lambda (conn)
                               (setf (jsonrpc--shutdown-complete-p conn) t)))))))
-            (,endpoint-sym (jsonrpc-connect
+            (,endpoint-sym (make-instance
+                            'jsonrpc--test-client
                             "Emacs RPC client"
-                            '(jsonrpc-test-conn "localhost" 44444)
-                            (lambda (_endpoint method _id &rest _params)
-                              (message "server wants to %s" method))
+                            :process
+                            (open-network-stream "JSONRPC test tcp endpoint"
+                                                 nil "localhost" 44444)
+                            :on-shutdown
                             (lambda (conn)
                               (setf (jsonrpc--shutdown-complete-p conn) t)))))
        (unwind-protect
@@ -93,7 +100,7 @@
 (ert-deftest returns-3 ()
   "returns 3"
   (jsonrpc--with-emacsrpc-fixture (conn)
-    (should (= 3 (jsonrpc-request conn '+ '(1 2))))))
+    (should (= 3 (jsonrpc-request conn '+ [1 2])))))
 
 (ert-deftest errors-with--32601 ()
   "errors with -32601"
@@ -110,7 +117,7 @@
   (jsonrpc--with-emacsrpc-fixture (conn)
     (condition-case err
         (progn
-          (jsonrpc-request conn '+ '(a 2))
+          (jsonrpc-request conn '+ ["a" 2])
           (ert-fail "A `jsonrpc-error' should have been signalled!"))
       (jsonrpc-error
        (should (= -32603 (cdr (assoc 'jsonrpc-error-code (cdr err)))))))))
@@ -119,23 +126,23 @@
   "times out"
   (jsonrpc--with-emacsrpc-fixture (conn)
     (should-error
-     (jsonrpc-request conn 'sit-for '(5) :timeout 2))))
+     (jsonrpc-request conn 'sit-for [5] :timeout 2))))
 
 (ert-deftest stretching-it-but-works ()
   "stretching it, but works"
   (jsonrpc--with-emacsrpc-fixture (conn)
     (should (equal
              [1 2 3 3 4 5]
-             (jsonrpc-request conn 'vconcat '([1 2 3] [3 4 5]))))))
+             (jsonrpc-request conn 'vconcat [[1 2 3] [3 4 5]])))))
 
 (ert-deftest json-el-cant-serialize-this ()
-  "json.el can't serialize this, json.el errors and request isn't sent"
+  "json.el can't serialize the response."
   (jsonrpc--with-emacsrpc-fixture (conn)
     (should-error
-     (jsonrpc-request conn 'append '((1 2 3) (3 4 5))))))
+     (jsonrpc-request conn 'append [[1 2 3] [3 4 5]]))))
 
 (cl-defmethod jsonrpc-connection-ready-p
-  ((conn jsonrpc-test-conn) what)
+  ((conn jsonrpc--test-client) what)
   (and (cl-call-next-method)
        (or (not (string-match "deferred" what))
            (not (jsonrpc--hold-deferred conn)))))
@@ -146,14 +153,14 @@
   ;; success fun which sets the flag only runs after some time.
   (jsonrpc--with-emacsrpc-fixture (conn)
     (jsonrpc-async-request conn
-                           'sit-for '(0.5)
+                           'sit-for [0.5]
                            :success-fn
                            (lambda (_result)
                              (setf (jsonrpc--hold-deferred conn) nil)))
     ;; Now wait for an answer to this request, which should be sent as
     ;; soon as the previous one is answered.
     (should
-     (= 3 (jsonrpc-request conn '+ '(1 2)
+     (= 3 (jsonrpc-request conn '+ [1 2]
                            :deferred "deferred"
                            :timeout 1)))))
 
@@ -165,26 +172,26 @@
     (let (n-deferred-1 n-deferred-2)
       (jsonrpc-async-request
        conn
-       'sit-for '(0.1)
+       'sit-for [0.1]
        :success-fn
        (lambda (_result)
          (setq n-deferred-1 (hash-table-count (jsonrpc--deferred-actions conn)))))
       (should-error
-       (jsonrpc-request conn 'ignore '("first deferred")
+       (jsonrpc-request conn 'ignore ["first deferred"]
                         :deferred "first deferred"
                         :timeout 0.5)
        :type 'jsonrpc-error)
       (jsonrpc-async-request
        conn
-       'sit-for '(0.1)
+       'sit-for [0.1]
        :success-fn
        (lambda (_result)
          (setq n-deferred-2 (hash-table-count (jsonrpc--deferred-actions conn)))
          (setf (jsonrpc--hold-deferred conn) nil)))
-      (jsonrpc-async-request conn 'ignore '("second deferred")
+      (jsonrpc-async-request conn 'ignore ["second deferred"]
                              :deferred "second deferred"
                              :timeout 1)
-      (jsonrpc-request conn 'ignore '("third deferred")
+      (jsonrpc-request conn 'ignore ["third deferred"]
                        :deferred "third deferred"
                        :timeout 1)
       (should (eq 1 n-deferred-1))
@@ -195,11 +202,11 @@
   "Deferred request fails because noone clears the flag."
   (jsonrpc--with-emacsrpc-fixture (conn)
     (should-error
-     (jsonrpc-request conn '+ '(1 2)
+     (jsonrpc-request conn '+ [1 2]
                       :deferred "deferred-testing" :timeout 0.5)
      :type 'jsonrpc-error)
     (should
-     (= 3 (jsonrpc-request conn '+ '(1 2)
+     (= 3 (jsonrpc-request conn '+ [1 2]
                            :timeout 0.5)))))
 
 (provide 'jsonrpc-tests)
