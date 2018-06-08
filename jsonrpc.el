@@ -34,46 +34,45 @@
 ;; http, or in many various message passing environments."
 ;;
 ;; To approach this agnosticism, jsonrpc.el uses objects derived from
-;; an abstract class, `jsonrpc-connection' to represent the connection
-;; to the remote JSON endpoint.  Abstract operations such as sending
-;; and receiving are modelled as generic functions, so that users of
-;; JSONRPC working in complicated transport infrastructures can
+;; a base `jsonrpc-connection' class, which is "abstract" or "virtual"
+;; (in modern OO parlance) and represents the connection to the remote
+;; JSON endpoint.  Equally abstract operations such as sending and
+;; receiving are modelled as generic functions, so JSONRPC
+;; applications operating over arbitrary transport infrastructures can
 ;; specify a subclass of `jsonrpc-connection' and write specific
-;; methods for it.  Nevertheless, jsonrpc.el comes built-in with
-;; `jsonrpc-process-connection' class that works both with local
-;; subprocesses (through stdin/stdout) and TCP hosts (using
-;; sockets). This uses some simple HTTP-style envelopping for JSON
-;; objects travelling through the wire.
+;; methods for it.
 ;;
-;; The entry point `jsonrpc-connect', returns one of these objects by
-;; default.  It is passed a name identifying the connection and a
-;; "contact", which will determine the connection type to make.  This
-;; contact can a list of strings (a command and arguments for creating
-;; subprocesses) or a list of the form (HOST PORT-NUMBER PARAMS...)
-;; for connecting via TCP.  For the providing the aforementioned
-;; flexibility, it can also be a any object of a subclass of
-;; `jsonrpc-connection'.
+;; The `jsonrpc-connection' constructor is the most generic entry
+;; point for these uses.  However, for convenience, jsonrpc.el comes
+;; built-in with `jsonrpc-process-connection' class for talking to
+;; local subprocesses (through stdin/stdout) and TCP hosts using
+;; sockets.  This uses some basic HTTP-style enveloping headers for
+;; JSON objects sent over the wire.  For an example of an application
+;; using this transport scheme on top of JSONRPC, see for example the
+;; Language Server Protocol
+;; (https://microsoft.github.io/language-server-protocol/specification).
 ;;
-;; `jsonrpc-connect' returns a connection upon connection.  This value
-;; should be saved to be later given to `jsonrpc-notify',
-;; `jsonrpc-reply', `jsonrpc-request' and `jsonrpc-async-request' as a
-;; way of contacting the connected remote endpoint.
+;; Whatever the method used to obtain a `jsonrpc-connection', it is
+;; given to `jsonrpc-notify', `jsonrpc-request' and
+;; `jsonrpc-async-request' as a way of contacting the connected remote
+;; endpoint.
 ;;
-;; `jsonrpc-connect' is also passed a dispatcher function for handling
-;; handling the contacts asynchronously initiated by the remote
-;; endpoint's, as well as a optional function for cleaning up after
-;; the tear-down of the JSONRPC connection.
+;; For handling remotely initiated contacts, `jsonrpc-connection'
+;; objects hold dispatcher functions that the application should pass
+;; to object's constructor if it is interested in those messages.
 ;;
 ;; The JSON objects are passed to the dispatcher after being read by
-;; `json-read' of Emacs's json.el library.  They are read as plists,
-;; and, likewise, json.el-compatible plists should be given to
-;; `jsonrpc-notify', `jsonrpc-request', etc...
+;; `jsonrpc--json-read', which may use either the longstanding json.el
+;; library or a newer and faster json.c library if it is available.
 ;;
-;; To facilitate handling of key-value plists, this library make
-;; liberal use of cl-lib.el and suggests (but doesn't force) its
-;; clients to do the same.  A macro `jsonrpc-lambda' can be used to
-;; create a lambda for destructuring a JSON-object like in this
-;; example:
+;; JSON objects are exchanged as plists: plists are handed to the
+;; dispatcher functions and, likewise, plists should be given to
+;; `jsonrpc-notify', `jsonrpc-request' and `jsonrpc-async-request'.
+;;
+;; To facilitate handling plists, this library make liberal use of
+;; cl-lib.el and suggests (but doesn't force) its clients to do the
+;; same.  A macro `jsonrpc-lambda' can be used to create a lambda for
+;; destructuring a JSON-object like in this example:
 ;;
 ;;  (jsonrpc-async-request
 ;;   myproc :frobnicate `(:foo "trix")
@@ -83,47 +82,6 @@
 ;;   :error-fn (jsonrpc-lambda (&key code message _data)
 ;;               (message "Sadly, server reports %s: %s"
 ;;                        code message)))
-;;
-;;;; Usage example:
-;;
-;; Finally, here's an example Emacs JSONRPC server that offers a (very
-;; small) subset of Elisp for remote calling:
-;;
-;; (defvar server-server) (defvar server-endpoint)
-;; (defvar server-allowed-functions '(+ - * / vconcat append sit-for))
-;;
-;; (setq server-server
-;;       (make-network-process
-;;        :name "Emacs RPC server" :server t :host "localhost" :service 44444
-;;        :log (lambda (_server client _message)
-;;               (jsonrpc-connect
-;;                (process-name client)
-;;                (make-instance 'jsonrpc-process-connection :process client)
-;;                (lambda (endpoint method id params)
-;;                  (unless (memq method '(+ - * / vconcat append sit-for))
-;;                    (signal 'jsonrpc-error `((jsonrpc-error-message
-;;                                              . "Sorry, this isn't allowed")
-;;                                             (jsonrpc-error-code . -32601))))
-;;                  (jsonrpc-reply endpoint id :result
-;;                                 (apply method (append params nil))))))))
-;;
-;; (setq server-endpoint (jsonrpc-connect
-;;                        "Emacs RPC client" '("localhost" 9393)
-;;                        (lambda (endpoint method id &rest params)
-;;                          (message "server wants to %s" method))))
-;;
-;; ;; returns 3
-;; (jsonrpc-request server-endpoint '+ '(1 2))
-;; ;; errors with -32601
-;; (jsonrpc-request server-endpoint 'delete-directory "~/tmp")
-;; ;; signals an -32603 JSONRPC error
-;; (jsonrpc-request server-endpoint '+ '(a 2))
-;; ;; times out
-;; (jsonrpc-request server-endpoint 'sit-for '(5))
-;; ;; stretching it, but works
-;; (jsonrpc-request server-endpoint 'vconcat '([1 2 3] [3 4 5]))
-;; ;; json.el can't serialize this, json.el errors and request isn't sent
-;; (jsonrpc-request server-endpoint 'append '((1 2 3) (3 4 5)))
 ;;
 ;;; Code:
 
@@ -175,13 +133,22 @@ FORMAT as the message."
                      (apply #'format format args)
                      :warning)))
 
+;;;###autoload
 (defclass jsonrpc-connection ()
   ((name
     :accessor jsonrpc-name
+    :initarg :name
     :documentation "A name for the connection")
-   (-dispatcher
-    :accessor jsonrpc--dispatcher
-    :documentation "Emacs-lisp function for server-invoked methods.")
+   (-request-dispatcher
+    :accessor jsonrpc--request-dispatcher
+    :initform #'ignore
+    :initarg :request-dispatcher
+    :documentation "Dispatcher for remotely invoked requests.")
+   (-notification-dispatcher
+    :accessor jsonrpc--notification-dispatcher
+    :initform #'ignore
+    :initarg :notification-dispatcher
+    :documentation "Dispatcher for remotely invoked notifications.")
    (status
     :initform `(:unknown nil) :accessor jsonrpc-status
     :documentation "Status (WHAT SERIOUS-P) as declared by the server.")
@@ -189,18 +156,9 @@ FORMAT as the message."
     :initform (make-hash-table)
     :accessor jsonrpc--request-continuations
     :documentation "A hash table of request ID to continuation lambdas.")
-   (-server-request-ids
-    :accessor jsonrpc--server-request-ids
-    :documentation "Server-initiated request ids that client hasn't replied to.")
    (-events-buffer
     :accessor jsonrpc--events-buffer
     :documentation "A buffer pretty-printing the JSON-RPC RPC events")
-   (contact
-    :accessor jsonrpc-contact
-    :documentation "Method used to contact a server.")
-   (-on-shutdown
-    :accessor jsonrpc--on-shutdown
-    :documentation "Function run when JSONRPC server is dying.")
    (-deferred-actions
     :initform (make-hash-table :test #'equal)
     :accessor jsonrpc--deferred-actions
@@ -210,16 +168,65 @@ than TIMER as ID.")
    (-next-request-id
     :initform 0
     :accessor jsonrpc--next-request-id
-    :documentation "Next number used for a request")))
+    :documentation "Next number used for a request"))
+  :documentation "Base class representing a JSONRPC connection.
+The following initargs are accepted:
 
+:NAME (mandatory), a string naming the connection
+
+:REQUEST-DISPATCHER (optional), a function of three
+arguments (CONN METHOD PARAMS) for handling JSONRPC requests.
+CONN is a `jsonrpc-connection' object, method is a symbol, and
+PARAMS is a plist representing a JSON object.  The function is
+expected to call `jsonrpc-reply' or signal an error of type
+`jsonrpc-error'.
+
+:NOTIFICATION-DISPATCHER (optional), a function of three
+arguments (CONN METHOD PARAMS) for handling JSONRPC
+notifications.  CONN, METHOD and PARAMS are the same as in
+:REQUEST-DISPATCHER.")
+
+;;;###autoload
 (defclass jsonrpc-process-connection (jsonrpc-connection)
   ((-process
     :initarg :process :accessor jsonrpc--process
-    ;; :initform (error "`:process' is a required initarg") ; doesn't work
     :documentation "Process object wrapped by the this connection.")
    (-expected-bytes
     :accessor jsonrpc--expected-bytes
-    :documentation "How many bytes declared by server")))
+    :documentation "How many bytes declared by server")
+   (-on-shutdown
+    :accessor jsonrpc--on-shutdown
+    :initform #'ignore
+    :initarg :on-shutdown
+    :documentation "Function run when the process dies."))
+  :documentation "A JSONRPC connection over an Emacs process.
+The following initargs are accepted:
+
+:PROCESS (mandatory), a live running Emacs process object or a
+function of no arguments producing one such object.  The process
+represents either a pipe connection to locally running process or
+a stream connection to a network host.  The remote endpoint is
+expected to understand JSONRPC messages with basic HTTP-style
+enveloping headers such as \"Content-Length:\".
+
+:ON-SHUTDOWN (optional), a function of one argument, the
+connection object, called when the process dies .")
+
+(cl-defmethod initialize-instance ((conn jsonrpc-process-connection) slots)
+  (cl-call-next-method)
+  (let* ((proc (plist-get slots :process))
+         (proc (if (functionp proc) (funcall proc) proc))
+         (buffer (get-buffer-create (format "*%s output*" (process-name proc))))
+         (stderr (get-buffer-create (format "*%s stderr*" (process-name proc)))))
+    (setf (jsonrpc--process conn) proc)
+    (set-process-buffer proc buffer)
+    (process-put proc 'jsonrpc-stderr stderr)
+    (set-process-filter proc #'jsonrpc--process-filter)
+    (set-process-sentinel proc #'jsonrpc--process-sentinel)
+    (with-current-buffer (process-buffer proc)
+      (set-marker (process-mark proc) (point-min))
+      (let ((inhibit-read-only t)) (erase-buffer) (read-only-mode t) proc))
+    (process-put proc 'jsonrpc-connection conn)))
 
 (defmacro jsonrpc-obj (&rest what)
   "Make WHAT a suitable argument for `json-encode'."
@@ -228,96 +235,26 @@ than TIMER as ID.")
   ;; the indenting of literal plists, i.e. is basically `list'
   `(list ,@what))
 
-;;;###autoload
-(cl-defun jsonrpc-connect (name contact dispatcher &optional on-shutdown)
-  "Connect to JSONRPC endpoint NAME through CONTACT.
+(defun jsonrpc--json-read ()
+  "Read JSON object in buffer, move point to end of buffer."
+  ;; TODO: I guess we can make these macros if/when jsonrpc.el
+  ;; goes into Emacs core.
+  (cond ((fboundp 'json-parse-buffer) (json-parse-buffer
+                                       :object-type 'plist
+                                       :null-object nil
+                                       :false-object :json-false))
+        (t                            (let ((json-object-type 'plist))
+                                        (json-read)))))
 
-This function creates an object (subprocess or network
-connection) wrapped in a `jsonrpc-process-connection' object.
-
-NAME is a string naming the connection.
-
-In the most common case CONTACT is a list of strings (COMMAND
-ARGS...) specifying how to locally start a server subprocess to
-talk to via JSONRPC.  If the second element in the list is an
-integer number instead of a string, the list is interpreted
-as (HOST PORT PARAMETERS...) and an attempt is made to contact
-HOST on PORT, with the remaining PARAMETERS are given to
-`open-network-stream's optional arguments.
-
-Moreover, if in either of these cases the first element in the
-list is a symbol, that symbol is taken to name a subclass of
-`jsonrpc-process-connection' which is used to create the object
-returned by this function. The remaining arguments are processed
-as described in the previous paragraph.
-
-CONTACT can also be a an object of the type
-`jsonrpc-process-connection' (or a subclass thereof) containing a
-pre-connected process object. In that case the processes buffer,
-filter and sentinel are henceforth overwritten and managed by
-`jsonrpc-connect'.
-
-ON-SHUTDOWN, if non-nil, is a function called on server exit and
-passed the moribund connection object as a single argument.
-
-DISPATCHER specifies how the server-invoked methods find their
-Elisp counterpart. It is a function passed (PROC METHOD ID PARAMS
-as arguments. PROC is the connection object returned by this
-function. ID is the server identifier for a server request, or
-nil for a server notification. METHOD is a symbol. PARAMS
-contains the method parameters as JSON data.
-
-If ID is non-nil, DISPATCHER is expected to reply to the
-request. If it doesn't, or if it signals an error before doing
-so, jsonrpc.el will automatically reply with an error. If DISPATCHER
-signals an error with alist elements `jsonrpc-error-message' and
-`jsonrpc-error-code' in its DATA, the corresponding elements are
-used for the automated error reply.
-
-If successful, `jsonrpc-connect' returns a
-`jsonrpc-process-connection' object representing the remote
-endpoint."
-  (let* ((readable-name (format "JSON-RPC server (%s)" name))
-         (buffer (get-buffer-create (format "*%s output*" readable-name)))
-         (stderr)
-         (original-contact contact)
-         (connection
-          (cond
-           ((cl-typep contact 'jsonrpc-process-connection)
-            (unless (process-live-p (jsonrpc--process contact))
-              (error "%s doesn't have a live process" contact))
-            contact)
-           ((listp contact)
-            (make-instance
-             (if (symbolp (car contact))
-                 (prog1 (car contact) (setq contact (cdr contact)))
-               'jsonrpc-process-connection)
-             :process
-             (cond ((integerp (cadr contact))
-                    (apply #'open-network-stream readable-name buffer contact))
-                   (t
-                    (make-process :name readable-name
-                                  :command contact
-                                  :connection-type 'pipe
-                                  :coding 'no-conversion
-                                  :stderr (setq stderr
-                                                (get-buffer-create
-                                                 (format "*%s stderr*" name))))))))))
-         (proc (jsonrpc--process connection)))
-    (set-process-buffer proc buffer)
-    (process-put proc 'jsonrpc-stderr stderr)
-    (set-marker (process-mark proc) (with-current-buffer buffer (point-min)))
-    (set-process-filter proc #'jsonrpc--process-filter)
-    (set-process-sentinel proc #'jsonrpc--process-sentinel)
-    (with-current-buffer buffer
-      (let ((inhibit-read-only t)) (erase-buffer) (read-only-mode t) proc))
-    (process-put proc 'jsonrpc-connection connection)
-    (setf (jsonrpc--process connection) proc
-          (jsonrpc-contact connection) original-contact
-          (jsonrpc-name connection) name
-          (jsonrpc--dispatcher connection) dispatcher
-          (jsonrpc--on-shutdown connection) (or on-shutdown #'ignore))
-    connection))
+(defun jsonrpc--json-encode (object)
+  "Encode OBJECT into a JSON string."
+  (cond ((fboundp 'json-serialize) (json-serialize
+                                    object
+                                    :false-object :json-false
+                                    :null-object nil))
+        (t                         (let ((json-false :json-false)
+                                         (json-null nil))
+                                     (json-encode object)))))
 
 (defun jsonrpc--process-sentinel (proc change)
   "Called when PROC undergoes CHANGE."
@@ -387,10 +324,9 @@ endpoint."
                         (unwind-protect
                             (save-restriction
                               (narrow-to-region (point) message-end)
-                              (let* ((json-object-type 'plist)
-                                     (json-message
+                              (let* ((json-message
                                       (condition-case-unless-debug oops
-                                          (json-read)
+                                          (jsonrpc--json-read)
                                         (error
                                          (jsonrpc-warn "Invalid JSON: %s %s"
                                                        (cdr oops) (buffer-string))
@@ -464,56 +400,71 @@ originated."
             (setq msg (propertize msg 'face 'error)))
           (insert-before-markers msg))))))
 
+(defvar jsonrpc--unanswered-request-id)
+
 (defun jsonrpc--connection-receive (connection message)
   "Connection MESSAGE from CONNECTION."
-  (pcase-let ((`(,method ,id ,error ,params ,result)
+  (cl-destructuring-bind
+      (&key method id error params result _jsonrpc)
+      message
+    (pcase-let* ((continuations)
+                 (lisp-err)
+                 (jsonrpc--unanswered-request-id id))
+      (jsonrpc-log-event connection message 'server)
+      (when error (setf (jsonrpc-status connection) `(,error t)))
+      (cond (method
+             (let ((debug-on-error
+                    (and debug-on-error
+                         (not (ert-running-test)))))
                (condition-case-unless-debug oops
-                   (cl-destructuring-bind
-                       (&rest args &key method id error params result _jsonrpc)
-                       message (list method id error params result))
-                 (error (jsonrpc-warn "Invalid JSONRPC message %s: %s" message
-                                      (cdr oops))
-                        nil)))
-              (continuations)
-              (lisp-err))
-    (jsonrpc-log-event connection message 'server)
-    (when error (setf (jsonrpc-status connection) `(,error t)))
-    (cond (method
-           (let ((debug-on-error
-                  (and debug-on-error
-                       (not (ert-running-test)))))
-             (condition-case-unless-debug oops
-                 (funcall (jsonrpc--dispatcher connection)
-                          connection (intern method) id params)
-               (error (setq lisp-err oops))))
-           (unless (or (member id (jsonrpc--server-request-ids connection))
-                       (not (or id lisp-err)))
-             (jsonrpc-reply
-              connection id
-              :error (jsonrpc-obj
-                      :code (or (alist-get 'jsonrpc-error-code (cdr lisp-err))
-                                -32603)
-                      :message (or (alist-get 'jsonrpc-error-message
-                                              (cdr lisp-err))
-                                   "Internal error"))))
-           (setf (jsonrpc--server-request-ids connection)
-                 (delete id (jsonrpc--server-request-ids connection))))
-          ((setq continuations
-                 (and id (gethash id (jsonrpc--request-continuations connection))))
-           (let ((timer (nth 2 continuations)))
-             (when timer (cancel-timer timer)))
-           (remhash id (jsonrpc--request-continuations connection))
-           (if error (funcall (nth 1 continuations) error)
-             (funcall (nth 0 continuations) result)))
-          (id
-           (jsonrpc-warn "No continuation for id %s" id)))
-    (jsonrpc--call-deferred connection)))
+                   (funcall (if id
+                                (jsonrpc--request-dispatcher connection)
+                              (jsonrpc--notification-dispatcher connection))
+                            connection (intern method) params)
+                 (error
+                  (setq lisp-err oops))))
+             (unless (or (not jsonrpc--unanswered-request-id)
+                         (not lisp-err))
+               (jsonrpc-reply
+                connection
+                :error (jsonrpc-obj
+                        :code (or (alist-get 'jsonrpc-error-code (cdr lisp-err))
+                                  -32603)
+                        :message (or (alist-get 'jsonrpc-error-message
+                                                (cdr lisp-err))
+                                     "Internal error")))))
+            ((setq continuations
+                   (and id (gethash id (jsonrpc--request-continuations connection))))
+             (let ((timer (nth 2 continuations)))
+               (when timer (cancel-timer timer)))
+             (remhash id (jsonrpc--request-continuations connection))
+             (if error (funcall (nth 1 continuations) error)
+               (funcall (nth 0 continuations) result)))
+            (id
+             (jsonrpc-warn "No continuation for id %s" id)))
+      (jsonrpc--call-deferred connection))))
 
 (cl-defmethod jsonrpc-connection-send ((connection jsonrpc-process-connection)
-                                       message)
+                                       &rest args
+                                       &key
+                                       id
+                                       method
+                                       params
+                                       result
+                                       error)
   "Send MESSAGE, a JSON object, to CONNECTION."
-  (let ((json-object-type 'plist)
-        (json (json-encode message)))
+  (let* ((method
+          (cond ((keywordp method)
+                 (substring (symbol-name method) 1))
+                ((and method (symbolp method)) (symbol-name method))
+                (t method)))
+         (message `(:jsonrpc "2.0"
+                             ,@(when method `(:method ,method))
+                             ,@(when id     `(:id     ,id))
+                             ,@(when params `(:params ,params))
+                             ,@(when result `(:result ,result))
+                             ,@(when error  `(:error  ,error))))
+         (json (jsonrpc--json-encode message)))
     (process-send-string (jsonrpc--process connection)
                          (format "Content-Length: %d\r\n\r\n%s"
                                  (string-bytes json)
@@ -632,10 +583,10 @@ TIMEOUT is nil)."
         (cl-return-from jsonrpc--async-request-1 (list id timer))))
     ;; Really send it
     ;;
-    (jsonrpc-connection-send connection (jsonrpc-obj :jsonrpc "2.0"
-                                                     :id id
-                                                     :method method
-                                                     :params params))
+    (jsonrpc-connection-send connection
+                             :id id
+                             :method method
+                             :params params)
     (puthash id
              (list (or success-fn
                        (jsonrpc-lambda (&rest _ignored)
@@ -695,20 +646,20 @@ DEFERRED is passed to `jsonrpc-async-request', which see."
 
 (cl-defun jsonrpc-notify (connection method params)
   "Notify CONNECTION of something, don't expect a reply.e"
-  (jsonrpc-connection-send connection (jsonrpc-obj :jsonrpc  "2.0"
-                                                   :method method
-                                                   :params params)))
+  (jsonrpc-connection-send connection
+                           :method method
+                           :params params))
 
-(cl-defun jsonrpc-reply (connection id &key (result nil result-supplied-p) error)
+(cl-defun jsonrpc-reply (connection &key (result nil result-supplied-p) error)
   "Reply to CONNECTION's request ID with RESULT or ERROR."
-  (unless id (jsonrpc-error "Need a non-nil ID"))
   (unless (xor result-supplied-p error)
     (jsonrpc-error "Can't pass both RESULT and ERROR!"))
-  (push id (jsonrpc--server-request-ids connection))
   (jsonrpc-connection-send
-   connection `(:jsonrpc  "2.0" :id ,id
-                          ,@(when result `(:result ,result))
-                          ,@(when error `(:error ,error)))))
+   connection
+   :id jsonrpc--unanswered-request-id
+   :result result
+   :error error)
+  (setq jsonrpc--unanswered-request-id nil))
 
 (provide 'jsonrpc)
 ;;; jsonrpc.el ends here
