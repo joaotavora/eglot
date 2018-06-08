@@ -80,17 +80,9 @@
              (when ,server
                (kill-buffer (jsonrpc--events-buffer ,server))))
          (unwind-protect
-             (cl-loop do (delete-process (jsonrpc--process ,endpoint-sym))
-                      while (progn (accept-process-output nil 0.1)
-                                   (not (jsonrpc--shutdown-complete-p ,endpoint-sym)))
-                      do (jsonrpc-message
-                          "test client is still running, waiting"))
+             (jsonrpc-shutdown ,endpoint-sym)
            (unwind-protect
-               (cl-loop do (delete-process (jsonrpc--process ,server))
-                        while (progn (accept-process-output nil 0.1)
-                                     (not (jsonrpc--shutdown-complete-p ,server)))
-                        do (jsonrpc-message
-                            "test server is still running, waiting"))
+               (jsonrpc-shutdown ,server)
              (cl-loop do (delete-process ,listen-server)
                       while (progn (accept-process-output nil 0.1)
                                    (process-live-p ,listen-server))

@@ -51,6 +51,8 @@
 ;; using this transport scheme on top of JSONRPC, see for example the
 ;; Language Server Protocol
 ;; (https://microsoft.github.io/language-server-protocol/specification).
+;; `jsonrpc-process-connection' also implements `jsonrpc-shutdown',
+;; `jsonrpc-running-p'.
 ;;
 ;; Whatever the method used to obtain a `jsonrpc-connection', it is
 ;; given to `jsonrpc-notify', `jsonrpc-request' and
@@ -276,6 +278,7 @@ connection object, called when the process dies .")
                        (funcall error `(:code -1 :message "Server died"))))
                    (jsonrpc--request-continuations connection))
         (jsonrpc-message "Server exited with status %s" (process-exit-status proc))
+        (process-put proc 'jsonrpc-sentinel-done t)
         (delete-process proc)
         (funcall (jsonrpc--on-shutdown connection) connection)))))
 
@@ -470,6 +473,25 @@ originated."
                                  (string-bytes json)
                                  json))
     (jsonrpc-log-event connection message 'client)))
+
+(cl-defmethod jsonrpc-process-type ((conn jsonrpc-process-connection))
+  "Return the process-type of JSONRPC connection CONN"
+  (let ((proc (jsonrpc--process conn))) (and (process-live-p proc) proc)))
+
+(cl-defmethod jsonrpc-running-p ((conn jsonrpc-process-connection))
+  "Return non-nil if JSONRPC connection CONN is running."
+  (process-live-p (jsonrpc--process conn)))
+
+(cl-defmethod jsonrpc-shutdown ((conn jsonrpc-process-connection))
+  "Shutdown the JSONRPC connection CONN."
+  (cl-loop
+   with proc = (jsonrpc--process conn)
+   do
+   (delete-process proc)
+   (accept-process-output nil 0.1)
+   while (not (process-get proc 'jsonrpc-sentinel-done))
+   do (jsonrpc-warn
+       "Sentinel for %s still hasn't run,  deleting it!" proc)))
 
 (defun jsonrpc-forget-pending-continuations (connection)
   "Stop waiting for responses from the current JSONRPC CONNECTION."
