@@ -3,6 +3,7 @@
 # Variables
 #
 EMACS=emacs
+SELECTOR=t
 
 LOAD_PATH=-L .
 
@@ -20,15 +21,17 @@ compile: $(ELCFILES)
 
 # Automated tests
 #
-check: compile jsonrpc-check
+eglot-check: compile 
 	$(EMACS) -Q --batch $(LOAD_PATH)				\
 		-l eglot-tests						\
-		-f ert-run-tests-batch-and-exit				\
+		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
 
 jsonrpc-check: jsonrpc.elc jsonrpc-tests.elc
 	$(EMACS) -Q --batch $(LOAD_PATH)				\
 		-l jsonrpc-tests					\
-		-f ert-run-tests-batch-and-exit				\
+		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
+
+check: eglot-check jsonrpc-check
 
 # Cleanup
 #
