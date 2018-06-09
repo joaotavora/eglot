@@ -61,7 +61,10 @@
 ;;
 ;; For handling remotely initiated contacts, `jsonrpc-connection'
 ;; objects hold dispatcher functions that the application should pass
-;; to object's constructor if it is interested in those messages.
+;; to object's constructor if it is interested in those messages.  The
+;; request dispatcher's return value determines the success response
+;; to forward to the server.  Alternatively, if the function signals
+;; an error, a suitable error response is forwarded instead.
 ;;
 ;; The JSON objects are passed to the dispatcher after being read by
 ;; `jsonrpc--json-read', which may use either the longstanding json.el
@@ -110,13 +113,30 @@
 
 (define-error 'jsonrpc-error "jsonrpc-error")
 
-(defun jsonrpc-error (format &rest args)
+(defun jsonrpc-error (&rest args)
   "Error out with FORMAT and ARGS.
 If invoked inside a dispatcher function, this function is suitable
-for replying to the remote endpoint with a -32603 error code and
-FORMAT as the message."
-  (signal 'error
-          (list (apply #'format-message (concat "[jsonrpc] " format) args))))
+for replying to the remote endpoint with an error message.
+
+ARGS can be of the form (FORMAT-STRING . MOREARGS) for replying
+with a -32603 error code and a message formed by formatting
+FORMAT-STRING with MOREARGS.
+
+Alternatively ARGS can be plist representing a JSONRPC error
+object, using the keywords `:code', `:message' and `:data'."
+  (if (stringp (car args))
+      (let ((msg
+             (apply #'format-message (car args) (cdr args))))
+        (signal 'jsonrpc-error
+                `(,msg
+                  (jsonrpc-error-code . ,32603)
+                  (jsonrpc-error-message . ,msg))))
+    (cl-destructuring-bind (&key code message data) args
+      (signal 'jsonrpc-error
+              `(,(format "[jsonrpc] error ")
+                (jsonrpc-error-code . ,code)
+                (jsonrpc-error-message . ,message)
+                (jsonrpc-error-data . ,data))))))
 
 (defun jsonrpc-message (format &rest args)
   "Message out with FORMAT with ARGS."
@@ -180,8 +200,8 @@ The following initargs are accepted:
 arguments (CONN METHOD PARAMS) for handling JSONRPC requests.
 CONN is a `jsonrpc-connection' object, method is a symbol, and
 PARAMS is a plist representing a JSON object.  The function is
-expected to call `jsonrpc-reply' or signal an error of type
-`jsonrpc-error'.
+expected to return a JSONRPC result, a plist of (:result
+RESULT) or signal an error of type `jsonrpc-error'.
 
 :NOTIFICATION-DISPATCHER (optional), a function of three
 arguments (CONN METHOD PARAMS) for handling JSONRPC
@@ -403,48 +423,46 @@ originated."
             (setq msg (propertize msg 'face 'error)))
           (insert-before-markers msg))))))
 
-(defvar jsonrpc--unanswered-request-id)
-
 (defun jsonrpc--connection-receive (connection message)
   "Connection MESSAGE from CONNECTION."
-  (cl-destructuring-bind
-      (&key method id error params result _jsonrpc)
+  (cl-destructuring-bind (&key method id error params result _jsonrpc)
       message
-    (pcase-let* ((continuations)
-                 (lisp-err)
-                 (jsonrpc--unanswered-request-id id))
+    (let (continuations)
       (jsonrpc-log-event connection message 'server)
       (when error (setf (jsonrpc-status connection) `(,error t)))
-      (cond (method
-             (let ((debug-on-error
-                    (and debug-on-error
-                         (not (ert-running-test)))))
-               (condition-case-unless-debug oops
-                   (funcall (if id
-                                (jsonrpc--request-dispatcher connection)
-                              (jsonrpc--notification-dispatcher connection))
-                            connection (intern method) params)
-                 (error
-                  (setq lisp-err oops))))
-             (unless (or (not jsonrpc--unanswered-request-id)
-                         (not lisp-err))
-               (jsonrpc-reply
-                connection
-                :error (jsonrpc-obj
-                        :code (or (alist-get 'jsonrpc-error-code (cdr lisp-err))
-                                  -32603)
-                        :message (or (alist-get 'jsonrpc-error-message
-                                                (cdr lisp-err))
-                                     "Internal error")))))
-            ((setq continuations
-                   (and id (gethash id (jsonrpc--request-continuations connection))))
-             (let ((timer (nth 2 continuations)))
-               (when timer (cancel-timer timer)))
-             (remhash id (jsonrpc--request-continuations connection))
-             (if error (funcall (nth 1 continuations) error)
-               (funcall (nth 0 continuations) result)))
-            (id
-             (jsonrpc-warn "No continuation for id %s" id)))
+      (cond
+       (;; A remote request
+        (and method id)
+        (let* ((debug-on-error (and debug-on-error (not (ert-running-test))))
+               (reply
+                (condition-case-unless-debug _ignore
+                    (condition-case oops
+                        `(:result ,(funcall (jsonrpc--request-dispatcher connection)
+                                            connection (intern method) params))
+                      (jsonrpc-error
+                       `(:error
+                         (:code
+                          ,(or (alist-get 'jsonrpc-error-code (cdr oops)) -32603)
+                          :message ,(or (alist-get 'jsonrpc-error-message
+                                                   (cdr oops))
+                                        "Internal error")))))
+                  (error
+                   `(:error (:code -32603 :message "Internal error"))))))
+          (apply #'jsonrpc--reply connection id reply)))
+       (;; A remote notification
+        method
+        (funcall (jsonrpc--notification-dispatcher connection)
+                 connection (intern method) params))
+       (;; A remote response
+        (setq continuations
+              (and id (gethash id (jsonrpc--request-continuations connection))))
+        (let ((timer (nth 2 continuations)))
+          (when timer (cancel-timer timer)))
+        (remhash id (jsonrpc--request-continuations connection))
+        (if error (funcall (nth 1 continuations) error)
+          (funcall (nth 0 continuations) result)))
+       (;; An abnormal situation
+        id (jsonrpc-warn "No continuation for id %s" id)))
       (jsonrpc--call-deferred connection))))
 
 (cl-defmethod jsonrpc-connection-send ((connection jsonrpc-process-connection)
@@ -630,7 +648,8 @@ Like `jsonrpc-async-request' for CONNECTION, METHOD and PARAMS, but
 synchronous, i.e. doesn't exit until anything
 interesting (success, error or timeout) happens.  Furthermore,
 only exit locally (and return the JSONRPC result object) if the
-request is successful, otherwise exit non-locally with an error.
+request is successful, otherwise exit non-locally with an error
+of type `jsonrpc-error'.
 
 DEFERRED is passed to `jsonrpc-async-request', which see."
   (let* ((tag (cl-gensym "jsonrpc-request-catch-tag")) id-and-timer
@@ -672,16 +691,9 @@ DEFERRED is passed to `jsonrpc-async-request', which see."
                            :method method
                            :params params))
 
-(cl-defun jsonrpc-reply (connection &key (result nil result-supplied-p) error)
+(cl-defun jsonrpc--reply (connection id &key (result nil result-supplied-p) error)
   "Reply to CONNECTION's request ID with RESULT or ERROR."
-  (unless (xor result-supplied-p error)
-    (jsonrpc-error "Can't pass both RESULT and ERROR!"))
-  (jsonrpc-connection-send
-   connection
-   :id jsonrpc--unanswered-request-id
-   :result result
-   :error error)
-  (setq jsonrpc--unanswered-request-id nil))
+  (jsonrpc-connection-send connection :id id :result result :error error))
 
 (provide 'jsonrpc)
 ;;; jsonrpc.el ends here

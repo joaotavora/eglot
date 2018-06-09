@@ -51,15 +51,14 @@
                             :name (process-name client)
                             :process client
                             :request-dispatcher
-                            (lambda (endpoint method params)
+                            (lambda (_endpoint method params)
                               (unless (memq method '(+ - * / vconcat append
                                                        sit-for ignore))
                                 (signal 'jsonrpc-error
                                         `((jsonrpc-error-message
                                            . "Sorry, this isn't allowed")
                                           (jsonrpc-error-code . -32601))))
-                              (let ((result (apply method (append params nil))))
-                                (jsonrpc-reply endpoint :result result)))
+                              (apply method (append params nil)))
                             :on-shutdown
                             (lambda (conn)
                               (setf (jsonrpc--shutdown-complete-p conn) t)))))))
