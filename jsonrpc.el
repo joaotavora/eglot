@@ -238,13 +238,6 @@ connection object, called when the process dies .")
       (let ((inhibit-read-only t)) (erase-buffer) (read-only-mode t) proc))
     (process-put proc 'jsonrpc-connection conn)))
 
-(defmacro jsonrpc-obj (&rest what)
-  "Make WHAT a suitable argument for `json-encode'."
-  (declare (debug (&rest form)))
-  ;; FIXME: maybe later actually do something, for now this just fixes
-  ;; the indenting of literal plists, i.e. is basically `list'
-  `(list ,@what))
-
 (defun jsonrpc--json-read ()
   "Read JSON object in buffer, move point to end of buffer."
   ;; TODO: I guess we can make these macros if/when jsonrpc.el
@@ -608,12 +601,12 @@ TIMEOUT is nil)."
              (list (or success-fn
                        (jsonrpc-lambda (&rest _ignored)
                          (jsonrpc--debug
-                          connection (jsonrpc-obj :message "success ignored"
-                                                  :id id))))
+                          connection (list :message "success ignored"
+                                           :id id))))
                    (or error-fn
                        (jsonrpc-lambda (&key code message &allow-other-keys)
                          (jsonrpc--debug
-                          connection (jsonrpc-obj
+                          connection (list
                                       :message
                                       (format "error ignored, status set (%s)"
                                               message)
