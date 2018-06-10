@@ -171,9 +171,9 @@ object, using the keywords `:code', `:message' and `:data'."
     :initform #'ignore
     :initarg :notification-dispatcher
     :documentation "Dispatcher for remotely invoked notifications.")
-   (status
-    :initform `(:unknown nil) :accessor jsonrpc-status
-    :documentation "Status (WHAT SERIOUS-P) as declared by the server.")
+   (last-error
+    :accessor jsonrpc-last-error
+    :documentation "Last JSONRPC error message received from endpoint.")
    (-request-continuations
     :initform (make-hash-table)
     :accessor jsonrpc--request-continuations
@@ -429,7 +429,7 @@ originated."
       message
     (let (continuations)
       (jsonrpc-log-event connection message 'server)
-      (when error (setf (jsonrpc-status connection) `(,error t)))
+      (setf (jsonrpc-last-error connection) error)
       (cond
        (;; A remote request
         (and method id)
@@ -515,11 +515,6 @@ originated."
   "Stop waiting for responses from the current JSONRPC CONNECTION."
   (interactive (list (jsonrpc-current-connection-or-lose)))
   (clrhash (jsonrpc--request-continuations connection)))
-
-(defun jsonrpc-clear-status (connection)
-  "Clear most recent error message from CONNECTION."
-  (interactive (list (jsonrpc-current-connection-or-lose)))
-  (setf (jsonrpc-status connection) nil))
 
 (defun jsonrpc--call-deferred (connection)
   "Call CONNECTION's deferred actions, who may again defer themselves."
@@ -631,13 +626,16 @@ TIMEOUT is nil)."
              (list (or success-fn
                        (jsonrpc-lambda (&rest _ignored)
                          (jsonrpc--debug
-                          connection (jsonrpc-obj :message "success ignored" :id id))))
+                          connection (jsonrpc-obj :message "success ignored"
+                                                  :id id))))
                    (or error-fn
                        (jsonrpc-lambda (&key code message &allow-other-keys)
-                         (setf (jsonrpc-status connection) `(,message t))
                          (jsonrpc--debug
-                          connection (jsonrpc-obj :message "error ignored, status set"
-                                                  :id id :error code))))
+                          connection (jsonrpc-obj
+                                      :message
+                                      (format "error ignored, status set (%s)"
+                                              message)
+                                      :id id :error code))))
                    (setq timer (funcall make-timer)))
              (jsonrpc--request-continuations connection))
     (list id timer)))
