@@ -22,7 +22,7 @@
 
 ;;; Commentary:
 
-;; Originally extracted from eglot.el (Emacs LSP client)
+;; (Library originally extracted from eglot.el, an Emacs LSP client)
 ;;
 ;; This library implements the JSONRPC 2.0 specification as described
 ;; in http://www.jsonrpc.org/.  As the name suggests, JSONRPC is a
@@ -33,46 +33,59 @@
 ;; concepts can be used within the same process, over sockets, over
 ;; http, or in many various message passing environments."
 ;;
-;; To approach this agnosticism, jsonrpc.el uses objects derived from
-;; a base `jsonrpc-connection' class, which is "abstract" or "virtual"
+;; To model this agnosticism, jsonrpc.el uses objects derived from a
+;; base `jsonrpc-connection' class, which is "abstract" or "virtual"
 ;; (in modern OO parlance) and represents the connection to the remote
-;; JSON endpoint.  Equally abstract operations such as sending and
-;; receiving are modelled as generic functions, so JSONRPC
-;; applications operating over arbitrary transport infrastructures can
-;; specify a subclass of `jsonrpc-connection' and write specific
-;; methods for it.
+;; JSON endpoint.  We can define two interfaces:
 ;;
-;; The `jsonrpc-connection' constructor is the most generic entry
-;; point for these uses.  However, for convenience, jsonrpc.el comes
-;; built-in with `jsonrpc-process-connection' class for talking to
-;; local subprocesses (through stdin/stdout) and TCP hosts using
-;; sockets.  This uses some basic HTTP-style enveloping headers for
-;; JSON objects sent over the wire.  For an example of an application
-;; using this transport scheme on top of JSONRPC, see for example the
-;; Language Server Protocol
+;; 1) A user interface to the JSONRPC _application_, whereby the
+;; application uses the `jsonrpc-connection' object to communicate
+;; with the remote JSONRPC enpoint.
+;;
+;; Ignorant of how the object was obtained, the JSONRPC application
+;; passes this object to `jsonrpc-notify', `jsonrpc-request' and
+;; `jsonrpc-async-request' as a way of contacting the remote endpoint.
+;; Similarly, for handling remotely initiated contacts, applications
+;; should initialize these objects with `:request-dispatcher' and
+;; `:notification-dispatcher' initargs which are two functions
+;; receiving the connection object, a symbol naming the JSONRPC
+;; method, and a JSONRPC "params" object.
+;;
+;; The request dispatcher's local return value determines the success
+;; response to forward to the server.  The function can use
+;; `jsonrpc-error' to exit non-locally and send an error response is
+;; forwarded instead.  A suitable error reponse is also sent if the
+;; function error unexpectedly with any other error.
+;;
+;; 2) A inheritance-based interface for building arbitrary JSONPRPC
+;; _transport implementations_.
+;;
+;; For initiating contacts to the endpoint and replying to it, a
+;; subclass of `jsonrpc-connection' must implement
+;; `jsonrpc-connection-send'.  Likewise, for handling remotely
+;; initiated contacts, it must arrange for the dispatcher functions
+;; held in `jsonrpc--request-dispatcher' and
+;; `jsonrpc--notification-dispatcher' to be called when appropriate,
+;; i.e. when noticing a new JSONRPC message on the wire.  Optionally
+;; it should implement `jsonrpc-shutdown' and `jsonrpc-running-p'.
+;;
+;; For convenience, jsonrpc.el comes built-in with
+;; `jsonrpc-process-connection' subclass for talking to local
+;; subprocesses (through stdin/stdout) and TCP hosts using sockets.
+;; This uses some basic HTTP-style enveloping headers for JSON objects
+;; sent over the wire.  For an example of an application using this
+;; transport scheme on top of JSONRPC, see for example the Language
+;; Server Protocol
 ;; (https://microsoft.github.io/language-server-protocol/specification).
 ;; `jsonrpc-process-connection' also implements `jsonrpc-shutdown',
 ;; `jsonrpc-running-p'.
 ;;
-;; Whatever the method used to obtain a `jsonrpc-connection', it is
+;;;; JSON object format:
+;;
+;; JSON objects are exchanged as keyword-value plists: plists are
+;; handed to the dispatcher functions and, likewise, plists should be
 ;; given to `jsonrpc-notify', `jsonrpc-request' and
-;; `jsonrpc-async-request' as a way of contacting the connected remote
-;; endpoint.
-;;
-;; For handling remotely initiated contacts, `jsonrpc-connection'
-;; objects hold dispatcher functions that the application should pass
-;; to object's constructor if it is interested in those messages.  The
-;; request dispatcher's return value determines the success response
-;; to forward to the server.  Alternatively, if the function signals
-;; an error, a suitable error response is forwarded instead.
-;;
-;; The JSON objects are passed to the dispatcher after being read by
-;; `jsonrpc--json-read', which may use either the longstanding json.el
-;; library or a newer and faster json.c library if it is available.
-;;
-;; JSON objects are exchanged as plists: plists are handed to the
-;; dispatcher functions and, likewise, plists should be given to
-;; `jsonrpc-notify', `jsonrpc-request' and `jsonrpc-async-request'.
+;; `jsonrpc-async-request'.
 ;;
 ;; To facilitate handling plists, this library make liberal use of
 ;; cl-lib.el and suggests (but doesn't force) its clients to do the
@@ -405,7 +418,7 @@ connection object, called when the process dies .")
        "Sentinel for %s still hasn't run,  deleting it!" proc)))
 
 (defun jsonrpc-stderr-buffer (conn)
-  "Get CONNECTION's stderr buffer, if any."
+  "Get CONN's stderr buffer, if any."
   (process-get (jsonrpc--process conn) 'jsonrpc-stderr))
 
 
