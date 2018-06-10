@@ -124,7 +124,7 @@
                                client-notifications
                                client-replies))
            (advice-add
-            #'jsonrpc-log-event :before
+            #'jsonrpc--log-event :before
             (lambda (_proc message &optional type)
               (cl-destructuring-bind (&key method id _error &allow-other-keys)
                   message
@@ -148,7 +148,7 @@
                                       `(push message ,client-replies)))))))))
             '((name . ,log-event-ad-sym)))
            ,@body)
-       (advice-remove #'jsonrpc-log-event ',log-event-ad-sym))))
+       (advice-remove #'jsonrpc--log-event ',log-event-ad-sym))))
 
 (cl-defmacro eglot--wait-for ((events-sym &optional (timeout 1) message) args &body body)
   "Spin until FN match in EVENTS-SYM, flush events after it.

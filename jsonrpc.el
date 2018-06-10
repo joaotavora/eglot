@@ -266,7 +266,7 @@ connection object, called when the process dies .")
                          (format "Content-Length: %d\r\n\r\n%s"
                                  (string-bytes json)
                                  json))
-    (jsonrpc-log-event connection message 'client)))
+    (jsonrpc--log-event connection message 'client)))
 
 (cl-defmethod jsonrpc-process-type ((conn jsonrpc-process-connection))
   "Return the process-type of JSONRPC connection CONN"
@@ -520,7 +520,7 @@ DEFERRED is passed to `jsonrpc-async-request', which see."
   (cl-destructuring-bind (&key method id error params result _jsonrpc)
       message
     (let (continuations)
-      (jsonrpc-log-event connection message 'server)
+      (jsonrpc--log-event connection message 'server)
       (setf (jsonrpc-last-error connection) error)
       (cond
        (;; A remote request
@@ -636,7 +636,7 @@ TIMEOUT is nil)."
 
 (defun jsonrpc--debug (server format &rest args)
   "Debug message for SERVER with FORMAT and ARGS."
-  (jsonrpc-log-event
+  (jsonrpc--log-event
    server (if (stringp format)`(:message ,(format format args)) format)))
 
 (defun jsonrpc--warn (format &rest args)
@@ -647,7 +647,7 @@ TIMEOUT is nil)."
                      (apply #'format format args)
                      :warning)))
 
-(defun jsonrpc-log-event (connection message &optional type)
+(defun jsonrpc--log-event (connection message &optional type)
   "Log an jsonrpc-related event.
 CONNECTION is the current connection.  MESSAGE is a JSON-like
 plist.  TYPE is a symbol saying if this is a client or server
