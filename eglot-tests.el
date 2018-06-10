@@ -181,6 +181,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (define-derived-mode rust-mode prog-mode "Rust"))
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
+(defun eglot--tests-connect ()
+  (apply #'eglot--connect (eglot--guess-contact)))
+
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
   (skip-unless (executable-find "rls"))
@@ -192,7 +195,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (eglot--with-timeout 2
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
-          (should (setq server (apply #'eglot (eglot--interactive))))
+          (should (setq server (eglot--tests-connect)))
           (should (eglot--current-server)))
         (with-current-buffer
             (eglot--find-file-noselect "project/merdix.rs")
@@ -212,7 +215,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (eglot--with-timeout 3
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
-          (should (setq server (apply #'eglot (eglot--interactive))))
+          (should (setq server (eglot--tests-connect)))
           ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
           ;; should have a automatic reconnection.
           (run-with-timer 1.2 nil (lambda () (delete-process
@@ -244,7 +247,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
                             :client-notifications c-notifs
                             :client-replies c-replies
                             )
-            (should (apply #'eglot (eglot--interactive)))
+            (should (eglot--tests-connect))
             (let (register-id)
               (eglot--wait-for (s-requests 1)
                   (&key id method &allow-other-keys)
@@ -274,7 +277,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (eglot--find-file-noselect "diag-project/main.rs")
         (should (zerop (shell-command "cargo init")))
         (eglot--sniffing (:server-notifications s-notifs)
-          (apply #'eglot (eglot--interactive))
+          (eglot--tests-connect)
           (eglot--wait-for (s-notifs 1)
               (&key _id method &allow-other-keys)
             (string= method 'textDocument/publishDiagnostics))
@@ -304,7 +307,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
                           :client-replies c-replies
                           :client-requests c-reqs
                           )
-          (apply #'eglot (eglot--interactive))
+          (eglot--tests-connect)
           (goto-char (point-min))
           (search-forward "return te")
           (insert "st")
@@ -342,7 +345,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
                           :client-replies c-replies
                           :client-requests c-reqs
                           )
-          (apply #'eglot (eglot--interactive))
+          (eglot--tests-connect)
           (goto-char (point-min)) (search-forward "return te")
           (eglot-rename "bla")
           (should (equal (buffer-string) "fn test() -> i32 { let bla=3; return bla; }")))))))
@@ -355,7 +358,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (eglot--with-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
-        (should (apply #'eglot (eglot--interactive)))
+        (should (eglot--tests-connect))
         (goto-char (point-max))
         (completion-at-point)
         (should (looking-back "sys.exit"))))))
@@ -368,7 +371,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (eglot--with-timeout 4
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
-        (should (apply #'eglot (eglot--interactive)))
+        (should (eglot--tests-connect))
         (goto-char (point-max))
         (setq eldoc-last-message nil)
         (completion-at-point)
