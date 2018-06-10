@@ -126,7 +126,7 @@ object, using the keywords `:code', `:message' and `:data'."
                 (jsonrpc-error-message . ,message)
                 (jsonrpc-error-data . ,data))))))
 
-(defun jsonrpc-message (format &rest args)
+(defun jsonrpc--message (format &rest args)
   "Message out with FORMAT with ARGS."
   (message "[jsonrpc] %s" (apply #'format format args)))
 
@@ -135,9 +135,9 @@ object, using the keywords `:code', `:message' and `:data'."
   (jsonrpc-log-event
    server (if (stringp format)`(:message ,(format format args)) format)))
 
-(defun jsonrpc-warn (format &rest args)
+(defun jsonrpc--warn (format &rest args)
   "Warning message with FORMAT and ARGS."
-  (apply #'jsonrpc-message (concat "(warning) " format) args)
+  (apply #'jsonrpc--message (concat "(warning) " format) args)
   (let ((warning-minimum-level :error))
     (display-warning 'jsonrpc
                      (apply #'format format args)
@@ -278,7 +278,7 @@ connection object, called when the process dies .")
                      (pcase-let ((`(,_success ,error ,_timeout) triplet))
                        (funcall error `(:code -1 :message "Server died"))))
                    (jsonrpc--request-continuations connection))
-        (jsonrpc-message "Server exited with status %s" (process-exit-status proc))
+        (jsonrpc--message "Server exited with status %s" (process-exit-status proc))
         (process-put proc 'jsonrpc-sentinel-done t)
         (delete-process proc)
         (funcall (jsonrpc--on-shutdown connection) connection)))))
@@ -332,8 +332,8 @@ connection object, called when the process dies .")
                                       (condition-case-unless-debug oops
                                           (jsonrpc--json-read)
                                         (error
-                                         (jsonrpc-warn "Invalid JSON: %s %s"
-                                                       (cdr oops) (buffer-string))
+                                         (jsonrpc--warn "Invalid JSON: %s %s"
+                                                        (cdr oops) (buffer-string))
                                          nil))))
                                 (when json-message
                                   ;; Process content in another
@@ -438,7 +438,7 @@ originated."
         (if error (funcall (nth 1 continuations) error)
           (funcall (nth 0 continuations) result)))
        (;; An abnormal situation
-        id (jsonrpc-warn "No continuation for id %s" id)))
+        id (jsonrpc--warn "No continuation for id %s" id)))
       (jsonrpc--call-deferred connection))))
 
 (cl-defmethod jsonrpc-connection-send ((connection jsonrpc-process-connection)
@@ -484,7 +484,7 @@ originated."
    (delete-process proc)
    (accept-process-output nil 0.1)
    while (not (process-get proc 'jsonrpc-sentinel-done))
-   do (jsonrpc-warn
+   do (jsonrpc--warn
        "Sentinel for %s still hasn't run,  deleting it!" proc)))
 
 (defun jsonrpc-forget-pending-continuations (connection)
