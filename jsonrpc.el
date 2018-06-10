@@ -36,7 +36,7 @@
 ;; To model this agnosticism, jsonrpc.el uses objects derived from a
 ;; base `jsonrpc-connection' class, which is "abstract" or "virtual"
 ;; (in modern OO parlance) and represents the connection to the remote
-;; JSON endpoint.  We can define two interfaces:
+;; JSON endpoint.  Around thsi calss can define two interfaces:
 ;;
 ;; 1) A user interface to the JSONRPC _application_, whereby the
 ;; application uses the `jsonrpc-connection' object to communicate
@@ -57,25 +57,26 @@
 ;; forwarded instead.  A suitable error reponse is also sent if the
 ;; function error unexpectedly with any other error.
 ;;
-;; 2) A inheritance-based interface for building arbitrary JSONPRPC
-;; _transport implementations_.
+;; 2) A inheritance-based interface to the JSONPRPC _transport
+;; implementations_, whereby `jsonrpc-connection' is subclassed.
 ;;
-;; For initiating contacts to the endpoint and replying to it, a
-;; subclass of `jsonrpc-connection' must implement
+;; For initiating contacts to the endpoint and replying to it, that
+;; subclass `jsonrpc-connection' must implement
 ;; `jsonrpc-connection-send'.  Likewise, for handling remotely
 ;; initiated contacts, it must arrange for the dispatcher functions
 ;; held in `jsonrpc--request-dispatcher' and
 ;; `jsonrpc--notification-dispatcher' to be called when appropriate,
 ;; i.e. when noticing a new JSONRPC message on the wire.  Optionally
-;; it should implement `jsonrpc-shutdown' and `jsonrpc-running-p'.
+;; it should implement `jsonrpc-shutdown' and `jsonrpc-running-p' if
+;; these concepts apply to the transport.
 ;;
-;; For convenience, jsonrpc.el comes built-in with
+;; For convenience, jsonrpc.el comes built-in with a
 ;; `jsonrpc-process-connection' subclass for talking to local
 ;; subprocesses (through stdin/stdout) and TCP hosts using sockets.
 ;; This uses some basic HTTP-style enveloping headers for JSON objects
 ;; sent over the wire.  For an example of an application using this
-;; transport scheme on top of JSONRPC, see for example the Language
-;; Server Protocol
+;; transport scheme on top of JSONRPC, see the Language Server
+;; Protocol
 ;; (https://microsoft.github.io/language-server-protocol/specification).
 ;; `jsonrpc-process-connection' also implements `jsonrpc-shutdown',
 ;; `jsonrpc-running-p'.
@@ -170,7 +171,8 @@ notifications.  CONN, METHOD and PARAMS are the same as in
 
 ;;; API mandatory
 (cl-defgeneric jsonrpc-connection-send (conn &key id method params result error)
-  "Send a JSONRPC message to connection CONN.")
+  "Send a JSONRPC message to connection CONN.
+ID, METHOD, PARAMS, RESULT and ERROR. ")
 
 ;;; API optional
 (cl-defgeneric jsonrpc-shutdown (conn)
@@ -391,11 +393,15 @@ connection object, called when the process dies .")
                              ,@(when params `(:params ,params))
                              ,@(when result `(:result ,result))
                              ,@(when error  `(:error  ,error))))
-         (json (jsonrpc--json-encode message)))
-    (process-send-string (jsonrpc--process connection)
-                         (format "Content-Length: %d\r\n\r\n%s"
-                                 (string-bytes json)
-                                 json))
+         (json (jsonrpc--json-encode message))
+         (headers
+          `(("Content-Length" . ,(string-bytes json))
+            ("Content-Type" . "application/vscode-jsonrpc; charset=utf-8"))))
+    (process-send-string
+     (jsonrpc--process connection)
+     (cl-loop for (header . value) in headers
+              concat (concat header ": " value "\r\n") into header-section
+              finally return (format "%s\r\n%s" header-section json)))
     (jsonrpc--log-event connection message 'client)))
 
 (defun jsonrpc-process-type (conn)
