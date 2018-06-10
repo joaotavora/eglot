@@ -193,14 +193,14 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (with-current-buffer
             (eglot--find-file-noselect "project/coiso.rs")
           (should (setq server (apply #'eglot (eglot--interactive))))
-          (should (jsonrpc-current-connection)))
+          (should (eglot--current-server)))
         (with-current-buffer
             (eglot--find-file-noselect "project/merdix.rs")
-          (should (jsonrpc-current-connection))
-          (should (eq (jsonrpc-current-connection) server)))
+          (should (eglot--current-server))
+          (should (eq (eglot--current-server) server)))
         (with-current-buffer
             (eglot--find-file-noselect "anotherproject/cena.rs")
-          (should-error (jsonrpc-current-connection-or-lose)))))))
+          (should-error (eglot--current-server-or-lose)))))))
 
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
@@ -218,13 +218,13 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (run-with-timer 1.2 nil (lambda () (delete-process
                                               (jsonrpc--process server))))
           (while (jsonrpc-running-p server) (accept-process-output nil 0.5))
-          (should (jsonrpc-current-connection))
+          (should (eglot--current-server))
           ;; Now try again too quickly
-          (setq server (jsonrpc-current-connection))
+          (setq server (eglot--current-server))
           (let ((proc (jsonrpc--process server)))
             (run-with-timer 0.5 nil (lambda () (delete-process proc)))
             (while (process-live-p proc) (accept-process-output nil 0.5)))
-          (should (not (jsonrpc-current-connection))))))))
+          (should (not (eglot--current-server))))))))
 
 (ert-deftest rls-watches-files ()
   "Start RLS server.  Notify it when a critical file changes."

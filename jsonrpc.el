@@ -99,18 +99,6 @@
 (require 'ert) ; to escape a `condition-case-unless-debug'
 (require 'array) ; xor
 
-(defvar jsonrpc-find-connection-functions nil
-  "Special hook to find an active JSON-RPC connection.")
-
-(defun jsonrpc-current-connection ()
-  "The current logical JSON-RPC connection."
-  (run-hook-with-args-until-success 'jsonrpc-find-connection-functions))
-
-(defun jsonrpc-current-connection-or-lose ()
-  "Return the current JSON-RPC connection or error."
-  (or (jsonrpc-current-connection)
-      (jsonrpc-error "No current JSON-RPC connection")))
-
 (define-error 'jsonrpc-error "jsonrpc-error")
 
 (defun jsonrpc-error (&rest args)
@@ -372,10 +360,8 @@ connection object, called when the process dies .")
           ;;
           (setf (jsonrpc--expected-bytes connection) expected-bytes))))))
 
-(defun jsonrpc-events-buffer (connection &optional interactive)
-  "Display events buffer for current JSONRPC connection CONNECTION.
-INTERACTIVE is t if called interactively."
-  (interactive (list (jsonrpc-current-connection-or-lose) t))
+(defun jsonrpc-events-buffer (connection)
+  "Get or create JSONRPC events buffer for CONNECTION."
   (let* ((probe (jsonrpc--events-buffer connection))
          (buffer (or (and (buffer-live-p probe)
                           probe)
@@ -387,14 +373,11 @@ INTERACTIVE is t if called interactively."
                          (read-only-mode t)
                          (setf (jsonrpc--events-buffer connection) buffer))
                        buffer))))
-    (when interactive (display-buffer buffer))
     buffer))
 
 (defun jsonrpc-stderr-buffer (connection)
-  "Pop to stderr of CONNECTION, if it exists, else error."
-  (interactive (list (jsonrpc-current-connection-or-lose)))
-  (if-let ((b (process-get (jsonrpc--process connection) 'jsonrpc-stderr)))
-      (pop-to-buffer b) (user-error "[eglot] No stderr buffer!")))
+  "Get CONNECTION's stderr buffer, if any."
+  (process-get (jsonrpc--process connection) 'jsonrpc-stderr))
 
 (defun jsonrpc-log-event (connection message &optional type)
   "Log an jsonrpc-related event.
@@ -513,7 +496,6 @@ originated."
 
 (defun jsonrpc-forget-pending-continuations (connection)
   "Stop waiting for responses from the current JSONRPC CONNECTION."
-  (interactive (list (jsonrpc-current-connection-or-lose)))
   (clrhash (jsonrpc--request-continuations connection)))
 
 (defun jsonrpc--call-deferred (connection)
