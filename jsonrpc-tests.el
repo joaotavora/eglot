@@ -59,7 +59,7 @@ CLIENT and PARTIALS."
    (lambda (conn)
      (setf (jsonrpc--shutdown-complete-p conn) t))))
 
-(cl-defmacro jsonrpc--with-emacsrpc-fixture ((endpoint-sym &optional partial-responses)
+(cl-defmacro jsonrpc--with-emacsrpc-fixture ((endpoint-sym &key partial-responses)
                                              &body body)
   (declare (indent 1) (debug (sexp &rest form)))
   (let ((server (gensym "server-")) (listen-server (gensym "listen-server-")))
@@ -211,26 +211,30 @@ CLIENT and PARTIALS."
 
 (ert-deftest partial-replies ()
   "Test some basic partial replies."
-  (jsonrpc--with-emacsrpc-fixture (conn '(1 2 3))
+  (jsonrpc--with-emacsrpc-fixture (conn :partial-responses '(1 2 3))
     (should-error
-     (= 4 (jsonrpc-request conn '+ [2 2])))
+     (= 42 (jsonrpc-request conn '+ [40 2])))
     (should
-     (= 4 (jsonrpc-request conn '+ [2 2] :jsonrpc "2.0-EMACS")))
+     (= 42 (jsonrpc-request conn '+ [40 2] :jsonrpc "2.0-EMACS")))
     (should
-     (= 4 (jsonrpc-request conn '+ [2 2] :jsonrpc "2.0-EMACS" :timeout 2)))
+     (let ((counter 0))
+       (= 42 (jsonrpc-request
+              conn '+ [40 2]
+              :jsonrpc "2.0-EMACS"
+              :partial-handler (lambda (partial)
+                                 (should (= (cl-incf counter) partial)))))))
     (catch 'done
       (let ((counter 0))
-        (jsonrpc-async-request conn '+ [2 2] :jsonrpc "2.0-EMACS"
+        (jsonrpc-async-request conn '+ [40 2] :jsonrpc "2.0-EMACS"
                                :success-fn
                                (lambda (result &optional partial)
                                  (when result
                                    (should (null partial))
-                                   (should (eq result 4))
+                                   (should (= result 42))
                                    (throw 'done nil))
                                  (when partial
                                    (should (null result))
-                                   (should (= (cl-incf counter)
-                                              (plist-get partial :progress))))))
+                                   (should (= (cl-incf counter) partial)))))
         (while (jsonrpc-running-p conn) (accept-process-output nil 3))))))
 
 (provide 'jsonrpc-tests)
