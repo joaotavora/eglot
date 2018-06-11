@@ -439,7 +439,8 @@ connection object, called when the process dies .")
           (json (jsonrpc--json-encode message))
           (headers
            `(("Content-Length" . ,(format "%d" (string-bytes json)))
-             ("Content-Type" . "application/vscode-jsonrpc; charset=utf-8"))))
+             ;; ("Content-Type" . "application/vscode-jsonrpc; charset=utf-8")
+             )))
     (process-send-string
      (jsonrpc--process connection)
      (cl-loop for (header . value) in headers
