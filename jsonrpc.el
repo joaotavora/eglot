@@ -66,7 +66,8 @@
 ;; initiated contacts, it must arrange for the dispatcher functions
 ;; held in `jsonrpc--request-dispatcher' and
 ;; `jsonrpc--notification-dispatcher' to be called when appropriate,
-;; i.e. when noticing a new JSONRPC message on the wire.  Optionally
+;; i.e. when noticing a new JSONRPC message on the wire.  The function
+;; `jsonrpc-connection-receive' is a good way to do that.  Optionally
 ;; it should implement `jsonrpc-shutdown' and `jsonrpc-running-p' if
 ;; these concepts apply to the transport.
 ;;
@@ -217,6 +218,50 @@ for sending requests immediately."
 (defun jsonrpc-forget-pending-continuations (connection)
   "Stop waiting for responses from the current JSONRPC CONNECTION."
   (clrhash (jsonrpc--request-continuations connection)))
+
+(defun jsonrpc-connection-receive (connection message)
+  "Process MESSAGE just received from CONNECTION.
+This function will destructure MESSAGE and call the appropriate
+dispatcher in CONNECTION."
+  (cl-destructuring-bind (&key method id error params result _jsonrpc)
+      message
+    (let (continuations)
+      (jsonrpc--log-event connection message 'server)
+      (setf (jsonrpc-last-error connection) error)
+      (cond
+       (;; A remote request
+        (and method id)
+        (let* ((debug-on-error (and debug-on-error (not (ert-running-test))))
+               (reply
+                (condition-case-unless-debug _ignore
+                    (condition-case oops
+                        `(:result ,(funcall (jsonrpc--request-dispatcher connection)
+                                            connection (intern method) params))
+                      (jsonrpc-error
+                       `(:error
+                         (:code
+                          ,(or (alist-get 'jsonrpc-error-code (cdr oops)) -32603)
+                          :message ,(or (alist-get 'jsonrpc-error-message
+                                                   (cdr oops))
+                                        "Internal error")))))
+                  (error
+                   `(:error (:code -32603 :message "Internal error"))))))
+          (apply #'jsonrpc--reply connection id reply)))
+       (;; A remote notification
+        method
+        (funcall (jsonrpc--notification-dispatcher connection)
+                 connection (intern method) params))
+       (;; A remote response
+        (setq continuations
+              (and id (gethash id (jsonrpc--request-continuations connection))))
+        (let ((timer (nth 2 continuations)))
+          (when timer (cancel-timer timer)))
+        (remhash id (jsonrpc--request-continuations connection))
+        (if error (funcall (nth 1 continuations) error)
+          (funcall (nth 0 continuations) result)))
+       (;; An abnormal situation
+        id (jsonrpc--warn "No continuation for id %s" id)))
+      (jsonrpc--call-deferred connection))))
 
 
 ;;; Contacting the remote endpoint
@@ -544,8 +589,8 @@ connection object, called when the process dies .")
                                   ;; buffer, shielding proc buffer from
                                   ;; tamper
                                   (with-temp-buffer
-                                    (jsonrpc--connection-receive connection
-                                                                 json-message)))))
+                                    (jsonrpc-connection-receive connection
+                                                                json-message)))))
                           (goto-char message-end)
                           (delete-region (point-min) (point))
                           (setq expected-bytes nil))))
@@ -556,48 +601,6 @@ connection object, called when the process dies .")
           ;; Saved parsing state for next visit to this filter
           ;;
           (setf (jsonrpc--expected-bytes connection) expected-bytes))))))
-
-(defun jsonrpc--connection-receive (connection message)
-  "Connection MESSAGE from CONNECTION."
-  (cl-destructuring-bind (&key method id error params result _jsonrpc)
-      message
-    (let (continuations)
-      (jsonrpc--log-event connection message 'server)
-      (setf (jsonrpc-last-error connection) error)
-      (cond
-       (;; A remote request
-        (and method id)
-        (let* ((debug-on-error (and debug-on-error (not (ert-running-test))))
-               (reply
-                (condition-case-unless-debug _ignore
-                    (condition-case oops
-                        `(:result ,(funcall (jsonrpc--request-dispatcher connection)
-                                            connection (intern method) params))
-                      (jsonrpc-error
-                       `(:error
-                         (:code
-                          ,(or (alist-get 'jsonrpc-error-code (cdr oops)) -32603)
-                          :message ,(or (alist-get 'jsonrpc-error-message
-                                                   (cdr oops))
-                                        "Internal error")))))
-                  (error
-                   `(:error (:code -32603 :message "Internal error"))))))
-          (apply #'jsonrpc--reply connection id reply)))
-       (;; A remote notification
-        method
-        (funcall (jsonrpc--notification-dispatcher connection)
-                 connection (intern method) params))
-       (;; A remote response
-        (setq continuations
-              (and id (gethash id (jsonrpc--request-continuations connection))))
-        (let ((timer (nth 2 continuations)))
-          (when timer (cancel-timer timer)))
-        (remhash id (jsonrpc--request-continuations connection))
-        (if error (funcall (nth 1 continuations) error)
-          (funcall (nth 0 continuations) result)))
-       (;; An abnormal situation
-        id (jsonrpc--warn "No continuation for id %s" id)))
-      (jsonrpc--call-deferred connection))))
 
 (cl-defun jsonrpc--async-request-1 (connection
                                     method
