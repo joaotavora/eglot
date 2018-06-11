@@ -184,12 +184,12 @@ ID, METHOD, PARAMS, RESULT and ERROR. ")
 
 ;;; API optional
 (cl-defgeneric jsonrpc-connection-ready-p (connection what)
-"Tell if CONNECTION is ready for WHAT in current buffer.
+  "Tell if CONNECTION is ready for WHAT in current buffer.
 If it isn't, a deferrable `jsonrpc-async-request' will be
 deferred to the future.  By default, all connections are ready
 for sending requests immediately."
-(:method (_s _what)   ;; by default all connections are ready
-         t))
+  (:method (_s _what)   ;; by default all connections are ready
+           t))
 
 
 ;;; Convenience
@@ -395,7 +395,7 @@ connection object, called when the process dies .")
                              ,@(when error  `(:error  ,error))))
          (json (jsonrpc--json-encode message))
          (headers
-          `(("Content-Length" . ,(string-bytes json))
+          `(("Content-Length" . ,(format "%d" (string-bytes json)))
             ("Content-Type" . "application/vscode-jsonrpc; charset=utf-8"))))
     (process-send-string
      (jsonrpc--process connection)
