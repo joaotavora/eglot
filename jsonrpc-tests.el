@@ -36,32 +36,41 @@
 (defclass jsonrpc--test-client (jsonrpc--test-endpoint)
   ((hold-deferred :initform t :accessor jsonrpc--hold-deferred)))
 
-(cl-defmacro jsonrpc--with-emacsrpc-fixture ((endpoint-sym) &body body)
-  (declare (indent 1) (debug t))
+(defun jsonrpc--test-accept (_server client _message &optional partials)
+  "Helper for `jsonrpc--with-emacsrpc-fixture'.
+CLIENT and PARTIALS."
+  (make-instance
+   'jsonrpc--test-endpoint
+   :name (process-name client)
+   :process client
+   :request-dispatcher
+   (lambda (endpoint method params)
+     (unless (memq method '(+ - * / vconcat append
+                              sit-for ignore))
+       (signal 'jsonrpc-error
+               `((jsonrpc-error-message
+                  . "Sorry, this isn't allowed")
+                 (jsonrpc-error-code . -32601))))
+     (cl-loop
+      for partial in partials
+      do (jsonrpc-partial-reply endpoint partial))
+     (apply method (append params nil)))
+   :on-shutdown
+   (lambda (conn)
+     (setf (jsonrpc--shutdown-complete-p conn) t))))
+
+(cl-defmacro jsonrpc--with-emacsrpc-fixture ((endpoint-sym &optional partial-responses)
+                                             &body body)
+  (declare (indent 1) (debug (sexp &rest form)))
   (let ((server (gensym "server-")) (listen-server (gensym "listen-server-")))
     `(let* (,server
             (,listen-server
              (make-network-process
               :name "Emacs RPC server" :server t :host "localhost"
               :service 44444
-              :log (lambda (_server client _message)
-                     (setq ,server
-                           (make-instance
-                            'jsonrpc--test-endpoint
-                            :name (process-name client)
-                            :process client
-                            :request-dispatcher
-                            (lambda (_endpoint method params)
-                              (unless (memq method '(+ - * / vconcat append
-                                                       sit-for ignore))
-                                (signal 'jsonrpc-error
-                                        `((jsonrpc-error-message
-                                           . "Sorry, this isn't allowed")
-                                          (jsonrpc-error-code . -32601))))
-                              (apply method (append params nil)))
-                            :on-shutdown
-                            (lambda (conn)
-                              (setf (jsonrpc--shutdown-complete-p conn) t)))))))
+              :log (lambda (server client message)
+                     (setq ,server (jsonrpc--test-accept server client message
+                                                         ,partial-responses)))))
             (,endpoint-sym (make-instance
                             'jsonrpc--test-client
                             "Emacs RPC client"
@@ -199,6 +208,30 @@
     (should
      (= 3 (jsonrpc-request conn '+ [1 2]
                            :timeout 0.5)))))
+
+(ert-deftest partial-replies ()
+  "Test some basic partial replies."
+  (jsonrpc--with-emacsrpc-fixture (conn '(1 2 3))
+    (should-error
+     (= 4 (jsonrpc-request conn '+ [2 2])))
+    (should
+     (= 4 (jsonrpc-request conn '+ [2 2] :jsonrpc "2.0-EMACS")))
+    (should
+     (= 4 (jsonrpc-request conn '+ [2 2] :jsonrpc "2.0-EMACS" :timeout 2)))
+    (catch 'done
+      (let ((counter 0))
+        (jsonrpc-async-request conn '+ [2 2] :jsonrpc "2.0-EMACS"
+                               :success-fn
+                               (lambda (result &optional partial)
+                                 (when result
+                                   (should (null partial))
+                                   (should (eq result 4))
+                                   (throw 'done nil))
+                                 (when partial
+                                   (should (null result))
+                                   (should (= (cl-incf counter)
+                                              (plist-get partial :progress))))))
+        (while (jsonrpc-running-p conn) (accept-process-output nil 3))))))
 
 (provide 'jsonrpc-tests)
 ;;; jsonrpc-tests.el ends here

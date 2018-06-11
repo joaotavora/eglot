@@ -174,9 +174,10 @@ notifications.  CONN, METHOD and PARAMS are the same as in
 :REQUEST-DISPATCHER.")
 
 ;;; API mandatory
-(cl-defgeneric jsonrpc-connection-send (conn &key id method params result error)
+(cl-defgeneric jsonrpc-connection-send (conn &key id method params result
+                                             partial error)
   "Send a JSONRPC message to connection CONN.
-ID, METHOD, PARAMS, RESULT and ERROR. ")
+ID, METHOD, PARAMS, RESULT, PARTIAL and ERROR. ")
 
 ;;; API optional
 (cl-defgeneric jsonrpc-shutdown (conn)
@@ -222,12 +223,34 @@ for sending requests immediately."
   "Stop waiting for responses from the current JSONRPC CONNECTION."
   (clrhash (jsonrpc--request-continuations connection)))
 
+(defvar jsonrpc--request-id)
+(defvar jsonrpc--jsonrpc-version)
+
+(defun jsonrpc-partial-reply (conn partial)
+  "Send a PARTIAL reply to CONN."
+  (unless (string-equal jsonrpc--jsonrpc-version "2.0-EMACS")
+    (error "Sending :partial is only supported in JSONRPC V2.0-EMACS"))
+  (jsonrpc-connection-send conn
+                           :id jsonrpc--request-id
+                           :jsonrpc jsonrpc--jsonrpc-version
+                           :partial partial))
+
 (defun jsonrpc-connection-receive (connection message)
   "Process MESSAGE just received from CONNECTION.
 This function will destructure MESSAGE and call the appropriate
 dispatcher in CONNECTION."
-  (cl-destructuring-bind (&key method id error params result _jsonrpc)
+  (cl-destructuring-bind (&key method id
+                               params
+                               (error nil error-provided-p)
+                               (result nil result-provided-p)
+                               (partial nil partial-provided-p)
+                               jsonrpc)
       message
+    (when (and partial-provided-p
+               (not (string-suffix-p "2.0-EMACS" jsonrpc t)))
+      (error "`:partial' is only supported in JSONRPC V2.0-EMACS"))
+    (when (and result-provided-p partial-provided-p)
+      (error "`:partial' and `:result' are not allowed simultaneously"))
     (let (continuations)
       (jsonrpc--log-event connection message 'server)
       (setf (jsonrpc-last-error connection) error)
@@ -235,6 +258,8 @@ dispatcher in CONNECTION."
        (;; A remote request
         (and method id)
         (let* ((debug-on-error (and debug-on-error (not (ert-running-test))))
+               (jsonrpc--request-id id)
+               (jsonrpc--jsonrpc-version jsonrpc)
                (reply
                 (condition-case-unless-debug _ignore
                     (condition-case oops
@@ -249,7 +274,7 @@ dispatcher in CONNECTION."
                                         "Internal error")))))
                   (error
                    `(:error (:code -32603 :message "Internal error"))))))
-          (apply #'jsonrpc--reply connection id reply)))
+          (apply #'jsonrpc--reply connection id :jsonrpc jsonrpc reply)))
        (;; A remote notification
         method
         (funcall (jsonrpc--notification-dispatcher connection)
@@ -258,10 +283,14 @@ dispatcher in CONNECTION."
         (setq continuations
               (and id (gethash id (jsonrpc--request-continuations connection))))
         (let ((timer (nth 2 continuations)))
-          (when timer (cancel-timer timer)))
-        (remhash id (jsonrpc--request-continuations connection))
-        (if error (funcall (nth 1 continuations) error)
-          (funcall (nth 0 continuations) result)))
+          (when timer (cancel-timer timer))
+          (remhash id (jsonrpc--request-continuations connection))
+          (cond (error-provided-p (funcall (nth 1 continuations) error))
+                (partial-provided-p
+                 (funcall (nth 0 continuations) nil partial)
+                 (puthash id continuations (jsonrpc--request-continuations connection))
+                 (when timer (timer-activate timer)))
+                (t (funcall (nth 0 continuations) result)))))
        (;; An abnormal situation
         id (jsonrpc--warn "No continuation for id %s" id)))
       (jsonrpc--call-deferred connection))))
@@ -298,19 +327,37 @@ object, using the keywords `:code', `:message' and `:data'."
                                  method
                                  params
                                  &rest args
-                                 &key _success-fn _error-fn
+                                 &key
+                                 _success-fn
+                                 _error-fn
                                  _timeout-fn
-                                 _timeout _deferred)
-  "Make a request to CONNECTION, expecting a reply, return immediately.
+                                 _timeout
+                                 _deferred
+                                 (_jsonrpc "2.0"))
+  "Make a request to CONNECTION, expecting a response, return immediately.
 The JSONRPC request is formed by METHOD, a symbol, and PARAMS a
 JSON object.
 
-The caller can expect SUCCESS-FN or ERROR-FN to be called with a
-JSONRPC `:result' or `:error' object, respectively.  If this
-doesn't happen after TIMEOUT seconds (defaults to
-`jsonrpc-request-timeout'), the caller can expect TIMEOUT-FN to be
-called with no arguments. The default values of SUCCESS-FN,
-ERROR-FN and TIMEOUT-FN simply log the events into
+The caller can expect either SUCCESS-FN, ERROR-FN or TIMEOUT-FN
+to be called sometime after this function returns.
+
+SUCCESS-FN is called with at least one argument and at most two
+arguments.  In the former case, the most common, the argument is
+the `:result' object.  The latter case can only occur if using
+the string `2.0-EMACS' for the JSONRPC version parameter and the
+remote endpoint sends a partial response to the request.  In that
+situation the first argument will be nil and the second is the
+`:partial' object.  This may happen an arbitrary number of times.
+Note that in this case SUCCESS-FN will still be called at least
+one more time with a single argument, the final `:result' object.
+
+If ERROR-FN is called, it is passed a single argument, the
+`:error' object.
+
+If none of these things happen within TIMEOUT seconds (defaults
+to `jsonrpc-request-timeout'), the caller can expect TIMEOUT-FN
+to be called with no arguments.  The default values of
+SUCCESS-FN, ERROR-FN and TIMEOUT-FN simply log the events into
 `jsonrpc-events-buffer'.
 
 If DEFERRED is non-nil, maybe defer the request to a future time
@@ -320,11 +367,20 @@ never be sent at all, in case it is overridden in the meantime by
 a new request with identical DEFERRED and for the same buffer.
 However, in that situation, the original timeout is kept.
 
+JSONRPC is the version of that protocol that this request
+pertains to.  It default to the string `2.0'.
+
 Returns nil."
   (apply #'jsonrpc--async-request-1 connection method params args)
   nil)
 
-(cl-defun jsonrpc-request (connection method params &key deferred timeout)
+(cl-defun jsonrpc-request (connection
+                           method params
+                           &key
+                           deferred
+                           timeout
+                           (jsonrpc "2.0")
+                           (partial-handler #'ignore))
   "Make a request to CONNECTION, wait for a reply.
 Like `jsonrpc-async-request' for CONNECTION, METHOD and PARAMS, but
 synchronous, i.e. doesn't exit until anything
@@ -333,7 +389,17 @@ only exit locally (and return the JSONRPC result object) if the
 request is successful, otherwise exit non-locally with an error
 of type `jsonrpc-error'.
 
-DEFERRED is passed to `jsonrpc-async-request', which see."
+DEFERRED is passed to `jsonrpc-async-request', which see.
+
+PARTIAL-HANDLER is a function called if a `:partial' response
+arrives with that JSON object as argument.  Note that the main
+function keeps waiting for a final response `:result'.
+
+JSONRPC is the version of that protocol that this request
+pertains to.  It default to the string `2.0'.
+
+PARTIAL-HANDLER can only be non-nil if JSONRPC is the string
+`2.0-EMACS'."
   (let* ((tag (cl-gensym "jsonrpc-request-catch-tag")) id-and-timer
          (retval
           (unwind-protect ; protect against user-quit, for example
@@ -342,7 +408,10 @@ DEFERRED is passed to `jsonrpc-async-request', which see."
                  id-and-timer
                  (jsonrpc--async-request-1
                   connection method params
-                  :success-fn (lambda (result) (throw tag `(done ,result)))
+                  :success-fn (lambda (result &optional partial)
+                                (if partial
+                                    (funcall partial-handler partial)
+                                  (throw tag `(done ,result))))
                   :error-fn
                   (jsonrpc-lambda
                       (&key code message data)
@@ -352,6 +421,7 @@ DEFERRED is passed to `jsonrpc-async-request', which see."
                   :timeout-fn
                   (lambda ()
                     (throw tag '(error (jsonrpc-error-message . "Timed out"))))
+                  :jsonrpc jsonrpc
                   :deferred deferred
                   :timeout timeout))
                 (while t (accept-process-output nil 30)))
@@ -422,8 +492,9 @@ connection object, called when the process dies .")
     (process-put proc 'jsonrpc-connection conn)))
 
 (cl-defmethod jsonrpc-connection-send ((connection jsonrpc-process-connection)
-                                       &rest args
+                                       &rest message
                                        &key
+                                       (_jsonrpc "2.0")
                                        _id
                                        method
                                        _params
@@ -431,15 +502,14 @@ connection object, called when the process dies .")
                                        _error
                                        _partial)
   "Send MESSAGE, a JSON object, to CONNECTION."
-  (plist-put args :method
+  (plist-put message :method
              (cond ((keywordp method) (substring (symbol-name method) 1))
                    ((and method (symbolp method)) (symbol-name method))
                    (t method)))
-  (let* ( (message `(:jsonrpc "2.0" ,@args))
-          (json (jsonrpc--json-encode message))
-          (headers
-           `(("Content-Length" . ,(format "%d" (string-bytes json)))
-             ("Content-Type" . "application/vscode-jsonrpc; charset=utf-8"))))
+  (let* ((json (jsonrpc--json-encode message))
+         (headers
+          `(("Content-Length" . ,(format "%d" (string-bytes json)))
+            ("Content-Type" . "application/vscode-jsonrpc; charset=utf-8"))))
     (process-send-string
      (jsonrpc--process connection)
      (cl-loop for (header . value) in headers
@@ -496,9 +566,9 @@ connection object, called when the process dies .")
                                          (json-null nil))
                                      (json-encode object)))))
 
-(cl-defun jsonrpc--reply (connection id &key (result nil result-supplied-p) error)
+(cl-defun jsonrpc--reply (connection id &rest args &key _jsonrpc _result _error)
   "Reply to CONNECTION's request ID with RESULT or ERROR."
-  (jsonrpc-connection-send connection :id id :result result :error error))
+  (apply #'jsonrpc-connection-send connection :id id args))
 
 (defun jsonrpc--call-deferred (connection)
   "Call CONNECTION's deferred actions, who may again defer themselves."
@@ -606,7 +676,8 @@ connection object, called when the process dies .")
                                     &rest args
                                     &key success-fn error-fn timeout-fn
                                     (timeout jrpc-default-request-timeout)
-                                    (deferred nil))
+                                    (deferred nil)
+                                    (jsonrpc "2.0"))
   "Does actual work for `jsonrpc-async-request'.
 
 Return a list (ID TIMER). ID is the new request's ID, or nil if
@@ -652,6 +723,7 @@ TIMEOUT is nil)."
     ;; Really send it
     ;;
     (jsonrpc-connection-send connection
+                             :jsonrpc jsonrpc
                              :id id
                              :method method
                              :params params)
