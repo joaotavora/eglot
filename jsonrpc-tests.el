@@ -85,7 +85,7 @@
              (cl-loop do (delete-process ,listen-server)
                       while (progn (accept-process-output nil 0.1)
                                    (process-live-p ,listen-server))
-                      do (jsonrpc-message
+                      do (jsonrpc--message
                           "test listen-server is still running, waiting"))))))))
 
 (ert-deftest returns-3 ()
