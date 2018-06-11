@@ -36,7 +36,7 @@
 ;; To model this agnosticism, jsonrpc.el uses objects derived from a
 ;; base `jsonrpc-connection' class, which is "abstract" or "virtual"
 ;; (in modern OO parlance) and represents the connection to the remote
-;; JSON endpoint.  Around thsi calss can define two interfaces:
+;; JSON endpoint.  Around this class we can define two interfaces:
 ;;
 ;; 1) A user interface to the JSONRPC _application_, whereby the
 ;; application uses the `jsonrpc-connection' object to communicate
@@ -62,14 +62,17 @@
 ;;
 ;; For initiating contacts to the endpoint and replying to it, that
 ;; subclass `jsonrpc-connection' must implement
-;; `jsonrpc-connection-send'.  Likewise, for handling remotely
-;; initiated contacts, it must arrange for the dispatcher functions
-;; held in `jsonrpc--request-dispatcher' and
-;; `jsonrpc--notification-dispatcher' to be called when appropriate,
-;; i.e. when noticing a new JSONRPC message on the wire.  The function
-;; `jsonrpc-connection-receive' is a good way to do that.  Optionally
-;; it should implement `jsonrpc-shutdown' and `jsonrpc-running-p' if
-;; these concepts apply to the transport.
+;; `jsonrpc-connection-send'.
+;;
+;; Likewise, for handling remotely initiated contacts, it must arrange
+;; for the dispatcher functions held in `jsonrpc--request-dispatcher'
+;; and `jsonrpc--notification-dispatcher' to be called when
+;; appropriate, i.e. when noticing a new JSONRPC message on the wire.
+;; The function `jsonrpc-connection-receive' is a good way to do that.
+;;
+;; Finally, and optionally, the `jsonrpc-connection' subclass should
+;; implement `jsonrpc-shutdown' and `jsonrpc-running-p' if these
+;; concepts apply to the transport.
 ;;
 ;; For convenience, jsonrpc.el comes built-in with a
 ;; `jsonrpc-process-connection' subclass for talking to local
@@ -464,7 +467,7 @@ connection object, called when the process dies .")
        "Sentinel for %s still hasn't run,  deleting it!" proc)))
 
 (defun jsonrpc-stderr-buffer (conn)
-  "Get CONN's stderr buffer, if any."
+  "Get CONN's standard error buffer, if any."
   (process-get (jsonrpc--process conn) 'jsonrpc-stderr))
 
 
@@ -688,7 +691,7 @@ TIMEOUT is nil)."
                      :warning)))
 
 (defun jsonrpc--log-event (connection message &optional type)
-  "Log an jsonrpc-related event.
+  "Log a JSONRPC-related event.
 CONNECTION is the current connection.  MESSAGE is a JSON-like
 plist.  TYPE is a symbol saying if this is a client or server
 originated."
