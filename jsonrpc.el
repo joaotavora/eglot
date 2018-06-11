@@ -421,27 +421,22 @@ connection object, called when the process dies .")
 (cl-defmethod jsonrpc-connection-send ((connection jsonrpc-process-connection)
                                        &rest args
                                        &key
-                                       id
+                                       _id
                                        method
-                                       params
-                                       result
-                                       error)
+                                       _params
+                                       _result
+                                       _error
+                                       _partial)
   "Send MESSAGE, a JSON object, to CONNECTION."
-  (let* ((method
-          (cond ((keywordp method)
-                 (substring (symbol-name method) 1))
-                ((and method (symbolp method)) (symbol-name method))
-                (t method)))
-         (message `(:jsonrpc "2.0"
-                             ,@(when method `(:method ,method))
-                             ,@(when id     `(:id     ,id))
-                             ,@(when params `(:params ,params))
-                             ,@(when result `(:result ,result))
-                             ,@(when error  `(:error  ,error))))
-         (json (jsonrpc--json-encode message))
-         (headers
-          `(("Content-Length" . ,(format "%d" (string-bytes json)))
-            ("Content-Type" . "application/vscode-jsonrpc; charset=utf-8"))))
+  (plist-put args :method
+             (cond ((keywordp method) (substring (symbol-name method) 1))
+                   ((and method (symbolp method)) (symbol-name method))
+                   (t method)))
+  (let* ( (message `(:jsonrpc "2.0" ,@args))
+          (json (jsonrpc--json-encode message))
+          (headers
+           `(("Content-Length" . ,(format "%d" (string-bytes json)))
+             ("Content-Type" . "application/vscode-jsonrpc; charset=utf-8"))))
     (process-send-string
      (jsonrpc--process connection)
      (cl-loop for (header . value) in headers
