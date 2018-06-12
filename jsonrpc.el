@@ -431,10 +431,10 @@ connection object, called when the process dies .")
                                        _error
                                        _partial)
   "Send MESSAGE, a JSON object, to CONNECTION."
-  (plist-put args :method
-             (cond ((keywordp method) (substring (symbol-name method) 1))
-                   ((and method (symbolp method)) (symbol-name method))
-                   (t method)))
+  (when method
+    (plist-put args :method
+               (cond ((keywordp method) (substring (symbol-name method) 1))
+                     ((and method (symbolp method)) (symbol-name method)))))
   (let* ( (message `(:jsonrpc "2.0" ,@args))
           (json (jsonrpc--json-encode message))
           (headers
