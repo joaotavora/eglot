@@ -155,7 +155,7 @@ eglot-shutdown`.
 - [ ] documentLink/resolve
 - [ ] textDocument/documentColor
 - [ ] textDocument/colorPresentation (3.6.0)
-- [ ] textDocument/formatting 
+- [x] textDocument/formatting 
 - [ ] textDocument/rangeFormatting
 - [ ] textDocument/onTypeFormatting
 - [x] textDocument/rename
