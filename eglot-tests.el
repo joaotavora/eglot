@@ -375,6 +375,26 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (while (not eldoc-last-message) (accept-process-output nil 0.1))
         (should (string-match "^exit" eldoc-last-message))))))
 
+(ert-deftest formatting ()
+  "Test document formatting in a python LSP"
+  (skip-unless (and (executable-find "pyls")
+                    (or (executable-find "yapf")
+                        (executable-find "autopep8"))))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "def foo():pass"))))
+    (eglot--with-timeout 4
+      (with-current-buffer
+          (eglot--find-file-noselect "project/something.py")
+        (should (eglot--tests-connect))
+        (search-forward ":")
+        (eglot-format-buffer)
+        (should (looking-at "pass"))
+        (should (or
+                 ;; yapf
+                 (string= (buffer-string) "def foo():\n    pass\n")
+                 ;; autopep8
+                 (string= (buffer-string) "def foo(): pass\n")))))))
+
 (ert-deftest javascript-basic ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "~/.yarn/bin/javascript-typescript-stdio"))
