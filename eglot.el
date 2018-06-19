@@ -1390,13 +1390,19 @@ DUMMY is ignored."
     (eglot--error "Server can't format!"))
   (eglot--widening
    (let* ((server (eglot--current-server-or-lose))
-          (resp (eglot--request
-                 server
-                 :textDocument/formatting
-                 (list :textDocument (eglot--TextDocumentIdentifier)
-                       :options (list :tabSize tab-width
-                                      :insertSpaces
-                                      (if indent-tabs-mode :json-false t)))))
+          (resp
+           (progn
+             (save-some-buffers
+              nil (lambda ()
+                    (memq (current-buffer)
+                          (eglot--managed-buffers server))))
+             (eglot--request
+              server
+              :textDocument/formatting
+              (list :textDocument (eglot--TextDocumentIdentifier)
+                    :options (list :tabSize tab-width
+                                   :insertSpaces
+                                   (if indent-tabs-mode :json-false t))))))
           (changes
            (mapcar
             (eglot--lambda (&key range newText)
