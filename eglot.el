@@ -1408,24 +1408,30 @@ DUMMY is ignored."
      (atomic-change-group
        (cl-loop for i from 1 to (length changes)
                 for (newText beg end) in changes
+                with pr = (make-progress-reporter "Formatting buffer..."
+                                                  1 (length changes))
                 do
-                (if (<= beg (point) end)
-                    (let ((buf (current-buffer)) replacement)
-                      (with-temp-buffer
-                        (insert newText)
-                        (setq replacement (current-buffer))
-                        (with-current-buffer buf
-                          (save-restriction
-                            (narrow-to-region beg end)
-                            (replace-buffer-contents replacement)))))
-                  (goto-char beg)
-                  (delete-region beg end)
-                  (insert newText))
+                (progn
+                  (progress-reporter-update pr i)
+                  (if (<= beg (point) end)
+                      (let ((buf (current-buffer)) replacement)
+                        (with-temp-buffer
+                          (insert newText)
+                          (setq replacement (current-buffer))
+                          (with-current-buffer buf
+                            (save-restriction
+                              (narrow-to-region beg end)
+                              (replace-buffer-contents replacement)))))
+                    (goto-char beg)
+                    (delete-region beg end)
+                    (insert newText)))
                 finally do
-                (mapc (pcase-lambda (`(,_ ,beg ,end))
-                        (set-marker beg nil)
-                        (set-marker end nil))
-                      changes)))
+                (progn
+                 (progress-reporter-done pr)
+                 (mapc (pcase-lambda (`(,_ ,beg ,end))
+                         (set-marker beg nil)
+                         (set-marker end nil))
+                       changes))))
      (undo-boundary))))
 
 (defun eglot-completion-at-point ()
