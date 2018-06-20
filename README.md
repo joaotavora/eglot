@@ -35,12 +35,21 @@ I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
 
 ```lisp
-(add-to-list 'eglot-server-programs '(fancy-mode . ("fancy-language-server" "--args"")))
+(add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args"")))
 ```
 
 Let me know how well it works and we can add it to the list.  You can
 also enter a `server:port` pattern to connect to an LSP server. To
 skip the guess and always be prompted use `C-u M-x eglot`.
+
+You can also do:
+
+```lisp
+  (add-hook 'foo-mode-hook 'eglot-ensure)
+```
+
+To attempt to start an eglot session automatically everytime a
+`foo-mode` buffer is visited.
 
 # Commands and keybindings
 
