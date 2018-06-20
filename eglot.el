@@ -1403,27 +1403,45 @@ DUMMY is ignored."
   (interactive)
   (unless (eglot--server-capable :documentFormattingProvider)
     (eglot--error "Server can't format!"))
-  (let* ((server (eglot--current-server-or-lose))
-         (resp
-          (eglot--request
-           server
-           :textDocument/formatting
-           (list :textDocument (eglot--TextDocumentIdentifier)
-                 :options (list
-                           :tabSize tab-width
-                           :insertSpaces (not indent-tabs-mode)))
-           :textDocument/formatting))
-         (after-point
-          (buffer-substring (point) (min (+ (point) 60) (point-max))))
-         (regexp (and (not (bobp))
-                      (replace-regexp-in-string
-                       "[\s\t\n\r]+" "[\s\t\n\r]+"
-                       (concat "\\(" (regexp-quote after-point) "\\)")))))
-    (when resp
-      (save-excursion
-        (eglot--apply-text-edits resp))
-      (when (and (bobp) regexp (search-forward-regexp regexp nil t))
-        (goto-char (match-beginning 1))))))
+  (eglot--widening
+   (let* ((server (eglot--current-server-or-lose))
+          (resp (eglot--request
+                 server
+                 :textDocument/formatting
+                 (list :textDocument (eglot--TextDocumentIdentifier)
+                       :options (list :tabSize tab-width
+                                      :insertSpaces
+                                      (if indent-tabs-mode :json-false t)))))
+          (changes
+           (mapcar
+            (eglot--lambda (&key range newText)
+              (list newText
+                    (eglot--lsp-position-to-point (plist-get range :start) t)
+                    (eglot--lsp-position-to-point (plist-get range :end) t)))
+            resp)))
+     (undo-boundary)
+     (atomic-change-group
+       (cl-loop for i from 1 to (length changes)
+                for (newText beg end) in changes
+                do
+                (if (<= beg (point) end)
+                    (let ((buf (current-buffer)) replacement)
+                      (with-temp-buffer
+                        (insert newText)
+                        (setq replacement (current-buffer))
+                        (with-current-buffer buf
+                          (save-restriction
+                            (narrow-to-region beg end)
+                            (replace-buffer-contents replacement)))))
+                  (goto-char beg)
+                  (delete-region beg end)
+                  (insert newText))
+                finally do
+                (mapc (pcase-lambda (`(,_ ,beg ,end))
+                        (set-marker beg nil)
+                        (set-marker end nil))
+                      changes)))
+     (undo-boundary))))
 
 (defun eglot-completion-at-point ()
   "EGLOT's `completion-at-point' function."
