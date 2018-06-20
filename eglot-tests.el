@@ -386,9 +386,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (with-current-buffer
           (eglot--find-file-noselect "project/something.py")
         (should (eglot--tests-connect))
-        (search-forward ":")
+        (search-forward ":pa")
         (eglot-format-buffer)
-        (should (looking-at "pass"))
+        (should (looking-at "ss"))
         (should (or
                  ;; yapf
                  (string= (buffer-string) "def foo():\n    pass\n")

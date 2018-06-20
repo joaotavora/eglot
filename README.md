@@ -61,7 +61,10 @@ Here's a summary of available commands:
 
 - `M-x eglot-shutdown` says bye-bye to the server;
 
-- `M-x eglot-rename` asks the server to rename the symbol at point;
+- `M-x eglot-rename` ask the server to rename the symbol at point;
+
+- `M-x eglot-format-buffer` ask the server to reformat the current
+  buffer.
 
 - `M-x eglot-code-actions` asks the server for any code actions at
   point. These may tipically be simple fixes, like deleting an unused
