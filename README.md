@@ -17,6 +17,8 @@ straightforward:
 (package-install 'eglot) ; Requires Emacs 26!
 ;; Now find some source file, any source file
 M-x eglot
+;; or start eglot automatically
+(add-hook 'foo-mode-hook 'eglot-ensure)
 ```
 
 *That's it*. If you're lucky, this guesses the LSP executable to start
