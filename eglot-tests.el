@@ -158,6 +158,12 @@ Pass TIMEOUT to `eglot--with-timeout'."
                                        (format "waiting for:\n%s" (pp-to-string body))))
      (let ((event
             (cl-loop thereis (cl-loop for json in ,events-sym
+                                      for method = (plist-get json :method)
+                                      when (keywordp method)
+                                      do (plist-put json :method
+                                                    (substring
+                                                     (symbol-name method)
+                                                     1))
                                       when (funcall
                                             (jsonrpc-lambda ,args ,@body) json)
                                       return (cons json before)
@@ -252,7 +258,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
               (eglot--wait-for (s-requests 1)
                   (&key id method &allow-other-keys)
                 (setq register-id id)
-                (string= method 'client/registerCapability))
+                (string= method "client/registerCapability"))
               (eglot--wait-for (c-replies 1)
                   (&key id error &allow-other-keys)
                 (and (eq id register-id) (null error))))
@@ -260,7 +266,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
             (eglot--wait-for
                 (c-notifs 3 "waiting for didChangeWatchedFiles notification")
                 (&key method params &allow-other-keys)
-              (and (string= method 'workspace/didChangeWatchedFiles)
+              (and (string= method "workspace/didChangeWatchedFiles")
                    (cl-destructuring-bind (&key uri type)
                        (elt (plist-get params :changes) 0)
                      (and (string= (eglot--path-to-uri "Cargo.toml") uri)
@@ -280,7 +286,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (eglot--tests-connect)
           (eglot--wait-for (s-notifs 1)
               (&key _id method &allow-other-keys)
-            (string= method 'textDocument/publishDiagnostics))
+            (string= method "textDocument/publishDiagnostics"))
           (flymake-start)
           (goto-char (point-min))
           (flymake-goto-next-error 1 '() t)
@@ -300,11 +306,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (eglot--find-file-noselect "hover-project/main.rs")
         (should (zerop (shell-command "cargo init")))
         (eglot--sniffing (
-                          :server-notifications s-notifs
-                          :server-requests s-requests
                           :server-replies s-replies
-                          :client-notifications c-notifs
-                          :client-replies c-replies
                           :client-requests c-reqs
                           )
           (eglot--tests-connect)
@@ -320,7 +322,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
             (eglot--wait-for (c-reqs)
                 (&key id method &allow-other-keys)
               (setq pending-id id)
-              (string= method 'textDocument/documentHighlight))
+              (string= method "textDocument/documentHighlight"))
             (eglot--wait-for (s-replies)
                 (&key id &allow-other-keys)
               (eq id pending-id))))))))
@@ -337,18 +339,10 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (with-current-buffer
           (eglot--find-file-noselect "rename-project/main.rs")
         (should (zerop (shell-command "cargo init")))
-        (eglot--sniffing (
-                          :server-notifications s-notifs
-                          :server-requests s-requests
-                          :server-replies s-replies
-                          :client-notifications c-notifs
-                          :client-replies c-replies
-                          :client-requests c-reqs
-                          )
-          (eglot--tests-connect)
-          (goto-char (point-min)) (search-forward "return te")
-          (eglot-rename "bla")
-          (should (equal (buffer-string) "fn test() -> i32 { let bla=3; return bla; }")))))))
+        (eglot--tests-connect)
+        (goto-char (point-min)) (search-forward "return te")
+        (eglot-rename "bla")
+        (should (equal (buffer-string) "fn test() -> i32 { let bla=3; return bla; }"))))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
@@ -378,6 +372,56 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (should (looking-back "sys.exit"))
         (while (not eldoc-last-message) (accept-process-output nil 0.1))
         (should (string-match "^exit" eldoc-last-message))))))
+
+(ert-deftest formatting ()
+  "Test document formatting in a python LSP"
+  (skip-unless (and (executable-find "pyls")
+                    (or (executable-find "yapf")
+                        (executable-find "autopep8"))))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "def foo():pass"))))
+    (eglot--with-timeout 4
+      (with-current-buffer
+          (eglot--find-file-noselect "project/something.py")
+        (should (eglot--tests-connect))
+        (search-forward ":pa")
+        (eglot-format-buffer)
+        (should (looking-at "ss"))
+        (should (or
+                 ;; yapf
+                 (string= (buffer-string) "def foo():\n    pass\n")
+                 ;; autopep8
+                 (string= (buffer-string) "def foo(): pass\n")))))))
+
+(ert-deftest javascript-basic ()
+  "Test basic autocompletion in a python LSP"
+  (skip-unless (executable-find "~/.yarn/bin/javascript-typescript-stdio"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("hello.js" . "console.log('Hello world!');"))))
+    (eglot--with-timeout 4
+      (with-current-buffer
+          (eglot--find-file-noselect "project/hello.js")
+        (let ((eglot-server-programs
+               '((js-mode . ("~/.yarn/bin/javascript-typescript-stdio")))))
+          (goto-char (point-max))
+          (eglot--sniffing (:server-notifications
+                            s-notifs
+                            :client-notifications
+                            c-notifs)
+            (should (eglot--tests-connect))
+            (eglot--wait-for (s-notifs 1) (&key method &allow-other-keys)
+              (string= method "textDocument/publishDiagnostics"))
+            (should (not (eq 'flymake-error (face-at-point))))
+            (insert "{")
+            (eglot--signal-textDocument/didChange)
+            (eglot--wait-for (c-notifs 1) (&key method &allow-other-keys)
+              (string= method "textDocument/didChange"))
+            (eglot--wait-for (s-notifs 1) (&key params method &allow-other-keys)
+              (and (string= method "textDocument/publishDiagnostics")
+                   (cl-destructuring-bind (&key _uri diagnostics) params
+                     (cl-find-if (jsonrpc-lambda (&key severity &allow-other-keys)
+                                   (= severity 1))
+                                 diagnostics))))))))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
