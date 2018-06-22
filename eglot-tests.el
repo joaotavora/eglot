@@ -50,7 +50,8 @@
            (message "[yas] oops don't know this content")))))
 
 (defun eglot--call-with-dirs-and-files (dirs fn)
-  (let* ((default-directory (make-temp-file "eglot--fixture" t))
+  (let* ((fixture-directory (make-temp-file "eglot--fixture" t))
+         (default-directory fixture-directory)
          new-buffers new-servers)
     (unwind-protect
         (let ((find-file-hook
@@ -63,16 +64,15 @@
       (eglot--message "Killing buffers %s,  deleting %s, killing %s"
                       (mapconcat #'buffer-name new-buffers ", ")
                       default-directory
-                      (mapcar #'eglot--name new-servers))
+                      (mapcar #'jsonrpc-name new-servers))
       (unwind-protect
           (let ((eglot-autoreconnect nil))
             (mapc #'eglot-shutdown
-                  (cl-remove-if-not (lambda (server) (process-live-p (eglot--process server)))
-                                    new-servers)))
-        (mapc #'kill-buffer (mapcar #'eglot--events-buffer new-servers))
+                  (cl-remove-if-not #'jsonrpc-running-p new-servers)))
+        (mapc #'kill-buffer (mapcar #'jsonrpc--events-buffer new-servers))
         (dolist (buf new-buffers) ;; have to save otherwise will get prompted
           (with-current-buffer buf (save-buffer) (kill-buffer)))
-        (delete-directory default-directory 'recursive)))))
+        (delete-directory fixture-directory 'recursive)))))
 
 (cl-defmacro eglot--with-timeout (timeout &body body)
   (declare (indent 1) (debug t))
@@ -124,7 +124,7 @@
                                client-notifications
                                client-replies))
            (advice-add
-            #'eglot--log-event :before
+            #'jsonrpc--log-event :before
             (lambda (_proc message &optional type)
               (cl-destructuring-bind (&key method id _error &allow-other-keys)
                   message
@@ -148,7 +148,7 @@
                                       `(push message ,client-replies)))))))))
             '((name . ,log-event-ad-sym)))
            ,@body)
-       (advice-remove #'eglot--log-event ',log-event-ad-sym))))
+       (advice-remove #'jsonrpc--log-event ',log-event-ad-sym))))
 
 (cl-defmacro eglot--wait-for ((events-sym &optional (timeout 1) message) args &body body)
   "Spin until FN match in EVENTS-SYM, flush events after it.
@@ -165,7 +165,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
                                                      (symbol-name method)
                                                      1))
                                       when (funcall
-                                            (eglot--lambda ,args ,@body) json)
+                                            (jsonrpc-lambda ,args ,@body) json)
                                       return (cons json before)
                                       collect json into before)
                      for i from 0
@@ -225,16 +225,14 @@ Pass TIMEOUT to `eglot--with-timeout'."
           ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
           ;; should have a automatic reconnection.
           (run-with-timer 1.2 nil (lambda () (delete-process
-                                              (eglot--process server))))
-          (while (process-live-p (eglot--process server))
-            (accept-process-output nil 0.5))
+                                              (jsonrpc--process server))))
+          (while (jsonrpc-running-p server) (accept-process-output nil 0.5))
           (should (eglot--current-server))
           ;; Now try again too quickly
           (setq server (eglot--current-server))
-          (run-with-timer 0.5 nil (lambda () (delete-process
-                                              (eglot--process server))))
-          (while (process-live-p (eglot--process server))
-            (accept-process-output nil 0.5))
+          (let ((proc (jsonrpc--process server)))
+            (run-with-timer 0.5 nil (lambda () (delete-process proc)))
+            (while (process-live-p proc) (accept-process-output nil 0.5)))
           (should (not (eglot--current-server))))))))
 
 (ert-deftest rls-watches-files ()
@@ -421,7 +419,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
             (eglot--wait-for (s-notifs 1) (&key params method &allow-other-keys)
               (and (string= method "textDocument/publishDiagnostics")
                    (cl-destructuring-bind (&key _uri diagnostics) params
-                     (cl-find-if (eglot--lambda (&key severity &allow-other-keys)
+                     (cl-find-if (jsonrpc-lambda (&key severity &allow-other-keys)
                                    (= severity 1))
                                  diagnostics))))))))))
 
