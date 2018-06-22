@@ -64,7 +64,7 @@ Here's a summary of available commands:
 - `M-x eglot-rename` ask the server to rename the symbol at point;
 
 - `M-x eglot-format-buffer` ask the server to reformat the current
-  buffer.
+  buffer;
 
 - `M-x eglot-code-actions` asks the server for any code actions at
   point. These may tipically be simple fixes, like deleting an unused
@@ -222,9 +222,7 @@ Under the hood:
 - Doesn't *require* anything other than Emacs 26, but will
   automatically upgrade to work with stuff outside Emacs, like
   `company`, `markdown-mode`, if you happen to have these installed.
-- Contained in one file
-- Has automated tests that check against actual LSP servers
-
+- Has automated tests that check against actual LSP servers.
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
