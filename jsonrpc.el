@@ -450,7 +450,7 @@ connection object, called when the process dies .")
 
 (defun jsonrpc-process-type (conn)
   "Return the `process-type' of JSONRPC connection CONN."
-  (let ((proc (jsonrpc--process conn))) (and (process-live-p proc) proc)))
+  (process-type (jsonrpc--process conn)))
 
 (cl-defmethod jsonrpc-running-p ((conn jsonrpc-process-connection))
   "Return non-nil if JSONRPC connection CONN is running."
