@@ -188,7 +188,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
 (defun eglot--tests-connect ()
-  (apply #'eglot--connect (eglot--guess-contact)))
+  (eglot--with-timeout 2
+    (apply #'eglot--connect (eglot--guess-contact))))
 
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
@@ -198,18 +199,17 @@ Pass TIMEOUT to `eglot--with-timeout'."
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla")))
           ("anotherproject" . (("cena.rs" . "bla"))))
-      (eglot--with-timeout 2
-        (with-current-buffer
-            (eglot--find-file-noselect "project/coiso.rs")
-          (should (setq server (eglot--tests-connect)))
-          (should (eglot--current-server)))
-        (with-current-buffer
-            (eglot--find-file-noselect "project/merdix.rs")
-          (should (eglot--current-server))
-          (should (eq (eglot--current-server) server)))
-        (with-current-buffer
-            (eglot--find-file-noselect "anotherproject/cena.rs")
-          (should-error (eglot--current-server-or-lose)))))))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/coiso.rs")
+        (should (setq server (eglot--tests-connect)))
+        (should (eglot--current-server)))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/merdix.rs")
+        (should (eglot--current-server))
+        (should (eq (eglot--current-server) server)))
+      (with-current-buffer
+          (eglot--find-file-noselect "anotherproject/cena.rs")
+        (should-error (eglot--current-server-or-lose))))))
 
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
@@ -218,22 +218,21 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (eglot--with-dirs-and-files
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla"))))
-      (eglot--with-timeout 3
-        (with-current-buffer
-            (eglot--find-file-noselect "project/coiso.rs")
-          (should (setq server (eglot--tests-connect)))
-          ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
-          ;; should have a automatic reconnection.
-          (run-with-timer 1.2 nil (lambda () (delete-process
-                                              (jsonrpc--process server))))
-          (while (jsonrpc-running-p server) (accept-process-output nil 0.5))
-          (should (eglot--current-server))
-          ;; Now try again too quickly
-          (setq server (eglot--current-server))
-          (let ((proc (jsonrpc--process server)))
-            (run-with-timer 0.5 nil (lambda () (delete-process proc)))
-            (while (process-live-p proc) (accept-process-output nil 0.5)))
-          (should (not (eglot--current-server))))))))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/coiso.rs")
+        (should (setq server (eglot--tests-connect)))
+        ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
+        ;; should have a automatic reconnection.
+        (run-with-timer 1.2 nil (lambda () (delete-process
+                                            (jsonrpc--process server))))
+        (while (jsonrpc-running-p server) (accept-process-output nil 0.5))
+        (should (eglot--current-server))
+        ;; Now try again too quickly
+        (setq server (eglot--current-server))
+        (let ((proc (jsonrpc--process server)))
+          (run-with-timer 0.5 nil (lambda () (delete-process proc)))
+          (while (process-live-p proc) (accept-process-output nil 0.5)))
+        (should (not (eglot--current-server)))))))
 
 (ert-deftest rls-watches-files ()
   "Start RLS server.  Notify it when a critical file changes."
@@ -244,33 +243,32 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (eglot--with-dirs-and-files
         '(("watch-project" . (("coiso.rs" . "bla")
                               ("merdix.rs" . "bla"))))
-      (eglot--with-timeout 10
-        (with-current-buffer
-            (eglot--find-file-noselect "watch-project/coiso.rs")
-          (should (zerop (shell-command "cargo init")))
-          (eglot--sniffing (
-                            :server-requests s-requests
-                            :client-notifications c-notifs
-                            :client-replies c-replies
-                            )
-            (should (eglot--tests-connect))
-            (let (register-id)
-              (eglot--wait-for (s-requests 1)
-                  (&key id method &allow-other-keys)
-                (setq register-id id)
-                (string= method "client/registerCapability"))
-              (eglot--wait-for (c-replies 1)
-                  (&key id error &allow-other-keys)
-                (and (eq id register-id) (null error))))
-            (delete-file "Cargo.toml")
-            (eglot--wait-for
-                (c-notifs 3 "waiting for didChangeWatchedFiles notification")
-                (&key method params &allow-other-keys)
-              (and (string= method "workspace/didChangeWatchedFiles")
-                   (cl-destructuring-bind (&key uri type)
-                       (elt (plist-get params :changes) 0)
-                     (and (string= (eglot--path-to-uri "Cargo.toml") uri)
-                          (= type 3)))))))))))
+      (with-current-buffer
+          (eglot--find-file-noselect "watch-project/coiso.rs")
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (
+                          :server-requests s-requests
+                          :client-notifications c-notifs
+                          :client-replies c-replies
+                          )
+          (should (eglot--tests-connect))
+          (let (register-id)
+            (eglot--wait-for (s-requests 1)
+                (&key id method &allow-other-keys)
+              (setq register-id id)
+              (string= method "client/registerCapability"))
+            (eglot--wait-for (c-replies 1)
+                (&key id error &allow-other-keys)
+              (and (eq id register-id) (null error))))
+          (delete-file "Cargo.toml")
+          (eglot--wait-for
+              (c-notifs 3 "waiting for didChangeWatchedFiles notification")
+              (&key method params &allow-other-keys)
+            (and (string= method "workspace/didChangeWatchedFiles")
+                 (cl-destructuring-bind (&key uri type)
+                     (elt (plist-get params :changes) 0)
+                   (and (string= (eglot--path-to-uri "Cargo.toml") uri)
+                        (= type 3))))))))))
 
 (ert-deftest rls-basic-diagnostics ()
   "Test basic diagnostics in RLS."
@@ -278,19 +276,18 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (skip-unless (executable-find "cargo"))
   (eglot--with-dirs-and-files
       '(("diag-project" . (("main.rs" . "fn main() {\nprintfoo!(\"Hello, world!\");\n}"))))
-    (eglot--with-timeout 3
-      (with-current-buffer
-          (eglot--find-file-noselect "diag-project/main.rs")
-        (should (zerop (shell-command "cargo init")))
-        (eglot--sniffing (:server-notifications s-notifs)
-          (eglot--tests-connect)
-          (eglot--wait-for (s-notifs 1)
-              (&key _id method &allow-other-keys)
-            (string= method "textDocument/publishDiagnostics"))
-          (flymake-start)
-          (goto-char (point-min))
-          (flymake-goto-next-error 1 '() t)
-          (should (eq 'flymake-error (face-at-point))))))))
+    (with-current-buffer
+        (eglot--find-file-noselect "diag-project/main.rs")
+      (should (zerop (shell-command "cargo init")))
+      (eglot--sniffing (:server-notifications s-notifs)
+        (eglot--tests-connect)
+        (eglot--wait-for (s-notifs 2)
+            (&key _id method &allow-other-keys)
+          (string= method "textDocument/publishDiagnostics"))
+        (flymake-start)
+        (goto-char (point-min))
+        (flymake-goto-next-error 1 '() t)
+        (should (eq 'flymake-error (face-at-point)))))))
 
 (ert-deftest rls-hover-after-edit ()
   "Hover and highlightChanges are tricky in RLS."
@@ -301,31 +298,30 @@ Pass TIMEOUT to `eglot--with-timeout'."
       '(("hover-project" .
          (("main.rs" .
            "fn test() -> i32 { let test=3; return te; }"))))
-    (eglot--with-timeout 3
-      (with-current-buffer
-          (eglot--find-file-noselect "hover-project/main.rs")
-        (should (zerop (shell-command "cargo init")))
-        (eglot--sniffing (
-                          :server-replies s-replies
-                          :client-requests c-reqs
-                          )
-          (eglot--tests-connect)
-          (goto-char (point-min))
-          (search-forward "return te")
-          (insert "st")
-          (progn
-            ;; simulate these two which don't happen when buffer isn't
-            ;; visible in a window.
-            (eglot--signal-textDocument/didChange)
-            (eglot-eldoc-function))
-          (let (pending-id)
-            (eglot--wait-for (c-reqs)
-                (&key id method &allow-other-keys)
-              (setq pending-id id)
-              (string= method "textDocument/documentHighlight"))
-            (eglot--wait-for (s-replies)
-                (&key id &allow-other-keys)
-              (eq id pending-id))))))))
+    (with-current-buffer
+        (eglot--find-file-noselect "hover-project/main.rs")
+      (should (zerop (shell-command "cargo init")))
+      (eglot--sniffing (
+                        :server-replies s-replies
+                        :client-requests c-reqs
+                        )
+        (eglot--tests-connect)
+        (goto-char (point-min))
+        (search-forward "return te")
+        (insert "st")
+        (progn
+          ;; simulate these two which don't happen when buffer isn't
+          ;; visible in a window.
+          (eglot--signal-textDocument/didChange)
+          (eglot-eldoc-function))
+        (let (pending-id)
+          (eglot--wait-for (c-reqs 2)
+              (&key id method &allow-other-keys)
+            (setq pending-id id)
+            (string= method "textDocument/documentHighlight"))
+          (eglot--wait-for (s-replies 2)
+              (&key id &allow-other-keys)
+            (eq id pending-id)))))))
 
 (ert-deftest rls-rename ()
   "Test renaming in RLS."
@@ -335,43 +331,40 @@ Pass TIMEOUT to `eglot--with-timeout'."
       '(("rename-project"
          . (("main.rs" .
              "fn test() -> i32 { let test=3; return test; }"))))
-    (eglot--with-timeout 3
-      (with-current-buffer
-          (eglot--find-file-noselect "rename-project/main.rs")
-        (should (zerop (shell-command "cargo init")))
-        (eglot--tests-connect)
-        (goto-char (point-min)) (search-forward "return te")
-        (eglot-rename "bla")
-        (should (equal (buffer-string) "fn test() -> i32 { let bla=3; return bla; }"))))))
+    (with-current-buffer
+        (eglot--find-file-noselect "rename-project/main.rs")
+      (should (zerop (shell-command "cargo init")))
+      (eglot--tests-connect)
+      (goto-char (point-min)) (search-forward "return te")
+      (eglot-rename "bla")
+      (should (equal (buffer-string) "fn test() -> i32 { let bla=3; return bla; }")))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
   (eglot--with-dirs-and-files
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
-    (eglot--with-timeout 4
-      (with-current-buffer
-          (eglot--find-file-noselect "project/something.py")
-        (should (eglot--tests-connect))
-        (goto-char (point-max))
-        (completion-at-point)
-        (should (looking-back "sys.exit"))))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (goto-char (point-max))
+      (completion-at-point)
+      (should (looking-back "sys.exit")))))
 
 (ert-deftest hover-after-completions ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
   (eglot--with-dirs-and-files
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
-    (eglot--with-timeout 4
-      (with-current-buffer
-          (eglot--find-file-noselect "project/something.py")
-        (should (eglot--tests-connect))
-        (goto-char (point-max))
-        (setq eldoc-last-message nil)
-        (completion-at-point)
-        (should (looking-back "sys.exit"))
-        (while (not eldoc-last-message) (accept-process-output nil 0.1))
-        (should (string-match "^exit" eldoc-last-message))))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (goto-char (point-max))
+      (setq eldoc-last-message nil)
+      (completion-at-point)
+      (should (looking-back "sys.exit"))
+      (while (not eldoc-last-message) (accept-process-output nil 0.1))
+      (should (string-match "^exit" eldoc-last-message)))))
 
 (ert-deftest formatting ()
   "Test document formatting in a python LSP"
@@ -380,48 +373,46 @@ Pass TIMEOUT to `eglot--with-timeout'."
                         (executable-find "autopep8"))))
   (eglot--with-dirs-and-files
       '(("project" . (("something.py" . "def foo():pass"))))
-    (eglot--with-timeout 4
-      (with-current-buffer
-          (eglot--find-file-noselect "project/something.py")
-        (should (eglot--tests-connect))
-        (search-forward ":pa")
-        (eglot-format-buffer)
-        (should (looking-at "ss"))
-        (should (or
-                 ;; yapf
-                 (string= (buffer-string) "def foo():\n    pass\n")
-                 ;; autopep8
-                 (string= (buffer-string) "def foo(): pass\n")))))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (search-forward ":pa")
+      (eglot-format-buffer)
+      (should (looking-at "ss"))
+      (should (or
+               ;; yapf
+               (string= (buffer-string) "def foo():\n    pass\n")
+               ;; autopep8
+               (string= (buffer-string) "def foo(): pass\n"))))))
 
 (ert-deftest javascript-basic ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "~/.yarn/bin/javascript-typescript-stdio"))
   (eglot--with-dirs-and-files
       '(("project" . (("hello.js" . "console.log('Hello world!');"))))
-    (eglot--with-timeout 4
-      (with-current-buffer
-          (eglot--find-file-noselect "project/hello.js")
-        (let ((eglot-server-programs
-               '((js-mode . ("~/.yarn/bin/javascript-typescript-stdio")))))
-          (goto-char (point-max))
-          (eglot--sniffing (:server-notifications
-                            s-notifs
-                            :client-notifications
-                            c-notifs)
-            (should (eglot--tests-connect))
-            (eglot--wait-for (s-notifs 1) (&key method &allow-other-keys)
-              (string= method "textDocument/publishDiagnostics"))
-            (should (not (eq 'flymake-error (face-at-point))))
-            (insert "{")
-            (eglot--signal-textDocument/didChange)
-            (eglot--wait-for (c-notifs 1) (&key method &allow-other-keys)
-              (string= method "textDocument/didChange"))
-            (eglot--wait-for (s-notifs 1) (&key params method &allow-other-keys)
-              (and (string= method "textDocument/publishDiagnostics")
-                   (cl-destructuring-bind (&key _uri diagnostics) params
-                     (cl-find-if (jsonrpc-lambda (&key severity &allow-other-keys)
-                                   (= severity 1))
-                                 diagnostics))))))))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/hello.js")
+      (let ((eglot-server-programs
+             '((js-mode . ("~/.yarn/bin/javascript-typescript-stdio")))))
+        (goto-char (point-max))
+        (eglot--sniffing (:server-notifications
+                          s-notifs
+                          :client-notifications
+                          c-notifs)
+          (should (eglot--tests-connect))
+          (eglot--wait-for (s-notifs 2) (&key method &allow-other-keys)
+            (string= method "textDocument/publishDiagnostics"))
+          (should (not (eq 'flymake-error (face-at-point))))
+          (insert "{")
+          (eglot--signal-textDocument/didChange)
+          (eglot--wait-for (c-notifs 1) (&key method &allow-other-keys)
+            (string= method "textDocument/didChange"))
+          (eglot--wait-for (s-notifs 2) (&key params method &allow-other-keys)
+            (and (string= method "textDocument/publishDiagnostics")
+                 (cl-destructuring-bind (&key _uri diagnostics) params
+                   (cl-find-if (jsonrpc-lambda (&key severity &allow-other-keys)
+                                 (= severity 1))
+                               diagnostics)))))))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
