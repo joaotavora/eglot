@@ -27,6 +27,7 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Javascript's [javascript-typescript-stdio][javascript-typescript-langserver]
 * Rust's [rls][rls]
 * Python's [pyls][pyls]
+* Ruby's [solargraph][solargraph]
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
 * [cquery][cquery] for C/C++
@@ -42,14 +43,45 @@ Let me know how well it works and we can add it to the list.  You can
 also enter a `server:port` pattern to connect to an LSP server. To
 skip the guess and always be prompted use `C-u M-x eglot`.
 
+## Connecting automatically
+
 You can also do:
 
 ```lisp
   (add-hook 'foo-mode-hook 'eglot-ensure)
 ```
 
-To attempt to start an eglot session automatically everytime a
+, to attempt to start an eglot session automatically everytime a
 `foo-mode` buffer is visited.
+
+## Connecting via TCP
+
+The examples above use a "pipe" to talk to the server, which works
+fine on Linux and OSX but in some cases
+[*may not work on Windows*][windows-subprocess-hang].
+
+To circumvent this limitation, or if the server doesn't like pipes,
+you can use `C-u M-x eglot` and give it `server:port` pattern to
+connect to a previously started TCP server serving LSP information.
+
+If you don't want to start it manually every time, you can configure
+Eglot to start it and immediately connect to it.  Ruby's
+[solargraph][solargraph] server already works this way out-of-the-box.
+
+For another example, suppose you also wanted start Python's `pyls`
+this way:
+
+```lisp
+(add-to-list 'eglot-server-programs
+             `(python-mode . ("pyls" "-v" "--tcp" "--host"
+                              "localhost" "--port" :autoport))))
+```
+
+You can see that the element associated with `python-mode` is now a
+more complicated invocation of the `pyls` program, which requests that
+it be started as a server.  Notice the `:autoport` symbol in there: it
+is replaced dynamically by a local port believed to be vacant, so that
+the ensuing TCP connection finds a listening server.
 
 # Commands and keybindings
 
@@ -236,6 +268,8 @@ Under the hood:
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
 [cquery]: https://github.com/cquery-project/cquery
+[solargraph]: https://github.com/castwide/solargraph
+[windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 
 
    
