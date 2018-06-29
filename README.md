@@ -36,7 +36,7 @@ I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
 
 ```lisp
-(add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args"")))
+(add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
 ```
 
 Let me know how well it works and we can add it to the list.  You can
