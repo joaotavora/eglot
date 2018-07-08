@@ -1227,7 +1227,7 @@ DUMMY is ignored."
              (text-properties-at 0 obj)
            (let ((annotation
                   (or (and documentation
-                           (replace-regexp-in-string "\n.*" "" documentation))
+                           (replace-regexp-in-string "\n.*" "" (eglot--format-markup documentation)))
                       detail
                       (cdr (assoc kind eglot--kind-names)))))
              (when annotation
