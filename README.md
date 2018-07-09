@@ -251,9 +251,9 @@ Under the hood:
   one per each tiny change.
 - Easier to read and maintain elisp. Yeah I know, *very subjective*,
   so judge for yourself.
-- Doesn't *require* anything other than Emacs 26, but will
-  automatically upgrade to work with stuff outside Emacs, like
-  `company`, `markdown-mode`, if you happen to have these installed.
+- Doesn't *require* anything other than Emacs, but will automatically
+  upgrade to work with stuff outside Emacs, like `company`,
+  `markdown-mode`, if you happen to have these installed.
 - Has automated tests that check against actual LSP servers.
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
