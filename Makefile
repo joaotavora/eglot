@@ -23,6 +23,8 @@ compile: $(ELCFILES)
 #
 eglot-check: compile
 	$(EMACS) -Q --batch $(LOAD_PATH)				\
+		--eval '(package-initialize)'				\
+		--eval '(package-install (quote jsonrpc))'		\
 		-l eglot-tests						\
 		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
 
