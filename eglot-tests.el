@@ -376,23 +376,31 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (should (string-match "^exit" eldoc-last-message)))))
 
 (ert-deftest formatting ()
-  "Test document formatting in a python LSP"
+  "Test formatting in a python LSP"
   (skip-unless (and (executable-find "pyls")
                     (or (executable-find "yapf")
                         (executable-find "autopep8"))))
   (eglot--with-dirs-and-files
-      '(("project" . (("something.py" . "def foo():pass"))))
-    (with-current-buffer
-        (eglot--find-file-noselect "project/something.py")
-      (should (eglot--tests-connect))
-      (search-forward ":pa")
-      (eglot-format-buffer)
-      (should (looking-at "ss"))
-      (should (or
-               ;; yapf
-               (string= (buffer-string) "def foo():\n    pass\n")
-               ;; autopep8
-               (string= (buffer-string) "def foo(): pass\n"))))))
+   '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
+   (with-current-buffer
+       (eglot--find-file-noselect "project/something.py")
+     (should (eglot--tests-connect))
+     (search-forward "b():pa")
+     (eglot-format (point-at-bol) (point-at-eol))
+     (should (looking-at "ss"))
+     (should
+      (or
+       ;; yapf
+       (string= (buffer-string) "def a():pass\n\n\ndef b():\n    pass\n")
+       ;; autopep8
+       (string= (buffer-string) "def a():pass\n\n\ndef b(): pass\n")))
+     (eglot-format-buffer)
+     (should 
+      (or
+       ;; yapf
+       (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")
+       ;; autopep8
+       (string= (buffer-string) "def a(): pass\n\n\ndef b(): pass\n"))))))
 
 (ert-deftest javascript-basic ()
   "Test basic autocompletion in a python LSP"
