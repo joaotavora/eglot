@@ -96,8 +96,8 @@ Here's a summary of available commands:
 
 - `M-x eglot-rename` ask the server to rename the symbol at point;
 
-- `M-x eglot-format-buffer` ask the server to reformat the current
-  buffer;
+- `M-x eglot-format` asks the server to format buffer or the active
+  region;
 
 - `M-x eglot-code-actions` asks the server for any code actions at
   point. These may tipically be simple fixes, like deleting an unused
@@ -206,7 +206,7 @@ eglot-shutdown`.
 - [ ] textDocument/documentColor
 - [ ] textDocument/colorPresentation (3.6.0)
 - [x] textDocument/formatting 
-- [ ] textDocument/rangeFormatting
+- [x] textDocument/rangeFormatting
 - [ ] textDocument/onTypeFormatting
 - [x] textDocument/rename
 
