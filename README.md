@@ -113,6 +113,11 @@ Here's a summary of available commands:
 - `M-x eglot-stderr-buffer` if the LSP server is printing useful debug
 information in stderr, jumps to a buffer with these contents.
 
+- `M-x eglot-signal-didChangeConfiguration` updates the LSP server
+configuration according to the value of the variable
+`eglot-workspace-configuration`, which you may, for example set in a
+`.dir-locals` file.`
+
 There are *no keybindings* specific to Eglot, but you can bind stuff
 in `eglot-mode-map`, which is active as long as Eglot is managing a
 file in your project. The commands don't need to be Eglot-specific,
@@ -163,7 +168,7 @@ eglot-shutdown`.
 ## Workspace
 - [ ] workspace/workspaceFolders (3.6.0)
 - [ ] workspace/didChangeWorkspaceFolders (3.6.0)
-- [ ] workspace/didChangeConfiguration
+- [x] workspace/didChangeConfiguration
 - [ ] workspace/configuration (3.6.0)
 - [x] workspace/didChangeWatchedFiles
 - [x] workspace/symbol
