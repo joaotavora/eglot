@@ -52,7 +52,8 @@
 (defun eglot--call-with-dirs-and-files (dirs fn)
   (let* ((fixture-directory (make-temp-file "eglot--fixture" t))
          (default-directory fixture-directory)
-         new-buffers new-servers)
+         new-buffers new-servers
+         cleanup-events-et-cetera-p)
     (unwind-protect
         (let ((find-file-hook
                (cons (lambda () (push (current-buffer) new-buffers))
@@ -60,16 +61,24 @@
               (eglot-connect-hook
                (lambda (server) (push server new-servers))))
           (mapc #'eglot--make-file-or-dirs dirs)
-          (funcall fn))
-      (eglot--message "Killing buffers %s,  deleting %s, killing %s"
-                      (mapconcat #'buffer-name new-buffers ", ")
-                      default-directory
-                      (mapcar #'jsonrpc-name new-servers))
+          (funcall fn)
+          (setq cleanup-events-et-cetera-p t))
       (unwind-protect
           (let ((eglot-autoreconnect nil))
             (mapc #'eglot-shutdown
                   (cl-remove-if-not #'jsonrpc-running-p new-servers)))
-        (mapc #'kill-buffer (mapcar #'jsonrpc--events-buffer new-servers))
+        (when cleanup-events-et-cetera-p
+          (cl-loop for serv in new-servers
+                   do
+                   (kill-buffer (process-get (jsonrpc--process serv)
+                                             'jsonrpc-stderr))
+                   (kill-buffer (jsonrpc--events-buffer serv))
+                   (kill-buffer (process-buffer (jsonrpc--process serv)))))
+        (eglot--message
+         "Killing project buffers %s, deleting %s, killing server %s"
+         (mapconcat #'buffer-name new-buffers ", ")
+         default-directory
+         (mapcar #'jsonrpc-name new-servers))
         (dolist (buf new-buffers) ;; have to save otherwise will get prompted
           (with-current-buffer buf (save-buffer) (kill-buffer)))
         (delete-directory fixture-directory 'recursive)))))
