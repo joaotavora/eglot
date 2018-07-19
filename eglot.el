@@ -689,6 +689,7 @@ If optional MARKERS, make markers."
    (eglot--managed-mode
     (add-hook 'after-change-functions 'eglot--after-change nil t)
     (add-hook 'before-change-functions 'eglot--before-change nil t)
+    (add-hook 'change-major-mode-hook 'eglot--change-major-mode-hook nil t)
     (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t)
     (add-hook 'kill-buffer-hook 'eglot--signal-textDocument/didClose nil t)
     (add-hook 'before-revert-hook 'eglot--signal-textDocument/didClose nil t)
@@ -702,6 +703,7 @@ If optional MARKERS, make markers."
    (t
     (remove-hook 'flymake-diagnostic-functions 'eglot-flymake-backend t)
     (remove-hook 'after-change-functions 'eglot--after-change t)
+    (remove-hook 'change-major-mode-hook 'eglot--change-major-mode-hook t)
     (remove-hook 'before-change-functions 'eglot--before-change t)
     (remove-hook 'kill-buffer-hook 'eglot--signal-textDocument/didClose t)
     (remove-hook 'before-revert-hook 'eglot--signal-textDocument/didClose t)
@@ -769,6 +771,10 @@ Please report this as a possible bug.")
       (eglot--signal-textDocument/didOpen))))
 
 (add-hook 'find-file-hook 'eglot--maybe-activate-editing-mode)
+
+(defun eglot--change-major-mode-hook ()
+  "Cleanup permanent local variables after changing major modes."
+  (remove-hook 'kill-buffer-hook 'eglot--signal-textDocument/didClose t))
 
 (defun eglot-clear-status (server)
   "Clear the last JSONRPC error for SERVER."
