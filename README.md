@@ -30,7 +30,8 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Ruby's [solargraph][solargraph]
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
-* [cquery][cquery] for C/C++
+* C/C++'s [cquery][cquery]
+* Haskell's [IDE engine][haskell-ide-engine]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -275,6 +276,5 @@ Under the hood:
 [cquery]: https://github.com/cquery-project/cquery
 [solargraph]: https://github.com/castwide/solargraph
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
+[haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
 
-
-   
