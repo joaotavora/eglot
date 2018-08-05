@@ -65,7 +65,7 @@
           (setq cleanup-events-et-cetera-p t))
       (unwind-protect
           (let ((eglot-autoreconnect nil))
-            (mapc #'eglot-shutdown
+            (mapc (lambda (server) (eglot-shutdown server nil nil t))
                   (cl-remove-if-not #'jsonrpc-running-p new-servers)))
         (when cleanup-events-et-cetera-p
           (cl-loop for serv in new-servers
