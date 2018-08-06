@@ -77,20 +77,36 @@
   :prefix "eglot-"
   :group 'applications)
 
-(defvar eglot-server-programs '((rust-mode . (eglot-rls "rls"))
-                                (python-mode . ("pyls"))
-                                ((js-mode
-                                  js2-mode
-                                  rjsx-mode) . ("javascript-typescript-stdio"))
-                                (sh-mode . ("bash-language-server" "start"))
-                                ((c++-mode
-                                  c-mode) . (eglot-cquery "cquery"))
-                                (ruby-mode
-                                 . ("solargraph" "socket" "--port"
-                                    :autoport))
-                                (php-mode . ("php" "vendor/felixfbecker/\
+(defvar eglot-server-programs
+  `((rust-mode . (eglot-rls "rls"))
+    (python-mode . ("pyls"))
+    ((js-mode
+      js2-mode
+      rjsx-mode) . ("javascript-typescript-stdio"))
+    (sh-mode . ("bash-language-server" "start"))
+    ((c++-mode
+      c-mode) . (eglot-cquery "cquery"))
+    (ruby-mode
+     . ("solargraph" "socket" "--port"
+        :autoport))
+    (php-mode . ("php" "vendor/felixfbecker/\
 language-server/bin/php-language-server.php"))
-                                (haskell-mode . ("hie-wrapper")))
+    (haskell-mode . ("hie-wrapper"))
+    (java-mode
+     . ,(lambda ()
+          `("java"
+            "-Declipse.application=org.eclipse.jdt.ls.core.id1"
+            "-Dosgi.bundles.defaultStartLevel=4"
+            "-Declipse.product=org.eclipse.jdt.ls.core.product"
+            "-Dlog.protocol=true"
+            "-Dlog.level=ALL"
+            "-noverify"
+            "-Xmx1G"
+            "-jar" "plugins/org.eclipse.equinox.launcher_1.5.100.v20180611-1436.jar"
+            "-configuration" "config_mac"
+            "-data" ,(if-let ((proj (project-current)))
+                         (car (project-roots proj))
+                       default-directory)))))
   "How the command `eglot' guesses the server to start.
 An association list of (MAJOR-MODE . CONTACT) pairs.  MAJOR-MODE
 is a mode symbol, or a list of mode symbols.  The associated
@@ -121,7 +137,10 @@ of those modes.  CONTACT can be:
   converted to produce a plist with a suitable :PROCESS initarg
   to CLASS-NAME.  The class `eglot-lsp-server' descends
   `jsonrpc-process-connection', which you should see for the
-  semantics of the mandatory :PROCESS argument.")
+  semantics of the mandatory :PROCESS argument.
+
+* A function of no arguments producing any of the above values
+  for CONTACT.")
 
 (defface eglot-mode-line
   '((t (:inherit font-lock-constant-face :weight bold)))
@@ -310,6 +329,7 @@ be guessed."
                             (lambda (m1 m2)
                               (or (eq m1 m2)
                                   (and (listp m1) (memq m2 m1)))))))
+         (guess (if (functionp guess) (funcall guess) guess))
          (class (or (and (consp guess) (symbolp (car guess))
                          (prog1 (car guess) (setq guess (cdr guess))))
                     'eglot-lsp-server))
@@ -457,6 +477,7 @@ This docstring appeases checkdoc, that's all."
          (nickname (file-name-base (directory-file-name default-directory)))
          (readable-name (format "EGLOT (%s/%s)" nickname managed-major-mode))
          autostart-inferior-process
+         (contact (if (functionp contact) (funcall contact) contact))
          (initargs
           (cond ((keywordp (car contact)) contact)
                 ((integerp (cadr contact))

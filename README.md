@@ -32,6 +32,7 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * PHP's [php-language-server][php-language-server]
 * C/C++'s [cquery][cquery]
 * Haskell's [IDE engine][haskell-ide-engine]
+* Java's [Eclipse JDT Language Server][eclipse-jdt]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -277,4 +278,5 @@ Under the hood:
 [solargraph]: https://github.com/castwide/solargraph
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
+[eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
 
