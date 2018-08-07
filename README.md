@@ -167,7 +167,7 @@ eglot-shutdown`.
 - [x] client/unregisterCapability  (ditto)
 
 ## Workspace
-- [ ] workspace/workspaceFolders (3.6.0)
+- [x] workspace/workspaceFolders (3.6.0, partial)
 - [ ] workspace/didChangeWorkspaceFolders (3.6.0)
 - [x] workspace/didChangeConfiguration
 - [ ] workspace/configuration (3.6.0)

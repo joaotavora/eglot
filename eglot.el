@@ -171,7 +171,8 @@ lasted more than that many seconds."
                         :executeCommand `(:dynamicRegistration :json-false)
                         :workspaceEdit `(:documentChanges :json-false)
                         :didChangeWatchedFiles `(:dynamicRegistration t)
-                        :symbol `(:dynamicRegistration :json-false))
+                        :symbol `(:dynamicRegistration :json-false)
+                        :workspaceFolders t)
             :textDocument
             (list
              :synchronization (list
@@ -512,12 +513,19 @@ This docstring appeases checkdoc, that's all."
             (jsonrpc-request
              server
              :initialize
-             (list :processId (unless (eq (jsonrpc-process-type server) 'network)
-                                (emacs-pid))
-                   :rootPath (expand-file-name default-directory)
-                   :rootUri (eglot--path-to-uri default-directory)
-                   :initializationOptions (eglot-initialization-options server)
-                   :capabilities (eglot-client-capabilities server)))
+             `(:processId
+               ,(unless (eq (jsonrpc-process-type server) 'network)
+                  (emacs-pid))
+               :rootPath ,(expand-file-name default-directory)
+               :rootUri ,(eglot--path-to-uri default-directory)
+               :initializationOptions ,(eglot-initialization-options server)
+               :capabilities ,(eglot-client-capabilities server)
+               ,@(when (cdr (project-roots project))
+                   `(:workspaceFolders
+                     [,@(mapcar (lambda (root)
+                                  (list :uri (eglot--path-to-uri root)
+                                        :name (file-name-base root)))
+                                (project-roots (eglot--project server)))]))))
           (setf (eglot--capabilities server) capabilities)
           (dolist (buffer (buffer-list))
             (with-current-buffer buffer
