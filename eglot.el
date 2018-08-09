@@ -1113,6 +1113,7 @@ When called interactively, use the currently active server"
 
 (defun eglot--signal-textDocument/didSave ()
   "Send textDocument/didSave to server."
+  (eglot--signal-textDocument/didChange)
   (jsonrpc-notify
    (eglot--current-server-or-lose)
    :textDocument/didSave
