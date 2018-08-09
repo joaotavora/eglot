@@ -1048,7 +1048,7 @@ Records START, END and PRE-CHANGE-LENGTH locally."
 ;; bad idea, since that might lead to the request never having a
 ;; chance to run, because `jsonrpc-connection-ready-p'.
 (advice-add #'jsonrpc-request :before
-            (cl-function (lambda (_proc _method _params &key deferred _timeout)
+            (cl-function (lambda (_proc _method _params &key deferred &allow-other-keys)
                            (when (and eglot--managed-mode deferred)
                              (eglot--signal-textDocument/didChange))))
             '((name . eglot--signal-textDocument/didChange)))
@@ -1274,12 +1274,13 @@ is not active."
       (list
        (or (car bounds) (point))
        (or (cdr bounds) (point))
-       (completion-table-with-cache
+       (completion-table-dynamic
         (lambda (_ignored)
           (let* ((resp (jsonrpc-request server
                                         :textDocument/completion
                                         (eglot--TextDocumentPositionParams)
-                                        :deferred :textDocument/completion))
+                                        :deferred :textDocument/completion
+                                        :cancel-on-input t))
                  (items (if (vectorp resp) resp (plist-get resp :items))))
             (mapcar
              (jsonrpc-lambda (&rest all &key label insertText &allow-other-keys)
@@ -1698,6 +1699,112 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
          (cl-loop for (k . v) in overlay-properties
                   do (overlay-put ov k v)))))
    '((name . eglot-hacking-in-some-per-diag-overlay-properties))))
+
+
+;; Issue 61 HACK
+
+(defun jsonrpc-connection-receive (connection message)
+  "Process MESSAGE just received from CONNECTION.
+This function will destructure MESSAGE and call the appropriate
+dispatcher in CONNECTION."
+  (cl-destructuring-bind (&key method id error params result _jsonrpc)
+      message
+    (let (continuations)
+      (jsonrpc--log-event connection message 'server)
+      (setf (jsonrpc-last-error connection) error)
+      (cond
+       (;; A remote request
+        (and method id)
+        (let* ((debug-on-error (and debug-on-error (not (ert-running-test))))
+               (reply
+                (condition-case-unless-debug _ignore
+                    (condition-case oops
+                        `(:result ,(funcall (jsonrpc--request-dispatcher connection)
+                                            connection (intern method) params))
+                      (jsonrpc-error
+                       `(:error
+                         (:code
+                          ,(or (alist-get 'jsonrpc-error-code (cdr oops)) -32603)
+                          :message ,(or (alist-get 'jsonrpc-error-message
+                                                   (cdr oops))
+                                        "Internal error")))))
+                  (error
+                   `(:error (:code -32603 :message "Internal error"))))))
+          (apply #'jsonrpc--reply connection id reply)))
+       (;; A remote notification
+        method
+        (funcall (jsonrpc--notification-dispatcher connection)
+                 connection (intern method) params))
+       (;; A remote response
+        (setq continuations
+              (and id (gethash id (jsonrpc--request-continuations connection))))
+        (let ((timer (nth 2 continuations)))
+          (when timer (cancel-timer timer)))
+        (remhash id (jsonrpc--request-continuations connection))
+        (if error (funcall (nth 1 continuations) error)
+          (funcall (nth 0 continuations) result))))
+      (jsonrpc--call-deferred connection))))
+
+(cl-defun jsonrpc-request (connection
+                           method params &key
+                           deferred timeout
+                           cancel-on-input
+                           cancel-on-input-retval)
+  "Make a request to CONNECTION, wait for a reply.
+Like `jsonrpc-async-request' for CONNECTION, METHOD and PARAMS,
+but synchronous, i.e. this function doesn't exit until anything
+interesting (success, error or timeout) happens.  Furthermore, it
+only exits locally (returning the JSONRPC result object) if the
+request is successful, otherwise exit non-locally with an error
+of type `jsonrpc-error'.
+
+DEFERRED is passed to `jsonrpc-async-request', which see.
+
+If CANCEL-ON-INPUT is non-nil and the user has input something
+before a response to the request is received, then any future
+responses (normal or error) are ignored and this function exits
+locally, returning CANCEL-ON-INPUT-RETVAL."
+  (let* ((tag (cl-gensym "jsonrpc-request-catch-tag")) id-and-timer
+         cancelled
+         (retval
+          (unwind-protect ; protect against user-quit, for example
+              (catch tag
+                (setq
+                 id-and-timer
+                 (jsonrpc--async-request-1
+                  connection method params
+                  :success-fn (lambda (result)
+                                (unless cancelled
+                                  (throw tag `(done ,result))))
+                  :error-fn
+                  (jsonrpc-lambda
+                      (&key code message data)
+                    (unless cancelled
+                      (throw tag `(error (jsonrpc-error-code . ,code)
+                                         (jsonrpc-error-message . ,message)
+                                         (jsonrpc-error-data . ,data)))))
+                  :timeout-fn
+                  (lambda ()
+                    (unless cancelled
+                      (throw tag '(error (jsonrpc-error-message . "Timed out")))))
+                  :deferred deferred
+                  :timeout timeout))
+                (cond (cancel-on-input
+                       (while (sit-for 30))
+                       (setq cancelled t)
+                       `(cancelled ,cancel-on-input-retval))
+                      (t (while t (accept-process-output nil 30)))))
+            (pcase-let* ((`(,id ,timer) id-and-timer))
+              (remhash id (jsonrpc--request-continuations connection))
+              (remhash (list deferred (current-buffer))
+                       (jsonrpc--deferred-actions connection))
+              (when timer (cancel-timer timer))))))
+    (when (eq 'error (car retval))
+      (signal 'jsonrpc-error
+              (cons
+               (format "request id=%s failed:" (car id-and-timer))
+               (cdr retval))))
+    (cadr retval)))
 
 
 (provide 'eglot)
