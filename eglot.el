@@ -177,7 +177,8 @@ lasted more than that many seconds."
              :synchronization (list
                                :dynamicRegistration :json-false
                                :willSave t :willSaveWaitUntil t :didSave t)
-             :completion         `(:dynamicRegistration :json-false)
+             :completion      (list :dynamicRegistration :json-false
+                                    :completionItem `(:snippetSupport t))
              :hover              `(:dynamicRegistration :json-false)
              :signatureHelp      `(:dynamicRegistration :json-false)
              :references         `(:dynamicRegistration :json-false)
@@ -1286,7 +1287,7 @@ is not active."
                  (items (if (vectorp resp) resp (plist-get resp :items))))
             (mapcar
              (jsonrpc-lambda (&rest all &key label insertText &allow-other-keys)
-               (let ((insert (or insertText label)))
+               (let ((insert (or insertText (string-trim-left label))))
                  (add-text-properties 0 1 all insert)
                  (put-text-property 0 1 'eglot--lsp-completion all insert)
                  insert))
@@ -1327,9 +1328,17 @@ is not active."
                (erase-buffer)
                (insert (eglot--format-markup documentation))
                (current-buffer)))))
-       :exit-function (lambda (_string _status)
-                        (eglot--signal-textDocument/didChange)
-                        (eglot-eldoc-function))))))
+       :exit-function (lambda (obj _status)
+                        (cl-destructuring-bind (&key insertTextFormat
+                                                     insertText
+                                                     &allow-other-keys)
+                            (text-properties-at 0 obj)
+                          (when (and (eql insertTextFormat 2)
+                                     (fboundp 'yas-expand-snippet))
+                            (delete-region (- (point) (length obj)) (point))
+                            (funcall 'yas-expand-snippet insertText))
+                          (eglot--signal-textDocument/didChange)
+                          (eglot-eldoc-function)))))))
 
 (defvar eglot--highlights nil "Overlays for textDocument/documentHighlight.")
 
