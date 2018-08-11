@@ -85,7 +85,7 @@
 
 (cl-defmacro eglot--with-timeout (timeout &body body)
   (declare (indent 1) (debug t))
-  `(eglot--call-with-timeout ',timeout (lambda () ,@body)))
+  `(eglot--call-with-timeout ,timeout (lambda () ,@body)))
 
 (defun eglot--call-with-timeout (timeout fn)
   (let* ((tag (gensym "eglot-test-timeout"))
@@ -163,8 +163,8 @@
   "Spin until FN match in EVENTS-SYM, flush events after it.
 Pass TIMEOUT to `eglot--with-timeout'."
   (declare (indent 2) (debug (sexp sexp sexp &rest form)))
-  `(eglot--with-timeout (,timeout ,(or message
-                                       (format "waiting for:\n%s" (pp-to-string body))))
+  `(eglot--with-timeout '(,timeout ,(or message
+                                        (format "waiting for:\n%s" (pp-to-string body))))
      (let ((event
             (cl-loop thereis (cl-loop for json in ,events-sym
                                       for method = (plist-get json :method)
@@ -196,8 +196,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (define-derived-mode rust-mode prog-mode "Rust"))
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
-(defun eglot--tests-connect ()
-  (eglot--with-timeout 2
+(defun eglot--tests-connect (&optional timeout)
+  (eglot--with-timeout (or timeout 2)
     (apply #'eglot--connect (eglot--guess-contact))))
 
 (ert-deftest auto-detect-running-server ()
@@ -381,26 +381,26 @@ Pass TIMEOUT to `eglot--with-timeout'."
                     (or (executable-find "yapf")
                         (executable-find "autopep8"))))
   (eglot--with-dirs-and-files
-   '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
-   (with-current-buffer
-       (eglot--find-file-noselect "project/something.py")
-     (should (eglot--tests-connect))
-     (search-forward "b():pa")
-     (eglot-format (point-at-bol) (point-at-eol))
-     (should (looking-at "ss"))
-     (should
-      (or
-       ;; yapf
-       (string= (buffer-string) "def a():pass\n\n\ndef b():\n    pass\n")
-       ;; autopep8
-       (string= (buffer-string) "def a():pass\n\n\ndef b(): pass\n")))
-     (eglot-format-buffer)
-     (should 
-      (or
-       ;; yapf
-       (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")
-       ;; autopep8
-       (string= (buffer-string) "def a(): pass\n\n\ndef b(): pass\n"))))))
+      '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (search-forward "b():pa")
+      (eglot-format (point-at-bol) (point-at-eol))
+      (should (looking-at "ss"))
+      (should
+       (or
+        ;; yapf
+        (string= (buffer-string) "def a():pass\n\n\ndef b():\n    pass\n")
+        ;; autopep8
+        (string= (buffer-string) "def a():pass\n\n\ndef b(): pass\n")))
+      (eglot-format-buffer)
+      (should
+       (or
+        ;; yapf
+        (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")
+        ;; autopep8
+        (string= (buffer-string) "def a(): pass\n\n\ndef b(): pass\n"))))))
 
 (ert-deftest javascript-basic ()
   "Test basic autocompletion in a python LSP"

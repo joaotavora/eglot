@@ -28,6 +28,7 @@ compile: $(ELCFILES)
 eglot-check: compile
 	$(EMACS) -Q --batch $(LOAD_PATH)				\
 		$(JSONRPC)						\
+		-l eglot						\
 		-l eglot-tests						\
 		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
 
