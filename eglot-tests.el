@@ -67,15 +67,10 @@
           (setq cleanup-events-et-cetera-p t))
       (unwind-protect
           (let ((eglot-autoreconnect nil))
-            (mapc (lambda (server) (eglot-shutdown server nil nil t))
+            (mapc (lambda (server)
+                    (eglot-shutdown
+                     server nil nil (not cleanup-events-et-cetera-p)))
                   (cl-remove-if-not #'jsonrpc-running-p new-servers)))
-        (when cleanup-events-et-cetera-p
-          (cl-loop for serv in new-servers
-                   do
-                   (kill-buffer (process-get (jsonrpc--process serv)
-                                             'jsonrpc-stderr))
-                   (kill-buffer (jsonrpc--events-buffer serv))
-                   (kill-buffer (process-buffer (jsonrpc--process serv)))))
         (eglot--message
          "Killing project buffers %s, deleting %s, killing server %s"
          (mapconcat #'buffer-name new-buffers ", ")
@@ -455,6 +450,59 @@ Pass TIMEOUT to `eglot--with-timeout'."
                  '(find-file "project/bar.py"))
               (should (eq server (eglot--current-server)))))
         (setq python-mode-hook saved-python-mode-hook)))))
+
+(ert-deftest slow-sync-connection-wait ()
+  "Connect with `eglot-sync-connect' set to t."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (let ((eglot-sync-connect t)
+            (eglot-server-programs
+             `((python-mode . ("sh" "-c" "sleep 1 && pyls")))))
+        (should (eglot--tests-connect 3))))))
+
+(ert-deftest slow-sync-connection-intime ()
+  "Connect synchronously with `eglot-sync-connect' set to 2."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (let ((eglot-sync-connect 2)
+            (eglot-server-programs
+             `((python-mode . ("sh" "-c" "sleep 1 && pyls")))))
+        (should (eglot--tests-connect 3))))))
+
+(ert-deftest slow-async-connection ()
+  "Connect asynchronously with `eglot-sync-connect' set to 2."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (let ((eglot-sync-connect 1)
+            (eglot-server-programs
+             `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
+        (should-not (apply #'eglot--connect (eglot--guess-contact)))
+        (eglot--with-timeout 3
+          (while (not (eglot--current-server))
+            (accept-process-output nil 0.2))
+          (should (eglot--current-server)))))))
+
+(ert-deftest slow-sync-timeout ()
+  "Failed attempt at connection synchronously."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (let ((eglot-sync-connect t)
+            (eglot-connect-timeout 1)
+            (eglot-server-programs
+             `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
+        (should-error (apply #'eglot--connect (eglot--guess-contact)))))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
