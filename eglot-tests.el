@@ -26,7 +26,9 @@
 (require 'eglot)
 (require 'cl-lib)
 (require 'ert)
+(require 'ert-x) ; ert-simulate-command
 (require 'edebug)
+(require 'python) ; python-mode-hook
 
 ;; Helpers
 
@@ -430,6 +432,29 @@ Pass TIMEOUT to `eglot--with-timeout'."
                    (cl-find-if (jsonrpc-lambda (&key severity &allow-other-keys)
                                  (= severity 1))
                                diagnostics)))))))))
+
+(ert-deftest zzz-eglot-ensure ()
+  "Test basic `eglot-ensure' functionality"
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-dirs-and-files
+      '(("project" . (("foo.py" . "import sys\nsys.exi")
+                      ("bar.py" . "import sys\nsys.exi"))))
+    (let ((saved-python-mode-hook python-mode-hook)
+          server)
+      (unwind-protect
+          (progn
+            (add-hook 'python-mode-hook 'eglot-ensure)
+            ;; need `ert-simulate-command' because `eglot-ensure'
+            ;; relies on `post-command-hook'.
+            (with-current-buffer
+                (ert-simulate-command
+                 '(find-file "project/foo.py"))
+              (should (setq server (eglot--current-server))))
+            (with-current-buffer
+                (ert-simulate-command
+                 '(find-file "project/bar.py"))
+              (should (eq server (eglot--current-server)))))
+        (setq python-mode-hook saved-python-mode-hook)))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
