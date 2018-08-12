@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/joaotavora/eglot.png)](https://travis-ci.org/joaotavora/eglot)
+[![Build Status](https://travis-ci.org/joaotavora/eglot.png?branch=master)](https://travis-ci.org/joaotavora/eglot)
 [![MELPA](http://melpa.org/packages/eglot-badge.svg)](http://melpa.org/#/eglot)
 
 Eglot
