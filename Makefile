@@ -10,7 +10,7 @@ LOAD_PATH=-L .
 ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
-JSONRPC :=--eval '(package-initialize)'				\
+JSONRPC ?=--eval '(package-initialize)'				\
           --eval '(package-refresh-contents)'			\
           --eval '(package-install (quote jsonrpc))'
 
