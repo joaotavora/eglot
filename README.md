@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/joaotavora/eglot.png?branch=master)](https://travis-ci.org/joaotavora/eglot)
 [![MELPA](http://melpa.org/packages/eglot-badge.svg)](http://melpa.org/#/eglot)
 
-Eglot
------
+M-x Eglot
+---------
 
 *E*macs Poly*glot*. Emacs client to [Language Server Protocol][lsp]
 servers.  Scroll down this README for some
@@ -116,8 +116,8 @@ information in stderr, jumps to a buffer with these contents.
 
 - `M-x eglot-signal-didChangeConfiguration` updates the LSP server
 configuration according to the value of the variable
-`eglot-workspace-configuration`, which you may, for example set in a
-`.dir-locals` file.`
+`eglot-workspace-configuration`, which you may be set in a
+`.dir-locals` file, for example.
 
 There are *no keybindings* specific to Eglot, but you can bind stuff
 in `eglot-mode-map`, which is active as long as Eglot is managing a
@@ -223,29 +223,38 @@ eglot-shutdown`.
 
 # Differences to lsp-mode.el
 
-Eglot is **beta**. It may currently underperform
-[lsp-mode.el][emacs-lsp], both in functionality and correctness. That
-other extension is much more mature and has a host of
-[plugins][emacs-lsp-plugins] for bells and whistles.  If you don't
-like the minimalist approach of `eglot.el`, you could be better served
-with `lsp-mode.el` for now.
+Eglot and [lsp-mode.el][emacs-lsp] share a common goal, which is to
+bring LSP to Emacs.  lsp-mode.el is a more mature extension with a
+host of [plugins][emacs-lsp-plugins] for bells and whistles.  Eglot
+may still lag it in some aspects, but the gap is closing as more
+features make it into Eglot and more servers are supported
+out-of-the-box.
+
+Conversely, you may find Eglot surpasses lsp-mode.el in other aspects,
+namely simplicity.  Eglot is considerably less code and hassle than
+lsp-mode.el.  In most cases, there's nothing to configure.  It's a
+minimalist approach focused on user experience and performance.
 
 User-visible differences:
 
-- Single and friendly entry point `M-x eglot`, not `M-x
-  eglot-<language>`. Also no `eglot-<language>` extra packages.
-- No "whitelisting" or "blacklisting" directories to languages. `M-x
-  eglot` starts servers to handle major modes inside a specific
-  project. Uses Emacs's built-in `project.el` library to discover
-  projects. Automatically detects current and future opened files
-  under that project and syncs with server.
+- The single most visible difference is the friendly entry point `M-x
+  eglot`, not `M-x eglot-<language>`.  Also, there are no
+  `eglot-<language>` extra packages.
+
+- There's no "whitelisting" or "blacklisting" directories to
+  languages.  `M-x eglot` starts servers to handle file of a major
+  mode inside a specific project, using Emacs's built-in `project.el`
+  library to discover projects.  Then it automatically detects current
+  and future opened files under that project and syncs with server;
+
 - Easy way to quit/restart a server, just middle/right click on the
-  connection name.
+  connection name;
 - Pretty interactive mode-line section for live tracking of server
-  communication.
-- Automatically restarts frequently crashing servers (like RLS).
-- Server-initiated edits are confirmed with the user.
-- Diagnostics work out-of-the-box (no `flycheck.el` needed).
+  communication;
+- Automatically restarts frequently crashing servers (like RLS);
+- Slow-to-start servers start asynchronously in the background;
+- Server-initiated edits are confirmed with the user;
+- Diagnostics work out-of-the-box (no `flycheck.el` needed);
 - Smoother/more responsive (read below).
    
 Under the hood:
