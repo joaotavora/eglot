@@ -1545,7 +1545,9 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
                           ;; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=32237
                           ;; https://debbugs.gnu.org/cgi/bugreport.cgi?bug=32278
                           (let ((inhibit-modification-hooks t)
-                                (length (- end beg)))
+                                (length (- end beg))
+                                (beg (marker-position beg))
+                                (end (marker-position end)))
                             (run-hook-with-args 'before-change-functions
                                                 beg end)
                             (replace-buffer-contents temp)
@@ -1555,7 +1557,10 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
                       (progress-reporter-update reporter (cl-incf done)))))))
             (mapcar (jsonrpc-lambda (&key range newText)
                       (cons newText (eglot--range-region range 'markers)))
-                    edits))
+                    ;; Reverse the edits so that if there are multiple
+                    ;; insertions in the same place, they appear in the buffer
+                    ;; in the original order, as per the standard.
+                    (nreverse edits)))
       (undo-amalgamate-change-group change-group)
       (progress-reporter-done reporter))))
 
