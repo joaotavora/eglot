@@ -266,7 +266,9 @@ If PRESERVE-BUFFERS is non-nil (interactively, when called with a
 prefix argument), do not kill events and output buffers of
 SERVER.  Don't leave this function with the server still
 running."
-  (interactive (list (eglot--current-server-or-lose) t nil current-prefix-arg))
+  (interactive (list
+                (eglot--read-server "Shut down server: ")
+                t nil current-prefix-arg))
   (eglot--message "Asking %s politely to terminate" (jsonrpc-name server))
   (unwind-protect
       (progn
@@ -314,6 +316,20 @@ running."
                 (when (plist-member (symbol-plist sym) 'derived-mode-parent)
                   (push sym retval))))
     retval))
+
+(defun eglot--read-server (prompt)
+  "Read a server from the minibuffer with PROMPT."
+  (let ((alist
+         (mapcar
+          (lambda (server) (cons (jsonrpc-name server) server))
+          (delq nil
+                (cons (eglot--current-server)
+                      (apply #'append
+                             (hash-table-values eglot--servers-by-project)))))))
+    (cdr
+     (assoc
+      (completing-read prompt (delete-dups alist) nil t nil nil (car alist))
+      alist))))
 
 (defvar eglot--command-history nil
   "History of CONTACT arguments to `eglot'.")
