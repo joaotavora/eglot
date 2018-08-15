@@ -33,6 +33,7 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * C/C++'s [cquery][cquery]
 * Haskell's [IDE engine][haskell-ide-engine]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
+* Golang's [go-langserver][go-langserver]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -288,4 +289,5 @@ Under the hood:
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
+[go-langserver]: https://github.com/sourcegraph/go-langserver
 
