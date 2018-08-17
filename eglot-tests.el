@@ -504,6 +504,28 @@ Pass TIMEOUT to `eglot--with-timeout'."
              `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
         (should-error (apply #'eglot--connect (eglot--guess-contact)))))))
 
+(ert-deftest eglot-capabilities ()
+  "Unit test for `eglot--server-capable'."
+  (cl-letf (((symbol-function 'eglot--capabilities)
+             (lambda (_dummy)
+               ;; test data lifted from Golangserver example at
+               ;; https://github.com/joaotavora/eglot/pull/74
+               (list :textDocumentSync 2 :hoverProvider t
+                     :completionProvider '(:triggerCharacters ["."])
+                     :signatureHelpProvider '(:triggerCharacters ["(" ","])
+                     :definitionProvider t :typeDefinitionProvider t
+                     :referencesProvider t :documentSymbolProvider t
+                     :workspaceSymbolProvider t :implementationProvider t
+                     :documentFormattingProvider t :xworkspaceReferencesProvider t
+                     :xdefinitionProvider t :xworkspaceSymbolByProperties t)))
+            ((symbol-function 'eglot--current-server-or-lose)
+             (lambda () nil)))
+    (should (eql 2 (eglot--server-capable :textDocumentSync)))
+    (should (eglot--server-capable :completionProvider :triggerCharacters))
+    (should (equal '(:triggerCharacters ["."]) (eglot--server-capable :completionProvider)))
+    (should-not (eglot--server-capable :foobarbaz))
+    (should-not (eglot--server-capable :textDocumentSync :foobarbaz))))
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 
