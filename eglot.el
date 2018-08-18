@@ -146,6 +146,10 @@ of those modes.  CONTACT can be:
   '((t (:inherit font-lock-constant-face :weight bold)))
   "Face for package-name in EGLOT's mode line.")
 
+(defface eglot-code-lens
+  '((t (:inherit default :height 0.8)))
+  "Face used for code lens overlays.")
+
 (defcustom eglot-autoreconnect 3
   "Control ability to reconnect automatically to the LSP server.
 If t, always reconnect automatically (not recommended).  If nil,
@@ -1159,6 +1163,14 @@ and just return it.  PROMPT shouldn't end with a question mark."
     (remove-function (local 'imenu-create-index-function) #'eglot-imenu)
     (setq eglot--current-flymake-report-fn nil))))
 
+(define-minor-mode eglot--lens-mode
+  "Mode for displaying code lens."
+  :lighter " lens"
+  :keymap `(("p" . eglot-previous-lens)
+            ("n" . eglot-next-lens)
+            ("q" . eglot--lens-mode)
+            (,(kbd "RET") . eglot-lens-act)))
+
 (defvar-local eglot--cached-current-server nil
   "A cached reference to the current EGLOT server.
 Reset in `eglot--managed-mode-onoff'.")
@@ -1924,6 +1936,142 @@ is not active."
                       (funcall snippet-fn insertText))))
              (eglot--signal-textDocument/didChange)
              (eglot-eldoc-function))))))))
+
+(defun eglot-lens-act (server lenses)
+  "Choose a code lens from LENSES and execute it's command on SERVER."
+  (interactive
+   (list (eglot--current-server-or-lose)
+         (cl-loop for ov in (overlays-at (point))
+                  thereis (overlay-get ov 'eglot-code-lens))))
+  (cond
+   ((null lenses) (error "Nothing to do here"))
+   (t
+    (let* ((titles (mapcar (lambda (lens)
+                             (plist-get (plist-get lens :command) :title))
+                           lenses))
+           (dups
+            (and (cl-notevery (lambda (elt)
+                                (= 1 (cl-count elt titles :test #'string=)))
+                              titles)
+                 0))
+           (menu-items
+            (mapcar (jsonrpc-lambda (&key command &allow-other-keys)
+                      (cl-destructuring-bind
+                          (&key title command arguments) command
+                        (cons (concat title
+                                      (and dups
+                                           (format " (%d)" (cl-incf dups))))
+                              (cons command arguments))))
+                    lenses))
+           (never-mind (gensym))
+           (menu (and
+                  (cdr menu-items)
+                  `("Eglot code lens:"
+                    ("dummy" ("never mind..." . ,never-mind) ,@menu-items))))
+           (retval (or (and menu (tmm-prompt menu))
+                       (cdar menu-items))))
+      (if (eq retval never-mind)
+          (keyboard-quit)
+        (eglot-execute-command server (car retval) (cdr retval)))))))
+
+(defun eglot-next-lens (&optional N)
+  "Go to Nth next lens.
+N defaults to 1"
+  (interactive "p")
+  (or N (setq N 1))
+  (let ((move (if (cl-plusp N)
+                  #'next-single-char-property-change
+                #'previous-single-char-property-change)))
+    (dotimes (_ (abs N))
+      (goto-char
+       (funcall move (1+ (funcall move (point) 'eglot-code-lens))
+                'eglot-code-lens))
+      (beginning-of-line))))
+
+(defun eglot-previous-lens (&optional N)
+  "Go to Nth previous lens.
+N defaults to 1"
+  (interactive "p")
+  (eglot-next-lens (- N)))
+
+(defun eglot-code-lens ()
+  "Ask the server for code lens and show them in the current buffer."
+  (interactive)
+  (unless (eglot--server-capable :codeLensProvider)
+    (error "Server does not support code lens."))
+  (when eglot--lens-mode
+    (eglot--lens-mode -1))
+  (let ((read-only-p buffer-read-only)
+        overlays)
+    (condition-case err
+        (let ((lens-table (make-hash-table)))
+          ;; Get the code lens objects.
+          (mapc (lambda (codeLens)
+                  (when (and (eglot--server-capable
+                              :codeLensProvider :resolveProvider)
+                             (not (plist-member codeLens :command)))
+                    (setq codeLens
+                          (jsonrpc-request (eglot--current-server-or-lose)
+                                           :codeLens/resolve codeLens)))
+                  (let ((line (thread-first codeLens
+                                (plist-get :range)
+                                (plist-get :start)
+                                (plist-get :line))))
+                    (puthash line
+                             (append (gethash line lens-table) (list codeLens))
+                             lens-table)))
+                (jsonrpc-request
+                 (eglot--current-server-or-lose)
+                 :textDocument/codeLens
+                 (list :textDocument (eglot--TextDocumentIdentifier))
+                 :deferred :textDocument/codeLens))
+
+          ;; Make overlays for them.
+          (maphash
+           (lambda (line values)
+             (eglot--widening
+              (goto-char (point-min))
+              (forward-line line)
+              (let ((ov (make-overlay (point-at-bol) (point-at-eol)))
+                    (text
+                     (mapconcat
+                      (lambda (codeLens)
+                        (propertize
+                         (plist-get (plist-get codeLens :command) :title)
+                         'mouse-face 'highlight
+                         'keymap (let ((map (make-sparse-keymap)))
+                                   (define-key map [mouse-1]
+                                               (lambda ()
+                                                 (interactive)
+                                                 (eglot-lens-act (eglot--current-server-or-lose)
+                                                                 (list codeLens))))
+                                   map)))
+                      values
+                      " | ")))
+                (push ov overlays)
+                (overlay-put ov 'eglot-code-lens values)
+                (overlay-put ov 'before-string
+                             (concat (make-string (current-indentation) ?\ )
+                                     (propertize text 'face 'eglot-code-lens)
+                                     "\n")))))
+           lens-table)
+
+          ;; Setup minor mode which will clean them up and provide keybindings.
+          (eglot--lens-mode 1)
+          (setq buffer-read-only t)
+          (cl-labels
+              ((cleanup
+                ()
+                (remove-hook 'eglot--lens-mode-hook #'cleanup t)
+                (unless eglot--lens-mode
+                  (mapc #'delete-overlay overlays)
+                  (setq buffer-read-only read-only-p))))
+            (add-hook 'eglot--lens-mode-hook #'cleanup nil t)))
+      (error
+       (mapc #'delete-overlay overlays)
+       (setq buffer-read-only read-only-p)
+       (eglot--lens-mode -1)
+       (signal (car err) (cdr err))))))
 
 (defvar eglot--highlights nil "Overlays for textDocument/documentHighlight.")
 
