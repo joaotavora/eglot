@@ -807,7 +807,7 @@ and just return it.  PROMPT shouldn't end with a question mark."
     (add-hook 'completion-at-point-functions #'eglot-completion-at-point nil t)
     (add-hook 'change-major-mode-hook 'eglot--managed-mode-onoff nil t)
     (add-function :before-until (local 'eldoc-documentation-function)
-                  #'eglot-eldoc-function)
+                  #'eglot-show-error-or-eldoc-function)
     (add-function :around (local 'imenu-create-index-function) #'eglot-imenu)
     (flymake-mode 1)
     (eldoc-mode 1))
@@ -823,7 +823,7 @@ and just return it.  PROMPT shouldn't end with a question mark."
     (remove-hook 'completion-at-point-functions #'eglot-completion-at-point t)
     (remove-hook 'change-major-mode-hook #'eglot--managed-mode-onoff t)
     (remove-function (local 'eldoc-documentation-function)
-                     #'eglot-eldoc-function)
+                     #'eglot-show-error-or-eldoc-function )
     (remove-function (local 'imenu-create-index-function) #'eglot-imenu)
     (setq eglot--current-flymake-report-fn nil))))
 
@@ -1504,6 +1504,13 @@ is not active."
     (let ((blurb (eglot--hover-info contents range)))
       (with-help-window "*eglot help*"
         (with-current-buffer standard-output (insert blurb))))))
+
+(defun eglot-show-error-or-eldoc-function ()
+  "Display the error message at the point, otherwise call `eglot-eldoc-function'."
+    (let ((help (help-at-pt-kbd-string)))
+      (if help
+          (message "%s" help)
+        (eglot-eldoc-function))))
 
 (defun eglot-eldoc-function ()
   "EGLOT's `eldoc-documentation-function' function.
