@@ -222,6 +222,7 @@ eglot-shutdown`.
 ![eglot-rename](./gif-examples/eglot-rename.gif)
 ![eglot-xref-find-definition](./gif-examples/eglot-xref-find-definition.gif)
 ![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
+![eglot-snippets-on-completion](./gif-examples/eglot-snippets-on-completion.gif)
 
 # Differences to lsp-mode.el
 
