@@ -806,6 +806,7 @@ and just return it.  PROMPT shouldn't end with a question mark."
     (add-hook 'xref-backend-functions 'eglot-xref-backend nil t)
     (add-hook 'completion-at-point-functions #'eglot-completion-at-point nil t)
     (add-hook 'change-major-mode-hook 'eglot--managed-mode-onoff nil t)
+    (add-hook 'post-self-insert-hook 'eglot--post-self-insert-hook nil t)
     (add-function :before-until (local 'eldoc-documentation-function)
                   #'eglot-eldoc-function)
     (add-function :around (local 'imenu-create-index-function) #'eglot-imenu)
@@ -822,6 +823,7 @@ and just return it.  PROMPT shouldn't end with a question mark."
     (remove-hook 'xref-backend-functions 'eglot-xref-backend t)
     (remove-hook 'completion-at-point-functions #'eglot-completion-at-point t)
     (remove-hook 'change-major-mode-hook #'eglot--managed-mode-onoff t)
+    (remove-hook 'post-self-insert-hook 'eglot--post-self-insert-hook t)
     (remove-function (local 'eldoc-documentation-function)
                      #'eglot-eldoc-function)
     (remove-function (local 'imenu-create-index-function) #'eglot-imenu)
@@ -1380,6 +1382,16 @@ is not active."
                       :insertSpaces (if indent-tabs-mode :json-false t))
        args)
       :deferred method))))
+
+(defun eglot--post-self-insert-hook ()
+  "Maybe a suitable addition to `post-self-insert-hook'."
+  (when (cl-some #'looking-back
+                 (mapcar #'regexp-quote
+                         (eglot--server-capable :completionProvider
+                                                :triggerCharacters)))
+    (funcall (if (fboundp 'company-complete)
+                 'company-complete
+               'completion-at-point))))
 
 (defun eglot-completion-at-point ()
   "EGLOT's `completion-at-point' function."
