@@ -1191,7 +1191,7 @@ When called interactively, use the currently active server"
   "Send textDocument/didChange to server."
   (when eglot--recent-changes
     (let* ((server (eglot--current-server-or-lose))
-           (sync-kind (eglot--server-capable :textDocumentSync))
+           (sync-kind (eglot--server-capable :textDocumentSync :change))
            (full-sync-p (or (eq sync-kind 1)
                             (eq :emacs-messup eglot--recent-changes))))
       (jsonrpc-notify
