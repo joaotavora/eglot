@@ -30,7 +30,7 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Ruby's [solargraph][solargraph]
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
-* C/C++'s [cquery][cquery]
+* C/C++'s [ccls][ccls]  ([cquery][cquery] and [clangd][clangd] also work)
 * Haskell's [IDE engine][haskell-ide-engine]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Golang's [go-langserver][go-langserver]
@@ -42,9 +42,17 @@ customize `eglot-server-programs`:
 (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
 ```
 
-Let me know how well it works and we can add it to the list.  You can
-also enter a `server:port` pattern to connect to an LSP server. To
-skip the guess and always be prompted use `C-u M-x eglot`.
+Let me know how well it works and we can add it to the list.  If the
+server has some quirk or non-conformity, it's possible to extend Eglot
+to adapt to it.  Here's how to get [cquery][cquery] working for
+example:
+
+```lisp
+(add-to-list 'eglot-server-programs '((c++ mode c-mode) . (eglot-cquery "cquery")))
+```
+
+You can also enter a `server:port` pattern to connect to an LSP
+server. To skip the guess and always be prompted use `C-u M-x eglot`.
 
 ## Connecting automatically
 
@@ -286,6 +294,8 @@ Under the hood:
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
 [cquery]: https://github.com/cquery-project/cquery
+[ccls]: https://github.com/MaskRay/ccls
+[clangd]: https://clang.llvm.org/extra/clangd.html
 [solargraph]: https://github.com/castwide/solargraph
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
