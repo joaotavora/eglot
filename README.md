@@ -30,7 +30,7 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Ruby's [solargraph][solargraph]
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
-* C/C++'s [cquery][cquery]
+* C/C++'s [ccls][ccls] [clangd][clangd] [cquery][cquery]
 * Haskell's [IDE engine][haskell-ide-engine]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Golang's [go-langserver][go-langserver]
@@ -285,6 +285,8 @@ Under the hood:
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
+[ccls]: https://github.com/MaskRay/ccls
+[clangd]: https://clang.llvm.org/extra/clangd.html
 [cquery]: https://github.com/cquery-project/cquery
 [solargraph]: https://github.com/castwide/solargraph
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
