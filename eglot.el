@@ -1272,13 +1272,30 @@ DUMMY is ignored."
 (advice-add 'xref-find-definitions :after #'eglot--xref-reset-known-symbols)
 (advice-add 'xref-find-references :after #'eglot--xref-reset-known-symbols)
 
-(defun eglot--xref-make (name uri position)
-  "Like `xref-make' but with LSP's NAME, URI and POSITION."
-  (cl-destructuring-bind (&key line character) position
-    (xref-make name (xref-make-file-location
-                     (eglot--uri-to-path uri)
-                     ;; F!@(#*&#$)CKING OFF-BY-ONE again
-                     (1+ line) character))))
+(defun eglot--xref-make (identifier location)
+  "Make an `xref-item' for given IDENTIFIER and LSP LOCATION."
+  (cl-destructuring-bind (&key uri range) location
+    (if-let ((buf (find-buffer-visiting (eglot--uri-to-path uri))))
+        (with-current-buffer buf
+          (let* ((start (plist-get range :start))
+                 (line (plist-get start :line))
+                 (col (plist-get start :character))
+                 (erange (eglot--range-region range))
+                 (length (- (cdr erange) (car erange)))
+                 summary)
+            (eglot--widening
+             (goto-char (car erange))
+             (setq summary (buffer-substring (point-at-bol) (point-at-eol)))
+             (add-face-text-property col (min (+ col length) (length summary))
+                                     'highlight t summary)
+             (xref-make
+              summary
+              (xref-make-file-location (buffer-file-name) (1+ line) col)))))
+      (cl-destructuring-bind (&key line character) (plist-get range :start)
+        (xref-make identifier (xref-make-file-location
+                               (eglot--uri-to-path uri)
+                               ;; F!@(#*&#$)CKING OFF-BY-ONE again
+                               (1+ line) character))))))
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql eglot)))
   (when (eglot--server-capable :documentSymbolProvider)
@@ -1320,8 +1337,7 @@ DUMMY is ignored."
                              :textDocument/definition
                              (get-text-property
                               0 :textDocumentPositionParams identifier)))))
-    (mapcar (jsonrpc-lambda (&key uri range)
-              (eglot--xref-make identifier uri (plist-get range :start)))
+    (mapcar (apply-partially #'eglot--xref-make identifier)
             location-or-locations)))
 
 (cl-defmethod xref-backend-references ((_backend (eql eglot)) identifier)
@@ -1334,8 +1350,7 @@ DUMMY is ignored."
     (unless params
       (eglot--error "Don' know where %s is in the workspace!" identifier))
     (mapcar
-     (jsonrpc-lambda (&key uri range)
-       (eglot--xref-make identifier uri (plist-get range :start)))
+     (apply-partially #'eglot--xref-make identifier)
      (jsonrpc-request (eglot--current-server-or-lose)
                       :textDocument/references
                       (append
@@ -1347,8 +1362,7 @@ DUMMY is ignored."
   (when (eglot--server-capable :workspaceSymbolProvider)
     (mapcar
      (jsonrpc-lambda (&key name location &allow-other-keys)
-       (cl-destructuring-bind (&key uri range) location
-         (eglot--xref-make name uri (plist-get range :start))))
+       (eglot--xref-make name location))
      (jsonrpc-request (eglot--current-server-or-lose)
                       :workspace/symbol
                       `(:query ,pattern)))))
