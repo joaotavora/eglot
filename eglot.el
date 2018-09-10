@@ -163,6 +163,13 @@ let the buffer grow forever."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Number of characters")))
 
+(defcustom eglot-show-hover-help-p nil
+  "Control show help documentation when cursor hover.
+
+If is non-nil, show help documentation in minibuffer.
+Default is nil."
+  :type 'boolean)
+
 ;;; API (WORK-IN-PROGRESS!)
 ;;;
 (cl-defmacro eglot--with-live-buffer (buf &rest body)
@@ -1539,7 +1546,8 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
                                               activeSignature
                                               activeParameter)))))
          :deferred :textDocument/signatureHelp))
-      (when (eglot--server-capable :hoverProvider)
+      (when (and eglot-show-hover-help-p
+                 (eglot--server-capable :hoverProvider))
         (jsonrpc-async-request
          server :textDocument/hover position-params
          :success-fn (jsonrpc-lambda (&key contents range)
