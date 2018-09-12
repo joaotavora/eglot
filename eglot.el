@@ -1548,8 +1548,11 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
                           (when-let (info (and contents
                                                (eglot--hover-info contents
                                                                   range)))
-                            (let ((message-truncate-lines t))
-                              (eldoc-message info))))))
+                            (let* ((end (min (1- (window-width (minibuffer-window)))
+                                             (or (string-match-p "\n" info)
+                                                 (length info))))
+                                   (msg (substring info nil end)))
+                              (eldoc-message msg))))))
          :deferred :textDocument/hover))
       (when (eglot--server-capable :documentHighlightProvider)
         (jsonrpc-async-request
