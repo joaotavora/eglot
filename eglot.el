@@ -1134,6 +1134,27 @@ THINGS are either registrations or unregisterations."
   (list :textDocument (eglot--TextDocumentIdentifier)
         :position (eglot--pos-to-lsp-position)))
 
+(defun eglot--completion-prefix ()
+  (let* ((completion-provider (eglot--server-capable :completionProvider))
+         (trigger-chars (if completion-provider
+                            (plist-get completion-provider :triggerCharacters)
+                          [])))
+    (when (and trigger-chars (length trigger-chars))
+      (cl-loop for char across trigger-chars
+               if (equal (buffer-substring-no-properties
+                          (- (point) (length char)) (point))
+                         char)
+               return char))))
+
+(defun eglot--CompletionParams ()
+  (let ((params (eglot--TextDocumentPositionParams))
+        (completion-prefix (eglot--completion-prefix)))
+    (if completion-prefix
+        (plist-put params
+                   :context
+                   (list :triggerKind 2 :triggerCharacter completion-prefix))
+      params)))
+
 (defvar-local eglot--recent-changes nil
   "Recent buffer changes as collected by `eglot--before-change'.")
 
@@ -1413,7 +1434,7 @@ is not active."
         (lambda (_ignored)
           (let* ((resp (jsonrpc-request server
                                         :textDocument/completion
-                                        (eglot--TextDocumentPositionParams)
+                                        (eglot--CompletionParams)
                                         :deferred :textDocument/completion
                                         :cancel-on-input t))
                  (items (if (vectorp resp) resp (plist-get resp :items))))
