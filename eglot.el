@@ -203,6 +203,7 @@ let the buffer grow forever."
                                :dynamicRegistration :json-false
                                :willSave t :willSaveWaitUntil t :didSave t)
              :completion      (list :dynamicRegistration :json-false
+                                    :contextSupport :json-false
                                     :completionItem
                                     `(:snippetSupport
                                       ,(if (eglot--snippet-expansion-fn)
