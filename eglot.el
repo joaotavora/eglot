@@ -721,23 +721,52 @@ CONNECT-ARGS are passed as additional arguments to
   (let ((warning-minimum-level :error))
     (display-warning 'eglot (apply #'format format args) :warning)))
 
+(defvar eglot-full-position-conversion t
+  "Whether positions are calculated in full compliance with the standard.
+Setting this to nil may improve performance, but it can also
+introduce bugs when characters wider than two UTF-16 code units
+are used.")
+
+(defun eglot--count-characters (beg end)
+  "Get the number of LSP characters in region BEG END.
+If `eglot-full-position-conversion' is non-nil, then convert the
+region to UTF-16 and count the number of code units.  Otherwise
+return the distance between BEG and END."
+  (cond
+   (eglot-full-position-conversion
+    (/
+     (-
+      (length (encode-coding-region beg end 'utf-16 t))
+      ;; The first two bytes are utf-16 signature.
+      2)
+     ;; Each code unit takes two bytes, so divide by two.
+     2))
+   (t (- end beg))))
+
 (defun eglot--pos-to-lsp-position (&optional pos)
   "Convert point POS to LSP position."
   (eglot--widening
-   (list :line (1- (line-number-at-pos pos t)) ; F!@&#$CKING OFF-BY-ONE
-         :character (- (goto-char (or pos (point)))
-                       (line-beginning-position)))))
+   (and pos (goto-char pos))
+   (list :line (1- (line-number-at-pos (point) t))
+         :character
+         (eglot--count-characters (line-beginning-position) (point)))))
 
 (defun eglot--lsp-position-to-point (pos-plist &optional marker)
   "Convert LSP position POS-PLIST to Emacs point.
 If optional MARKER, return a marker instead"
-  (save-excursion (goto-char (point-min))
-                  (forward-line (min most-positive-fixnum
-                                     (plist-get pos-plist :line)))
-                  (forward-char (min (plist-get pos-plist :character)
-                                     (- (line-end-position)
-                                        (line-beginning-position))))
-                  (if marker (copy-marker (point-marker)) (point))))
+  (save-excursion
+    (goto-char (point-min))
+    (forward-line (min most-positive-fixnum
+                       (plist-get pos-plist :line)))
+    (let ((lsp-pos (min
+                    (plist-get pos-plist :character)
+                    (eglot--count-characters
+                     (line-beginning-position) (line-end-position))))
+          (pos 0))
+      (while (< pos lsp-pos)
+        (cl-incf pos (eglot--count-characters (point) (1+ (point))))
+        (forward-char 1)))
+    (if marker (copy-marker (point-marker)) (point))))
 
 (defun eglot--path-to-uri (path)
   "URIfy PATH."
