@@ -22,7 +22,12 @@ install:
   - virtualenv .
   - . ./bin/activate
   - pip install 'python-language-server[all]'
-    
+  # Install eclipse.jdt.ls
+  - curl -fSL http://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -o eclipse.tar.gz
+  - mkdir eclipse.jdt.ls
+  - tar -C eclipse.jdt.ls -xzf eclipse.tar.gz
+  - export CLASSPATH=$(pwd)/$(find eclipse.jdt.ls/ -regex eclipse.jdt.ls/plugins/org.eclipse.equinox.launcher_.*.jar):${CLASSPATH}
+
 script:
   - make check
 
