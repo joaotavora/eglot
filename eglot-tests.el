@@ -204,49 +204,6 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (eglot--with-timeout (or timeout 2)
     (apply #'eglot--connect (eglot--guess-contact))))
 
-(ert-deftest eclipse-connect ()
-  "Connect to eclipse.jdt.ls server."
-  (skip-unless (eglot--have-eclipse-jdt-ls-p))
-  (eglot--with-dirs-and-files
-   '(("project/src/main/java/foo" . (("Main.java" . "")))
-     ("project/.git/" . nil))
-   (with-current-buffer
-       (eglot--find-file-noselect "project/src/main/java/foo/Main.java")
-     (eglot--sniffing (:server-notifications s-notifs)
-       (should (eglot--tests-connect 10))
-       (eglot--wait-for (s-notifs 10)
-           (&key _id method &allow-other-keys)
-         (string= method "language/status"))
-       (ignore-errors (eglot-shutdown (eglot--current-server) nil 10))))))
-
-(ert-deftest eclipse-workspace-folders ()
-  "Check eclipse connection with multi-root projects."
-  (skip-unless (eglot--have-eclipse-jdt-ls-p))
-  (eglot--with-dirs-and-files
-   '(("project/main/src/main/java/foo" . (("Main.java" . "")))
-     ("project/sub1/" . (("pom.xml" . "")))
-     ("project/sub2/" . (("build.gradle" . "")))
-     ("project/sub3/" . (("a.txt" . "")))
-     ("project/.git/" . nil))
-   (let ((root (file-name-as-directory default-directory)))
-     (with-current-buffer
-         (eglot--find-file-noselect "project/main/src/main/java/foo/Main.java")
-       (eglot--sniffing (:client-requests c-reqs)
-         (should (eglot--tests-connect 10))
-         (eglot--wait-for (c-reqs 10)
-             (&key _id method params &allow-other-keys)
-           (when (string= method "initialize")
-             (let ((folders (plist-get
-                             (plist-get params :initializationOptions)
-                             :workspaceFolders))
-                   (default-directory root))
-               (and
-                (seq-contains folders (eglot--path-to-uri "project/"))
-                (seq-contains folders (eglot--path-to-uri "project/sub1/"))
-                (seq-contains folders (eglot--path-to-uri "project/sub2/"))
-                (= 3 (length folders))))))
-         (ignore-errors (eglot-shutdown (eglot--current-server) nil 10)))))))
-
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
   (skip-unless (executable-find "rls"))
@@ -575,6 +532,49 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (should (equal '(:triggerCharacters ["."]) (eglot--server-capable :completionProvider)))
     (should-not (eglot--server-capable :foobarbaz))
     (should-not (eglot--server-capable :textDocumentSync :foobarbaz))))
+
+(ert-deftest eclipse-connect ()
+  "Connect to eclipse.jdt.ls server."
+  (skip-unless (eglot--have-eclipse-jdt-ls-p))
+  (eglot--with-dirs-and-files
+   '(("project/src/main/java/foo" . (("Main.java" . "")))
+     ("project/.git/" . nil))
+   (with-current-buffer
+       (eglot--find-file-noselect "project/src/main/java/foo/Main.java")
+     (eglot--sniffing (:server-notifications s-notifs)
+       (should (eglot--tests-connect 10))
+       (eglot--wait-for (s-notifs 10)
+           (&key _id method &allow-other-keys)
+         (string= method "language/status"))
+       (ignore-errors (eglot-shutdown (eglot--current-server) nil 10))))))
+
+(ert-deftest eclipse-workspace-folders ()
+  "Check eclipse connection with multi-root projects."
+  (skip-unless (eglot--have-eclipse-jdt-ls-p))
+  (eglot--with-dirs-and-files
+   '(("project/main/src/main/java/foo" . (("Main.java" . "")))
+     ("project/sub1/" . (("pom.xml" . "")))
+     ("project/sub2/" . (("build.gradle" . "")))
+     ("project/sub3/" . (("a.txt" . "")))
+     ("project/.git/" . nil))
+   (let ((root (file-name-as-directory default-directory)))
+     (with-current-buffer
+         (eglot--find-file-noselect "project/main/src/main/java/foo/Main.java")
+       (eglot--sniffing (:client-requests c-reqs)
+         (should (eglot--tests-connect 10))
+         (eglot--wait-for (c-reqs 10)
+             (&key _id method params &allow-other-keys)
+           (when (string= method "initialize")
+             (let ((folders (plist-get
+                             (plist-get params :initializationOptions)
+                             :workspaceFolders))
+                   (default-directory root))
+               (and
+                (seq-contains folders (eglot--path-to-uri "project/"))
+                (seq-contains folders (eglot--path-to-uri "project/sub1/"))
+                (seq-contains folders (eglot--path-to-uri "project/sub2/"))
+                (= 3 (length folders))))))
+         (ignore-errors (eglot-shutdown (eglot--current-server) nil 10)))))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
