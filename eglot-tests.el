@@ -33,7 +33,8 @@
 ;; Helpers
 
 (defun eglot--have-eclipse-jdt-ls-p ()
-  (and (getenv "CLASSPATH")
+  (and nil
+       (getenv "CLASSPATH")
        (cl-some
         (lambda (x)
           (string-match-p "org\\.eclipse\\.equinox\\.launcher_.*\\.jar$" x))
