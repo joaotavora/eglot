@@ -33,8 +33,7 @@
 ;; Helpers
 
 (defun eglot--have-eclipse-jdt-ls-p ()
-  (and nil
-       (getenv "CLASSPATH")
+  (and (getenv "CLASSPATH")
        (cl-some
         (lambda (x)
           (string-match-p "org\\.eclipse\\.equinox\\.launcher_.*\\.jar$" x))
@@ -93,7 +92,7 @@ then restored."
           (let ((eglot-autoreconnect nil))
             (mapc (lambda (server)
                     (eglot-shutdown
-                     server nil nil (not cleanup-events-et-cetera-p)))
+                     server nil 10 (not cleanup-events-et-cetera-p)))
                   (cl-remove-if-not #'jsonrpc-running-p new-servers)))
         (setq buffers-to-delete
               (delete nil (mapcar #'find-buffer-visiting created-files)))
@@ -230,44 +229,42 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Connect to eclipse.jdt.ls server."
   (skip-unless (eglot--have-eclipse-jdt-ls-p))
   (eglot--with-fixture
-   '(("project/src/main/java/foo" . (("Main.java" . "")))
-     ("project/.git/" . nil))
-   (with-current-buffer
-       (eglot--find-file-noselect "project/src/main/java/foo/Main.java")
-     (eglot--sniffing (:server-notifications s-notifs)
-       (should (eglot--tests-connect 10))
-       (eglot--wait-for (s-notifs 10)
-           (&key _id method &allow-other-keys)
-         (string= method "language/status"))
-       (ignore-errors (eglot-shutdown (eglot--current-server) nil 10))))))
+      '(("project/src/main/java/foo" . (("Main.java" . "")))
+        ("project/.git/" . nil))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/src/main/java/foo/Main.java")
+      (eglot--sniffing (:server-notifications s-notifs)
+        (should (eglot--tests-connect 10))
+        (eglot--wait-for (s-notifs 10)
+            (&key _id method &allow-other-keys)
+          (string= method "language/status"))))))
 
 (ert-deftest eclipse-workspace-folders ()
   "Check eclipse connection with multi-root projects."
   (skip-unless (eglot--have-eclipse-jdt-ls-p))
   (eglot--with-fixture
-   '(("project/main/src/main/java/foo" . (("Main.java" . "")))
-     ("project/sub1/" . (("pom.xml" . "")))
-     ("project/sub2/" . (("build.gradle" . "")))
-     ("project/sub3/" . (("a.txt" . "")))
-     ("project/.git/" . nil))
-   (let ((root (file-name-as-directory default-directory)))
-     (with-current-buffer
-         (eglot--find-file-noselect "project/main/src/main/java/foo/Main.java")
-       (eglot--sniffing (:client-requests c-reqs)
-         (should (eglot--tests-connect 10))
-         (eglot--wait-for (c-reqs 10)
-             (&key _id method params &allow-other-keys)
-           (when (string= method "initialize")
-             (let ((folders (plist-get
-                             (plist-get params :initializationOptions)
-                             :workspaceFolders))
-                   (default-directory root))
-               (and
-                (seq-contains folders (eglot--path-to-uri "project/"))
-                (seq-contains folders (eglot--path-to-uri "project/sub1/"))
-                (seq-contains folders (eglot--path-to-uri "project/sub2/"))
-                (= 3 (length folders))))))
-         (ignore-errors (eglot-shutdown (eglot--current-server) nil 10)))))))
+      '(("project/main/src/main/java/foo" . (("Main.java" . "")))
+        ("project/sub1/" . (("pom.xml" . "")))
+        ("project/sub2/" . (("build.gradle" . "")))
+        ("project/sub3/" . (("a.txt" . "")))
+        ("project/.git/" . nil))
+    (let ((root (file-name-as-directory default-directory)))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/main/src/main/java/foo/Main.java")
+        (eglot--sniffing (:client-requests c-reqs)
+          (should (eglot--tests-connect 10))
+          (eglot--wait-for (c-reqs 10)
+              (&key _id method params &allow-other-keys)
+            (when (string= method "initialize")
+              (let ((folders (plist-get
+                              (plist-get params :initializationOptions)
+                              :workspaceFolders))
+                    (default-directory root))
+                (and
+                 (seq-contains folders (eglot--path-to-uri "project/"))
+                 (seq-contains folders (eglot--path-to-uri "project/sub1/"))
+                 (seq-contains folders (eglot--path-to-uri "project/sub2/"))
+                 (= 3 (length folders)))))))))))
 
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
