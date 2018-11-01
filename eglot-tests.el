@@ -40,37 +40,53 @@
           (string-match-p "org\\.eclipse\\.equinox\\.launcher_.*\\.jar$" x))
         (split-string (getenv "CLASSPATH") ":"))))
 
-(defmacro eglot--with-dirs-and-files (dirs &rest body)
+(defmacro eglot--with-fixture (fixture &rest body)
+  "Setup FIXTURE, call BODY, teardown FIXTURE.
+FIXTURE is a list.  Its elements are of the form (FILE . CONTENT)
+to create a readable FILE with CONTENT.  FILE may be a directory
+name and CONTENT another (FILE . CONTENT) list to specify a
+directory hierarchy.  FIXTURE's elements can also be (SYMBOL
+VALUE) meaning SYMBOL should be bound to VALUE during BODY and
+then restored."
   (declare (indent 1) (debug t))
-  `(eglot--call-with-dirs-and-files
-    ,dirs #'(lambda () ,@body)))
+  `(eglot--call-with-fixture
+    ,fixture #'(lambda () ,@body)))
 
-(defun eglot--make-file-or-dirs (ass)
+(defun eglot--make-file-or-dir (ass)
   (let ((file-or-dir-name (car ass))
         (content (cdr ass)))
     (cond ((listp content)
            (make-directory file-or-dir-name 'parents)
            (let ((default-directory (concat default-directory "/" file-or-dir-name)))
-             (mapc #'eglot--make-file-or-dirs content)))
+             (mapcan #'eglot--make-file-or-dir content)))
           ((stringp content)
            (with-temp-buffer
              (insert content)
-             (write-region nil nil file-or-dir-name nil 'nomessage)))
+             (write-region nil nil file-or-dir-name nil 'nomessage))
+           (list file-or-dir-name))
           (t
-           (message "[yas] oops don't know this content")))))
+           (eglot--error "Expected a string or a directory spec")))))
 
-(defun eglot--call-with-dirs-and-files (dirs fn)
+(defun eglot--call-with-fixture (fixture fn)
+  "Helper for `eglot--with-fixture'.  Run FN under FIXTURE."
   (let* ((fixture-directory (make-temp-file "eglot--fixture" t))
          (default-directory fixture-directory)
-         new-buffers new-servers
+         file-specs created-files
+         syms-to-restore
+         buffers-to-delete new-servers
          cleanup-events-et-cetera-p)
+    (dolist (spec fixture)
+      (cond ((symbolp spec)
+             (push (cons spec (symbol-value spec)) syms-to-restore)
+             (set spec nil))
+            ((symbolp (car spec))
+             (push (cons (car spec) (symbol-value (car spec))) syms-to-restore)
+             (set (car spec) (cadr spec)))
+            ((stringp (car spec)) (push spec file-specs))))
     (unwind-protect
-        (let ((find-file-hook
-               (cons (lambda () (push (current-buffer) new-buffers))
-                     find-file-hook))
-              (eglot-connect-hook
+        (let ((eglot-connect-hook
                (lambda (server) (push server new-servers))))
-          (mapc #'eglot--make-file-or-dirs dirs)
+          (setq created-files (mapcan #'eglot--make-file-or-dir file-specs))
           (funcall fn)
           (setq cleanup-events-et-cetera-p t))
       (unwind-protect
@@ -79,12 +95,17 @@
                     (eglot-shutdown
                      server nil nil (not cleanup-events-et-cetera-p)))
                   (cl-remove-if-not #'jsonrpc-running-p new-servers)))
+        (setq buffers-to-delete
+              (delete nil (mapcar #'find-buffer-visiting created-files)))
+        (cl-loop for (sym . val) in syms-to-restore
+                 do (set sym val))
         (eglot--message
-         "Killing project buffers %s, deleting %s, killing server %s"
-         (mapconcat #'buffer-name new-buffers ", ")
+         "Killing project buffers %s, deleting %s, restoring %s, killing server %s"
+         (mapconcat #'buffer-name buffers-to-delete ", ")
          default-directory
+         (mapcar #'car syms-to-restore)
          (mapcar #'jsonrpc-name new-servers))
-        (dolist (buf new-buffers) ;; have to save otherwise will get prompted
+        (dolist (buf buffers-to-delete) ;; have to save otherwise will get prompted
           (with-current-buffer buf (save-buffer) (kill-buffer)))
         (delete-directory fixture-directory 'recursive)))))
 
@@ -208,7 +229,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest eclipse-connect ()
   "Connect to eclipse.jdt.ls server."
   (skip-unless (eglot--have-eclipse-jdt-ls-p))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
    '(("project/src/main/java/foo" . (("Main.java" . "")))
      ("project/.git/" . nil))
    (with-current-buffer
@@ -223,7 +244,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest eclipse-workspace-folders ()
   "Check eclipse connection with multi-root projects."
   (skip-unless (eglot--have-eclipse-jdt-ls-p))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
    '(("project/main/src/main/java/foo" . (("Main.java" . "")))
      ("project/sub1/" . (("pom.xml" . "")))
      ("project/sub2/" . (("build.gradle" . "")))
@@ -252,7 +273,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Visit a file and M-x eglot, then visit a neighbour. "
   (skip-unless (executable-find "rls"))
   (let (server)
-    (eglot--with-dirs-and-files
+    (eglot--with-fixture
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla")))
           ("anotherproject" . (("cena.rs" . "bla"))))
@@ -272,7 +293,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Start a server. Kill it. Watch it reconnect."
   (skip-unless (executable-find "rls"))
   (let (server (eglot-autoreconnect 1))
-    (eglot--with-dirs-and-files
+    (eglot--with-fixture
         '(("project" . (("coiso.rs" . "bla")
                         ("merdix.rs" . "bla"))))
       (with-current-buffer
@@ -297,7 +318,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (skip-unless (executable-find "cargo"))
   (skip-unless (null (getenv "TRAVIS_TESTING")))
   (let ((eglot-autoreconnect 1))
-    (eglot--with-dirs-and-files
+    (eglot--with-fixture
         '(("watch-project" . (("coiso.rs" . "bla")
                               ("merdix.rs" . "bla"))))
       (with-current-buffer
@@ -331,7 +352,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Test basic diagnostics in RLS."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("diag-project" . (("main.rs" . "fn main() {\nprintfoo!(\"Hello, world!\");\n}"))))
     (with-current-buffer
         (eglot--find-file-noselect "diag-project/main.rs")
@@ -351,7 +372,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
   (skip-unless (null (getenv "TRAVIS_TESTING")))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("hover-project" .
          (("main.rs" .
            "fn test() -> i32 { let test=3; return te; }"))))
@@ -384,7 +405,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Test renaming in RLS."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("rename-project"
          . (("main.rs" .
              "fn test() -> i32 { let test=3; return test; }"))))
@@ -399,7 +420,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
@@ -411,7 +432,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest hover-after-completions ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
@@ -428,7 +449,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (skip-unless (and (executable-find "pyls")
                     (or (executable-find "yapf")
                         (executable-find "autopep8"))))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
@@ -453,7 +474,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest javascript-basic ()
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "~/.yarn/bin/javascript-typescript-stdio"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("hello.js" . "console.log('Hello world!');"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/hello.js")
@@ -479,33 +500,32 @@ Pass TIMEOUT to `eglot--with-timeout'."
                                  (= severity 1))
                                diagnostics)))))))))
 
-(ert-deftest zzz-eglot-ensure ()
+(ert-deftest eglot-ensure ()
   "Test basic `eglot-ensure' functionality"
   (skip-unless (executable-find "pyls"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("foo.py" . "import sys\nsys.exi")
-                      ("bar.py" . "import sys\nsys.exi"))))
-    (let ((saved-python-mode-hook python-mode-hook)
-          server)
-      (unwind-protect
-          (progn
-            (add-hook 'python-mode-hook 'eglot-ensure)
-            ;; need `ert-simulate-command' because `eglot-ensure'
-            ;; relies on `post-command-hook'.
-            (with-current-buffer
-                (ert-simulate-command
-                 '(find-file "project/foo.py"))
-              (should (setq server (eglot--current-server))))
-            (with-current-buffer
-                (ert-simulate-command
-                 '(find-file "project/bar.py"))
-              (should (eq server (eglot--current-server)))))
-        (setq python-mode-hook saved-python-mode-hook)))))
+                      ("bar.py" . "import sys\nsys.exi")))
+        (python-mode-hook
+         (eglot-ensure
+          (lambda ()
+            (remove-hook 'flymake-diagnostic-functions 'python-flymake)))))
+    (let (server)
+      ;; need `ert-simulate-command' because `eglot-ensure'
+      ;; relies on `post-command-hook'.
+      (with-current-buffer
+          (ert-simulate-command
+           '(find-file "project/foo.py"))
+        (should (setq server (eglot--current-server))))
+      (with-current-buffer
+          (ert-simulate-command
+           '(find-file "project/bar.py"))
+        (should (eq server (eglot--current-server)))))))
 
 (ert-deftest slow-sync-connection-wait ()
   "Connect with `eglot-sync-connect' set to t."
   (skip-unless (executable-find "pyls"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
@@ -517,7 +537,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest slow-sync-connection-intime ()
   "Connect synchronously with `eglot-sync-connect' set to 2."
   (skip-unless (executable-find "pyls"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
@@ -529,7 +549,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest slow-async-connection ()
   "Connect asynchronously with `eglot-sync-connect' set to 2."
   (skip-unless (executable-find "pyls"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
@@ -545,7 +565,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest slow-sync-timeout ()
   "Failed attempt at connection synchronously."
   (skip-unless (executable-find "pyls"))
-  (eglot--with-dirs-and-files
+  (eglot--with-fixture
       '(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
