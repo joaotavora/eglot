@@ -72,8 +72,8 @@ then restored."
          (default-directory fixture-directory)
          file-specs created-files
          syms-to-restore
-         buffers-to-delete new-servers
-         cleanup-events-et-cetera-p)
+         new-servers
+         test-body-successful-p)
     (dolist (spec fixture)
       (cond ((symbolp spec)
              (push (cons spec (symbol-value spec)) syms-to-restore)
@@ -86,27 +86,31 @@ then restored."
         (let ((eglot-connect-hook
                (lambda (server) (push server new-servers))))
           (setq created-files (mapcan #'eglot--make-file-or-dir file-specs))
-          (funcall fn)
-          (setq cleanup-events-et-cetera-p t))
+          (prog1 (funcall fn)
+            (setq test-body-successful-p t)))
+      (eglot--message
+       "Test body was %s" (if test-body-successful-p "OK" "A FAILURE"))
       (unwind-protect
           (let ((eglot-autoreconnect nil))
             (mapc (lambda (server)
-                    (eglot-shutdown
-                     server nil 10 (not cleanup-events-et-cetera-p)))
+                    (condition-case oops
+                        (eglot-shutdown
+                         server nil 3 (not test-body-successful-p))
+                      (error
+                       (message "[eglot] Non-critical shutdown error after test: %S"
+                                oops))))
                   (cl-remove-if-not #'jsonrpc-running-p new-servers)))
-        (setq buffers-to-delete
-              (delete nil (mapcar #'find-buffer-visiting created-files)))
-        (cl-loop for (sym . val) in syms-to-restore
-                 do (set sym val))
-        (eglot--message
-         "Killing project buffers %s, deleting %s, restoring %s, killing server %s"
-         (mapconcat #'buffer-name buffers-to-delete ", ")
-         default-directory
-         (mapcar #'car syms-to-restore)
-         (mapcar #'jsonrpc-name new-servers))
-        (dolist (buf buffers-to-delete) ;; have to save otherwise will get prompted
-          (with-current-buffer buf (save-buffer) (kill-buffer)))
-        (delete-directory fixture-directory 'recursive)))))
+        (let ((buffers-to-delete
+               (delete nil (mapcar #'find-buffer-visiting created-files))))
+          (eglot--message "Killing %s, wiping %s, restoring %s"
+                          buffers-to-delete
+                          default-directory
+                          (mapcar #'car syms-to-restore))
+          (cl-loop for (sym . val) in syms-to-restore
+                   do (set sym val))
+          (dolist (buf buffers-to-delete) ;; have to save otherwise will get prompted
+            (with-current-buffer buf (save-buffer) (kill-buffer)))
+          (delete-directory fixture-directory 'recursive))))))
 
 (cl-defmacro eglot--with-timeout (timeout &body body)
   (declare (indent 1) (debug t))
@@ -222,7 +226,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
 (defun eglot--tests-connect (&optional timeout)
-  (eglot--with-timeout (or timeout 2)
+  (let* ((timeout (or timeout 2))
+         (eglot-sync-connect t)
+         (eglot-connect-timeout timeout))
     (apply #'eglot--connect (eglot--guess-contact))))
 
 (ert-deftest eclipse-connect ()
