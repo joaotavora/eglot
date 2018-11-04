@@ -221,6 +221,7 @@ let the buffer grow forever."
              :signatureHelp      `(:dynamicRegistration :json-false)
              :references         `(:dynamicRegistration :json-false)
              :definition         `(:dynamicRegistration :json-false)
+             :typeDefinition     `(:dynamicRegistration :json-false)
              :documentSymbol     `(:dynamicRegistration :json-false)
              :documentHighlight  `(:dynamicRegistration :json-false)
              :codeAction         (list
@@ -1381,16 +1382,29 @@ DUMMY is ignored."
 (cl-defmethod xref-backend-definitions ((_backend (eql eglot)) identifier)
   (let* ((rich-identifier
           (car (member identifier eglot--xref-known-symbols)))
+         (position
+          (get-text-property
+           0 :textDocumentPositionParams identifier))
          (definitions
           (if rich-identifier
               (get-text-property 0 :locations rich-identifier)
             (jsonrpc-request (eglot--current-server-or-lose)
                              :textDocument/definition
-                             (get-text-property
-                              0 :textDocumentPositionParams identifier))))
+                             position)))
+         (type-definitions
+          (when (eglot--server-capable :typeDefinitionProvider)
+            (jsonrpc-request (eglot--current-server-or-lose)
+                             :textDocument/typeDefinition
+                             position)))
          (locations
-          (and definitions
-               (if (vectorp definitions) definitions (vector definitions)))))
+          (append
+           (and definitions
+                (if (vectorp definitions) definitions (vector definitions)))
+           (and type-definitions
+                (if (vectorp type-definitions)
+                    type-definitions
+                  (vector type-definitions)))
+           nil)))
     (eglot--sort-xrefs
      (mapcar (jsonrpc-lambda (&key uri range)
                (eglot--xref-make identifier uri (plist-get range :start)))

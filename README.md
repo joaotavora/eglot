@@ -204,7 +204,7 @@ eglot-shutdown`.
 - [x] textDocument/hover
 - [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
 - [x] textDocument/definition
-- [ ] textDocument/typeDefinition (3.6.0)
+- [x] textDocument/typeDefinition (3.6.0)
 - [ ] textDocument/implementation (3.6.0)
 - [x] textDocument/references
 - [x] textDocument/documentHighlight
