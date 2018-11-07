@@ -240,7 +240,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (with-current-buffer
         (eglot--find-file-noselect "project/src/main/java/foo/Main.java")
       (eglot--sniffing (:server-notifications s-notifs)
-        (should (eglot--tests-connect 10))
+        (should (eglot--tests-connect 20))
         (eglot--wait-for (s-notifs 10)
             (&key _id method &allow-other-keys)
           (string= method "language/status"))))))
