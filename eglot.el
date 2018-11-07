@@ -1156,7 +1156,8 @@ THINGS are either registrations or unregisterations."
 
 (defun eglot--TextDocumentIdentifier ()
   "Compute TextDocumentIdentifier object for current buffer."
-  `(:uri ,(eglot--path-to-uri buffer-file-name)))
+  `(:uri ,(eglot--path-to-uri (or buffer-file-name
+                                  (expand-file-name (buffer-name))))))
 
 (defvar-local eglot--versioned-identifier 0)
 
