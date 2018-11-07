@@ -600,6 +600,15 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (should-not (eglot--server-capable :foobarbaz))
     (should-not (eglot--server-capable :textDocumentSync :foobarbaz))))
 
+
+(ert-deftest issue-124 ()
+  "Test LSP's UTF-16 quirks."
+  (with-current-buffer (find-file-noselect "fixtures/utf16.cpp")
+    (should (eql (eglot--lsp-position-to-point '(:character 8 :line 2)) 22))
+    (should (eql (eglot--lsp-position-to-point '(:character 19 :line 2)) 33))
+    (should (eql (eglot--lsp-position-to-point '(:character 50 :line 2)) 63))
+    (should (eql (eglot--lsp-position-to-point '(:character 60 :line 2)) 73))))
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 

@@ -728,16 +728,31 @@ CONNECT-ARGS are passed as additional arguments to
          :character (- (goto-char (or pos (point)))
                        (line-beginning-position)))))
 
+(defun eglot--lsp-char-to-column (lsp-charpos)
+  "Helper for `eglot--lsp-position-to-point'."
+  (let ((line (buffer-substring-no-properties (line-beginning-position)
+                                              (line-end-position))))
+    (with-temp-buffer
+      (save-excursion (insert line))
+      (cl-loop with start-filepos =
+               (bufferpos-to-filepos (point) 'exact 'utf-16-unix)
+               for current-pos = start-filepos
+               then (bufferpos-to-filepos (point) 'exact 'utf-16-unix)
+               while (and (not (eolp))
+                          (< (/ (- current-pos start-filepos) 2)
+                             lsp-charpos))
+               do (forward-char)
+               finally do (cl-return (1- (point)))))))
+
 (defun eglot--lsp-position-to-point (pos-plist &optional marker)
   "Convert LSP position POS-PLIST to Emacs point.
 If optional MARKER, return a marker instead"
-  (save-excursion (goto-char (point-min))
-                  (forward-line (min most-positive-fixnum
-                                     (plist-get pos-plist :line)))
-                  (forward-char (min (plist-get pos-plist :character)
-                                     (- (line-end-position)
-                                        (line-beginning-position))))
-                  (if marker (copy-marker (point-marker)) (point))))
+  (save-excursion
+    (goto-char (point-min))
+    (forward-line (min most-positive-fixnum
+                       (plist-get pos-plist :line)))
+    (forward-char (eglot--lsp-char-to-column (plist-get pos-plist :character)))
+    (if marker (copy-marker (point-marker)) (point))))
 
 (defun eglot--path-to-uri (path)
   "URIfy PATH."
@@ -1392,12 +1407,12 @@ DUMMY is ignored."
   (let* ((rich-identifier
           (car (member identifier eglot--xref-known-symbols)))
          (definitions
-          (if rich-identifier
-              (get-text-property 0 :locations rich-identifier)
-            (jsonrpc-request (eglot--current-server-or-lose)
-                             :textDocument/definition
-                             (get-text-property
-                              0 :textDocumentPositionParams identifier))))
+           (if rich-identifier
+               (get-text-property 0 :locations rich-identifier)
+             (jsonrpc-request (eglot--current-server-or-lose)
+                              :textDocument/definition
+                              (get-text-property
+                               0 :textDocumentPositionParams identifier))))
          (locations
           (and definitions
                (if (vectorp definitions) definitions (vector definitions)))))
