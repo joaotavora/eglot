@@ -35,6 +35,7 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Haskell's [IDE engine][haskell-ide-engine]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Golang's [go-langserver][go-langserver]
+* Ocaml's [ocaml-language-server][ocaml-language-server]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -303,4 +304,4 @@ Under the hood:
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [go-langserver]: https://github.com/sourcegraph/go-langserver
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
-
+[ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
