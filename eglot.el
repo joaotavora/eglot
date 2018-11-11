@@ -729,20 +729,15 @@ CONNECT-ARGS are passed as additional arguments to
                        (line-beginning-position)))))
 
 (defun eglot--lsp-char-to-column (lsp-charpos)
-  "Helper for `eglot--lsp-position-to-point'."
-  (let ((line (buffer-substring-no-properties (line-beginning-position)
-                                              (line-end-position))))
-    (with-temp-buffer
-      (save-excursion (insert line))
-      (cl-loop with start-filepos =
-               (bufferpos-to-filepos (point) 'exact 'utf-16-unix)
-               for current-pos = start-filepos
-               then (bufferpos-to-filepos (point) 'exact 'utf-16-unix)
-               while (and (not (eolp))
-                          (< (/ (- current-pos start-filepos) 2)
-                             lsp-charpos))
-               do (forward-char)
-               finally do (cl-return (1- (point)))))))
+  "Helper for `eglot--lsp-position-to-point' with LSP-CHARPOS."
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (cl-loop
+     with i = 0 while (< i (* 2 lsp-charpos))
+     do (cl-incf i (- (length (encode-coding-region (point) (1+ (point))
+                                                    'utf-16 t))
+                      2))
+     sum 1 do (forward-char))))
 
 (defun eglot--lsp-position-to-point (pos-plist &optional marker)
   "Convert LSP position POS-PLIST to Emacs point.
