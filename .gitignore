@@ -38,3 +38,5 @@ doc/*.vrs
 doc/*.tgz
 doc/gh-pages
 /dist/
+file.txt
+positions.el
