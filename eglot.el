@@ -802,14 +802,12 @@ Doubles as an indicator of snippet support."
 
 (defun eglot--format-markup (markup)
   "Format MARKUP according to LSP's spec."
-  (pcase-let ((`(,string ,mode)
-               (if (stringp markup) (list (string-trim markup)
-                                          (intern "gfm-mode"))
-                 (list (plist-get markup :value)
-                       (intern (concat (plist-get markup :language) "-mode" ))))))
-    (with-temp-buffer
-      (ignore-errors (funcall mode))
-      (insert string) (font-lock-ensure) (buffer-string))))
+  (unless (stringp markup) (setq markup (plist-get markup :value)))
+  (if (fboundp 'gfm-mode)
+      (with-temp-buffer
+        (gfm-mode)
+        (insert (string-trim markup)) (font-lock-ensure) (buffer-string))
+    (string-trim markup)))
 
 (defcustom eglot-ignored-server-capabilites (list)
   "LSP server capabilities that Eglot could use, but won't.
