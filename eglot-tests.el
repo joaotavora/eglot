@@ -578,6 +578,10 @@ Pass TIMEOUT to `eglot--with-timeout'."
              `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
         (should-error (apply #'eglot--connect (eglot--guess-contact)))))))
 
+
+
+;;; Unit tests
+;;; 
 (ert-deftest eglot-capabilities ()
   "Unit test for `eglot--server-capable'."
   (cl-letf (((symbol-function 'eglot--capabilities)
@@ -599,6 +603,38 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (should (equal '(:triggerCharacters ["."]) (eglot--server-capable :completionProvider)))
     (should-not (eglot--server-capable :foobarbaz))
     (should-not (eglot--server-capable :textDocumentSync :foobarbaz))))
+
+
+(ert-deftest eglot-strict-interfaces ()
+  (let ((eglot--lsp-interface-alist
+         `((FooObject . ((:foo :bar) (:baz))))))
+    (should-error
+     (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+       (eglot--dbind nil (&key foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+         (cons foo bar))))
+    (should
+     (equal '("foo" . "bar")
+            (let ((eglot-strict-mode nil))
+              (eglot--dbind nil (&key foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+                (cons foo bar)))))
+    (should-error
+     (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+       (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+         (cons foo bar))))
+    (should
+     (equal '("foo" . "bar")
+            (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+              (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :bar "bar" :baz bargh)
+                (cons foo bar)))))
+    (should
+     (equal '("foo" . "bar")
+            (let ((eglot-strict-mode '(enforce-required-keys)))
+              (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :bar "bar" :baz bargh)
+                (cons foo bar)))))
+    (should-error
+     (let ((eglot-strict-mode '(enforce-required-keys)))
+       (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :baz bargh)
+         (cons foo bar))))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
