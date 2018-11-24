@@ -201,19 +201,6 @@ let the buffer grow forever."
 
 ;;; Message verification helpers
 ;;;
-(defvar eglot--lsp-interface-alist `()
-  "Alist (INTERFACE-NAME . INTERFACE) of known external LSP interfaces.
-
-INTERFACE-NAME is a symbol designated by the spec as \"export
-interface\".  INTERFACE is a list (REQUIRED OPTIONAL) where
-REQUIRED and OPTIONAL are lists of keyword symbols designating
-field names that must be, or may be, respectively, present in a
-message adhering to that interface.
-
-Here's what an element of this alist might look like:
-
-    (CreateFile . ((:kind :uri) (:options)))")
-
 (defvar eglot-strict-mode '()
   "How strictly Eglot vetoes LSP messages from server.
 
@@ -229,6 +216,43 @@ is raised if any required fields are missing from the message.
 If the list is empty, any non-standard fields sent by the server
 and missing required fields are accepted (which may or may not
 cause problems in Eglot's functioning later on).")
+
+(eval-and-compile
+  (defvar eglot--lsp-interface-alist
+    `(
+      (CreateFile . ((:kind :uri) (:options)))
+      )
+    "Alist (INTERFACE-NAME . INTERFACE) of known external LSP interfaces.
+
+INTERFACE-NAME is a symbol designated by the spec as \"export
+interface\".  INTERFACE is a list (REQUIRED OPTIONAL) where
+REQUIRED and OPTIONAL are lists of keyword symbols designating
+field names that must be, or may be, respectively, present in a
+message adhering to that interface.
+
+Here's what an element of this alist might look like:
+
+    (CreateFile . ((:kind :uri) (:options)))")
+
+  (pcase-defmacro eglot--object (required-keys optional-keys bindings)
+    (let ((expval (make-symbol "eglot--pcase-expval")))
+      `(and ,expval (pred listp)
+            ,@(cl-loop for key in (append required-keys optional-keys)
+                       for varname = (intern (substring (symbol-name key) 1))
+                       when (memq key required-keys)
+                       collect `(guard (plist-member ,expval ,key))
+                       when (memq varname bindings)
+                       collect `(let ,varname (plist-get ,expval ,key)))
+            (guard (or (not (memq 'disallow-non-standard-keys eglot-strict-mode))
+                       (not (cl-loop
+                             with allowed = '(,@required-keys ,@optional-keys)
+                             for (key _val) on ,expval by #'cddr
+                             unless (memq key allowed) return t)))))))
+
+  (pcase-dolist (`(,name ,required ,optional) eglot--lsp-interface-alist)
+    (eval `(pcase-defmacro ,(intern (format "eglot-%s" name)) (bindings)
+             ,(format "Matches if EXPVAL is LSP %s Object, as a plist." name)
+             `(eglot--object ,',required ,',optional ,bindings)))))
 
 (defun eglot--call-with-interface (interface object fn)
   "Call FN, but first check that OBJECT conforms to INTERFACE.
