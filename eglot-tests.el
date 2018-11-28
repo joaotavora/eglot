@@ -608,32 +608,42 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest eglot-strict-interfaces ()
   (let ((eglot--lsp-interface-alist
          `((FooObject . ((:foo :bar) (:baz))))))
+    (should
+     (equal '("foo" . "bar")
+            (let ((eglot-strict-mode nil))
+              (eglot--dbind (foo bar) `(:foo "foo" :bar "bar")
+                (cons foo bar)))))
     (should-error
      (let ((eglot-strict-mode '(disallow-non-standard-keys)))
-       (eglot--dbind nil (&key foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+       (eglot--dbind (foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
          (cons foo bar))))
     (should
      (equal '("foo" . "bar")
             (let ((eglot-strict-mode nil))
-              (eglot--dbind nil (&key foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+              (eglot--dbind (foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
                 (cons foo bar)))))
     (should-error
      (let ((eglot-strict-mode '(disallow-non-standard-keys)))
-       (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+       (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
          (cons foo bar))))
     (should
      (equal '("foo" . "bar")
             (let ((eglot-strict-mode '(disallow-non-standard-keys)))
-              (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :bar "bar" :baz bargh)
+              (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :baz bargh)
+                (cons foo bar)))))
+    (should
+     (equal '("foo" . nil)
+            (let ((eglot-strict-mode nil))
+              (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :baz bargh)
                 (cons foo bar)))))
     (should
      (equal '("foo" . "bar")
             (let ((eglot-strict-mode '(enforce-required-keys)))
-              (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :bar "bar" :baz bargh)
+              (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :baz bargh)
                 (cons foo bar)))))
     (should-error
      (let ((eglot-strict-mode '(enforce-required-keys)))
-       (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :baz bargh)
+       (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :baz bargh)
          (cons foo bar))))))
 
 (provide 'eglot-tests)
