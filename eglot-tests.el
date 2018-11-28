@@ -636,6 +636,40 @@ Pass TIMEOUT to `eglot--with-timeout'."
        (eglot--dbind FooObject (&key foo bar) `(:foo "foo" :baz bargh)
          (cons foo bar))))))
 
+(ert-deftest eglot-pcase ()
+  (should
+   (equal nil
+          (let ((eglot-strict-mode nil))
+            (pcase nil
+              ((eglot--object (:foo) () (foo)) foo)))))
+  (should
+   (equal '("foo" . "bar")
+          (let ((eglot-strict-mode nil))
+            (pcase `(:foo "foo" :bar "bar")
+              ((eglot--object (:foo) (:bar) (foo bar)) (cons foo bar))))))
+  (should
+   (equal '("foo" . "bar")
+          (let ((eglot-strict-mode nil))
+            (pcase `(:foo "foo" :bar "bar" :fotrix bargh)
+              ((eglot--object (:foo) (:bar) (foo bar)) (cons foo bar))))))
+  (should
+   (equal nil
+          (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+            (pcase `(:foo "foo" :bar "bar" :fotrix bargh)
+              ((eglot--object (:foo) (:bar) (foo bar)) (cons foo bar))))))
+  (should
+   (equal 'bargh
+          (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+            (pcase `(:foo "foo" :bar "bar" :fotrix bargh)
+              ((eglot--object (:foo) (:bar) (foo bar)) (cons foo bar))
+              ((eglot--object (:fotrix) (:foo :bar) (fotrix)) fotrix)))))
+  (should
+   (equal "bar"
+          (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+            (pcase `(:foo "foo" :bar "bar")
+              ((eglot--object (:foo :other) () (foo)) foo)
+              ((eglot--object (:foo) (:bar) (bar)) bar))))))
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 
