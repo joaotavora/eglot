@@ -646,6 +646,16 @@ Pass TIMEOUT to `eglot--with-timeout'."
        (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :baz bargh)
          (cons foo bar))))))
 
+(ert-deftest eglot-dcase ()
+  (let ((eglot--lsp-interface-alist
+         `((FooObject . ((:foo :bar) (:baz))))))
+    (should
+     (equal
+      "foo"
+      (eglot--dcase `(:foo "foo" :bar "bar")
+          (((FooObject) foo)
+           foo))))))
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 
