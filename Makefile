@@ -19,15 +19,16 @@ all: compile
 # Compilation
 #
 %.elc: %.el
-	$(EMACS) -Q $(LOAD_PATH) $(JSONRPC) --batch -f batch-byte-compile $<
+	$(EMACS) -Q  $(JSONRPC) $(LOAD_PATH) --batch -f batch-byte-compile $<
 
 compile: $(ELCFILES)
 
 # Automated tests
 #
 eglot-check: compile
-	$(EMACS) -Q --batch $(LOAD_PATH)				\
+	$(EMACS) -Q --batch						\
 		$(JSONRPC)						\
+		$(LOAD_PATH)						\
 		-l eglot						\
 		-l eglot-tests						\
 		--eval '(setq ert-batch-backtrace-right-margin 200)'	\
