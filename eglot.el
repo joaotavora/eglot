@@ -57,7 +57,8 @@
 
 (require 'json)
 (require 'cl-lib)
-(require 'project)
+(unless (require 'projectile nil t)
+  (require 'project))
 (require 'url-parse)
 (require 'url-util)
 (require 'pcase)
@@ -443,6 +444,18 @@ treated as in `eglot-dbind'."
 
 
 ;;; Process management
+(defun eglot-project-current ()
+  "Find the current project."
+  (if (featurep 'projectile)
+      (cons (projectile-project-type) (projectile-project-root))
+    (project-current)))
+
+(defun eglot-project-roots (project)
+  "Find the root paths of PROJECT."
+  (if (featurep 'projectile)
+      (list (cdr project))
+    (project-roots project)))
+
 (defvar eglot--servers-by-project (make-hash-table :test #'equal)
   "Keys are projects.  Values are lists of processes.")
 
@@ -530,7 +543,7 @@ be guessed."
            ((not guessed-mode)
             (eglot--error "Can't guess mode to manage for `%s'" (current-buffer)))
            (t guessed-mode)))
-         (project (or (project-current) `(transient . ,default-directory)))
+         (project (or (eglot-project-current) `(transient . ,default-directory)))
          (guess (cdr (assoc managed-mode eglot-server-programs
                             (lambda (m1 m2)
                               (or (eq m1 m2)
@@ -591,13 +604,13 @@ code-analysis via `xref-find-definitions', `flymake-mode',
 
 Interactively, the command attempts to guess MANAGED-MAJOR-MODE
 from current buffer, CLASS and CONTACT from
-`eglot-server-programs' and PROJECT from `project-current'.  If
+`eglot-server-programs' and PROJECT from `eglot-project-current'.  If
 it can't guess, the user is prompted.  With a single
 \\[universal-argument] prefix arg, it always prompt for COMMAND.
 With two \\[universal-argument] prefix args, also prompts for
 MANAGED-MAJOR-MODE.
 
-PROJECT is a project instance as returned by `project-current'.
+PROJECT is a project instance as returned by `eglot-project-current'.
 
 CLASS is a subclass of symbol `eglot-lsp-server'.
 
@@ -669,7 +682,7 @@ Each function is passed the server as an argument")
 (defun eglot--connect (managed-major-mode project class contact)
   "Connect to MANAGED-MAJOR-MODE, PROJECT, CLASS and CONTACT.
 This docstring appeases checkdoc, that's all."
-  (let* ((default-directory (car (project-roots project)))
+  (let* ((default-directory (car (eglot-project-roots project)))
          (nickname (file-name-base (directory-file-name default-directory)))
          (readable-name (format "EGLOT (%s/%s)" nickname managed-major-mode))
          autostart-inferior-process
@@ -1098,7 +1111,7 @@ Reset in `eglot--managed-mode-onoff'.")
   "Find the current logical EGLOT server."
   (or
    eglot--cached-current-server
-   (let* ((probe (or (project-current)
+   (let* ((probe (or (eglot-project-current)
                      `(transient . ,default-directory))))
      (cl-find major-mode (gethash probe eglot--servers-by-project)
               :key #'eglot--major-mode))))
@@ -2197,7 +2210,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
 
 (cl-defmethod eglot-initialization-options ((server eglot-cquery))
   "Passes through required cquery initialization options"
-  (let* ((root (car (project-roots (eglot--project server))))
+  (let* ((root (car (eglot-project-roots (eglot--project server))))
          (cache (expand-file-name ".cquery_cached_index/" root)))
     (list :cacheDirectory (file-name-as-directory cache)
           :progressReportFrequencyMs -1)))
@@ -2213,7 +2226,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
   `(:workspaceFolders
     [,@(cl-delete-duplicates
         (mapcar #'eglot--path-to-uri
-                (let* ((roots (project-roots (eglot--project server)))
+                (let* ((roots (eglot-project-roots (eglot--project server)))
                        (root (car roots)))
                   (append
                    roots
@@ -2267,9 +2280,9 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
               ((string= system-type "darwin") "config_mac")
               ((string= system-type "windows-nt") "config_win")
               (t "config_linux"))))
-           (project (or (project-current) `(transient . ,default-directory)))
+           (project (or (eglot-project-current) `(transient . ,default-directory)))
            (workspace
-            (expand-file-name (md5 (car (project-roots project)))
+            (expand-file-name (md5 (car (eglot-project-roots project)))
                               (concat user-emacs-directory
                                       "eglot-eclipse-jdt-cache"))))
       (unless jar
