@@ -648,13 +648,31 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest eglot-dcase ()
   (let ((eglot--lsp-interface-alist
-         `((FooObject . ((:foo :bar) (:baz))))))
+         `((FooObject . ((:foo :bar) (:baz)))
+           (CodeAction (:title) (:kind :diagnostics :edit :command))
+           (Command (:title :command) (:arguments)))))
     (should
      (equal
       "foo"
       (eglot--dcase `(:foo "foo" :bar "bar")
-          (((FooObject) foo)
-           foo))))))
+        (((FooObject) foo)
+         foo))))
+    (should
+     (equal
+      (list "foo" "some command" "some edit")
+      (eglot--dcase '(:title "foo" :command "some command" :edit "some edit")
+        (((Command) _title _command _arguments)
+         (ert-fail "Shouldn't have destructured this object as a Command"))
+        (((CodeAction) title edit command)
+         (list title command edit)))))
+    (should
+     (equal
+      (list "foo" "some command" nil)
+      (eglot--dcase '(:title "foo" :command "some command")
+        (((Command) title command arguments)
+         (list title command arguments))
+        (((CodeAction) _title _edit _command)
+         (ert-fail "Shouldn't have destructured this object as a CodeAction")))))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
@@ -662,3 +680,4 @@ Pass TIMEOUT to `eglot--with-timeout'."
 ;; Local Variables:
 ;; checkdoc-force-docstrings-flag: nil
 ;; End:
+
