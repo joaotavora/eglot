@@ -89,7 +89,7 @@
                                 ((c++-mode c-mode) . ("ccls"))
                                 ((caml-mode tuareg-mode reason-mode)
                                  . ("ocaml-language-server" "--stdio"))
-                                (ruby-mode
+                                ((ruby-mode enh-ruby-mode)
                                  . ("solargraph" "socket" "--port"
                                     :autoport))
                                 (php-mode . ("php" "vendor/felixfbecker/\
