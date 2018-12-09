@@ -237,17 +237,18 @@ eglot-shutdown`.
 
 # Differences to lsp-mode.el
 
-Eglot and [lsp-mode.el][emacs-lsp] share a common goal, which is to
-bring LSP to Emacs.  lsp-mode.el is a more mature extension with a
-host of [plugins][emacs-lsp-plugins] for bells and whistles.  Eglot
-may still lag it in some aspects, but the gap is closing as more
-features make it into Eglot and more servers are supported
-out-of-the-box.
+Around May 2018, I wrote a comparison of Eglot to `lsp-mode.el`, and
+was discussed with its then-maintainer.  That mode has since been
+refactored/rewritten and now
+[purports to support](https://github.com/joaotavora/eglot/issues/180)
+a lot of features that differentiated Eglot from it.  It may now be
+very different or very similar to Eglot, or even sing with the birds
+in the trees, so [go check it out](emacs-lsp).  That said, here's the
+original comparison, which I will not be updating any more.
 
-Conversely, you may find Eglot surpasses lsp-mode.el in other aspects,
-namely simplicity.  Eglot is considerably less code and hassle than
-lsp-mode.el.  In most cases, there's nothing to configure.  It's a
-minimalist approach focused on user experience and performance.
+Eglot is considerably less code and hassle than lsp-mode.el.  In most
+cases, there's nothing to configure.  It's a minimalist approach
+focused on user experience and performance.
 
 User-visible differences:
 
