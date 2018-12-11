@@ -235,7 +235,7 @@ eglot-shutdown`.
 ![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
 ![eglot-snippets-on-completion](./gif-examples/eglot-snippets-on-completion.gif)
 
-# Differences to lsp-mode.el
+# Historical differences to lsp-mode.el
 
 Around May 2018, I wrote a comparison of Eglot to `lsp-mode.el`, and
 was discussed with its then-maintainer.  That mode has since been
@@ -243,10 +243,10 @@ refactored/rewritten and now
 [purports to support](https://github.com/joaotavora/eglot/issues/180)
 a lot of features that differentiated Eglot from it.  It may now be
 very different or very similar to Eglot, or even sing with the birds
-in the trees, so [go check it out](emacs-lsp).  That said, here's the
+in the trees, so [go check it out][emacs-lsp].  That said, here's the
 original comparison, which I will not be updating any more.
 
-Eglot is considerably less code and hassle than lsp-mode.el.  In most
+"Eglot is considerably less code and hassle than lsp-mode.el.  In most
 cases, there's nothing to configure.  It's a minimalist approach
 focused on user experience and performance.
 
@@ -284,7 +284,7 @@ Under the hood:
 - Doesn't *require* anything other than Emacs, but will automatically
   upgrade to work with stuff outside Emacs, like `company`,
   `markdown-mode`, if you happen to have these installed.
-- Has automated tests that check against actual LSP servers.
+- Has automated tests that check against actual LSP servers."
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
