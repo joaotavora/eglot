@@ -211,6 +211,7 @@ let the buffer grow forever."
   (defvar eglot--lsp-interface-alist
     `(
       (CodeAction (:title) (:kind :diagnostics :edit :command))
+      (CodeLens (:range) (:command :data))
       (Command (:title :command) (:arguments))
       (CompletionItem (:label)
                       (:kind :detail :documentation :deprecated :preselect
@@ -1114,13 +1115,31 @@ and just return it.  PROMPT shouldn't end with a question mark."
              (cl-find read servers :key name :test #'equal)))
           (t (car servers)))))
 
+(defvar-local eglot--current-flymake-report-fn nil
+  "Current flymake report function for this buffer")
+
+(defvar-local eglot--unreported-diagnostics nil
+  "Unreported Flymake diagnostics for this buffer.")
+
+(defun eglot--report-diagnostics (diags clear-p)
+  "Report DIAGS to Flymake.  If CLEAR-P clear all existing diags."
+  (cond ((and flymake-mode eglot--current-flymake-report-fn)
+         (apply eglot--current-flymake-report-fn diags
+                (and clear-p
+                     ;; If the buffer hasn't changed since last
+                     ;; call to the report function, flymake won't
+                     ;; delete old diagnostics.  Using :region
+                     ;; keyword forces flymake to delete
+                     ;; them (github#159).
+                     `(:region ,(cons (point-min) (point-max)))))
+         (setq eglot--unreported-diagnostics nil))
+        (t
+         (setq eglot--unreported-diagnostics (cons t diags)))))
+
 
 ;;; Minor modes
 ;;;
 (defvar eglot-mode-map (make-sparse-keymap))
-
-(defvar-local eglot--current-flymake-report-fn nil
-  "Current flymake report function for this buffer")
 
 (define-minor-mode eglot--managed-mode
   "Mode for source buffers managed by some EGLOT project."
@@ -1205,9 +1224,6 @@ Reset in `eglot--managed-mode-onoff'.")
   "Return current logical EGLOT server connection or error."
   (or (eglot--current-server)
       (jsonrpc-error "No current JSON-RPC connection")))
-
-(defvar-local eglot--unreported-diagnostics nil
-  "Unreported Flymake diagnostics for this buffer.")
 
 (defun eglot--maybe-activate-editing-mode (&optional server)
   "Maybe activate mode function `eglot--managed-mode'.
@@ -1411,17 +1427,7 @@ COMMAND is a symbol naming the command."
                                              (t          'eglot-note))
                                        message `((eglot-lsp-diag . ,diag-spec)))))
          into diags
-         finally (cond ((and flymake-mode eglot--current-flymake-report-fn)
-                        (funcall eglot--current-flymake-report-fn diags
-                                 ;; If the buffer hasn't changed since last
-                                 ;; call to the report function, flymake won't
-                                 ;; delete old diagnostics.  Using :region
-                                 ;; keyword forces flymake to delete
-                                 ;; them (github#159).
-                                 :region (cons (point-min) (point-max)))
-                        (setq eglot--unreported-diagnostics nil))
-                       (t
-                        (setq eglot--unreported-diagnostics (cons t diags))))))
+         finally (eglot--report-diagnostics diags 'clear)))
     (jsonrpc--debug server "Diagnostics received for unvisited %s" uri)))
 
 (cl-defun eglot--register-unregister (server things how)
@@ -1486,11 +1492,11 @@ THINGS are either registrations or unregisterations."
   "If non-nil, value of the last inserted character in buffer.")
 
 (defun eglot--post-self-insert-hook ()
-  "Set `eglot--last-inserted-char.'"
+  "Set `eglot--last-inserted-char'."
   (setq eglot--last-inserted-char last-input-event))
 
 (defun eglot--pre-command-hook ()
-  "Reset `eglot--last-inserted-char.'"
+  "Reset `eglot--last-inserted-char'."
   (setq eglot--last-inserted-char nil))
 
 (defun eglot--CompletionParams ()
@@ -1515,7 +1521,7 @@ THINGS are either registrations or unregisterations."
 (defvar-local eglot--change-idle-timer nil "Idle timer for didChange signals.")
 
 (defun eglot--before-change (start end)
-  "Hook onto `before-change-functions'."
+  "Hook onto `before-change-functions' with START and END."
   ;; Records START and END, crucially convert them into LSP
   ;; (line/char) positions before that information is lost (because
   ;; the after-change thingy doesn't know if newlines were
@@ -1937,141 +1943,51 @@ is not active."
              (eglot--signal-textDocument/didChange)
              (eglot-eldoc-function))))))))
 
-(defun eglot-lens-act (server lenses)
-  "Choose a code lens from LENSES and execute it's command on SERVER."
+(defun eglot-lens-act (_lens)
+  "Act on LSP code lens LENS."
   (interactive
-   (list (eglot--current-server-or-lose)
-         (cl-loop for ov in (overlays-at (point))
-                  thereis (overlay-get ov 'eglot-code-lens))))
-  (cond
-   ((null lenses) (error "Nothing to do here"))
-   (t
-    (let* ((titles (mapcar (lambda (lens)
-                             (plist-get (plist-get lens :command) :title))
-                           lenses))
-           (dups
-            (and (cl-notevery (lambda (elt)
-                                (= 1 (cl-count elt titles :test #'string=)))
-                              titles)
-                 0))
-           (menu-items
-            (mapcar (jsonrpc-lambda (&key command &allow-other-keys)
-                      (cl-destructuring-bind
-                          (&key title command arguments) command
-                        (cons (concat title
-                                      (and dups
-                                           (format " (%d)" (cl-incf dups))))
-                              (cons command arguments))))
-                    lenses))
-           (never-mind (gensym))
-           (menu (and
-                  (cdr menu-items)
-                  `("Eglot code lens:"
-                    ("dummy" ("never mind..." . ,never-mind) ,@menu-items))))
-           (retval (or (and menu (tmm-prompt menu))
-                       (cdar menu-items))))
-      (if (eq retval never-mind)
-          (keyboard-quit)
-        (eglot-execute-command server (car retval) (cdr retval)))))))
+   (error "Unimplmented")))
 
-(defun eglot-next-lens (&optional N)
-  "Go to Nth next lens.
-N defaults to 1"
+(defun eglot-next-lens (&optional _n)
+  "Go to Nth next lens.  N defaults to 1."
+  (error "Not implemented"))
+
+(defun eglot-previous-lens (&optional n)
+  "Go to Nth previous lens.  N defaults to 1."
   (interactive "p")
-  (or N (setq N 1))
-  (let ((move (if (cl-plusp N)
-                  #'next-single-char-property-change
-                #'previous-single-char-property-change)))
-    (dotimes (_ (abs N))
-      (goto-char
-       (funcall move (1+ (funcall move (point) 'eglot-code-lens))
-                'eglot-code-lens))
-      (beginning-of-line))))
+  (eglot-next-lens (- n)))
 
-(defun eglot-previous-lens (&optional N)
-  "Go to Nth previous lens.
-N defaults to 1"
-  (interactive "p")
-  (eglot-next-lens (- N)))
+(put 'eglot-code-lens 'flymake-category 'flymake-note)
 
-(defun eglot-code-lens ()
-  "Ask the server for code lens and show them in the current buffer."
-  (interactive)
+(defun eglot-code-lens (server beg end)
+  "Ask SERVER for code lens and show those between BEG and END."
+  (interactive (list (eglot--current-server-or-lose)
+                     (if (region-active-p) (region-beginning) (point-min))
+                     (if (region-active-p) (region-end) (point-max))))
   (unless (eglot--server-capable :codeLensProvider)
-    (error "Server does not support code lens."))
-  (when eglot--lens-mode
-    (eglot--lens-mode -1))
-  (let ((read-only-p buffer-read-only)
-        overlays)
-    (condition-case err
-        (let ((lens-table (make-hash-table)))
-          ;; Get the code lens objects.
-          (mapc (lambda (codeLens)
-                  (when (and (eglot--server-capable
-                              :codeLensProvider :resolveProvider)
-                             (not (plist-member codeLens :command)))
-                    (setq codeLens
-                          (jsonrpc-request (eglot--current-server-or-lose)
-                                           :codeLens/resolve codeLens)))
-                  (let ((line (thread-first codeLens
-                                (plist-get :range)
-                                (plist-get :start)
-                                (plist-get :line))))
-                    (puthash line
-                             (append (gethash line lens-table) (list codeLens))
-                             lens-table)))
-                (jsonrpc-request
-                 (eglot--current-server-or-lose)
-                 :textDocument/codeLens
-                 (list :textDocument (eglot--TextDocumentIdentifier))
-                 :deferred :textDocument/codeLens))
-
-          ;; Make overlays for them.
-          (maphash
-           (lambda (line values)
-             (eglot--widening
-              (goto-char (point-min))
-              (forward-line line)
-              (let ((ov (make-overlay (point-at-bol) (point-at-eol)))
-                    (text
-                     (mapconcat
-                      (lambda (codeLens)
-                        (propertize
-                         (plist-get (plist-get codeLens :command) :title)
-                         'mouse-face 'highlight
-                         'keymap (let ((map (make-sparse-keymap)))
-                                   (define-key map [mouse-1]
-                                               (lambda ()
-                                                 (interactive)
-                                                 (eglot-lens-act (eglot--current-server-or-lose)
-                                                                 (list codeLens))))
-                                   map)))
-                      values
-                      " | ")))
-                (push ov overlays)
-                (overlay-put ov 'eglot-code-lens values)
-                (overlay-put ov 'before-string
-                             (concat (make-string (current-indentation) ?\ )
-                                     (propertize text 'face 'eglot-code-lens)
-                                     "\n")))))
-           lens-table)
-
-          ;; Setup minor mode which will clean them up and provide keybindings.
-          (eglot--lens-mode 1)
-          (setq buffer-read-only t)
-          (cl-labels
-              ((cleanup
-                ()
-                (remove-hook 'eglot--lens-mode-hook #'cleanup t)
-                (unless eglot--lens-mode
-                  (mapc #'delete-overlay overlays)
-                  (setq buffer-read-only read-only-p))))
-            (add-hook 'eglot--lens-mode-hook #'cleanup nil t)))
-      (error
-       (mapc #'delete-overlay overlays)
-       (setq buffer-read-only read-only-p)
-       (eglot--lens-mode -1)
-       (signal (car err) (cdr err))))))
+    (error "Server does not support code lens"))
+  (cl-loop for lens across (jsonrpc-request
+                            server :textDocument/codeLens
+                            (list :textDocument (eglot--TextDocumentIdentifier))
+                            :deferred :textDocument/codeLens)
+           for (l-beg . l-end) = (eglot--range-region (plist-get lens :range))
+           when (<= beg l-beg l-end end)
+           do (unless (plist-get lens :command)
+                (setq lens
+                      (jsonrpc-request server :codeLens/resolve lens)))
+           and collect
+           (eglot--dbind ((Command) title) (plist-get lens :command)
+             (eglot--make-diag (current-buffer) l-beg l-end
+                               'eglot-code-lens
+                               title
+                               `((eglot-code-lens . ,lens)
+                                 (eglot-server . ,server))
+                               `((before-string
+                                  .
+                                  ,(concat (make-string (current-indentation) ?\ )
+                                           (propertize title 'face 'eglot-code-lens)
+                                           "\n")))))
+           into diags finally (eglot--report-diagnostics diags nil)))
 
 (defvar eglot--highlights nil "Overlays for textDocument/documentHighlight.")
 
@@ -2485,7 +2401,8 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
         (ignore (eglot--warn "JAVA_HOME env var not set")))))
 
 (defun eglot--eclipse-jdt-contact (interactive)
-  "Return a contact for connecting to eclipse.jdt.ls server, as a cons cell."
+  "Return a contact for connecting to eclipse.jdt.ls server, as a cons cell.
+If INTERACTIVE, prompt user."
   (cl-labels
       ((is-the-jar
         (path)
