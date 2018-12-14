@@ -1966,28 +1966,43 @@ is not active."
                      (if (region-active-p) (region-end) (point-max))))
   (unless (eglot--server-capable :codeLensProvider)
     (error "Server does not support code lens"))
-  (cl-loop for lens across (jsonrpc-request
-                            server :textDocument/codeLens
-                            (list :textDocument (eglot--TextDocumentIdentifier))
-                            :deferred :textDocument/codeLens)
-           for (l-beg . l-end) = (eglot--range-region (plist-get lens :range))
-           when (<= beg l-beg l-end end)
-           do (unless (plist-get lens :command)
-                (setq lens
-                      (jsonrpc-request server :codeLens/resolve lens)))
-           and collect
-           (eglot--dbind ((Command) title) (plist-get lens :command)
-             (eglot--make-diag (current-buffer) l-beg l-end
-                               'eglot-code-lens
-                               title
-                               `((eglot-code-lens . ,lens)
-                                 (eglot-server . ,server))
-                               `((before-string
-                                  .
-                                  ,(concat (make-string (current-indentation) ?\ )
-                                           (propertize title 'face 'eglot-code-lens)
-                                           "\n")))))
-           into diags finally (eglot--report-diagnostics diags nil)))
+  (cl-loop
+   for (line . line-lens)
+   in (seq-group-by
+       (lambda (lens) (thread-first lens
+                        (plist-get :range)
+                        (plist-get :start)
+                        (plist-get :line)))
+       (jsonrpc-request
+        server :textDocument/codeLens
+        (list :textDocument (eglot--TextDocumentIdentifier))
+        :deferred :textDocument/codeLens))
+   when (< (line-number-at-pos beg) line (line-number-at-pos end))
+   append
+   (cl-loop for (lens . more) on line-lens
+            for pri from 100
+            for (l-beg . l-end) =
+            (eglot--range-region (plist-get lens :range))
+            do (unless (plist-get lens :command)
+                 (setq lens
+                       (jsonrpc-request server :codeLens/resolve lens)))
+            collect
+            (eglot--dbind ((Command) title) (plist-get lens :command)
+              (eglot--make-diag
+               (current-buffer)
+               (save-excursion (goto-char l-beg) (line-beginning-position))
+               l-end
+               'eglot-code-lens
+               title
+               `((eglot-code-lens . ,lens)
+                 (eglot-server . ,server))
+               `((priority . ,pri)
+                 (before-string
+                  .
+                  ,(concat (make-string (current-indentation) ?\ )
+                           (propertize title 'face 'eglot-code-lens)
+                           (if more "|" "\n")))))))
+   into diags finally (eglot--report-diagnostics diags nil)))
 
 (defvar eglot--highlights nil "Overlays for textDocument/documentHighlight.")
 
