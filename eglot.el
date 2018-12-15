@@ -521,7 +521,12 @@ treated as in `eglot-dbind'."
     :accessor eglot--saved-initargs)
    (inferior-process
     :documentation "Server subprocess started automatically."
-    :accessor eglot--inferior-process))
+    :accessor eglot--inferior-process)
+   (external-roots
+    :documentation
+    "List of non-editable directories also handled by server."
+    :initform (list)
+    :accessor eglot--external-roots))
   :documentation
   "Represents a server. Wraps a process for LSP communication.")
 
@@ -1180,11 +1185,28 @@ Reset in `eglot--managed-mode-onoff'.")
                (setf (eglot--managed-buffers server)
                      (delq buf (eglot--managed-buffers server)))))))))
 
+(defvar eglot--probing-projects nil
+  "Bound to t in `eglot--current-server', nil elsewhere.")
+
+(defun eglot--project-try-external-roots (dir)
+  "Probe `eglot--servers-by-project' for a server handling DIR."
+  (when eglot--probing-projects
+    (catch 'found
+      (maphash (lambda (project servers)
+                 (dolist (server servers)
+                   (when (member (expand-file-name dir)
+                                 (eglot--external-roots server))
+                     (throw 'found project))))
+               eglot--servers-by-project))))
+
+(add-hook 'project-find-functions #'eglot--project-try-external-roots t)
+
 (defun eglot--current-server ()
   "Find the current logical EGLOT server."
   (or
    eglot--cached-current-server
-   (let* ((probe (or (project-current)
+   (let* ((eglot--probing-projects t)
+          (probe (or (project-current)
                      `(transient . ,default-directory))))
      (cl-find major-mode (gethash probe eglot--servers-by-project)
               :key #'eglot--major-mode))))
@@ -1684,6 +1706,9 @@ Try to visit the target file for a richer summary line."
          (t ;; fall back to the "dumb strategy"
           (let ((start (cl-getf range :start)))
             (list name (1+ (cl-getf start :line)) (cl-getf start :character)))))))
+    (cl-pushnew (expand-file-name (file-name-directory file))
+                (eglot--external-roots (eglot--current-server-or-lose))
+                :test #'equal)
     (xref-make summary (xref-make-file-location file line column))))
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql eglot)))
