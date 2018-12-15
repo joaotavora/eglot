@@ -237,6 +237,14 @@ let the buffer grow forever."
   :type '(choice (const :tag "Don't show confirmation prompt" nil)
                  (symbol :tag "Show confirmation prompt" 'confirm)))
 
+(defcustom eglot-spread-through-xref nil
+  "If non-nil, put anything reached through xref under originating server.
+This is handy if you tend to have one \"global\" or \"current\"
+project at any given time, and so don't mind nominally-common
+things (like system-installed libraries or header files) being
+considered part of one specific project."
+  :type 'boolean)
+
 ;; Customizable via `completion-category-overrides'.
 (when (assoc 'flex completion-styles-alist)
   (add-to-list 'completion-category-defaults '(eglot (styles flex basic))))
@@ -831,6 +839,9 @@ be guessed."
 (defvar eglot-lsp-context)
 (put 'eglot-lsp-context 'variable-documentation
      "Dynamically non-nil when searching for projects in LSP context.")
+
+(defvar eglot--servers-by-xref-location
+  (make-hash-table :test 'equal :weakness 'value))
 
 (defun eglot--current-project ()
   "Return a project object for Eglot's LSP purposes.
@@ -1495,7 +1506,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
                     #'eglot-imenu))
     (flymake-mode 1)
     (eldoc-mode 1)
-    (cl-pushnew (current-buffer) (eglot--managed-buffers eglot--cached-server)))
+    (cl-pushnew (current-buffer) (eglot--managed-buffers (eglot-current-server))))
    (t
     (remove-hook 'after-change-functions 'eglot--after-change t)
     (remove-hook 'before-change-functions 'eglot--before-change t)
@@ -1533,11 +1544,18 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
 
 (defun eglot-current-server ()
   "Return logical EGLOT server for current buffer, nil if none."
-  eglot--cached-server)
+  (setq eglot--cached-server
+        (or eglot--cached-server
+            (cl-find major-mode
+                     (gethash (eglot--current-project) eglot--servers-by-project)
+                     :key #'eglot--major-mode)
+            (and eglot-spread-through-xref
+                 buffer-file-name
+                 (gethash (expand-file-name buffer-file-name) eglot--servers-by-xref-location)))))
 
 (defun eglot--current-server-or-lose ()
   "Return current logical EGLOT server connection or error."
-  (or eglot--cached-server
+  (or (eglot-current-server)
       (jsonrpc-error "No current JSON-RPC connection")))
 
 (defvar-local eglot--unreported-diagnostics nil
@@ -1555,14 +1573,7 @@ If it is activated, also signal textDocument/didOpen."
   (unless eglot--managed-mode
     ;; Called when `revert-buffer-in-progress-p' is t but
     ;; `revert-buffer-preserve-modes' is nil.
-    (when (and buffer-file-name
-               (or
-                eglot--cached-server
-                (setq eglot--cached-server
-                      (cl-find major-mode
-                               (gethash (eglot--current-project)
-                                        eglot--servers-by-project)
-                               :key #'eglot--major-mode))))
+    (when (and buffer-file-name (eglot-current-server))
       (setq eglot--unreported-diagnostics `(:just-opened . nil))
       (eglot--managed-mode)
       (eglot--signal-textDocument/didOpen))))
@@ -2101,6 +2112,8 @@ Try to visit the target file for a richer summary line."
                  (start-pos (cl-getf start :character))
                  (end-pos (cl-getf (cl-getf range :end) :character)))
             (list name line start-pos (- end-pos start-pos)))))))
+    (setf (gethash (expand-file-name file) eglot--servers-by-xref-location)
+          (eglot--current-server-or-lose))
     (xref-make-match summary (xref-make-file-location file line column) length)))
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql eglot)))
