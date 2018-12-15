@@ -319,6 +319,12 @@ lisp:
 - `eglot-stay-out-of`: List of Emacs features that Eglot shouldn't
   automatically try to manage on users' behalf.  Useful when you need
   non-LSP Flymake or Company backends.  See docstring for examples.
+  
+- `eglot-extend-to-xref`: If non-nil and `xref-find-definitions` lands
+  you in a file outside your project -- like a system-installed
+  library or header file -- transiently consider it managed by the
+  same LSP server.  That file is still outside your project
+  (i.e. `project-find-file` won't find it).
 
 # How does Eglot work?
 

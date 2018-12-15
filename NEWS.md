@@ -7,6 +7,13 @@ Thanks to Brian Cully for the minimalist approach.
 (also thanks to Felipe Lema who conducted many early experiments in
 [#463][github#463])
 
+##### Manage cross-referenced files outside project ([#76][github#76], ([#686][github#686], ([#695][github#695])
+
+This is activated by a new customization option
+`eglot-extend-to-xref`, which defaults to nil.
+
+Thanks to Michael Livshin for the investigation an elegant solution.
+
 ##### Code action shortcuts ([#411][github#411])
 
 `M-x eglot-code-actions` accepts an optional `action-kind` argument,
@@ -214,6 +221,7 @@ and now said bunch of references-->
 [github#68]: https://github.com/joaotavora/eglot/issues/68
 [github#73]: https://github.com/joaotavora/eglot/issues/73
 [github#74]: https://github.com/joaotavora/eglot/issues/74
+[github#76]: https://github.com/joaotavora/eglot/issues/76
 [github#80]: https://github.com/joaotavora/eglot/issues/80
 [github#81]: https://github.com/joaotavora/eglot/issues/81
 [github#82]: https://github.com/joaotavora/eglot/issues/82
@@ -263,3 +271,5 @@ and now said bunch of references-->
 [github#494]: https://github.com/joaotavora/eglot/issues/494
 [github#637]: https://github.com/joaotavora/eglot/issues/637
 [github#643]: https://github.com/joaotavora/eglot/issues/643
+[github#686]: https://github.com/joaotavora/eglot/issues/686
+[github#695]: https://github.com/joaotavora/eglot/issues/695
