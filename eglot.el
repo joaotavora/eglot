@@ -655,6 +655,11 @@ treated as in `eglot-dbind'."
    (managed-buffers
     :documentation "List of buffers managed by server."
     :accessor eglot--managed-buffers)
+   (xref-locations
+    :documentation
+    "List of non-editable directories also handled by server."
+    :initform (list)
+    :accessor eglot--xref-locations)
    (saved-initargs
     :documentation "Saved initargs for reconnection purposes."
     :accessor eglot--saved-initargs)
@@ -2101,6 +2106,9 @@ Try to visit the target file for a richer summary line."
                  (start-pos (cl-getf start :character))
                  (end-pos (cl-getf (cl-getf range :end) :character)))
             (list name line start-pos (- end-pos start-pos)))))))
+    (cl-pushnew (expand-file-name (file-name-directory file))
+                (eglot--xref-locations (eglot--current-server-or-lose))
+                :test #'equal)
     (xref-make-match summary (xref-make-file-location file line column) length)))
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql eglot)))
