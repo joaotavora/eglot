@@ -1,4 +1,4 @@
-[[https://travis-ci.org/joaotavora/eglot][# -*- mode: org -*-
+# -*- mode: org -*-
 # -*- coding: utf-8 -*-
 #+STARTUP: overview
 #+TILE: Eglot - Emacs Polyglot
