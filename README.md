@@ -45,6 +45,7 @@ customize `eglot-server-programs`:
 (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
 ```
 
+
 Let me know how well it works and we can add it to the list.  If the
 server has some quirk or non-conformity, it's possible to extend Eglot
 to adapt to it.  Here's how to get [cquery][cquery] working for
