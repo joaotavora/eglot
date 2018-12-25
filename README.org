@@ -8,7 +8,7 @@
 [[https://travis-ci.org/joaotavora/eglot.png?branch=master]]
 [[http://melpa.org/#/eglot][http://melpa.org/packages/eglot-badge.svg]]
 
-* Table of Contents                                                     :TOC
+* Table of Contents
 - [[#m-x-eglot][M-x Eglot]]
   - [[#installation-and-usage][Installation and usage]]
   - [[#connecting-automatically][Connecting automatically]]
