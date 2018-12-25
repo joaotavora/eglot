@@ -159,81 +159,81 @@
 
      - [x] telemetry/event
 *** Client
-     [x] client/registerCapability (but only *workspace/didChangeWatchedFiles*, like RLS asks)
+     - [x] client/registerCapability (but only *workspace/didChangeWatchedFiles*, like RLS asks)
 
-     [x] client/unregisterCapability  (ditto)
+     - [x] client/unregisterCapability  (ditto)
 *** Workspace
-     [ ] workspace/workspaceFolders (3.6.0)
+     - [ ] workspace/workspaceFolders (3.6.0)
 
-     [ ] workspace/didChangeWorkspaceFolders (3.6.0)
+     - [ ] workspace/didChangeWorkspaceFolders (3.6.0)
 
-     [x] workspace/didChangeConfiguration
+     - [x] workspace/didChangeConfiguration
 
-     [ ] workspace/configuration (3.6.0)
+     - [ ] workspace/configuration (3.6.0)
 
-     [x] workspace/didChangeWatchedFiles
+     - [x] workspace/didChangeWatchedFiles
 
-     [x] workspace/symbol
+     - [x] workspace/symbol
 
-     [x] workspace/executeCommand
+     - [x] workspace/executeCommand
 
-     [x] workspace/applyEdit
+     - [x] workspace/applyEdit
 *** Text Synchronization
-    [x] textDocument/didOpen
+    - [x] textDocument/didOpen
 
-    [x] textDocument/didChange (incremental or full)
+    - [x] textDocument/didChange (incremental or full)
 
-    [x] textDocument/willSave
+    - [x] textDocument/willSave
 
-    [x] textDocument/willSaveWaitUntil
+    - [x] textDocument/willSaveWaitUntil
 
-    [x] textDocument/didSave
+    - [x] textDocument/didSave
 
-    [x] textDocument/didClose
+    - [x] textDocument/didClose
 *** Diagnostics
-    [x] textDocument/publishDiagnostics
+    - [x] textDocument/publishDiagnostics
 *** Language features
-    [x] textDocument/completion
+    - [x] textDocument/completion
 
-    [x] completionItem/resolve (works quite well with [companymode][companymode])
+    - [x] completionItem/resolve (works quite well with [companymode][companymode])
 
-    [x] textDocument/hover
+    - [x] textDocument/hover
 
-    [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
+    - [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
 
-    [x] textDocument/definition
+    - [x] textDocument/definition
 
-    [ ] textDocument/typeDefinition (3.6.0)
+    - [ ] textDocument/typeDefinition (3.6.0)
 
-    [ ] textDocument/implementation (3.6.0)
+    - [ ] textDocument/implementation (3.6.0)
 
-    [x] textDocument/references
+    - [x] textDocument/references
 
-    [x] textDocument/documentHighlight
+    - [x] textDocument/documentHighlight
 
-    [x] textDocument/documentSymbol
+    - [x] textDocument/documentSymbol
 
-    [x] textDocument/codeAction
+    - [x] textDocument/codeAction
 
-    [ ] textDocument/codeLens
+    - [ ] textDocument/codeLens
 
-    [ ] codeLens/resolve
+    - [ ] codeLens/resolve
 
-    [ ] textDocument/documentLink
+    - [ ] textDocument/documentLink
 
-    [ ] documentLink/resolve
+    - [ ] documentLink/resolve
 
-    [ ] textDocument/documentColor
+    - [ ] textDocument/documentColor
 
-    [ ] textDocument/colorPresentation (3.6.0)
+    - [ ] textDocument/colorPresentation (3.6.0)
 
-    [x] textDocument/formatting
+    - [x] textDocument/formatting
 
-    [x] textDocument/rangeFormatting
+    - [x] textDocument/rangeFormatting
 
-    [ ] textDocument/onTypeFormatting
+    - [ ] textDocument/onTypeFormatting
 
-    [x] textDocument/rename
+    - [x] textDocument/rename
 ** Obligatory animated gif section
    [[./gif-examples/eglot-code-actions.gif]]
 
@@ -250,74 +250,3 @@
    [[./gif-examples/eglot-xref-find-references.gif]]
 
    [[./gif-examples/eglot-snippets-on-completion.gif]]
-
-** Historical differences to lsp.el
-
-   Around May 2018, I wrote a comparison of Eglot to *lsp.el*, and
-   was discussed with its then-maintainer.  That mode has since been
-   refactored/rewritten and now [[https://github.com/joaotavora/eglot/issues/180][purports to support]]  a lot of features that differentiated Eglot from it.
-   It may now be very different or very similar to Eglot, or even sing with the birds
-   in the trees, so [[https://github.com/emacs-lsp/lsp-mode][go check it out]].  That said, here's the original comparison, which I will not be updating any more.
-
-   "Eglot is considerably less code and hassle than lsp-mode.el.  In most
-   cases, there's nothing to configure.  It's a minimalist approach
-   focused on user experience and performance.
-
-   User-visible differences:
-
-   - The single most visible difference is the friendly entry point *M-x
-     eglot*, not *M-x eglot-<language>*.  Also, there are no
-     *eglot-<language>* extra packages.
-
-   - There's no "whitelisting" or "blacklisting" directories to
-     languages.  *M-x eglot* starts servers to handle file of a major
-     mode inside a specific project, using Emacs's built-in *project.el*
-     library to discover projects.  Then it automatically detects current
-     and future opened files under that project and syncs with server;
-
-   - Easy way to quit/restart a server, just middle/right click on the
-     connection name;
-   - Pretty interactive mode-line section for live tracking of server
-     communication;
-   - Automatically restarts frequently crashing servers (like RLS);
-   - Slow-to-start servers start asynchronously in the background;
-   - Server-initiated edits are confirmed with the user;
-   - Diagnostics work out-of-the-box (no *flycheck.el* needed);
-   - Smoother/more responsive (read below).
-
-   Under the hood:
-
-   - Message parser is much simpler.
-   - Defers signature requests like *textDocument/hover* until server is
-     ready.
-   - Sends *textDocument/didChange* for groups of edits, not
-     one per each tiny change.
-   - Easier to read and maintain elisp. Yeah I know, *very subjective*,
-     so judge for yourself.
-   - Doesn't *require* anything other than Emacs, but will automatically
-     upgrade to work with stuff outside Emacs, like *company*,
-     *markdown-mode*, if you happen to have these installed.
-   - Has automated tests that check against actual LSP servers."
-
-# [lsp]: https://microsoft.github.io/language-server-protocol/
-# [rls]: https://github.com/rust-lang-nursery/rls
-# [pyls]: https://github.com/palantir/python-language-server
-# [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
-# [melpa]: http://melpa.org/#/eglot
-# [javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
-# [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
-# [emacs-lsp-plugins]: https://github.com/emacs-lsp
-# [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
-# [php-language-server]: https://github.com/felixfbecker/php-language-server
-# [company-mode]: https://github.com/company-mode/company-mode
-# [cquery]: https://github.com/cquery-project/cquery
-# [ccls]: https://github.com/MaskRay/ccls
-# [clangd]: https://clang.llvm.org/extra/clangd.html
-# [solargraph]: https://github.com/castwide/solargraph
-# [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
-# [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
-# [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
-# [go-langserver]: https://github.com/sourcegraph/go-langserver
-# [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
-# [ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
-# [r-languageserver]: https://cran.r-project.org/package=languageserver
