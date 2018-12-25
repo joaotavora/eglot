@@ -8,7 +8,7 @@
 [[http://melpa.org/#/eglot][http://melpa.org/packages/eglot-badge.svg]]
 
 * M-x Eglot
-  Emacs Polyglot. Emacs client to [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]] servers. [GIF at the bottom!]
+  Emacs Polyglot. Emacs client to [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]] servers.
 
 ** Installation and usage
 
