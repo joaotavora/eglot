@@ -1,7 +1,7 @@
 # -*- mode: org -*-
 # -*- coding: utf-8 -*-
 #+STARTUP: overview
-#+TILE: Eglot - Emacs Polyglot
+#+TILE: Eglot: Emacs Polyglot - LSP Client
 #+LANGUAGE: en
 
 [[https://travis-ci.org/joaotavora/eglot.png?branch=master]]
@@ -251,7 +251,7 @@
 
    [[./gif-examples/eglot-snippets-on-completion.gif]]
 
-** Historical differences to lsp-mode.el
+** Historical differences to lsp.el
 
    Around May 2018, I wrote a comparison of Eglot to *lsp.el*, and
    was discussed with its then-maintainer.  That mode has since been
@@ -298,3 +298,26 @@
      upgrade to work with stuff outside Emacs, like *company*,
      *markdown-mode*, if you happen to have these installed.
    - Has automated tests that check against actual LSP servers."
+
+# [lsp]: https://microsoft.github.io/language-server-protocol/
+# [rls]: https://github.com/rust-lang-nursery/rls
+# [pyls]: https://github.com/palantir/python-language-server
+# [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
+# [melpa]: http://melpa.org/#/eglot
+# [javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
+# [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
+# [emacs-lsp-plugins]: https://github.com/emacs-lsp
+# [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
+# [php-language-server]: https://github.com/felixfbecker/php-language-server
+# [company-mode]: https://github.com/company-mode/company-mode
+# [cquery]: https://github.com/cquery-project/cquery
+# [ccls]: https://github.com/MaskRay/ccls
+# [clangd]: https://clang.llvm.org/extra/clangd.html
+# [solargraph]: https://github.com/castwide/solargraph
+# [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
+# [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
+# [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
+# [go-langserver]: https://github.com/sourcegraph/go-langserver
+# [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
+# [ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
+# [r-languageserver]: https://cran.r-project.org/package=languageserver
