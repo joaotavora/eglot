@@ -14,11 +14,11 @@ https://travis-ci.org/joaotavora/eglot.png?branch=master]]
 
 ** Installation and usage
 
-   Eglot is avaiable on [[https://elpa.gnu.org][GNU Elpa]] and [[melpa.org][Melpa]]. Installation is straightforward:
+   Eglot requires Emacs 26.1 and is avaiable on [[https://elpa.gnu.org][GNU Elpa]] and [[melpa.org][Melpa]]. Installation is straightforward:
 
    #+BEGIN_SRC emacs-lisp
 
-   (package-install 'eglot) ; Requires Emacs 26!
+   (package-install 'eglot)
 
    #+END_SRC
 
