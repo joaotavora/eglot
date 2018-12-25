@@ -2,10 +2,24 @@
 # -*- coding: utf-8 -*-
 #+STARTUP: overview
 #+TILE: Eglot: Emacs Polyglot - LSP Client
+#+OPTIONS: toc:1
 #+LANGUAGE: en
 
 [[https://travis-ci.org/joaotavora/eglot.png?branch=master]]
 [[http://melpa.org/#/eglot][http://melpa.org/packages/eglot-badge.svg]]
+
+* Table of Contents                                                     :TOC:QUOTE:
+#+BEGIN_QUOTE
+- [[#m-x-eglot][M-x Eglot]]
+  - [[#installation-and-usage][Installation and usage]]
+  - [[#connecting-automatically][Connecting automatically]]
+  - [[#connecting-via-tcp][Connecting via TCP]]
+  - [[#commands-and-keybindings][Commands and keybindings]]
+  - [[#how-eglot-do-its-magic-exactly][How Eglot do its magic exactly?]]
+  - [[#supported-protocol-features--lsp-36][Supported Protocol features ( LSP 3.6)]]
+  - [[#obligatory-animated-gif-section][Obligatory animated gif section]]
+  - [[#historical-differences-to-lspel][Historical differences to lsp.el]]
+#+END_QUOTE
 
 * M-x Eglot
   Emacs Polyglot. Emacs client to [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]] servers.
