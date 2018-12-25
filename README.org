@@ -140,23 +140,24 @@
    To "unmanage" these buffers, shutdown the server with *M-x eglot-shutdown*.
 ** Supported Protocol features ( LSP 3.6)
 *** General
-    [x] initialize
 
-    [x] initalized
+    - [x] initialize
 
-    [x] shutdown
+    - [x] initalized
 
-    [x] exit
+    - [x] shutdown
 
-    [ ] $/cancelRequest
+    - [x] exit
+
+    - [ ] $/cancelRequest
 *** Window
-     [x] window/showMessage
+     - [x] window/showMessage
 
-     [x] window/showMessageRequest
+     - [x] window/showMessageRequest
 
-     [x] window/logMessage
+     - [x] window/logMessage
 
-     [x] telemetry/event
+     - [x] telemetry/event
 *** Client
      [x] client/registerCapability (but only *workspace/didChangeWatchedFiles*, like RLS asks)
 
