@@ -142,64 +142,111 @@
 ** Supported Protocol features ( LSP 3.6)
 *** General
     [x] initialize
+
     [x] initalized
+
     [x] shutdown
+
     [x] exit
+
     [ ] $/cancelRequest
 *** Window
      [x] window/showMessage
+
      [x] window/showMessageRequest
+
      [x] window/logMessage
+
      [x] telemetry/event
 *** Client
      [x] client/registerCapability (but only *workspace/didChangeWatchedFiles*, like RLS asks)
+
      [x] client/unregisterCapability  (ditto)
 *** Workspace
      [ ] workspace/workspaceFolders (3.6.0)
+
      [ ] workspace/didChangeWorkspaceFolders (3.6.0)
+
      [x] workspace/didChangeConfiguration
+
      [ ] workspace/configuration (3.6.0)
+
      [x] workspace/didChangeWatchedFiles
+
      [x] workspace/symbol
+
      [x] workspace/executeCommand
+
      [x] workspace/applyEdit
 *** Text Synchronization
     [x] textDocument/didOpen
+
     [x] textDocument/didChange (incremental or full)
+
     [x] textDocument/willSave
+
     [x] textDocument/willSaveWaitUntil
+
     [x] textDocument/didSave
+
     [x] textDocument/didClose
 *** Diagnostics
     [x] textDocument/publishDiagnostics
 *** Language features
     [x] textDocument/completion
+
     [x] completionItem/resolve (works quite well with [companymode][companymode])
+
     [x] textDocument/hover
+
     [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
+
     [x] textDocument/definition
+
     [ ] textDocument/typeDefinition (3.6.0)
+
     [ ] textDocument/implementation (3.6.0)
+
     [x] textDocument/references
+
     [x] textDocument/documentHighlight
+
     [x] textDocument/documentSymbol
+
     [x] textDocument/codeAction
+
     [ ] textDocument/codeLens
+
     [ ] codeLens/resolve
+
     [ ] textDocument/documentLink
+
     [ ] documentLink/resolve
+
     [ ] textDocument/documentColor
+
     [ ] textDocument/colorPresentation (3.6.0)
+
     [x] textDocument/formatting
+
     [x] textDocument/rangeFormatting
+
     [ ] textDocument/onTypeFormatting
+
     [x] textDocument/rename
 ** Obligatory animated gif section
    [[./gif-examples/eglot-code-actions.gif][eglot-code-actions]]
+
    [[./gif-examples/eglot-completions.gif][eglot-completions]]
+
    [[./gif-examples/eglot-diagnostics.gif][eglot-diagnostics]]
+
    [[./gif-examples/eglot-hover-on-symbol.gif][eglot-hover-on-symbol]]
+
    [[./gif-examples/eglot-rename.gif][eglot-rename]]
+
    [[./gif-examples/eglot-xref-find-definition.gif][eglot-xref-find-definition]]
+
    [[./gif-examples/eglot-xref-find-references.gif][eglot-xref-find-references]]
+
    [[./gif-examples/eglot-snippets-on-completion.gif][eglot-snippets-on-completion]]
