@@ -100,21 +100,19 @@
    believed to be vacant, so that the ensuing TCP connection finds a listening server.
 
 ** Commands and keybindings
-   | Command (M-x)                       | Description                                                                                              |
-   |-------------------------------------+----------------------------------------------------------------------------------------------------------|
-   | eglot                               | Start Eglot.                                                                                             |
-   | eglot-reconnect                     | Reconnects to the server.                                                                                |
-   | eglot-shutdown                      | Turn off the server.                                                                                     |
-   | eglot-rename                        | Ask the server to rename the symbol at point.                                                            |
-   | eglot-format                        | Asks the server to format buffer or the active region.                                                   |
-   | eglot-code-actions                  | Asks the server for any code actions at  point. These may tipically be simple fixes,                     |
-   |                                     | like deleting an unused variable, or fixing an import. Left click on diagnostics to check if             |
-   |                                     | there are any there.                                                                                     |
-   | eglot-help-at-point                 | asks the server for help for symbol at point. *eldoc-mode* messages displayed in the echo area.            |
-   | eglot-events-buffer                 | Jumps to the events buffer for debugging  communication with the server.                                 |
-   | eglot-stderr-buffer                 | if the LSP server is printing useful debugi nformation in stderr, jumps to a buffer with these contents. |
-   | eglot-signal-didChangeConfiguration | updates the LSP server configuration according to the value of the variable                              |
-   | eglot-workspace-configuration       | which you may be set in a *.dir-locals* file, for example.                                               |
+   | Command (M-x)                       | Description                                                                                                                                                                                            |
+   |-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+   | eglot                               | Start Eglot.                                                                                                                                                                                           |
+   | eglot-reconnect                     | Reconnects to the server.                                                                                                                                                                              |
+   | eglot-shutdown                      | Turn off the server.                                                                                                                                                                                   |
+   | eglot-rename                        | Ask the server to rename the symbol at point.                                                                                                                                                          |
+   | eglot-format                        | Asks the server to format buffer or the active region.                                                                                                                                                 |
+   | eglot-code-actions                  | Asks the server for any code actions at  point. These may tipically be simple fixes, like deleting an unused variable, or fixing an import. Left click on diagnostics to check if there are any there. |
+   | eglot-help-at-point                 | asks the server for help for symbol at point. *eldoc-mode* messages displayed in the echo area.                                                                                                          |
+   | eglot-events-buffer                 | Jumps to the events buffer for debugging  communication with the server.                                                                                                                               |
+   | eglot-stderr-buffer                 | if the LSP server is printing useful debugi nformation in stderr, jumps to a buffer with these contents.                                                                                               |
+   | eglot-signal-didChangeConfiguration | Updates the LSP server configuration according to the value of the variable eglot-workspace-configuration which you may be set in a *.dir-locals* file, for example.                                     |
+
 
    There are *no keybindings* specific to Eglot, but you can bind commands under *eglot-mode-map*,
    which is active as long as Eglot is managing a file in your project.
