@@ -1,6 +1,30 @@
-[[https://travis-ci.org/joaotavora/eglot][https://travis-ci.org/joaotavora/eglot.png?branch=master]]
+[[https://travis-ci.org/joaotavora/eglot][# -*- mode: org -*-
+# -*- coding: utf-8 -*-
+#+STARTUP: overview
+#+TILE: Eglot - Emacs Polyglot
+#+LANGUAGE: en
 
-# [![Build Status](https://travis-ci.org/joaotavora/eglot.png?branch=master)](https://travis-ci.org/joaotavora/eglot)
-# [![MELPA](http://melpa.org/packages/eglot-badge.svg)](http://melpa.org/#/eglot)
+https://travis-ci.org/joaotavora/eglot.png?branch=master]]
+[[http://melpa.org/#/eglot][http://melpa.org/packages/eglot-badge.svg]]
 
 * M-x Eglot
+
+  Emacs Polyglot. Emacs client to [[https://microsoft.github.io/language-server-protocol/][Language Server Protocol]] servers. Scroll down this README for some
+[pretty gifs](#animated_gifs).
+
+** Installation and usage
+
+   Eglot is avaiable on [[https://elpa.gnu.org][GNU Elpa]] and [[melpa.org][Melpa]]. Installation is straightforward:
+
+   #+BEGIN_SRC emacs-lisp
+
+   (package-install 'eglot) ; Requires Emacs 26!
+
+   #+END_SRC
+
+   Now find some source file and call Eglot with:  *M-x eglot*
+
+   *That's it*. If you're lucky, Eglot guesses the LSP server executable to start
+   for the language of your choice. Otherwise, it prompts you to select one:
+
+   *M-x eglot* can guess and work out-of-the-box with these servers:

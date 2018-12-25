@@ -10,7 +10,7 @@ servers.  Scroll down this README for some
 
 # Installation and usage
 
-Eglot is in both [ELPA][gnuelpa] and [MELPA][melpa]. Installation is
+Eglot is in both [[https://elpa.gnu.org][GNU Elpa]]  and [[melpa.org][Melpa]]. Installation is
 straightforward:
 
 ```
@@ -218,7 +218,7 @@ eglot-shutdown`.
 - [ ] documentLink/resolve
 - [ ] textDocument/documentColor
 - [ ] textDocument/colorPresentation (3.6.0)
-- [x] textDocument/formatting 
+- [x] textDocument/formatting
 - [x] textDocument/rangeFormatting
 - [ ] textDocument/onTypeFormatting
 - [x] textDocument/rename
@@ -271,7 +271,7 @@ User-visible differences:
 - Server-initiated edits are confirmed with the user;
 - Diagnostics work out-of-the-box (no `flycheck.el` needed);
 - Smoother/more responsive (read below).
-   
+
 Under the hood:
 
 - Message parser is much simpler.
