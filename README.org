@@ -28,3 +28,74 @@
    for the language of your choice. Otherwise, it prompts you to select one:
 
    *M-x eglot* can guess and work out-of-the-box with these servers:
+
+   | Language              | Server(s)                             |
+   |-----------------------+---------------------------------------|
+   | JavaScript/TypeScript | [[https://github.com/sourcegraph/javascript-typescript-langserver][JavaScript/TypeScript language server]] |
+   | Python                | [[https://github.com/palantir/python-language-server][Python Language Server]]                |
+   | Ruby                  | [[https://github.com/castwide/solargraph][Solargraph]]                            |
+   | PHP                   | [[https://github.com/felixfbecker/php-language-server][PHP Language Server]]                   |
+   | GNU Bash              | [[https://github.com/mads-hartmann/bash-language-server][Bash Language Server]]                  |
+   | C/C++/Object-C        | [[https://github.com/MaskRay/ccls][CCLS]] - [[https://github.com/cquery-project/cquery][CQuery - ]] [[https://clang.llvm.org/extra/clangd.html][ClangD]]               |
+   | Rust                  | [[https://github.com/rust-lang-nursery/rls][RLS]]                                   |
+   | Haskell               | [[https://github.com/haskell/haskell-ide-engine][Haskell IDE Engine (HIE)]]              |
+   | Java                  | [[https://github.com/eclipse/eclipse.jdt.ls][Eclipse JDT Language Server]]           |
+   | Kotlin                | [[https://github.com/fwcd/KotlinLanguageServer][KotlinLanguageServer]]                  |
+   | GoLang                | [[https://github.com/sourcegraph/go-langserver][Go Language Server]]                    |
+   | Ocaml                 | [[https://github.com/freebroccolo/ocaml-language-server][Ocaml-Language-Server]]                 |
+   | R                     | [[https://cran.r-project.org/package=languageserver][R Language Server]]                     |
+
+   As more server are tested will be added to this list. In the meantime you can customize *eglot-server-programs*:
+
+   #+BEGIN_SRC emacs_lisp
+
+   (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
+
+   #+END_SRC
+
+   Let us know how well it works so we can add it to the list.
+
+   If the server has some quirk or non-conformity, it's possible to extend _Eglot_ to adapt to it.
+
+   Here's how to get [[https://github.com/cquery-project/cquery][CQuery]] working for example:
+
+   #+BEGIN_SRC emacs-lisp
+
+   (add-to-list 'eglot-server-programs '((c++ mode c-mode) . (eglot-cquery "cquery")))
+
+   #+END_SRC
+
+   You can also enter a *server:port* pattern to connect to an LSP server. To skip the guess and always be prompted use _C-u M-x eglot_.
+
+** Connecting automatically
+
+   To start an *Eglot* session automatically as a foo-mode buffer is visited. You can also do:
+
+   #+BEGIN_SRC emacs-lisp
+
+   (add-hook 'foo-mode-hook 'eglot-ensure)
+
+   #+END_SRC
+
+** Connecting via TCP
+
+   The examples above use a _"pipe"_ to talk to the server, which correctly works on Linux and OSX,
+   [[https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html][but may not work on MS Windows]].
+
+   To circumvent this limitation, or if the server doesn't like pipes,
+   you can use *C-u M-x eglot* and give it *server:port* pattern to connect to a previously started TCP server serving LSP information.
+
+   If you don't want to start it manually every time, you can configure Eglot to start it and immediately connect to it. Ruby's solargraph server already works this way out-of-the-box.
+
+   For another example, suppose you also wanted start Python's pyls this way:
+
+   #+BEGIN_SRC emacs-lisp
+
+   (add-to-list 'eglot-server-programs
+		`(python-mode . ("pyls" "-v" "--tcp" "--host"
+				 "localhost" "--port" :autoport)))
+   #+END_SRC
+
+   You can see that the element associated with *python-mode* is now a more complicated invocation of the *pyls* program,
+   which requests that it be started as a server. Notice the *:autoport* symbol in there: it is replaced dynamically by a local port
+   believed to be vacant, so that the ensuing TCP connection finds a listening server.
