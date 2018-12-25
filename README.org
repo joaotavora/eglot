@@ -235,18 +235,18 @@
 
     [x] textDocument/rename
 ** Obligatory animated gif section
-   [[./gif-examples/eglot-code-actions.gif][eglot-code-actions]]
+   [[./gif-examples/eglot-code-actions.gif]]
 
-   [[./gif-examples/eglot-completions.gif][eglot-completions]]
+   [[./gif-examples/eglot-completions.gif]]
 
-   [[./gif-examples/eglot-diagnostics.gif][eglot-diagnostics]]
+   [[./gif-examples/eglot-diagnostics.gif]]
 
-   [[./gif-examples/eglot-hover-on-symbol.gif][eglot-hover-on-symbol]]
+   [[./gif-examples/eglot-hover-on-symbol.gif]]
 
-   [[./gif-examples/eglot-rename.gif][eglot-rename]]
+   [[./gif-examples/eglot-rename.gif]]
 
-   [[./gif-examples/eglot-xref-find-definition.gif][eglot-xref-find-definition]]
+   [[./gif-examples/eglot-xref-find-definition.gif]]
 
-   [[./gif-examples/eglot-xref-find-references.gif][eglot-xref-find-references]]
+   [[./gif-examples/eglot-xref-find-references.gif]]
 
-   [[./gif-examples/eglot-snippets-on-completion.gif][eglot-snippets-on-completion]]
+   [[./gif-examples/eglot-snippets-on-completion.gif]]
