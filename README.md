@@ -37,6 +37,7 @@ for the language of your choice. Otherwise, it prompts you to enter one:
 * Golang's [go-langserver][go-langserver]
 * Ocaml's [ocaml-language-server][ocaml-language-server]
 * R's [languageserver][r-languageserver]
+* Dart's [dart_language_server][dart_language_server]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -308,3 +309,4 @@ Under the hood:
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
 [ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
 [r-languageserver]: https://cran.r-project.org/package=languageserver
+[dart_language_server]: https://github.com/natebosch/dart_language_server
