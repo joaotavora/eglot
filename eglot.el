@@ -1031,6 +1031,7 @@ Doubles as an indicator of snippet support."
                        major-mode))))
     (with-temp-buffer
       (ignore-errors (funcall mode))
+      (read-only-mode -1)
       (insert string) (font-lock-ensure) (buffer-string))))
 
 (defcustom eglot-ignored-server-capabilites (list)
