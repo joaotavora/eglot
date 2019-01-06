@@ -6,7 +6,7 @@
 *E*macs Poly*glot*: an Emacs [LSP][lsp] client that stays out of your
 way:
 
-* 📽️Scroll down this README for some [pretty gifs](#animated_gifs)
+* 📽 Scroll down this README for some [pretty gifs](#animated_gifs)
 * 📚 Read about [servers](#connecting), [commands and
   keybindings](#commands), and [customization](#customization)
 * 📣 Read the [NEWS][news] file
