@@ -166,10 +166,10 @@ documentation on what these do.
   Eglot could use, but won't;
 
 - `eglot-put-doc-in-help-buffer`: If non-nil, put eldoc docstrings in
-  separate `*eglot-help*' buffer;
+  separate `*eglot-help*` buffer;
 
 - `eglot-auto-display-help-buffer`: If non-nil, automatically display
-  `*eglot-help*' buffer;
+  `*eglot-help*` buffer;
 
 There are a couple more variables that you can customize via Emacs
 lisp:
