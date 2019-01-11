@@ -66,6 +66,10 @@ find-library` can help you tell if that happened.
 * FSharp's [fsharp-mode][fsharp-mode] (Needs to `(require 'eglot-fsharp)` first)
 * YAML's [yaml-language-server][yaml-language-server]
 * Lua's [lua-lsp][lua-lsp]
+* HTML [html_language_server][html_language_server]
+* CSS's [css_language_server][css_language_server]
+* JSON's [json_language_server][json_language_server]
+* Dockerfile's [dockerfile_language_server][dockerfile_language_server]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -576,6 +580,10 @@ Under the hood:
 [dart_language_server]: https://github.com/natebosch/dart_language_server
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [erlang_ls]: https://github.com/erlang-ls/erlang_ls
+[html_language_server]: https://github.com/Microsoft/vscode/tree/master/extensions/html-language-features/server
+[css_language_server]: https://github.com/Microsoft/vscode/tree/master/extensions/css-language-features/server
+[json_language_server]: https://www.npmjs.com/package/vscode-json-languageserver
+[dockerfile_language_server]: https://github.com/rcjsuen/dockerfile-language-server-nodejs
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [metals]: https://scalameta.org/metals/
