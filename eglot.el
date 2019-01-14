@@ -499,6 +499,11 @@ treated as in `eglot-dbind'."
              :rangeFormatting    `(:dynamicRegistration :json-false)
              :rename             `(:dynamicRegistration :json-false)
              :publishDiagnostics `(:relatedInformation :json-false))
+            ;; https://github.com/sourcegraph/language-server-protocol/blob/master/extension-files.md
+            ;; (But putting these capabilities inside the experimental
+            ;; part would make more sense...)
+            :xfilesProvider t
+            :xcontentProvider t
             :experimental (list))))
 
 (defclass eglot-lsp-server (jsonrpc-process-connection)
@@ -1026,6 +1031,10 @@ If optional MARKER, return a marker instead"
    (concat "file://" (if (eq system-type 'windows-nt) "/") (file-truename path))
    url-path-allowed-chars))
 
+(defun eglot--path-to-TextDocumentIdentifier (path)
+  "Convert PATH to TextDocumentIdentifier."
+    `(:uri ,(eglot--path-to-uri path)))
+
 (defun eglot--uri-to-path (uri)
   "Convert URI to a file path."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
@@ -1461,6 +1470,52 @@ THINGS are either registrations or unregisterations (sic)."
   (_server (_method (eql workspace/applyEdit)) &key _label edit)
   "Handle server request workspace/applyEdit"
   (eglot--apply-workspace-edit edit 'confirm))
+
+(defcustom eglot-xfiles-visible-regexp ".*"
+  "Regexp matching filenames that can be sent to the language server."
+  :type 'regexp)
+
+(defcustom eglot-xfiles-hidden-regexp "/\\."
+  "Regexp matching filenames that cannot be sent to the language server.
+It has precedence over `eglot-xfiles-visible-regexp'."
+  :type 'regexp)
+
+(defun eglot--xfiles-visible-p (filename)
+  "Return non-nil if FILENAME can be sent to the language server."
+  (and (string-match eglot-xfiles-visible-regexp filename)
+       (not (string-match eglot-xfiles-hidden-regexp filename))))
+
+(cl-defmethod eglot-handle-request
+  (_server (_method (eql workspace/xfiles)) &key base)
+  "Handle server request workspace/xfiles"
+  (let ((pred #'eglot--xfiles-visible-p)
+	(filenames
+	 (if base
+	     (directory-files-recursively base eglot-xfiles-visible-regexp)
+	   (project-files (oref _server project)))))
+    (apply 'vector
+           (mapcar 'eglot--path-to-TextDocumentIdentifier
+		   (seq-filter pred filenames)))))
+
+(cl-defmethod eglot-handle-request
+  (_server (_method (eql textDocument/xcontent)) &key textDocument)
+  "Handle server request textDocument/xcontent"
+  (let* ((filename (eglot--uri-to-path (plist-get textDocument :uri)))
+	 (buffer (find-buffer-visiting filename))
+	 doc-item)
+    (if (not (eglot--xfiles-visible-p filename))
+	;; Spec: "The client may choose whether or not to satisfy
+	;; these requests."  It's not clear how the client should deny
+	;; a request.  -32600: InvalidRequest
+	(jsonrpc-error :code -32600 :message "Access denied")
+      (if buffer
+	  (with-current-buffer buffer
+	    (eglot--TextDocumentItem))
+	(save-excursion
+	  (setq buffer (find-file-literally filename))
+	  (setq doc-item (eglot--TextDocumentItem))
+	  (kill-buffer)
+	  doc-item)))))
 
 (defun eglot--TextDocumentIdentifier ()
   "Compute TextDocumentIdentifier object for current buffer."
