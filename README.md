@@ -11,10 +11,10 @@ way:
   keybindings](#commands), and [customization](#customization)
 * 📣 Read the [NEWS][news] file
 
-# 1-2-3
+# _1-2-3_
 
-Install from [ELPA][gnuelpa] or [MELPA][melpa]. Just type `M-x
-package-install RET eglot RET`.
+Install from [ELPA][gnuelpa] or [MELPA][melpa].  Just type `M-x
+package-install RET eglot RET` into Emacs 26.1+.
 
 Now find some source file, any source file, and type `M-x eglot`.
 
