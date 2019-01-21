@@ -2150,37 +2150,57 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
          :deferred :textDocument/documentHighlight))))
   eldoc-last-message)
 
+(defvar-local eglot--imenu-entries nil "Cached results of ‘eglot-imenu’.")
+
+(defun eglot--update-imenu (response)
+  "Update the ‘imenu’ cache for the current buffer from RESPONSE.
+RESPONSE should be the response to a
+‘:textDocument/documentSymbol’ request."
+  (let ((entries
+         (mapcar
+          (eglot--lambda
+              ((SymbolInformation) name kind location containerName)
+            (cons (propertize
+                   name
+                   :kind (alist-get kind eglot--symbol-kind-names
+                                    "Unknown")
+                   :containerName (and (stringp containerName)
+                                       (not (string-empty-p containerName))
+                                       containerName))
+                  (eglot--lsp-position-to-point
+                   (plist-get (plist-get location :range) :start))))
+          response)))
+    (setq eglot--imenu-entries
+          (mapcar
+           (pcase-lambda (`(,kind . ,syms))
+             (let ((syms-by-scope
+                    (seq-group-by
+                     (lambda (e)
+                       (get-text-property 0 :containerName (car e)))
+                     syms)))
+               (cons kind (cl-loop for (scope . elems) in syms-by-scope
+                                   append (if scope
+                                              (list (cons scope elems))
+                                            elems)))))
+           (seq-group-by (lambda (e) (get-text-property 0 :kind (car e)))
+                         entries)))))
+
 (defun eglot-imenu (oldfun)
   "EGLOT's `imenu-create-index-function' overriding OLDFUN."
   (if (eglot--server-capable :documentSymbolProvider)
-      (let ((entries
-             (mapcar
-              (eglot--lambda
-                  ((SymbolInformation) name kind location containerName)
-                (cons (propertize
-                       name
-                       :kind (alist-get kind eglot--symbol-kind-names
-                                        "Unknown")
-                       :containerName (and (stringp containerName)
-                                           (not (string-empty-p containerName))
-                                           containerName))
-                      (eglot--lsp-position-to-point
-                       (plist-get (plist-get location :range) :start))))
-              (jsonrpc-request (eglot--current-server-or-lose)
-                               :textDocument/documentSymbol
-                               `(:textDocument ,(eglot--TextDocumentIdentifier))))))
-        (mapcar
-         (pcase-lambda (`(,kind . ,syms))
-           (let ((syms-by-scope (seq-group-by
-                                 (lambda (e)
-                                   (get-text-property 0 :containerName (car e)))
-                                 syms)))
-             (cons kind (cl-loop for (scope . elems) in syms-by-scope
-                                 append (if scope
-                                            (list (cons scope elems))
-                                          elems)))))
-         (seq-group-by (lambda (e) (get-text-property 0 :kind (car e)))
-                       entries)))
+      ;; ‘eglot-imenu’ is created from an idle timer for ‘which-function’ as
+      ;; well as ‘find-file-hook’, so it may not block.  Therefore we always
+      ;; use a cached result and fire up an update in the background.
+      (prog1 eglot--imenu-entries
+        (let ((buffer (current-buffer)))
+          (jsonrpc-async-request
+           (eglot--current-server-or-lose)
+           :textDocument/documentSymbol
+           `(:textDocument ,(eglot--TextDocumentIdentifier))
+           :success-fn (lambda (response)
+                         (with-current-buffer buffer
+                           (eglot--update-imenu response)))
+           :deferred 'eglot-imenu)))
     (funcall oldfun)))
 
 (defun eglot--apply-text-edits (edits &optional version)
