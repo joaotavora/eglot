@@ -1672,6 +1672,9 @@ Calls REPORT-FN maybe if server publishes diagnostics in time."
 DUMMY is ignored."
   (setq eglot--xref-known-symbols nil))
 
+(defalias 'eglot-find-definitions 'xref-find-definitions)
+(defalias 'eglot-find-references 'xref-find-references)
+
 (advice-add 'xref-find-definitions :after #'eglot--xref-reset-known-symbols)
 (advice-add 'xref-find-references :after #'eglot--xref-reset-known-symbols)
 

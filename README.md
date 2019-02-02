@@ -135,6 +135,12 @@ configuration according to the value of the variable
 `eglot-workspace-configuration`, which you may be set in a
 `.dir-locals` file, for example.
 
+- `M-x eglot-find-definitions` calls `xref-find-definitions` and
+jumps to the definition of the selected symbol.
+
+- `M-x eglot-find-references` calls `xref-find-references` and
+find references of the selected symbol.
+
 There are *no keybindings* specific to Eglot, but you can bind stuff
 in `eglot-mode-map`, which is active as long as Eglot is managing a
 file in your project. The commands don't need to be Eglot-specific,
@@ -142,7 +148,7 @@ either:
 
 ```
 (define-key eglot-mode-map (kbd "C-c h") 'eglot-help-at-point)
-(define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
+(define-key eglot-mode-map (kbd "<f6>") 'eglot-find-definitions)
 ```
 
 <a name="customization"></a>
