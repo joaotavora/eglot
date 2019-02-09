@@ -42,7 +42,8 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * Dart's [dart_language_server][dart_language_server]
 
 I'll add to this list as I test more servers. In the meantime you can
-customize `eglot-server-programs`:
+customize `eglot-server-programs`: either
+`M-x customize-variable RET eglot-server-programs RET` or
 
 ```lisp
 (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
@@ -152,6 +153,8 @@ Here's a quick summary of the customization options.  In Eglot's
 customization group (`M-x customize-group`) there is more
 documentation on what these do.
 
+- `eglot-server-programs`: as described [above](#connecting);
+
 - `eglot-autoreconnect`: Control ability to reconnect automatically to
   the LSP server;
 
@@ -174,8 +177,6 @@ documentation on what these do.
 
 There are a couple more variables that you can customize via Emacs
 lisp:
-
-- `eglot-server-programs`: as described [above](#connecting);
 
 - `eglot-strict-mode`: Set to `nil` by default, meaning Eglot is
   generally lenient about non-conforming servers.  Set this to
