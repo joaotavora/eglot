@@ -78,7 +78,30 @@
   :prefix "eglot-"
   :group 'applications)
 
-(defvar eglot-server-programs '((rust-mode . (eglot-rls "rls"))
+(defconst eglot-server-programs-contact
+  `((cons :tag "Standard I/O"
+          (string :tag "Program")
+          (repeat :tag "Arguments" string))
+    (list :tag "TCP Connection"
+          (string :tag "Host"
+                  :value "localhost")
+          (number :tag "TCP Port"
+                  :value 0)
+          (plist :tag "TCP Parameters"
+                 :inline t
+                 :key-type (symbol :tag "Keyword")))
+    (cons :tag "TCP Auto-Launch"
+          (string :tag "Program")
+          (list (repeat :tag "Arguments"
+                        :inline t
+                        string)
+                (const :autoport)
+                (repeat :tag "More"
+                        :inline t
+                        string))))
+  "Partial list of common customization types for `eglot-server-programs'.")
+
+(defcustom eglot-server-programs '((rust-mode . (eglot-rls "rls"))
                                 (python-mode . ("pyls"))
                                 ((js-mode
                                   typescript-mode)
@@ -139,7 +162,20 @@ of those modes.  CONTACT can be:
   the call is interactive, the function can ask the user for
   hints on finding the required programs, etc.  Otherwise, it
   should not ask the user for any input, and return nil or signal
-  an error if it can't produce a valid CONTACT.")
+  an error if it can't produce a valid CONTACT."
+  :type `(alist :key-type (choice :tag "Major Modes"
+                                  (symbol :value major-mode)
+                                  (repeat (symbol :value major-mode)))
+                :value-type (choice :tag "Contact"
+                                    ,@eglot-server-programs-contact
+                                    (cons :tag "Experimental LSP"
+                                          (symbol :tag "Class Name"
+                                                  :value eglot-lsp-server-subclass)
+                                          (choice :tag "Initialization"
+                                                  (plist :tag "Class Initializer"
+                                                         :key-type (symbol :tag "Keyword"))
+                                                  ,@eglot-server-programs-contact))
+                                    (function :tag "Contact Function"))))
 
 (defface eglot-mode-line
   '((t (:inherit font-lock-constant-face :weight bold)))
