@@ -447,32 +447,47 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (while (not eldoc-last-message) (accept-process-output nil 0.1))
       (should (string-match "^exit" eldoc-last-message)))))
 
-(ert-deftest formatting ()
-  "Test formatting in a python LSP"
+(ert-deftest python-autopep-formatting ()
+  "Test formatting in the pyls python LSP.
+pyls prefers autopep over yafp"
   (skip-unless (and (executable-find "pyls")
-                    (or (executable-find "yapf")
-                        (executable-find "autopep8"))))
+                    (executable-find "autopep8")))
   (eglot--with-fixture
       '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (should (eglot--tests-connect))
+      ;; Try to format just the second line
       (search-forward "b():pa")
       (eglot-format (point-at-bol) (point-at-eol))
       (should (looking-at "ss"))
       (should
-       (or
-        ;; yapf
-        (string= (buffer-string) "def a():pass\n\n\ndef b():\n    pass\n")
-        ;; autopep8
-        (string= (buffer-string) "def a():pass\n\n\ndef b(): pass\n")))
+       (string= (buffer-string) "def a():pass\n\n\ndef b(): pass\n"))
+      ;; now format the whole buffer
       (eglot-format-buffer)
       (should
-       (or
-        ;; yapf
-        (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")
-        ;; autopep8
-        (string= (buffer-string) "def a(): pass\n\n\ndef b(): pass\n"))))))
+       (string= (buffer-string) "def a(): pass\n\n\ndef b(): pass\n")))))
+
+(ert-deftest python-yapf-formatting ()
+  "Test formatting in the pyls python LSP"
+  (skip-unless (and (executable-find "pyls")
+                    (not (executable-find "autopep8"))
+                    (executable-find "yapf")))
+  (eglot--with-fixture
+      '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      ;; Try to format just the second line
+      (search-forward "b():pa")
+      (eglot-format (point-at-bol) (point-at-eol))
+      (should (looking-at "ss"))
+      (should
+       (string= (buffer-string) "def a():pass\n\n\ndef b():\n    pass\n"))
+      ;; now format the whole buffer
+      (eglot-format-buffer)
+      (should
+       (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")))))
 
 (ert-deftest javascript-basic ()
   "Test basic autocompletion in a python LSP"
