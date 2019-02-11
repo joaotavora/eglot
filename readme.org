@@ -1,0 +1,31 @@
+#+TITLE: disk-usage.el
+
+Disk Usage is a file system analyzer: it offers a tabulated view of the file
+system with listings sorted by size.  Directory sizes are computed recursively.
+The results are cached for speed.
+
+This package answers the shortcomings of ~dired-du~ (notably that it's not able
+to sort by size, see https://github.com/calancha/dired-du/issues/2).  It also
+aims at replacing other, more limited disk analyzers such as =ncdu=.
+
+* Installation
+
+Get the package, either from ELPA:
+
+: M-x package-install RET mu4e-conversation RET
+
+Or clone / download this repository and modify your ~load-path~.
+
+: (add-to-list 'load-path (expand-file-name "/path/to/this-package/" user-emacs-directory))
+
+Load the package with
+
+: (require 'disk-usage)
+
+* Features
+
+Run ~disk-usage~ or ~disk-usage-here~ to display a listing.  ~describe-mode~ to
+display additional bindings, such as ~disk-usage-dired-at-point~ to open a
+~dired~ buffer for the current directory.
+
+You can customize options in the 'disk-usage group.
