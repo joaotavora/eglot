@@ -87,19 +87,22 @@
 
 (defun disk-usage--list (directory)
   (setq directory (or directory default-directory))
-  ;; TODO: 'full paths?
   (let ((listing (directory-files-and-attributes directory 'full nil 'nosort)))
     (or (cl-loop for l in listing
                  for attributes = (cl-rest l)
                  for path = (cl-first l)
+                 ;; Files
                  if (null (file-attribute-type attributes))
                  collect (vector (file-attribute-size attributes) path)
+                 ;; Symlinks
                  if (stringp (file-attribute-type attributes))
                  collect (vector (file-attribute-size attributes)
-                                 (propertize path
-                                             'face (if (file-directory-p path)
-                                                       'disk-usage-symlink-directory
-                                                     'disk-usage-symlink)))
+                                 (concat (propertize path
+                                                     'face (if (file-directory-p path)
+                                                               'disk-usage-symlink-directory
+                                                             'disk-usage-symlink))
+                                         " -> " (file-attribute-type attributes)))
+                 ;; Folders
                  else if (and (eq t (file-attribute-type attributes))
                               (not (string= "." (file-name-base path)))
                               (not (string= ".." (file-name-base path))))
