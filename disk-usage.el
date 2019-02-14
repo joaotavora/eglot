@@ -185,7 +185,7 @@ beings."
   "Mode to display disk usage."
   ;; TODO: Option to display extra attributes.
   (setq tabulated-list-format
-        `[("Size" 10 ,disk-usage--sort)
+        `[("Size" 12 ,disk-usage--sort . (:right-align t))
           ("File" 0 t)])
   (setq tabulated-list-sort-key (cons "Size" 'flip))
   (setq tabulated-list-printer #'disk-usage--print-entry)
