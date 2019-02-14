@@ -150,7 +150,8 @@ Takes a number and returns a string.
   (interactive)
   (if (eq disk-usage--format #'file-size-human-readable)
       (setq disk-usage--format #'number-to-string)
-    (setq disk-usage--format #'file-size-human-readable)))
+    (setq disk-usage--format #'file-size-human-readable))
+  (tabulated-list-revert))
 
 (defun disk-usage--print-entry (id cols)
   "Like `tabulated-list-print-entry' but formats size for human
