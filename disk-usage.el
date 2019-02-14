@@ -38,9 +38,10 @@
 (require 'tabulated-list)
 (require 'cl-macs)
 
-;; TODO: Canonical paths
+;; TODO: Print total size.
+;; TODO: Toggle display of full paths.  Make sur Helm-FF still works.
 ;; TODO: Graph support.
-;; TODO: Print symlinks?
+;; TODO: Include screenshots.
 ;; TODO: When going up, place cursor on right directory.
 
 (defgroup disk-usage nil
@@ -57,6 +58,17 @@
   :group 'disk-usage
   :type '(choice (function :tag "Native (slow)" disk-usage--directory-size-with-emacs)
                  (function :tag "System \"du\"" disk-usage--directory-size-with-du)))
+
+(defface disk-usage-symlink
+  '((t :foreground "orange"))
+  "Face for symlinks."
+  :group 'disk-usage)
+
+(defface disk-usage-symlink-directory
+  '((t :inherit disk-usage-symlink
+       :underline t))
+  "Face for symlinks."
+  :group 'disk-usage)
 
 (defvar disk-usage-mode-map
   (let ((map (make-sparse-keymap)))
@@ -82,6 +94,12 @@
                  for path = (cl-first l)
                  if (null (file-attribute-type attributes))
                  collect (vector (file-attribute-size attributes) path)
+                 if (stringp (file-attribute-type attributes))
+                 collect (vector (file-attribute-size attributes)
+                                 (propertize path
+                                             'face (if (file-directory-p path)
+                                                       'disk-usage-symlink-directory
+                                                     'disk-usage-symlink)))
                  else if (and (eq t (file-attribute-type attributes))
                               (not (string= "." (file-name-base path)))
                               (not (string= ".." (file-name-base path))))
@@ -152,6 +170,7 @@ Takes a number and returns a string.
   (if (eq disk-usage--format #'file-size-human-readable)
       (setq disk-usage--format #'number-to-string)
     (setq disk-usage--format #'file-size-human-readable))
+  (disk-usage--set-format)
   (tabulated-list-revert))
 
 (defun disk-usage--print-entry (id cols)
@@ -183,12 +202,19 @@ beings."
                          ;; guesses the right file.
                          help-echo ,(aref cols 1)))))
 
+(defun disk-usage--set-format ()
+  (setq tabulated-list-format
+        `[("Size"
+           ,(if (eq disk-usage--format #'file-size-human-readable)
+                8
+              12)
+           ,disk-usage--sort . (:right-align t))
+          (,(format "Files in '%s'" default-directory) 0 t)]))
+
 (define-derived-mode disk-usage-mode tabulated-list-mode "Disk Usage"
   "Mode to display disk usage."
   ;; TODO: Option to display extra attributes.
-  (setq tabulated-list-format
-        `[("Size" 12 ,disk-usage--sort . (:right-align t))
-          ("File" 0 t)])
+  (disk-usage--set-format)
   (setq tabulated-list-sort-key (cons "Size" 'flip))
   (setq tabulated-list-printer #'disk-usage--print-entry)
   (add-hook 'tabulated-list-revert-hook 'disk-usage--refresh nil t)
@@ -199,9 +225,9 @@ beings."
   (interactive "D")
   (unless disk-usage--cache
     (setq disk-usage--cache (make-hash-table :test #'equal)))
-  (setq directory (or (and (file-directory-p directory)
-                           directory)
-                      default-directory))
+  (setq directory (file-truename (or (and (file-directory-p directory)
+                                          directory)
+                                     default-directory)))
   (switch-to-buffer
    (get-buffer-create (format "*disk-usage<%s>*" (directory-file-name directory))))
   (disk-usage-mode)
