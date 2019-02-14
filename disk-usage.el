@@ -72,6 +72,7 @@
 (defvar disk-usage-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map (kbd "S-<return>") #'disk-usage-find-file-at-point)
     (define-key map "d" #'disk-usage-dired-at-point)
     (define-key map "e" #'disk-usage-eshell-at-point)
     (define-key map "h" #'disk-usage-toggle-human-readable)
@@ -299,6 +300,10 @@ beings."
   (interactive)
   (delete-file (disk-usage--path-at-point))
   (tabulated-list-delete-entry))
+
+(defun disk-usage-find-file-at-point ()
+  (interactive)
+  (find-file (disk-usage--path-at-point)))
 
 (defun disk-usage-dired-at-point ()
   (interactive)
