@@ -147,7 +147,7 @@ This is slow but does not require any external process."
 (defun disk-usage--set-format (total-size)
   (setq tabulated-list-format
         `[("Size"
-           ,(if (eq disk-usage--format #'file-size-human-readable)
+           ,(if (eq disk-usage--format-size #'file-size-human-readable)
                 8
               12)
            ,disk-usage--sort . (:right-align t))
@@ -181,17 +181,40 @@ This is slow but does not require any external process."
 ;; TODO: Customize sort options.
 (defvar disk-usage--sort #'disk-usage--sort-size-<)
 
-(defvar disk-usage--format #'file-size-human-readable
+(defvar disk-usage--format-size #'file-size-human-readable
   "How to print size.
 Takes a number and returns a string.
 `file-size-human-readable' and `number-to-string' are good candidates.")
 
+(defvar disk-usage--format-files #'identity
+  "How to print files.
+Takes a string and returns a string.
+`identity' and `file-name-nondirectory' are good candidates.")
+
 (defun disk-usage-toggle-human-readable ()
   (interactive)
-  (if (eq disk-usage--format #'file-size-human-readable)
-      (setq disk-usage--format #'number-to-string)
-    (setq disk-usage--format #'file-size-human-readable))
+  (setq disk-usage--format-size
+        (if (eq disk-usage--format-size #'file-size-human-readable)
+            #'number-to-string
+          #'file-size-human-readable))
   (tabulated-list-revert))
+
+(defun disk-usage-toggle-full-path ()
+  (interactive)
+  (setq disk-usage--format-files
+        (if (eq disk-usage--format-files #'identity)
+            #'file-name-nondirectory
+          #'identity))
+  (tabulated-list-revert))
+
+(defun disk-usage--print-file-col (file-entry)
+  "Call `disk-usage--format-file' on FILE-ENTRY.
+FILE-ENTRY may be a string or a button."
+  (if (listp file-entry)
+      (let ((copy (cl-copy-list file-entry)))
+        (setcar copy (funcall disk-usage--format-files (car copy)))
+        copy)
+    (funcall disk-usage--format-files file-entry)))
 
 (defun disk-usage--print-entry (id cols)
   "Like `tabulated-list-print-entry' but formats size for human
@@ -207,8 +230,9 @@ beings."
                (list (or (tabulated-list-get-entry (point-at-bol 0))
                          cols)
                      cols))))
-      (setq x (tabulated-list-print-col 0 (funcall disk-usage--format (string-to-number (aref cols 0))) x))
-      (cl-loop for i from 1 below ncols
+      (setq x (tabulated-list-print-col 0 (funcall disk-usage--format-size (string-to-number (aref cols 0))) x))
+      (setq x (tabulated-list-print-col 1 (disk-usage--print-file-col (aref cols 1)) x))
+      (cl-loop for i from 2 below ncols
                do (setq x (tabulated-list-print-col i (aref cols i) x))))
     (insert ?\n)
     ;; Ever so slightly faster than calling `put-text-property' twice.
