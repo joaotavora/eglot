@@ -63,6 +63,7 @@
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map "d" #'disk-usage-dired-at-point)
     (define-key map "e" #'disk-usage-eshell-at-point)
+    (define-key map "h" #'disk-usage-toggle-human-readable)
     map)
   "Local keymap for `disk-usage-mode' buffers.")
 
