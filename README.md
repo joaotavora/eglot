@@ -278,56 +278,11 @@ eglot-shutdown`.
 ![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
 ![eglot-snippets-on-completion](./gif-examples/eglot-snippets-on-completion.gif)
 
-# Historical differences to lsp-mode.el
+# See also
 
-Around May 2018, I wrote a comparison of Eglot to `lsp-mode.el`, and
-was discussed with its then-maintainer.  That mode has since been
-refactored/rewritten and now
-[purports to support](https://github.com/joaotavora/eglot/issues/180)
-a lot of features that differentiated Eglot from it.  It may now be
-very different or very similar to Eglot, or even sing with the birds
-in the trees, so [go check it out][emacs-lsp].  That said, here's the
-original comparison, which I will not be updating any more.
+The other major LSP mode for Emacs is [lsp-mode][emacs-lsp].  Try them both and
+pick the one that works best for you.
 
-"Eglot is considerably less code and hassle than lsp-mode.el.  In most
-cases, there's nothing to configure.  It's a minimalist approach
-focused on user experience and performance.
-
-User-visible differences:
-
-- The single most visible difference is the friendly entry point `M-x
-  eglot`, not `M-x eglot-<language>`.  Also, there are no
-  `eglot-<language>` extra packages.
-
-- There's no "whitelisting" or "blacklisting" directories to
-  languages.  `M-x eglot` starts servers to handle file of a major
-  mode inside a specific project, using Emacs's built-in `project.el`
-  library to discover projects.  Then it automatically detects current
-  and future opened files under that project and syncs with server;
-
-- Easy way to quit/restart a server, just middle/right click on the
-  connection name;
-- Pretty interactive mode-line section for live tracking of server
-  communication;
-- Automatically restarts frequently crashing servers (like RLS);
-- Slow-to-start servers start asynchronously in the background;
-- Server-initiated edits are confirmed with the user;
-- Diagnostics work out-of-the-box (no `flycheck.el` needed);
-- Smoother/more responsive (read below).
-   
-Under the hood:
-
-- Message parser is much simpler.
-- Defers signature requests like `textDocument/hover` until server is
-  ready.
-- Sends `textDocument/didChange` for groups of edits, not
-  one per each tiny change.
-- Easier to read and maintain elisp. Yeah I know, *very subjective*,
-  so judge for yourself.
-- Doesn't *require* anything other than Emacs, but will automatically
-  upgrade to work with stuff outside Emacs, like `company`,
-  `markdown-mode`, if you happen to have these installed.
-- Has automated tests that check against actual LSP servers."
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
