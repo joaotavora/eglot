@@ -143,16 +143,19 @@ This is slow but does not require any external process."
                        disk-usage--du-args path))
        (buffer-string))))))
 
-(defun disk-usage--set-format (total-size)
+(defun disk-usage--set-format (&optional total-size)
   (setq tabulated-list-format
         `[("Size"
            ,(if (eq disk-usage--format-size #'file-size-human-readable)
                 8
               12)
            ,disk-usage--sort . (:right-align t))
-          (,(format "Files totalling %sB (%s) in '%s'"
-                    total-size
-                    (file-size-human-readable total-size)
+          (,(format "Files %sin '%s'"
+                    (if total-size
+                        (format "totalling %sB (%s) "
+                                total-size
+                                (file-size-human-readable total-size))
+                      "")
                     default-directory)
            0 t)]))
 
@@ -161,6 +164,7 @@ This is slow but does not require any external process."
   ;; TODO: Set tabulated-list-entries to a function?
   (let ((listing (disk-usage--list directory)))
     (disk-usage--set-format (disk-usage--total listing))
+    (tabulated-list-init-header)
     (setq tabulated-list-entries
           (mapcar (lambda (e)
                     (list e (vector (number-to-string (aref e 0))
@@ -259,8 +263,7 @@ beings."
   ;; TODO: Option to display extra attributes and default column to sort.
   (setq tabulated-list-sort-key (cons "Size" 'flip))
   (setq tabulated-list-printer #'disk-usage--print-entry)
-  (add-hook 'tabulated-list-revert-hook 'disk-usage--refresh nil t)
-  (tabulated-list-init-header))
+  (add-hook 'tabulated-list-revert-hook 'disk-usage--refresh nil t))
 
 ;;;###autoload
 (defun disk-usage (&optional directory)
