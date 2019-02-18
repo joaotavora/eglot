@@ -298,6 +298,8 @@ beings."
   (setq tabulated-list-printer #'disk-usage--print-entry)
   (add-hook 'tabulated-list-revert-hook 'disk-usage--refresh nil t))
 
+(defvar disk-usage-buffer-name "disk-usage")
+
 ;;;###autoload
 (defun disk-usage (&optional directory)
   (interactive "D")
@@ -307,7 +309,8 @@ beings."
                                           directory)
                                      default-directory)))
   (switch-to-buffer
-   (get-buffer-create (format "*disk-usage<%s>*" (directory-file-name directory))))
+   (get-buffer-create (format "*%s<%s>*" disk-usage-buffer-name
+                              (directory-file-name directory))))
   (disk-usage-mode)
   (setq default-directory directory)
   (tabulated-list-revert))
