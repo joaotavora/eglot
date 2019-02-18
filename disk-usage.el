@@ -89,6 +89,8 @@
     (define-key map "h" #'disk-usage-toggle-human-readable)
     (define-key map "f" #'disk-usage-toggle-full-path)
     (define-key map "R" #'disk-usage-toggle-recursive)
+    (define-key map "m" #'disk-usage-mark-at-point)
+    (define-key map "x" #'disk-usage-delete-marked-files)
     map)
   "Local keymap for `disk-usage-mode' buffers.")
 
@@ -98,7 +100,8 @@
                (:constructor nil)
                (:constructor disk-usage--file-info-make))
   size
-  name)
+  name
+  (marked nil))
 
 (defun disk-usage-reset-cache ()
   (interactive)
@@ -320,6 +323,7 @@ beings."
 (define-derived-mode disk-usage-mode tabulated-list-mode "Disk Usage"
   "Mode to display disk usage."
   ;; TODO: Option to display extra attributes and default column to sort.
+  (setq tabulated-list-padding 2)
   (setq tabulated-list-sort-key (cons "Size" 'flip))
   (setq tabulated-list-printer #'disk-usage--print-entry)
   (add-hook 'tabulated-list-revert-hook 'disk-usage--refresh nil t))
@@ -369,11 +373,23 @@ beings."
         path
       (setq path (file-name-directory path)))))
 
-;; TODO: Mark files?
-(defun disk-usage-delete-at-point ()
+(defun disk-usage-mark-at-point ()
   (interactive)
-  (delete-file (disk-usage--path-at-point))
-  (tabulated-list-delete-entry))
+  (let ((file-info (tabulated-list-get-id (point))))
+    (setf (disk-usage--file-info-marked file-info) t))
+  (tabulated-list-put-tag "*" 'advance))
+
+(defun disk-usage-delete-marked-files (&optional permanently)
+  "Delete marked files.
+By default, files are moved to trash unless PERMANENTLY is
+non-nil or with prefix argument."
+  (interactive "P")
+  (when (yes-or-no-p "Delete marked files?")
+    (cl-loop for entry in tabulated-list-entries
+             if (disk-usage--file-info-marked (car entry))
+             do (let ((delete-by-moving-to-trash (not permanently)))
+                  (delete-file (disk-usage--file-info-name (car entry))))))
+  (tabulated-list-revert))
 
 (defun disk-usage-find-file-at-point ()
   (interactive)
