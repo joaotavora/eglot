@@ -448,7 +448,7 @@ TYPE is the file extension (lower case)."
                                                  :size size)
                    (setf
                     (disk-usage--type-info-names type) (cons (disk-usage--file-info-name file-info)
-                                                             (disk-usage--type-info-name type))
+                                                             (disk-usage--type-info-names type))
                     (disk-usage--type-info-count type) (1+ (disk-usage--type-info-count type))
                     (disk-usage--type-info-size type) (+ size (disk-usage--type-info-size type)))
                    type)
