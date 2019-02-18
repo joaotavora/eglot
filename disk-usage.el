@@ -472,6 +472,7 @@ TYPE is the file extension (lower case)."
   (setq tabulated-list-format
         `[("Extension" 12 t)
           ("Count" 12 disk-usage-by-types--sort-by-count)
+          ("%%" 6 disk-usage-by-types--sort-by-size)
           ("Total size" 12 disk-usage-by-types--sort-by-size)
           ("Average size" 15 disk-usage-by-types--sort-by-average)]))
 
@@ -480,22 +481,28 @@ TYPE is the file extension (lower case)."
   (let ((listing (disk-usage-by-types--list directory)))
     (disk-usage-by-types--set-tabulated-list-format)
     (tabulated-list-init-header)
-    (setq tabulated-list-entries
-          (cl-loop for e being the hash-values of listing
-                   collect (list e
-                                 (vector
-                                  (disk-usage--type-info-extension e)
-                                  (number-to-string (disk-usage--type-info-count e))
-                                  (funcall disk-usage-size-format-function
-                                           (disk-usage--type-info-size e))
-                                  (funcall disk-usage-size-format-function
-                                           (string-to-number
-                                            (format "%.2f"
-                                                    (disk-usage--type-average-size e))))))))))
+    (let ((total-size (cl-loop for e being the hash-values of listing
+                               sum (disk-usage--type-info-size e))))
+      (setq tabulated-list-entries
+            (cl-loop for e being the hash-values of listing
+                     collect (list e
+                                   (vector
+                                    (disk-usage--type-info-extension e)
+                                    (number-to-string (disk-usage--type-info-count e))
+                                    (format "%.1f%%"
+                                            (* 100 (/ (float (disk-usage--type-info-size e))
+                                                      total-size)))
+                                    (funcall disk-usage-size-format-function
+                                             (disk-usage--type-info-size e))
+                                    (funcall disk-usage-size-format-function
+                                             (string-to-number
+                                              (format "%.2f"
+                                                      (disk-usage--type-average-size e)))))))))))
 
 (define-derived-mode disk-usage-by-types-mode tabulated-list-mode "Disk Usage By Types"
   "Mode to display disk usage by file types.
 Also see `disk-usage-mode'."
+  (setq tabulated-list-sort-key (cons "Total size" 'flip))
   (add-hook 'tabulated-list-revert-hook 'disk-usage-by-types--refresh nil t))
 
 (defvar disk-usage-by-types-mode-map
