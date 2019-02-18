@@ -527,5 +527,10 @@ Also see `disk-usage-mode'."
   (setq default-directory directory)
   (tabulated-list-revert))
 
+;;;###autoload
+(defun disk-usage-by-types-here ()
+  (interactive)
+  (disk-usage-by-types default-directory))
+
 (provide 'disk-usage)
 ;;; disk-usage.el ends here
