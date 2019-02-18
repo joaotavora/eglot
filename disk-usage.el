@@ -150,8 +150,8 @@ $ find . -type f -exec du -sb {} +"
                                 (buffer-string))
                               "\n" 'omit-nulls)))
 
-(defcustom disk-usage-list-function #'disk-usage--list-recursively
-  "Function that returns a list of [SIZE FILE] vectors.
+(defcustom disk-usage-list-function #'disk-usage--list
+  "Function that returns a list of `disk-usage--file-info'.
 It takes the directory to scan as argument."
   :group 'disk-usage
   :type '(choice (function :tag "Hierarchical" disk-usage--list)
