@@ -41,10 +41,8 @@
 (require 'tabulated-list)
 (require 'cl-macs)
 
-;; TODO: Toggle display of full paths.  Make sur Helm-FF still works.
-;; TODO: Graph support.
-;; TODO: Include screenshots.
-;; TODO: When going up, place cursor on right directory.
+;; TODO: Helm-FF does not work when file-name-nondirectory is on.
+;; TODO: Add support for charts?
 
 (defgroup disk-usage nil
   "Predefined configurations for `disk-usage'."
