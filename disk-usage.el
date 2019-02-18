@@ -144,6 +144,18 @@ This is slow but does not require any external process."
                        disk-usage--du-args path))
        (buffer-string))))))
 
+(defun disk-usage--sort-size-< (a b)
+  (let ((size-a (string-to-number (aref (cadr a) 0)))
+        (size-b (string-to-number (aref (cadr b) 0))))
+    (< size-a size-b)))
+
+(defvar disk-usage--format-size #'file-size-human-readable
+  "How to print size.
+Takes a number and returns a string.
+`file-size-human-readable' and `number-to-string' are good candidates.")
+
+(defvar disk-usage--sort #'disk-usage--sort-size-<)
+
 (defun disk-usage--set-format (&optional total-size)
   (setq tabulated-list-format
         `[("Size"
@@ -177,18 +189,6 @@ This is slow but does not require any external process."
                                                       (disk-usage (aref e 1)))))
                                       (aref e 1)))))
                   listing))))
-
-(defun disk-usage--sort-size-< (a b)
-  (let ((size-a (string-to-number (aref (cadr a) 0)))
-        (size-b (string-to-number (aref (cadr b) 0))))
-    (< size-a size-b)))
-
-(defvar disk-usage--sort #'disk-usage--sort-size-<)
-
-(defvar disk-usage--format-size #'file-size-human-readable
-  "How to print size.
-Takes a number and returns a string.
-`file-size-human-readable' and `number-to-string' are good candidates.")
 
 (defvar disk-usage--format-files #'identity
   "How to print files.
