@@ -73,6 +73,8 @@
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map (kbd "S-<return>") #'disk-usage-find-file-at-point)
+    (define-key map (kbd "<backspace>") #'disk-usage-up)
+    (define-key map "^" #'disk-usage-up)
     (define-key map "d" #'disk-usage-dired-at-point)
     (define-key map "e" #'disk-usage-eshell-at-point)
     (define-key map "h" #'disk-usage-toggle-human-readable)
