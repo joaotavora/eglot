@@ -94,6 +94,13 @@
 
 (defvar disk-usage--cache nil)
 
+
+(cl-defstruct (disk-usage--file-info
+               (:constructor nil)
+               (:constructor disk-usage--file-info-make))
+  size
+  name)
+
 (defun disk-usage-reset-cache ()
   (interactive)
   (setq disk-usage--cache nil))
@@ -107,19 +114,20 @@
                  for path = (cl-first l)
                  ;; Files
                  if (null (file-attribute-type attributes))
-                 collect (vector (file-attribute-size attributes) path)
+                 collect (disk-usage--file-info-make :name path
+                                                     :size (file-attribute-size attributes))
                  ;; Symlinks
                  if (stringp (file-attribute-type attributes))
-                 collect (vector (file-attribute-size attributes)
-                                 path)
+                 collect (disk-usage--file-info-make :name path
+                                                     :size (file-attribute-size attributes))
                  ;; Folders
                  else if (and (eq t (file-attribute-type attributes))
                               (not (string= "." (file-name-base path)))
                               (not (string= ".." (file-name-base path))))
-                 collect (vector
-                          (disk-usage--directory-size path)
-                          path))
-        (list  (vector 0 directory)))))
+                 collect
+                 (disk-usage--file-info-make :name path
+                                             :size (disk-usage--directory-size path)))
+        (list (disk-usage--file-info-make :size 0 :name directory)))))
 
 (defvar disk-usage--du-command "du")
 (defvar disk-usage--du-args "-sb")
@@ -131,7 +139,9 @@ $ find . -type f -exec du -sb {} +"
   (setq directory (or directory default-directory))
   (mapcar (lambda (s)
             (let ((pair (split-string s "\t")))
-              (vector (string-to-number (cl-first pair)) (cadr pair))))
+              (disk-usage--file-info-make
+               :name (cadr pair)
+               :size (string-to-number (cl-first pair)))))
           (split-string (with-temp-buffer
                           (call-process "find" nil '(t nil) nil
                                         directory
@@ -156,11 +166,8 @@ It takes the directory to scan as argument."
   (tabulated-list-revert))
 
 (defun disk-usage--total (listing)
-  (aref
-   (cl-reduce (lambda (f1 f2)
-                (vector (+ (aref f1 0) (aref f2 0))))
-              listing)
-   0))
+  (cl-loop for file in listing
+           sum (disk-usage--file-info-size file)))
 
 (defun disk-usage--directory-size (path)
   (let ((size (gethash path disk-usage--cache)))
@@ -221,15 +228,16 @@ Takes a number and returns a string.
     (disk-usage--set-format (disk-usage--total listing))
     (tabulated-list-init-header)
     (setq tabulated-list-entries
-          (mapcar (lambda (e)
-                    (list e (vector (number-to-string (aref e 0))
-                                    (if (file-directory-p (aref e 1))
-                                        ;; Make button.
-                                        (cons (aref e 1)
-                                              (list 'action
-                                                    (lambda (_)
-                                                      (disk-usage (aref e 1)))))
-                                      (aref e 1)))))
+          (mapcar (lambda (file-info)
+                    (list file-info (vector (number-to-string (disk-usage--file-info-size file-info))
+                                            (let ((name (disk-usage--file-info-name file-info)))
+                                              (if (file-directory-p name)
+                                                  ;; Make button.
+                                                  (cons name
+                                                        (list 'action
+                                                              (lambda (_)
+                                                                (disk-usage name))))
+                                                name)))))
                   listing))))
 
 (defvar disk-usage--format-files #'identity
@@ -277,15 +285,18 @@ FILE-ENTRY may be a string or a button."
           copy)
       formatted-filename)))
 
+;; TODO: We could avoid defining our own `disk-usage--print-entry' by settings
+;; `tabulated-list-entries' to a closure over the listing calling
+;; `disk-usage--format-size' to generate the columns.
 (defun disk-usage--print-entry (id cols)
   "Like `tabulated-list-print-entry' but formats size for human
 beings."
   (let ((beg   (point))
-	(x     (max tabulated-list-padding 0))
-	(ncols (length tabulated-list-format))
-	(inhibit-read-only t))
+        (x     (max tabulated-list-padding 0))
+        (ncols (length tabulated-list-format))
+        (inhibit-read-only t))
     (if (> tabulated-list-padding 0)
-	(insert (make-string x ?\s)))
+        (insert (make-string x ?\s)))
     (let ((tabulated-list--near-rows    ; Bind it if not bound yet (Bug#25506).
            (or (bound-and-true-p tabulated-list--near-rows)
                (list (or (tabulated-list-get-entry (point-at-bol 0))
