@@ -117,10 +117,11 @@
   (interactive)
   (clrhash disk-usage--cache))
 
-(defun disk-usage--list (directory)
+(defun disk-usage--list (directory &optional listing)
   (setq directory (or directory default-directory))
-  (let ((listing (and (file-accessible-directory-p directory)
-                      (directory-files-and-attributes directory 'full nil 'nosort))))
+  (let ((listing (or listing
+                     (and (file-accessible-directory-p directory)
+                          (directory-files-and-attributes directory 'full nil 'nosort)))))
     (or (cl-loop for l in listing
                  for attributes = (cl-rest l)
                  for path = (cl-first l)
@@ -427,7 +428,7 @@ non-nil or with prefix argument."
 (cl-defstruct (disk-usage--type-info
                (:constructor nil)
                (:constructor disk-usage--type-info-make))
-  extension
+  names
   size
   (count 1))
 
@@ -443,9 +444,11 @@ TYPE is the file extension (lower case)."
              (type (gethash ext table)))
         (puthash ext
                  (if (not type)
-                     (disk-usage--type-info-make :extension ext
-                                                :size size)
+                     (disk-usage--type-info-make :names (list (disk-usage--file-info-name file-info))
+                                                 :size size)
                    (setf
+                    (disk-usage--type-info-names type) (cons (disk-usage--file-info-name file-info)
+                                                             (disk-usage--type-info-name type))
                     (disk-usage--type-info-count type) (1+ (disk-usage--type-info-count type))
                     (disk-usage--type-info-size type) (+ size (disk-usage--type-info-size type)))
                    type)
@@ -484,10 +487,10 @@ TYPE is the file extension (lower case)."
     (let ((total-size (cl-loop for e being the hash-values of listing
                                sum (disk-usage--type-info-size e))))
       (setq tabulated-list-entries
-            (cl-loop for e being the hash-values of listing
+            (cl-loop for e being the hash-values of listing using (hash-keys ext)
                      collect (list e
                                    (vector
-                                    (disk-usage--type-info-extension e)
+                                    ext
                                     (number-to-string (disk-usage--type-info-count e))
                                     (format "%.1f%%"
                                             (* 100 (/ (float (disk-usage--type-info-size e))
@@ -509,6 +512,7 @@ Also see `disk-usage-mode'."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map "h" #'disk-usage-toggle-human-readable)
+    (define-key map (kbd "<return>") #'disk-usage-files)
     map)
   "Local keymap for `disk-usage-by-types-mode' buffers.")
 
@@ -531,6 +535,22 @@ Also see `disk-usage-mode'."
 (defun disk-usage-by-types-here ()
   (interactive)
   (disk-usage-by-types default-directory))
+
+(defvar disk-usage-files-buffer-name "disk-usage-files")
+
+(defun disk-usage-files (&optional listing)
+  (interactive)
+  (unless (eq major-mode 'disk-usage-by-types-mode)
+    (error "Must be in a disk-usage-by-types buffer"))
+  (setq listing (or listing (disk-usage--type-info-names (tabulated-list-get-id))))
+  (let ((listing-with-attributes (cl-loop for l in listing
+                                          collect (cons l (file-attributes l)))))
+    (switch-to-buffer
+     (get-buffer-create (format "*%s*" disk-usage-files-buffer-name)))
+    (disk-usage-mode)
+    (set (make-local-variable 'disk-usage-list-function)
+         (lambda (_) (disk-usage--list nil listing-with-attributes)))
+    (tabulated-list-revert)))
 
 (provide 'disk-usage)
 ;;; disk-usage.el ends here
