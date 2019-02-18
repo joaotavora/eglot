@@ -94,7 +94,6 @@
 
 (defvar disk-usage--cache nil)
 
-
 (cl-defstruct (disk-usage--file-info
                (:constructor nil)
                (:constructor disk-usage--file-info-make))
@@ -200,17 +199,17 @@ This is slow but does not require any external process."
         (size-b (string-to-number (aref (cadr b) 0))))
     (< size-a size-b)))
 
-(defvar disk-usage--format-size #'file-size-human-readable
+(defvar disk-usage--size-format-function #'file-size-human-readable
   "How to print size.
 Takes a number and returns a string.
 `file-size-human-readable' and `number-to-string' are good candidates.")
 
 (defvar disk-usage--sort #'disk-usage--sort-size-<)
 
-(defun disk-usage--set-format (&optional total-size)
+(defun disk-usage--set-tabulated-list-format (&optional total-size)
   (setq tabulated-list-format
         `[("Size"
-           ,(if (eq disk-usage--format-size #'file-size-human-readable)
+           ,(if (eq disk-usage--size-format-function #'file-size-human-readable)
                 8
               12)
            ,disk-usage--sort . (:right-align t))
@@ -226,7 +225,7 @@ Takes a number and returns a string.
 (defun disk-usage--refresh (&optional directory)
   (setq directory (or directory default-directory))
   (let ((listing (funcall disk-usage-list-function directory)))
-    (disk-usage--set-format (disk-usage--total listing))
+    (disk-usage--set-tabulated-list-format (disk-usage--total listing))
     (tabulated-list-init-header)
     (setq tabulated-list-entries
           (mapcar (lambda (file-info)
@@ -248,8 +247,8 @@ Takes a string and returns a string.
 
 (defun disk-usage-toggle-human-readable ()
   (interactive)
-  (setq disk-usage--format-size
-        (if (eq disk-usage--format-size #'file-size-human-readable)
+  (setq disk-usage--size-format-function
+        (if (eq disk-usage--size-format-function #'file-size-human-readable)
             #'number-to-string
           #'file-size-human-readable))
   (tabulated-list-revert))
@@ -288,7 +287,7 @@ FILE-ENTRY may be a string or a button."
 
 ;; TODO: We could avoid defining our own `disk-usage--print-entry' by settings
 ;; `tabulated-list-entries' to a closure over the listing calling
-;; `disk-usage--format-size' to generate the columns.
+;; `disk-usage--size-format-function' to generate the columns.
 (defun disk-usage--print-entry (id cols)
   "Like `tabulated-list-print-entry' but formats size for human
 beings."
@@ -303,7 +302,7 @@ beings."
                (list (or (tabulated-list-get-entry (point-at-bol 0))
                          cols)
                      cols))))
-      (setq x (tabulated-list-print-col 0 (funcall disk-usage--format-size (string-to-number (aref cols 0))) x))
+      (setq x (tabulated-list-print-col 0 (funcall disk-usage--size-format-function (string-to-number (aref cols 0))) x))
       (setq x (tabulated-list-print-col 1 (disk-usage--print-file-col (aref cols 1)) x))
       (cl-loop for i from 2 below ncols
                do (setq x (tabulated-list-print-col i (aref cols i) x))))
@@ -440,7 +439,7 @@ TYPE is the file extension (lower case)."
   (< (disk-usage--type-average-size (car a))
      (disk-usage--type-average-size (car b))))
 
-(defun disk-usage-by-types--set-format ()
+(defun disk-usage-by-types--set-tabulated-list-format ()
   (setq tabulated-list-format
         `[("Extension" 12 t)
           ("Count" 12 disk-usage--sort-by-count)
@@ -450,7 +449,7 @@ TYPE is the file extension (lower case)."
 (defun disk-usage-by-types--refresh (&optional directory)
   (setq directory (or directory default-directory))
   (let ((listing (disk-usage-by-types--list directory)))
-    (disk-usage-by-types--set-format)
+    (disk-usage-by-types--set-tabulated-list-format)
     (tabulated-list-init-header)
     (setq tabulated-list-entries
           (cl-loop for e being the hash-values of listing
@@ -458,9 +457,9 @@ TYPE is the file extension (lower case)."
                                  (vector
                                   (disk-usage--type-info-extension e)
                                   (number-to-string (disk-usage--type-info-count e))
-                                  (funcall disk-usage--format-size
+                                  (funcall disk-usage--size-format-function
                                            (disk-usage--type-info-size e))
-                                  (funcall disk-usage--format-size
+                                  (funcall disk-usage--size-format-function
                                            (string-to-number
                                             (format "%.2f"
                                                     (disk-usage--type-average-size e))))))))))
