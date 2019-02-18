@@ -99,11 +99,7 @@
                  ;; Symlinks
                  if (stringp (file-attribute-type attributes))
                  collect (vector (file-attribute-size attributes)
-                                 (concat (propertize path
-                                                     'face (if (file-directory-p path)
-                                                               'disk-usage-symlink-directory
-                                                             'disk-usage-symlink))
-                                         " -> " (file-attribute-type attributes)))
+                                 path)
                  ;; Folders
                  else if (and (eq t (file-attribute-type attributes))
                               (not (string= "." (file-name-base path)))
@@ -169,6 +165,7 @@ This is slow but does not require any external process."
           (mapcar (lambda (e)
                     (list e (vector (number-to-string (aref e 0))
                                     (if (file-directory-p (aref e 1))
+                                        ;; Make button.
                                         (cons (aref e 1)
                                               (list 'action
                                                     (lambda (_)
@@ -181,7 +178,6 @@ This is slow but does not require any external process."
         (size-b (string-to-number (aref (cadr b) 0))))
     (< size-a size-b)))
 
-;; TODO: Customize sort options.
 (defvar disk-usage--sort #'disk-usage--sort-size-<)
 
 (defvar disk-usage--format-size #'file-size-human-readable
@@ -213,11 +209,20 @@ Takes a string and returns a string.
 (defun disk-usage--print-file-col (file-entry)
   "Call `disk-usage--format-file' on FILE-ENTRY.
 FILE-ENTRY may be a string or a button."
-  (if (listp file-entry)
-      (let ((copy (cl-copy-list file-entry)))
-        (setcar copy (funcall disk-usage--format-files (car copy)))
-        copy)
-    (funcall disk-usage--format-files file-entry)))
+  (let* ((filename (if (listp file-entry)
+                       (cl-first file-entry)
+                     file-entry))
+         (formatted-filename (if (stringp (file-attribute-type (file-attributes filename)))
+                                 (propertize (funcall disk-usage--format-files filename)
+                                             'face (if (file-directory-p filename)
+                                                       'disk-usage-symlink-directory
+                                                     'disk-usage-symlink))
+                               (funcall disk-usage--format-files filename))))
+    (if (listp file-entry)
+        (let ((copy (cl-copy-list file-entry)))
+          (setcar copy formatted-filename)
+          copy)
+      formatted-filename)))
 
 (defun disk-usage--print-entry (id cols)
   "Like `tabulated-list-print-entry' but formats size for human
@@ -251,7 +256,7 @@ beings."
 
 (define-derived-mode disk-usage-mode tabulated-list-mode "Disk Usage"
   "Mode to display disk usage."
-  ;; TODO: Option to display extra attributes.
+  ;; TODO: Option to display extra attributes and default column to sort.
   (setq tabulated-list-sort-key (cons "Size" 'flip))
   (setq tabulated-list-printer #'disk-usage--print-entry)
   (add-hook 'tabulated-list-revert-hook 'disk-usage--refresh nil t)
