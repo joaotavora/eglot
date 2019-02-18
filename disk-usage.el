@@ -423,9 +423,9 @@ TYPE is the file extension (lower case)."
   (setq directory (or directory default-directory))
   (let ((listing (disk-usage--list-recursively directory))
         (table (make-hash-table :test #'equal)))
-    (dolist (file-entry listing)
-      (let* ((ext (downcase (or (file-name-extension (aref file-entry 1)) "")))
-             (size (aref file-entry 0))
+    (dolist (file-info listing)
+      (let* ((ext (downcase (or (file-name-extension (disk-usage--file-info-name file-info)) "")))
+             (size (disk-usage--file-info-size file-info))
              (type (gethash ext table)))
         (puthash ext
                  (if (not type)
