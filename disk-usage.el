@@ -61,6 +61,12 @@
   :type '(choice (function :tag "Native (slow)" disk-usage--directory-size-with-emacs)
                  (function :tag "System \"du\"" disk-usage--directory-size-with-du)))
 
+(defface disk-usage-inaccessible
+  '((t :foreground "red"
+       :underline t))
+  "Face for inaccessible folders."
+  :group 'disk-usage)
+
 (defface disk-usage-symlink
   '((t :foreground "orange"))
   "Face for symlinks."
@@ -94,7 +100,8 @@
 
 (defun disk-usage--list (directory)
   (setq directory (or directory default-directory))
-  (let ((listing (directory-files-and-attributes directory 'full nil 'nosort)))
+  (let ((listing (and (file-accessible-directory-p directory)
+                      (directory-files-and-attributes directory 'full nil 'nosort))))
     (or (cl-loop for l in listing
                  for attributes = (cl-rest l)
                  for path = (cl-first l)
@@ -117,6 +124,7 @@
 (defvar disk-usage--du-command "du")
 (defvar disk-usage--du-args "-sb")
 (defvar disk-usage--find-command "find")
+
 (defun disk-usage--list-recursively (directory)
   "This is the equivalent of running the shell command
 $ find . -type f -exec du -sb {} +"
@@ -125,7 +133,7 @@ $ find . -type f -exec du -sb {} +"
             (let ((pair (split-string s "\t")))
               (vector (string-to-number (cl-first pair)) (cadr pair))))
           (split-string (with-temp-buffer
-                          (call-process "find" nil t nil
+                          (call-process "find" nil '(t nil) nil
                                         directory
                                         "-type" "f"
                                         "-exec" disk-usage--du-command disk-usage--du-args "{}" "+")
@@ -175,7 +183,7 @@ This is slow but does not require any external process."
      (with-temp-buffer
        (with-output-to-string
          (call-process disk-usage--du-command
-                       nil t nil
+                       nil '(t nil) nil
                        disk-usage--du-args path))
        (buffer-string))))))
 
@@ -209,7 +217,6 @@ Takes a number and returns a string.
 
 (defun disk-usage--refresh (&optional directory)
   (setq directory (or directory default-directory))
-  ;; TODO: Set tabulated-list-entries to a function?
   (let ((listing (funcall disk-usage-list-function directory)))
     (disk-usage--set-format (disk-usage--total listing))
     (tabulated-list-init-header)
@@ -252,12 +259,18 @@ FILE-ENTRY may be a string or a button."
   (let* ((filename (if (listp file-entry)
                        (cl-first file-entry)
                      file-entry))
-         (formatted-filename (if (stringp (file-attribute-type (file-attributes filename)))
-                                 (propertize (funcall disk-usage--format-files filename)
-                                             'face (if (file-directory-p filename)
-                                                       'disk-usage-symlink-directory
-                                                     'disk-usage-symlink))
-                               (funcall disk-usage--format-files filename))))
+         (formatted-filename
+          (cond
+           ((stringp (file-attribute-type (file-attributes filename)))
+            (propertize (funcall disk-usage--format-files filename)
+                        'face (if (file-directory-p filename)
+                                  'disk-usage-symlink-directory
+                                'disk-usage-symlink)))
+           ((and (not (null (file-attribute-type (file-attributes filename))))
+                 (not (file-accessible-directory-p filename)))
+            (propertize (funcall disk-usage--format-files filename)
+                        'face 'disk-usage-inaccessible))
+           (t (funcall disk-usage--format-files filename)))))
     (if (listp file-entry)
         (let ((copy (cl-copy-list file-entry)))
           (setcar copy formatted-filename)
@@ -306,6 +319,8 @@ beings."
 ;;;###autoload
 (defun disk-usage (&optional directory)
   (interactive "D")
+  (unless (file-accessible-directory-p directory)
+    (error "Directory cannot be opened: %S" directory))
   (unless disk-usage--cache
     (setq disk-usage--cache (make-hash-table :test #'equal)))
   (setq directory (file-truename (or (and (file-directory-p directory)
