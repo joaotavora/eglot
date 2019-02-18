@@ -31,8 +31,13 @@
 ;; `disk-usage-dired-at-point' to open a `dired' buffer for the current
 ;; directory.
 ;;
+;; Instead of displaying only the current folder, ~disk-usage~ can also display
+;; files in all subfolders recursively with `disk-usage-toggle-recursive'.
+;;
 ;; Run `disk-usage-by-types' to display statistics of disk usage by file
 ;; extensions.
+;;
+;; With a prefix argument, cache is updated when reverting the buffer.
 ;;
 ;; You can customize options in the 'disk-usage group.
 
@@ -320,7 +325,10 @@ beings."
                          help-echo ,(aref cols 1)))))
 
 (define-derived-mode disk-usage-mode tabulated-list-mode "Disk Usage"
-  "Mode to display disk usage."
+  "Mode to display disk usage.
+With a prefix argument, cache is updated when reverting the buffer.
+
+Also see `disk-usage-by-types-mode'."
   ;; TODO: Option to display extra attributes and default column to sort.
   (setq tabulated-list-padding 2)
   (setq tabulated-list-sort-key (cons "Size" 'flip))
@@ -479,7 +487,8 @@ TYPE is the file extension (lower case)."
                                                     (disk-usage--type-average-size e))))))))))
 
 (define-derived-mode disk-usage-by-types-mode tabulated-list-mode "Disk Usage By Types"
-  "Mode to display disk usage by file types."
+  "Mode to display disk usage by file types.
+Also see `disk-usage-mode'."
   (add-hook 'tabulated-list-revert-hook 'disk-usage-by-types--refresh nil t))
 
 (defvar disk-usage-by-types-mode-map

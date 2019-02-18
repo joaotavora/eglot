@@ -29,10 +29,12 @@ to display additional bindings, such as ~disk-usage-dired-at-point~ to open a
 ~dired~ buffer for the current directory.
 
 Instead of displaying only the current folder, ~disk-usage~ can also display
-files in all subfolders recursively.
+files in all subfolders recursively with ~disk-usage-toggle-recursive~.
 
 Run ~disk-usage-by-types~ to display statistics of disk usage by file
 extensions.
+
+With a prefix argument, cache is updated when reverting the buffer.
 
 You can customize options in the 'disk-usage group.
 
