@@ -194,10 +194,9 @@ This is slow but does not require any external process."
                        disk-usage--du-args path))
        (buffer-string))))))
 
-(defun disk-usage--sort-size-< (a b)
-  (let ((size-a (string-to-number (aref (cadr a) 0)))
-        (size-b (string-to-number (aref (cadr b) 0))))
-    (< size-a size-b)))
+(defun disk-usage--sort-by-size (a b)
+  (< (disk-usage--file-info-size (car a))
+     (disk-usage--file-info-size (car b))))
 
 (defcustom disk-usage-size-format-function #'file-size-human-readable
   "How to print size.
@@ -206,15 +205,13 @@ Takes a number and returns a string."
   :type '(choice (function :tag "Human readable" file-size-human-readable)
                  (function :tag "In bytes" number-to-string)))
 
-(defvar disk-usage--sort #'disk-usage--sort-size-<)
-
 (defun disk-usage--set-tabulated-list-format (&optional total-size)
   (setq tabulated-list-format
         `[("Size"
            ,(if (eq disk-usage-size-format-function #'file-size-human-readable)
                 8
               12)
-           ,disk-usage--sort . (:right-align t))
+           disk-usage--sort-by-size . (:right-align t))
           (,(format "Files %sin '%s'"
                     (if total-size
                         (format "totalling %sB (%s) "
@@ -429,24 +426,24 @@ TYPE is the file extension (lower case)."
   (/ (float (disk-usage--type-info-size type))
      (disk-usage--type-info-count type)))
 
-(defun disk-usage--sort-by-count (a b)
+(defun disk-usage-by-types--sort-by-count (a b)
   (< (disk-usage--type-info-count (car a))
      (disk-usage--type-info-count (car b))))
 
-(defun disk-usage--sort-by-size (a b)
+(defun disk-usage-by-types--sort-by-size (a b)
   (< (disk-usage--type-info-size (car a))
      (disk-usage--type-info-size (car b))))
 
-(defun disk-usage--sort-by-average (a b)
+(defun disk-usage-by-types--sort-by-average (a b)
   (< (disk-usage--type-average-size (car a))
      (disk-usage--type-average-size (car b))))
 
 (defun disk-usage-by-types--set-tabulated-list-format ()
   (setq tabulated-list-format
         `[("Extension" 12 t)
-          ("Count" 12 disk-usage--sort-by-count)
-          ("Total size" 12 disk-usage--sort-by-size)
-          ("Average size" 15 disk-usage--sort-by-average)]))
+          ("Count" 12 disk-usage-by-types--sort-by-count)
+          ("Total size" 12 disk-usage-by-types--sort-by-size)
+          ("Average size" 15 disk-usage-by-types--sort-by-average)]))
 
 (defun disk-usage-by-types--refresh (&optional directory)
   (setq directory (or directory default-directory))
