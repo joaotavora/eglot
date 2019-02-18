@@ -103,7 +103,7 @@
 
 (defun disk-usage-reset-cache ()
   (interactive)
-  (setq disk-usage--cache nil))
+  (clrhash disk-usage--cache))
 
 (defun disk-usage--list (directory)
   (setq directory (or directory default-directory))
