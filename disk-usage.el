@@ -502,12 +502,6 @@ TYPE is the file extension (lower case)."
                                               (format "%.2f"
                                                       (disk-usage--type-average-size e)))))))))))
 
-(define-derived-mode disk-usage-by-types-mode tabulated-list-mode "Disk Usage By Types"
-  "Mode to display disk usage by file types.
-Also see `disk-usage-mode'."
-  (setq tabulated-list-sort-key (cons "Total size" 'flip))
-  (add-hook 'tabulated-list-revert-hook 'disk-usage-by-types--refresh nil t))
-
 (defvar disk-usage-by-types-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
@@ -515,6 +509,12 @@ Also see `disk-usage-mode'."
     (define-key map (kbd "<return>") #'disk-usage-files)
     map)
   "Local keymap for `disk-usage-by-types-mode' buffers.")
+
+(define-derived-mode disk-usage-by-types-mode tabulated-list-mode "Disk Usage By Types"
+  "Mode to display disk usage by file types.
+Also see `disk-usage-mode'."
+  (setq tabulated-list-sort-key (cons "Total size" 'flip))
+  (add-hook 'tabulated-list-revert-hook 'disk-usage-by-types--refresh nil t))
 
 (defvar disk-usage-by-types-buffer-name "disk-usage-by-types")
 
