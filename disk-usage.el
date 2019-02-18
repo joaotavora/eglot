@@ -27,9 +27,12 @@
 ;;; Commentary:
 ;;
 ;; Run `disk-usage' or `disk-usage-here' to display a listing.
-;; `describe-mode' to display additional bindings, such as
+;; See `describe-mode' to display additional bindings, such as
 ;; `disk-usage-dired-at-point' to open a `dired' buffer for the current
 ;; directory.
+;;
+;; Run `disk-usage-by-types' to display statistics of disk usage by file
+;; extensions.
 ;;
 ;; You can customize options in the 'disk-usage group.
 
@@ -364,6 +367,102 @@ beings."
   (interactive)
   (let ((default-directory (disk-usage--directory-at-point)))
     (shell (get-buffer-create (generate-new-buffer-name "*shell*")))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(cl-defstruct (disk-usage--type-info
+               (:constructor nil)
+               (:constructor disk-usage--type-info-make))
+  extension
+  size
+  (count 1))
+
+(defun disk-usage-by-types--list (directory)
+  "Return a hash table of (TYPE DISK-USAGE-TYPE-INFO).
+TYPE is the file extension (lower case)."
+  (setq directory (or directory default-directory))
+  (let ((listing (disk-usage--list-recursively directory))
+        (table (make-hash-table :test #'equal)))
+    (dolist (file-entry listing)
+      (let* ((ext (downcase (or (file-name-extension (aref file-entry 1)) "")))
+             (size (aref file-entry 0))
+             (type (gethash ext table)))
+        (puthash ext
+                 (if (not type)
+                     (disk-usage--type-info-make :extension ext
+                                                :size size)
+                   (setf
+                    (disk-usage--type-info-count type) (1+ (disk-usage--type-info-count type))
+                    (disk-usage--type-info-size type) (+ size (disk-usage--type-info-size type)))
+                   type)
+                 table)))
+    table))
+
+(defun disk-usage--type-average-size (type)
+  (/ (float (disk-usage--type-info-size type))
+     (disk-usage--type-info-count type)))
+
+(defun disk-usage--sort-by-count (a b)
+  (< (disk-usage--type-info-count (car a))
+     (disk-usage--type-info-count (car b))))
+
+(defun disk-usage--sort-by-size (a b)
+  (< (disk-usage--type-info-size (car a))
+     (disk-usage--type-info-size (car b))))
+
+(defun disk-usage--sort-by-average (a b)
+  (< (disk-usage--type-average-size (car a))
+     (disk-usage--type-average-size (car b))))
+
+(defun disk-usage-by-types--set-format ()
+  (setq tabulated-list-format
+        `[("Extension" 12 t)
+          ("Count" 12 disk-usage--sort-by-count)
+          ("Total size" 12 disk-usage--sort-by-size)
+          ("Average size" 15 disk-usage--sort-by-average)]))
+
+(defun disk-usage-by-types--refresh (&optional directory)
+  (setq directory (or directory default-directory))
+  (let ((listing (disk-usage-by-types--list directory)))
+    (disk-usage-by-types--set-format)
+    (tabulated-list-init-header)
+    (setq tabulated-list-entries
+          (cl-loop for e being the hash-values of listing
+                   collect (list e
+                                 (vector
+                                  (disk-usage--type-info-extension e)
+                                  (number-to-string (disk-usage--type-info-count e))
+                                  (funcall disk-usage--format-size
+                                           (disk-usage--type-info-size e))
+                                  (funcall disk-usage--format-size
+                                           (string-to-number
+                                            (format "%.2f"
+                                                    (disk-usage--type-average-size e))))))))))
+
+(define-derived-mode disk-usage-by-types-mode tabulated-list-mode "Disk Usage By Types"
+  "Mode to display disk usage by file types."
+  (add-hook 'tabulated-list-revert-hook 'disk-usage-by-types--refresh nil t))
+
+(defvar disk-usage-by-types-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map "h" #'disk-usage-toggle-human-readable)
+    map)
+  "Local keymap for `disk-usage-by-types-mode' buffers.")
+
+(defvar disk-usage-by-types-buffer-name "disk-usage-by-types")
+
+;;;###autoload
+(defun disk-usage-by-types (&optional directory)
+  (interactive "D")
+  (setq directory (file-truename (or (and (file-directory-p directory)
+                                          directory)
+                                     default-directory)))
+  (switch-to-buffer
+   (get-buffer-create (format "*%s<%s>*" disk-usage-by-types-buffer-name
+                              (directory-file-name directory))))
+  (disk-usage-by-types-mode)
+  (setq default-directory directory)
+  (tabulated-list-revert))
 
 (provide 'disk-usage)
 ;;; disk-usage.el ends here
