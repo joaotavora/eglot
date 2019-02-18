@@ -10,7 +10,7 @@ aims at replacing other, more limited disk analyzers such as =ncdu=.
 
 * Installation
 
-Get the package, either from ELPA:
+Get the package, either from [[https://guix.info][Guix]] or ELPA:
 
 : M-x package-install RET mu4e-conversation RET
 
