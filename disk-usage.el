@@ -79,6 +79,7 @@
     (define-key map "e" #'disk-usage-eshell-at-point)
     (define-key map "h" #'disk-usage-toggle-human-readable)
     (define-key map "f" #'disk-usage-toggle-full-path)
+    (define-key map "R" #'disk-usage-toggle-recursive)
     map)
   "Local keymap for `disk-usage-mode' buffers.")
 
@@ -110,6 +111,39 @@
                           path))
         (list  (vector 0 directory)))))
 
+(defvar disk-usage--du-command "du")
+(defvar disk-usage--du-args "-sb")
+(defvar disk-usage--find-command "find")
+(defun disk-usage--list-recursively (directory)
+  "This is the equivalent of running the shell command
+$ find . -type f -exec du -sb {} +"
+  (setq directory (or directory default-directory))
+  (mapcar (lambda (s)
+            (let ((pair (split-string s "\t")))
+              (vector (string-to-number (cl-first pair)) (cadr pair))))
+          (split-string (with-temp-buffer
+                          (call-process "find" nil t nil
+                                        directory
+                                        "-type" "f"
+                                        "-exec" disk-usage--du-command disk-usage--du-args "{}" "+")
+                                (buffer-string))
+                              "\n" 'omit-nulls)))
+
+(defcustom disk-usage-list-function #'disk-usage--list-recursively
+  "Function that returns a list of [SIZE FILE] vectors.
+It takes the directory to scan as argument."
+  :group 'disk-usage
+  :type '(choice (function :tag "Hierarchical" disk-usage--list)
+                 (function :tag "Flat (recursive)" disk-usage--list-recursively)))
+
+(defun disk-usage-toggle-recursive ()
+  "Toggle between hierarchical and flat view."
+  (interactive)
+  (if (eq disk-usage-list-function #'disk-usage--list)
+      (setq disk-usage-list-function #'disk-usage--list-recursively)
+    (setq disk-usage-list-function #'disk-usage--list))
+  (tabulated-list-revert))
+
 (defun disk-usage--total (listing)
   (aref
    (cl-reduce (lambda (f1 f2)
@@ -130,8 +164,6 @@
 This is slow but does not require any external process."
   (disk-usage--total (disk-usage--list path)))
 
-(defvar disk-usage--du-command "du")
-(defvar disk-usage--du-args "-sb")
 (defun disk-usage--directory-size-with-du (path)
   "See `disk-usage--directory-size-function'."
   (string-to-number
@@ -175,7 +207,7 @@ Takes a number and returns a string.
 (defun disk-usage--refresh (&optional directory)
   (setq directory (or directory default-directory))
   ;; TODO: Set tabulated-list-entries to a function?
-  (let ((listing (disk-usage--list directory)))
+  (let ((listing (funcall disk-usage-list-function directory)))
     (disk-usage--set-format (disk-usage--total listing))
     (tabulated-list-init-header)
     (setq tabulated-list-entries
