@@ -171,7 +171,8 @@ It takes the directory to scan as argument."
            sum (disk-usage--file-info-size file)))
 
 (defun disk-usage--directory-size (path)
-  (let ((size (gethash path disk-usage--cache)))
+  (let ((size (unless current-prefix-arg
+                (gethash path disk-usage--cache))))
     (unless size
       (message "Computing disk usage for %S..." path)
       (setq size (funcall disk-usage--directory-size-function path))
