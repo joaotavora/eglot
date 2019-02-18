@@ -1,18 +1,18 @@
 #+TITLE: disk-usage.el
 
-Disk Usage is a file system analyzer: it offers a tabulated view of the file
-system with listings sorted by size.  Directory sizes are computed recursively.
-The results are cached for speed.
+Disk Usage is a file system analyzer: it offers a tabulated view of file
+listings sorted by size.  Directory sizes are computed recursively.  The results
+are cached for speed.
 
 This package answers the shortcomings of ~dired-du~ (notably that it's not able
-to sort by size, see https://github.com/calancha/dired-du/issues/2).  It also
+to sort by size, see [[https://github.com/calancha/dired-du/issues/2]]).  It also
 aims at replacing other, more limited disk analyzers such as =ncdu=.
 
 * Installation
 
 Get the package, either from [[https://guix.info][Guix]] or ELPA:
 
-: M-x package-install RET mu4e-conversation RET
+: M-x package-install RET disk-usage RET
 
 Or clone / download this repository and modify your ~load-path~.
 
@@ -31,12 +31,15 @@ to display additional bindings, such as ~disk-usage-dired-at-point~ to open a
 Instead of displaying only the current folder, ~disk-usage~ can also display
 files in all subfolders recursively with ~disk-usage-toggle-recursive~.
 
+Marked files can be trashed with `disk-usage-delete-marked-files'.  When called
+with a prefix argument, files are deleted permanently.
+
 Run ~disk-usage-by-types~ to display statistics of disk usage by file
 extensions.
 
 With a prefix argument, cache is updated when reverting the buffer.
 
-You can customize options in the 'disk-usage group.
+You can customize options in the =disk-usage= group.
 
 * Screenshots
 
