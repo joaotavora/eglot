@@ -160,9 +160,10 @@ It takes the directory to scan as argument."
 (defun disk-usage-toggle-recursive ()
   "Toggle between hierarchical and flat view."
   (interactive)
-  (if (eq disk-usage-list-function #'disk-usage--list)
-      (setq disk-usage-list-function #'disk-usage--list-recursively)
-    (setq disk-usage-list-function #'disk-usage--list))
+  (setq disk-usage-list-function
+        (if (eq disk-usage-list-function #'disk-usage--list)
+            #'disk-usage--list-recursively
+          #'disk-usage--list))
   (tabulated-list-revert))
 
 (defun disk-usage--total (listing)
