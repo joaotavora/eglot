@@ -199,17 +199,19 @@ This is slow but does not require any external process."
         (size-b (string-to-number (aref (cadr b) 0))))
     (< size-a size-b)))
 
-(defvar disk-usage--size-format-function #'file-size-human-readable
+(defcustom disk-usage-size-format-function #'file-size-human-readable
   "How to print size.
-Takes a number and returns a string.
-`file-size-human-readable' and `number-to-string' are good candidates.")
+Takes a number and returns a string."
+  :group 'disk-usage
+  :type '(choice (function :tag "Human readable" file-size-human-readable)
+                 (function :tag "In bytes" number-to-string)))
 
 (defvar disk-usage--sort #'disk-usage--sort-size-<)
 
 (defun disk-usage--set-tabulated-list-format (&optional total-size)
   (setq tabulated-list-format
         `[("Size"
-           ,(if (eq disk-usage--size-format-function #'file-size-human-readable)
+           ,(if (eq disk-usage-size-format-function #'file-size-human-readable)
                 8
               12)
            ,disk-usage--sort . (:right-align t))
@@ -247,8 +249,8 @@ Takes a string and returns a string.
 
 (defun disk-usage-toggle-human-readable ()
   (interactive)
-  (setq disk-usage--size-format-function
-        (if (eq disk-usage--size-format-function #'file-size-human-readable)
+  (setq disk-usage-size-format-function
+        (if (eq disk-usage-size-format-function #'file-size-human-readable)
             #'number-to-string
           #'file-size-human-readable))
   (tabulated-list-revert))
@@ -287,7 +289,7 @@ FILE-ENTRY may be a string or a button."
 
 ;; TODO: We could avoid defining our own `disk-usage--print-entry' by settings
 ;; `tabulated-list-entries' to a closure over the listing calling
-;; `disk-usage--size-format-function' to generate the columns.
+;; `disk-usage-size-format-function' to generate the columns.
 (defun disk-usage--print-entry (id cols)
   "Like `tabulated-list-print-entry' but formats size for human
 beings."
@@ -302,7 +304,7 @@ beings."
                (list (or (tabulated-list-get-entry (point-at-bol 0))
                          cols)
                      cols))))
-      (setq x (tabulated-list-print-col 0 (funcall disk-usage--size-format-function (string-to-number (aref cols 0))) x))
+      (setq x (tabulated-list-print-col 0 (funcall disk-usage-size-format-function (string-to-number (aref cols 0))) x))
       (setq x (tabulated-list-print-col 1 (disk-usage--print-file-col (aref cols 1)) x))
       (cl-loop for i from 2 below ncols
                do (setq x (tabulated-list-print-col i (aref cols i) x))))
@@ -457,9 +459,9 @@ TYPE is the file extension (lower case)."
                                  (vector
                                   (disk-usage--type-info-extension e)
                                   (number-to-string (disk-usage--type-info-count e))
-                                  (funcall disk-usage--size-format-function
+                                  (funcall disk-usage-size-format-function
                                            (disk-usage--type-info-size e))
-                                  (funcall disk-usage--size-format-function
+                                  (funcall disk-usage-size-format-function
                                            (string-to-number
                                             (format "%.2f"
                                                     (disk-usage--type-average-size e))))))))))
