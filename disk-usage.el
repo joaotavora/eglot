@@ -7,7 +7,7 @@
 ;; URL: https://gitlab.com/Ambrevar/emacs-disk-usage
 ;; Version: 0.0.1
 ;; Package-Requires: ((emacs "25.1"))
-;; Keywords: evil, files, convenience, tools
+;; Keywords: files, convenience, tools
 
 ;; This file is not part of GNU Emacs.
 
