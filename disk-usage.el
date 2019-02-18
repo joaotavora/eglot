@@ -165,13 +165,13 @@ This is slow but does not require any external process."
     (disk-usage--set-format (disk-usage--total listing))
     (setq tabulated-list-entries
           (mapcar (lambda (e)
-                    (list nil (vector (number-to-string (aref e 0))
-                                      (if (file-directory-p (aref e 1))
-                                          (cons (aref e 1)
-                                                (list 'action
-                                                      (lambda (_)
-                                                        (disk-usage (aref e 1)))))
-                                        (aref e 1)))))
+                    (list e (vector (number-to-string (aref e 0))
+                                    (if (file-directory-p (aref e 1))
+                                        (cons (aref e 1)
+                                              (list 'action
+                                                    (lambda (_)
+                                                      (disk-usage (aref e 1)))))
+                                      (aref e 1)))))
                   listing))))
 
 (defun disk-usage--sort-size-< (a b)
