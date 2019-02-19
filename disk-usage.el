@@ -1,6 +1,6 @@
 ;;; disk-usage.el --- Sort and browse disk usage listings -*- lexical-binding: t -*-
 
-;; Copyright (C) 2019 Pierre Neidhardt <mail@ambrevar.xyz>
+;; Copyright (C) 2019  Free Software Foundation, Inc.
 
 ;; Author: Pierre Neidhardt <mail@ambrevar.xyz>
 ;; Maintainer: Pierre Neidhardt <mail@ambrevar.xyz>
@@ -51,7 +51,7 @@
 
 ;;; Code:
 (require 'tabulated-list)
-(require 'cl-macs)
+(eval-when-compile (require 'cl-lib))
 
 ;; TODO: Apparent size?  Not obvious, because Emacs file-attributes does not support it.
 ;; TODO: Helm-FF does not work when file-name-nondirectory is on.
@@ -63,31 +63,26 @@
 
 (defcustom disk-usage-discard-previous-buffer t
   "Whether to kill the current `disk-usage' buffer before moving directory."
-  :group 'disk-usage
   :type 'boolean)
 
 (defcustom disk-usage--directory-size-function #'disk-usage--directory-size-with-du
   "Function that returns the total disk usage of the directory passed as argument."
-  :group 'disk-usage
   :type '(choice (function :tag "Native (slow)" disk-usage--directory-size-with-emacs)
                  (function :tag "System \"du\"" disk-usage--directory-size-with-du)))
 
 (defface disk-usage-inaccessible
   '((t :foreground "red"
        :underline t))
-  "Face for inaccessible folders."
-  :group 'disk-usage)
+  "Face for inaccessible folders.")
 
 (defface disk-usage-symlink
   '((t :foreground "orange"))
-  "Face for symlinks."
-  :group 'disk-usage)
+  "Face for symlinks.")
 
 (defface disk-usage-symlink-directory
   '((t :inherit disk-usage-symlink
        :underline t))
-  "Face for symlinks."
-  :group 'disk-usage)
+  "Face for symlinks.")
 
 (defvar disk-usage-mode-map
   (let ((map (make-sparse-keymap)))
@@ -170,7 +165,6 @@ $ find . -type f -exec du -sb {} +"
 (defcustom disk-usage-list-function #'disk-usage--list
   "Function that returns a list of `disk-usage--file-info'.
 It takes the directory to scan as argument."
-  :group 'disk-usage
   :type '(choice (function :tag "Hierarchical" disk-usage--list)
                  (function :tag "Flat (recursive)" disk-usage--list-recursively)))
 
@@ -224,7 +218,6 @@ This is slow but does not require any external process."
 (defcustom disk-usage-size-format-function #'file-size-human-readable
   "How to print size.
 Takes a number and returns a string."
-  :group 'disk-usage
   :type '(choice (function :tag "Human readable" file-size-human-readable)
                  (function :tag "In bytes" number-to-string)))
 
@@ -318,14 +311,15 @@ FILE-ENTRY may be a string or a button."
 ;; `tabulated-list-entries' to a closure over the listing calling
 ;; `disk-usage-size-format-function' to generate the columns.
 (defun disk-usage--print-entry (id cols)
-  "Like `tabulated-list-print-entry' but formats size for human
-beings."
+  "Like `tabulated-list-print-entry' but formats size for human beings."
   (let ((beg   (point))
         (x     (max tabulated-list-padding 0))
         (ncols (length tabulated-list-format))
         (inhibit-read-only t))
     (if (> tabulated-list-padding 0)
         (insert (make-string x ?\s)))
+    ;; FIXME: External packages shouldn't (have to) refer to this internal var.
+    (defvar tabulated-list--near-rows)
     (let ((tabulated-list--near-rows    ; Bind it if not bound yet (Bug#25506).
            (or (bound-and-true-p tabulated-list--near-rows)
                (list (or (tabulated-list-get-entry (point-at-bol 0))
@@ -393,6 +387,9 @@ Also see `disk-usage-by-types-mode'."
     (disk-usage (expand-file-name ".." directory))))
 
 (defun disk-usage--path-at-point ()
+  ;; FIXME: The GNU convention is to use "path" only for lists of directories
+  ;; as in `load-path' and $PATH and to use "file name" for what you here call
+  ;; "path".  --Stef
   (let* ((entry (tabulated-list-get-entry (point)))
          (path (aref entry 1)))
     (if (listp path)
@@ -544,7 +541,8 @@ TYPE is the file extension (lower case)."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map "h" #'disk-usage-toggle-human-readable)
-    (define-key map (kbd "<return>") #'disk-usage-files)
+    ;; Don't use "<return>" since that doesn't work in a tty.
+    (define-key map (kbd "RET") #'disk-usage-files)
     map)
   "Local keymap for `disk-usage-by-types-mode' buffers.")
 
