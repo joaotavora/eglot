@@ -53,7 +53,7 @@
 (require 'tabulated-list)
 (eval-when-compile (require 'cl-lib))
 
-;; TODO: Retest total-size and symlinks arrows.
+;; TODO: Retest symlinks arrows.
 
 ;; TODO: Filter out files by date.  Make generic filter function?  Could factor
 ;; disk-usage-files into this.
@@ -261,7 +261,7 @@ Takes a number and returns a string."
   (setq directory (or directory default-directory))
   (let* ((listing (funcall disk-usage-list-function directory))
          (total-size (disk-usage--total listing)))
-    (disk-usage--set-tabulated-list-format )
+    (disk-usage--set-tabulated-list-format total-size)
     (tabulated-list-init-header)
     (setq tabulated-list-entries
           (mapcar
