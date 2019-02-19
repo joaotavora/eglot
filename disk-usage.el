@@ -53,8 +53,6 @@
 (require 'tabulated-list)
 (eval-when-compile (require 'cl-lib))
 
-;; TODO: Retest symlinks arrows.
-
 ;; TODO: Filter out files by date.  Make generic filter function?  Could factor
 ;; disk-usage-files into this.
 
@@ -314,15 +312,19 @@ FILE-ENTRY may be a string or a button."
                      file-entry))
          (formatted-filename
           (cond
+           ;; Symlinks
            ((stringp (file-attribute-type (file-attributes filename)))
-            (propertize (funcall disk-usage--format-files filename)
-                        'face (if (file-directory-p filename)
-                                  'disk-usage-symlink-directory
-                                'disk-usage-symlink)))
+            (concat (propertize (funcall disk-usage--format-files filename)
+                                'face (if (file-directory-p filename)
+                                          'disk-usage-symlink-directory
+                                        'disk-usage-symlink))
+                    " -> " (file-attribute-type (file-attributes filename))))
+           ;; Directories
            ((and (not (null (file-attribute-type (file-attributes filename))))
                  (not (file-accessible-directory-p filename)))
             (propertize (funcall disk-usage--format-files filename)
                         'face 'disk-usage-inaccessible))
+           ;; Regular files
            (t (funcall disk-usage--format-files filename)))))
     (if (listp file-entry)
         (let ((copy (cl-copy-list file-entry)))
