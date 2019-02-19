@@ -406,12 +406,13 @@ Also see `disk-usage-by-types-mode'."
 By default, files are moved to trash unless PERMANENTLY is
 non-nil or with prefix argument."
   (interactive "P")
-  (when (yes-or-no-p "Delete marked files?")
+  (when (yes-or-no-p (format "%s marked files?" (if permanently
+                                                    "Delete" "Trash")))
     (cl-loop for entry in tabulated-list-entries
              if (disk-usage--file-info-marked (car entry))
              do (let ((delete-by-moving-to-trash (not permanently)))
-                  (delete-file (disk-usage--file-info-name (car entry))))))
-  (tabulated-list-revert))
+                  (delete-file (disk-usage--file-info-name (car entry)))))
+    (tabulated-list-revert)))
 
 (defun disk-usage-find-file-at-point ()
   (interactive)
