@@ -402,11 +402,8 @@ Also see `disk-usage-by-types-mode'."
   ;; FIXME: The GNU convention is to use "path" only for lists of directories
   ;; as in `load-path' and $PATH and to use "file name" for what you here call
   ;; "path".  --Stef
-  (let* ((entry (tabulated-list-get-entry (point)))
-         (path (aref entry 1)))
-    (if (listp path)
-        (setq path (cl-first path))
-      path)))
+  (let ((file-info (tabulated-list-get-id (point))))
+    (disk-usage--file-info-name file-info)))
 
 (defun disk-usage--directory-at-point ()
   (let ((path (disk-usage--path-at-point)))
