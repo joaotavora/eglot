@@ -77,9 +77,10 @@
 (defvar disk-usage--du-args "-sb")
 (defvar disk-usage--find-command "find")
 
-(defcustom disk-usage--directory-size-function (if (executable-find disk-usage--du-command)
-                                                   #'disk-usage--directory-size-with-du
-                                                   #'disk-usage--directory-size-with-emacs)
+(defcustom disk-usage--directory-size-function
+  (if (executable-find disk-usage--du-command)
+      #'disk-usage--directory-size-with-du
+    #'disk-usage--directory-size-with-emacs)
   "Function that returns the total disk usage of the directory passed as argument."
   :type '(choice (function :tag "Native (slow)" disk-usage--directory-size-with-emacs)
                  (function :tag "System \"du\"" disk-usage--directory-size-with-du)))
@@ -133,26 +134,31 @@
   (setq directory (or directory default-directory))
   (let ((listing (or listing
                      (and (file-accessible-directory-p directory)
-                          (directory-files-and-attributes directory 'full nil 'nosort)))))
+                          (directory-files-and-attributes
+                           directory
+                           'full nil 'nosort)))))
     (or (cl-loop for l in listing
                  for attributes = (cl-rest l)
                  for path = (cl-first l)
                  ;; Files
                  if (null (file-attribute-type attributes))
-                 collect (disk-usage--file-info-make :name path
-                                                     :size (file-attribute-size attributes))
+                 collect (disk-usage--file-info-make
+                          :name path
+                          :size (file-attribute-size attributes))
                  ;; Symlinks
                  if (stringp (file-attribute-type attributes))
-                 collect (disk-usage--file-info-make :name path
-                                                     :size (file-attribute-size attributes))
+                 collect (disk-usage--file-info-make
+                          :name path
+                          :size (file-attribute-size attributes))
                  ;; Folders
                  else if (and (eq t (file-attribute-type attributes))
                               (not (string= "." (file-name-base path)))
                               (not (string= ".." (file-name-base path))))
                  collect
-                 (disk-usage--file-info-make :name path
-                                             :size (disk-usage--directory-size path)
-                                             :children (- (length (directory-files path)) 2)))
+                 (disk-usage--file-info-make
+                  :name path
+                  :size (disk-usage--directory-size path)
+                  :children (- (length (directory-files path)) 2)))
         (list (disk-usage--file-info-make :size 0 :name directory)))))
 
 (defun disk-usage--list-recursively (directory)
@@ -168,7 +174,9 @@ $ find . -type f -exec du -sb {} +"
                           (process-file disk-usage--find-command nil '(t nil) nil
                                         directory
                                         "-type" "f"
-                                        "-exec" disk-usage--du-command disk-usage--du-args "{}" "+")
+                                        "-exec"
+                                        disk-usage--du-command
+                                        disk-usage--du-args "{}" "+")
                                 (buffer-string))
                               "\n" 'omit-nulls)))
 
@@ -256,21 +264,24 @@ Takes a number and returns a string."
     (disk-usage--set-tabulated-list-format )
     (tabulated-list-init-header)
     (setq tabulated-list-entries
-          (mapcar (lambda (file-info)
-                    (list file-info (vector (number-to-string (disk-usage--file-info-size file-info))
-                                            (format "%.1f%%"
-                                                    (* 100 (/ (float (disk-usage--file-info-size file-info))
-                                                              total-size)))
-                                            (number-to-string (disk-usage--file-info-children file-info))
-                                            (let ((name (disk-usage--file-info-name file-info)))
-                                              (if (file-directory-p name)
-                                                  ;; Make button.
-                                                  (cons name
-                                                        (list 'action
-                                                              (lambda (_)
-                                                                (disk-usage name))))
-                                                name)))))
-                  listing))))
+          (mapcar
+           (lambda (file-info)
+             (list file-info
+                   (vector
+                    (number-to-string (disk-usage--file-info-size file-info))
+                    (format "%.1f%%"
+                            (* 100 (/ (float (disk-usage--file-info-size file-info))
+                                      total-size)))
+                    (number-to-string (disk-usage--file-info-children file-info))
+                    (let ((name (disk-usage--file-info-name file-info)))
+                      (if (file-directory-p name)
+                          ;; Make button.
+                          (cons name
+                                (list 'action
+                                      (lambda (_)
+                                        (disk-usage name))))
+                        name)))))
+           listing))))
 
 (defvar disk-usage--format-files #'identity
   "How to print files.
@@ -335,7 +346,10 @@ FILE-ENTRY may be a string or a button."
                (list (or (tabulated-list-get-entry (point-at-bol 0))
                          cols)
                      cols))))
-      (setq x (tabulated-list-print-col 0 (funcall disk-usage-size-format-function (string-to-number (aref cols 0))) x))
+      (setq x (tabulated-list-print-col 0
+                                        (funcall disk-usage-size-format-function
+                                                 (string-to-number (aref cols 0)))
+                                        x))
       (setq x (tabulated-list-print-col 1 (aref cols 1) x))
       (setq x (tabulated-list-print-col 2 (aref cols 2) x))
       (setq x (tabulated-list-print-col 3 (disk-usage--print-file-col (aref cols 3)) x))
@@ -478,18 +492,24 @@ TYPE is the file extension (lower case)."
   (let ((listing (disk-usage--list-recursively directory))
         (table (make-hash-table :test #'equal)))
     (dolist (file-info listing)
-      (let* ((ext (downcase (or (file-name-extension (disk-usage--file-info-name file-info)) "")))
+      (let* ((ext (downcase (or (file-name-extension
+                                 (disk-usage--file-info-name file-info))
+                                "")))
              (size (disk-usage--file-info-size file-info))
              (type (gethash ext table)))
         (puthash ext
                  (if (not type)
-                     (disk-usage--type-info-make :names (list (disk-usage--file-info-name file-info))
-                                                 :size size)
+                     (disk-usage--type-info-make
+                      :names (list (disk-usage--file-info-name file-info))
+                      :size size)
                    (setf
-                    (disk-usage--type-info-names type) (cons (disk-usage--file-info-name file-info)
-                                                             (disk-usage--type-info-names type))
-                    (disk-usage--type-info-count type) (1+ (disk-usage--type-info-count type))
-                    (disk-usage--type-info-size type) (+ size (disk-usage--type-info-size type)))
+                    (disk-usage--type-info-names type)
+                    (cons (disk-usage--file-info-name file-info)
+                          (disk-usage--type-info-names type)))
+                   (setf (disk-usage--type-info-count type)
+                         (1+ (disk-usage--type-info-count type)))
+                   (setf (disk-usage--type-info-size type)
+                         (+ size (disk-usage--type-info-size type)))
                    type)
                  table)))
     table))
@@ -516,7 +536,8 @@ TYPE is the file extension (lower case)."
           ("Count" 12 disk-usage-by-types--sort-by-count)
           ("%%" 6 disk-usage-by-types--sort-by-size . (:right-align t))
           ("Total size" 12 disk-usage-by-types--sort-by-size . (:right-align t))
-          ("Average size" 15 disk-usage-by-types--sort-by-average . (:right-align t))]))
+          ("Average size" 15
+           disk-usage-by-types--sort-by-average . (:right-align t))]))
 
 (defun disk-usage-by-types--refresh (&optional directory)
   (setq directory (or directory default-directory))
@@ -527,19 +548,21 @@ TYPE is the file extension (lower case)."
                                sum (disk-usage--type-info-size e))))
       (setq tabulated-list-entries
             (cl-loop for e being the hash-values of listing using (hash-keys ext)
-                     collect (list e
-                                   (vector
-                                    ext
-                                    (number-to-string (disk-usage--type-info-count e))
-                                    (format "%.1f%%"
-                                            (* 100 (/ (float (disk-usage--type-info-size e))
-                                                      total-size)))
-                                    (funcall disk-usage-size-format-function
-                                             (disk-usage--type-info-size e))
-                                    (funcall disk-usage-size-format-function
-                                             (string-to-number
-                                              (format "%.2f"
-                                                      (disk-usage--type-average-size e)))))))))))
+                     collect
+                     (list
+                      e
+                      (vector
+                       ext
+                       (number-to-string (disk-usage--type-info-count e))
+                       (format "%.1f%%"
+                               (* 100 (/ (float (disk-usage--type-info-size e))
+                                         total-size)))
+                       (funcall disk-usage-size-format-function
+                                (disk-usage--type-info-size e))
+                       (funcall disk-usage-size-format-function
+                                (string-to-number
+                                 (format "%.2f"
+                                         (disk-usage--type-average-size e)))))))))))
 
 (defvar disk-usage-by-types-mode-map
   (let ((map (make-sparse-keymap)))
@@ -582,7 +605,8 @@ Also see `disk-usage-mode'."
   (interactive)
   (unless (eq major-mode 'disk-usage-by-types-mode)
     (error "Must be in a disk-usage-by-types buffer"))
-  (setq listing (or listing (disk-usage--type-info-names (tabulated-list-get-id))))
+  (setq listing (or listing
+                    (disk-usage--type-info-names (tabulated-list-get-id))))
   (let ((listing-with-attributes (cl-loop for l in listing
                                           collect (cons l (file-attributes l)))))
     (switch-to-buffer
