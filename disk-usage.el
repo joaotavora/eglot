@@ -483,9 +483,9 @@ TYPE is the file extension (lower case)."
   (setq tabulated-list-format
         `[("Extension" 12 t)
           ("Count" 12 disk-usage-by-types--sort-by-count)
-          ("%%" 6 disk-usage-by-types--sort-by-size)
-          ("Total size" 12 disk-usage-by-types--sort-by-size)
-          ("Average size" 15 disk-usage-by-types--sort-by-average)]))
+          ("%%" 6 disk-usage-by-types--sort-by-size . (:right-align t))
+          ("Total size" 12 disk-usage-by-types--sort-by-size . (:right-align t))
+          ("Average size" 15 disk-usage-by-types--sort-by-average . (:right-align t))]))
 
 (defun disk-usage-by-types--refresh (&optional directory)
   (setq directory (or directory default-directory))
