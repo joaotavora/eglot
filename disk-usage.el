@@ -167,7 +167,7 @@ $ find . -type f -exec du -sb {} +"
                :name (cadr pair)
                :size (string-to-number (cl-first pair)))))
           (split-string (with-temp-buffer
-                          (call-process "find" nil '(t nil) nil
+                          (call-process disk-usage--find-command nil '(t nil) nil
                                         directory
                                         "-type" "f"
                                         "-exec" disk-usage--du-command disk-usage--du-args "{}" "+")
