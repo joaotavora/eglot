@@ -65,7 +65,13 @@
   "Whether to kill the current `disk-usage' buffer before moving directory."
   :type 'boolean)
 
-(defcustom disk-usage--directory-size-function #'disk-usage--directory-size-with-du
+(defvar disk-usage--du-command "du")
+(defvar disk-usage--du-args "-sb")
+(defvar disk-usage--find-command "find")
+
+(defcustom disk-usage--directory-size-function (if (executable-find disk-usage--du-command)
+                                                   #'disk-usage--directory-size-with-du
+                                                   #'disk-usage--directory-size-with-emacs)
   "Function that returns the total disk usage of the directory passed as argument."
   :type '(choice (function :tag "Native (slow)" disk-usage--directory-size-with-emacs)
                  (function :tag "System \"du\"" disk-usage--directory-size-with-du)))
@@ -140,10 +146,6 @@
                                              :size (disk-usage--directory-size path)
                                              :children (- (length (directory-files path)) 2)))
         (list (disk-usage--file-info-make :size 0 :name directory)))))
-
-(defvar disk-usage--du-command "du")
-(defvar disk-usage--du-args "-sb")
-(defvar disk-usage--find-command "find")
 
 (defun disk-usage--list-recursively (directory)
   "This is the equivalent of running the shell command
