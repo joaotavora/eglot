@@ -53,6 +53,7 @@
 (require 'tabulated-list)
 (require 'cl-macs)
 
+;; TODO: Apparent size?  Not obvious, because Emacs file-attributes does not support it.
 ;; TODO: Helm-FF does not work when file-name-nondirectory is on.
 ;; TODO: Add support for charts?
 
@@ -112,6 +113,7 @@
                (:constructor disk-usage--file-info-make))
   size
   name
+  (children 0)
   (marked nil))
 
 (defun disk-usage-reset-cache ()
@@ -140,7 +142,8 @@
                               (not (string= ".." (file-name-base path))))
                  collect
                  (disk-usage--file-info-make :name path
-                                             :size (disk-usage--directory-size path)))
+                                             :size (disk-usage--directory-size path)
+                                             :children (- (length (directory-files path)) 2)))
         (list (disk-usage--file-info-make :size 0 :name directory)))))
 
 (defvar disk-usage--du-command "du")
@@ -214,6 +217,10 @@ This is slow but does not require any external process."
   (< (disk-usage--file-info-size (car a))
      (disk-usage--file-info-size (car b))))
 
+(defun disk-usage--sort-by-children (a b)
+  (< (disk-usage--file-info-children (car a))
+     (disk-usage--file-info-children (car b))))
+
 (defcustom disk-usage-size-format-function #'file-size-human-readable
   "How to print size.
 Takes a number and returns a string."
@@ -229,6 +236,7 @@ Takes a number and returns a string."
               12)
            disk-usage--sort-by-size . (:right-align t))
           ("%%" 6 disk-usage--sort-by-size . (:right-align t))
+          ("Children" 8 disk-usage--sort-by-children . (:right-align t))
           (,(format "Files %sin '%s'"
                     (if total-size
                         (format "totalling %sB (%s) "
@@ -250,6 +258,7 @@ Takes a number and returns a string."
                                             (format "%.1f%%"
                                                     (* 100 (/ (float (disk-usage--file-info-size file-info))
                                                               total-size)))
+                                            (number-to-string (disk-usage--file-info-children file-info))
                                             (let ((name (disk-usage--file-info-name file-info)))
                                               (if (file-directory-p name)
                                                   ;; Make button.
@@ -324,8 +333,9 @@ beings."
                      cols))))
       (setq x (tabulated-list-print-col 0 (funcall disk-usage-size-format-function (string-to-number (aref cols 0))) x))
       (setq x (tabulated-list-print-col 1 (aref cols 1) x))
-      (setq x (tabulated-list-print-col 2 (disk-usage--print-file-col (aref cols 2)) x))
-      (cl-loop for i from 3 below ncols
+      (setq x (tabulated-list-print-col 2 (aref cols 2) x))
+      (setq x (tabulated-list-print-col 3 (disk-usage--print-file-col (aref cols 3)) x))
+      (cl-loop for i from 4 below ncols
                do (setq x (tabulated-list-print-col i (aref cols i) x))))
     (insert ?\n)
     ;; Ever so slightly faster than calling `put-text-property' twice.
