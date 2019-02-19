@@ -53,6 +53,16 @@
 (require 'tabulated-list)
 (eval-when-compile (require 'cl-lib))
 
+;; TODO: Work out the docstrings and align to 80 columns.
+
+;; TODO: Use process-file instead of call-process.
+
+;; TODO: Filter out files by date.  Make generic filter function?  Could factor
+;; disk-usage-files into this.
+
+;; TODO: Use file-notify library to watch file system changes and auto-update.
+;; Also see https://github.com/Alexander-Miller/treemacs#filewatch-mode.
+
 ;; TODO: Apparent size?  Not obvious, because Emacs file-attributes does not support it.
 ;; TODO: Helm-FF does not work when file-name-nondirectory is on.
 ;; TODO: Add support for charts?
