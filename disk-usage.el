@@ -398,15 +398,12 @@ Also see `disk-usage-by-types-mode'."
       (kill-this-buffer))
     (disk-usage (expand-file-name ".." directory))))
 
-(defun disk-usage--path-at-point ()
-  ;; FIXME: The GNU convention is to use "path" only for lists of directories
-  ;; as in `load-path' and $PATH and to use "file name" for what you here call
-  ;; "path".  --Stef
+(defun disk-usage--file-name-at-point ()
   (let ((file-info (tabulated-list-get-id (point))))
     (disk-usage--file-info-name file-info)))
 
 (defun disk-usage--directory-at-point ()
-  (let ((path (disk-usage--path-at-point)))
+  (let ((path (disk-usage--file-name-at-point)))
     (if (file-directory-p path)
         path
       (setq path (file-name-directory path)))))
@@ -452,7 +449,7 @@ non-nil or with prefix argument."
 
 (defun disk-usage-find-file-at-point ()
   (interactive)
-  (find-file (disk-usage--path-at-point)))
+  (find-file (disk-usage--file-name-at-point)))
 
 (defun disk-usage-dired-at-point ()
   (interactive)
