@@ -156,7 +156,9 @@
                  (disk-usage--file-info-make
                   :name path
                   :size (disk-usage--directory-size path)
-                  :children (- (length (directory-files path)) 2)))
+                  :children (if (file-accessible-directory-p path)
+                                (- (length (directory-files path)) 2)
+                              0)))
         (list (disk-usage--file-info-make :size 0 :name directory)))))
 
 (defun disk-usage--list-recursively (directory)
