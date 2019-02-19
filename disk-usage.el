@@ -99,8 +99,8 @@
     (define-key map "h" #'disk-usage-toggle-human-readable)
     (define-key map "f" #'disk-usage-toggle-full-path)
     (define-key map "R" #'disk-usage-toggle-recursive)
-    (define-key map "m" #'disk-usage-mark-at-point)
-    (define-key map "u" #'disk-usage-unmark-at-point)
+    (define-key map "m" #'disk-usage-mark)
+    (define-key map "u" #'disk-usage-unmark)
     (define-key map "x" #'disk-usage-delete-marked-files)
     map)
   "Local keymap for `disk-usage-mode' buffers.")
@@ -389,17 +389,31 @@ Also see `disk-usage-by-types-mode'."
         path
       (setq path (file-name-directory path)))))
 
-(defun disk-usage-mark-at-point ()
-  (interactive)
-  (let ((file-info (tabulated-list-get-id (point))))
-    (setf (disk-usage--file-info-marked file-info) t))
-  (tabulated-list-put-tag "*" 'advance))
+(defun disk-usage-mark-at-point (&optional count mark)
+  (interactive "p")
+  (let ((step (if (> count 0) 1 -1)))
+    (setq count (abs count)
+          mark (or mark "*"))
+    (dotimes (_ count)
+      (let ((file-info (tabulated-list-get-id (point))))
+        (setf (disk-usage--file-info-marked file-info) (string= mark "")))
+      (tabulated-list-put-tag mark)
+      (forward-line step))))
 
-(defun disk-usage-unmark-at-point ()
-  (interactive)
-  (let ((file-info (tabulated-list-get-id (point))))
-    (setf (disk-usage--file-info-marked file-info) nil))
-  (tabulated-list-put-tag "" 'advance))
+(defun disk-usage-mark (&optional count mark)
+  (interactive "p")
+  (if (region-active-p)
+      (let ((count (count-lines
+                    (region-beginning)
+                    (region-end))))
+        (save-mark-and-excursion
+          (goto-char (region-beginning))
+          (disk-usage-mark-at-point count mark)))
+    (disk-usage-mark-at-point count mark)))
+
+(defun disk-usage-unmark (&optional count)
+  (interactive "p")
+  (disk-usage-mark count ""))
 
 (defun disk-usage-delete-marked-files (&optional permanently)
   "Delete marked files.
