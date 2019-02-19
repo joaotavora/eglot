@@ -55,8 +55,6 @@
 
 ;; TODO: Work out the docstrings and align to 80 columns.
 
-;; TODO: Use process-file instead of call-process.
-
 ;; TODO: Filter out files by date.  Make generic filter function?  Could factor
 ;; disk-usage-files into this.
 
@@ -167,7 +165,7 @@ $ find . -type f -exec du -sb {} +"
                :name (cadr pair)
                :size (string-to-number (cl-first pair)))))
           (split-string (with-temp-buffer
-                          (call-process disk-usage--find-command nil '(t nil) nil
+                          (process-file disk-usage--find-command nil '(t nil) nil
                                         directory
                                         "-type" "f"
                                         "-exec" disk-usage--du-command disk-usage--du-args "{}" "+")
@@ -214,7 +212,7 @@ This is slow but does not require any external process."
     (split-string
      (with-temp-buffer
        (with-output-to-string
-         (call-process disk-usage--du-command
+         (process-file disk-usage--du-command
                        nil '(t nil) nil
                        disk-usage--du-args path))
        (buffer-string))))))
