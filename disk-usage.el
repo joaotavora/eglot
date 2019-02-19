@@ -228,6 +228,7 @@ Takes a number and returns a string."
                 8
               12)
            disk-usage--sort-by-size . (:right-align t))
+          ("%%" 6 disk-usage--sort-by-size . (:right-align t))
           (,(format "Files %sin '%s'"
                     (if total-size
                         (format "totalling %sB (%s) "
@@ -239,12 +240,16 @@ Takes a number and returns a string."
 
 (defun disk-usage--refresh (&optional directory)
   (setq directory (or directory default-directory))
-  (let ((listing (funcall disk-usage-list-function directory)))
-    (disk-usage--set-tabulated-list-format (disk-usage--total listing))
+  (let* ((listing (funcall disk-usage-list-function directory))
+         (total-size (disk-usage--total listing)))
+    (disk-usage--set-tabulated-list-format )
     (tabulated-list-init-header)
     (setq tabulated-list-entries
           (mapcar (lambda (file-info)
                     (list file-info (vector (number-to-string (disk-usage--file-info-size file-info))
+                                            (format "%.1f%%"
+                                                    (* 100 (/ (float (disk-usage--file-info-size file-info))
+                                                              total-size)))
                                             (let ((name (disk-usage--file-info-name file-info)))
                                               (if (file-directory-p name)
                                                   ;; Make button.
@@ -318,8 +323,9 @@ beings."
                          cols)
                      cols))))
       (setq x (tabulated-list-print-col 0 (funcall disk-usage-size-format-function (string-to-number (aref cols 0))) x))
-      (setq x (tabulated-list-print-col 1 (disk-usage--print-file-col (aref cols 1)) x))
-      (cl-loop for i from 2 below ncols
+      (setq x (tabulated-list-print-col 1 (aref cols 1) x))
+      (setq x (tabulated-list-print-col 2 (disk-usage--print-file-col (aref cols 2)) x))
+      (cl-loop for i from 3 below ncols
                do (setq x (tabulated-list-print-col i (aref cols i) x))))
     (insert ?\n)
     ;; Ever so slightly faster than calling `put-text-property' twice.
