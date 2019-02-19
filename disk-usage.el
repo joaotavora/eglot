@@ -53,7 +53,7 @@
 (require 'tabulated-list)
 (eval-when-compile (require 'cl-lib))
 
-;; TODO: Work out the docstrings and align to 80 columns.
+;; TODO: Retest total-size and symlinks arrows.
 
 ;; TODO: Filter out files by date.  Make generic filter function?  Could factor
 ;; disk-usage-files into this.
@@ -289,6 +289,7 @@ Takes a string and returns a string.
 `identity' and `file-name-nondirectory' are good candidates.")
 
 (defun disk-usage-toggle-human-readable ()
+  "Toggle between printing size in bytes or in more readable units."
   (interactive)
   (setq disk-usage-size-format-function
         (if (eq disk-usage-size-format-function #'file-size-human-readable)
@@ -297,6 +298,7 @@ Takes a string and returns a string.
   (tabulated-list-revert))
 
 (defun disk-usage-toggle-full-path ()
+  "Toggle between displaying the full paths or the base names."
   (interactive)
   (setq disk-usage--format-files
         (if (eq disk-usage--format-files #'identity)
@@ -382,6 +384,8 @@ Also see `disk-usage-by-types-mode'."
 
 ;;;###autoload
 (defun disk-usage (&optional directory)
+  "Display listing of files in DIRECTORY with their size.
+If DIRECTORY is nil, use current directory."
   (interactive "D")
   (unless (file-accessible-directory-p directory)
     (error "Directory cannot be opened: %S" directory))
@@ -399,11 +403,15 @@ Also see `disk-usage-by-types-mode'."
 
 ;;;###autoload
 (defun disk-usage-here ()
+  "Run `disk-usage' in current directory."
   (interactive)
   (disk-usage default-directory))
 
 (defun disk-usage-up (&optional discard-previous-buffer)
-  (interactive)
+  "Run `disk-usage' in the parent directory.
+With DISCARD-PREVIOUS-BUFFER or prefix argument, current buffer
+is deleted before switching."
+  (interactive "p")
   (let ((directory default-directory))
     (when (and (or discard-previous-buffer disk-usage-discard-previous-buffer)
                (eq major-mode 'disk-usage-mode))
@@ -421,6 +429,8 @@ Also see `disk-usage-by-types-mode'."
       (setq path (file-name-directory path)))))
 
 (defun disk-usage-mark-at-point (&optional count mark)
+  "Mark entry at point.
+See `disk-usage-mark' and `disk-usage-unmark'."
   (interactive "p")
   (let ((step (if (> count 0) 1 -1)))
     (setq count (abs count)
@@ -432,6 +442,10 @@ Also see `disk-usage-by-types-mode'."
       (forward-line step))))
 
 (defun disk-usage-mark (&optional count mark)
+  "Mark files for deletion with `disk-usage-delete-marked-files'.
+With numeric argument, mark that many times.
+With negative numeric argument, move upward.
+When region is active, mark all entries in region."
   (interactive "p")
   (if (region-active-p)
       (let ((count (count-lines
@@ -443,6 +457,10 @@ Also see `disk-usage-by-types-mode'."
     (disk-usage-mark-at-point count mark)))
 
 (defun disk-usage-unmark (&optional count)
+  "Unmark files marked with `disk-usage-mark'.
+With numeric argument, unmark that many times.
+With negative numeric argument, move upward.
+When region is active, unmark all entries in region."
   (interactive "p")
   (disk-usage-mark count ""))
 
@@ -460,6 +478,7 @@ non-nil or with prefix argument."
     (tabulated-list-revert)))
 
 (defun disk-usage-find-file-at-point ()
+  "Find file at point in Emacs."
   (interactive)
   (find-file (disk-usage--file-name-at-point)))
 
@@ -468,11 +487,13 @@ non-nil or with prefix argument."
   (dired (disk-usage--directory-at-point)))
 
 (defun disk-usage-eshell-at-point ()
+  "Run a new `eshell' from the folder at point."
   (interactive)
   (let ((default-directory (disk-usage--directory-at-point)))
     (eshell 'new-session)))
 
 (defun disk-usage-shell-at-point ()
+  "Run a new `shell' from the folder at point."
   (interactive)
   (let ((default-directory (disk-usage--directory-at-point)))
     (shell (get-buffer-create (generate-new-buffer-name "*shell*")))))
@@ -596,12 +617,16 @@ Also see `disk-usage-mode'."
 
 ;;;###autoload
 (defun disk-usage-by-types-here ()
+  "Run `disk-usage-by-types' in current directory."
   (interactive)
   (disk-usage-by-types default-directory))
 
 (defvar disk-usage-files-buffer-name "disk-usage-files")
 
 (defun disk-usage-files (&optional listing)
+  "Run `disk-usage' over LISTING.
+If nil, LISTING is taken from the entry in the
+`disk-usage-by-types' buffer."
   (interactive)
   (unless (eq major-mode 'disk-usage-by-types-mode)
     (error "Must be in a disk-usage-by-types buffer"))
