@@ -51,10 +51,10 @@
 
 ;;; Code:
 (require 'tabulated-list)
+(require 'seq)
 (eval-when-compile (require 'cl-lib))
 
-;; TODO: Filter out files by date.  Make generic filter function?  Could factor
-;; disk-usage-files into this.
+;; TODO: Can we factor `disk-usage-files' into filters?
 
 ;; TODO: Use file-notify library to watch file system changes and auto-update.
 ;; Also see https://github.com/Alexander-Miller/treemacs#filewatch-mode.
@@ -103,6 +103,8 @@
     (define-key map (kbd "S-<return>") #'disk-usage-find-file-at-point)
     (define-key map (kbd "<backspace>") #'disk-usage-up)
     (define-key map "^" #'disk-usage-up)
+    (define-key map "a" #'disk-usage-add-filters)
+    (define-key map "A" #'disk-usage-remove-filters)
     (define-key map "d" #'disk-usage-dired-at-point)
     (define-key map "e" #'disk-usage-eshell-at-point)
     (define-key map "h" #'disk-usage-toggle-human-readable)
@@ -128,6 +130,74 @@
   (interactive)
   (clrhash disk-usage--cache))
 
+(defun disk-usage-filter-1-day (_path attributes &optional days)
+  (if (null (file-attribute-type attributes))
+      ;; Regular files
+      (time-less-p
+       (time-since
+        (file-attribute-modification-time attributes))
+       (days-to-time (or days 1)))
+    ;; Always keep directories and symlinks.
+    t))
+
+(defun disk-usage-filter-1-week (path attributes)
+  (disk-usage-filter-1-day path attributes 7))
+
+(defun disk-usage-filter-4-weeks (path attributes)
+  (disk-usage-filter-1-day path attributes 28))
+
+(defun disk-usage-filter-1M-size (_path attributes &optional size)
+  (if (null (file-attribute-type attributes))
+      ;; Regular files
+      (> (file-attribute-size attributes) (or size (* 1024 1024)))
+    ;; Always keep directories and symlinks.
+    t))
+
+(defun disk-usage-filter-10M-size (path attributes)
+  (disk-usage-filter-1M-size path attributes (* 10 1024 1024)))
+
+(defcustom disk-usage-available-filters '(disk-usage-filter-1-day
+                                          disk-usage-filter-1-week
+                                          disk-usage-filter-4-week
+                                          disk-usage-filter-1M-size
+                                          disk-usage-filter-10M-size)
+  "Filters can be used to leave out files from the listing.
+
+A filter is a function that takes a path and file attributes and
+return nil to exclude a file or non-nil to include it.
+A file must pass all the filters to be included.
+See `disk-usage-add-filters' and `disk-usage-remove-filters'.
+
+You can add custom filters to this list."
+  :type '(repeat 'symbol))
+
+(defvar-local disk-usage-filters nil
+  "List of `disk-usage' filters in current buffer.
+See `disk-usage-add-filters' and `disk-usage-remove-filters'.")
+
+(defun disk-usage-add-filters ()
+  (interactive)
+  (let ((filters (completing-read-multiple "Filters: "
+                                           disk-usage-available-filters
+                                           nil
+                                           t)))
+    (dolist (filter filters)
+      (add-to-list 'disk-usage-filters (intern filter)))
+    (tabulated-list-revert)))
+
+(defun disk-usage-remove-filters ()
+  (interactive)
+  (if (null disk-usage-filters)
+      (warn "No filters in this buffer.")
+    (let ((filters (completing-read-multiple "Filters: "
+                                             disk-usage-filters
+                                             nil
+                                             t)))
+      (setq disk-usage-filters
+            (seq-difference disk-usage-filters
+                            (mapcar #'intern filters)))
+      (tabulated-list-revert))))
+
 (defun disk-usage--list (directory &optional listing)
   (setq directory (or directory default-directory))
   (let ((listing (or listing
@@ -138,13 +208,15 @@
     (or (cl-loop for l in listing
                  for attributes = (cl-rest l)
                  for path = (cl-first l)
+                 if (cl-loop for filter in disk-usage-filters
+                             always (funcall filter path attributes))
                  ;; Files
                  if (null (file-attribute-type attributes))
                  collect (disk-usage--file-info-make
                           :name path
                           :size (file-attribute-size attributes))
                  ;; Symlinks
-                 if (stringp (file-attribute-type attributes))
+                 else if (stringp (file-attribute-type attributes))
                  collect (disk-usage--file-info-make
                           :name path
                           :size (file-attribute-size attributes))
@@ -165,6 +237,7 @@
   "This is the equivalent of running the shell command
 $ find . -type f -exec du -sb {} +"
   (setq directory (or directory default-directory))
+  ;; TODO: Add filters here.
   (mapcar (lambda (s)
             (let ((pair (split-string s "\t")))
               (disk-usage--file-info-make
