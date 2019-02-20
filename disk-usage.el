@@ -256,21 +256,26 @@ See `disk-usage-add-filters' and `disk-usage-remove-filters'.")
   "This is the equivalent of running the shell command
 $ find . -type f -exec du -sb {} +"
   (setq directory (or directory default-directory))
-  ;; TODO: Add filters here.
-  (mapcar (lambda (s)
-            (let ((pair (split-string s "\t")))
-              (disk-usage--file-info-make
-               :name (cadr pair)
-               :size (string-to-number (cl-first pair)))))
-          (split-string (with-temp-buffer
-                          (process-file disk-usage--find-command nil '(t nil) nil
-                                        directory
-                                        "-type" "f"
-                                        "-exec"
-                                        disk-usage--du-command
-                                        disk-usage--du-args "{}" "+")
-                                (buffer-string))
-                              "\n" 'omit-nulls)))
+  (delq
+   nil
+   (mapcar (lambda (s)
+             (let* ((pair (split-string s "\t"))
+                    (name (cadr pair))
+                    (attributes (file-attributes name)))
+               (when (cl-loop for filter in disk-usage-filters
+                              always (funcall filter name attributes))
+                 (disk-usage--file-info-make
+                  :name name
+                  :size (string-to-number (cl-first pair))))))
+           (split-string (with-temp-buffer
+                           (process-file disk-usage--find-command nil '(t nil) nil
+                                         directory
+                                         "-type" "f"
+                                         "-exec"
+                                         disk-usage--du-command
+                                         disk-usage--du-args "{}" "+")
+                           (buffer-string))
+                         "\n" 'omit-nulls))))
 
 (defcustom disk-usage-list-function #'disk-usage--list
   "Function that returns a list of `disk-usage--file-info'.
