@@ -134,7 +134,8 @@
   (interactive)
   (clrhash disk-usage--cache))
 
-(defun disk-usage-filter-1-hour (_path attributes &optional seconds)
+(defun disk-usage-filter-1-hour> (_path attributes &optional seconds)
+  "Discard regular files older than 1 hour."
   (if (null (file-attribute-type attributes))
       ;; Regular files
       (time-less-p
@@ -144,7 +145,8 @@
     ;; Always keep directories and symlinks.
     t))
 
-(defun disk-usage-filter-1-day (_path attributes &optional days)
+(defun disk-usage-filter-1-day> (_path attributes &optional days)
+  "Discard regular files older than 1 day."
   (if (null (file-attribute-type attributes))
       ;; Regular files
       (time-less-p
@@ -154,28 +156,37 @@
     ;; Always keep directories and symlinks.
     t))
 
-(defun disk-usage-filter-1-week (path attributes)
-  (disk-usage-filter-1-day path attributes 7))
+(defun disk-usage-filter-1-week> (path attributes)
+  (disk-usage-filter-1-day> path attributes 7))
 
-(defun disk-usage-filter-4-weeks (path attributes)
-  (disk-usage-filter-1-day path attributes 28))
+(defun disk-usage-filter-4-weeks> (path attributes)
+  (disk-usage-filter-1-day> path attributes 28))
 
-(defun disk-usage-filter-1M-size (_path attributes &optional size)
+(defun disk-usage-filter-1-MiB> (_path attributes &optional size)
+  "Discard regular files bigger than 1 MiB."
   (if (null (file-attribute-type attributes))
       ;; Regular files
-      (> (file-attribute-size attributes) (or size (* 1024 1024)))
+      (< (file-attribute-size attributes) (or size (* 1024 1024)))
     ;; Always keep directories and symlinks.
     t))
 
-(defun disk-usage-filter-10M-size (path attributes)
-  (disk-usage-filter-1M-size path attributes (* 10 1024 1024)))
+(defun disk-usage-filter-10-MiB> (path attributes)
+  (disk-usage-filter-1-MiB> path attributes (* 10 1024 1024)))
 
-(defcustom disk-usage-available-filters '(disk-usage-filter-1-hour
-                                          disk-usage-filter-1-day
-                                          disk-usage-filter-1-week
-                                          disk-usage-filter-4-week
-                                          disk-usage-filter-1M-size
-                                          disk-usage-filter-10M-size)
+(defun disk-usage-filter-100-MiB> (path attributes)
+  (disk-usage-filter-1-MiB> path attributes (* 100 1024 1024)))
+
+(defun disk-usage-filter-1-GiB> (path attributes)
+  (disk-usage-filter-1-MiB> path attributes (* 1024 1024 1024)))
+
+(defcustom disk-usage-available-filters '(disk-usage-filter-1-hour>
+                                          disk-usage-filter-1-day>
+                                          disk-usage-filter-1-week>
+                                          disk-usage-filter-4-weeks>
+                                          disk-usage-filter-1-MiB>
+                                          disk-usage-filter-10-MiB>
+                                          disk-usage-filter-100-MiB>
+                                          disk-usage-filter-1-GiB>)
   "Filters can be used to leave out files from the listing.
 
 A filter is a function that takes a path and file attributes and
