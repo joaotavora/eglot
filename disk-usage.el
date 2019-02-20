@@ -691,6 +691,8 @@ TYPE is the file extension (lower case)."
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map "h" #'disk-usage-toggle-human-readable)
+    (define-key map "a" #'disk-usage-add-filters)
+    (define-key map "A" #'disk-usage-remove-filters)
     ;; Don't use "<return>" since that doesn't work in a tty.
     (define-key map (kbd "RET") #'disk-usage-files)
     map)
