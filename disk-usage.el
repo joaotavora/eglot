@@ -130,6 +130,16 @@
   (interactive)
   (clrhash disk-usage--cache))
 
+(defun disk-usage-filter-1-hour (_path attributes &optional seconds)
+  (if (null (file-attribute-type attributes))
+      ;; Regular files
+      (time-less-p
+       (time-since
+        (file-attribute-modification-time attributes))
+       (seconds-to-time (or seconds (* 60 60))))
+    ;; Always keep directories and symlinks.
+    t))
+
 (defun disk-usage-filter-1-day (_path attributes &optional days)
   (if (null (file-attribute-type attributes))
       ;; Regular files
@@ -156,7 +166,8 @@
 (defun disk-usage-filter-10M-size (path attributes)
   (disk-usage-filter-1M-size path attributes (* 10 1024 1024)))
 
-(defcustom disk-usage-available-filters '(disk-usage-filter-1-day
+(defcustom disk-usage-available-filters '(disk-usage-filter-1-hour
+                                          disk-usage-filter-1-day
                                           disk-usage-filter-1-week
                                           disk-usage-filter-4-week
                                           disk-usage-filter-1M-size
