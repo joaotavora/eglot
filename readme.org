@@ -39,6 +39,10 @@ extensions.
 
 With a prefix argument, cache is updated when reverting the buffer.
 
+With ~disk-usage-add-filters~ you can filter out files with arbitrary
+predicates, e.g. files bigger than some size or older than a certain number of
+days.
+
 You can customize options in the =disk-usage= group.
 
 * Screenshots
