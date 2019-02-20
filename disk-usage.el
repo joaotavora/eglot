@@ -256,18 +256,7 @@ See `disk-usage-add-filters' and `disk-usage-remove-filters'.")
   "This is the equivalent of running the shell command
 $ find . -type f -exec du -sb {} +"
   (setq directory (or directory default-directory))
-  (delq
-   nil
-   (mapcar (lambda (s)
-             (let* ((pair (split-string s "\t"))
-                    (name (cadr pair))
-                    (attributes (file-attributes name)))
-               (when (cl-loop for filter in disk-usage-filters
-                              always (funcall filter name attributes))
-                 (disk-usage--file-info-make
-                  :name name
-                  :size (string-to-number (cl-first pair))))))
-           (split-string (with-temp-buffer
+  (let ((pair-strings (split-string (with-temp-buffer
                            (process-file disk-usage--find-command nil '(t nil) nil
                                          directory
                                          "-type" "f"
@@ -275,7 +264,16 @@ $ find . -type f -exec du -sb {} +"
                                          disk-usage--du-command
                                          disk-usage--du-args "{}" "+")
                            (buffer-string))
-                         "\n" 'omit-nulls))))
+                                    "\n" 'omit-nulls)))
+    (cl-loop for pair-string in pair-strings
+             for pair = (split-string pair-string "\t")
+             for name = (cadr pair)
+             for attributes = (file-attributes name)
+             when (cl-loop for filter in disk-usage-filters
+                           always (funcall filter name attributes))
+             collect (disk-usage--file-info-make
+                      :name name
+                      :size (string-to-number (cl-first pair))))))
 
 (defcustom disk-usage-list-function #'disk-usage--list
   "Function that returns a list of `disk-usage--file-info'.
