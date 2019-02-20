@@ -441,7 +441,7 @@ See `disk-usage-mark' and `disk-usage-unmark'."
           mark (or mark "*"))
     (dotimes (_ count)
       (let ((file-info (tabulated-list-get-id (point))))
-        (setf (disk-usage--file-info-marked file-info) (string= mark "")))
+        (setf (disk-usage--file-info-marked file-info) (not (string= mark ""))))
       (tabulated-list-put-tag mark)
       (forward-line step))))
 
