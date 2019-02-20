@@ -182,6 +182,10 @@ See `disk-usage-add-filters' and `disk-usage-remove-filters'.
 You can add custom filters to this list."
   :type '(repeat 'symbol))
 
+(defcustom disk-usage-default-filters '()
+  "Filters to enable in new `disk-usage' buffers."
+  :type '(repeat 'symbol))
+
 (defvar-local disk-usage-filters nil
   "List of `disk-usage' filters in current buffer.
 See `disk-usage-add-filters' and `disk-usage-remove-filters'.")
@@ -486,6 +490,7 @@ If DIRECTORY is nil, use current directory."
    (get-buffer-create (format "*%s<%s>*" disk-usage-buffer-name
                               (directory-file-name directory))))
   (disk-usage-mode)
+  (setq disk-usage-filters disk-usage-default-filters)
   (setq default-directory directory)
   (tabulated-list-revert))
 
@@ -725,6 +730,7 @@ If nil, LISTING is taken from the entry in the
     (switch-to-buffer
      (get-buffer-create (format "*%s*" disk-usage-files-buffer-name)))
     (disk-usage-mode)
+    (setq disk-usage-filters disk-usage-default-filters)
     (set (make-local-variable 'disk-usage-list-function)
          (lambda (_) (disk-usage--list nil listing-with-attributes)))
     (tabulated-list-revert)))
