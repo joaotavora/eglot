@@ -207,7 +207,7 @@ See `disk-usage-add-filters' and `disk-usage-remove-filters'.")
 (defun disk-usage-remove-filters ()
   (interactive)
   (if (null disk-usage-filters)
-      (warn "No filters in this buffer.")
+      (message "No filters in this buffer.")
     (let ((filters (completing-read-multiple "Filters: "
                                              disk-usage-filters
                                              nil
