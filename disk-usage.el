@@ -99,12 +99,12 @@
                  (function :tag "System \"du\"" disk-usage--directory-size-with-du)))
 
 (defface disk-usage-inaccessible
-  '((t :foreground "red"
+  '((t :inherit error
        :underline t))
   "Face for inaccessible folders.")
 
 (defface disk-usage-symlink
-  '((t :foreground "orange"))
+  '((t :inherit warning))
   "Face for symlinks.")
 
 (defface disk-usage-symlink-directory
