@@ -26,6 +26,9 @@
 
 ;;; Commentary:
 ;;
+;; Warning: BSD and macOS users need `gdu`, the "GNU du" from the "GNU
+;; coreutils".
+;;
 ;; Disk Usage is a file system analyzer: it offers a tabulated view of file
 ;; listings sorted by size.  Directory sizes are computed recursively.  The results
 ;; are cached for speed.
@@ -35,7 +38,7 @@
 ;; `disk-usage-dired-at-point' to open a `dired' buffer for the current
 ;; directory.
 ;;
-;; Instead of displaying only the current folder, ~disk-usage~ can also display
+;; Instead of displaying only the current folder, `disk-usage' can also display
 ;; files in all subfolders recursively with `disk-usage-toggle-recursive'.
 ;;
 ;; Marked files can be trashed with `disk-usage-delete-marked-files'.  When
@@ -75,9 +78,17 @@
   "Whether to kill the current `disk-usage' buffer before moving directory."
   :type 'boolean)
 
-(defvar disk-usage--du-command "du")
-(defvar disk-usage--du-args "-sb")
-(defvar disk-usage--find-command "find")
+(defcustom disk-usage--du-command (if (member system-type '(gnu gnu/linux gnu/kfreebsd))
+                                      "du"
+                                    "gdu")
+  "Non-GNU users need GNU's `du' for the `-b' flag.  See `disk-usage--du-args'."
+  :type 'string)
+(defcustom disk-usage--du-args "-sb"
+  "Non-GNU users need GNU's `du' for the `-b' flag.  See `disk-usage--du-command'."
+  :type 'string)
+(defcustom disk-usage--find-command "find"
+  "The `find' executable.  This is required for recursive listings."
+  :type 'string)
 
 (defcustom disk-usage--directory-size-function
   (if (executable-find disk-usage--du-command)
