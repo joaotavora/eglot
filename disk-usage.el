@@ -110,7 +110,19 @@
 (defface disk-usage-symlink-directory
   '((t :inherit disk-usage-symlink
        :underline t))
-  "Face for symlinks.")
+  "Face for symlinked directories.")
+
+(defface disk-usage-size
+  '((t :inherit default))
+  "Face for sizes.")
+
+(defface disk-usage-percent
+  '((t :inherit default))
+  "Face for the percent column.")
+
+(defface disk-usage-children
+  '((t :inherit default))
+  "Face for the children column.")
 
 (defvar disk-usage-mode-map
   (let ((map (make-sparse-keymap)))
@@ -470,11 +482,13 @@ FILE-ENTRY may be a string or a button."
                          cols)
                      cols))))
       (setq x (tabulated-list-print-col 0
-                                        (funcall disk-usage-size-format-function
-                                                 (string-to-number (aref cols 0)))
+                                        (propertize
+                                         (funcall disk-usage-size-format-function
+                                                  (string-to-number (aref cols 0)))
+                                         'face 'disk-usage-size)
                                         x))
-      (setq x (tabulated-list-print-col 1 (aref cols 1) x))
-      (setq x (tabulated-list-print-col 2 (aref cols 2) x))
+      (setq x (tabulated-list-print-col 1 (propertize (aref cols 1) 'face 'disk-usage-percent) x))
+      (setq x (tabulated-list-print-col 2 (propertize (aref cols 2) 'face 'disk-usage-children) x))
       (setq x (tabulated-list-print-col 3 (disk-usage--print-file-col (aref cols 3)) x))
       (cl-loop for i from 4 below ncols
                do (setq x (tabulated-list-print-col i (aref cols i) x))))
