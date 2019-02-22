@@ -1229,7 +1229,7 @@ Reset in `eglot--managed-mode-onoff'.")
   "Maybe activate mode function `eglot--managed-mode'.
 If SERVER is supplied, do it only if BUFFER is managed by it.  In
 that case, also signal textDocument/didOpen."
-  (unless eglot--managed-mode
+  (unless (or eglot--managed-mode (string-match-p "^\s" (buffer-name)))
     (unless server
       (when eglot--cached-current-server
         (display-warning
