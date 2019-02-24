@@ -1838,10 +1838,12 @@ is not active."
                                 :cancel-on-input t))
          (items (if (vectorp resp) resp (plist-get resp :items)))
          (ranges
-          (mapcar (lambda (item)
-                    (eglot--range-region
-                     (plist-get (plist-get item :textEdit) :range)))
-                  items))
+          (mapcar
+           (lambda (item)
+             (let ((range (plist-get (plist-get item :textEdit) :range)))
+               (when range
+                 (eglot--range-region range))))
+           items))
          (bounds (if (< 0 (length ranges))
                      (cl-reduce (lambda (a b)
                                   (if (equal a b) a nil))
