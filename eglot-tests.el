@@ -444,7 +444,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (setq eldoc-last-message nil)
       (completion-at-point)
       (should (looking-back "sys.exit"))
-      (while (not eldoc-last-message) (accept-process-output nil 0.1))
+      (eglot--with-timeout 3
+        (while (not eldoc-last-message) (accept-process-output nil 0.1)))
       (should (string-match "^exit" eldoc-last-message)))))
 
 (ert-deftest python-autopep-formatting ()
