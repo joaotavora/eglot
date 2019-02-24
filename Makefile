@@ -13,6 +13,7 @@ ELCFILES := $(ELFILES:.el=.elc)
 ELPADEPS ?=--eval '(package-initialize)'			\
            --eval '(package-refresh-contents)'			\
            --eval '(package-install (quote jsonrpc))'		\
+           --eval '(package-install (quote yasnippet))'		\
            --eval '(package-install 				\
                       (cadr (assoc (quote flymake)		\
                                    package-archive-contents)))'

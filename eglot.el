@@ -1830,10 +1830,30 @@ is not active."
        args)
       :deferred method))))
 
+(defsubst eglot--completion-bounds (server)
+  (let* ((resp (jsonrpc-request server
+                                :textDocument/completion
+                                (eglot--CompletionParams)
+                                :deferred :textDocument/completion
+                                :cancel-on-input t))
+         (items (if (vectorp resp) resp (plist-get resp :items)))
+         (ranges
+          (mapcar (lambda (item)
+                    (eglot--range-region
+                     (plist-get (plist-get item :textEdit) :range)))
+                  items))
+         (bounds (if (< 0 (length ranges))
+                     (cl-reduce (lambda (a b)
+                                  (if (equal a b) a nil))
+                                ranges))))
+    (if bounds
+        bounds
+      (bounds-of-thing-at-point 'symbol))))
+
 (defun eglot-completion-at-point ()
   "EGLOT's `completion-at-point' function."
-  (let* ((bounds (bounds-of-thing-at-point 'symbol))
-        (server (eglot--current-server-or-lose))
+  (let* ((server (eglot--current-server-or-lose))
+        (bounds (eglot--completion-bounds server))
         (completion-capability (eglot--server-capable :completionProvider))
         (sort-completions (lambda (completions)
                             (sort completions
@@ -1862,14 +1882,14 @@ is not active."
                   strings
                   (mapcar
                    (jsonrpc-lambda
-                       (&rest all &key label insertText insertTextFormat
+                       (&rest all &key label filterText insertText insertTextFormat
                               &allow-other-keys)
                      (let ((completion
                             (cond ((and (eql insertTextFormat 2)
                                         (eglot--snippet-expansion-fn))
-                                   (string-trim-left label))
+                                   (string-trim-left (or filterText label)))
                                   (t
-                                   (or insertText (string-trim-left label))))))
+                                   (or insertText (string-trim-left (or filterText label)))))))
                        (put-text-property 0 1 'eglot--lsp-completion all completion)
                        completion))
                    items)))))
