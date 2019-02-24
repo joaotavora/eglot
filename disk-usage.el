@@ -78,25 +78,31 @@
   "Whether to kill the current `disk-usage' buffer before moving directory."
   :type 'boolean)
 
-(defcustom disk-usage--du-command (if (member system-type '(gnu gnu/linux gnu/kfreebsd))
-                                      "du"
-                                    "gdu")
-  "Non-GNU users need GNU's `du' for the `-b' flag.  See `disk-usage--du-args'."
+(defcustom disk-usage-du-command (if (member system-type '(gnu gnu/linux gnu/kfreebsd))
+                                     "du"
+                                   "gdu")
+  "Non-GNU users need GNU's `du' for the `-b' flag.  See `disk-usage-du-args'."
   :type 'string)
-(defcustom disk-usage--du-args "-sb"
-  "Non-GNU users need GNU's `du' for the `-b' flag.  See `disk-usage--du-command'."
+(defvaralias 'disk-usage--du-command 'disk-usage-du-command)
+
+(defcustom disk-usage-du-args "-sb"
+  "Non-GNU users need GNU's `du' for the `-b' flag.  See `disk-usage-du-command'."
   :type 'string)
-(defcustom disk-usage--find-command "find"
+(defvaralias 'disk-usage--du-args 'disk-usage-du-args)
+
+(defcustom disk-usage-find-command "find"
   "The `find' executable.  This is required for recursive listings."
   :type 'string)
+(defvaralias 'disk-usage--find-command 'disk-usage-find-command)
 
-(defcustom disk-usage--directory-size-function
-  (if (executable-find disk-usage--du-command)
-      #'disk-usage--directory-size-with-du
-    #'disk-usage--directory-size-with-emacs)
+(defcustom disk-usage-directory-size-function
+  (if (executable-find disk-usage-du-command)
+      #'disk-usage-directory-size-with-du
+    #'disk-usage-directory-size-with-emacs)
   "Function that returns the total disk usage of the directory passed as argument."
-  :type '(choice (function :tag "Native (slow)" disk-usage--directory-size-with-emacs)
-                 (function :tag "System \"du\"" disk-usage--directory-size-with-du)))
+  :type '(choice (function :tag "Native (slow)" disk-usage-directory-size-with-emacs)
+                 (function :tag "System \"du\"" disk-usage-directory-size-with-du)))
+(defvaralias 'disk-usage--directory-size-function 'disk-usage-directory-size-function)
 
 (defface disk-usage-inaccessible
   '((t :inherit error
@@ -291,12 +297,12 @@ See `disk-usage-add-filters' and `disk-usage-remove-filters'.")
 $ find . -type f -exec du -sb {} +"
   (setq directory (or directory default-directory))
   (let ((pair-strings (split-string (with-temp-buffer
-                           (process-file disk-usage--find-command nil '(t nil) nil
+                           (process-file disk-usage-find-command nil '(t nil) nil
                                          directory
                                          "-type" "f"
                                          "-exec"
-                                         disk-usage--du-command
-                                         disk-usage--du-args "{}" "+")
+                                         disk-usage-du-command
+                                         disk-usage-du-args "{}" "+")
                            (buffer-string))
                                     "\n" 'omit-nulls)))
     (cl-loop for pair-string in pair-strings
@@ -333,26 +339,28 @@ It takes the directory to scan as argument."
                 (gethash path disk-usage--cache))))
     (unless size
       (message "Computing disk usage for %S..." path)
-      (setq size (funcall disk-usage--directory-size-function path))
+      (setq size (funcall disk-usage-directory-size-function path))
       (puthash path size disk-usage--cache))
     size))
 
-(defun disk-usage--directory-size-with-emacs (path)
+(defun disk-usage-directory-size-with-emacs (path)
   "Return the total disk usage of directory PATH as a number.
 This is slow but does not require any external process."
   (disk-usage--total (disk-usage--list path)))
+(defalias 'disk-usage--directory-size-with-emacs 'disk-usage-directory-size-with-emacs)
 
-(defun disk-usage--directory-size-with-du (path)
-  "See `disk-usage--directory-size-function'."
+(defun disk-usage-directory-size-with-du (path)
+  "See `disk-usage-directory-size-function'."
   (string-to-number
    (cl-first
     (split-string
      (with-temp-buffer
        (with-output-to-string
-         (process-file disk-usage--du-command
+         (process-file disk-usage-du-command
                        nil '(t nil) nil
-                       disk-usage--du-args path))
+                       disk-usage-du-args path))
        (buffer-string))))))
+(defalias 'disk-usage--directory-size-with-du 'disk-usage-directory-size-with-du)
 
 (defun disk-usage--sort-by-size (a b)
   (< (disk-usage--file-info-size (car a))
