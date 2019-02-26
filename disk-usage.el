@@ -296,18 +296,21 @@ See `disk-usage-add-filters' and `disk-usage-remove-filters'.")
   "This is the equivalent of running the shell command
 $ find . -type f -exec du -sb {} +"
   (setq directory (or directory default-directory))
-  (let ((pair-strings (split-string (with-temp-buffer
-                           (process-file disk-usage-find-command nil '(t nil) nil
-                                         directory
-                                         "-type" "f"
-                                         "-exec"
-                                         disk-usage-du-command
-                                         disk-usage-du-args "{}" "+")
-                           (buffer-string))
-                                    "\n" 'omit-nulls)))
+  (let* ((default-directory directory)
+         ;; Note: Cannot use `process-lines' if we want to work on remote hosts.
+         (pair-strings (split-string
+                        (with-temp-buffer
+                          (process-file disk-usage-find-command nil '(t nil) nil
+                                        (file-local-name directory)
+                                        "-type" "f"
+                                        "-exec"
+                                        disk-usage-du-command
+                                        disk-usage-du-args "{}" "+")
+                          (buffer-string))
+                        "\n" 'omit-nulls)))
     (cl-loop for pair-string in pair-strings
              for pair = (split-string pair-string "\t")
-             for name = (cadr pair)
+             for name = (concat (file-remote-p directory) (cadr pair))
              for attributes = (file-attributes name)
              when (cl-loop for filter in disk-usage-filters
                            always (funcall filter name attributes))
@@ -358,7 +361,7 @@ This is slow but does not require any external process."
        (with-output-to-string
          (process-file disk-usage-du-command
                        nil '(t nil) nil
-                       disk-usage-du-args path))
+                       disk-usage-du-args (file-local-name path)))
        (buffer-string))))))
 (defalias 'disk-usage--directory-size-with-du 'disk-usage-directory-size-with-du)
 
