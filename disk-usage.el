@@ -298,25 +298,24 @@ $ find . -type f -exec du -sb {} +"
   (setq directory (or directory default-directory))
   (let* ((default-directory directory)
          ;; Note: Cannot use `process-lines' if we want to work on remote hosts.
-         (pair-strings (split-string
+         (subdirs (split-string
                         (with-temp-buffer
                           (process-file disk-usage-find-command nil '(t nil) nil
                                         (file-local-name directory)
-                                        "-type" "f"
-                                        "-exec"
-                                        disk-usage-du-command
-                                        disk-usage-du-args "{}" "+")
+                                        "-type" "d")
                           (buffer-string))
                         "\n" 'omit-nulls)))
-    (cl-loop for pair-string in pair-strings
-             for pair = (split-string pair-string "\t")
-             for name = (concat (file-remote-p directory) (cadr pair))
-             for attributes = (file-attributes name)
-             when (cl-loop for filter in disk-usage-filters
-                           always (funcall filter name attributes))
-             collect (disk-usage--file-info-make
-                      :name name
-                      :size (string-to-number (cl-first pair))))))
+    (cl-loop for dir in subdirs
+             append (cl-loop for file in (directory-files-and-attributes dir 'full nil 'nosort)
+                             for name = (concat (file-remote-p directory) (car file))
+                             for attributes = (cdr file)
+                             when (and attributes
+                                       (not (file-attribute-type attributes))
+                                       (cl-loop for filter in disk-usage-filters
+                                                always (funcall filter name attributes)))
+                             collect (disk-usage--file-info-make
+                                      :name name
+                                      :size (file-attribute-size attributes))))))
 
 (defcustom disk-usage-list-function #'disk-usage--list
   "Function that returns a list of `disk-usage--file-info'.
