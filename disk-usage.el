@@ -341,6 +341,8 @@ It takes the directory to scan as argument."
   (let ((size (unless current-prefix-arg
                 (gethash path disk-usage--cache))))
     (unless size
+      ;; TODO: Add progress "bar"?  But can we get progress for "du"?
+      ;; Maybe just print progress when using `disk-usage-directory-size-with-emacs'.
       (message "Computing disk usage for %S..." path)
       (setq size (funcall disk-usage-directory-size-function path))
       (puthash path size disk-usage--cache))
@@ -533,7 +535,7 @@ Also see `disk-usage-by-types-mode'."
   "Display listing of files in DIRECTORY with their size.
 If DIRECTORY is nil, use current directory."
   (interactive "D")
-  (unless (file-accessible-directory-p directory)
+  (unless (and (stringp directory) (file-accessible-directory-p directory))
     (error "Directory cannot be opened: %S" directory))
   (unless disk-usage--cache
     (setq disk-usage--cache (make-hash-table :test #'equal)))
