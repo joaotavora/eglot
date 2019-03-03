@@ -45,6 +45,9 @@ With ~disk-usage-add-filters~ you can filter out files with arbitrary
 predicates, e.g. files bigger than some size or older than a certain number of
 days.
 
+~disk-usage~ also works with TRAMP, i.e. in folders with restricted-acess like
+=/sudo::/root= or on remote machines.
+
 You can customize options in the =disk-usage= group.
 
 * Screenshots
