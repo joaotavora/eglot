@@ -560,13 +560,18 @@ If DIRECTORY is nil, use current directory."
   (interactive)
   (disk-usage default-directory))
 
-(defun disk-usage-up (&optional discard-previous-buffer)
+(defun disk-usage-up (&optional toggle-discard-previous-buffer)
   "Run `disk-usage' in the parent directory.
-With DISCARD-PREVIOUS-BUFFER or prefix argument, current buffer
-is deleted before switching."
+If `disk-usage-discard-previous-buffer' is non-nil,
+the current buffer is discarded before switched.
+With TOGGLE-DISCARD-PREVIOUS-BUFFER or prefix argument, this behaviour is
+reversed."
   (interactive "p")
   (let ((directory default-directory))
-    (when (and (or discard-previous-buffer disk-usage-discard-previous-buffer)
+    (when (and (or (and (not toggle-discard-previous-buffer)
+                        disk-usage-discard-previous-buffer)
+                   (and toggle-discard-previous-buffer
+                        (not disk-usage-discard-previous-buffer)))
                (eq major-mode 'disk-usage-mode))
       (kill-this-buffer))
     (disk-usage (expand-file-name ".." directory))))
