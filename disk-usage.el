@@ -326,6 +326,7 @@ $ find . -type f -exec du -sb {} +"
 It takes the directory to scan as argument."
   :type '(choice (function :tag "Hierarchical" disk-usage--list)
                  (function :tag "Flat (recursive)" disk-usage--list-recursively)))
+(make-variable-buffer-local 'disk-usage-list-function)
 
 (defun disk-usage-toggle-recursive ()
   "Toggle between hierarchical and flat view."
