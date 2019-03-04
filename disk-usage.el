@@ -5,7 +5,7 @@
 ;; Author: Pierre Neidhardt <mail@ambrevar.xyz>
 ;; Maintainer: Pierre Neidhardt <mail@ambrevar.xyz>
 ;; URL: https://gitlab.com/Ambrevar/emacs-disk-usage
-;; Version: 1.2.0
+;; Version: 1.3.0
 ;; Package-Requires: ((emacs "26.1"))
 ;; Keywords: files, convenience, tools
 
