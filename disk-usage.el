@@ -538,7 +538,7 @@ Also see `disk-usage-by-types-mode'."
 (defun disk-usage (&optional directory)
   "Display listing of files in DIRECTORY with their size.
 If DIRECTORY is nil, use current directory."
-  (interactive "D")
+  (interactive "DDirectory name: ")
   (unless (and (stringp directory) (file-accessible-directory-p directory))
     (error "Directory cannot be opened: %S" directory))
   (unless disk-usage--cache
@@ -764,7 +764,7 @@ Also see `disk-usage-mode'."
 
 ;;;###autoload
 (defun disk-usage-by-types (&optional directory)
-  (interactive "D")
+  (interactive "DDirectory name: ")
   (setq directory (file-truename (or (and (file-directory-p directory)
                                           directory)
                                      default-directory)))
