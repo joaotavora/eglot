@@ -177,6 +177,11 @@ let the buffer grow forever."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Number of characters")))
 
+(defcustom eglot-eclipse-jdt-extra-vmargs nil
+  "Extra arguments to the java vm."
+  :type 'list)
+
+
 
 ;;; Constants
 ;;;
@@ -2502,14 +2507,15 @@ If INTERACTIVE, prompt user for details."
         (setenv "CLASSPATH" (concat (getenv "CLASSPATH") ":" jar)))
       (unless (file-directory-p workspace)
         (make-directory workspace t))
-      (cons 'eglot-eclipse-jdt
-            (list (executable-find "java")
-                  "-Declipse.application=org.eclipse.jdt.ls.core.id1"
-                  "-Dosgi.bundles.defaultStartLevel=4"
-                  "-Declipse.product=org.eclipse.jdt.ls.core.product"
-                  "-jar" jar
-                  "-configuration" config
-                  "-data" workspace)))))
+      (let ((args `(,(executable-find "java")
+                    "-Declipse.application=org.eclipse.jdt.ls.core.id1"
+                    "-Dosgi.bundles.defaultStartLevel=4"
+                    "-Declipse.product=org.eclipse.jdt.ls.core.product"
+                    ,@eglot-eclipse-jdt-extra-vmargs
+                    "-jar" ,jar
+                    "-configuration" ,config
+                    "-data" ,workspace)))
+        (cons 'eglot-eclipse-jdt args)))))
 
 (cl-defmethod eglot-execute-command
   ((_server eglot-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
