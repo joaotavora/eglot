@@ -1537,19 +1537,28 @@ THINGS are either registrations or unregisterations (sic)."
   ;; the after-change thingy doesn't know if newlines were
   ;; deleted/added)
   (when (listp eglot--recent-changes)
-    (push `(,(eglot--pos-to-lsp-position start)
-            ,(eglot--pos-to-lsp-position end))
+    (push (list `(:range
+                  (:start ,(eglot--pos-to-lsp-position start)
+                          :end ,(eglot--pos-to-lsp-position end))
+                  :rangeLength ,(- end start)
+                  :text ,(buffer-substring start end))
+                (move-marker (make-marker) start)
+                (move-marker (make-marker) end))
           eglot--recent-changes)))
 
 (defun eglot--after-change (start end pre-change-length)
   "Hook onto `after-change-functions'.
 Records START, END and PRE-CHANGE-LENGTH locally."
   (cl-incf eglot--versioned-identifier)
-  (if (and (listp eglot--recent-changes)
-           (null (cddr (car eglot--recent-changes))))
-      (setf (cddr (car eglot--recent-changes))
-            `(,pre-change-length ,(buffer-substring-no-properties start end)))
-    (setf eglot--recent-changes :emacs-messup))
+  (cond
+   ((listp eglot--recent-changes)
+    (pcase-let ((`(,start ,end)
+                 (if (zerop pre-change-length)
+                     (list start end)
+                   (cdar eglot--recent-changes))))
+      (plist-put (caar eglot--recent-changes)
+                 :text (buffer-substring-no-properties start end))))
+   (t (setf eglot--recent-changes :emacs-messup)))
   (when eglot--change-idle-timer (cancel-timer eglot--change-idle-timer))
   (let ((buf (current-buffer)))
     (setq eglot--change-idle-timer
@@ -1608,9 +1617,8 @@ When called interactively, use the currently active server"
             (vector `(:text ,(eglot--widening
                               (buffer-substring-no-properties (point-min)
                                                               (point-max)))))
-          (cl-loop for (beg end len text) in (reverse eglot--recent-changes)
-                   vconcat `[,(list :range `(:start ,beg :end ,end)
-                                    :rangeLength len :text text)]))))
+          (cl-loop for (change _ _) in (reverse eglot--recent-changes)
+                   vconcat `[,change]))))
       (setq eglot--recent-changes nil)
       (setf (eglot--spinner server) (list nil :textDocument/didChange t))
       (jsonrpc--call-deferred server))))
