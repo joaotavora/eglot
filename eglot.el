@@ -1533,13 +1533,6 @@ THINGS are either registrations or unregisterations (sic)."
 (defun eglot--before-change (start end)
   "Hook onto `before-change-functions' with START and END."
   (when (listp eglot--recent-changes)
-    ;; github#259: `capitalize-word' and commands based on
-    ;; `casify_region' will cause multiple duplicate empty entries in
-    ;; `eglot--before-change' calls without an `eglot--after-change'
-    ;; reciprocal.  Weed those out.
-    (while (and eglot--recent-changes
-                (null (cddr (car eglot--recent-changes))))
-      (pop eglot--recent-changes))
     ;; Records START and END, crucially convert them into LSP
     ;; (line/char) positions before that information is lost (because
     ;; the after-change thingy doesn't know if newlines were
@@ -1548,7 +1541,7 @@ THINGS are either registrations or unregisterations (sic)."
             ,(eglot--pos-to-lsp-position end))
           eglot--recent-changes)))
 
-(defun eglot--after-change (start after-end pre-change-length)
+(defun eglot--after-change (start end pre-change-length)
   "Hook onto `after-change-functions'.
 Records START, END and PRE-CHANGE-LENGTH locally."
   (cl-incf eglot--versioned-identifier)
@@ -1561,12 +1554,13 @@ Records START, END and PRE-CHANGE-LENGTH locally."
       ;; needed but also inconsistent with what we get here, so we
       ;; must fix that.
       (when (and (eq (plist-get lsp-beg :line) (plist-get lsp-end :line))
-                 (not (eq start after-end))
+                 (not (eq start end))
                  (not (zerop pre-change-length)))
-        (setq lsp-end (eglot--pos-to-lsp-position after-end)))
+        (setq lsp-end (eglot--pos-to-lsp-position end)
+              lsp-beg (eglot--pos-to-lsp-position start)))
       (setcar eglot--recent-changes
               `(,lsp-beg ,lsp-end ,pre-change-length
-                         ,(buffer-substring-no-properties start after-end))))
+                         ,(buffer-substring-no-properties start end))))
     (setf eglot--recent-changes :emacs-messup))
   (when eglot--change-idle-timer (cancel-timer eglot--change-idle-timer))
   (let ((buf (current-buffer)))
@@ -1627,6 +1621,12 @@ When called interactively, use the currently active server"
                               (buffer-substring-no-properties (point-min)
                                                               (point-max)))))
           (cl-loop for (beg end len text) in (reverse eglot--recent-changes)
+                   ;; github#259: `capitalize-word' and commands based
+                   ;; on `casify_region' will cause multiple duplicate
+                   ;; empty entries in `eglot--before-change' calls
+                   ;; without an `eglot--after-change' reciprocal.
+                   ;; Weed them out here.
+                   when len
                    vconcat `[,(list :range `(:start ,beg :end ,end)
                                     :rangeLength len :text text)]))))
       (setq eglot--recent-changes nil)
