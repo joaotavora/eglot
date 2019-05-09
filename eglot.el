@@ -1541,14 +1541,24 @@ THINGS are either registrations or unregisterations (sic)."
             ,(eglot--pos-to-lsp-position end))
           eglot--recent-changes)))
 
-(defun eglot--after-change (start end pre-change-length)
+(defun eglot--after-change (start after-end pre-change-length)
   "Hook onto `after-change-functions'.
 Records START, END and PRE-CHANGE-LENGTH locally."
   (cl-incf eglot--versioned-identifier)
   (if (and (listp eglot--recent-changes)
            (null (cddr (car eglot--recent-changes))))
-      (setf (cddr (car eglot--recent-changes))
-            `(,pre-change-length ,(buffer-substring-no-properties start end)))
+    (pcase-let ((`(,lsp-beg ,lsp-end) (car eglot--recent-changes)))
+      ;; github#259: When editing stuff using `capitalize-word' or
+      ;; somesuch, the `before-change-functions' record the whole
+      ;; word's `start' and `end'.  Not only is this longer than
+      ;; needed but also inconsistent with what we get here, so we
+      ;; must fix that.
+      (when (and (eq (plist-get lsp-beg :line) (plist-get lsp-end :line))
+                 (not (zerop pre-change-length)))
+        (setq lsp-end (eglot--pos-to-lsp-position after-end)))
+      (setcar eglot--recent-changes
+              `(,lsp-beg ,lsp-end ,pre-change-length
+                         ,(buffer-substring-no-properties start after-end))))
     (setf eglot--recent-changes :emacs-messup))
   (when eglot--change-idle-timer (cancel-timer eglot--change-idle-timer))
   (let ((buf (current-buffer)))
