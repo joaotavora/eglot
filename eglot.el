@@ -1554,6 +1554,7 @@ Records START, END and PRE-CHANGE-LENGTH locally."
       ;; needed but also inconsistent with what we get here, so we
       ;; must fix that.
       (when (and (eq (plist-get lsp-beg :line) (plist-get lsp-end :line))
+                 (not (eq start after-end))
                  (not (zerop pre-change-length)))
         (setq lsp-end (eglot--pos-to-lsp-position after-end)))
       (setcar eglot--recent-changes
