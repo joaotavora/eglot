@@ -1532,11 +1532,18 @@ THINGS are either registrations or unregisterations (sic)."
 
 (defun eglot--before-change (start end)
   "Hook onto `before-change-functions' with START and END."
-  ;; Records START and END, crucially convert them into LSP
-  ;; (line/char) positions before that information is lost (because
-  ;; the after-change thingy doesn't know if newlines were
-  ;; deleted/added)
   (when (listp eglot--recent-changes)
+    ;; github#259: `capitalize-word' and commands based on
+    ;; `casify_region' will cause multiple duplicate empty entries in
+    ;; `eglot--before-change' calls without an `eglot--after-change'
+    ;; reciprocal.  Weed those out.
+    (while (and eglot--recent-changes
+                (null (cddr (car eglot--recent-changes))))
+      (pop eglot--recent-changes))
+    ;; Records START and END, crucially convert them into LSP
+    ;; (line/char) positions before that information is lost (because
+    ;; the after-change thingy doesn't know if newlines were
+    ;; deleted/added)
     (push `(,(eglot--pos-to-lsp-position start)
             ,(eglot--pos-to-lsp-position end))
           eglot--recent-changes)))
