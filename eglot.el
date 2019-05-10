@@ -1537,11 +1537,9 @@ THINGS are either registrations or unregisterations (sic)."
   ;; the after-change thingy doesn't know if newlines were
   ;; deleted/added)
   (when (listp eglot--recent-changes)
-    (push (list `(:range
-                  (:start ,(eglot--pos-to-lsp-position start)
+    (push (list `(:range (:start ,(eglot--pos-to-lsp-position start)
                           :end ,(eglot--pos-to-lsp-position end))
-                  :rangeLength ,(- end start)
-                  :text ,(buffer-substring start end))
+                  :rangeLength ,(- end start))
                 (move-marker (make-marker) start)
                 (move-marker (make-marker) end))
           eglot--recent-changes)))
@@ -1550,15 +1548,14 @@ THINGS are either registrations or unregisterations (sic)."
   "Hook onto `after-change-functions'.
 Records START, END and PRE-CHANGE-LENGTH locally."
   (cl-incf eglot--versioned-identifier)
-  (cond
-   ((listp eglot--recent-changes)
-    (pcase-let ((`(,start ,end)
-                 (if (zerop pre-change-length)
-                     (list start end)
-                   (cdar eglot--recent-changes))))
-      (plist-put (caar eglot--recent-changes)
-                 :text (buffer-substring-no-properties start end))))
-   (t (setf eglot--recent-changes :emacs-messup)))
+  (pcase (and (listp eglot--recent-changes)
+              (if (zerop pre-change-length)
+                  (list start end)
+                (cdar eglot--recent-changes)))
+    (`(,start ,end)
+     (plist-put (caar eglot--recent-changes)
+                :text (buffer-substring-no-properties start end)))
+    (_ (setf eglot--recent-changes :emacs-messup)))
   (when eglot--change-idle-timer (cancel-timer eglot--change-idle-timer))
   (let ((buf (current-buffer)))
     (setq eglot--change-idle-timer
@@ -1618,6 +1615,8 @@ When called interactively, use the currently active server"
                               (buffer-substring-no-properties (point-min)
                                                               (point-max)))))
           (cl-loop for (change _ _) in (reverse eglot--recent-changes)
+                   ;; github#259: Weed out some incomplete entries.
+                   when (plist-get change :text)
                    vconcat `[,change]))))
       (setq eglot--recent-changes nil)
       (setf (eglot--spinner server) (list nil :textDocument/didChange t))
