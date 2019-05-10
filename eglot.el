@@ -1530,38 +1530,42 @@ THINGS are either registrations or unregisterations (sic)."
 
 (defvar-local eglot--change-idle-timer nil "Idle timer for didChange signals.")
 
-(defun eglot--before-change (start end)
-  "Hook onto `before-change-functions' with START and END."
+(defun eglot--before-change (beg end)
+  "Hook onto `before-change-functions' with BEG and END."
   (when (listp eglot--recent-changes)
-    ;; Records START and END, crucially convert them into LSP
+    ;; Records BEG and END, crucially convert them into LSP
     ;; (line/char) positions before that information is lost (because
     ;; the after-change thingy doesn't know if newlines were
-    ;; deleted/added)
-    (push `(,(eglot--pos-to-lsp-position start)
-            ,(eglot--pos-to-lsp-position end))
+    ;; deleted/added).  Also record markers of BEG and END
+    ;; (github#259)
+    (push `(,(eglot--pos-to-lsp-position beg)
+            ,(eglot--pos-to-lsp-position end)
+            (,beg . ,(move-marker (make-marker) beg))
+            (,end   . ,(move-marker (make-marker) end)))
           eglot--recent-changes)))
 
-(defun eglot--after-change (start end pre-change-length)
+(defun eglot--after-change (beg end pre-change-length)
   "Hook onto `after-change-functions'.
-Records START, END and PRE-CHANGE-LENGTH locally."
+Records BEG, END and PRE-CHANGE-LENGTH locally."
   (cl-incf eglot--versioned-identifier)
-  (if (and (listp eglot--recent-changes)
-           (null (cddr (car eglot--recent-changes))))
-    (pcase-let ((`(,lsp-beg ,lsp-end) (car eglot--recent-changes)))
-      ;; github#259: When editing stuff using `capitalize-word' or
-      ;; somesuch, the `before-change-functions' record the whole
-      ;; word's `start' and `end'.  Not only is this longer than
-      ;; needed but also inconsistent with what we get here, so we
-      ;; must fix that.
-      (when (and (eq (plist-get lsp-beg :line) (plist-get lsp-end :line))
-                 (not (eq start end))
-                 (not (zerop pre-change-length)))
-        (setq lsp-end (eglot--pos-to-lsp-position end)
-              lsp-beg (eglot--pos-to-lsp-position start)))
-      (setcar eglot--recent-changes
-              `(,lsp-beg ,lsp-end ,pre-change-length
-                         ,(buffer-substring-no-properties start end))))
-    (setf eglot--recent-changes :emacs-messup))
+  (pcase (and (listp eglot--recent-changes)
+              (car eglot--recent-changes))
+    (`(,lsp-beg ,lsp-end
+                (,b-beg . ,b-beg-marker)
+                (,b-end . ,b-end-marker))
+     ;; github#259: With `upcase-word' or somesuch,
+     ;; `before-change-functions' always records the whole word's
+     ;; `beg' and `end'.  Not only is this longer than needed but
+     ;; conflicts with the args received here.  Detect this using
+     ;; markers recorded earlier and `pre-change-len', then fix it.
+     (when (and (= b-end b-end-marker) (= b-beg b-beg-marker)
+                (not (zerop pre-change-length)))
+       (setq lsp-end (eglot--pos-to-lsp-position end)
+             lsp-beg (eglot--pos-to-lsp-position beg)))
+     (setcar eglot--recent-changes
+             `(,lsp-beg ,lsp-end ,pre-change-length
+                        ,(buffer-substring-no-properties beg end))))
+    (_ (setf eglot--recent-changes :emacs-messup)))
   (when eglot--change-idle-timer (cancel-timer eglot--change-idle-timer))
   (let ((buf (current-buffer)))
     (setq eglot--change-idle-timer
@@ -1626,7 +1630,7 @@ When called interactively, use the currently active server"
                    ;; empty entries in `eglot--before-change' calls
                    ;; without an `eglot--after-change' reciprocal.
                    ;; Weed them out here.
-                   when len
+                   when (numberp len)
                    vconcat `[,(list :range `(:start ,beg :end ,end)
                                     :rangeLength len :text text)]))))
       (setq eglot--recent-changes nil)
