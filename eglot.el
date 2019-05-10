@@ -1540,8 +1540,8 @@ THINGS are either registrations or unregisterations (sic)."
     (push (list `(:range (:start ,(eglot--pos-to-lsp-position start)
                           :end ,(eglot--pos-to-lsp-position end))
                   :rangeLength ,(- end start))
-                (move-marker (make-marker) start)
-                (move-marker (make-marker) end))
+                (copy-marker start)
+                (copy-marker end t))
           eglot--recent-changes)))
 
 (defun eglot--after-change (start end pre-change-length)
