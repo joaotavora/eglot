@@ -177,6 +177,14 @@ let the buffer grow forever."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Number of characters")))
 
+(defcustom eglot-suppress-modeline-doing nil
+  "Suppress messages about what the server is doing."
+  :type 'boolean)
+
+(defcustom eglot-suppress-modeline-pending nil
+  "Suppress messages about server pending work."
+  :type 'boolean)
+
 
 ;;; Constants
 ;;;
@@ -1308,12 +1316,12 @@ Uses THING, FACE, DEFS and PREPEND."
                      '((mouse-3 eglot-clear-status  "clear this status"))
                      (format "An error occured: %s\n" (plist-get last-error
                                                                  :message)))))
-         ,@(when (and doing (not done-p))
+         ,@(when (and doing (not done-p) (not eglot-suppress-modeline-doing))
              `("/" ,(eglot--mode-line-props
                      (format "%s%s" doing
                              (if detail (format ":%s" detail) ""))
                      'compilation-mode-line-run '())))
-         ,@(when (cl-plusp pending)
+         ,@(when (and (cl-plusp pending) (not eglot-suppress-modeline-pending))
              `("/" ,(eglot--mode-line-props
                      (format "%d outstanding requests" pending) 'warning
                      '((mouse-3 eglot-forget-pending-continuations
