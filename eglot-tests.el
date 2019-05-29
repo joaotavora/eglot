@@ -433,19 +433,23 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (should (looking-back "sys.exit")))))
 
 (ert-deftest hover-after-completions ()
-  "Test basic autocompletion in a python LSP"
+  "Test documentation echo in a python LSP"
   (skip-unless (executable-find "pyls"))
-  (eglot--with-fixture
-      '(("project" . (("something.py" . "import sys\nsys.exi"))))
-    (with-current-buffer
-        (eglot--find-file-noselect "project/something.py")
-      (should (eglot--tests-connect))
-      (goto-char (point-max))
-      (setq eldoc-last-message nil)
-      (completion-at-point)
-      (should (looking-back "sys.exit"))
-      (while (not eldoc-last-message) (accept-process-output nil 0.1))
-      (should (string-match "^exit" eldoc-last-message)))))
+  ;; JT@19/06/21: We check with `eldoc-last-message' because it's
+  ;; practical, which forces us to use
+  ;; `eglot-put-doc-in-help-buffer' to nil.
+  (let ((eglot-put-doc-in-help-buffer nil))
+    (eglot--with-fixture
+     '(("project" . (("something.py" . "import sys\nsys.exi"))))
+     (with-current-buffer
+         (eglot--find-file-noselect "project/something.py")
+       (should (eglot--tests-connect))
+       (goto-char (point-max))
+       (setq eldoc-last-message nil)
+       (completion-at-point)
+       (should (looking-back "sys.exit"))
+       (while (not eldoc-last-message) (accept-process-output nil 0.1))
+       (should (string-match "^exit" eldoc-last-message))))))
 
 (ert-deftest python-autopep-formatting ()
   "Test formatting in the pyls python LSP.
