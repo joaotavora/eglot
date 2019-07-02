@@ -2042,8 +2042,10 @@ is not active."
                (when documentation
                  (goto-char (point-max))
                  (insert "\n"
-                         (propertize
-                          label 'face 'eldoc-highlight-function-argument)
+                         (if (stringp label)
+                             (propertize
+                              label 'face 'eldoc-highlight-function-argument)
+                           (apply #'buffer-substring (mapcar #'1+ label)))
                          ": " (eglot--format-markup documentation))))))
          (buffer-string))))
    when moresigs concat "\n"))
