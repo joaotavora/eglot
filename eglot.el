@@ -1055,7 +1055,10 @@ Doubles as an indicator of snippet support."
                (if (stringp markup) (list (string-trim markup)
                                           (intern "gfm-view-mode"))
                  (list (plist-get markup :value)
-                       major-mode))))
+                       (intern
+                        (if (equal (plist-get markup :kind) "markdown")
+                            "gfm-view-mode"
+                          "text-mode"))))))
     (with-temp-buffer
       (insert string)
       (ignore-errors (funcall mode)) (font-lock-ensure) (buffer-string))))
