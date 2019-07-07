@@ -1331,7 +1331,9 @@ Uses THING, FACE, DEFS and PREPEND."
 (put 'eglot-warning 'flymake-category 'flymake-warning)
 (put 'eglot-error 'flymake-category 'flymake-error)
 
-(defalias 'eglot--make-diag 'flymake-make-diagnostic)
+(defun eglot--make-diag (buffer beg end type text &optional desc file1)
+  (flymake-make-diagnostic buffer beg end type text))
+
 (defalias 'eglot--diag-data 'flymake-diagnostic-data)
 
 (cl-loop for i from 1
