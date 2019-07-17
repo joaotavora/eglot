@@ -92,7 +92,7 @@ this way:
 ```lisp
 (add-to-list 'eglot-server-programs
              `(python-mode . ("pyls" "-v" "--tcp" "--host"
-                              "localhost" "--port" :autoport))))
+                              "localhost" "--port" :autoport)))
 ```
 
 You can see that the element associated with `python-mode` is now a
