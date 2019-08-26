@@ -1172,7 +1172,7 @@ and just return it.  PROMPT shouldn't end with a question mark."
     (add-hook 'post-self-insert-hook 'eglot--post-self-insert-hook nil t)
     (add-hook 'pre-command-hook 'eglot--pre-command-hook nil t)
     (eglot--setq-saving eldoc-documentation-function #'eglot-eldoc-function)
-    (eglot--setq-saving flymake-diagnostic-functions '(eglot-flymake-backend t))
+    (add-hook 'flymake-diagnostic-functions #'eglot-flymake-backend nil t)
     (add-function :around (local 'imenu-create-index-function) #'eglot-imenu)
     (flymake-mode 1)
     (eldoc-mode 1))
