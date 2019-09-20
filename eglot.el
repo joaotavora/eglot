@@ -2359,26 +2359,45 @@ echo area cleared of any previous documentation."
          :deferred :textDocument/documentHighlight))))
   eldoc-last-message)
 
+(defun eglot--parse-DocumentSymbol (containerName name kind _range selectionRange _detail _deprecated children)
+  ""
+  (let ((cName (and (stringp containerName)
+                    (not (string-empty-p containerName))
+                    containerName)))
+    (cons (propertize
+           name
+           :kind (alist-get kind eglot--symbol-kind-names "Unknown")
+           :containerName cName
+           :children (and children
+                          (mapcar
+                           (eglot--lambda ((DocumentSymbol) name kind range selectionRange detail deprecated children)
+                             (eglot--parse-DocumentSymbol
+                              (if cName (format "%s.%s" cName name) name)
+                              name kind range selectionRange detail deprecated children))
+                           children)))
+          (eglot--lsp-position-to-point
+           (plist-get selectionRange :start)))))
+
 (defun eglot-imenu ()
-  "EGLOT's `imenu-create-index-function'."
+  "EGLOT's `imenu-create-index-function'"
   (let ((entries
-         (and
-          (eglot--server-capable :documentSymbolProvider)
-          (mapcar
-           (eglot--lambda
-               ((SymbolInformation) name kind location containerName)
-             (cons (propertize
-                    name
-                    :kind (alist-get kind eglot--symbol-kind-names
-                                     "Unknown")
-                    :containerName (and (stringp containerName)
-                                        (not (string-empty-p containerName))
-                                        containerName))
-                   (eglot--lsp-position-to-point
-                    (plist-get (plist-get location :range) :start))))
-           (jsonrpc-request (eglot--current-server-or-lose)
-                            :textDocument/documentSymbol
-                            `(:textDocument ,(eglot--TextDocumentIdentifier)))))))
+         (mapcar
+          (lambda (obj)
+            (eglot--dcase obj
+              (((SymbolInformation) name kind location containerName)
+               (cons (propertize
+                      name
+                      :kind (alist-get kind eglot--symbol-kind-names "Unknown")
+                      :containerName (and (stringp containerName)
+                                          (not (string-empty-p containerName))
+                                          containerName))
+                     (eglot--lsp-position-to-point
+                      (plist-get (plist-get location :range) :start))))
+              (((DocumentSymbol) name kind range selectionRange detail deprecated children)
+               (eglot--parse-DocumentSymbol "" name kind range selectionRange detail deprecated children))))
+          (jsonrpc-request (eglot--current-server-or-lose)
+                           :textDocument/documentSymbol
+                           `(:textDocument ,(eglot--TextDocumentIdentifier))))))
     (mapcar
      (pcase-lambda (`(,kind . ,syms))
        (let ((syms-by-scope (seq-group-by
