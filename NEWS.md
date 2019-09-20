@@ -1,4 +1,10 @@
-# 1.6 (16/20/2020)
+# 1.7 (upcoming)
+
+##### Support hierarchical symbols in Imenu ([#303][github#303])
+
+Thanks to Ingo Lohmar for the original implementation.
+
+# 1.6 (16/04/2020)
 
 ##### Column offset calculation is now LSP-conform ([#361][github#361])
 
@@ -207,6 +213,7 @@ and now said bunch of references-->
 [github#270]: https://github.com/joaotavora/eglot/issues/270
 [github#279]: https://github.com/joaotavora/eglot/issues/279
 [github#302]: https://github.com/joaotavora/eglot/issues/302
+[github#303]: https://github.com/joaotavora/eglot/issues/303
 [github#304]: https://github.com/joaotavora/eglot/issues/304
 [github#311]: https://github.com/joaotavora/eglot/issues/311
 [github#313]: https://github.com/joaotavora/eglot/issues/313
