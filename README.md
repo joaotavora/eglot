@@ -36,7 +36,7 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * C/C++'s [ccls][ccls]  ([cquery][cquery] and [clangd][clangd] also work)
 * Haskell's [IDE engine][haskell-ide-engine]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
-* Golang's [go-langserver][go-langserver]
+* Go's [gopls][gopls]
 * Ocaml's [ocaml-language-server][ocaml-language-server]
 * R's [languageserver][r-languageserver]
 * Dart's [dart_language_server][dart_language_server]
@@ -348,7 +348,7 @@ Under the hood:
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
-[go-langserver]: https://github.com/sourcegraph/go-langserver
+[gopls]: https://github.com/golang/go/wiki/gopls
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
 [ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
 [r-languageserver]: https://cran.r-project.org/package=languageserver
