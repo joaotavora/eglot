@@ -170,6 +170,11 @@ as 0, i.e. don't block at all."
   :type '(choice (boolean :tag "Whether to inhibit autoreconnection")
                  (integer :tag "Number of seconds")))
 
+(defcustom eglot-autoshutdown nil
+  "If t, shut down a language server automatically after killing
+the last buffer it has managed."
+  :type 'boolean)
+
 (defcustom eglot-events-buffer-size 2000000
   "Control the size of the Eglot events buffer.
 If a number, don't let the buffer grow larger than that many
@@ -1223,7 +1228,11 @@ Reset in `eglot--managed-mode-onoff'.")
              (setq eglot--cached-current-server nil)
              (when server
                (setf (eglot--managed-buffers server)
-                     (delq buf (eglot--managed-buffers server)))))))))
+                     (delq buf (eglot--managed-buffers server)))
+               (when (and eglot-autoshutdown
+                          (not (eglot--shutdown-requested server))
+                          (not (eglot--managed-buffers server)))
+                 (eglot-shutdown server))))))))
 
 (defun eglot--current-server ()
   "Find the current logical EGLOT server."
