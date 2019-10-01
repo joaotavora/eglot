@@ -101,6 +101,44 @@ it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
+<a name="reporting bugs"></a>
+# Reporting bugs
+
+Having trouble connecting to a server?  Expected to have a certain
+capability supported by it (e.g. completion) but nothing happens?  Or
+do you get spurious and annoying errors in an otherwise smooth
+operation?  We may have help, so open a [new
+issue](https://github.com/joaotavora/eglot/issues) and try to be as
+precise and objective about the problem as you can:
+
+1. Try to replicate the problem with **as clean an Emacs run as
+   possible**.  This means an empty `.emacs` init file or close to it
+   (just loading `eglot.el`, `company.el` and `yasnippet.el` for
+   example, and you don't even need `use-package.el` to do that).
+    
+2. Include the log of **LSP events** and the **stderr output** of the
+   server (if any).  You can find the former with `M-x
+   eglot-events-buffer` and the latter with `M-x eglot-stderr-buffer`,
+   in the buffer where you enabled Eglot.  If you didn't manage to
+   enable Eglot (because of some bootstrapping problem), you can still
+   find these buffers in your buffer list. They're named like `*EGLOT
+   <project>/<major-mode> events*` and `*EGLOT <project>/<major-mode>
+   stderr*`.
+    
+3. If Emacs errored (you saw (and possibly heard) an error message),
+   make sure you repeat the process using `M-x toggle-debug-on-error`
+   so you **get a backtrace** of the error that you should also attach
+   to the bug report.
+   
+Some more notes: it's understandable that you report it to Eglot
+first, because that's the user-facing side of the LSP experience in
+Emacs, but the outcome may well be that you will have to report the
+problem to the server's developers, as is often the case.  But the
+problem can very well be on Eglot's side, of course, and in that case
+we want to fix it!  Also bear in mind that Eglot's developers have
+limited resources and no way to test all the possible server
+combinations, so you'll have to do most of the testing.
+
 <a name="commands"></a>
 # Commands and keybindings
 
