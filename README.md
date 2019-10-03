@@ -241,7 +241,7 @@ provide enhanced code analysis via `xref-find-definitions`,
 To "unmanage" these buffers, shutdown the server with `M-x
 eglot-shutdown`.
 
-# Supported Protocol features (3.6)
+# Supported Protocol features
 
 ## General
 - [x] initialize
@@ -288,8 +288,9 @@ eglot-shutdown`.
 - [x] textDocument/hover
 - [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
 - [x] textDocument/definition
-- [ ] textDocument/typeDefinition (3.6.0)
-- [ ] textDocument/implementation (3.6.0)
+- [x] textDocument/typeDefinition (3.6.0)
+- [x] textDocument/implementation (3.6.0)
+- [x] textDocument/declaration (3.14)
 - [x] textDocument/references
 - [x] textDocument/documentHighlight
 - [x] textDocument/documentSymbol
