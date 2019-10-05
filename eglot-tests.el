@@ -453,17 +453,19 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest python-autopep-formatting ()
   "Test formatting in the pyls python LSP.
-pyls prefers autopep over yafp"
+pyls prefers autopep over yafp, despite its README stating the contrary."
   ;; For some reason Travis will fail the part of the test where we
   ;; try to reformat just the second line, i.e. it will _not_ add
   ;; newlines before the region we asked to reformat.  I actually
   ;; think Travis' behaviour is more sensible, but I don't know how to
   ;; reproduce it locally.  Must be some Python version thing.
+  ;; Beware, this test is brittle if ~/.config/pycodestyle exists, or
+  ;; default autopep rules change, which has happened.
   (skip-unless (null (getenv "TRAVIS_TESTING")))
   (skip-unless (and (executable-find "pyls")
                     (executable-find "autopep8")))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
+      '(("project" . (("something.py" . "def a():pass\n\ndef b():pass"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (should (eglot--tests-connect))
