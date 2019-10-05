@@ -1869,6 +1869,21 @@ is not active."
        args)
       :deferred method))))
 
+(defun eglot--tailor-completions (items)
+  "Tailor completions ITEMS to the complation backend if necessary."
+  ;; :exit-function doesn't get called under special circumstances.
+  ;; Fix this by altering the completion candidate.
+  ;; (github#311, github#279)
+  (when (and (eq this-command #'completion-at-point)
+             (eq (length items) 1)
+             (plist-get (aref items 0) :label))
+    (let* ((item (aref items 0))
+           (label (with-temp-buffer
+                    (insert (plist-get item :label))
+                    (goto-char 1)
+                    (thing-at-point 'symbol t))))
+      (plist-put item :label label))))
+
 (defun eglot-completion-at-point ()
   "EGLOT's `completion-at-point' function."
   (let* ((bounds (bounds-of-thing-at-point 'symbol))
@@ -1897,6 +1912,7 @@ is not active."
                                              :deferred :textDocument/completion
                                              :cancel-on-input t))
                       (items (if (vectorp resp) resp (plist-get resp :items))))
+                 (eglot--tailor-completions items)
                  (setq
                   strings
                   (mapcar
