@@ -274,22 +274,22 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
-  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "pyls"))
   (let (server)
     (eglot--with-fixture
-        '(("project" . (("coiso.rs" . "bla")
-                        ("merdix.rs" . "bla")))
-          ("anotherproject" . (("cena.rs" . "bla"))))
+        '(("project" . (("coiso.py" . "bla")
+                        ("merdix.py" . "bla")))
+          ("anotherproject" . (("cena.py" . "bla"))))
       (with-current-buffer
-          (eglot--find-file-noselect "project/coiso.rs")
+          (eglot--find-file-noselect "project/coiso.py")
         (should (setq server (eglot--tests-connect)))
         (should (eglot--current-server)))
       (with-current-buffer
-          (eglot--find-file-noselect "project/merdix.rs")
+          (eglot--find-file-noselect "project/merdix.py")
         (should (eglot--current-server))
         (should (eq (eglot--current-server) server)))
       (with-current-buffer
-          (eglot--find-file-noselect "anotherproject/cena.rs")
+          (eglot--find-file-noselect "anotherproject/cena.py")
         (should-error (eglot--current-server-or-lose))))))
 
 (ert-deftest auto-shutdown ()
@@ -313,13 +313,13 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
-  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "pyls"))
   (let (server (eglot-autoreconnect 1))
     (eglot--with-fixture
-        '(("project" . (("coiso.rs" . "bla")
-                        ("merdix.rs" . "bla"))))
+        '(("project" . (("coiso.py" . "bla")
+                        ("merdix.py" . "bla"))))
       (with-current-buffer
-          (eglot--find-file-noselect "project/coiso.rs")
+          (eglot--find-file-noselect "project/coiso.py")
         (should (setq server (eglot--tests-connect)))
         ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
         ;; should have a automatic reconnection.
@@ -370,15 +370,14 @@ Pass TIMEOUT to `eglot--with-timeout'."
                    (and (string= (eglot--path-to-uri "Cargo.toml") uri)
                         (= type 3))))))))))
 
-(ert-deftest rls-basic-diagnostics ()
-  "Test basic diagnostics in RLS."
-  (skip-unless (executable-find "rls"))
-  (skip-unless (executable-find "cargo"))
+(ert-deftest basic-diagnostics ()
+  "Test basic diagnostics."
+  (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("diag-project" . (("main.rs" . "fn main() {\nprintfoo!(\"Hello, world!\");\n}"))))
+      '(("diag-project" .
+         (("main.py" . "def foo(): if True pass")))) ; colon missing after True
     (with-current-buffer
-        (eglot--find-file-noselect "diag-project/main.rs")
-      (should (zerop (shell-command "cargo init")))
+        (eglot--find-file-noselect "diag-project/main.py")
       (eglot--sniffing (:server-notifications s-notifs)
         (eglot--tests-connect)
         (eglot--wait-for (s-notifs 2)
@@ -423,21 +422,20 @@ Pass TIMEOUT to `eglot--with-timeout'."
               (&key id &allow-other-keys)
             (eq id pending-id)))))))
 
-(ert-deftest rls-rename ()
-  "Test renaming in RLS."
-  (skip-unless (executable-find "rls"))
-  (skip-unless (executable-find "cargo"))
+(ert-deftest rename-a-symbol ()
+  "Test basic symbol renaming"
+  (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       '(("rename-project"
-         . (("main.rs" .
-             "fn test() -> i32 { let test=3; return test; }"))))
+         . (("main.py" .
+             "def foo (bar) : 1 + bar\n\ndef bar() : pass"))))
     (with-current-buffer
-        (eglot--find-file-noselect "rename-project/main.rs")
-      (should (zerop (shell-command "cargo init")))
+        (eglot--find-file-noselect "rename-project/main.py")
       (eglot--tests-connect)
-      (goto-char (point-min)) (search-forward "return te")
+      (goto-char (point-min)) (search-forward "bar")
       (eglot-rename "bla")
-      (should (equal (buffer-string) "fn test() -> i32 { let bla=3; return bla; }")))))
+      (should (equal (buffer-string)
+                     "def foo (bla) : 1 + bla\n\ndef bar() : pass")))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
