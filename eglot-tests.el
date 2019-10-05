@@ -292,6 +292,25 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (eglot--find-file-noselect "anotherproject/cena.rs")
         (should-error (eglot--current-server-or-lose))))))
 
+(ert-deftest auto-shutdown ()
+  "Visit a file and M-x eglot, then kill buffer. "
+  (skip-unless (executable-find "pyls"))
+  (let (server
+        buffer)
+    (eglot--with-fixture
+        '(("project" . (("coiso.py" . "def coiso: pass"))))
+      (with-current-buffer
+          (setq buffer (eglot--find-file-noselect "project/coiso.py"))
+        (should (setq server (eglot--tests-connect)))
+        (should (eglot--current-server))
+        (let ((eglot-autoshutdown nil)) (kill-buffer buffer))
+        (should (jsonrpc-running-p server))
+        ;; re-find file...
+        (setq buffer (eglot--find-file-noselect (buffer-file-name buffer)))
+        ;; ;; but now kill it with `eglot-autoshutdown' set to t
+        (let ((eglot-autoshutdown t)) (kill-buffer buffer))
+        (should (not (jsonrpc-running-p server)))))))
+
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
   (skip-unless (executable-find "rls"))
