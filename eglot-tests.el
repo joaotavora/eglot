@@ -432,6 +432,20 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (completion-at-point)
       (should (looking-back "sys.exit")))))
 
+(ert-deftest snippet-completions ()
+  "Test simple snippet completion in a python LSP"
+  (skip-unless (and (executable-find "pyls")
+                    (functionp 'yas-minor-mode)))
+  (eglot--with-fixture
+      '(("project" . (("something.py" . "setatt"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (yas-minor-mode 1)
+      (should (eglot--tests-connect))
+      (goto-char (point-max))
+      (completion-at-point)
+      (should (looking-back "setattr(")))))
+
 (ert-deftest hover-after-completions ()
   "Test documentation echo in a python LSP"
   (skip-unless (executable-find "pyls"))
