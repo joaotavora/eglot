@@ -29,6 +29,7 @@
 (require 'ert-x) ; ert-simulate-command
 (require 'edebug)
 (require 'python) ; python-mode-hook
+(require 'company nil t)
 
 ;; Helpers
 
@@ -461,19 +462,54 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (call-interactively 'xref-find-definitions)
       (should (looking-at "foo(): pass")))))
 
+(defvar eglot--test-python-buffer
+  "\
+def foobarquux(a, b, c=True): pass
+def foobazquuz(d, e, f): pass
+")
+
 (ert-deftest snippet-completions ()
   "Test simple snippet completion in a python LSP"
   (skip-unless (and (executable-find "pyls")
                     (functionp 'yas-minor-mode)))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "setatt"))))
+      `(("project" . (("something.py" . ,eglot--test-python-buffer))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
-      (should (eglot--tests-connect))
+      (let ((eglot-workspace-configuration
+             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+        (should (eglot--tests-connect)))
       (goto-char (point-max))
+      (insert "foobar")
       (completion-at-point)
-      (should (looking-back "setattr(")))))
+      (beginning-of-line)
+      (should (looking-at "foobarquux(a, b)")))))
+
+(defvar company-candidates)
+
+(ert-deftest snippet-completions-with-company ()
+  "Test simple snippet completion in a python LSP"
+  (skip-unless (and (executable-find "pyls")
+                    (functionp 'yas-minor-mode)
+                    (functionp 'company-complete)))
+  (eglot--with-fixture
+      `(("project" . (("something.py" . ,eglot--test-python-buffer))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (yas-minor-mode 1)
+      (let ((eglot-workspace-configuration
+             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+        (should (eglot--tests-connect)))
+      (goto-char (point-max))
+      (insert "foo")
+      (company-mode)
+      (company-complete)
+      (should (looking-back "fooba"))
+      (should (= 2 (length company-candidates)))
+      ;; this last one is brittle, since there it is possible that
+      ;; pyls will change the representation of this candidate
+      (should (member "foobazquuz(d, e, f)" company-candidates)))))
 
 (ert-deftest hover-after-completions ()
   "Test documentation echo in a python LSP"
