@@ -458,7 +458,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
-      (should (eglot--tests-connect))
+      (let ((eglot-workspace-configuration
+             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+        (should (eglot--tests-connect)))
       (goto-char (point-max))
       (completion-at-point)
       (should (looking-back "setattr(")))))
