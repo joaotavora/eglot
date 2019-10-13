@@ -449,6 +449,18 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (completion-at-point)
       (should (looking-back "sys.exit")))))
 
+(ert-deftest basic-xref ()
+  "Test basic xref functionality in a python LSP"
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+      '(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (search-forward "bar(): f")
+      (call-interactively 'xref-find-definitions)
+      (should (looking-at "foo(): pass")))))
+
 (ert-deftest hover-after-completions ()
   "Test documentation echo in a python LSP"
   (skip-unless (executable-find "pyls"))
