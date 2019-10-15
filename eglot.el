@@ -372,7 +372,7 @@ Honour `eglot-strict-mode'."
 
 
 (cl-defmacro eglot--lambda (cl-lambda-list &body body)
-  "Function of args CL-LAMBDA-LIST for processing INTERFACE objects.
+  "Function of args CL-LAMBDA-LIST for processing JSONRPC objects.
 Honour `eglot-strict-mode'."
   (declare (indent 1) (debug (sexp &rest form)))
   (let ((e (cl-gensym "jsonrpc-lambda-elem")))
@@ -432,7 +432,7 @@ treated as in `eglot-dbind'."
     `(let ((,b ,buf)) (if (buffer-live-p ,b) (with-current-buffer ,b ,@body)))))
 
 (cl-defmacro eglot--widening (&rest body)
-  "Save excursion and restriction. Widen. Then run BODY." (declare (debug t))
+  "Save excursion and restriction.  Widen.  Then run BODY." (declare (debug t))
   `(save-excursion (save-restriction (widen) ,@body)))
 
 (cl-defgeneric eglot-handle-request (server method &rest params)
@@ -445,18 +445,18 @@ treated as in `eglot-dbind'."
   "Ask SERVER to execute COMMAND with ARGUMENTS.")
 
 (cl-defgeneric eglot-initialization-options (server)
-  "JSON object to send under `initializationOptions'"
+  "JSON object to send to SERVER under `initializationOptions'."
   (:method (_s) nil)) ; blank default
 
 (cl-defgeneric eglot-register-capability (server method id &rest params)
-  "Ask SERVER to register capability METHOD marked with ID."
+  "Ask SERVER to register capability METHOD with ID and PARAMS."
   (:method
    (_s method _id &rest _params)
    (eglot--warn "Server tried to register unsupported capability `%s'"
                 method)))
 
 (cl-defgeneric eglot-unregister-capability (server method id &rest params)
-  "Ask SERVER to register capability METHOD marked with ID."
+  "Ask SERVER to register capability METHOD with ID and PARAMS."
   (:method
    (_s method _id &rest _params)
    (eglot--warn "Server tried to unregister unsupported capability `%s'"
@@ -1374,14 +1374,14 @@ Uses THING, FACE, DEFS and PREPEND."
 ;;;
 (cl-defmethod eglot-handle-notification
   (_server method &key &allow-other-keys)
-  "Handle unknown notification"
+  "Handle unknown notification METHOD."
   (unless (or (string-prefix-p "$" (format "%s" method))
               (not (memq 'disallow-unknown-methods eglot-strict-mode)))
     (eglot--warn "Server sent unknown notification method `%s'" method)))
 
 (cl-defmethod eglot-handle-request
   (_server method &key &allow-other-keys)
-  "Handle unknown request"
+   "Handle unknown request METHOD."
   (when (memq 'disallow-unknown-methods eglot-strict-mode)
     (jsonrpc-error "Unknown request method `%s'" method)))
 
@@ -1394,14 +1394,14 @@ COMMAND is a symbol naming the command."
 
 (cl-defmethod eglot-handle-notification
   (_server (_method (eql window/showMessage)) &key type message)
-  "Handle notification window/showMessage"
+  "Handle notification window/showMessage."
   (eglot--message (propertize "Server reports (type=%s): %s"
                               'face (if (<= type 1) 'error))
                   type message))
 
 (cl-defmethod eglot-handle-request
   (_server (_method (eql window/showMessageRequest)) &key type message actions)
-  "Handle server request window/showMessageRequest"
+  "Handle server request window/showMessageRequest."
   (or (completing-read
        (concat
         (format (propertize "[eglot] Server reports (type=%s): %s"
@@ -1415,15 +1415,15 @@ COMMAND is a symbol naming the command."
 
 (cl-defmethod eglot-handle-notification
   (_server (_method (eql window/logMessage)) &key _type _message)
-  "Handle notification window/logMessage") ;; noop, use events buffer
+  "Handle notification window/logMessage.") ;; noop, use events buffer
 
 (cl-defmethod eglot-handle-notification
   (_server (_method (eql telemetry/event)) &rest _any)
-  "Handle notification telemetry/event") ;; noop, use events buffer
+  "Handle notification telemetry/event.") ;; noop, use events buffer
 
 (cl-defmethod eglot-handle-notification
   (server (_method (eql textDocument/publishDiagnostics)) &key uri diagnostics)
-  "Handle notification publishDiagnostics"
+  "Handle notification publishDiagnostics."
   (if-let ((buffer (find-buffer-visiting (eglot--uri-to-path uri))))
       (with-current-buffer buffer
         (cl-loop
@@ -1483,18 +1483,18 @@ THINGS are either registrations or unregisterations (sic)."
 
 (cl-defmethod eglot-handle-request
   (server (_method (eql client/registerCapability)) &key registrations)
-  "Handle server request client/registerCapability"
+  "Handle server request client/registerCapability."
   (eglot--register-unregister server registrations 'register))
 
 (cl-defmethod eglot-handle-request
   (server (_method (eql client/unregisterCapability))
           &key unregisterations) ;; XXX: "unregisterations" (sic)
-  "Handle server request client/unregisterCapability"
+  "Handle server request client/unregisterCapability."
   (eglot--register-unregister server unregisterations 'unregister))
 
 (cl-defmethod eglot-handle-request
   (_server (_method (eql workspace/applyEdit)) &key _label edit)
-  "Handle server request workspace/applyEdit"
+  "Handle server request workspace/applyEdit."
   (eglot--apply-workspace-edit edit 'confirm))
 
 (defun eglot--TextDocumentIdentifier ()
@@ -2386,7 +2386,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
 
 (cl-defmethod eglot-register-capability
     (server (method (eql workspace/didChangeWatchedFiles)) id &key watchers)
-  "Handle dynamic registration of workspace/didChangeWatchedFiles"
+  "Handle dynamic registration of workspace/didChangeWatchedFiles."
   (eglot-unregister-capability server method id)
   (let* (success
          (globs (mapcar (eglot--lambda ((FileSystemWatcher) globPattern)
@@ -2430,7 +2430,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
 
 (cl-defmethod eglot-unregister-capability
   (server (_method (eql workspace/didChangeWatchedFiles)) id)
-  "Handle dynamic unregistration of workspace/didChangeWatchedFiles"
+  "Handle dynamic unregistration of workspace/didChangeWatchedFiles."
   (mapc #'file-notify-rm-watch (gethash id (eglot--file-watches server)))
   (remhash id (eglot--file-watches server))
   (list t "OK"))
@@ -2451,7 +2451,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
 (cl-defmethod eglot-handle-notification
   ((server eglot-rls) (_method (eql window/progress))
    &key id done title message &allow-other-keys)
-  "Handle notification window/progress"
+  "Handle notification window/progress."
   (setf (eglot--spinner server) (list id title done message)))
 
 
@@ -2461,7 +2461,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
   :documentation "Cquery's C/C++ langserver.")
 
 (cl-defmethod eglot-initialization-options ((server eglot-cquery))
-  "Passes through required cquery initialization options"
+  "Passes through required cquery initialization options."
   (let* ((root (car (project-roots (eglot--project server))))
          (cache (expand-file-name ".cquery_cached_index/" root)))
     (list :cacheDirectory (file-name-as-directory cache)
@@ -2474,7 +2474,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
   :documentation "Eclipse's Java Development Tools Language Server.")
 
 (cl-defmethod eglot-initialization-options ((server eglot-eclipse-jdt))
-  "Passes through required jdt initialization options"
+  "Passes through required jdt initialization options."
   `(:workspaceFolders
     [,@(cl-delete-duplicates
         (mapcar #'eglot--path-to-uri
