@@ -41,6 +41,7 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * R's [languageserver][r-languageserver]
 * Dart's [dart_language_server][dart_language_server]
 * Elixir's [elixir-ls][elixir-ls]
+* Ada's [ada_language_server][ada_language_server]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -394,3 +395,4 @@ Under the hood:
 [dart_language_server]: https://github.com/natebosch/dart_language_server
 [elixir-ls]: https://github.com/JakeBecker/elixir-ls
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
+[ada_language_server]: https://github.com/AdaCore/ada_language_server
