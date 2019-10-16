@@ -609,6 +609,28 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
                                  (= severity 1))
                                diagnostics)))))))))
 
+(ert-deftest json-basic ()
+  "Test basic autocompletion in vscode-json-languageserver"
+  (skip-unless (executable-find "vscode-json-languageserver"))
+  (eglot--with-fixture
+   '(("project" .
+      (("p.json" . "{\"foo.b")
+       ("s.json" . "{\"properties\":{\"foo.bar\":{\"default\":\"fb\"}}}")
+       (".git" . nil))))
+   (with-current-buffer
+       (eglot--find-file-noselect "project/p.json")
+     (yas-minor-mode)
+     (goto-char 2)
+     (insert "\"$schema\": \"file://"
+             (file-name-directory buffer-file-name) "s.json\",")
+     (let ((eglot-server-programs
+            '((js-mode . ("vscode-json-languageserver" "--stdio")))))
+       (goto-char (point-max))
+       (should (eglot--tests-connect))
+       (completion-at-point)
+       (should (looking-back "\"foo.bar\": \""))
+       (should (looking-at "fb\"$"))))))
+
 (ert-deftest eglot-ensure ()
   "Test basic `eglot-ensure' functionality"
   (skip-unless (executable-find "pyls"))
