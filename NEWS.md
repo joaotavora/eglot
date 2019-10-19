@@ -1,5 +1,13 @@
 # 1.5 (upcoming)
 
+##### New variable `eglot-stay-out-of` ([#324][github#324])
+
+For the duration of an Eglot session, certain variables pertaining to
+Flymake, Xref, Company, etc. are set in such a way that they override
+user's customization.  However, for users interested in keeping full
+control of these variables, Eglot will refrain setting any variables
+matched in 'eglot-stay-out-of'.
+
 ##### Prevent Eldoc flicker when moving around ([#198][github#198])
 
 ##### Show large docs in help buffer instead of echo area by default ([#198][github#198])
@@ -150,4 +158,5 @@ TCP connection finds a listening server.
 [github#158]: https://github.com/joaotavora/eglot/issues/158
 [github#160]: https://github.com/joaotavora/eglot/issues/160
 [github#167]: https://github.com/joaotavora/eglot/issues/167
+[github#324]: https://github.com/joaotavora/eglot/issues/324
 
