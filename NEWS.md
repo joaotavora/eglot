@@ -1,12 +1,21 @@
-# 1.5 (upcoming)
+# 1.5 (20/10/2019)
 
-##### New variable `eglot-stay-out-of` ([#324][github#324])
+##### Take over Company configuration ([#324][github#324])
 
-For the duration of an Eglot session, certain variables pertaining to
-Flymake, Xref, Company, etc. are set in such a way that they override
-user's customization.  However, for users interested in keeping full
-control of these variables, Eglot will refrain setting any variables
-matched in 'eglot-stay-out-of'.
+Similar to what was already the case with Flymake, Eldoc and Xref, use
+just the backend that can do something useful in Eglot,
+`company-capf`.  See `eglot-stay-out-of` to opt out of this.
+
+##### New option `eglot-autoshutdown` to disconnect after last buffer killed ([#217][github#217], [#270][github#270])
+
+##### Fix completion support ([#235][github#235], [#313][github#313], [#311][github#311], [#279][github#279])
+
+Among other things, consider LSP's "filterText" cookies, which enables
+a kind of poor-man's flex-matching for some backends.
+
+##### Support LSP's "goto declaration/implementation/typeDefinition" ([#302][github#302])
+
+##### New option `eglot-send-changes-idle-time` ([#258][github#258])
 
 ##### Prevent Eldoc flicker when moving around ([#198][github#198])
 
@@ -14,6 +23,8 @@ matched in 'eglot-stay-out-of'.
 
 Also add two new customization variables
 `eglot-put-doc-in-help-buffer` and `eglot-auto-display-help-buffer`.
+
+##### Add built-in support for Go, Elixir and Ada ([#304][github#304], [#264][github#264], [#316][github#316])
 
 # 1.4 (5/1/2019)
 
@@ -113,50 +124,73 @@ TCP connection finds a listening server.
 
 ##### Assorted bugfixes
 
-<!-- Now a million references -->
+<!--- Now a bunch of references that I auto-generate with
 
-[github#198]: https://github.com/joaotavora/eglot/issues/198
-[github#198]: https://github.com/joaotavora/eglot/issues/198
-[github#196]: https://github.com/joaotavora/eglot/issues/196
-[github#190]: https://github.com/joaotavora/eglot/issues/190
-[github#144]: https://github.com/joaotavora/eglot/issues/144
-[github#156]: https://github.com/joaotavora/eglot/issues/156
-[github#52]: https://github.com/joaotavora/eglot/issues/52
-[github#178]: https://github.com/joaotavora/eglot/issues/178
-[github#50]: https://github.com/joaotavora/eglot/issues/50
+(cl-loop
+   with pivot
+   initially
+   (goto-char (point-min))
+   (search-forward-regexp "and now said bunch of references...\n")
+   (setq pivot (point))
+   (goto-char (point-min))
+   while (and (search-forward-regexp "github#\\([0-9]+\\)" nil t)
+              (< (point) pivot))
+   collect (string-to-number (match-string 1)) into refs
+   finally (setq refs (delete-dups refs))
+   (goto-char pivot)
+   (delete-region pivot (point-max))
+   (cl-loop for ref in (sort refs #'<)
+            do (insert (format "[github#%d]: https://github.com/joaotavora/eglot/issues/%d\n" ref ref))))
+
+and now said bunch of references-->
 [github#29]: https://github.com/joaotavora/eglot/issues/29
 [github#39]: https://github.com/joaotavora/eglot/issues/39
-[github#63]: https://github.com/joaotavora/eglot/issues/63
-[github#61]: https://github.com/joaotavora/eglot/issues/61
-[github#80]: https://github.com/joaotavora/eglot/issues/80
-[github#94]: https://github.com/joaotavora/eglot/issues/94
-[github#126]: https://github.com/joaotavora/eglot/issues/126
-[github#68]: https://github.com/joaotavora/eglot/issues/68
-[github#73]: https://github.com/joaotavora/eglot/issues/73
-[github#63]: https://github.com/joaotavora/eglot/issues/63
-[github#124]: https://github.com/joaotavora/eglot/issues/124
-[github#154]: https://github.com/joaotavora/eglot/issues/154
 [github#44]: https://github.com/joaotavora/eglot/issues/44
 [github#48]: https://github.com/joaotavora/eglot/issues/48
+[github#50]: https://github.com/joaotavora/eglot/issues/50
+[github#52]: https://github.com/joaotavora/eglot/issues/52
 [github#54]: https://github.com/joaotavora/eglot/issues/54
 [github#58]: https://github.com/joaotavora/eglot/issues/58
+[github#61]: https://github.com/joaotavora/eglot/issues/61
+[github#63]: https://github.com/joaotavora/eglot/issues/63
 [github#64]: https://github.com/joaotavora/eglot/issues/64
+[github#68]: https://github.com/joaotavora/eglot/issues/68
+[github#73]: https://github.com/joaotavora/eglot/issues/73
 [github#74]: https://github.com/joaotavora/eglot/issues/74
+[github#80]: https://github.com/joaotavora/eglot/issues/80
 [github#81]: https://github.com/joaotavora/eglot/issues/81
 [github#82]: https://github.com/joaotavora/eglot/issues/82
+[github#83]: https://github.com/joaotavora/eglot/issues/83
 [github#86]: https://github.com/joaotavora/eglot/issues/86
 [github#87]: https://github.com/joaotavora/eglot/issues/87
-[github#83]: https://github.com/joaotavora/eglot/issues/83
 [github#93]: https://github.com/joaotavora/eglot/issues/93
+[github#94]: https://github.com/joaotavora/eglot/issues/94
 [github#100]: https://github.com/joaotavora/eglot/issues/100
 [github#115]: https://github.com/joaotavora/eglot/issues/115
 [github#120]: https://github.com/joaotavora/eglot/issues/120
 [github#121]: https://github.com/joaotavora/eglot/issues/121
+[github#124]: https://github.com/joaotavora/eglot/issues/124
 [github#126]: https://github.com/joaotavora/eglot/issues/126
 [github#138]: https://github.com/joaotavora/eglot/issues/138
 [github#144]: https://github.com/joaotavora/eglot/issues/144
+[github#154]: https://github.com/joaotavora/eglot/issues/154
+[github#156]: https://github.com/joaotavora/eglot/issues/156
 [github#158]: https://github.com/joaotavora/eglot/issues/158
 [github#160]: https://github.com/joaotavora/eglot/issues/160
 [github#167]: https://github.com/joaotavora/eglot/issues/167
+[github#178]: https://github.com/joaotavora/eglot/issues/178
+[github#190]: https://github.com/joaotavora/eglot/issues/190
+[github#196]: https://github.com/joaotavora/eglot/issues/196
+[github#198]: https://github.com/joaotavora/eglot/issues/198
+[github#217]: https://github.com/joaotavora/eglot/issues/217
+[github#235]: https://github.com/joaotavora/eglot/issues/235
+[github#258]: https://github.com/joaotavora/eglot/issues/258
+[github#264]: https://github.com/joaotavora/eglot/issues/264
+[github#270]: https://github.com/joaotavora/eglot/issues/270
+[github#279]: https://github.com/joaotavora/eglot/issues/279
+[github#302]: https://github.com/joaotavora/eglot/issues/302
+[github#304]: https://github.com/joaotavora/eglot/issues/304
+[github#311]: https://github.com/joaotavora/eglot/issues/311
+[github#313]: https://github.com/joaotavora/eglot/issues/313
+[github#316]: https://github.com/joaotavora/eglot/issues/316
 [github#324]: https://github.com/joaotavora/eglot/issues/324
-
