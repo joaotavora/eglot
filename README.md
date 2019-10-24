@@ -50,17 +50,9 @@ customize `eglot-server-programs`:
 (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
 ```
 
-Let me know how well it works and we can add it to the list.  If the
-server has some quirk or non-conformity, it's possible to extend Eglot
-to adapt to it.  Here's how to get [cquery][cquery] working for
-example:
+Let me know how well it works and we can add it to the list.  
 
-```lisp
-(add-to-list 'eglot-server-programs '((c++ mode c-mode) . (eglot-cquery "cquery")))
-```
-
-You can also enter a `server:port` pattern to connect to an LSP
-server. To skip the guess and always be prompted use `C-u M-x eglot`.
+To skip the guess and always be prompted use `C-u M-x eglot`.
 
 ## Connecting automatically
 
@@ -101,6 +93,31 @@ more complicated invocation of the `pyls` program, which requests that
 it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
+
+## Handling quirky servers
+
+Most servers can guess good defaults and will operate nicely
+out-of-the-box, but some need to be configured specially via LSP's
+interfaces.  If your server has some quirk or non-conformity, it's
+possible to extend Eglot to adapt to it.  Here's an example on how to
+get [cquery][cquery] working:
+
+```lisp
+(add-to-list 'eglot-server-programs '((c++ mode c-mode) . (eglot-cquery "cquery")))
+
+(defclass eglot-cquery (eglot-lsp-server) ()
+  :documentation "A custom class for cquery's C/C++ langserver.")
+
+(cl-defmethod eglot-initialization-options ((server eglot-cquery))
+  "Passes through required cquery initialization options"
+  (let* ((root (car (project-roots (eglot--project server))))
+         (cache (expand-file-name ".cquery_cached_index/" root)))
+    (list :cacheDirectory (file-name-as-directory cache)
+          :progressReportFrequencyMs -1)))
+```
+
+See `eglot.el`'s section on Java's JDT server for an even more
+sophisticated example.
 
 <a name="reporting bugs"></a>
 # Reporting bugs
