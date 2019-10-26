@@ -1,3 +1,10 @@
+# 1.6 (upcoming)
+
+##### Support workspace/configuration requests ([#326][github#326])
+
+Also a new section "Per-project server configuration" in the README.md
+should answer some faq's in this regard.
+
 # 1.5 (20/10/2019)
 
 Thanks a lot to Felicián Németh, Ingo Lohmar, and everyone else who
@@ -197,3 +204,4 @@ and now said bunch of references-->
 [github#313]: https://github.com/joaotavora/eglot/issues/313
 [github#316]: https://github.com/joaotavora/eglot/issues/316
 [github#324]: https://github.com/joaotavora/eglot/issues/324
+[github#326]: https://github.com/joaotavora/eglot/issues/326

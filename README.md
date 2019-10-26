@@ -94,12 +94,54 @@ it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
-## Handling quirky servers
+## Per-project server configuration
 
 Most servers can guess good defaults and will operate nicely
-out-of-the-box, but some need to be configured specially via LSP's
-interfaces.  If your server has some quirk or non-conformity, it's
-possible to extend Eglot to adapt to it.  Here's an example on how to
+out-of-the-box, but some need to be configured specially via LSP
+interfaces.  Additionally, in some situations, you may also want a
+particular server to operate differently across different projects.
+
+Per-project settings are realized with Emacs's _directory variables_
+and the Elisp variable `eglot-workspace-configuration`.  To make a
+particular Python project always enable Pyls's snippet support, put a
+file named `.dir-locals.el` in the project's root:
+
+```lisp
+((python-mode
+  . ((eglot-workspace-configuration
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t)))))))))
+```
+
+This tells Emacs that any `python-mode` buffers in that directory
+should have a particular buffer-local value of
+`eglot-workspace-configuration`.  That variable's value should be
+_association list_ of _parameter sections_ which are presumably
+understood by the server.  In this example, we associate section
+`pyls` with the parameters object `(:plugins (:jedi_completion
+(:include_params t)))`.
+
+Now, supposing that you also had some Go code in the very same
+project, you can configure the Gopls server in the same file.  Adding
+a section for `go-mode`, the file's contents become:
+
+```lisp
+((python-mode
+  . ((eglot-workspace-configuration
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))))))
+ (go-mode
+  . ((eglot-workspace-configuration
+      . ((:gopls . (:usePlaceholders t)))))))
+```
+
+If you can't afford an actual `.dir-locals.el` file, or if managing
+these files becomes cumbersome, the Emacs manual teaches you
+programmatic ways to leverage per-directory local variables.
+
+## Handling quirky servers
+
+Some servers need even more special hand-holding to operate correctly.
+If your server has some quirk or non-conformity, it's possible to
+extend Eglot via Elisp to adapt to it.  Here's an example on how to
 get [cquery][cquery] working:
 
 ```lisp
@@ -283,7 +325,7 @@ eglot-shutdown`.
 - [ ] workspace/workspaceFolders (3.6.0)
 - [ ] workspace/didChangeWorkspaceFolders (3.6.0)
 - [x] workspace/didChangeConfiguration
-- [ ] workspace/configuration (3.6.0)
+- [x] workspace/configuration (3.6.0)
 - [x] workspace/didChangeWatchedFiles
 - [x] workspace/symbol
 - [x] workspace/executeCommand
