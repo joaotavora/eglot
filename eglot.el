@@ -574,7 +574,7 @@ Don't leave this function with the server still running.
 
 If PRESERVE-BUFFERS is non-nil (interactively, when called with a
 prefix argument), do not kill events and output buffers of
-SERVER.  ."
+SERVER."
   (interactive (list (eglot--read-server "Shutdown which server"
                                          (eglot--current-server))
                      t nil current-prefix-arg))
