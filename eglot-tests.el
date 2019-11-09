@@ -284,11 +284,11 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (with-current-buffer
           (eglot--find-file-noselect "project/coiso.py")
         (should (setq server (eglot--tests-connect)))
-        (should (eglot--current-server)))
+        (should (eglot-current-server)))
       (with-current-buffer
           (eglot--find-file-noselect "project/merdix.py")
-        (should (eglot--current-server))
-        (should (eq (eglot--current-server) server)))
+        (should (eglot-current-server))
+        (should (eq (eglot-current-server) server)))
       (with-current-buffer
           (eglot--find-file-noselect "anotherproject/cena.py")
         (should-error (eglot--current-server-or-lose))))))
@@ -303,7 +303,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (with-current-buffer
           (setq buffer (eglot--find-file-noselect "project/coiso.py"))
         (should (setq server (eglot--tests-connect)))
-        (should (eglot--current-server))
+        (should (eglot-current-server))
         (let ((eglot-autoshutdown nil)) (kill-buffer buffer))
         (should (jsonrpc-running-p server))
         ;; re-find file...
@@ -327,13 +327,13 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (run-with-timer 1.2 nil (lambda () (delete-process
                                             (jsonrpc--process server))))
         (while (jsonrpc-running-p server) (accept-process-output nil 0.5))
-        (should (eglot--current-server))
+        (should (eglot-current-server))
         ;; Now try again too quickly
-        (setq server (eglot--current-server))
+        (setq server (eglot-current-server))
         (let ((proc (jsonrpc--process server)))
           (run-with-timer 0.5 nil (lambda () (delete-process proc)))
           (while (process-live-p proc) (accept-process-output nil 0.5)))
-        (should (not (eglot--current-server)))))))
+        (should (not (eglot-current-server)))))))
 
 (ert-deftest rls-watches-files ()
   "Start RLS server.  Notify it when a critical file changes."
@@ -647,11 +647,11 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
       (with-current-buffer
           (ert-simulate-command
            '(find-file "project/foo.py"))
-        (should (setq server (eglot--current-server))))
+        (should (setq server (eglot-current-server))))
       (with-current-buffer
           (ert-simulate-command
            '(find-file "project/bar.py"))
-        (should (eq server (eglot--current-server)))))))
+        (should (eq server (eglot-current-server)))))))
 
 (ert-deftest slow-sync-connection-wait ()
   "Connect with `eglot-sync-connect' set to t."
@@ -689,9 +689,9 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
              `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
         (should-not (apply #'eglot--connect (eglot--guess-contact)))
         (eglot--with-timeout 3
-          (while (not (eglot--current-server))
+          (while (not (eglot-current-server))
             (accept-process-output nil 0.2))
-          (should (eglot--current-server)))))))
+          (should (eglot-current-server)))))))
 
 (ert-deftest slow-sync-timeout ()
   "Failed attempt at connection synchronously."
