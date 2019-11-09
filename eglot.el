@@ -610,6 +610,7 @@ SERVER.  ."
   (setf (gethash (eglot--project server) eglot--servers-by-project)
         (delq server
               (gethash (eglot--project server) eglot--servers-by-project)))
+  (setq eglot--cached-current-server nil)
   (cond ((eglot--shutdown-requested server)
          t)
         ((not (eglot--inhibit-autoreconnect server))
