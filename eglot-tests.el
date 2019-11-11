@@ -29,6 +29,7 @@
 (require 'ert-x) ; ert-simulate-command
 (require 'edebug)
 (require 'python) ; python-mode-hook
+(require 'company nil t)
 
 ;; Helpers
 
@@ -274,46 +275,65 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
-  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "pyls"))
   (let (server)
     (eglot--with-fixture
-        '(("project" . (("coiso.rs" . "bla")
-                        ("merdix.rs" . "bla")))
-          ("anotherproject" . (("cena.rs" . "bla"))))
+        '(("project" . (("coiso.py" . "bla")
+                        ("merdix.py" . "bla")))
+          ("anotherproject" . (("cena.py" . "bla"))))
       (with-current-buffer
-          (eglot--find-file-noselect "project/coiso.rs")
+          (eglot--find-file-noselect "project/coiso.py")
         (should (setq server (eglot--tests-connect)))
-        (should (eglot--current-server)))
+        (should (eglot-current-server)))
       (with-current-buffer
-          (eglot--find-file-noselect "project/merdix.rs")
-        (should (eglot--current-server))
-        (should (eq (eglot--current-server) server)))
+          (eglot--find-file-noselect "project/merdix.py")
+        (should (eglot-current-server))
+        (should (eq (eglot-current-server) server)))
       (with-current-buffer
-          (eglot--find-file-noselect "anotherproject/cena.rs")
+          (eglot--find-file-noselect "anotherproject/cena.py")
         (should-error (eglot--current-server-or-lose))))))
+
+(ert-deftest auto-shutdown ()
+  "Visit a file and M-x eglot, then kill buffer. "
+  (skip-unless (executable-find "pyls"))
+  (let (server
+        buffer)
+    (eglot--with-fixture
+        '(("project" . (("coiso.py" . "def coiso: pass"))))
+      (with-current-buffer
+          (setq buffer (eglot--find-file-noselect "project/coiso.py"))
+        (should (setq server (eglot--tests-connect)))
+        (should (eglot-current-server))
+        (let ((eglot-autoshutdown nil)) (kill-buffer buffer))
+        (should (jsonrpc-running-p server))
+        ;; re-find file...
+        (setq buffer (eglot--find-file-noselect (buffer-file-name buffer)))
+        ;; ;; but now kill it with `eglot-autoshutdown' set to t
+        (let ((eglot-autoshutdown t)) (kill-buffer buffer))
+        (should (not (jsonrpc-running-p server)))))))
 
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
-  (skip-unless (executable-find "rls"))
+  (skip-unless (executable-find "pyls"))
   (let (server (eglot-autoreconnect 1))
     (eglot--with-fixture
-        '(("project" . (("coiso.rs" . "bla")
-                        ("merdix.rs" . "bla"))))
+        '(("project" . (("coiso.py" . "bla")
+                        ("merdix.py" . "bla"))))
       (with-current-buffer
-          (eglot--find-file-noselect "project/coiso.rs")
+          (eglot--find-file-noselect "project/coiso.py")
         (should (setq server (eglot--tests-connect)))
         ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
         ;; should have a automatic reconnection.
         (run-with-timer 1.2 nil (lambda () (delete-process
                                             (jsonrpc--process server))))
         (while (jsonrpc-running-p server) (accept-process-output nil 0.5))
-        (should (eglot--current-server))
+        (should (eglot-current-server))
         ;; Now try again too quickly
-        (setq server (eglot--current-server))
+        (setq server (eglot-current-server))
         (let ((proc (jsonrpc--process server)))
           (run-with-timer 0.5 nil (lambda () (delete-process proc)))
           (while (process-live-p proc) (accept-process-output nil 0.5)))
-        (should (not (eglot--current-server)))))))
+        (should (not (eglot-current-server)))))))
 
 (ert-deftest rls-watches-files ()
   "Start RLS server.  Notify it when a critical file changes."
@@ -351,15 +371,14 @@ Pass TIMEOUT to `eglot--with-timeout'."
                    (and (string= (eglot--path-to-uri "Cargo.toml") uri)
                         (= type 3))))))))))
 
-(ert-deftest rls-basic-diagnostics ()
-  "Test basic diagnostics in RLS."
-  (skip-unless (executable-find "rls"))
-  (skip-unless (executable-find "cargo"))
+(ert-deftest basic-diagnostics ()
+  "Test basic diagnostics."
+  (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("diag-project" . (("main.rs" . "fn main() {\nprintfoo!(\"Hello, world!\");\n}"))))
+      '(("diag-project" .
+         (("main.py" . "def foo(): if True pass")))) ; colon missing after True
     (with-current-buffer
-        (eglot--find-file-noselect "diag-project/main.rs")
-      (should (zerop (shell-command "cargo init")))
+        (eglot--find-file-noselect "diag-project/main.py")
       (eglot--sniffing (:server-notifications s-notifs)
         (eglot--tests-connect)
         (eglot--wait-for (s-notifs 2)
@@ -404,21 +423,20 @@ Pass TIMEOUT to `eglot--with-timeout'."
               (&key id &allow-other-keys)
             (eq id pending-id)))))))
 
-(ert-deftest rls-rename ()
-  "Test renaming in RLS."
-  (skip-unless (executable-find "rls"))
-  (skip-unless (executable-find "cargo"))
+(ert-deftest rename-a-symbol ()
+  "Test basic symbol renaming"
+  (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       '(("rename-project"
-         . (("main.rs" .
-             "fn test() -> i32 { let test=3; return test; }"))))
+         . (("main.py" .
+             "def foo (bar) : 1 + bar\n\ndef bar() : pass"))))
     (with-current-buffer
-        (eglot--find-file-noselect "rename-project/main.rs")
-      (should (zerop (shell-command "cargo init")))
+        (eglot--find-file-noselect "rename-project/main.py")
       (eglot--tests-connect)
-      (goto-char (point-min)) (search-forward "return te")
+      (goto-char (point-min)) (search-forward "bar")
       (eglot-rename "bla")
-      (should (equal (buffer-string) "fn test() -> i32 { let bla=3; return bla; }")))))
+      (should (equal (buffer-string)
+                     "def foo (bla) : 1 + bla\n\ndef bar() : pass")))))
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
@@ -432,34 +450,101 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (completion-at-point)
       (should (looking-back "sys.exit")))))
 
-(ert-deftest hover-after-completions ()
-  "Test basic autocompletion in a python LSP"
+(ert-deftest basic-xref ()
+  "Test basic xref functionality in a python LSP"
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+      '(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (should (eglot--tests-connect))
+      (search-forward "bar(): f")
+      (call-interactively 'xref-find-definitions)
+      (should (looking-at "foo(): pass")))))
+
+(defvar eglot--test-python-buffer
+  "\
+def foobarquux(a, b, c=True): pass
+def foobazquuz(d, e, f): pass
+")
+
+(ert-deftest snippet-completions ()
+  "Test simple snippet completion in a python LSP"
+  (skip-unless (and (executable-find "pyls")
+                    (functionp 'yas-minor-mode)))
+  (eglot--with-fixture
+      `(("project" . (("something.py" . ,eglot--test-python-buffer))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (yas-minor-mode 1)
+      (let ((eglot-workspace-configuration
+             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+        (should (eglot--tests-connect)))
       (goto-char (point-max))
-      (setq eldoc-last-message nil)
+      (insert "foobar")
       (completion-at-point)
-      (should (looking-back "sys.exit"))
-      (while (not eldoc-last-message) (accept-process-output nil 0.1))
-      (should (string-match "^exit" eldoc-last-message)))))
+      (beginning-of-line)
+      (should (looking-at "foobarquux(a, b)")))))
+
+(defvar company-candidates)
+
+(ert-deftest snippet-completions-with-company ()
+  "Test simple snippet completion in a python LSP"
+  (skip-unless (and (executable-find "pyls")
+                    (functionp 'yas-minor-mode)
+                    (functionp 'company-complete)))
+  (eglot--with-fixture
+      `(("project" . (("something.py" . ,eglot--test-python-buffer))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (yas-minor-mode 1)
+      (let ((eglot-workspace-configuration
+             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+        (should (eglot--tests-connect)))
+      (goto-char (point-max))
+      (insert "foo")
+      (company-mode)
+      (company-complete)
+      (should (looking-back "fooba"))
+      (should (= 2 (length company-candidates)))
+      ;; this last one is brittle, since there it is possible that
+      ;; pyls will change the representation of this candidate
+      (should (member "foobazquuz(d, e, f)" company-candidates)))))
+
+(ert-deftest hover-after-completions ()
+  "Test documentation echo in a python LSP"
+  (skip-unless (executable-find "pyls"))
+  ;; JT@19/06/21: We check with `eldoc-last-message' because it's
+  ;; practical, which forces us to use
+  ;; `eglot-put-doc-in-help-buffer' to nil.
+  (let ((eglot-put-doc-in-help-buffer nil))
+    (eglot--with-fixture
+     '(("project" . (("something.py" . "import sys\nsys.exi"))))
+     (with-current-buffer
+         (eglot--find-file-noselect "project/something.py")
+       (should (eglot--tests-connect))
+       (goto-char (point-max))
+       (setq eldoc-last-message nil)
+       (completion-at-point)
+       (should (looking-back "sys.exit"))
+       (while (not eldoc-last-message) (accept-process-output nil 0.1))
+       (should (string-match "^exit" eldoc-last-message))))))
 
 (ert-deftest python-autopep-formatting ()
   "Test formatting in the pyls python LSP.
-pyls prefers autopep over yafp"
+pyls prefers autopep over yafp, despite its README stating the contrary."
   ;; For some reason Travis will fail the part of the test where we
   ;; try to reformat just the second line, i.e. it will _not_ add
   ;; newlines before the region we asked to reformat.  I actually
   ;; think Travis' behaviour is more sensible, but I don't know how to
   ;; reproduce it locally.  Must be some Python version thing.
+  ;; Beware, this test is brittle if ~/.config/pycodestyle exists, or
+  ;; default autopep rules change, which has happened.
   (skip-unless (null (getenv "TRAVIS_TESTING")))
   (skip-unless (and (executable-find "pyls")
                     (executable-find "autopep8")))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
+      '(("project" . (("something.py" . "def a():pass\n\ndef b():pass"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (should (eglot--tests-connect))
@@ -524,6 +609,28 @@ pyls prefers autopep over yafp"
                                  (= severity 1))
                                diagnostics)))))))))
 
+(ert-deftest json-basic ()
+  "Test basic autocompletion in vscode-json-languageserver"
+  (skip-unless (executable-find "vscode-json-languageserver"))
+  (eglot--with-fixture
+   '(("project" .
+      (("p.json" . "{\"foo.b")
+       ("s.json" . "{\"properties\":{\"foo.bar\":{\"default\":\"fb\"}}}")
+       (".git" . nil))))
+   (with-current-buffer
+       (eglot--find-file-noselect "project/p.json")
+     (yas-minor-mode)
+     (goto-char 2)
+     (insert "\"$schema\": \"file://"
+             (file-name-directory buffer-file-name) "s.json\",")
+     (let ((eglot-server-programs
+            '((js-mode . ("vscode-json-languageserver" "--stdio")))))
+       (goto-char (point-max))
+       (should (eglot--tests-connect))
+       (completion-at-point)
+       (should (looking-back "\"foo.bar\": \""))
+       (should (looking-at "fb\"$"))))))
+
 (ert-deftest eglot-ensure ()
   "Test basic `eglot-ensure' functionality"
   (skip-unless (executable-find "pyls"))
@@ -540,11 +647,11 @@ pyls prefers autopep over yafp"
       (with-current-buffer
           (ert-simulate-command
            '(find-file "project/foo.py"))
-        (should (setq server (eglot--current-server))))
+        (should (setq server (eglot-current-server))))
       (with-current-buffer
           (ert-simulate-command
            '(find-file "project/bar.py"))
-        (should (eq server (eglot--current-server)))))))
+        (should (eq server (eglot-current-server)))))))
 
 (ert-deftest slow-sync-connection-wait ()
   "Connect with `eglot-sync-connect' set to t."
@@ -582,9 +689,9 @@ pyls prefers autopep over yafp"
              `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
         (should-not (apply #'eglot--connect (eglot--guess-contact)))
         (eglot--with-timeout 3
-          (while (not (eglot--current-server))
+          (while (not (eglot-current-server))
             (accept-process-output nil 0.2))
-          (should (eglot--current-server)))))))
+          (should (eglot-current-server)))))))
 
 (ert-deftest slow-sync-timeout ()
   "Failed attempt at connection synchronously."

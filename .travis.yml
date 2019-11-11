@@ -7,7 +7,7 @@ env:
   global:
     - TRAVIS_TESTING=t
   matrix:
-    - EMACS_VERSION=26.1
+    - EMACS_VERSION=master
 
 install:
   - curl -LO https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz

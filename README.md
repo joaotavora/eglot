@@ -36,10 +36,12 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * C/C++'s [ccls][ccls]  ([cquery][cquery] and [clangd][clangd] also work)
 * Haskell's [IDE engine][haskell-ide-engine]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
-* Golang's [go-langserver][go-langserver]
+* Go's [gopls][gopls]
 * Ocaml's [ocaml-language-server][ocaml-language-server]
 * R's [languageserver][r-languageserver]
 * Dart's [dart_language_server][dart_language_server]
+* Elixir's [elixir-ls][elixir-ls]
+* Ada's [ada_language_server][ada_language_server]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -48,17 +50,9 @@ customize `eglot-server-programs`:
 (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
 ```
 
-Let me know how well it works and we can add it to the list.  If the
-server has some quirk or non-conformity, it's possible to extend Eglot
-to adapt to it.  Here's how to get [cquery][cquery] working for
-example:
+Let me know how well it works and we can add it to the list.  
 
-```lisp
-(add-to-list 'eglot-server-programs '((c++ mode c-mode) . (eglot-cquery "cquery")))
-```
-
-You can also enter a `server:port` pattern to connect to an LSP
-server. To skip the guess and always be prompted use `C-u M-x eglot`.
+To skip the guess and always be prompted use `C-u M-x eglot`.
 
 ## Connecting automatically
 
@@ -91,7 +85,7 @@ this way:
 ```lisp
 (add-to-list 'eglot-server-programs
              `(python-mode . ("pyls" "-v" "--tcp" "--host"
-                              "localhost" "--port" :autoport))))
+                              "localhost" "--port" :autoport)))
 ```
 
 You can see that the element associated with `python-mode` is now a
@@ -99,6 +93,111 @@ more complicated invocation of the `pyls` program, which requests that
 it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
+
+## Per-project server configuration
+
+Most servers can guess good defaults and will operate nicely
+out-of-the-box, but some need to be configured specially via LSP
+interfaces.  Additionally, in some situations, you may also want a
+particular server to operate differently across different projects.
+
+Per-project settings are realized with Emacs's _directory variables_
+and the Elisp variable `eglot-workspace-configuration`.  To make a
+particular Python project always enable Pyls's snippet support, put a
+file named `.dir-locals.el` in the project's root:
+
+```lisp
+((python-mode
+  . ((eglot-workspace-configuration
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t)))))))))
+```
+
+This tells Emacs that any `python-mode` buffers in that directory
+should have a particular buffer-local value of
+`eglot-workspace-configuration`.  That variable's value should be
+_association list_ of _parameter sections_ which are presumably
+understood by the server.  In this example, we associate section
+`pyls` with the parameters object `(:plugins (:jedi_completion
+(:include_params t)))`.
+
+Now, supposing that you also had some Go code in the very same
+project, you can configure the Gopls server in the same file.  Adding
+a section for `go-mode`, the file's contents become:
+
+```lisp
+((python-mode
+  . ((eglot-workspace-configuration
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))))))
+ (go-mode
+  . ((eglot-workspace-configuration
+      . ((:gopls . (:usePlaceholders t)))))))
+```
+
+If you can't afford an actual `.dir-locals.el` file, or if managing
+these files becomes cumbersome, the Emacs manual teaches you
+programmatic ways to leverage per-directory local variables.
+
+## Handling quirky servers
+
+Some servers need even more special hand-holding to operate correctly.
+If your server has some quirk or non-conformity, it's possible to
+extend Eglot via Elisp to adapt to it.  Here's an example on how to
+get [cquery][cquery] working:
+
+```lisp
+(add-to-list 'eglot-server-programs '((c++ mode c-mode) . (eglot-cquery "cquery")))
+
+(defclass eglot-cquery (eglot-lsp-server) ()
+  :documentation "A custom class for cquery's C/C++ langserver.")
+
+(cl-defmethod eglot-initialization-options ((server eglot-cquery))
+  "Passes through required cquery initialization options"
+  (let* ((root (car (project-roots (eglot--project server))))
+         (cache (expand-file-name ".cquery_cached_index/" root)))
+    (list :cacheDirectory (file-name-as-directory cache)
+          :progressReportFrequencyMs -1)))
+```
+
+See `eglot.el`'s section on Java's JDT server for an even more
+sophisticated example.
+
+<a name="reporting bugs"></a>
+# Reporting bugs
+
+Having trouble connecting to a server?  Expected to have a certain
+capability supported by it (e.g. completion) but nothing happens?  Or
+do you get spurious and annoying errors in an otherwise smooth
+operation?  We may have help, so open a [new
+issue](https://github.com/joaotavora/eglot/issues) and try to be as
+precise and objective about the problem as you can:
+
+1. Try to replicate the problem with **as clean an Emacs run as
+   possible**.  This means an empty `.emacs` init file or close to it
+   (just loading `eglot.el`, `company.el` and `yasnippet.el` for
+   example, and you don't even need `use-package.el` to do that).
+    
+2. Include the log of **LSP events** and the **stderr output** of the
+   server (if any).  You can find the former with `M-x
+   eglot-events-buffer` and the latter with `M-x eglot-stderr-buffer`.
+   You run these commands in the buffer where you enabled Eglot, but
+   if you didn't manage to enable Eglot at all (because of some
+   bootstrapping problem), you can still find these buffers in your
+   buffer list: they're named like `*EGLOT <project>/<major-mode>
+   events*` and `*EGLOT <project>/<major-mode> stderr*`.
+    
+3. If Emacs errored (you saw -- and possibly heard -- an error
+   message), make sure you repeat the process using `M-x
+   toggle-debug-on-error` so you **get a backtrace** of the error that
+   you should also attach to the bug report.
+   
+Some more notes: it's understandable that you report it to Eglot
+first, because that's the user-facing side of the LSP experience in
+Emacs, but the outcome may well be that you will have to report the
+problem to the server's developers, as is often the case.  But the
+problem can very well be on Eglot's side, of course, and in that case
+we want to fix it!  Also bear in mind that Eglot's developers have
+limited resources and no way to test all the possible server
+combinations, so you'll have to do most of the testing.
 
 <a name="commands"></a>
 # Commands and keybindings
@@ -202,7 +301,7 @@ provide enhanced code analysis via `xref-find-definitions`,
 To "unmanage" these buffers, shutdown the server with `M-x
 eglot-shutdown`.
 
-# Supported Protocol features (3.6)
+# Supported Protocol features
 
 ## General
 - [x] initialize
@@ -226,7 +325,7 @@ eglot-shutdown`.
 - [ ] workspace/workspaceFolders (3.6.0)
 - [ ] workspace/didChangeWorkspaceFolders (3.6.0)
 - [x] workspace/didChangeConfiguration
-- [ ] workspace/configuration (3.6.0)
+- [x] workspace/configuration (3.6.0)
 - [x] workspace/didChangeWatchedFiles
 - [x] workspace/symbol
 - [x] workspace/executeCommand
@@ -249,8 +348,9 @@ eglot-shutdown`.
 - [x] textDocument/hover
 - [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
 - [x] textDocument/definition
-- [ ] textDocument/typeDefinition (3.6.0)
-- [ ] textDocument/implementation (3.6.0)
+- [x] textDocument/typeDefinition (3.6.0)
+- [x] textDocument/implementation (3.6.0)
+- [x] textDocument/declaration (3.14)
 - [x] textDocument/references
 - [x] textDocument/documentHighlight
 - [x] textDocument/documentSymbol
@@ -347,9 +447,11 @@ Under the hood:
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
-[go-langserver]: https://github.com/sourcegraph/go-langserver
+[gopls]: https://github.com/golang/go/wiki/gopls
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
 [ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
 [r-languageserver]: https://cran.r-project.org/package=languageserver
 [dart_language_server]: https://github.com/natebosch/dart_language_server
+[elixir-ls]: https://github.com/JakeBecker/elixir-ls
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
+[ada_language_server]: https://github.com/AdaCore/ada_language_server
