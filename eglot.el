@@ -2179,7 +2179,7 @@ is not active."
         (with-help-window (current-buffer)
           (rename-buffer (format "*eglot-help for %s*" sym))
           (with-current-buffer standard-output (insert blurb))
-          (setq-local nobreak-char-display eglot-help-display-whitespace))))))
+          (setq-local nobreak-char-display nil))))))
 
 (defun eglot-doc-too-large-for-echo-area (string)
   "Return non-nil if STRING won't fit in echo area.
@@ -2201,12 +2201,6 @@ boolean producing one of the two previous values."
   :type '(choice (const :tag "Never use `*eglot-help*'" nil)
                  (const :tag "Always use `*eglot-help*'" t)
                  (function :tag "Ask a function")))
-
-(defcustom eglot-help-display-whitespace nil
-  "If non-nil, underline no-break whitespace in the `*eglot-help*' buffer.
-If nil, do not underline no-break whitespace."
-  :type '(choice (const :tag "Do not underline whitespace in `*eglot-help*'" nil)
-                 (const :tag "Underline whitespace in `*eglot-help*'" t)))
 
 (defcustom eglot-auto-display-help-buffer nil
   "If non-nil, automatically display `*eglot-help*' buffer.
