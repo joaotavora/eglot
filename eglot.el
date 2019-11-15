@@ -74,6 +74,8 @@
 (require 'array)
 (defvar company-backends) ; forward-declare, but don't require company yet
 
+(declare-function with-parsed-tramp-file-name "tramp" t t)
+(declare-function tramp-make-tramp-file-name "tramp" t t)
 
 
 ;;; User tweakable stuff
@@ -843,6 +845,21 @@ TODO(felipe): encrypt input/output of named pipe"
 	   (format "cat %s" stderr-pipe-path-as-arg))))
     the-process))
 
+(defsubst eglot--from-server-local-file (file)
+  "Inverse of `file-local-name': add remote components to FILE.
+
+When server is running locally, return as-is."
+  (if (file-remote-p file)
+      (with-parsed-tramp-file-name default-directory nil ;; TODO(felipel): perhaps should use a different var other than default-directory? maybe project root?
+	(tramp-make-tramp-file-name
+	 method
+	 user
+	 domain
+	 host
+	 port
+	 file
+	 hop))
+    file))
 
 (defun eglot--connect (managed-major-mode project class contact)
   "Connect to MANAGED-MAJOR-MODE, PROJECT, CLASS and CONTACT.
@@ -1126,14 +1143,16 @@ If optional MARKER, return a marker instead"
 (defun eglot--path-to-uri (path)
   "URIfy PATH."
   (url-hexify-string
-   (concat "file://" (if (eq system-type 'windows-nt) "/") (file-truename path))
+   (concat "file://" (if (eq system-type 'windows-nt) "/")
+	   (file-local-name (file-truename path)))
    url-path-allowed-chars))
 
 (defun eglot--uri-to-path (uri)
   "Convert URI to a file path."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (let ((retval (url-filename (url-generic-parse-url (url-unhex-string uri)))))
-    (if (eq system-type 'windows-nt) (substring retval 1) retval)))
+    (eglot--from-server-local-file
+     (if (eq system-type 'windows-nt) (substring retval 1) retval))))
 
 (defun eglot--snippet-expansion-fn ()
   "Compute a function to expand snippets.
@@ -2540,7 +2559,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
    finally return result))
 
 (cl-defmethod eglot-register-capability
-    (server (method (eql workspace/didChangeWatchedFiles)) id &key watchers)
+  (server (method (eql workspace/didChangeWatchedFiles)) id &key watchers)
   "Handle dynamic registration of workspace/didChangeWatchedFiles"
   (eglot-unregister-capability server method id)
   (let* (success
@@ -2549,7 +2568,11 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
                         watchers))
 	 (glob-dirs
 	  (delete-dups (mapcar #'file-name-directory
-			       (mapcan #'file-expand-wildcards globs)))))
+			       (mapcan (lambda (glob)
+					 (file-expand-wildcards
+					  (eglot--from-server-local-file
+					   glob)))
+				       globs)))))
     (cl-labels
         ((handle-event
           (event)
@@ -2559,7 +2582,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
                    (cl-find file globs
                             :test (lambda (f glob)
                                     (string-match (eglot--wildcard-to-regexp
-                                                   (expand-file-name glob))
+                                                   (expand-file-name glob)) ;; TODO(felipel) dunno if this should be localised or remotised
                                                   f))))
               (jsonrpc-notify
                server :workspace/didChangeWatchedFiles
@@ -2579,7 +2602,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
 	    (setq
 	     success
 	     `(:message ,(format "OK, watching %s directories in %s watchers"
-				 (length glob-dirs) (length watchers)))))
+			    (length glob-dirs) (length watchers)))))
         (unless success
           (eglot-unregister-capability server method id))))))
 
