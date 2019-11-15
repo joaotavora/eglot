@@ -836,13 +836,15 @@ TODO(felipe): encrypt input/output of named pipe"
 	 (the-process
 	  (start-file-process name
 			      nil
-			      piped-command))
+			      "sh" ;; maybe some emacs var instead?
+			      "-c" piped-command))
 	 (stderr-process
 	  (start-file-process
 	   (format "eglot: %s[stderr]"
 	      (process-name the-process))
 	   nil
-	   (format "cat %s" stderr-pipe-path-as-arg))))
+	   "cat"
+	   stderr-pipe-path-as-arg)))
     the-process))
 
 (defsubst eglot--from-server-local-file (file)
