@@ -898,7 +898,7 @@ This docstring appeases checkdoc, that's all."
                          :stderr (get-buffer-create
                                   (format "*%s stderr*" readable-name)))))))))
          (spread (lambda (fn) (lambda (server method params)
-			   (apply fn server method (append params nil)))))
+			   (apply fn server method (append params nil))))) ;; TODO reindent this
          (server
           (apply
            #'make-instance class
@@ -1044,7 +1044,7 @@ CONNECT-ARGS are passed as additional arguments to
              (eglot--error "Could not start and connect to server%s"
                            (if inferior
                                (format " started with %s"
-				  (process-command inferior))
+				  (process-command inferior)) ;; TODO reindent this
                              "!")))))))
 
 
@@ -2604,7 +2604,7 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
 	    (setq
 	     success
 	     `(:message ,(format "OK, watching %s directories in %s watchers"
-			    (length glob-dirs) (length watchers)))))
+			    (length glob-dirs) (length watchers))))) ;; TODO reindent this
         (unless success
           (eglot-unregister-capability server method id))))))
 
