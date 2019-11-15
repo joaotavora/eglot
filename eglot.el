@@ -845,6 +845,7 @@ TODO(felipe): encrypt input/output of named pipe"
 	   nil
 	   "cat"
 	   stderr-pipe-path-as-arg)))
+    (message "∙∙∙ started server proc with %s" piped-command)
     the-process))
 
 (defsubst eglot--from-server-local-file (file)
