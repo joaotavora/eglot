@@ -789,6 +789,61 @@ INTERACTIVE is t if called interactively."
   "Hook run after server is successfully initialized.
 Each function is passed the server as an argument")
 
+(cl-defun eglot--make-process (&key
+			       name
+			       command
+			       noquery
+			       stderr)
+  "Like `make-process', but using `start-file-process'.
+Actually creates two processes: one that outputs the stdout and one that outputs
+the stderr.
+
+This is implemented by spawning a process for COMMAND while redirecting the
+stderr from the original process to a named pipe with `mkfifo'.  The second
+process reads from this pipe into the STDERR buffer.
+
+TODO(felipe): encrypt input/output of named pipe"
+  (let* ((stderr-buffer
+	  (pcase stderr
+	    ((pred bufferp)
+	     stderr)
+	    ((pred stringp)
+	     (get-buffer-create stderr))))
+	 (prog-as-shell-command
+	  (mapconcat
+	   #'shell-quote-argument
+	   command
+	   " "))
+	 (stderr-pipe-path (concat
+			    (file-name-as-directory
+			     (make-temp-file
+			      "eglot-stderr"
+			      t))
+			    "stderr"))
+	 (stderr-pipe-path-as-arg
+	  (shell-quote-argument stderr-pipe-path))
+	 (piped-command (mapconcat
+			 'identity
+			 (list
+			  (format "mkfifo %s"
+			     stderr-pipe-path-as-arg)
+			  (format "exec %s 2> %s"
+			     prog-as-shell-command
+			     stderr-pipe-path-as-arg))
+			 ";\n"))
+	 (the-process
+	  (start-file-process name
+			      nil
+			      piped-command))
+	 (stderr-process
+	  (start-file-process
+	   (format "eglot: %s[stderr]"
+	      (process-name the-process))
+	   nil
+	   (format "cat %s" stderr-pipe-path-as-arg))))
+    the-process))
+
+
 (defun eglot--connect (managed-major-mode project class contact)
   "Connect to MANAGED-MAJOR-MODE, PROJECT, CLASS and CONTACT.
 This docstring appeases checkdoc, that's all."
@@ -817,16 +872,14 @@ This docstring appeases checkdoc, that's all."
                  `(:process
                    ,(lambda ()
                       (let ((default-directory default-directory))
-                        (make-process
+                        (eglot--make-process
                          :name readable-name
                          :command contact
-                         :connection-type 'pipe
-                         :coding 'utf-8-emacs-unix
                          :noquery t
                          :stderr (get-buffer-create
                                   (format "*%s stderr*" readable-name)))))))))
          (spread (lambda (fn) (lambda (server method params)
-                                (apply fn server method (append params nil)))))
+			   (apply fn server method (append params nil)))))
          (server
           (apply
            #'make-instance class
@@ -943,7 +996,7 @@ CONNECT-ARGS are passed as additional arguments to
     (unwind-protect
         (progn
           (setq inferior
-                (make-process
+                (eglot--make-process
                  :name (format "autostart-inferior-%s" name)
                  :stderr (format "*%s stderr*" name)
                  :noquery t
@@ -972,7 +1025,7 @@ CONNECT-ARGS are passed as additional arguments to
              (eglot--error "Could not start and connect to server%s"
                            (if inferior
                                (format " started with %s"
-                                       (process-command inferior))
+				  (process-command inferior))
                              "!")))))))
 
 
