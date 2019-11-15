@@ -827,16 +827,17 @@ TODO(felipe): encrypt input/output of named pipe"
 	 (piped-command (mapconcat
 			 'identity
 			 (list
+			  "set -e" ;; die on error
 			  (format "mkfifo %s"
 			     stderr-pipe-path-as-arg)
-			  (format "exec %s 2> %s"
+			  (format "%s 2> %s"
 			     prog-as-shell-command
 			     stderr-pipe-path-as-arg))
-			 ";\n"))
+			 ";"))
 	 (the-process
 	  (start-file-process name
 			      nil
-			      "sh" ;; maybe some emacs var instead?
+			      "bash" ;; maybe some emacs var instead?
 			      "-c" piped-command))
 	 (stderr-process
 	  (start-file-process
@@ -845,7 +846,6 @@ TODO(felipe): encrypt input/output of named pipe"
 	   nil
 	   "cat"
 	   stderr-pipe-path-as-arg)))
-    (message "∙∙∙ started server proc with %s" piped-command)
     the-process))
 
 (defsubst eglot--from-server-local-file (file)
