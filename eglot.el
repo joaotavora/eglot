@@ -791,10 +791,13 @@ INTERACTIVE is t if called interactively."
   "Hook run after server is successfully initialized.
 Each function is passed the server as an argument")
 
+
+
 (cl-defun eglot--make-process (&key
 			       name
 			       command
 			       noquery
+			       buffer
 			       stderr)
   "Like `make-process', but using `start-file-process'.
 Actually creates two processes: one that outputs the stdout and one that outputs
@@ -804,6 +807,7 @@ This is implemented by spawning a process for COMMAND while redirecting the
 stderr from the original process to a named pipe with `mkfifo'.  The second
 process reads from this pipe into the STDERR buffer.
 
+TODO(felipe): don't ignore NOQUERY
 TODO(felipe): encrypt input/output of named pipe"
   (let* ((stderr-buffer
 	  (pcase stderr
@@ -836,16 +840,25 @@ TODO(felipe): encrypt input/output of named pipe"
 			 ";"))
 	 (the-process
 	  (start-file-process name
-			      nil
+			      buffer
 			      "bash" ;; maybe some emacs var instead?
 			      "-c" piped-command))
+	 (stderr-command ;; ensure file exists before piping it out
+	  (format "stderrf=%s; while [[ ! -e \"$stderrf\" ]]; do sleep 1; done; cat \"$stderrf\""
+	     stderr-pipe-path-as-arg))
 	 (stderr-process
 	  (start-file-process
 	   (format "eglot: %s[stderr]"
 	      (process-name the-process))
-	   nil
-	   "cat"
-	   stderr-pipe-path-as-arg)))
+	   stderr-buffer
+	   "bash"
+	   "-c"
+	   stderr-command)))
+    ;; replace default sentinel where "Process … finished" is printed
+    (set-process-sentinel stderr-process
+			  (lambda (_proc _event)
+			    ;; discard event
+			    ))
     the-process))
 
 (defsubst eglot--from-server-local-file (file)
