@@ -232,19 +232,51 @@ Pass TIMEOUT to `eglot--with-timeout'."
          (eglot-connect-timeout timeout))
     (apply #'eglot--connect (eglot--guess-contact))))
 
+(ert-deftest can-make-process ()
+  "Test running local/remote processes with stderr."
+  (let ((eglot-test-output-ready nil)
+	(stderr (get-buffer-create "printing process stderr"))
+	(stdout (get-buffer-create "printing process stdout")))
+    (cl-loop for b in (list stderr stdout)
+	     do (with-current-buffer b
+		  (erase-buffer)))
+    (let* ((p (eglot--make-process
+	       :name "printing process"
+	       :command (list "bash"
+			      "-c"
+			      "echo 1; echo 2; >&2 echo 3 at stderr;")
+	       :noquery t
+	       :buffer stdout
+	       :stderr stderr)))
+      (set-process-sentinel p
+			    (lambda (_proc event)
+			      (unless (string-match-p "open"
+						      event)
+				(setq eglot-test-output-ready t))))
+      (let ((i 0))
+	(while (and
+		(< i 4)
+		(null eglot-test-output-ready))
+	  (sit-for 1))) ;; sit every 1s (for 4 at most) for output to be ready
+      (should eglot-test-output-ready)
+      (let ((stderr-str (with-current-buffer stderr
+			  (buffer-string))))
+	(should (string-equal stderr-str
+			      "3 at stderr\n"))))))
+
 (ert-deftest eclipse-connect ()
   "Connect to eclipse.jdt.ls server."
   (skip-unless (eglot--have-eclipse-jdt-ls-p))
   (eglot--with-fixture
-      '(("project/src/main/java/foo" . (("Main.java" . "")))
-        ("project/.git/" . nil))
-    (with-current-buffer
-        (eglot--find-file-noselect "project/src/main/java/foo/Main.java")
-      (eglot--sniffing (:server-notifications s-notifs)
-        (should (eglot--tests-connect 20))
-        (eglot--wait-for (s-notifs 10)
-            (&key _id method &allow-other-keys)
-          (string= method "language/status"))))))
+   '(("project/src/main/java/foo" . (("Main.java" . "")))
+     ("project/.git/" . nil))
+   (with-current-buffer
+       (eglot--find-file-noselect "project/src/main/java/foo/Main.java")
+     (eglot--sniffing (:server-notifications s-notifs)
+		      (should (eglot--tests-connect 20))
+		      (eglot--wait-for (s-notifs 10)
+				       (&key _id method &allow-other-keys)
+				       (string= method "language/status"))))))
 
 (ert-deftest eclipse-workspace-folders ()
   "Check eclipse connection with multi-root projects."
