@@ -795,9 +795,11 @@ Each function is passed the server as an argument")
 
 (cl-defun eglot--make-process (&key
 			       name
+			       buffer
 			       command
 			       noquery
-			       buffer
+			       connection-type
+			       coding
 			       stderr)
   "Like `make-process', but using `start-file-process'.
 Actually creates two processes: one that outputs the stdout and one that outputs
@@ -808,6 +810,8 @@ stderr from the original process to a named pipe with `mkfifo'.  The second
 process reads from this pipe into the STDERR buffer.
 
 TODO(felipe): don't ignore NOQUERY
+TODO(felipe): don't ignore CONNECTION-TYPE
+TODO(felipe): don't ignore CODING
 TODO(felipe): encrypt input/output of named pipe"
   (let* ((stderr-buffer
 	  (pcase stderr
