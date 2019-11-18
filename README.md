@@ -355,8 +355,8 @@ eglot-shutdown`.
 - [x] textDocument/documentHighlight
 - [x] textDocument/documentSymbol
 - [x] textDocument/codeAction
-- [ ] textDocument/codeLens
-- [ ] codeLens/resolve
+- [x] textDocument/codeLens
+- [x] codeLens/resolve
 - [ ] textDocument/documentLink
 - [ ] documentLink/resolve
 - [ ] textDocument/documentColor
