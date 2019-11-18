@@ -233,7 +233,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
     (apply #'eglot--connect (eglot--guess-contact))))
 
 (ert-deftest can-make-process ()
-  "Test running local/remote processes with stderr."
+  "Test running local/remote processes with stderr.
+
+Setup an async process, wait for it to end, test for output."
   (let ((eglot-test-output-ready nil)
 	(stderr (get-buffer-create "printing process stderr"))
 	(stdout (get-buffer-create "printing process stdout")))
