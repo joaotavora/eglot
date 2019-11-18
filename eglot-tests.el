@@ -262,7 +262,10 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (let ((stderr-str (with-current-buffer stderr
 			  (buffer-string))))
 	(should (string-equal stderr-str
-			      "3 at stderr\n"))))))
+			      "3 at stderr\n"))))
+    ;; cleanup
+    (kill-buffer stderr)
+    (kill-buffer stdout)))
 
 (ert-deftest eclipse-connect ()
   "Connect to eclipse.jdt.ls server."
