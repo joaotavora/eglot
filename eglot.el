@@ -1000,7 +1000,12 @@ in project `%s'."
                       :timeout-fn (lambda ()
                                     (unless cancelled
                                       (jsonrpc-shutdown server)
-                                      (let ((msg (format "Timed out")))
+                                      (let ((msg (format "Timed out\nstdout:\n%s\nstderr:\n%s"
+						    (with-current-buffer (process-buffer
+									  (jsonrpc--process server))
+						      (buffer-string))
+						    (with-current-buffer (jsonrpc-stderr-buffer server)
+						      (buffer-string)))))
                                         (if tag (throw tag `(error . ,msg))
                                           (eglot--error msg))))))
                      (cond ((numberp eglot-sync-connect)
