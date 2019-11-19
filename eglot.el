@@ -1,5 +1,5 @@
-;;; WIP remote server see https://github.com/joaotavora/eglot/issues/84
 ;;; eglot.el --- Client for Language Server Protocol (LSP) servers  -*- lexical-binding: t; -*-
+;;; WIP remote server see https://github.com/joaotavora/eglot/issues/84
 
 ;; Copyright (C) 2018 Free Software Foundation, Inc.
 
