@@ -238,7 +238,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
 Setup an async process, wait for it to end, test for output."
   (let ((eglot-test-output-ready nil)
 	(stderr (get-buffer-create "printing process stderr"))
-	(stdout (get-buffer-create "printing process stdout")))
+	(stdout (get-buffer-create "printing process stdout"))
+	(the-command "echo 1; echo 2; >&2 exec cat;"))
     (cl-loop for b in (list stderr stdout)
 	     do (with-current-buffer b
 		  (erase-buffer)))
@@ -246,7 +247,7 @@ Setup an async process, wait for it to end, test for output."
 	       :name "printing process"
 	       :command (list "bash"
 			      "-c"
-			      "echo 1; echo 2; >&2 echo 3 at stderr;")
+			      the-command)
 	       :noquery t
 	       :buffer stdout
 	       :stderr stderr)))
@@ -255,11 +256,16 @@ Setup an async process, wait for it to end, test for output."
 			      (unless (string-match-p "open"
 						      event)
 				(setq eglot-test-output-ready t))))
+      ;; send a text to process and eof to end it
+      (send-string p "3 at stderr\n")
+      (process-send-eof p)
+
+      ;; sit every 1s (for 4 at most) for output to be ready
       (let ((i 0))
 	(while (and
 		(< i 4)
 		(null eglot-test-output-ready))
-	  (sit-for 1))) ;; sit every 1s (for 4 at most) for output to be ready
+	  (sit-for 1)))
       (should eglot-test-output-ready)
       (let ((stderr-str (with-current-buffer stderr
 			  (buffer-string))))

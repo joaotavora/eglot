@@ -838,7 +838,7 @@ TODO(felipe): encrypt input/output of named pipe"
 			  "set -e" ;; die on error
 			  (format "mkfifo %s"
 			     stderr-pipe-path-as-arg)
-			  (format "%s 2> %s"
+			  (format "exec %s 2> %s"
 			     prog-as-shell-command
 			     stderr-pipe-path-as-arg))
 			 ";"))
@@ -848,7 +848,7 @@ TODO(felipe): encrypt input/output of named pipe"
 			      "bash" ;; maybe some emacs var instead?
 			      "-c" piped-command))
 	 (stderr-command ;; ensure file exists before piping it out
-	  (format "stderrf=%s; while [[ ! -e \"$stderrf\" ]]; do sleep 1; done; cat \"$stderrf\""
+	  (format "stderrf=%s; while [[ ! -e \"$stderrf\" ]]; do sleep 1; done; exec cat \"$stderrf\""
 	     stderr-pipe-path-as-arg))
 	 (stderr-process
 	  (start-file-process
