@@ -72,7 +72,8 @@
 (require 'filenotify)
 (require 'ert)
 (require 'array)
-(defvar company-backends) ; forward-declare, but don't require company yet
+(defvar company-backends) ; forward-declare, but don't require company
+(defvar company-tooltip-align-annotations)
 
 (declare-function with-parsed-tramp-file-name "tramp" t t)
 (declare-function tramp-make-tramp-file-name "tramp" t t)
@@ -1315,6 +1316,9 @@ For example, to keep your Company customization use
      (push (cons ',symbol (symbol-value ',symbol)) eglot--saved-bindings)
      (setq-local ,symbol ,binding)))
 
+(defvar-local eglot--cached-server nil
+  "A cached reference to the current EGLOT server.")
+
 (define-minor-mode eglot--managed-mode
   "Mode for source buffers managed by some EGLOT project."
   nil nil eglot-mode-map
@@ -1344,7 +1348,7 @@ For example, to keep your Company customization use
                     #'eglot-imenu))
     (flymake-mode 1)
     (eldoc-mode 1)
-    (cl-pushnew (current-buffer) (eglot--managed-buffers eglot--cached-current-server)))
+    (cl-pushnew (current-buffer) (eglot--managed-buffers eglot--cached-server)))
    (t
     (remove-hook 'after-change-functions 'eglot--after-change t)
     (remove-hook 'before-change-functions 'eglot--before-change t)
@@ -1363,8 +1367,8 @@ For example, to keep your Company customization use
              do (set (make-local-variable var) saved-binding))
     (remove-function (local 'imenu-create-index-function) #'eglot-imenu)
     (setq eglot--current-flymake-report-fn nil)
-    (let ((server eglot--cached-current-server))
-      (setq eglot--cached-current-server nil)
+    (let ((server eglot--cached-server))
+      (setq eglot--cached-server nil)
       (when server
         (setf (eglot--managed-buffers server)
               (delq (current-buffer) (eglot--managed-buffers server)))
@@ -1377,16 +1381,13 @@ For example, to keep your Company customization use
   "Turn off `eglot--managed-mode' unconditionally."
   (eglot--managed-mode -1))
 
-(defvar-local eglot--cached-current-server nil
-  "A cached reference to the current EGLOT server.")
-
 (defun eglot-current-server ()
   "Return logical EGLOT server for current buffer, nil if none."
-  eglot--cached-current-server)
+  eglot--cached-server)
 
 (defun eglot--current-server-or-lose ()
   "Return current logical EGLOT server connection or error."
-  (or eglot--cached-current-server
+  (or eglot--cached-server
       (jsonrpc-error "No current JSON-RPC connection")))
 
 (defvar-local eglot--unreported-diagnostics nil
@@ -1406,8 +1407,8 @@ If it is activated, also signal textDocument/didOpen."
     ;; `revert-buffer-preserve-modes' is nil.
     (when (and buffer-file-name
                (or
-                eglot--cached-current-server
-                (setq eglot--cached-current-server
+                eglot--cached-server
+                (setq eglot--cached-server
                       (cl-find major-mode
                                (gethash (or (project-current)
                                             `(transient . ,default-directory))
@@ -2119,7 +2120,7 @@ is not active."
             (funcall proxies)))))
        :annotation-function
        (lambda (proxy)
-         (eglot--dbind ((CompletionItem) detail kind insertTextFormat)
+         (eglot--dbind ((CompletionItem) detail kind)
              (get-text-property 0 'eglot--lsp-item proxy)
            (let* ((detail (and (stringp detail)
                                (not (string= detail ""))
