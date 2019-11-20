@@ -916,7 +916,7 @@ This docstring appeases checkdoc, that's all."
                          :stderr (get-buffer-create
                                   (format "*%s stderr*" readable-name)))))))))
          (spread (lambda (fn) (lambda (server method params)
-			   (apply fn server method (append params nil))))) ;; TODO reindent this
+				(apply fn server method (append params nil)))))
          (server
           (apply
            #'make-instance class
@@ -1000,12 +1000,7 @@ in project `%s'."
                       :timeout-fn (lambda ()
                                     (unless cancelled
                                       (jsonrpc-shutdown server)
-                                      (let ((msg (format "Timed out\nstdout:\n%s\nstderr:\n%s"
-						    (with-current-buffer (process-buffer
-									  (jsonrpc--process server))
-						      (buffer-string))
-						    (with-current-buffer (jsonrpc-stderr-buffer server)
-						      (buffer-string)))))
+                                      (let ((msg (format "Timed out")))
                                         (if tag (throw tag `(error . ,msg))
                                           (eglot--error msg))))))
                      (cond ((numberp eglot-sync-connect)
