@@ -590,7 +590,7 @@ SERVER.  ."
         ;; this one is supposed to always fail, because it asks the
         ;; server to exit itself. Hence ignore-errors.
         (ignore-errors (jsonrpc-request server :exit nil :timeout 1)))
-    ;; Turn off `eglot--managed-mode' where appropriate.
+    ;; Turn off `eglot-managed-mode' where appropriate.
     (dolist (buffer (eglot--managed-buffers server))
       (eglot--with-live-buffer buffer (eglot--managed-mode-off)))
     ;; Now ask jsonrpc.el to shut down the server (which under normal
@@ -600,7 +600,7 @@ SERVER.  ."
 
 (defun eglot--on-shutdown (server)
   "Called by jsonrpc.el when SERVER is already dead."
-  ;; Turn off `eglot--managed-mode' where appropriate.
+  ;; Turn off `eglot-managed-mode' where appropriate.
   (dolist (buffer (eglot--managed-buffers server))
     (eglot--with-live-buffer buffer (eglot--managed-mode-off)))
   ;; Kill any expensive watches
@@ -751,7 +751,13 @@ INTERACTIVE is t if called interactively."
                   (eglot--saved-initargs server))
   (eglot--message "Reconnected!"))
 
-(defvar eglot--managed-mode) ; forward decl
+(define-obsolete-variable-alias
+  'eglot--managed-mode 'eglot-managed-mode "1.6")
+(define-obsolete-function-alias
+  'eglot--managed-mode 'eglot-managed-mode "1.6")
+(define-obsolete-variable-alias
+  'eglot--managed-mode-hook 'eglot-managed-mode-hook "1.6")
+(defvar eglot-managed-mode) ; forward decl
 
 ;;;###autoload
 (defun eglot-ensure ()
@@ -762,7 +768,7 @@ INTERACTIVE is t if called interactively."
           ()
           (remove-hook 'post-command-hook #'maybe-connect nil)
           (eglot--with-live-buffer buffer
-            (unless eglot--managed-mode
+            (unless eglot-managed-mode
               (apply #'eglot--connect (eglot--guess-contact))))))
       (when buffer-file-name
         (add-hook 'post-command-hook #'maybe-connect 'append nil)))))
@@ -1226,11 +1232,11 @@ For example, to keep your Company customization use
 (defvar-local eglot--cached-server nil
   "A cached reference to the current EGLOT server.")
 
-(define-minor-mode eglot--managed-mode
+(define-minor-mode eglot-managed-mode
   "Mode for source buffers managed by some EGLOT project."
   nil nil eglot-mode-map
   (cond
-   (eglot--managed-mode
+   (eglot-managed-mode
     (add-hook 'after-change-functions 'eglot--after-change nil t)
     (add-hook 'before-change-functions 'eglot--before-change nil t)
     (add-hook 'kill-buffer-hook #'eglot--managed-mode-off nil t)
@@ -1285,8 +1291,8 @@ For example, to keep your Company customization use
           (eglot-shutdown server)))))))
 
 (defun eglot--managed-mode-off ()
-  "Turn off `eglot--managed-mode' unconditionally."
-  (eglot--managed-mode -1))
+  "Turn off `eglot-managed-mode' unconditionally."
+  (eglot-managed-mode -1))
 
 (defun eglot-current-server ()
   "Return logical EGLOT server for current buffer, nil if none."
@@ -1306,10 +1312,10 @@ For example, to keep your Company customization use
   (when revert-buffer-preserve-modes (eglot--signal-textDocument/didOpen)))
 
 (defun eglot--maybe-activate-editing-mode ()
-  "Maybe activate `eglot--managed-mode'.
+  "Maybe activate `eglot-managed-mode'.
 
 If it is activated, also signal textDocument/didOpen."
-  (unless eglot--managed-mode
+  (unless eglot-managed-mode
     ;; Called when `revert-buffer-in-progress-p' is t but
     ;; `revert-buffer-preserve-modes' is nil.
     (when (and buffer-file-name
@@ -1322,7 +1328,7 @@ If it is activated, also signal textDocument/didOpen."
                                         eglot--servers-by-project)
                                :key #'eglot--major-mode))))
       (setq eglot--unreported-diagnostics `(:just-opened . nil))
-      (eglot--managed-mode)
+      (eglot-managed-mode)
       (eglot--signal-textDocument/didOpen))))
 
 (add-hook 'find-file-hook 'eglot--maybe-activate-editing-mode)
@@ -1398,7 +1404,7 @@ Uses THING, FACE, DEFS and PREPEND."
                                 "forget pending continuations"))))))))))
 
 (add-to-list 'mode-line-misc-info
-             `(eglot--managed-mode (" [" eglot--mode-line-format "] ")))
+             `(eglot-managed-mode (" [" eglot--mode-line-format "] ")))
 
 (put 'eglot-note 'flymake-category 'flymake-note)
 (put 'eglot-warning 'flymake-category 'flymake-warning)
@@ -1650,7 +1656,7 @@ Records BEG, END and PRE-CHANGE-LENGTH locally."
           (run-with-idle-timer
            eglot-send-changes-idle-time
            nil (lambda () (eglot--with-live-buffer buf
-                            (when eglot--managed-mode
+                            (when eglot-managed-mode
                               (eglot--signal-textDocument/didChange)
                               (setq eglot--change-idle-timer nil))))))))
 
@@ -1660,7 +1666,7 @@ Records BEG, END and PRE-CHANGE-LENGTH locally."
 (advice-add #'jsonrpc-request :before
             (cl-function (lambda (_proc _method _params &key
                                         deferred &allow-other-keys)
-                           (when (and eglot--managed-mode deferred)
+                           (when (and eglot-managed-mode deferred)
                              (eglot--signal-textDocument/didChange))))
             '((name . eglot--signal-textDocument/didChange)))
 
