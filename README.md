@@ -290,6 +290,9 @@ lisp:
 - `eglot-server-initialized-hook`: Hook run after server is
   successfully initialized;
 
+- `eglot-managed-mode-hook`: Hook run after Eglot starts/stops
+  managing a buffer.  See its documentation for usage tips;
+
 # How does Eglot work?
 
 `M-x eglot` starts a server via a shell-command guessed from
