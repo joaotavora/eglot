@@ -565,6 +565,11 @@ treated as in `eglot-dbind'."
   "Represents a server. Wraps a process for LSP communication.")
 
 
+(cl-defmethod eglot-server-name (server)
+  "Return a friendly name describing the server."
+  (or (plist-get (eglot--server-info server) :name)
+      (jsonrpc-name server)))
+
 ;;; Process management
 (defvar eglot--servers-by-project (make-hash-table :test #'equal)
   "Keys are projects.  Values are lists of processes.")
@@ -902,8 +907,7 @@ This docstring appeases checkdoc, that's all."
                           (eglot--message
                            "Connected! Server `%s' now managing `%s' buffers \
 in project `%s'."
-                           (or (plist-get serverInfo :name)
-                               (jsonrpc-name server))
+                           (eglot-server-name server)
                            managed-major-mode
                            (eglot-project-nickname server))
                           (when tag (throw tag t))))
@@ -2565,6 +2569,11 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
   "Handle notification window/progress"
   (setf (eglot--spinner server) (list id title done message)))
 
+(cl-defmethod eglot-server-name ((server eglot-rls))
+  "Return a friendly name describing the server."
+  (or (plist-get (eglot--server-info server) :name)
+      "rls"))
+
 
 ;;; eclipse-jdt-specific
 ;;;
@@ -2661,6 +2670,11 @@ If INTERACTIVE, prompt user for details."
   ((_server eglot-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
   "Eclipse JDT breaks spec and replies with edits as arguments."
   (mapc #'eglot--apply-workspace-edit arguments))
+
+(cl-defmethod eglot-server-name ((server eglot-eclipse-jdt))
+  "Return a friendly name describing the server."
+  (or (plist-get (eglot--server-info server) :name)
+      "eclipse-jdt"))
 
 (provide 'eglot)
 ;;; eglot.el ends here
