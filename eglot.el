@@ -1,5 +1,4 @@
 ;;; eglot.el --- Client for Language Server Protocol (LSP) servers  -*- lexical-binding: t; -*-
-;;; WIP remote server see https://github.com/joaotavora/eglot/issues/84
 
 ;; Copyright (C) 2018 Free Software Foundation, Inc.
 
@@ -680,21 +679,25 @@ be guessed."
                (cond (current-prefix-arg base-prompt)
                      ((null guess)
                       (format "[eglot] Sorry, couldn't guess for `%s'!\n%s"
-                              managed-mode base-prompt))
-                     ((and program (not (executable-find program)))
+			 managed-mode base-prompt))
+                     ((and program (not (eglot--executable-find program project)))
                       (concat (format "[eglot] I guess you want to run `%s'"
-                                      program-guess)
+				 program-guess)
                               (format ", but I can't find `%s' in PATH!" program)
                               "\n" base-prompt)))))
          (contact
           (or (and prompt
                    (let ((s (read-shell-command
                              prompt
-                             program-guess
+			     (concat
+			      (or
+			       (file-remote-p (cdr project))
+			       "")
+			      program-guess)
                              'eglot-command-history)))
-                     (if (string-match "^\\([^\s\t]+\\):\\([[:digit:]]+\\)$"
+                     (if (string-match "^\\([^\s\t]+\\):\\([[:digit:]]+\\)$" ;; TODO felipel regex no longer valid with remote files
                                        (string-trim s))
-                         (list (match-string 1 s)
+                         (list (match-string 1 s) ;; ← host, ↓ port
                                (string-to-number (match-string 2 s)))
                        (cl-subst
                         :autoport ":autoport:" (split-string-and-unquote s)
@@ -793,7 +796,6 @@ INTERACTIVE is t if called interactively."
 Each function is passed the server as an argument")
 
 
-
 (cl-defun eglot--make-process (&key
 			       name
 			       buffer
@@ -820,6 +822,9 @@ TODO(felipe): encrypt input/output of named pipe"
 	     stderr)
 	    ((pred stringp)
 	     (get-buffer-create stderr))))
+	 (temp-dir
+	  (string-trim
+	   (shell-command-to-string "mktemp -d --tmpdir=/tmp eglot.XXXXXXXXX")))
 	 (prog-as-shell-command
 	  (mapconcat
 	   #'shell-quote-argument
@@ -827,9 +832,7 @@ TODO(felipe): encrypt input/output of named pipe"
 	   " "))
 	 (stderr-pipe-path (concat
 			    (file-name-as-directory
-			     (make-temp-file
-			      "eglot-stderr"
-			      t))
+			     temp-dir)
 			    "stderr"))
 	 (stderr-pipe-path-as-arg
 	  (shell-quote-argument stderr-pipe-path))
@@ -842,11 +845,11 @@ TODO(felipe): encrypt input/output of named pipe"
 			  (format "exec %s 2> %s"
 			     prog-as-shell-command
 			     stderr-pipe-path-as-arg))
-			 ";"))
+			 "; "))
 	 (the-process
 	  (start-file-process name
 			      buffer
-			      "bash" ;; maybe some emacs var instead?
+			      "bash"
 			      "-c" piped-command))
 	 (stderr-command ;; ensure file exists before piping it out
 	  (format "stderrf=%s; while [[ ! -e \"$stderrf\" ]]; do sleep 1; done; exec cat \"$stderrf\""
@@ -866,21 +869,20 @@ TODO(felipe): encrypt input/output of named pipe"
 			    ))
     the-process))
 
-(defsubst eglot--from-server-local-file (file)
+(defsubst eglot--from-server-local-file (file &optional project)
   "Inverse of `file-local-name': add remote components to FILE.
 
-When server is running locally, return as-is."
-  (if (file-remote-p file)
-      (with-parsed-tramp-file-name default-directory nil ;; TODO(felipel): perhaps should use a different var other than default-directory? maybe project root?
-	(tramp-make-tramp-file-name
-	 method
-	 user
-	 domain
-	 host
-	 port
-	 file
-	 hop))
-    file))
+When server is running locally, return as-is.
+
+Use PROJECT root when provided, else use `default-directory'."
+  (when file
+    (let ((server-directory (or
+			     (and project
+				  (cdr project))
+			     default-directory)))
+      (if-let* ((remote-server-handler (file-remote-p server-directory)))
+	  (concat remote-server-handler file)
+	file))))
 
 (defun eglot--connect (managed-major-mode project class contact)
   "Connect to MANAGED-MAJOR-MODE, PROJECT, CLASS and CONTACT.
@@ -917,7 +919,7 @@ This docstring appeases checkdoc, that's all."
                          :stderr (get-buffer-create
                                   (format "*%s stderr*" readable-name)))))))))
          (spread (lambda (fn) (lambda (server method params)
-				(apply fn server method (append params nil)))))
+			   (apply fn server method (append params nil)))))
          (server
           (apply
            #'make-instance class
@@ -1082,6 +1084,36 @@ CONNECT-ARGS are passed as additional arguments to
   (apply #'eglot--message (concat "(warning) " format) args)
   (let ((warning-minimum-level :error))
     (display-warning 'eglot (apply #'format format args) :warning)))
+
+(defun eglot--executable-find (program &optional project)
+  "Like `executable-find' PROGRAM, but support remote files.
+
+Use PROJECT root to tell if we're using a remote setup, else
+use `default-directory'."
+  (let ((root (or (and project
+		       (cdr project))
+		  default-directory)))
+    (if-let* ((remote-project-handler (file-remote-p root)))
+	;; remotely find program
+	(eglot--from-server-local-file
+	 (or
+	  ;; find executable from relative name in PATH
+	  (with-parsed-tramp-file-name root nil
+	    (tramp-find-executable v
+				   program
+				   (tramp-get-remote-path v)
+				   nil
+				   t))
+	  ;; ↑ no luck with testing PATH…
+	  ;; ↓ maybe program is a full path, let's check if it's executable
+	  (and
+	   (file-executable-p
+	    (eglot--from-server-local-file program
+					   project))
+	   program))
+	 project)
+      ;; else, locally find program
+      (executable-find program))))
 
 (defun eglot-current-column () (- (point) (point-at-bol)))
 
