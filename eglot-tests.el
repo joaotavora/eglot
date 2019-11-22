@@ -249,7 +249,6 @@ Setup an async process, wait for it to end, test for output."
 			      "-c"
 			      the-command)
 	       :noquery t
-	       :buffer stdout
 	       :stderr stderr)))
       (set-process-sentinel p
 			    (lambda (_proc event)
@@ -257,7 +256,7 @@ Setup an async process, wait for it to end, test for output."
 						      event)
 				(setq eglot-test-output-ready t))))
       ;; send a text to process and eof to end it
-      (send-string p "3 at stderr\n")
+      (process-send-string p "3 at stderr\n")
       (process-send-eof p)
 
       ;; sit every 1s (for 4 at most) for output to be ready
