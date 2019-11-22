@@ -290,6 +290,10 @@ lisp:
 - `eglot-server-initialized-hook`: Hook run after server is
   successfully initialized;
 
+- `eglot-managed-mode-hook`: Hook run after Eglot started or stopped
+  managing a buffer.  Use `eglot-managed-p` to tell if current buffer
+  is still being managed.
+
 # How does Eglot work?
 
 `M-x eglot` starts a server via a shell-command guessed from
