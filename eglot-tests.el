@@ -239,7 +239,7 @@ Setup an async process, wait for it to end, test for output."
   (let ((eglot-test-output-ready nil)
 	(stderr (get-buffer-create "printing process stderr"))
 	(stdout (get-buffer-create "printing process stdout"))
-	(the-command "echo 1; echo 2; >&2 exec cat;"))
+	(the-command "echo 1; echo 2; dd;"))
     (cl-loop for b in (list stderr stdout)
 	     do (with-current-buffer b
 		  (erase-buffer)))
@@ -256,7 +256,7 @@ Setup an async process, wait for it to end, test for output."
 						      event)
 				(setq eglot-test-output-ready t))))
       ;; send a text to process and eof to end it
-      (process-send-string p "3 at stderr\n")
+      (process-send-string p "abc")
       (process-send-eof p)
 
       ;; sit every 1s (for 4 at most) for output to be ready
@@ -267,9 +267,14 @@ Setup an async process, wait for it to end, test for output."
 	  (sit-for 1)))
       (should eglot-test-output-ready)
       (let ((stderr-str (with-current-buffer stderr
+			  (buffer-string)))
+	    (stdout-str (with-current-buffer stdout
 			  (buffer-string))))
-	(should (string-equal stderr-str
-			      "3 at stderr\n"))))
+	(should (string-match-p "records in"
+				stderr-str))
+	(should (string-equal "1\n2\nabc"
+			      stdout-str)))
+      )
     ;; cleanup
     (kill-buffer stderr)
     (kill-buffer stdout)))
