@@ -809,9 +809,7 @@ the stderr.
 
 This is implemented by spawning a process for COMMAND while redirecting the
 stderr from the original process to a named pipe with `mkfifo'.  The second
-process reads from this pipe into the STDERR buffer.
-
-TODO(felipe): encrypt input/output of named pipe"
+process reads from this pipe into the STDERR buffer."
   (let* ((temp-dir
 	  (string-trim
 	   (shell-command-to-string "mktemp -d --tmpdir=/tmp eglot.XXXXXXXXX")))
