@@ -246,6 +246,7 @@ Setup an async process, wait for it to end, test for output."
 	       :name "printing process"
 	       :command (list "dd"
 			      "bs=1")
+	       :buffer stdout
 	       :noquery t
 	       :stderr stderr)))
       (set-process-sentinel p
@@ -271,8 +272,6 @@ Setup an async process, wait for it to end, test for output."
 			  (buffer-string)))
 	    (stdout-str (with-current-buffer stdout
 			  (buffer-string))))
-	(should (string-match-p "records in"
-				stderr-str))
 	(should (string-equal "abc"
 			      stdout-str))))
     ;; cleanup
