@@ -695,7 +695,7 @@ be guessed."
 			       "")
 			      program-guess)
                              'eglot-command-history)))
-                     (if (string-match "^\\([^\s\t]+\\):\\([[:digit:]]+\\)$" ;; TODO felipel regex no longer valid with remote files
+                     (if (string-match "^\\([^\s\t]+\\):\\([[:digit:]]+\\)$"
                                        (string-trim s))
                          (list (match-string 1 s) ;; ← host, ↓ port
                                (string-to-number (match-string 2 s)))
