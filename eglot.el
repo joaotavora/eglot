@@ -811,7 +811,6 @@ This is implemented by spawning a process for COMMAND while redirecting the
 stderr from the original process to a named pipe with `mkfifo'.  The second
 process reads from this pipe into the STDERR buffer.
 
-TODO(felipe): don't ignore CODING
 TODO(felipe): encrypt input/output of named pipe"
   (let* ((temp-dir
 	  (string-trim
@@ -886,6 +885,9 @@ TODO(felipe): encrypt input/output of named pipe"
 			    ))
     (set-process-query-on-exit-flag stderr-process nil) ;; never query for killing stderr
     (set-process-query-on-exit-flag the-process (not noquery))
+    (when coding
+      (set-process-coding-system the-process coding)
+      (set-process-coding-system stderr-process coding))
     the-process))
 
 (defsubst eglot--from-server-local-file (file &optional project)
