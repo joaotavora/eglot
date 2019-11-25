@@ -816,15 +816,34 @@ TODO(felipe): don't ignore NOQUERY
 TODO(felipe): don't ignore CONNECTION-TYPE
 TODO(felipe): don't ignore CODING
 TODO(felipe): encrypt input/output of named pipe"
-  (let* ((stderr-buffer
+  (let* ((temp-dir
+	  (string-trim
+	   (shell-command-to-string "mktemp -d --tmpdir=/tmp eglot.XXXXXXXXX")))
+	 (temp-suffix
+	  (save-match-data
+	    (and
+	     (string-match
+	      (rx "/tmp/eglot." (group (* any)))
+	      temp-dir)
+	     (match-string 1 temp-dir))))
+	 (stdout-buffer
+	  (pcase buffer
+	    ((pred bufferp)
+	     buffer)
+	    ((pred stringp)
+	     (get-buffer-create buffer))
+	    ((pred null)
+	     (get-buffer-create (format "eglot: [%s] stdout"
+				   temp-suffix)))))
+	 (stderr-buffer
 	  (pcase stderr
 	    ((pred bufferp)
 	     stderr)
 	    ((pred stringp)
-	     (get-buffer-create stderr))))
-	 (temp-dir
-	  (string-trim
-	   (shell-command-to-string "mktemp -d --tmpdir=/tmp eglot.XXXXXXXXX")))
+	     (get-buffer-create stderr))
+	    ((pred null)
+	     (get-buffer-create (format "eglot: [%s] stderr"
+				   temp-suffix)))))
 	 (prog-as-shell-command
 	  (mapconcat
 	   #'shell-quote-argument
@@ -842,15 +861,16 @@ TODO(felipe): encrypt input/output of named pipe"
 			  "set -e" ;; die on error
 			  (format "mkfifo %s"
 			     stderr-pipe-path-as-arg)
+			  "stty raw"
 			  (format "exec %s 2> %s"
 			     prog-as-shell-command
 			     stderr-pipe-path-as-arg))
 			 "; "))
 	 (the-process
 	  (start-file-process name
-			      buffer
+			      stdout-buffer
 			      "bash"
-			      "-c" piped-command))
+			      "-fc" piped-command))
 	 (stderr-command ;; ensure file exists before piping it out
 	  (format "stderrf=%s; while [[ ! -e \"$stderrf\" ]]; do sleep 1; done; exec cat \"$stderrf\""
 	     stderr-pipe-path-as-arg))
@@ -860,7 +880,7 @@ TODO(felipe): encrypt input/output of named pipe"
 	      (process-name the-process))
 	   stderr-buffer
 	   "bash"
-	   "-c"
+	   "-fc"
 	   stderr-command)))
     ;; replace default sentinel where "Process … finished" is printed
     (set-process-sentinel stderr-process
