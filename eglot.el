@@ -801,7 +801,6 @@ Each function is passed the server as an argument")
 			       buffer
 			       command
 			       noquery
-			       connection-type
 			       coding
 			       stderr)
   "Like `make-process', but using `start-file-process'.
@@ -812,7 +811,6 @@ This is implemented by spawning a process for COMMAND while redirecting the
 stderr from the original process to a named pipe with `mkfifo'.  The second
 process reads from this pipe into the STDERR buffer.
 
-TODO(felipe): don't ignore CONNECTION-TYPE
 TODO(felipe): don't ignore CODING
 TODO(felipe): encrypt input/output of named pipe"
   (let* ((temp-dir
