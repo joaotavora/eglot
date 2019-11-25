@@ -679,10 +679,10 @@ be guessed."
                (cond (current-prefix-arg base-prompt)
                      ((null guess)
                       (format "[eglot] Sorry, couldn't guess for `%s'!\n%s"
-			 managed-mode base-prompt))
+			      managed-mode base-prompt))
                      ((and program (not (eglot--executable-find program project)))
                       (concat (format "[eglot] I guess you want to run `%s'"
-				 program-guess)
+				      program-guess)
                               (format ", but I can't find `%s' in PATH!" program)
                               "\n" base-prompt)))))
          (contact
@@ -830,7 +830,7 @@ TODO(felipe): encrypt input/output of named pipe"
 	     (get-buffer-create buffer))
 	    ((pred null)
 	     (get-buffer-create (format "eglot: [%s] stdout"
-				   temp-suffix)))))
+					temp-suffix)))))
 	 (stderr-buffer
 	  (pcase stderr
 	    ((pred bufferp)
@@ -839,7 +839,7 @@ TODO(felipe): encrypt input/output of named pipe"
 	     (get-buffer-create stderr))
 	    ((pred null)
 	     (get-buffer-create (format "eglot: [%s] stderr"
-				   temp-suffix)))))
+					temp-suffix)))))
 	 (prog-as-shell-command
 	  (mapconcat
 	   #'shell-quote-argument
@@ -856,11 +856,11 @@ TODO(felipe): encrypt input/output of named pipe"
 			 (list
 			  "set -e" ;; die on error
 			  (format "mkfifo %s"
-			     stderr-pipe-path-as-arg)
+				  stderr-pipe-path-as-arg)
 			  "stty raw"
 			  (format "exec %s 2> %s"
-			     prog-as-shell-command
-			     stderr-pipe-path-as-arg))
+				  prog-as-shell-command
+				  stderr-pipe-path-as-arg))
 			 "; "))
 	 (the-process
 	  (start-file-process name
@@ -869,11 +869,11 @@ TODO(felipe): encrypt input/output of named pipe"
 			      "-fc" piped-command))
 	 (stderr-command ;; ensure file exists before piping it out
 	  (format "stderrf=%s; while [[ ! -e \"$stderrf\" ]]; do sleep 1; done; exec cat \"$stderrf\""
-	     stderr-pipe-path-as-arg))
+		  stderr-pipe-path-as-arg))
 	 (stderr-process
 	  (start-file-process
 	   (format "eglot: %s[stderr]"
-	      (process-name the-process))
+		   (process-name the-process))
 	   stderr-buffer
 	   "bash"
 	   "-fc"
@@ -940,7 +940,7 @@ This docstring appeases checkdoc, that's all."
                          :stderr (get-buffer-create
                                   (format "*%s stderr*" readable-name)))))))))
          (spread (lambda (fn) (lambda (server method params)
-			   (apply fn server method (append params nil)))))
+				(apply fn server method (append params nil)))))
          (server
           (apply
            #'make-instance class
@@ -1089,7 +1089,7 @@ CONNECT-ARGS are passed as additional arguments to
              (eglot--error "Could not start and connect to server%s"
                            (if inferior
                                (format " started with %s"
-				  (process-command inferior)) ;; TODO reindent this
+				       (process-command inferior))
                              "!")))))))
 
 
@@ -1563,7 +1563,7 @@ Uses THING, FACE, DEFS and PREPEND."
                    (priority . ,(+ 50 i))
                    (keymap . ,(let ((map (make-sparse-keymap)))
                                 (define-key map [mouse-1]
-                                            (eglot--mouse-call 'eglot-code-actions))
+				  (eglot--mouse-call 'eglot-code-actions))
                                 map)))))
 
 
@@ -1846,7 +1846,7 @@ When called interactively, use the currently active server"
                        (if (and (not (string-empty-p uri-path))
                                 (file-directory-p uri-path))
                            uri-path
-                           (car (project-roots (eglot--project server))))))
+			 (car (project-roots (eglot--project server))))))
                 (setq-local major-mode (eglot--major-mode server))
                 (hack-dir-local-variables-non-file-buffer)
                 (alist-get section eglot-workspace-configuration
@@ -2681,8 +2681,8 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
 	    (setq
 	     success
 	     `(:message ,(format "OK, watching %s directories in %s watchers"
-			    (length glob-dirs) (length watchers))))) ;; TODO reindent this
-        (unless success
+				 (length glob-dirs) (length watchers)))))
+	(unless success
           (eglot-unregister-capability server method id))))))
 
 (cl-defmethod eglot-unregister-capability
