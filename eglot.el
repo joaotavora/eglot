@@ -812,7 +812,6 @@ This is implemented by spawning a process for COMMAND while redirecting the
 stderr from the original process to a named pipe with `mkfifo'.  The second
 process reads from this pipe into the STDERR buffer.
 
-TODO(felipe): don't ignore NOQUERY
 TODO(felipe): don't ignore CONNECTION-TYPE
 TODO(felipe): don't ignore CODING
 TODO(felipe): encrypt input/output of named pipe"
@@ -887,6 +886,8 @@ TODO(felipe): encrypt input/output of named pipe"
 			  (lambda (_proc _event)
 			    ;; discard event
 			    ))
+    (set-process-query-on-exit-flag stderr-process nil) ;; never query for killing stderr
+    (set-process-query-on-exit-flag the-process (not noquery))
     the-process))
 
 (defsubst eglot--from-server-local-file (file &optional project)
