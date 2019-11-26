@@ -131,7 +131,7 @@ then restored."
         (setq retval
               (catch tag
                 (setq timer
-                      (run-with-timer (* 5 timeout) nil
+                      (run-with-timer timeout nil
 				      (lambda ()
 					(unless edebug-active
 					  (throw tag timed-out)))))
