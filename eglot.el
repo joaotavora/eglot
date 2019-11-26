@@ -661,18 +661,14 @@ be guessed."
                                m2 (if (listp m1) m1 (list m1))
                                :test #'provided-mode-derived-p)))))
          (guess (if (functionp guess)
-		    (let ((guessed (funcall guess interactive)))
-		      (append
-		       (list
-			;; make command local to server
-			(eglot--from-server-local-file (car guessed)
-						       project))
-		       (cdr guessed)))
+		    (funcall guess interactive)
 		  guess))
          (class (or (and (consp guess) (symbolp (car guess))
                          (prog1 (car guess) (setq guess (cdr guess))))
                     'eglot-lsp-server))
-         (program (and (listp guess) (stringp (car guess)) (car guess)))
+         (program (and (listp guess) (stringp (car guess))
+		       (eglot--from-server-local-file (car guess)
+						      project)))
          (base-prompt
           (and interactive
                "Enter program to execute (or <host>:<port>): "))
