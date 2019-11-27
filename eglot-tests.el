@@ -237,7 +237,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Test running local/remote processes with stderr.
 
 Setup an async process, wait for it to end, test for output."
-  ;; prerequirement: be able to setup a mkfifo
+  ;; prerequirement: be able to setup a mkfifo and run dd
   (let ((temp-dir
 	 (string-trim
 	  (shell-command-to-string "mktemp -d --tmpdir=/tmp eglot.XXXXXXXXX"))))
@@ -248,14 +248,20 @@ Setup an async process, wait for it to end, test for output."
 			 (concat
 			  (file-name-as-directory temp-dir)
 			  "stderr"))))
-      (should (equal mkfifo-return-value 0)))
+      (should (equal 0 mkfifo-return-value)))
     (delete-directory temp-dir 'recursive))
+
+  (should (equal 0
+		 (process-file "dd" nil nil nil)))
+
   (let ((eglot-test-output-ready nil)
 	(stderr (get-buffer-create "printing process stderr"))
 	(stdout (get-buffer-create "printing process stdout")))
-    (cl-loop for b in (list stderr stdout)
-	     do (with-current-buffer b
-		  (erase-buffer)))
+    ;; prepare buffers (empty them)
+    (with-current-buffer stdout (erase-buffer))
+    (with-current-buffer stderr (erase-buffer))
+
+    ;; start an echo process (reading 1byte at a time)
     (let* ((p (eglot--make-process
 	       :name "printing process"
 	       :command (list "dd"
@@ -271,7 +277,7 @@ Setup an async process, wait for it to end, test for output."
       ;; send a text to process to end it
       (process-send-string p "abc")
 
-      ;; receive output, kill the process
+      ;; give Emacs time to receive the echo, then kill the process
       (sit-for 3)
       (kill-process p)
 
