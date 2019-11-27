@@ -249,7 +249,7 @@ Setup an async process, wait for it to end, test for output."
 			  (file-name-as-directory temp-dir)
 			  "stderr"))))
       (should (equal mkfifo-return-value 0)))
-    (delete-file temp-dir))
+    (delete-directory temp-dir 'recursive))
   (let ((eglot-test-output-ready nil)
 	(stderr (get-buffer-create "printing process stderr"))
 	(stdout (get-buffer-create "printing process stdout")))
