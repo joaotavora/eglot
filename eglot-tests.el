@@ -244,6 +244,7 @@ Setup an async process, wait for it to end, test for output."
     (should (not (string-empty-p temp-dir)))
     (let ((mkfifo-return-value
 	   (process-file "mkfifo"
+			 nil nil nil
 			 (concat
 			  (file-name-as-directory temp-dir)
 			  "stderr"))))
