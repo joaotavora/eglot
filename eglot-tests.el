@@ -236,6 +236,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest 00-can-make-process ()
   "Test running local/remote processes with stderr.
 
+This test will assert commands used in `eglot--make-process' work all right
+
 Setup an async process, wait for it to end, test for output."
   ;; prerequirement: be able to setup a mkfifo and run dd
   (let ((temp-dir
@@ -252,7 +254,9 @@ Setup an async process, wait for it to end, test for output."
     (delete-directory temp-dir 'recursive))
 
   (should (equal 0
-		 (process-file "dd" nil nil nil)))
+		 (process-file "dd" nil nil nil "--version")))
+  (should (equal 0
+		 (process-file "bash" nil nil nil "--version")))
 
   (let ((eglot-test-output-ready nil)
 	(stderr (get-buffer-create "printing process stderr"))
@@ -265,7 +269,8 @@ Setup an async process, wait for it to end, test for output."
     (let* ((p (eglot--make-process
 	       :name "printing process"
 	       :command (list "dd"
-			      "bs=1")
+			      "bs=1"
+			      "status=none")
 	       :buffer stdout
 	       :noquery t
 	       :stderr stderr)))
@@ -292,10 +297,7 @@ Setup an async process, wait for it to end, test for output."
 			  (buffer-string)))
 	    (stdout-str (with-current-buffer stdout
 			  (buffer-string))))
-	(should (string-equal "abc3+0 records in
-3+0 records out
-3 bytes copied, 6.0825e-05 s, 49.3 kB/s
-"
+	(should (string-equal ""
 			      stderr-str))
 	(should (string-equal "abc"
 			      stdout-str))))

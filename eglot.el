@@ -868,7 +868,7 @@ process reads from this pipe into the STDERR buffer."
 			      "bash"
 			      "-fc" piped-command))
 	 (stderr-command ;; ensure file exists before piping it out
-	  (format "stderrf=%s; while [[ ! -e \"$stderrf\" ]]; do sleep 1; done; exec cat \"$stderrf\""
+	  (format "stderrf=%s; while [[ ! -e \"$stderrf\" ]]; do sleep 1; done; exec dd bs=1 status=none if=\"$stderrf\""
 		  stderr-pipe-path-as-arg))
 	 (stderr-process
 	  (start-file-process
