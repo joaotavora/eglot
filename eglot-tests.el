@@ -29,6 +29,7 @@
 (require 'ert-x) ; ert-simulate-command
 (require 'edebug)
 (require 'python) ; python-mode-hook
+(require 'subr-x)
 (require 'company nil t)
 
 ;; Helpers
@@ -236,6 +237,18 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Test running local/remote processes with stderr.
 
 Setup an async process, wait for it to end, test for output."
+  ;; prerequirement: be able to setup a mkfifo
+  (let ((temp-dir
+	 (string-trim
+	  (shell-command-to-string "mktemp -d --tmpdir=/tmp eglot.XXXXXXXXX"))))
+    (should (not (string-empty-p temp-dir)))
+    (let ((mkfifo-return-value
+	   (process-file "mkfifo"
+			 (concat
+			  (file-name-as-directory temp-dir)
+			  "stderr"))))
+      (should (equal mkfifo-return-value 0)))
+    (delete-file temp-dir))
   (let ((eglot-test-output-ready nil)
 	(stderr (get-buffer-create "printing process stderr"))
 	(stdout (get-buffer-create "printing process stdout")))
@@ -272,6 +285,11 @@ Setup an async process, wait for it to end, test for output."
 			  (buffer-string)))
 	    (stdout-str (with-current-buffer stdout
 			  (buffer-string))))
+	(should (string-equal "abc3+0 records in
+3+0 records out
+3 bytes copied, 6.0825e-05 s, 49.3 kB/s
+"
+			      stderr-str))
 	(should (string-equal "abc"
 			      stdout-str))))
     ;; cleanup
