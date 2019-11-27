@@ -272,7 +272,7 @@ Setup an async process, wait for it to end, test for output."
       (process-send-string p "abc")
 
       ;; receive output, kill the process
-      (sit-for 1)
+      (sit-for 3)
       (kill-process p)
 
       ;; sit every 1s (for 4 at most) for output to be ready
