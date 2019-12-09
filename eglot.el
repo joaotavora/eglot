@@ -456,16 +456,21 @@ treated as in `eglot-dbind'."
 (cl-defgeneric eglot-register-capability (server method id &rest params)
   "Ask SERVER to register capability METHOD marked with ID."
   (:method
-   (_s method _id &rest _params)
-   (eglot--warn "Server tried to register unsupported capability `%s'"
-                method)))
+   (server method _id &rest params)
+   (cl-pushnew `(,(eglot--capability-keyword method) (,@params))
+               (eglot--dynamic-capabilities server)
+               :key #'car)
+   (eglot--message "Server registers capability `%s'" method)))
 
 (cl-defgeneric eglot-unregister-capability (server method id &rest params)
   "Ask SERVER to register capability METHOD marked with ID."
   (:method
-   (_s method _id &rest _params)
-   (eglot--warn "Server tried to unregister unsupported capability `%s'"
-                method)))
+   (server method _id &rest _params)
+   (setf (eglot--dynamic-capabilities server)
+         (cl-delete (eglot--capability-keyword method)
+                    (eglot--dynamic-capabilities server)
+                    :key #'car))
+   (eglot--message "Server unregisters capability `%s'" method)))
 
 (cl-defgeneric eglot-client-capabilities (server)
   "What the EGLOT LSP client supports for SERVER."
@@ -496,17 +501,17 @@ treated as in `eglot-dbind'."
                                        :signatureInformation
                                        `(:parameterInformation
                                          (:labelOffsetSupport t)))
-             :references         `(:dynamicRegistration :json-false)
-             :definition         `(:dynamicRegistration :json-false)
-             :declaration        `(:dynamicRegistration :json-false)
-             :implementation     `(:dynamicRegistration :json-false)
-             :typeDefinition     `(:dynamicRegistration :json-false)
+             :references         `()
+             :definition         `()
+             :declaration        `()
+             :implementation     `()
+             :typeDefinition     `()
              :documentSymbol     (list
                                   :dynamicRegistration :json-false
                                   :symbolKind `(:valueSet
                                                 [,@(mapcar
                                                     #'car eglot--symbol-kind-names)]))
-             :documentHighlight  `(:dynamicRegistration :json-false)
+             :documentHighlight  `()
              :codeAction         (list
                                   :dynamicRegistration :json-false
                                   :codeActionLiteralSupport
@@ -516,9 +521,9 @@ treated as in `eglot-dbind'."
                                       "refactor" "refactor.extract"
                                       "refactor.inline" "refactor.rewrite"
                                       "source" "source.organizeImports"])))
-             :formatting         `(:dynamicRegistration :json-false)
-             :rangeFormatting    `(:dynamicRegistration :json-false)
-             :rename             `(:dynamicRegistration :json-false)
+             :formatting         `()
+             :rangeFormatting    `()
+             :rename             `()
              :publishDiagnostics `(:relatedInformation :json-false))
             :experimental (list))))
 
@@ -530,8 +535,12 @@ treated as in `eglot-dbind'."
     :documentation "Major mode symbol."
     :accessor eglot--major-mode)
    (capabilities
-    :documentation "JSON object containing server capabilities."
-    :accessor eglot--capabilities)
+    :documentation "JSON object of server capabilities."
+    :accessor eglot--initial-capabilities)
+   (dynamic-capabilities
+    :documentation "JSON object of dynamically added server capabilities."
+    :initform nil
+    :accessor eglot--dynamic-capabilities)
    (server-info
     :documentation "JSON object containing server info."
     :accessor eglot--server-info)
@@ -862,11 +871,14 @@ This docstring appeases checkdoc, that's all."
                                                     server)
                             :capabilities (eglot-client-capabilities server))
                       :success-fn
-                      (eglot--lambda ((InitializeResult) capabilities serverInfo)
+                      (eglot--lambda ((InitializeResult)
+                                      capabilities
+                                      serverInfo)
                         (unless cancelled
                           (push server
                                 (gethash project eglot--servers-by-project))
-                          (setf (eglot--capabilities server) capabilities)
+                          (setf (eglot--initial-capabilities server)
+                                capabilities)
                           (setf (eglot--server-info server) serverInfo)
                           (jsonrpc-notify server :initialized (make-hash-table))
                           (dolist (buffer (buffer-list))
@@ -978,6 +990,9 @@ CONNECT-ARGS are passed as additional arguments to
 
 ;;; Helpers (move these to API?)
 ;;;
+(defun eglot--capability-keyword (method)
+  (intern (format ":%s" (cadr (split-string (format "%s" method) "/")))))
+
 (defun eglot--error (format &rest args)
   "Error out with FORMAT with ARGS."
   (error "[eglot] %s" (apply #'format format args)))
@@ -1139,7 +1154,10 @@ under cursor."
   (unless (cl-some (lambda (feat)
                      (memq feat eglot-ignored-server-capabilites))
                    feats)
-    (cl-loop for caps = (eglot--capabilities (eglot--current-server-or-lose))
+    (cl-loop with server = (eglot--current-server-or-lose)
+             for caps = (append
+                         (eglot--dynamic-capabilities server)
+                         (eglot--initial-capabilities server))
              then (cadr probe)
              for (feat . more) on feats
              for probe = (plist-member caps feat)
