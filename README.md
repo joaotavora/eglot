@@ -43,6 +43,7 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * Elixir's [elixir-ls][elixir-ls]
 * Ada's [ada_language_server][ada_language_server]
 * Scala's [metals][metals]
+* TeX/LaTeX's [Digestif][digestif]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -457,3 +458,4 @@ Under the hood:
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [metals]: http://scalameta.org/metals/
+[digestif]: https://github.com/astoff/digestif
