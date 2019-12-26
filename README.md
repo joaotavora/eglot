@@ -273,6 +273,9 @@ documentation on what these do.
 - `eglot-auto-display-help-buffer`: If non-nil, automatically display
   `*eglot-help*` buffer;
 
+- `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
+  before allowing server to edit the source buffer's text;
+
 There are a couple more variables that you can customize via Emacs
 lisp:
 
