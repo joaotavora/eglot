@@ -35,6 +35,7 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * PHP's [php-language-server][php-language-server]
 * C/C++'s [ccls][ccls]  ([cquery][cquery] and [clangd][clangd] also work)
 * Haskell's [IDE engine][haskell-ide-engine]
+* Elm's [elm-language-server][elm-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Go's [gopls][gopls]
 * Ocaml's [ocaml-language-server][ocaml-language-server]
@@ -451,6 +452,7 @@ Under the hood:
 [solargraph]: https://github.com/castwide/solargraph
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
+[elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [gopls]: https://github.com/golang/go/wiki/gopls
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
