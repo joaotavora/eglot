@@ -609,9 +609,11 @@ SERVER.  ."
 
 (defun eglot--on-shutdown (server)
   "Called by jsonrpc.el when SERVER is already dead."
-  ;; Turn off `eglot--managed-mode' where appropriate.
-  (dolist (buffer (eglot--managed-buffers server))
-    (eglot--with-live-buffer buffer (eglot--managed-mode-off)))
+  ;; Turn off `eglot--managed-mode' where appropriate.  Avoid any
+  ;; auto-shutdown behavior.
+  (let (eglot-autoshutdown)
+    (dolist (buffer (eglot--managed-buffers server))
+      (eglot--with-live-buffer buffer (eglot--managed-mode-off))))
   ;; Kill any expensive watches
   (maphash (lambda (_id watches)
              (mapcar #'file-notify-rm-watch watches))
