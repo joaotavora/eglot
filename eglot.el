@@ -194,7 +194,7 @@ let the buffer grow forever."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Number of characters")))
 
-(defcustom eglot-confirm-server-initiated-edits 'confirm
+(defcustom eglot-confirm-server-initiated-actions 'confirm
   "Non-nil if server-initiated edits should be confirmed with user."
   :type '(choice (const :tag "Don't show confirmation prompt" nil)
                  (symbol :tag "Show confirmation prompt" 'confirm)))
@@ -1553,7 +1553,7 @@ THINGS are either registrations or unregisterations (sic)."
 (cl-defmethod eglot-handle-request
   (_server (_method (eql workspace/applyEdit)) &key _label edit)
   "Handle server request workspace/applyEdit"
-  (eglot--apply-workspace-edit edit eglot-confirm-server-initiated-edits))
+  (eglot--apply-workspace-edit edit eglot-confirm-server-initiated-actions))
 
 (defun eglot--TextDocumentIdentifier ()
   "Compute TextDocumentIdentifier object for current buffer."
@@ -2466,15 +2466,17 @@ potentially rename EGLOT's help buffer."
          (menu `("Eglot code actions:" ("dummy" ,@menu-items)))
          (action (if (listp last-nonmenu-event)
                      (x-popup-menu last-nonmenu-event menu)
-                   (let ((never-mind (gensym)) retval)
-                     (setcdr (cadr menu)
-                             (cons `("never mind..." . ,never-mind) (cdadr menu)))
-                     (if (eq (setq retval (tmm-prompt menu)) never-mind)
-                         (keyboard-quit)
-                       retval)))))
+                   (if eglot-confirm-server-initiated-actions
+                       (let ((never-mind (gensym)) retval)
+                         (setcdr (cadr menu)
+                                 (cons `("never mind..." . ,never-mind) (cdadr menu)))
+                         (if (eq (setq retval (tmm-prompt menu)) never-mind)
+                             (keyboard-quit)
+                           retval))
+                     (tmm-prompt menu)))))
     (eglot--dcase action
-        (((Command) command arguments)
-         (eglot-execute-command server (intern command) arguments))
+      (((Command) command arguments)
+       (eglot-execute-command server (intern command) arguments))
       (((CodeAction) edit command)
        (when edit (eglot--apply-workspace-edit edit))
        (when command
