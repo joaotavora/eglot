@@ -601,7 +601,7 @@ SERVER.  ."
         (ignore-errors (jsonrpc-request server :exit nil :timeout 1)))
     ;; Turn off `eglot--managed-mode' where appropriate.
     (dolist (buffer (eglot--managed-buffers server))
-      (eglot--with-live-buffer buffer (eglot--managed-mode-off)))
+      (eglot--with-live-buffer buffer (eglot--managed-mode-off t)))
     ;; Now ask jsonrpc.el to shut down the server (which under normal
     ;; conditions should return immediately).
     (jsonrpc-shutdown server (not preserve-buffers))
@@ -611,7 +611,7 @@ SERVER.  ."
   "Called by jsonrpc.el when SERVER is already dead."
   ;; Turn off `eglot--managed-mode' where appropriate.
   (dolist (buffer (eglot--managed-buffers server))
-    (eglot--with-live-buffer buffer (eglot--managed-mode-off)))
+    (eglot--with-live-buffer buffer (eglot--managed-mode-off t)))
   ;; Kill any expensive watches
   (maphash (lambda (_id watches)
              (mapcar #'file-notify-rm-watch watches))
@@ -1289,13 +1289,15 @@ For example, to keep your Company customization use
         (setf (eglot--managed-buffers server)
               (delq (current-buffer) (eglot--managed-buffers server)))
         (when (and eglot-autoshutdown
-                   (not (eglot--shutdown-requested server))
                    (not (eglot--managed-buffers server)))
           (eglot-shutdown server)))))))
 
-(defun eglot--managed-mode-off ()
-  "Turn off `eglot--managed-mode' unconditionally."
-  (eglot--managed-mode -1))
+(defun eglot--managed-mode-off (&optional no-autoshutdown)
+  "Turn off `eglot--managed-mode' unconditionally.
+
+With NO-AUTOSHUTDOWN, ignore any non-nil value of `eglot-autoshutdown'."
+  (let ((eglot-autoshutdown (if no-autoshutdown nil eglot-autoshutdown)))
+    (eglot--managed-mode -1)))
 
 (defun eglot-current-server ()
   "Return logical EGLOT server for current buffer, nil if none."
