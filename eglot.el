@@ -1289,7 +1289,7 @@ For example, to keep your Company customization use
         (setf (eglot--managed-buffers server)
               (delq (current-buffer) (eglot--managed-buffers server)))
         (when (and eglot-autoshutdown
-                   (not (eglot--shutdown-requested server))
+                   (jsonrpc-running-p server)
                    (not (eglot--managed-buffers server)))
           (eglot-shutdown server)))))))
 
