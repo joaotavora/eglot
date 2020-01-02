@@ -2466,10 +2466,9 @@ potentially rename EGLOT's help buffer."
          (menu `("Eglot code actions:" ("dummy" ,@menu-items)))
          (action (if (listp last-nonmenu-event)
                      (x-popup-menu last-nonmenu-event menu)
-                   (cdr (assoc (completing-read "[eglot] Pick an action: "
-                                                menu-items nil
-                                                'required nil
-                                                nil (car menu-items))
+                   (cdr (assoc (completing-read "[eglot] Pick an action: " 
+						menu-items nil t
+						nil nil (car menu-items))
                                menu-items)))))
     (eglot--dcase action
         (((Command) command arguments)
