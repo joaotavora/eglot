@@ -631,6 +631,30 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
        (should (looking-back "\"foo.bar\": \""))
        (should (looking-at "fb\"$"))))))
 
+(ert-deftest eglot-lsp-abiding-column ()
+  "Test basic `eglot-lsp-abiding-column' and `eglot-move-to-lsp-abiding-column'"
+  (skip-unless (executable-find "clangd-8"))
+  (eglot--with-fixture
+      '(("project" .
+         (("foo.c" . "const char write_data[] = u8\"🚂🚃🚄🚅🚆🚈🚇🚈🚉🚊🚋🚌🚎🚝🚞🚟🚠🚡🛤🛲\";"))))
+    (let ((eglot-server-programs
+           '((c-mode . ("clangd-8")))))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/foo.c")
+        (setq-local eglot-move-to-column-function #'eglot-move-to-lsp-abiding-column
+                    eglot-current-column-function #'eglot-lsp-abiding-column)
+        (eglot--sniffing (:client-notifications c-notifs)
+          (eglot--tests-connect)
+          (end-of-line)
+          (insert "p ")
+          (eglot--signal-textDocument/didChange)
+          (eglot--wait-for (c-notifs 2) (&key params &allow-other-keys)
+            (should (equal 71 (cadddr (cadadr (aref (cadddr params) 0))))))
+          (beginning-of-line)
+          (should (eq eglot-move-to-column-function #'eglot-move-to-lsp-abiding-column))
+          (funcall eglot-move-to-column-function 71)
+          (should (looking-at "p")))))))
+
 (ert-deftest eglot-ensure ()
   "Test basic `eglot-ensure' functionality"
   (skip-unless (executable-find "pyls"))
