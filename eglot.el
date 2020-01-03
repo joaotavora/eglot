@@ -1052,11 +1052,7 @@ be set to `eglot-move-to-lsp-abiding-column', and
   "Move to COLUMN abiding by the LSP spec."
   (cl-loop
    initially (move-to-column column)
-   with lbp = (line-beginning-position)
-   for diff = (- column
-                 (/ (- (length (encode-coding-region lbp (point) 'utf-16 t))
-                       2)
-                    2))
+   for diff = (- column (eglot-lsp-abiding-column))
    until (zerop diff)
    do (forward-char (/ (if (> diff 0) (1+ diff) (1- diff)) 2))))
 
