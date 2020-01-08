@@ -1,13 +1,5 @@
 # 1.6 (upcoming)
 
-##### Column offset calculation is now LSP-conform ([#361][github#361])
-
-It seems the majority of servers now comply with the language server
-specification when it comes to handling non-ASCII texts.  Therefore
-the default values of `eglot-move-to-column-function` and
-`eglot-current-column-function` have been changed.  The documentations
-of these variables help to restore the old behavior.
-
 ##### Support workspace/configuration requests ([#326][github#326])
 
 Also a new section "Per-project server configuration" in the README.md
@@ -213,4 +205,3 @@ and now said bunch of references-->
 [github#316]: https://github.com/joaotavora/eglot/issues/316
 [github#324]: https://github.com/joaotavora/eglot/issues/324
 [github#326]: https://github.com/joaotavora/eglot/issues/326
-[github#361]: https://github.com/joaotavora/eglot/issues/361
