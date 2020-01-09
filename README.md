@@ -289,6 +289,11 @@ lisp:
 
 - `eglot-server-initialized-hook`: Hook run after server is
   successfully initialized;
+  
+- `eglot-stay-out-of` disables the default setup of Emacs components like
+ `flymake`, `xref` or `company`. Specially useful when you want to use 
+ multiple [flycheck checkers](https://github.com/joaotavora/eglot/issues/268#issuecomment-544890756)
+ or [company backends](https://github.com/joaotavora/eglot/issues/324#issuecomment-544201371).
 
 # How does Eglot work?
 
