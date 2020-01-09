@@ -164,6 +164,20 @@ get [cquery][cquery] working:
 See `eglot.el`'s section on Java's JDT server for an even more
 sophisticated example.
 
+## Using multiple Flymake checkers
+
+By default, Eglot supresses all checkers on the `flymake-diagnostic-functions` hook, enabling only `eglot-flymake-backend` in order to avoid duplicated diagnostics.
+
+Add the following code to your Emacs configuration to avoid this behavior.
+
+```lisp
+(setq eglot-stay-out-of '(flymake))
+(add-hook 'eglot--managed-mode-hook (lambda () (add-hook 'flymake-diagnostic-functions 'eglot-flymake-backend nil t)))
+```
+
+The variable `eglot-stay-out-of` disables the default behavior of 
+Flymake on Eglot, and the second line appends the Eglot checker to Flymake leaving the other checkers untouched.
+
 <a name="reporting bugs"></a>
 # Reporting bugs
 
