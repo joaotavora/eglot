@@ -375,14 +375,61 @@ eglot-shutdown`.
 <a name="animated_gifs"></a>
 # _Obligatory animated gif section_
 
-![eglot-code-actions](./gif-examples/eglot-code-actions.gif)
+## Completion
 ![eglot-completions](./gif-examples/eglot-completions.gif)
-![eglot-diagnostics](./gif-examples/eglot-diagnostics.gif)
-![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
-![eglot-rename](./gif-examples/eglot-rename.gif)
-![eglot-xref-find-definition](./gif-examples/eglot-xref-find-definition.gif)
-![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
+
+The animation shows [company-mode][company] presenting the completion
+candidates to the user, but Eglot works with the built-in
+`completion-at-point` function as well, which is usually bound to
+`C-M-i`.
+
+## Snippet completion
 ![eglot-snippets-on-completion](./gif-examples/eglot-snippets-on-completion.gif)
+
+Eglot provides template based completion if the server supports
+snippet completion and [yasnippet][yasnippet] is enabled _before_
+Eglot connects to the server.  The animation shows
+[company-mode][company], but `completion-at-point` also works with
+snippets.
+
+## Diagnostics
+![eglot-diagnostics](./gif-examples/eglot-diagnostics.gif)
+
+Eglot relays the diagnostics information received from the server to
+[flymake][flymake].  Command `display-local-help` (bound to `C-h .`)
+shows the diagnostic message under point, but flymake provides other
+convenient ways to handle diagnostic errors.
+
+When Eglot manages a buffer, it disables other flymake backends.  See
+variable `eglot-stay-out-of` to change that.
+
+## Code Actions
+![eglot-code-actions](./gif-examples/eglot-code-actions.gif)
+
+The server may provide code actions, for example, to fix a diagnostic
+error or to suggest refactoring edits.  Command `eglot-code-actions`
+queries the server for possible code actions at point.  See variable
+`eglot-confirm-server-initiated-edits` to customize its behavior.
+
+## Hover on symbol
+![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
+
+## Rename
+![eglot-rename](./gif-examples/eglot-rename.gif)
+
+Type `M-x eglot-rename RET` to rename the symbol at point.
+
+## Find definition
+![eglot-xref-find-definition](./gif-examples/eglot-xref-find-definition.gif)
+
+To jump to the definition of a symbol, use the built-in
+`xref-find-definitions` command, which is bound to `M-.`.
+
+## Find references
+![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
+
+Eglot here relies on emacs' built-in functionality as well.
+`xref-find-references` is bound to `M-?`.
 
 # Historical differences to lsp-mode.el
 
@@ -464,3 +511,6 @@ Under the hood:
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [metals]: http://scalameta.org/metals/
 [digestif]: https://github.com/astoff/digestif
+[company]: http://elpa.gnu.org/packages/company.html
+[flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
+[yasnippet]: http://elpa.gnu.org/packages/yasnippet.html
