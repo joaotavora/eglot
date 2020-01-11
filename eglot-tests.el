@@ -502,6 +502,23 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (completion-at-point)
       (should (looking-back "sys.exit")))))
 
+(ert-deftest non-unique-completions ()
+  "Test completion resulting in 'Complete, but not unique'"
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+      '(("project" . (("something.py" . "foo=1\nfoobar=2\nfoo"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (goto-char (point-max))
+      (completion-at-point))
+    ;; FIXME: `current-message' doesn't work here :-(
+    (with-current-buffer (messages-buffer)
+      (save-excursion
+        (goto-char (point-max))
+        (forward-line -1)
+        (should (looking-at "Complete, but not unique"))))))
+
 (ert-deftest basic-xref ()
   "Test basic xref functionality in a python LSP"
   (skip-unless (executable-find "pyls"))
