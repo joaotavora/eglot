@@ -483,8 +483,8 @@ def foobazquuz(d, e, f): pass
       (goto-char (point-max))
       (insert "foobar")
       (completion-at-point)
-      (beginning-of-line)
-      (should (looking-at "foobarquux(a, b)")))))
+      (should (looking-back "foobarquux("))
+      (should (looking-at "a, b)")))))
 
 (defvar company-candidates)
 
