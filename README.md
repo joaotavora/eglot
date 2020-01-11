@@ -414,6 +414,10 @@ queries the server for possible code actions at point.  See variable
 ## Hover on symbol
 ![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
 
+It is not shown above, but if [markdown-mode][markdown] is installed,
+then Eglot asks the server for markdown formatted hover and other
+information.
+
 ## Rename
 ![eglot-rename](./gif-examples/eglot-rename.gif)
 
@@ -514,3 +518,4 @@ Under the hood:
 [company]: http://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
 [yasnippet]: http://elpa.gnu.org/packages/yasnippet.html
+[markdown]: https://github.com/jrblevin/markdown-mode
