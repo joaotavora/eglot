@@ -3,7 +3,7 @@
 # Variables
 #
 EMACS=emacs
-SELECTOR=t
+SELECTOR ?=t
 
 LOAD_PATH=-L .
 
