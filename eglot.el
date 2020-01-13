@@ -71,7 +71,8 @@
 (require 'filenotify)
 (require 'ert)
 (require 'array)
-(defvar company-backends) ; forward-declare, but don't require company yet
+(defvar company-backends) ; forward-declare, but don't require company
+(defvar company-tooltip-align-annotations)
 
 
 
@@ -96,6 +97,7 @@ language-server/bin/php-language-server.php"))
                                  . ("solargraph" "socket" "--port"
                                     :autoport))
                                 (haskell-mode . ("hie-wrapper"))
+                                (elm-mode . ("elm-language-server"))
                                 (kotlin-mode . ("kotlin-language-server"))
                                 (go-mode . ("gopls"))
                                 ((R-mode ess-r-mode) . ("R" "--slave" "-e"
@@ -103,7 +105,10 @@ language-server/bin/php-language-server.php"))
                                 (java-mode . eglot--eclipse-jdt-contact)
                                 (dart-mode . ("dart_language_server"))
                                 (elixir-mode . ("language_server.sh"))
-                                (ada-mode . ("ada_language_server")))
+                                (ada-mode . ("ada_language_server"))
+                                (scala-mode . ("metals-emacs"))
+                                ((tex-mode context-mode texinfo-mode bibtex-mode)
+                                 . ("digestif")))
   "How the command `eglot' guesses the server to start.
 An association list of (MAJOR-MODE . CONTACT) pairs.  MAJOR-MODE
 is a mode symbol, or a list of mode symbols.  The associated
@@ -189,6 +194,11 @@ let the buffer grow forever."
   :type '(choice (const :tag "No limit" nil)
                  (integer :tag "Number of characters")))
 
+(defcustom eglot-confirm-server-initiated-edits 'confirm
+  "Non-nil if server-initiated edits should be confirmed with user."
+  :type '(choice (const :tag "Don't show confirmation prompt" nil)
+                 (symbol :tag "Show confirmation prompt" 'confirm)))
+
 
 ;;; Constants
 ;;;
@@ -229,7 +239,7 @@ let the buffer grow forever."
       (DocumentHighlight (:range) (:kind))
       (FileSystemWatcher (:globPattern) (:kind))
       (Hover (:contents) (:range))
-      (InitializeResult (:capabilities))
+      (InitializeResult (:capabilities) (:serverInfo))
       (Location (:uri :range))
       (LogMessageParams (:type :message))
       (MarkupContent (:kind :value))
@@ -531,6 +541,9 @@ treated as in `eglot-dbind'."
    (capabilities
     :documentation "JSON object containing server capabilities."
     :accessor eglot--capabilities)
+   (server-info
+    :documentation "JSON object containing server info."
+    :accessor eglot--server-info)
    (shutdown-requested
     :documentation "Flag set when server is shutting down."
     :accessor eglot--shutdown-requested)
@@ -583,14 +596,8 @@ SERVER.  ."
       (progn
         (setf (eglot--shutdown-requested server) t)
         (jsonrpc-request server :shutdown nil :timeout (or timeout 1.5))
-        ;; this one is supposed to always fail, because it asks the
-        ;; server to exit itself. Hence ignore-errors.
-        (ignore-errors (jsonrpc-request server :exit nil :timeout 1)))
-    ;; Turn off `eglot--managed-mode' where appropriate.
-    (dolist (buffer (eglot--managed-buffers server))
-      (eglot--with-live-buffer buffer (eglot--managed-mode-off)))
-    ;; Now ask jsonrpc.el to shut down the server (which under normal
-    ;; conditions should return immediately).
+        (jsonrpc-notify server :exit nil))
+    ;; Now ask jsonrpc.el to shut down the server.
     (jsonrpc-shutdown server (not preserve-buffers))
     (unless preserve-buffers (kill-buffer (jsonrpc-events-buffer server)))))
 
@@ -598,7 +605,9 @@ SERVER.  ."
   "Called by jsonrpc.el when SERVER is already dead."
   ;; Turn off `eglot--managed-mode' where appropriate.
   (dolist (buffer (eglot--managed-buffers server))
-    (eglot--with-live-buffer buffer (eglot--managed-mode-off)))
+    (let (;; Avoid duplicate shutdowns (github#389)
+          (eglot-autoshutdown nil))
+      (eglot--with-live-buffer buffer (eglot--managed-mode-off))))
   ;; Kill any expensive watches
   (maphash (lambda (_id watches)
              (mapcar #'file-notify-rm-watch watches))
@@ -810,15 +819,17 @@ This docstring appeases checkdoc, that's all."
                                  (setq autostart-inferior-process inferior)
                                  connection))))
                 ((stringp (car contact))
-                 `(:process ,(lambda ()
-                               (make-process
-                                :name readable-name
-                                :command contact
-                                :connection-type 'pipe
-                                :coding 'utf-8-emacs-unix
-                                :noquery t
-                                :stderr (get-buffer-create
-                                         (format "*%s stderr*" readable-name))))))))
+                 `(:process
+                   ,(lambda ()
+                      (let ((default-directory default-directory))
+                        (make-process
+                         :name readable-name
+                         :command contact
+                         :connection-type 'pipe
+                         :coding 'utf-8-emacs-unix
+                         :noquery t
+                         :stderr (get-buffer-create
+                                  (format "*%s stderr*" readable-name)))))))))
          (spread (lambda (fn) (lambda (server method params)
                                 (apply fn server method (append params nil)))))
          (server
@@ -856,11 +867,12 @@ This docstring appeases checkdoc, that's all."
                                                     server)
                             :capabilities (eglot-client-capabilities server))
                       :success-fn
-                      (eglot--lambda ((InitializeResult) capabilities)
+                      (eglot--lambda ((InitializeResult) capabilities serverInfo)
                         (unless cancelled
                           (push server
                                 (gethash project eglot--servers-by-project))
                           (setf (eglot--capabilities server) capabilities)
+                          (setf (eglot--server-info server) serverInfo)
                           (jsonrpc-notify server :initialized (make-hash-table))
                           (dolist (buffer (buffer-list))
                             (with-current-buffer buffer
@@ -888,7 +900,9 @@ This docstring appeases checkdoc, that's all."
                           (eglot--message
                            "Connected! Server `%s' now managing `%s' buffers \
 in project `%s'."
-                           (jsonrpc-name server) managed-major-mode
+                           (or (plist-get serverInfo :name)
+                               (jsonrpc-name server))
+                           managed-major-mode
                            (eglot--project-nickname server))
                           (when tag (throw tag t))))
                       :timeout eglot-connect-timeout
@@ -1202,18 +1216,20 @@ For example, to keep your Company customization use
 
 (add-to-list 'eglot-stay-out-of 'company)")
 
+(defun eglot--stay-out-of-p (symbol)
+  "Tell if EGLOT should stay of of SYMBOL."
+  (cl-find (symbol-name symbol) eglot-stay-out-of
+           :test (lambda (s thing)
+                   (let ((re (if (symbolp thing) (symbol-name thing) thing)))
+                     (string-match re s)))))
+
 (defmacro eglot--setq-saving (symbol binding)
-  `(when (and (boundp ',symbol)
-              (not (cl-find (symbol-name ',symbol)
-                            eglot-stay-out-of
-                            :test
-                            (lambda (s thing)
-                              (let ((re (if (symbolp thing) (symbol-name thing)
-                                          thing)))
-                                (string-match re s))))))
-     (push (cons ',symbol (symbol-value ',symbol))
-           eglot--saved-bindings)
+  `(unless (or (not (boundp ',symbol)) (eglot--stay-out-of-p ',symbol))
+     (push (cons ',symbol (symbol-value ',symbol)) eglot--saved-bindings)
      (setq-local ,symbol ,binding)))
+
+(defvar-local eglot--cached-server nil
+  "A cached reference to the current EGLOT server.")
 
 (define-minor-mode eglot--managed-mode
   "Mode for source buffers managed by some EGLOT project."
@@ -1239,10 +1255,12 @@ For example, to keep your Company customization use
     (eglot--setq-saving flymake-diagnostic-functions '(eglot-flymake-backend t))
     (eglot--setq-saving company-backends '(company-capf))
     (eglot--setq-saving company-tooltip-align-annotations t)
-    (eglot--setq-saving imenu-create-index-function #'eglot-imenu)
+    (unless (eglot--stay-out-of-p 'imenu)
+      (add-function :before-until (local 'imenu-create-index-function)
+                    #'eglot-imenu))
     (flymake-mode 1)
     (eldoc-mode 1)
-    (cl-pushnew (current-buffer) (eglot--managed-buffers eglot--cached-current-server)))
+    (cl-pushnew (current-buffer) (eglot--managed-buffers eglot--cached-server)))
    (t
     (remove-hook 'after-change-functions 'eglot--after-change t)
     (remove-hook 'before-change-functions 'eglot--before-change t)
@@ -1259,31 +1277,28 @@ For example, to keep your Company customization use
     (remove-hook 'pre-command-hook 'eglot--pre-command-hook t)
     (cl-loop for (var . saved-binding) in eglot--saved-bindings
              do (set (make-local-variable var) saved-binding))
+    (remove-function (local 'imenu-create-index-function) #'eglot-imenu)
     (setq eglot--current-flymake-report-fn nil)
-    (let ((server eglot--cached-current-server))
-      (setq eglot--cached-current-server nil)
+    (let ((server eglot--cached-server))
+      (setq eglot--cached-server nil)
       (when server
         (setf (eglot--managed-buffers server)
               (delq (current-buffer) (eglot--managed-buffers server)))
         (when (and eglot-autoshutdown
-                   (not (eglot--shutdown-requested server))
-                   (not (eglot--managed-buffers server)))
+                   (null (eglot--managed-buffers server)))
           (eglot-shutdown server)))))))
 
 (defun eglot--managed-mode-off ()
   "Turn off `eglot--managed-mode' unconditionally."
   (eglot--managed-mode -1))
 
-(defvar-local eglot--cached-current-server nil
-  "A cached reference to the current EGLOT server.")
-
 (defun eglot-current-server ()
   "Return logical EGLOT server for current buffer, nil if none."
-  eglot--cached-current-server)
+  eglot--cached-server)
 
 (defun eglot--current-server-or-lose ()
   "Return current logical EGLOT server connection or error."
-  (or eglot--cached-current-server
+  (or eglot--cached-server
       (jsonrpc-error "No current JSON-RPC connection")))
 
 (defvar-local eglot--unreported-diagnostics nil
@@ -1303,8 +1318,8 @@ If it is activated, also signal textDocument/didOpen."
     ;; `revert-buffer-preserve-modes' is nil.
     (when (and buffer-file-name
                (or
-                eglot--cached-current-server
-                (setq eglot--cached-current-server
+                eglot--cached-server
+                (setq eglot--cached-server
                       (cl-find major-mode
                                (gethash (or (project-current)
                                             `(transient . ,default-directory))
@@ -1439,16 +1454,16 @@ COMMAND is a symbol naming the command."
 (cl-defmethod eglot-handle-request
   (_server (_method (eql window/showMessageRequest)) &key type message actions)
   "Handle server request window/showMessageRequest"
-  (or (completing-read
-       (concat
-        (format (propertize "[eglot] Server reports (type=%s): %s"
-                            'face (if (<= type 1) 'error))
-                type message)
-        "\nChoose an option: ")
-       (or (mapcar (lambda (obj) (plist-get obj :title)) actions)
-           '("OK"))
-       nil t (plist-get (elt actions 0) :title))
-      (jsonrpc-error :code -32800 :message "User cancelled")))
+  (let ((label (completing-read
+                (concat
+                 (format (propertize "[eglot] Server reports (type=%s): %s"
+                                     'face (if (<= type 1) 'error))
+                         type message)
+                 "\nChoose an option: ")
+                (or (mapcar (lambda (obj) (plist-get obj :title)) actions)
+                    '("OK"))
+                nil t (plist-get (elt actions 0) :title))))
+    (if label `(:title ,label) :null)))
 
 (cl-defmethod eglot-handle-notification
   (_server (_method (eql window/logMessage)) &key _type _message)
@@ -1459,7 +1474,8 @@ COMMAND is a symbol naming the command."
   "Handle notification telemetry/event") ;; noop, use events buffer
 
 (cl-defmethod eglot-handle-notification
-  (server (_method (eql textDocument/publishDiagnostics)) &key uri diagnostics)
+  (server (_method (eql textDocument/publishDiagnostics)) &key uri diagnostics
+          &allow-other-keys) ; FIXME: doesn't respect `eglot-strict-mode'
   "Handle notification publishDiagnostics"
   (if-let ((buffer (find-buffer-visiting (eglot--uri-to-path uri))))
       (with-current-buffer buffer
@@ -1532,7 +1548,7 @@ THINGS are either registrations or unregisterations (sic)."
 (cl-defmethod eglot-handle-request
   (_server (_method (eql workspace/applyEdit)) &key _label edit)
   "Handle server request workspace/applyEdit"
-  (eglot--apply-workspace-edit edit 'confirm))
+  (eglot--apply-workspace-edit edit eglot-confirm-server-initiated-edits))
 
 (defun eglot--TextDocumentIdentifier ()
   "Compute TextDocumentIdentifier object for current buffer."
@@ -1864,7 +1880,9 @@ Try to visit the target file for a richer summary line."
                                method
                                :extra-params extra-params
                                :capability capability)))
-    (xref-find-references "LSP identifier at point.")))
+    (if eglot--lsp-xref-refs
+        (xref-find-references "LSP identifier at point.")
+      (eglot--message "%s returned no references" method))))
 
 (defun eglot-find-declaration ()
   "Find declaration for SYM, the identifier at point."
@@ -2014,7 +2032,7 @@ is not active."
             (funcall proxies)))))
        :annotation-function
        (lambda (proxy)
-         (eglot--dbind ((CompletionItem) detail kind insertTextFormat)
+         (eglot--dbind ((CompletionItem) detail kind)
              (get-text-property 0 'eglot--lsp-item proxy)
            (let* ((detail (and (stringp detail)
                                (not (string= detail ""))
@@ -2025,10 +2043,7 @@ is not active."
              (when annotation
                (concat " "
                        (propertize annotation
-                                   'face 'font-lock-function-name-face)
-                       (and (eql insertTextFormat 2)
-                            (eglot--snippet-expansion-fn)
-                            " (snippet)"))))))
+                                   'face 'font-lock-function-name-face))))))
        :company-doc-buffer
        (lambda (proxy)
          (let* ((documentation
@@ -2178,7 +2193,8 @@ is not active."
       (with-current-buffer (eglot--help-buffer)
         (with-help-window (current-buffer)
           (rename-buffer (format "*eglot-help for %s*" sym))
-          (with-current-buffer standard-output (insert blurb)))))))
+          (with-current-buffer standard-output (insert blurb))
+          (setq-local nobreak-char-display nil))))))
 
 (defun eglot-doc-too-large-for-echo-area (string)
   "Return non-nil if STRING won't fit in echo area.
@@ -2233,8 +2249,7 @@ potentially rename EGLOT's help buffer."
     (eldoc-message string)))
 
 (defun eglot-eldoc-function ()
-  "EGLOT's `eldoc-documentation-function' function.
-If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
+  "EGLOT's `eldoc-documentation-function' function."
   (let* ((buffer (current-buffer))
          (server (eglot--current-server-or-lose))
          (position-params (eglot--TextDocumentPositionParams))
@@ -2291,37 +2306,36 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
 
 (defun eglot-imenu ()
   "EGLOT's `imenu-create-index-function'."
-  (unless (eglot--server-capable :documentSymbolProvider)
-    (eglot--error "Server isn't a :documentSymbolProvider"))
   (let ((entries
-             (mapcar
-              (eglot--lambda
-                  ((SymbolInformation) name kind location containerName)
-                (cons (propertize
-                       name
-                       :kind (alist-get kind eglot--symbol-kind-names
-                                        "Unknown")
-                       :containerName (and (stringp containerName)
-                                           (not (string-empty-p containerName))
-                                           containerName))
-                      (eglot--lsp-position-to-point
-                       (plist-get (plist-get location :range) :start))))
-              (jsonrpc-request (eglot--current-server-or-lose)
-                               :textDocument/documentSymbol
-                               `(:textDocument ,(eglot--TextDocumentIdentifier))))))
-        (mapcar
-         (pcase-lambda (`(,kind . ,syms))
-           (let ((syms-by-scope (seq-group-by
-                                 (lambda (e)
-                                   (get-text-property 0 :containerName (car e)))
-                                 syms)))
-             (cons kind (cl-loop for (scope . elems) in syms-by-scope
-                                 append (if scope
-                                            (list (cons scope elems))
-                                          elems)))))
-         (seq-group-by (lambda (e) (get-text-property 0 :kind (car e)))
-                       entries)))
-  )
+         (and
+          (eglot--server-capable :documentSymbolProvider)
+          (mapcar
+           (eglot--lambda
+               ((SymbolInformation) name kind location containerName)
+             (cons (propertize
+                    name
+                    :kind (alist-get kind eglot--symbol-kind-names
+                                     "Unknown")
+                    :containerName (and (stringp containerName)
+                                        (not (string-empty-p containerName))
+                                        containerName))
+                   (eglot--lsp-position-to-point
+                    (plist-get (plist-get location :range) :start))))
+           (jsonrpc-request (eglot--current-server-or-lose)
+                            :textDocument/documentSymbol
+                            `(:textDocument ,(eglot--TextDocumentIdentifier)))))))
+    (mapcar
+     (pcase-lambda (`(,kind . ,syms))
+       (let ((syms-by-scope (seq-group-by
+                             (lambda (e)
+                               (get-text-property 0 :containerName (car e)))
+                             syms)))
+         (cons kind (cl-loop for (scope . elems) in syms-by-scope
+                             append (if scope
+                                        (list (cons scope elems))
+                                      elems)))))
+     (seq-group-by (lambda (e) (get-text-property 0 :kind (car e)))
+                   entries))))
 
 (defun eglot--apply-text-edits (edits &optional version)
   "Apply EDITS for current buffer if at VERSION, or if it's nil."
@@ -2447,12 +2461,10 @@ If SKIP-SIGNATURE, don't try to send textDocument/signatureHelp."
          (menu `("Eglot code actions:" ("dummy" ,@menu-items)))
          (action (if (listp last-nonmenu-event)
                      (x-popup-menu last-nonmenu-event menu)
-                   (let ((never-mind (gensym)) retval)
-                     (setcdr (cadr menu)
-                             (cons `("never mind..." . ,never-mind) (cdadr menu)))
-                     (if (eq (setq retval (tmm-prompt menu)) never-mind)
-                         (keyboard-quit)
-                       retval)))))
+                   (cdr (assoc (completing-read "[eglot] Pick an action: " 
+						menu-items nil t
+						nil nil (car menu-items))
+                               menu-items)))))
     (eglot--dcase action
         (((Command) command arguments)
          (eglot-execute-command server (intern command) arguments))
@@ -2649,5 +2661,7 @@ If INTERACTIVE, prompt user for details."
 ;;; eglot.el ends here
 
 ;; Local Variables:
+;; bug-reference-bug-regexp: "\\(github#\\([0-9]+\\)\\)"
+;; bug-reference-url-format: "https://github.com/joaotavora/eglot/issues/%s"
 ;; checkdoc-force-docstrings-flag: nil
 ;; End:
