@@ -761,16 +761,17 @@ INTERACTIVE is t if called interactively."
 ;;;###autoload
 (defun eglot-ensure ()
   "Start Eglot session for current buffer if there isn't one."
-  (let ((buffer (current-buffer)))
-    (cl-labels
-        ((maybe-connect
-          ()
-          (remove-hook 'post-command-hook #'maybe-connect nil)
-          (eglot--with-live-buffer buffer
-            (unless eglot--managed-mode
-              (apply #'eglot--connect (eglot--guess-contact))))))
-      (when buffer-file-name
-        (add-hook 'post-command-hook #'maybe-connect 'append nil)))))
+  (unless (string-match-p "^\s" (buffer-name))
+    (let ((buffer (current-buffer)))
+      (cl-labels
+          ((maybe-connect
+            ()
+            (remove-hook 'post-command-hook #'maybe-connect nil)
+            (eglot--with-live-buffer buffer
+              (unless eglot--managed-mode
+                (apply #'eglot--connect (eglot--guess-contact))))))
+        (when buffer-file-name
+          (add-hook 'post-command-hook #'maybe-connect 'append nil))))))
 
 (defun eglot-events-buffer (server)
   "Display events buffer for SERVER."
@@ -2461,7 +2462,7 @@ potentially rename EGLOT's help buffer."
          (menu `("Eglot code actions:" ("dummy" ,@menu-items)))
          (action (if (listp last-nonmenu-event)
                      (x-popup-menu last-nonmenu-event menu)
-                   (cdr (assoc (completing-read "[eglot] Pick an action: " 
+                   (cdr (assoc (completing-read "[eglot] Pick an action: "
 						menu-items nil t
 						nil nil (car menu-items))
                                menu-items)))))
