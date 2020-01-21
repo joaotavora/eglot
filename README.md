@@ -433,7 +433,9 @@ To jump to the definition of a symbol, use the built-in
 ![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
 
 Eglot here relies on emacs' built-in functionality as well.
-`xref-find-references` is bound to `M-?`.
+`xref-find-references` is bound to `M-?`.  Additionally, Eglot
+provides the following similar commands: `eglot-find-declaration`,
+`eglot-find-implementation`, `eglot-find-typeDefinition`.
 
 # Historical differences to lsp-mode.el
 
