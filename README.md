@@ -307,6 +307,9 @@ current project* automatically become \"managed\" by the LSP server,
 i.e.  information about their contents is exchanged periodically to
 provide enhanced code analysis via `xref-find-definitions`,
 `flymake-mode`, `eldoc-mode`, `completion-at-point`, among others.
+Some convenient features are only available if additional,
+non-essential packages ([company], [yasnippet], [markdown]) are also
+installed and enabled.
 
 To "unmanage" these buffers, shutdown the server with `M-x
 eglot-shutdown`.
@@ -518,3 +521,4 @@ Under the hood:
 [company]: http://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
 [yasnippet]: http://elpa.gnu.org/packages/yasnippet.html
+[markdown]: https://github.com/defunkt/markdown-mode
