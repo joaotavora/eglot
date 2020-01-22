@@ -304,11 +304,25 @@ If the connection is successful, you see an `[eglot:<server>]`
 indicator pop up in your mode-line.  More importantly, this means
 current *and future* file buffers of that major mode *inside your
 current project* automatically become \"managed\" by the LSP server,
-i.e.  information about their contents is exchanged periodically to
-provide enhanced code analysis via `xref-find-definitions`,
-`flymake-mode`, `eldoc-mode`, `completion-at-point`, among others.
+This means that information about these file's contents is exchanged
+periodically to provide enhanced code analysis.  Among other features:
 
-To "unmanage" these buffers, shutdown the server with `M-x
+* definitions can be found via `xref-find-definitions`;
+* on-the-fly diagnostics are given by `flymake-mode`;
+* function signature hints are given by `eldoc-mode`;
+* completion can be summoned with `completion-at-point`.
+
+Some extra features are provided if certain libraries are installed
+and enabled, such as:
+
+* completion dropdowns via [company];
+* snippet completions via [yasnippet];
+* marked-up documentation via [markdown].
+
+Eglot doesn't _require_ these libraries to work effectively, but will
+use them automatically if they are found to be active.
+
+To "unmanage" a project's buffers, shutdown the server with `M-x
 eglot-shutdown`.
 
 # Supported Protocol features
@@ -520,3 +534,4 @@ Under the hood:
 [company]: http://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
 [yasnippet]: http://elpa.gnu.org/packages/yasnippet.html
+[markdown]: https://github.com/defunkt/markdown-mode
