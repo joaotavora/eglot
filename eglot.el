@@ -1563,9 +1563,10 @@ THINGS are either registrations or unregisterations (sic)."
   (eglot--register-unregister server unregisterations 'unregister))
 
 (cl-defmethod eglot-handle-request
-  (_server (_method (eql workspace/applyEdit)) &key _label edit)
+  (_server (_method (eql workspace/applyEdit)) &key label edit)
   "Handle server request workspace/applyEdit"
-  (eglot--apply-workspace-edit edit eglot-confirm-server-initiated-edits))
+  (eglot--apply-workspace-edit
+   edit eglot-confirm-server-initiated-edits label))
 
 (defun eglot--TextDocumentIdentifier ()
   "Compute TextDocumentIdentifier object for current buffer."
@@ -2354,6 +2355,8 @@ potentially rename EGLOT's help buffer."
      (seq-group-by (lambda (e) (get-text-property 0 :kind (car e)))
                    entries))))
 
+(defvar eglot--last-title nil "Title of the last selected code action.")
+
 (defun eglot--apply-text-edits (edits &optional version)
   "Apply EDITS for current buffer if at VERSION, or if it's nil."
   (unless (or (not version) (equal version eglot--versioned-identifier))
@@ -2361,10 +2364,13 @@ potentially rename EGLOT's help buffer."
                    (current-buffer) version eglot--versioned-identifier))
   (atomic-change-group
     (let* ((change-group (prepare-change-group))
+           (title (if (eq last-command 'eglot-code-actions)
+                      (format " (%s)"  eglot--last-title)
+                    ""))
            (howmany (length edits))
            (reporter (make-progress-reporter
-                      (format "[eglot] applying %s edits to `%s'..."
-                              howmany (current-buffer))
+                      (format "[eglot] applying %s edits%s to `%s'..."
+                              howmany title (current-buffer))
                       0 howmany))
            (done 0))
       (mapc (pcase-lambda (`(,newText ,beg . ,end))
@@ -2402,7 +2408,7 @@ potentially rename EGLOT's help buffer."
       (undo-amalgamate-change-group change-group)
       (progress-reporter-done reporter))))
 
-(defun eglot--apply-workspace-edit (wedit &optional confirm)
+(defun eglot--apply-workspace-edit (wedit &optional confirm title)
   "Apply the workspace edit WEDIT.  If CONFIRM, ask user first."
   (eglot--dbind ((WorkspaceEdit) changes documentChanges) wedit
     (let ((prepared
@@ -2418,7 +2424,8 @@ potentially rename EGLOT's help buffer."
               (cl-notevery #'find-buffer-visiting
                            (mapcar #'car prepared)))
           (unless (y-or-n-p
-                   (format "[eglot] Server wants to edit:\n  %s\n Proceed? "
+                   (format "[eglot] Server wants to edit:\n%s  %s\n Proceed? "
+                           (if title (format "  %s\n" title) "")
                            (mapconcat #'identity (mapcar #'car prepared) "\n  ")))
             (eglot--error "User cancelled server edit")))
       (while (setq edit (car prepared))
@@ -2431,7 +2438,8 @@ potentially rename EGLOT's help buffer."
           (if prepared (eglot--warn "Caution: edits of files %s failed."
                                     (mapcar #'car prepared))
             (eglot-eldoc-function)
-            (eglot--message "Edit successful!"))))))
+            (eglot--message "Edit successful!%s"
+                            (if title (format "\n(%s)" title) "")))))))
 
 (defun eglot-rename (newname)
   "Rename the current symbol to NEWNAME."
@@ -2443,7 +2451,8 @@ potentially rename EGLOT's help buffer."
    (jsonrpc-request (eglot--current-server-or-lose)
                     :textDocument/rename `(,@(eglot--TextDocumentPositionParams)
                                            :newName ,newname))
-   current-prefix-arg))
+   current-prefix-arg
+   (format "rename symbol to %s" newname)))
 
 
 (defun eglot-code-actions (&optional beg end)
@@ -2483,12 +2492,14 @@ potentially rename EGLOT's help buffer."
 						nil nil (car menu-items))
                                menu-items)))))
     (eglot--dcase action
-        (((Command) command arguments)
+        (((Command) command arguments title)
+         (setq eglot--last-title title)
          (eglot-execute-command server (intern command) arguments))
-      (((CodeAction) edit command)
-       (when edit (eglot--apply-workspace-edit edit))
+      (((CodeAction) title edit command)
+       (when edit (eglot--apply-workspace-edit edit nil title))
        (when command
-         (eglot--dbind ((Command) command arguments) command
+         (setq eglot--last-title title)
+         (eglot--dbind ((Command) command arguments title) command
            (eglot-execute-command server (intern command) arguments)))))))
 
 
