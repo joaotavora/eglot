@@ -88,8 +88,9 @@
                                   typescript-mode)
                                  . ("javascript-typescript-stdio"))
                                 (sh-mode . ("bash-language-server" "start"))
-				(php-mode . ("php" "vendor/felixfbecker/\
-language-server/bin/php-language-server.php"))
+				((php-mode phps-mode)
+                                 . ("php" "vendor/felixfbecker/language-server\
+/bin/php-language-server.php"))
                                 ((c++-mode c-mode) . ("ccls"))
                                 ((caml-mode tuareg-mode reason-mode)
                                  . ("ocaml-language-server" "--stdio"))
