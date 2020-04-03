@@ -1306,8 +1306,8 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
   (run-hooks 'eglot-managed-mode-hook))
 
 (defun eglot--managed-mode-off ()
-  "Turn off `eglot--managed-mode' unconditionally."
-  (eglot--managed-mode -1))
+  "Turn off `eglot--managed-mode' unconditionally, ignoring any errors."
+  (ignore-errors (eglot--managed-mode -1)))
 
 (defun eglot-current-server ()
   "Return logical EGLOT server for current buffer, nil if none."
