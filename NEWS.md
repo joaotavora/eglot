@@ -1,4 +1,4 @@
-# 1.6 (upcoming)
+# 1.6 (16/20/2020)
 
 ##### Column offset calculation is now LSP-conform ([#361][github#361])
 
