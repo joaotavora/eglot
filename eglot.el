@@ -2247,9 +2247,10 @@ Buffer is displayed with `display-buffer', which obeys
   "Put updated documentation STRING where it belongs.
 Honours `eglot-put-doc-in-help-buffer'.  HINT is used to
 potentially rename EGLOT's help buffer."
-  (if (or (eq t eglot-put-doc-in-help-buffer)
-          (and eglot-put-doc-in-help-buffer
-               (funcall eglot-put-doc-in-help-buffer string)))
+  (if (and string
+           (or (eq t eglot-put-doc-in-help-buffer)
+               (and eglot-put-doc-in-help-buffer
+                    (funcall eglot-put-doc-in-help-buffer string))))
       (with-current-buffer (eglot--help-buffer)
         (rename-buffer (format "*eglot-help for %s*" hint))
         (let ((inhibit-read-only t))
@@ -2299,10 +2300,10 @@ potentially rename EGLOT's help buffer."
          :success-fn (eglot--lambda ((Hover) contents range)
                        (unless sig-showing
                          (when-buffer-window
-                          (when-let (info (and (not (seq-empty-p contents))
-                                               (eglot--hover-info contents
-                                                                  range)))
-                            (eglot--update-doc info thing-at-point)))))
+                          (eglot--update-doc (and (not (seq-empty-p contents))
+                                                  (eglot--hover-info contents
+                                                                     range))
+                                             thing-at-point))))
          :deferred :textDocument/hover))
       (when (eglot--server-capable :documentHighlightProvider)
         (jsonrpc-async-request
