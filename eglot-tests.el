@@ -31,7 +31,7 @@
 (require 'python) ; python-mode-hook
 (require 'company nil t)
 
-;; Helpers
+;;; Helpers
 
 (defun eglot--have-eclipse-jdt-ls-p ()
   (and (getenv "CLASSPATH")
@@ -232,6 +232,14 @@ Pass TIMEOUT to `eglot--with-timeout'."
          (eglot-connect-timeout timeout))
     (apply #'eglot--connect (eglot--guess-contact))))
 
+(defvar eglot--tests--python-mode-bindings
+  '(;; Prevent "Can't guess python-indent-offset ..." messages.
+    (python-indent-guess-indent-offset-verbose . nil))
+  "Alist of variable bindings to be used in tests involving `python-mode'.")
+
+
+;;; Unit tests
+
 (ert-deftest eclipse-connect ()
   "Connect to eclipse.jdt.ls server."
   (skip-unless (eglot--have-eclipse-jdt-ls-p))
@@ -278,9 +286,10 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (skip-unless (executable-find "pyls"))
   (let (server)
     (eglot--with-fixture
-        '(("project" . (("coiso.py" . "bla")
+        `(("project" . (("coiso.py" . "bla")
                         ("merdix.py" . "bla")))
-          ("anotherproject" . (("cena.py" . "bla"))))
+          ("anotherproject" . (("cena.py" . "bla")))
+          ,@eglot--tests--python-mode-bindings)
       (with-current-buffer
           (eglot--find-file-noselect "project/coiso.py")
         (should (setq server (eglot--tests-connect)))
@@ -299,7 +308,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (let (server
         buffer)
     (eglot--with-fixture
-        '(("project" . (("coiso.py" . "def coiso: pass"))))
+        `(("project" . (("coiso.py" . "def coiso: pass")))
+          ,@eglot--tests--python-mode-bindings)
       (with-current-buffer
           (setq buffer (eglot--find-file-noselect "project/coiso.py"))
         (should (setq server (eglot--tests-connect)))
@@ -317,8 +327,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (skip-unless (executable-find "pyls"))
   (let (server (eglot-autoreconnect 1))
     (eglot--with-fixture
-        '(("project" . (("coiso.py" . "bla")
-                        ("merdix.py" . "bla"))))
+        `(("project" . (("coiso.py" . "bla")
+                        ("merdix.py" . "bla")))
+          ,@eglot--tests--python-mode-bindings)
       (with-current-buffer
           (eglot--find-file-noselect "project/coiso.py")
         (should (setq server (eglot--tests-connect)))
@@ -375,8 +386,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Test basic diagnostics."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("diag-project" .
-         (("main.py" . "def foo(): if True pass")))) ; colon missing after True
+      `(("diag-project" .
+         (("main.py" . "def foo(): if True pass"))) ; colon missing after True
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "diag-project/main.py")
       (eglot--sniffing (:server-notifications s-notifs)
@@ -427,9 +439,10 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Test basic symbol renaming"
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("rename-project"
+      `(("rename-project"
          . (("main.py" .
-             "def foo (bar) : 1 + bar\n\ndef bar() : pass"))))
+             "def foo (bar) : 1 + bar\n\ndef bar() : pass")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "rename-project/main.py")
       (eglot--tests-connect)
@@ -442,7 +455,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Test basic autocompletion in a python LSP"
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.py" . "import sys\nsys.exi")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (should (eglot--tests-connect))
@@ -454,7 +468,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Test basic xref functionality in a python LSP"
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()"))))
+      `(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (should (eglot--tests-connect))
@@ -473,7 +488,8 @@ def foobazquuz(d, e, f): pass
   (skip-unless (and (executable-find "pyls")
                     (functionp 'yas-minor-mode)))
   (eglot--with-fixture
-      `(("project" . (("something.py" . ,eglot--test-python-buffer))))
+      `(("project" . (("something.py" . ,eglot--test-python-buffer)))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
@@ -494,7 +510,8 @@ def foobazquuz(d, e, f): pass
                     (functionp 'yas-minor-mode)
                     (functionp 'company-complete)))
   (eglot--with-fixture
-      `(("project" . (("something.py" . ,eglot--test-python-buffer))))
+      `(("project" . (("something.py" . ,eglot--test-python-buffer)))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
@@ -519,7 +536,8 @@ def foobazquuz(d, e, f): pass
   ;; `eglot-put-doc-in-help-buffer' to nil.
   (let ((eglot-put-doc-in-help-buffer nil))
     (eglot--with-fixture
-     '(("project" . (("something.py" . "import sys\nsys.exi"))))
+        `(("project" . (("something.py" . "import sys\nsys.exi")))
+          ,@eglot--tests--python-mode-bindings)
      (with-current-buffer
          (eglot--find-file-noselect "project/something.py")
        (should (eglot--tests-connect))
@@ -544,7 +562,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   (skip-unless (and (executable-find "pyls")
                     (executable-find "autopep8")))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "def a():pass\n\ndef b():pass"))))
+      `(("project" . (("something.py" . "def a():pass\n\ndef b():pass")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (should (eglot--tests-connect))
@@ -565,7 +584,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
                     (not (executable-find "autopep8"))
                     (executable-find "yapf")))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
+      `(("project" . (("something.py" . "def a():pass\ndef b():pass")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (should (eglot--tests-connect))
@@ -659,12 +679,13 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   "Test basic `eglot-ensure' functionality"
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("project" . (("foo.py" . "import sys\nsys.exi")
+      `(("project" . (("foo.py" . "import sys\nsys.exi")
                       ("bar.py" . "import sys\nsys.exi")))
         (python-mode-hook
          (eglot-ensure
           (lambda ()
-            (remove-hook 'flymake-diagnostic-functions 'python-flymake)))))
+            (remove-hook 'flymake-diagnostic-functions 'python-flymake))))
+        ,@eglot--tests--python-mode-bindings)
     (let (server)
       ;; need `ert-simulate-command' because `eglot-ensure'
       ;; relies on `post-command-hook'.
@@ -681,7 +702,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   "Connect with `eglot-sync-connect' set to t."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.py" . "import sys\nsys.exi")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (let ((eglot-sync-connect t)
@@ -693,7 +715,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   "Connect synchronously with `eglot-sync-connect' set to 2."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.py" . "import sys\nsys.exi")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (let ((eglot-sync-connect 2)
@@ -705,7 +728,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   "Connect asynchronously with `eglot-sync-connect' set to 2."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.py" . "import sys\nsys.exi")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (let ((eglot-sync-connect 1)
@@ -721,7 +745,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   "Failed attempt at connection synchronously."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      '(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.py" . "import sys\nsys.exi")))
+        ,@eglot--tests--python-mode-bindings)
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (let ((eglot-sync-connect t)
@@ -730,10 +755,6 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
              `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
         (should-error (apply #'eglot--connect (eglot--guess-contact)))))))
 
-
-
-;;; Unit tests
-;;; 
 (ert-deftest eglot-capabilities ()
   "Unit test for `eglot--server-capable'."
   (cl-letf (((symbol-function 'eglot--capabilities)
