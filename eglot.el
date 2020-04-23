@@ -2266,7 +2266,17 @@ potentially rename EGLOT's help buffer."
                 (frame-width) nil nil "...")
                (buffer-name eglot--help-buffer))))
           (help-mode)))
-    (eldoc-message string)))
+    (eldoc-message (and string
+                        (if (eq eldoc-echo-area-use-multiline-p t)
+                            string
+                          (let ((string (replace-regexp-in-string
+                                        "\\(.*\\)\n.*" "\\1" string))
+                                (ea-width (1- (window-width (minibuffer-window)))))
+                            (if (null eldoc-echo-area-use-multiline-p)
+                                (substring string 0 ea-width)
+                              ;; TODO If showing signatures and string doesn't fit,
+                              ;; strip function name and leave only args.
+                              string)))))))
 
 (defun eglot-eldoc-function ()
   "EGLOT's `eldoc-documentation-function' function."
