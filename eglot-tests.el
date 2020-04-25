@@ -880,6 +880,79 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
         (((CodeAction) title command)
          (list title command)))))))
 
+(cl-defmacro eglot--guessing-contact ((guessed-class-sym guessed-contact-sym) &body body)
+  "Evaluate BODY with provided symbols bound according to the
+result of evaluating (eglot--guess-contact)."
+  (declare (indent 1) (debug t))
+  `(let ((buffer-file-name "_"))
+     (cl-destructuring-bind
+         (_ _ ,guessed-class-sym ,guessed-contact-sym)
+         (eglot--guess-contact)
+       ,@body)))
+
+(ert-deftest eglot-server-programs-simple-executable ()
+  (let ((eglot-server-programs '((foo-mode "some-executable")))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'eglot-lsp-server))
+      (should (equal guessed-contact '("some-executable"))))))
+
+(ert-deftest eglot-server-programs-executable-multiple-major-modes ()
+  (let ((eglot-server-programs '(((bar-mode foo-mode) "some-executable")))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'eglot-lsp-server))
+      (should (equal guessed-contact '("some-executable"))))))
+
+(ert-deftest eglot-server-programs-executable-with-arg ()
+  (let ((eglot-server-programs '((foo-mode "some-executable" "arg1")))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'eglot-lsp-server))
+      (should (equal guessed-contact '("some-executable" "arg1"))))))
+
+(ert-deftest eglot-server-programs-executable-with-args-and-autoport ()
+  (let ((eglot-server-programs '((foo-mode "some-executable" "arg1" :autoport "arg2")))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'eglot-lsp-server))
+      (should (equal guessed-contact '("some-executable" "arg1" :autoport "arg2"))))))
+
+(ert-deftest eglot-server-programs-host-and-port ()
+  (let ((eglot-server-programs '((foo-mode "somehost.example.com" 7777)))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'eglot-lsp-server))
+      (should (equal guessed-contact '("somehost.example.com" 7777))))))
+
+(ert-deftest eglot-server-programs-host-and-port-and-tcp-args ()
+  (let ((eglot-server-programs '((foo-mode "somehost.example.com" 7777 :type network)))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'eglot-lsp-server))
+      (should (equal guessed-contact '("somehost.example.com" 7777 :type network))))))
+
+(ert-deftest eglot-server-programs-class-name-and-plist ()
+  (let ((eglot-server-programs '((foo-mode bar-class :init-key init-val)))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'bar-class))
+      (should (equal guessed-contact '(:init-key init-val))))))
+
+(ert-deftest eglot-server-programs-class-name-and-contact-spec ()
+  (let ((eglot-server-programs '((foo-mode bar-class "some-executable" "arg1" :autoport "arg2")))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'bar-class))
+      (should (equal guessed-contact '("some-executable" "arg1" :autoport "arg2"))))))
+
+(ert-deftest eglot-server-programs-function ()
+  (let ((eglot-server-programs '((foo-mode . (lambda (&optional _) '("some-executable")))))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (guessed-class guessed-contact)
+      (should (equal guessed-class 'eglot-lsp-server))
+      (should (equal guessed-contact '("some-executable"))))))
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 
