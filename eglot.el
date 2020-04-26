@@ -2247,36 +2247,48 @@ Buffer is displayed with `display-buffer', which obeys
   "Put updated documentation STRING where it belongs.
 Honours `eglot-put-doc-in-help-buffer'.  HINT is used to
 potentially rename EGLOT's help buffer."
-  (if (or (eq t eglot-put-doc-in-help-buffer)
-          (and eglot-put-doc-in-help-buffer
-               (funcall eglot-put-doc-in-help-buffer string)))
-      (with-current-buffer (eglot--help-buffer)
-        (rename-buffer (format "*eglot-help for %s*" hint))
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (insert string)
-          (goto-char (point-min))
-          (if eglot-auto-display-help-buffer
-              (display-buffer (current-buffer))
-            (unless (get-buffer-window (current-buffer))
-              (eglot--message
-               "%s\n(...truncated. Full help is in `%s')"
-               (truncate-string-to-width
-                (replace-regexp-in-string "\\(.*\\)\n.*" "\\1" string)
-                (frame-width) nil nil "...")
-               (buffer-name eglot--help-buffer))))
-          (help-mode)))
-    (eldoc-message (and string
-                        (if (eq eldoc-echo-area-use-multiline-p t)
-                            string
-                          (let ((string (replace-regexp-in-string
-                                        "\\(.*\\)\n.*" "\\1" string))
-                                (ea-width (1- (window-width (minibuffer-window)))))
-                            (if (null eldoc-echo-area-use-multiline-p)
-                                (substring string 0 ea-width)
-                              ;; TODO If showing signatures and string doesn't fit,
-                              ;; strip function name and leave only args.
-                              string)))))))
+  (when (or (eq t eglot-put-doc-in-help-buffer)
+            (and eglot-put-doc-in-help-buffer
+                 (funcall eglot-put-doc-in-help-buffer string)))
+    (with-current-buffer (eglot--help-buffer)
+      (rename-buffer (format "*eglot-help for %s*" hint))
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert string))
+      (goto-char (point-min))
+      (help-mode)
+      (when eglot-auto-display-help-buffer
+        (display-buffer (current-buffer)))))
+  (unless (and eglot--help-buffer
+               (get-buffer-window eglot--help-buffer))
+    (eldoc-message
+     (let* ((info-lines (split-string string "\n"))
+            (signature-line (car info-lines)))
+       ;; Special interpretation of `eldoc-echo-area-use-multiline-p':
+       ;; If t, show additional info lines.  Show only signature line
+       ;; otherwise.
+       (if (eq eldoc-echo-area-use-multiline-p t)
+           ;; limit message to mini-window height
+           (let* ((info-lines (cdr info-lines))
+                  (ea-width (window-width (minibuffer-window)))
+                  (lines-avail
+                   (- (if (floatp max-mini-window-height)
+                          (floor (* max-mini-window-height (frame-height)))
+                        max-mini-window-height)
+                      (ceiling (length signature-line) ea-width)))
+                  (lines (list signature-line)))
+             (catch 'done
+               (dolist (line info-lines)
+                 (when (<= lines-avail 0)
+                   (throw 'done t))
+                 (let ((add-line (truncate-string-to-width
+                                  line (* lines-avail ea-width) nil nil "...")))
+                   (push add-line lines)
+                   (setq lines-avail (- lines-avail
+                                        (ceiling (max 1 (length add-line)) ea-width))))))
+             (string-join (nreverse lines) "\n"))
+         ;; TODO if signature line doesn't fit, strip function name
+         signature-line)))))
 
 (defun eglot-eldoc-function ()
   "EGLOT's `eldoc-documentation-function' function."
