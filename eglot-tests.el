@@ -84,7 +84,7 @@ then restored."
              (set (car spec) (cadr spec)))
             ((stringp (car spec)) (push spec file-specs))))
     (unwind-protect
-        (let ((eglot-connect-hook
+        (let ((eglot-server-initialized-hook
                (lambda (server) (push server new-servers))))
           (setq created-files (mapcan #'eglot--make-file-or-dir file-specs))
           (prog1 (funcall fn)
@@ -93,25 +93,46 @@ then restored."
        "Test body was %s" (if test-body-successful-p "OK" "A FAILURE"))
       (unwind-protect
           (let ((eglot-autoreconnect nil))
-            (mapc (lambda (server)
-                    (condition-case oops
-                        (eglot-shutdown
-                         server nil 3 (not test-body-successful-p))
-                      (error
-                       (message "[eglot] Non-critical shutdown error after test: %S"
-                                oops))))
-                  (cl-remove-if-not #'jsonrpc-running-p new-servers)))
-        (let ((buffers-to-delete
-               (delete nil (mapcar #'find-buffer-visiting created-files))))
-          (eglot--message "Killing %s, wiping %s, restoring %s"
-                          buffers-to-delete
-                          default-directory
-                          (mapcar #'car syms-to-restore))
-          (cl-loop for (sym . val) in syms-to-restore
-                   do (set sym val))
-          (dolist (buf buffers-to-delete) ;; have to save otherwise will get prompted
-            (with-current-buffer buf (save-buffer) (kill-buffer)))
-          (delete-directory fixture-directory 'recursive))))))
+            (dolist (server new-servers)
+              (when (jsonrpc-running-p server)
+                (condition-case oops
+                    (eglot-shutdown
+                     server nil 3 (not test-body-successful-p))
+                  (error
+                   (eglot--message "Non-critical shutdown error after test: %S"
+                                   oops))))
+              (when (not test-body-successful-p)
+                ;; We want to do this after the sockets have
+                ;; shut down such that any pending data has been
+                ;; consumed and is available in the process
+                ;; buffers.
+                (let ((buffers (delq nil (list
+                                          ;; FIXME: Accessing "internal" symbol here.
+                                          (process-buffer (jsonrpc--process server))
+                                          (jsonrpc-stderr-buffer server)
+                                          (jsonrpc-events-buffer server)))))
+                  (cond (noninteractive
+                         (dolist (buffer buffers)
+                           (eglot--message "%s:" (buffer-name buffer))
+                           (princ (with-current-buffer buffer (buffer-string))
+                                  'external-debugging-output)))
+                        (t
+                         (eglot--message "Preserved for inspection: %s"
+                                         (mapconcat #'buffer-name buffers ", "))))))))
+        (eglot--cleanup-after-test fixture-directory created-files syms-to-restore)))))
+
+(defun eglot--cleanup-after-test (fixture-directory created-files syms-to-restore)
+  (let ((buffers-to-delete
+         (delete nil (mapcar #'find-buffer-visiting created-files))))
+    (eglot--message "Killing %s, wiping %s, restoring %s"
+                    buffers-to-delete
+                    fixture-directory
+                    (mapcar #'car syms-to-restore))
+    (cl-loop for (sym . val) in syms-to-restore
+             do (set sym val))
+    (dolist (buf buffers-to-delete) ;; have to save otherwise will get prompted
+      (with-current-buffer buf (save-buffer) (kill-buffer)))
+    (delete-directory fixture-directory 'recursive)))
 
 (cl-defmacro eglot--with-timeout (timeout &body body)
   (declare (indent 1) (debug t))
