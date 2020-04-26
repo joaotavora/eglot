@@ -558,7 +558,6 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   ;; reproduce it locally.  Must be some Python version thing.
   ;; Beware, this test is brittle if ~/.config/pycodestyle exists, or
   ;; default autopep rules change, which has happened.
-  (skip-unless (null (getenv "TRAVIS_TESTING")))
   (skip-unless (and (executable-find "pyls")
                     (executable-find "autopep8")))
   (eglot--with-fixture
