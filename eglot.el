@@ -120,15 +120,15 @@ of those modes.  CONTACT can be:
   over the standard input/output channels.
 
 * A list (HOST PORT [TCP-ARGS...]) where HOST is a string and PORT is
-  na positive integer number for connecting to a server via TCP.
+  a positive integer for connecting to a server via TCP.
   Remaining ARGS are passed to `open-network-stream' for
   upgrading the connection with encryption or other capabilities.
 
 * A list (PROGRAM [ARGS...] :autoport [MOREARGS...]), whereby a
-  combination of the two previous options is used..  First, an
+  combination of the two previous options is used.  First, an
   attempt is made to find an available server port, then PROGRAM
   is launched with ARGS; the `:autoport' keyword substituted for
-  that number; and MOREARGS.  Eglot then attempts to to establish
+  that number; and MOREARGS.  Eglot then attempts to establish
   a TCP connection to that port number on the localhost.
 
 * A cons (CLASS-NAME . INITARGS) where CLASS-NAME is a symbol
