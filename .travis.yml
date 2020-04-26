@@ -10,7 +10,7 @@ env:
     - EMACS_VERSION=master
 
 install:
-  - curl -LO https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
+  - curl -fSLO https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
   - tar -xaf emacs-bin-${EMACS_VERSION}.tar.gz -C /
   # Configure $PATH: Emacs installed to /tmp/emacs
   - export PATH=/tmp/emacs/bin:${PATH}
