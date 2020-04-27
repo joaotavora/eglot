@@ -84,7 +84,11 @@ then restored."
              (set (car spec) (cadr spec)))
             ((stringp (car spec)) (push spec file-specs))))
     (unwind-protect
-        (let ((eglot-server-initialized-hook
+        (let ((process-environment
+               ;; Prevent user-configuration to have an influence on
+               ;; language servers. (See github#441)
+               (cons "XDG_CONFIG_HOME=/dev/null" process-environment))
+              (eglot-server-initialized-hook
                (lambda (server) (push server new-servers))))
           (setq created-files (mapcan #'eglot--make-file-or-dir file-specs))
           (prog1 (funcall fn)
@@ -572,14 +576,8 @@ def foobazquuz(d, e, f): pass
 (ert-deftest python-autopep-formatting ()
   "Test formatting in the pyls python LSP.
 pyls prefers autopep over yafp, despite its README stating the contrary."
-  ;; For some reason Travis will fail the part of the test where we
-  ;; try to reformat just the second line, i.e. it will _not_ add
-  ;; newlines before the region we asked to reformat.  I actually
-  ;; think Travis' behaviour is more sensible, but I don't know how to
-  ;; reproduce it locally.  Must be some Python version thing.
-  ;; Beware, this test is brittle if ~/.config/pycodestyle exists, or
-  ;; default autopep rules change, which has happened.
-  (skip-unless (null (getenv "TRAVIS_TESTING")))
+  ;; Beware, default autopep rules can change over time, which may
+  ;; affect this test.
   (skip-unless (and (executable-find "pyls")
                     (executable-find "autopep8")))
   (eglot--with-fixture
