@@ -2248,6 +2248,46 @@ Buffer is displayed with `display-buffer', which obeys
 `display-buffer-alist' & friends."
   :type 'boolean)
 
+(defcustom eglot-documentation-function 'eglot-documentation-singleline
+  "Function to prepare hover and signature info for display.
+Function is called with documentation string as argument.
+It's return value will be shown via `eldoc-message'."
+  :type '(choice (const :tag "Display first line" eglot-documentation-singleline)
+                 (const :tag "Display multiple lines" eglot-documentation-multiline)
+                 function))
+
+(defun eglot-documentation-singleline (string)
+  "Return first line from STRING.
+Line can be truncated with respect to `eldoc-echo-area-use-multiline-p'."
+  (let ((line (car (split-string string "\n"))))
+    (if eldoc-echo-area-use-multiline-p
+        ;; TODO strip function name if `eldoc-echo-area-use-multiline-p' is
+        ;; 'truncate-sym-name-if-fit and signature line doesn't fit.
+        line
+      (truncate-string-to-width
+       line (window-width (minibuffer-window)) nil nil "..."))))
+
+(defun eglot-documentation-multiline (string)
+  "Return as much text from STRING as echo area can display."
+  (let* ((info-lines (split-string string "\n"))
+         (ea-width (window-width (minibuffer-window)))
+         (lines-avail
+          (if (floatp max-mini-window-height)
+                 (floor (* max-mini-window-height (frame-height)))
+               max-mini-window-height))
+         lines)
+    (catch 'done
+      (dolist (line info-lines)
+        (when (<= lines-avail 0)
+          (throw 'done t))
+        (let ((add-line (truncate-string-to-width
+                         line (* lines-avail ea-width) nil nil "...")))
+          ;; Maybe we can skip empty lines to fit more text
+          (push add-line lines)
+          (setq lines-avail (- lines-avail
+                               (ceiling (max 1 (length add-line)) ea-width))))))
+    (string-join (nreverse lines) "\n")))
+
 (defun eglot--update-doc (string hint)
   "Put updated documentation STRING where it belongs.
 Honours `eglot-put-doc-in-help-buffer'.  HINT is used to
@@ -2269,33 +2309,7 @@ potentially rename EGLOT's help buffer."
   (unless (and eglot--help-buffer
                (get-buffer-window eglot--help-buffer))
     (eldoc-message
-     (let* ((info-lines (split-string string "\n"))
-            (signature-line (car info-lines)))
-       ;; Special interpretation of `eldoc-echo-area-use-multiline-p':
-       ;; If t, show additional info lines.  Show only signature line
-       ;; otherwise.
-       (if (eq eldoc-echo-area-use-multiline-p t)
-           ;; limit message to mini-window height
-           (let* ((info-lines (cdr info-lines))
-                  (ea-width (window-width (minibuffer-window)))
-                  (lines-avail
-                   (- (if (floatp max-mini-window-height)
-                          (floor (* max-mini-window-height (frame-height)))
-                        max-mini-window-height)
-                      (ceiling (length signature-line) ea-width)))
-                  (lines (list signature-line)))
-             (catch 'done
-               (dolist (line info-lines)
-                 (when (<= lines-avail 0)
-                   (throw 'done t))
-                 (let ((add-line (truncate-string-to-width
-                                  line (* lines-avail ea-width) nil nil "...")))
-                   (push add-line lines)
-                   (setq lines-avail (- lines-avail
-                                        (ceiling (max 1 (length add-line)) ea-width))))))
-             (string-join (nreverse lines) "\n"))
-         ;; TODO if signature line doesn't fit, strip function name
-         signature-line)))))
+     (funcall eglot-documentation-function string))))
 
 (defun eglot-eldoc-function ()
   "EGLOT's `eldoc-documentation-function' function."
