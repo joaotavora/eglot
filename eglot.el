@@ -238,6 +238,8 @@ let the buffer grow forever."
                              :textEdit :additionalTextEdits :commitCharacters
                              :command :data))
       (Diagnostic (:range :message) (:severity :code :source :relatedInformation))
+      (DocumentSymbol (:name :range :selectionRange :kind)
+                      (:detail :deprecated :children))
       (DocumentHighlight (:range) (:kind))
       (FileSystemWatcher (:globPattern) (:kind))
       (Hover (:contents) (:range))
@@ -532,6 +534,7 @@ treated as in `eglot-dbind'."
              :typeDefinition     `(:dynamicRegistration :json-false)
              :documentSymbol     (list
                                   :dynamicRegistration :json-false
+                                  :hierarchicalDocumentSymbolSupport t
                                   :symbolKind `(:valueSet
                                                 [,@(mapcar
                                                     #'car eglot--symbol-kind-names)]))
@@ -2359,61 +2362,55 @@ echo area cleared of any previous documentation."
          :deferred :textDocument/documentHighlight))))
   eldoc-last-message)
 
-(defun eglot--parse-DocumentSymbol (containerName name kind _range selectionRange _detail _deprecated children)
-  ""
-  (let ((cName (and (stringp containerName)
-                    (not (string-empty-p containerName))
-                    containerName)))
-    (cons (propertize
-           name
-           :kind (alist-get kind eglot--symbol-kind-names "Unknown")
-           :containerName cName
-           :children (and children
-                          (mapcar
-                           (eglot--lambda ((DocumentSymbol) name kind range selectionRange detail deprecated children)
-                             (eglot--parse-DocumentSymbol
-                              (if cName (format "%s.%s" cName name) name)
-                              name kind range selectionRange detail deprecated children))
-                           children)))
-          (eglot--lsp-position-to-point
-           (plist-get selectionRange :start)))))
-
 (defun eglot-imenu ()
-  "EGLOT's `imenu-create-index-function'"
-  (let ((entries
-         (mapcar
-          (lambda (obj)
-            (eglot--dcase obj
-              (((SymbolInformation) name kind location containerName)
-               (cons (propertize
-                      name
-                      :kind (alist-get kind eglot--symbol-kind-names "Unknown")
-                      :containerName (and (stringp containerName)
-                                          (not (string-empty-p containerName))
-                                          containerName))
-                     (eglot--lsp-position-to-point
-                      (plist-get (plist-get location :range) :start))))
-              (((DocumentSymbol) name kind range selectionRange detail deprecated children)
-               (eglot--parse-DocumentSymbol "" name kind range selectionRange detail deprecated children))))
-          (jsonrpc-request (eglot--current-server-or-lose)
-                           :textDocument/documentSymbol
-                           `(:textDocument ,(eglot--TextDocumentIdentifier))))))
+  "EGLOT's `imenu-create-index-function'."
+  (cl-labels
+      ((visit (_name one-obj-array)
+              (imenu-default-goto-function
+               nil (car (eglot--range-region
+                         (eglot--dcase (aref one-obj-array 0)
+                           (((SymbolInformation) location)
+                            (plist-get location :range))
+                           (((DocumentSymbol) selectionRange)
+                            selectionRange))))))
+       (unfurl (obj)
+               (eglot--dcase obj
+                 (((SymbolInformation)) (list obj))
+                 (((DocumentSymbol) name children)
+                  (cons obj
+                        (mapcar
+                         (lambda (c)
+                           (cl-list*
+                            :containerName
+                            (let ((existing (plist-get c :containerName)))
+                              (if existing (format "%s::%s" existing name)
+                                name))
+                            c))
+                         (mapcan #'unfurl children)))))))
     (mapcar
-     (pcase-lambda (`(,kind . ,syms))
-       (let ((syms-by-scope (seq-group-by
-                             (lambda (e)
-                               (get-text-property 0 :containerName (car e)))
-                             syms)))
-         (cons kind (cl-loop for (scope . elems) in syms-by-scope
-                             append (if scope
-                                        (list (cons scope elems))
-                                      elems)))))
-     (seq-group-by (lambda (e) (get-text-property 0 :kind (car e)))
-                   entries))))
+     (pcase-lambda (`(,kind . ,objs))
+       (cons
+        (alist-get kind eglot--symbol-kind-names "Unknown")
+        (mapcan (pcase-lambda (`(,container . ,objs))
+                  (let ((elems (mapcar (lambda (obj)
+                                         (list (plist-get obj :name)
+                                               `[,obj] ;; trick
+                                               #'visit))
+                                       objs)))
+                    (if container (list (cons container elems)) elems)))
+                (seq-group-by
+                 (lambda (e) (plist-get e :containerName)) objs))))
+     (seq-group-by
+      (lambda (obj) (plist-get obj :kind))
+      (mapcan #'unfurl
+              (jsonrpc-request (eglot--current-server-or-lose)
+                               :textDocument/documentSymbol
+                               `(:textDocument
+                                 ,(eglot--TextDocumentIdentifier))))))))
 
 (defun eglot--apply-text-edits (edits &optional version)
   "Apply EDITS for current buffer if at VERSION, or if it's nil."
-  (unless (or (not version) (equal version eglot--versioned-identifier))
+  (unless (or (not version) (equal version eglot--versioned-identifieor))
     (jsonrpc-error "Edits on `%s' require version %d, you have %d"
                    (current-buffer) version eglot--versioned-identifier))
   (atomic-change-group
