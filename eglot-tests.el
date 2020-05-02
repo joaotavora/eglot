@@ -866,6 +866,20 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
         (((CodeAction) _title _edit _command)
          (ert-fail "Shouldn't have destructured this object as a CodeAction")))))))
 
+(ert-deftest eglot-dcase-issue-452 ()
+  (let ((eglot--lsp-interface-alist
+         `((FooObject . ((:foo :bar) (:baz)))
+           (CodeAction (:title) (:kind :diagnostics :edit :command))
+           (Command ((string . :title) (:command . string)) (:arguments)))))
+    (should
+     (equal
+      (list "foo" '(:command "cmd" :title "alsofoo"))
+      (eglot--dcase '(:title "foo" :command (:command "cmd" :title "alsofoo"))
+        (((Command) _title _command _arguments)
+         (ert-fail "Shouldn't have destructured this object as a Command"))
+        (((CodeAction) title command)
+         (list title command)))))))
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 
