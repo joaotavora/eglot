@@ -174,33 +174,28 @@ operation?  We may have help, so open a [new
 issue](https://github.com/joaotavora/eglot/issues) and try to be as
 precise and objective about the problem as you can:
 
-1. Try to replicate the problem with **as clean an Emacs run as
-   possible**.  This means an empty `.emacs` init file or close to it
-   (just loading `eglot.el`, `company.el` and `yasnippet.el` for
-   example, and you don't even need `use-package.el` to do that).
+1. Include the invaluable **events transcript**.  You can display that
+   buffer with `M-x eglot-events-buffer`.  It contains the JSONRPC
+   messages exchanged between client and server, as well as the
+   messages the server prints to stderr.
     
-2. Include the log of **LSP events** and the **stderr output** of the
-   server (if any).  You can find the former with `M-x
-   eglot-events-buffer` and the latter with `M-x eglot-stderr-buffer`.
-   You run these commands in the buffer where you enabled Eglot, but
-   if you didn't manage to enable Eglot at all (because of some
-   bootstrapping problem), you can still find these buffers in your
-   buffer list: they're named like `*EGLOT <project>/<major-mode>
-   events*` and `*EGLOT <project>/<major-mode> stderr*`.
-    
-3. If Emacs errored (you saw -- and possibly heard -- an error
+2. If Emacs errored (you saw -- and possibly heard -- an error
    message), make sure you repeat the process using `M-x
    toggle-debug-on-error` so you **get a backtrace** of the error that
    you should also attach to the bug report.
    
-Some more notes: it's understandable that you report it to Eglot
-first, because that's the user-facing side of the LSP experience in
-Emacs, but the outcome may well be that you will have to report the
-problem to the server's developers, as is often the case.  But the
-problem can very well be on Eglot's side, of course, and in that case
-we want to fix it!  Also bear in mind that Eglot's developers have
-limited resources and no way to test all the possible server
-combinations, so you'll have to do most of the testing.
+3. Try to replicate the problem with **as clean an Emacs run as
+   possible**.  This means an empty `.emacs` init file or close to it
+   (just loading `eglot.el`, `company.el` and `yasnippet.el` for
+   example, and you don't even need `use-package.el` to do that).
+       
+Some more notes: it is often the case the you will have to report the
+problem to the LSP server's developers, too, though it's
+understandable that you report it Eglot first, since it is the
+user-facing frontend first.  If the problem is indeed on Eglot's side,
+we _do_ want to fix it, but because Eglot's developers have limited
+resources and no way to test all the possible server combinations,
+you'll sometimes have to do most of the testing.
 
 <a name="commands"></a>
 # Commands and keybindings
