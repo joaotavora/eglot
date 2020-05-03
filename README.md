@@ -305,12 +305,15 @@ indicator pop up in your mode-line.  More importantly, this means
 current *and future* file buffers of that major mode *inside your
 current project* automatically become \"managed\" by the LSP server,
 This means that information about these file's contents is exchanged
-periodically to provide enhanced code analysis.  Among other features:
+periodically to provide enhanced coding assistance.  Eglot works
+primarily with Emacs' built-in libraries and _not_ with third-party
+replacements for those facilities.
 
 * definitions can be found via `xref-find-definitions`;
 * on-the-fly diagnostics are given by `flymake-mode`;
 * function signature hints are given by `eldoc-mode`;
 * completion can be summoned with `completion-at-point`.
+* projects are discovered via `project.el`'s API;
 
 Some extra features are provided if certain libraries are installed
 and enabled, such as:
