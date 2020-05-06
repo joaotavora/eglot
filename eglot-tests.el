@@ -573,6 +573,32 @@ def foobazquuz(d, e, f): pass
        (while (not eldoc-last-message) (accept-process-output nil 0.1))
        (should (string-match "^exit" eldoc-last-message))))))
 
+(ert-deftest hover-multiline-doc-locus ()
+  "Test if suitable amount of lines of hover info are shown."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+      `(("project" . (("hover-first.py" . "from datetime import datetime")))
+        (eglot-put-doc-in-help-buffer nil)
+        ,@eglot--tests--python-mode-bindings)
+    (with-current-buffer
+        (eglot--find-file-noselect "project/hover-first.py")
+      (should (eglot--tests-connect))
+      (goto-char (point-max))
+      ;; one-line
+      (setq eldoc-last-message nil)
+      (setq-local eldoc-echo-area-use-multiline-p nil)
+      (eglot-eldoc-function)
+      (while (not eldoc-last-message) (accept-process-output nil 0.1))
+      (should (string-match "datetime" eldoc-last-message))
+      (should (not (cl-find ?\n eldoc-last-message)))
+      ;; multi-line
+      (setq eldoc-last-message nil)
+      (setq-local eldoc-echo-area-use-multiline-p t)
+      (eglot-eldoc-function)
+      (while (not eldoc-last-message) (accept-process-output nil 0.1))
+      (should (string-match "datetime" eldoc-last-message))
+      (should (cl-find ?\n eldoc-last-message)))))
+
 (ert-deftest python-autopep-formatting ()
   "Test formatting in the pyls python LSP.
 pyls prefers autopep over yafp, despite its README stating the contrary."
