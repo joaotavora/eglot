@@ -301,9 +301,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
                               :workspaceFolders))
                     (default-directory root))
                 (and
-                 (seq-contains folders (eglot--path-to-uri "project/"))
-                 (seq-contains folders (eglot--path-to-uri "project/sub1/"))
-                 (seq-contains folders (eglot--path-to-uri "project/sub2/"))
+                 (cl-find (eglot--path-to-uri "project/") folders :test #'equal)
+                 (cl-find (eglot--path-to-uri "project/sub1/") folders :test #'equal)
+                 (cl-find (eglot--path-to-uri "project/sub2/") folders :test #'equal)
                  (= 3 (length folders)))))))))))
 
 (ert-deftest auto-detect-running-server ()

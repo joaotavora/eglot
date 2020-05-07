@@ -4,6 +4,7 @@
 #
 EMACS=emacs
 SELECTOR=t
+ERROR_ON_WARN=nil
 
 LOAD_PATH=-L .
 
@@ -19,12 +20,18 @@ ELPADEPS ?=--eval '(package-initialize)'			\
                       (cadr (assoc (quote flymake)		\
                                    package-archive-contents)))'
 
+# Note: Have this appear after ELPADEPS so that the deps won't
+# be compiled with this one enabled.
+BYTECOMP_ERROR_ON_WARN := \
+	--eval '(setq byte-compile-error-on-warn $(ERROR_ON_WARN))'
+
 all: compile
 
 # Compilation
 #
 %.elc: %.el
-	$(EMACS) -Q $(ELPADEPS) $(LOAD_PATH) --batch -f batch-byte-compile $<
+	$(EMACS) -Q $(ELPADEPS) $(BYTECOMP_ERROR_ON_WARN) $(LOAD_PATH) \
+		--batch -f batch-byte-compile $<
 
 compile: $(ELCFILES)
 
