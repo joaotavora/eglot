@@ -77,6 +77,7 @@
 (defvar company-backends)
 (defvar company-tooltip-align-annotations)
 
+(declare-function tramp-file-local-name "tramp" t t)
 
 
 ;;; User tweakable stuff
@@ -877,6 +878,7 @@ This docstring appeases checkdoc, that's all."
                          :connection-type 'pipe
                          :coding 'utf-8-emacs-unix
                          :noquery t
+                         :file-handler (file-remote-p default-directory)
                          :stderr (get-buffer-create
                                   (format "*%s stderr*" readable-name)))))))))
          (spread (lambda (fn) (lambda (server method params)
@@ -1001,6 +1003,9 @@ CONNECT-ARGS are passed as additional arguments to
                  :name (format "autostart-inferior-%s" name)
                  :stderr (format "*%s stderr*" name)
                  :noquery t
+                 :file-handler (file-remote-p
+                                ;; ↓ set at `eglot--connect'
+                                default-directory)
                  :command (cl-subst
                            (format "%s" port-number) :autoport contact)))
           (setq connection
@@ -1131,14 +1136,22 @@ If optional MARKER, return a marker instead"
 (defun eglot--path-to-uri (path)
   "URIfy PATH."
   (url-hexify-string
-   (concat "file://" (if (eq system-type 'windows-nt) "/") (file-truename path))
+   (concat "file://" (if (eq system-type 'windows-nt) "/")
+           (tramp-file-local-name (file-truename path)))
    url-path-allowed-chars))
 
-(defun eglot--uri-to-path (uri)
-  "Convert URI to a file path."
+(cl-defun eglot--uri-to-path (uri &optional (server (eglot--current-server-or-lose)))
+  "Convert URI to a file path.
+
+SERVER is used to resolve the remote component of the path being returned,
+since server may be running in a remote host.
+
+Will use `eglot--current-server-or-lose' if SERVER not provided."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
-  (let ((retval (url-filename (url-generic-parse-url (url-unhex-string uri)))))
-    (if (eq system-type 'windows-nt) (substring retval 1) retval)))
+  (concat
+   (file-remote-p (jsonrpc--process server))
+   (let ((retval (url-filename (url-generic-parse-url (url-unhex-string uri)))))
+     (if (eq system-type 'windows-nt) (substring retval 1) retval))))
 
 (defun eglot--snippet-expansion-fn ()
   "Compute a function to expand snippets.
@@ -1547,7 +1560,7 @@ COMMAND is a symbol naming the command."
   (server (_method (eql textDocument/publishDiagnostics)) &key uri diagnostics
           &allow-other-keys) ; FIXME: doesn't respect `eglot-strict-mode'
   "Handle notification publishDiagnostics"
-  (if-let ((buffer (find-buffer-visiting (eglot--uri-to-path uri))))
+  (if-let ((buffer (find-buffer-visiting (eglot--uri-to-path uri server))))
       (with-current-buffer buffer
         (cl-loop
          for diag-spec across diagnostics
@@ -1767,7 +1780,7 @@ When called interactively, use the currently active server"
          (mapcar
           (eglot--lambda ((ConfigurationItem) scopeUri section)
             (with-temp-buffer
-              (let* ((uri-path (eglot--uri-to-path scopeUri))
+              (let* ((uri-path (eglot--uri-to-path scopeUri server))
                      (default-directory
                        (if (and (not (string-empty-p uri-path))
                                 (file-directory-p uri-path))
