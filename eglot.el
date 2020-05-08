@@ -719,7 +719,11 @@ be guessed."
                      ((null guess)
                       (format "[eglot] Sorry, couldn't guess for `%s'!\n%s"
                               managed-mode base-prompt))
-                     ((and program (not (executable-find program)))
+                     ((and program
+                           (not
+                            (executable-find program
+                                             (if (file-remote-p default-directory)
+                                                 t))))
                       (concat (format "[eglot] I guess you want to run `%s'"
                                       program-guess)
                               (format ", but I can't find `%s' in PATH!" program)
