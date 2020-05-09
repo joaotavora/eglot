@@ -20,14 +20,13 @@ ELPADEPS ?=--eval '(package-initialize)'			\
                       (cadr (assoc (quote flymake)		\
                                    package-archive-contents)))'
 
-# Note: Have this appear after ELPADEPS so that the deps won't
-# be compiled with this one enabled.
 BYTECOMP_ERROR_ON_WARN := \
 	--eval '(setq byte-compile-error-on-warn $(ERROR_ON_WARN))'
 
 all: compile
 
-# Compilation
+# Compilation.  Note BYTECOMP_ERROR_ON_WARN after ELPADEPS 
+# so deps can still warn on compilation.
 #
 %.elc: %.el
 	$(EMACS) -Q $(ELPADEPS) $(BYTECOMP_ERROR_ON_WARN) $(LOAD_PATH) \
