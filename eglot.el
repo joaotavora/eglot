@@ -77,8 +77,6 @@
 (defvar company-backends)
 (defvar company-tooltip-align-annotations)
 
-(declare-function tramp-file-local-name "tramp" t t)
-
 
 ;;; User tweakable stuff
 (defgroup eglot nil
@@ -1140,7 +1138,7 @@ If optional MARKER, return a marker instead"
   "URIfy PATH."
   (url-hexify-string
    (concat "file://" (if (eq system-type 'windows-nt) "/")
-           (tramp-file-local-name (file-truename path)))
+           (file-local-name (file-truename path)))
    url-path-allowed-chars))
 
 (cl-defun eglot--uri-to-path (uri &optional (server (eglot--current-server-or-lose)))
