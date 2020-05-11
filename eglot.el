@@ -1005,7 +1005,6 @@ CONNECT-ARGS are passed as additional arguments to
                  :stderr (format "*%s stderr*" name)
                  :noquery t
                  :file-handler (file-remote-p
-                                ;; `default-directory' is set at `eglot--connect'
                                 default-directory)
                  :command (cl-subst
                            (format "%s" port-number) :autoport contact)))
