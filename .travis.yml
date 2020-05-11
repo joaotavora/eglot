@@ -27,7 +27,11 @@ install:
   - mkdir eclipse.jdt.ls
   - tar -C eclipse.jdt.ls -xzf eclipse.tar.gz
   - export CLASSPATH=$(pwd)/$(find eclipse.jdt.ls/ -regex eclipse.jdt.ls/plugins/org.eclipse.equinox.launcher_.*.jar):${CLASSPATH}
-
+  # enable ssh to localhost with no password prompt
+  - ssh-keygen -t rsa -C "<me@mymail>" -f ~/.ssh/id_this_travis_build -P ""
+  - cat ~/.ssh/id_this_travis_build.pub >> ~/.ssh/authorized_keys
+  - printf "%s\n" 'Host localhost' '  IdentityFile ~/.ssh/id_this_travis_build' >> ~/.ssh/config
+  - ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK
 script:
   - make check
 
