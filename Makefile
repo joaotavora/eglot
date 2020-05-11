@@ -46,7 +46,7 @@ eglot-check: compile
 		-l eglot						\
 		-l eglot-tests						\
 		--eval '(setq ert-batch-backtrace-right-margin 200)'	\
-		--eval '(setq default-directory (concat "/ssh:localhost:" default-directory)'	\
+		--eval '(setq default-directory (concat "/ssh:localhost:" default-directory))'	\
 		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
 
 check: eglot-check
