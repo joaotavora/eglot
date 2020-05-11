@@ -914,7 +914,8 @@ This docstring appeases checkdoc, that's all."
                       (list :processId (unless (eq (jsonrpc-process-type server)
                                                    'network)
                                          (emacs-pid))
-                            :rootPath (expand-file-name default-directory)
+                            :rootPath (file-local-name (expand-file-name
+                                                         default-directory))
                             :rootUri (eglot--path-to-uri default-directory)
                             :initializationOptions (eglot-initialization-options
                                                     server)
