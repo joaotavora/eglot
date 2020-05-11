@@ -722,8 +722,7 @@ be guessed."
                      ((and program
                            (not
                             (executable-find program
-                                             (if (file-remote-p default-directory)
-                                                 t))))
+                                             (file-remote-p default-directory))))
                       (concat (format "[eglot] I guess you want to run `%s'"
                                       program-guess)
                               (format ", but I can't find `%s' in PATH!" program)
