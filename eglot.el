@@ -1152,12 +1152,7 @@ If optional MARKER, return a marker instead"
    url-path-allowed-chars))
 
 (cl-defun eglot--uri-to-path (uri &optional (server (eglot--current-server-or-lose)))
-  "Convert URI to a file path.
-
-SERVER is used to resolve the remote component of the path being returned,
-since server may be running in a remote host.
-
-Will use `eglot--current-server-or-lose' if SERVER not provided."
+  "Convert URI to a string pointing to a file in SERVER's host."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (concat
    (file-remote-p (jsonrpc--process server))
