@@ -2258,19 +2258,22 @@ is not active."
 (defun eglot-help-at-point ()
   "Request documentation for the thing at point."
   (interactive)
-  (eglot--dbind ((Hover) contents range)
-      (jsonrpc-request (eglot--current-server-or-lose) :textDocument/hover
-                       (eglot--TextDocumentPositionParams))
-    (let ((blurb (and (not (seq-empty-p contents))
-                      (eglot--hover-info contents range))))
-      (if blurb
-          (with-current-buffer (eglot--help-buffer)
-            (with-help-window (current-buffer)
-              (rename-buffer (format "*eglot-help for %s*"
-                                     (thing-at-point 'symbol)))
-              (with-current-buffer standard-output (insert blurb))
-              (setq-local nobreak-char-display nil)))
-        (display-local-help)))))
+  (if (help-at-pt-kbd-string)
+      (display-local-help)
+    (eglot--dbind ((Hover) contents range)
+        (jsonrpc-request (eglot--current-server-or-lose) :textDocument/hover
+                         (eglot--TextDocumentPositionParams))
+      (let ((blurb (and (not (seq-empty-p contents))
+                        (eglot--hover-info contents range))))
+        (if blurb
+            (with-current-buffer (eglot--help-buffer)
+              (with-help-window (current-buffer)
+                (rename-buffer (format "*eglot-help for %s*"
+                                       (thing-at-point 'symbol)))
+                (with-current-buffer standard-output (insert blurb))
+                (setq-local nobreak-char-display nil)))
+          ;; To show "No local help at point".
+          (display-local-help))))))
 
 (defun eglot-doc-too-large-for-echo-area (string)
   "Return non-nil if STRING won't fit in echo area.
