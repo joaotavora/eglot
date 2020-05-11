@@ -1145,7 +1145,7 @@ If optional MARKER, return a marker instead"
   "Convert URI to a string pointing to a file in SERVER's host."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (concat
-   (file-remote-p (jsonrpc--process server))
+   (file-remote-p (car (project-roots (eglot--project server))))
    (let ((retval (url-filename (url-generic-parse-url (url-unhex-string uri)))))
      (if (eq system-type 'windows-nt) (substring retval 1) retval))))
 
