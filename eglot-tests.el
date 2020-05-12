@@ -69,7 +69,11 @@ then restored."
 
 (defun eglot--call-with-fixture (fixture fn)
   "Helper for `eglot--with-fixture'.  Run FN under FIXTURE."
-  (let* ((fixture-directory (make-temp-file "eglot--fixture" t))
+  (let* ((temporary-file-directory ;; ensure tmp directory respects remote
+          (concat
+           (file-remote-p default-directory)
+           (file-local-name temporary-file-directory)))
+         (fixture-directory (make-temp-file "eglot--fixture" t))
          (default-directory fixture-directory)
          file-specs created-files
          syms-to-restore
