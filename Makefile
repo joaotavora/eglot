@@ -44,6 +44,7 @@ eglot-check: compile
 		-l eglot-tests						\
 		--eval '(setq ert-batch-backtrace-right-margin 200)'	\
 		--eval '(setq default-directory (concat "/ssh:localhost:" default-directory))'	\
+		--eval '(setq tramp-verbose 10)'	\
 		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
 
 check: eglot-check
