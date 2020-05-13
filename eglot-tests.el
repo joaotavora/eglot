@@ -880,34 +880,65 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
         (((CodeAction) title command)
          (list title command)))))))
 
-(cl-defmacro eglot--guessing-contact ((guessed-class-sym guessed-contact-sym)
+(cl-defmacro eglot--guessing-contact ((interactive-sym prompt-args-sym
+                                       guessed-class-sym guessed-contact-sym)
                                       &body body)
-  "Bind the result of `eglot--guess-contact' then evaluate BODY."
+  "Evaluate BODY twice, binding results of `eglot--guess-contact'.
+
+INTERACTIVE-SYM is bound to the boolean passed to
+`eglot--guess-contact' each time. If the user would have been
+prompted, PROMPT-ARGS-SYM is bound to the list of arguments that
+would have been passed to `read-shell-command', else nil.
+GUESSED-CLASS-SYM and GUESSED-CONTACT-SYM are bound to the useful
+return values of `eglot--guess-contact'. Unless the server
+program evaluates to \"a-missing-executable.exe\", this macro
+will assume it exists."
   (declare (indent 1) (debug t))
-  `(let ((buffer-file-name "_"))
-     (cl-destructuring-bind
-         (_ _ ,guessed-class-sym ,guessed-contact-sym)
-         (eglot--guess-contact)
-       ,@body)))
+  (let ((i-sym (cl-gensym)))
+    `(dolist (,i-sym '(nil t))
+       (let ((,interactive-sym ,i-sym)
+             (buffer-file-name "_")
+             (,prompt-args-sym nil))
+         (cl-letf (((symbol-function 'executable-find)
+                    (lambda (name) (unless (string-equal
+                                            name "a-missing-executable.exe")
+                                     (format "/totally-mock-bin/%s" name))))
+                   ((symbol-function 'read-shell-command)
+                    (lambda (&rest args) (setq ,prompt-args-sym args) "")))
+           (cl-destructuring-bind
+               (_ _ ,guessed-class-sym ,guessed-contact-sym)
+               (eglot--guess-contact ,i-sym)
+             ,@body))))))
 
 (ert-deftest eglot-server-programs-simple-executable ()
   (let ((eglot-server-programs '((foo-mode "some-executable")))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
+
+(ert-deftest eglot-server-programs-simple-missing-executable ()
+  (let ((eglot-server-programs '((foo-mode "a-missing-executable.exe")))
+        (major-mode 'foo-mode))
+    (eglot--guessing-contact (interactive-p prompt-args guessed-class guessed-contact)
+      (should (equal (not prompt-args) (not interactive-p)))
+      (should (equal guessed-class 'eglot-lsp-server))
+      (should (equal guessed-contact '("a-missing-executable.exe"))))))
 
 (ert-deftest eglot-server-programs-executable-multiple-major-modes ()
   (let ((eglot-server-programs '(((bar-mode foo-mode) "some-executable")))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
 
 (ert-deftest eglot-server-programs-executable-with-arg ()
   (let ((eglot-server-programs '((foo-mode "some-executable" "arg1")))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable" "arg1"))))))
 
@@ -915,7 +946,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   (let ((eglot-server-programs '((foo-mode "some-executable" "arg1"
                                            :autoport "arg2")))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable" "arg1"
                                        :autoport "arg2"))))))
@@ -923,7 +955,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
 (ert-deftest eglot-server-programs-host-and-port ()
   (let ((eglot-server-programs '((foo-mode "somehost.example.com" 7777)))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("somehost.example.com" 7777))))))
 
@@ -931,7 +964,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   (let ((eglot-server-programs '((foo-mode "somehost.example.com" 7777
                                            :type network)))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("somehost.example.com" 7777
                                        :type network))))))
@@ -939,7 +973,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
 (ert-deftest eglot-server-programs-class-name-and-plist ()
   (let ((eglot-server-programs '((foo-mode bar-class :init-key init-val)))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'bar-class))
       (should (equal guessed-contact '(:init-key init-val))))))
 
@@ -947,7 +982,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   (let ((eglot-server-programs '((foo-mode bar-class "some-executable" "arg1"
                                            :autoport "arg2")))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'bar-class))
       (should (equal guessed-contact '("some-executable" "arg1"
                                        :autoport "arg2"))))))
@@ -956,7 +992,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   (let ((eglot-server-programs '((foo-mode . (lambda (&optional _)
                                                '("some-executable")))))
         (major-mode 'foo-mode))
-    (eglot--guessing-contact (guessed-class guessed-contact)
+    (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
+      (should (not prompt-args))
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
 
