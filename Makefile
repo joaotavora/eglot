@@ -15,6 +15,9 @@ ELPADEPS ?=--eval '(package-initialize)'			\
            --eval '(package-refresh-contents)'			\
            --eval '(package-install (quote company))'		\
            --eval '(package-install (quote jsonrpc))'		\
+           --eval '(package-install (quote xref))'		\
+           --eval '(package-install (quote project))'		\
+           --eval '(package-install (quote eldoc))'		\
            --eval '(package-install (quote yasnippet))'		\
            --eval '(package-install 				\
                       (cadr (assoc (quote flymake)		\
