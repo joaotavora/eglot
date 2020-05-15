@@ -426,6 +426,84 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (flymake-goto-next-error 1 '() t)
         (should (eq 'flymake-error (face-at-point)))))))
 
+(ert-deftest basic-actions-point ()
+  "Test codeAction request with no selection and diagnostic under point."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+   `(("actions-project" .
+      (("main.py" . "# Some long text so we can get pycodestyle diagnostic\
+ at the first line\n\
+foo = 1\n\n\n\nbar = int(foo + 1)\n")))
+     ,@eglot--tests--python-mode-bindings)
+   (with-current-buffer
+       (eglot--find-file-noselect "actions-project/main.py")
+     (eglot--sniffing
+      (:server-notifications s-notifs)
+      (eglot--tests-connect)
+      (eglot--wait-for (s-notifs 2)
+                       (&key _id method &allow-other-keys)
+                       (string-equal method "textDocument/publishDiagnostics")))
+     (flymake-start)
+     (goto-char 94)
+     (eglot--sniffing
+      (:client-requests c-reqs)
+      (ignore-errors (call-interactively (eglot-code-actions)))
+      (eglot--wait-for
+       (c-reqs)
+       (&key _id method params &allow-other-keys)
+       (and (string-equal method "textDocument/codeAction")
+            (equal (plist-get params :range)
+                   '(:start
+                     (:line 5 :character 10)
+                     :end
+                     (:line 5 :character 10)))
+            (let ((diags (plist-get
+                          (plist-get params :context)
+                          :diagnostics)))
+              (and (= (length diags) 1)
+                   (equal (plist-get (aref diags 0) :range)
+                   '(:start
+                     (:line 5 :character 0)
+                     :end
+                     (:line 5 :character 19)))))))))))
+
+(ert-deftest basic-actions-selection ()
+  "Test codeAction request with selection."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+   `(("actions-project" .
+      (("main.py" . "foo = 1\n\n\n\nbar = int(foo + 1)\n")))
+     ,@eglot--tests--python-mode-bindings)
+   (with-current-buffer
+       (eglot--find-file-noselect "actions-project/main.py")
+     (eglot--sniffing
+      (:server-notifications s-notifs)
+      (eglot--tests-connect)
+      (eglot--wait-for (s-notifs 2)
+                       (&key _id method &allow-other-keys)
+                       (string-equal method "textDocument/publishDiagnostics")))
+     (flymake-start)
+     ;; selection as range and no diagnostic
+     (set-mark 0)
+     (goto-char 8)
+     (activate-mark)
+     (eglot--sniffing
+      (:client-requests c-reqs)
+      (ignore-errors (call-interactively #'eglot-code-actions))
+      (eglot--wait-for
+       (c-reqs)
+       (&key _id method params &allow-other-keys)
+       (and (string-equal method "textDocument/codeAction")
+            (equal (plist-get params :range)
+                   '(:start
+                     (:line 0 :character 0)
+                     :end
+                     (:line 0 :character 7)))
+            (= (length (plist-get
+                        (plist-get params :context)
+                        :diagnostics))
+               0)))))))
+
 (ert-deftest rls-hover-after-edit ()
   "Hover and highlightChanges are tricky in RLS."
   (skip-unless (executable-find "rls"))
@@ -966,4 +1044,3 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
 ;; Local Variables:
 ;; checkdoc-force-docstrings-flag: nil
 ;; End:
-
