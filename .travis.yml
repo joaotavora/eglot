@@ -21,7 +21,7 @@ install:
   # Install https://github.com/palantir/python-language-server
   - virtualenv .
   - . ./bin/activate
-  - pip install 'python-language-server[all]'
+  - pip install 'python-language-server[all]==0.31.10'
   # Install eclipse.jdt.ls
   - curl -fSL http://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -o eclipse.tar.gz
   - mkdir eclipse.jdt.ls
