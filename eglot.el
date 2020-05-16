@@ -2268,12 +2268,15 @@ is not active."
     (let ((blurb (and (not (seq-empty-p contents))
                       (eglot--hover-info contents range))))
       (if blurb
-          (with-current-buffer (eglot--help-buffer)
-            (with-help-window (current-buffer)
-              (rename-buffer (format "*eglot-help for %s*"
-                                     (thing-at-point 'symbol)))
-              (with-current-buffer standard-output (insert blurb))
-              (setq-local nobreak-char-display nil)))
+          (let ((diagnostic (get-char-property (point) 'flymake-diagnostic)))
+            (with-current-buffer (eglot--help-buffer)
+              (with-help-window (current-buffer)
+                (rename-buffer (format "*eglot-help for %s*"
+                                       (thing-at-point 'symbol)))
+                (with-current-buffer standard-output (insert blurb))
+                (when diagnostic
+                  (insert "\n" (eglot--format-markup (flymake--diag-text diagnostic))))
+                (setq-local nobreak-char-display nil))))
         (display-local-help)))))
 
 (defun eglot-doc-too-large-for-echo-area (string)
