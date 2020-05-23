@@ -62,6 +62,7 @@ find-library` can help you tell if that happened.
 * Godot Engine's [built-in LSP][godot]
 * Fortran's [fortls][fortls]
 * Zig's [zls][zls]
+* FSharp's [fsharp-mode][fsharp-mode] (Needs to `(require 'eglot-fsharp)` first)
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -578,3 +579,4 @@ Under the hood:
 [fortls]: https://github.com/hansec/fortran-language-server
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
 [zls]: https://github.com/zigtools/zls
+[fsharp-mode]: https://github.com/fsharp/emacs-fsharp-mode
