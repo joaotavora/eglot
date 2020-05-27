@@ -576,14 +576,14 @@ def foobazquuz(d, e, f): pass
       (setq-local eldoc-echo-area-use-multiline-p nil)
       (eglot-eldoc-function)
       (while (not eldoc-last-message) (accept-process-output nil 0.1))
-      (should (string-match "datetime" eldoc-last-message))
+      (should (string-match "datetim" eldoc-last-message))
       (should (not (cl-find ?\n eldoc-last-message)))
       ;; multi-line
       (setq eldoc-last-message nil)
       (setq-local eldoc-echo-area-use-multiline-p t)
       (eglot-eldoc-function)
       (while (not eldoc-last-message) (accept-process-output nil 0.1))
-      (should (string-match "datetime" eldoc-last-message))
+      (should (string-match "datetim" eldoc-last-message))
       (should (cl-find ?\n eldoc-last-message)))))
 
 (ert-deftest python-autopep-formatting ()
