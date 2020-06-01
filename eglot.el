@@ -854,6 +854,8 @@ This docstring appeases checkdoc, that's all."
   (let* ((default-directory (project-root project))
          (nickname (file-name-base (directory-file-name default-directory)))
          (readable-name (format "EGLOT (%s/%s)" nickname managed-major-mode))
+         (inferior-process-environment process-environment)
+         (inferior-process-exec-path exec-path)
          autostart-inferior-process
          (contact (if (functionp contact) (funcall contact) contact))
          (initargs
@@ -875,7 +877,9 @@ This docstring appeases checkdoc, that's all."
                 ((stringp (car contact))
                  `(:process
                    ,(lambda ()
-                      (let ((default-directory default-directory))
+                      (let ((default-directory default-directory)
+                            (process-environment inferior-process-environment)
+                            (exec-path inferior-process-exec-path))
                         (make-process
                          :name readable-name
                          :command contact
