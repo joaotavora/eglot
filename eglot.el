@@ -2401,11 +2401,11 @@ documentation.  Honour `eglot-put-doc-in-help-buffer',
         (jsonrpc-async-request
          server :textDocument/hover position-params
          :success-fn (eglot--lambda ((Hover) contents range)
-                       (unless sig-showing
+                       (unless (or sig-showing
+                                   (seq-empty-p contents))
                          (when-buffer-window
-                          (eglot--update-doc (and (not (seq-empty-p contents))
-                                                  (eglot--hover-info contents
-                                                                     range))
+                          (eglot--update-doc (eglot--hover-info contents
+                                                                range)
                                              thing-at-point))))
          :deferred :textDocument/hover))
       (when (eglot--server-capable :documentHighlightProvider)
