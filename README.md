@@ -264,12 +264,6 @@ documentation on what these do.
 - `eglot-ignored-server-capabilites`: LSP server capabilities that
   Eglot could use, but won't;
 
-- `eglot-put-doc-in-help-buffer`: If non-nil, put eldoc docstrings in
-  separate `*eglot-help*` buffer;
-
-- `eglot-auto-display-help-buffer`: If non-nil, automatically display
-  `*eglot-help*` buffer;
-
 - `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
   before allowing server to edit the source buffer's text;
 
