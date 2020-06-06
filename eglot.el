@@ -1336,8 +1336,8 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
     (eglot--setq-saving eldoc-documentation-functions
                         '(eglot-signature-eldoc-function
                           eglot-hover-eldoc-function))
-    (eglot--setq-saving eldoc-documentation-function
-                        #'eldoc-documentation-eager)
+    (eglot--setq-saving eldoc-documentation-strategy
+                        #'eldoc-documentation-enthusiast)
     (eglot--setq-saving xref-prompt-for-identifier nil)
     (eglot--setq-saving flymake-diagnostic-functions '(eglot-flymake-backend t))
     (eglot--setq-saving company-backends '(company-capf))
