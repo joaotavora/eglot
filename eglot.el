@@ -2508,12 +2508,16 @@ documentation.  Honour `eglot-put-doc-in-help-buffer',
                                 (length (- end beg))
                                 (beg (marker-position beg))
                                 (end (marker-position end)))
-                            (run-hook-with-args 'before-change-functions
-                                                beg end)
+                            (save-restriction
+                              (widen)
+                              (run-hook-with-args 'before-change-functions
+                                                  beg end))
                             (replace-buffer-contents temp)
-                            (run-hook-with-args 'after-change-functions
-                                                beg (+ beg (length newText))
-                                                length))))
+                            (save-restriction
+                              (widen)
+                              (run-hook-with-args 'after-change-functions
+                                                  beg (+ beg (length newText))
+                                                  length)))))
                       (progress-reporter-update reporter (cl-incf done)))))))
             (mapcar (eglot--lambda ((TextEdit) range newText)
                       (cons newText (eglot--range-region range 'markers)))
