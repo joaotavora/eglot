@@ -513,7 +513,7 @@ treated as in `eglot-dbind'."
             :workspace (list
                         :applyEdit t
                         :executeCommand `(:dynamicRegistration :json-false)
-                        :workspaceEdit `(:documentChanges :json-false)
+                        :workspaceEdit `(:documentChanges t)
                         :didChangeWatchedFiles `(:dynamicRegistration t)
                         :symbol `(:dynamicRegistration :json-false)
                         :configuration t)
@@ -1624,6 +1624,11 @@ THINGS are either registrations or unregisterations (sic)."
   "Handle server request client/unregisterCapability"
   (eglot--register-unregister server unregisterations 'unregister))
 
+(cl-defmethod eglot-handle-notification
+  (_server (_method (eql workspace/applyEdit)) &key _label edit)
+  "Handle server notification workspace/applyEdit"
+  (eglot--apply-workspace-edit edit eglot-confirm-server-initiated-edits))
+
 (cl-defmethod eglot-handle-request
   (_server (_method (eql workspace/applyEdit)) &key _label edit)
   "Handle server request workspace/applyEdit"
@@ -2549,7 +2554,10 @@ documentation.  Honour `eglot-put-doc-in-help-buffer',
       (unwind-protect
           (if prepared (eglot--warn "Caution: edits of files %s failed."
                                     (mapcar #'car prepared))
-            (eglot-eldoc-function)
+            ;; When we're called from `eglot-handle-notification'
+            ;; there's no server available for `eglot-eldoc-function'.
+            ;; Ignore this error.
+            (ignore-errors (eglot-eldoc-function))
             (eglot--message "Edit successful!"))))))
 
 (defun eglot-rename (newname)
