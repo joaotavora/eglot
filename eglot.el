@@ -1166,7 +1166,8 @@ Doubles as an indicator of snippet support."
     (with-temp-buffer
       (setq-local markdown-fontify-code-blocks-natively t)
       (insert string)
-      (ignore-errors (delay-mode-hooks (funcall mode)))
+      (let ((inhibit-message t))
+        (ignore-errors (delay-mode-hooks (funcall mode))))
       (font-lock-ensure)
       (string-trim (filter-buffer-substring (point-min) (point-max))))))
 
