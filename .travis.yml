@@ -32,6 +32,8 @@ install:
   - cat ~/.ssh/id_this_travis_build.pub >> ~/.ssh/authorized_keys
   - printf "%s\n" 'Host localhost' '  IdentityFile ~/.ssh/id_this_travis_build' >> ~/.ssh/config
   - ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK
+  # try latest fix from tramp
+  - git clone https://git.savannah.gnu.org/git/tramp.git
 
 before_script:
   - make eglot.elc ERROR_ON_WARN=t
