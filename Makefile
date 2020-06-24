@@ -11,8 +11,7 @@ LOAD_PATH=-L .
 ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
-ELPADEPS ?=--eval '(setq load-path (append (list "./tramp/lisp") load-path))'			\
-	   --eval '(dolist (el (directory-files "./tramp/lisp" t "\\.el$")) (load-file el))'			\
+ELPADEPS ?=--eval '(dolist (el (directory-files "./tramp/lisp" t "\\.el$$")) (load-file el))'			\
            --eval '(package-refresh-contents)'			\
            --eval '(package-refresh-contents)'			\
            --eval '(package-install (quote jsonrpc))'		\
