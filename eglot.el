@@ -7,7 +7,7 @@
 ;; Maintainer: João Távora <joaotavora@gmail.com>
 ;; URL: https://github.com/joaotavora/eglot
 ;; Keywords: convenience, languages
-;; Package-Requires: ((emacs "26.1") (jsonrpc "1.0.9") (flymake "1.0.8"))
+;; Package-Requires: ((emacs "26.1") (jsonrpc "1.0.9") (flymake "1.0.8") (project "0.3.0") (xref "1.0.1") (eldoc "1.0.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -110,7 +110,8 @@ language-server/bin/php-language-server.php"))
                                 (ada-mode . ("ada_language_server"))
                                 (scala-mode . ("metals-emacs"))
                                 ((tex-mode context-mode texinfo-mode bibtex-mode)
-                                 . ("digestif")))
+                                 . ("digestif"))
+                                (erlang-mode . ("erlang_ls" "--transport" "stdio")))
   "How the command `eglot' guesses the server to start.
 An association list of (MAJOR-MODE . CONTACT) pairs.  MAJOR-MODE
 is a mode symbol, or a list of mode symbols.  The associated
@@ -703,7 +704,11 @@ be guessed."
                          (prog1 (car guess) (setq guess (cdr guess))))
                     'eglot-lsp-server))
          (program (and (listp guess)
-                       (stringp (car guess)) (stringp (cadr guess)) (car guess)))
+                       (stringp (car guess))
+                       ;; A second element might be the port of a (host, port)
+                       ;; pair, but in that case it is not a string.
+                       (or (null (cdr guess)) (stringp (cadr guess)))
+                       (car guess)))
          (base-prompt
           (and interactive
                "Enter program to execute (or <host>:<port>): "))
@@ -848,7 +853,7 @@ Each function is passed the server as an argument")
 (defun eglot--connect (managed-major-mode project class contact)
   "Connect to MANAGED-MAJOR-MODE, PROJECT, CLASS and CONTACT.
 This docstring appeases checkdoc, that's all."
-  (let* ((default-directory (car (project-roots project)))
+  (let* ((default-directory (project-root project))
          (nickname (file-name-base (directory-file-name default-directory)))
          (readable-name (format "EGLOT (%s/%s)" nickname managed-major-mode))
          autostart-inferior-process
@@ -946,7 +951,7 @@ This docstring appeases checkdoc, that's all."
                                    (lambda ()
                                      (setf (eglot--inhibit-autoreconnect server)
                                            (null eglot-autoreconnect)))))))
-                          (let ((default-directory (car (project-roots project)))
+                          (let ((default-directory (project-root project))
                                 (major-mode managed-major-mode))
                             (hack-dir-local-variables-non-file-buffer)
                             (run-hook-with-args 'eglot-connect-hook server))
@@ -1120,19 +1125,21 @@ be set to `eglot-move-to-lsp-abiding-column' (the default), and
   "Convert LSP position POS-PLIST to Emacs point.
 If optional MARKER, return a marker instead"
   (save-excursion
-    (goto-char (point-min))
-    (forward-line (min most-positive-fixnum
-                       (plist-get pos-plist :line)))
-    (unless (eobp) ;; if line was excessive leave point at eob
-      (let ((tab-width 1)
-            (col (plist-get pos-plist :character)))
-        (unless (wholenump col)
-          (eglot--warn
-           "Caution: LSP server sent invalid character position %s. Using 0 instead."
-           col)
-          (setq col 0))
-        (funcall eglot-move-to-column-function col)))
-    (if marker (copy-marker (point-marker)) (point))))
+    (save-restriction
+      (widen)
+      (goto-char (point-min))
+      (forward-line (min most-positive-fixnum
+                         (plist-get pos-plist :line)))
+      (unless (eobp) ;; if line was excessive leave point at eob
+        (let ((tab-width 1)
+              (col (plist-get pos-plist :character)))
+          (unless (wholenump col)
+            (eglot--warn
+             "Caution: LSP server sent invalid character position %s. Using 0 instead."
+             col)
+            (setq col 0))
+          (funcall eglot-move-to-column-function col)))
+      (if marker (copy-marker (point-marker)) (point)))))
 
 (defun eglot--path-to-uri (path)
   "URIfy PATH."
@@ -1145,7 +1152,7 @@ If optional MARKER, return a marker instead"
   "Convert URI to a string pointing to a file in SERVER's host."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (concat
-   (file-remote-p (car (project-roots (eglot--project server))))
+   (file-remote-p (project-root (eglot--project server)))
    (let ((retval (url-filename (url-generic-parse-url (url-unhex-string uri)))))
      (if (eq system-type 'windows-nt) (substring retval 1) retval))))
 
@@ -1167,10 +1174,10 @@ Doubles as an indicator of snippet support."
                          (_ major-mode))))))
     (with-temp-buffer
       (setq-local markdown-fontify-code-blocks-natively t)
-      (insert (string-trim string))
+      (insert string)
       (ignore-errors (delay-mode-hooks (funcall mode)))
       (font-lock-ensure)
-      (buffer-string))))
+      (string-trim (filter-buffer-substring (point-min) (point-max))))))
 
 (defcustom eglot-ignored-server-capabilites (list)
   "LSP server capabilities that Eglot could use, but won't.
@@ -1589,14 +1596,16 @@ COMMAND is a symbol naming the command."
                                              (t          'eglot-note))
                                        message `((eglot-lsp-diag . ,diag-spec)))))
          into diags
-         finally (cond (eglot--current-flymake-report-fn
-                        (funcall eglot--current-flymake-report-fn diags
-                                 ;; If the buffer hasn't changed since last
-                                 ;; call to the report function, flymake won't
-                                 ;; delete old diagnostics.  Using :region
-                                 ;; keyword forces flymake to delete
-                                 ;; them (github#159).
-                                 :region (cons (point-min) (point-max)))
+         finally (cond ((and flymake-mode eglot--current-flymake-report-fn)
+                        (save-restriction
+                          (widen)
+                          (funcall eglot--current-flymake-report-fn diags
+                                   ;; If the buffer hasn't changed since last
+                                   ;; call to the report function, flymake won't
+                                   ;; delete old diagnostics.  Using :region
+                                   ;; keyword forces flymake to delete
+                                   ;; them (github#159).
+                                   :region (cons (point-min) (point-max))))
                         (setq eglot--unreported-diagnostics nil))
                        (t
                         (setq eglot--unreported-diagnostics (cons t diags))))))
@@ -1781,7 +1790,7 @@ When called interactively, use the currently active server"
                        (if (and (not (string-empty-p uri-path))
                                 (file-directory-p uri-path))
                            uri-path
-                           (car (project-roots (eglot--project server))))))
+                         (project-root (eglot--project server)))))
                 (setq-local major-mode (eglot--major-mode server))
                 (hack-dir-local-variables-non-file-buffer)
                 (alist-get section eglot-workspace-configuration
@@ -1954,7 +1963,8 @@ Try to visit the target file for a richer summary line."
     (eglot--collecting-xrefs (collect)
       (mapc
        (eglot--lambda ((Location) uri range)
-         (collect (eglot--xref-make-match (symbol-at-point) uri range)))
+         (collect (eglot--xref-make-match (symbol-name (symbol-at-point))
+                                          uri range)))
        (if (vectorp response) response (list response))))))
 
 (cl-defun eglot--lsp-xref-helper (method &key extra-params capability )
@@ -2151,9 +2161,7 @@ is not active."
        :exit-function
        (lambda (proxy _status)
          (eglot--dbind ((CompletionItem) insertTextFormat
-                        insertText
-                        textEdit
-                        additionalTextEdits)
+                        insertText textEdit additionalTextEdits label)
              (funcall
               resolve-maybe
               (or (get-text-property 0 'eglot--lsp-item proxy)
@@ -2188,7 +2196,7 @@ is not active."
                     ;; whole completion, since `insertText' is the full
                     ;; completion's text.
                     (delete-region (- (point) (length proxy)) (point))
-                    (funcall snippet-fn insertText))))
+                    (funcall snippet-fn (or insertText label)))))
            (eglot--signal-textDocument/didChange)
            (eglot-eldoc-function)))))))
 
@@ -2281,24 +2289,47 @@ is not active."
               (setq-local nobreak-char-display nil)))
         (display-local-help)))))
 
-(defun eglot-doc-too-large-for-echo-area (string)
-  "Return non-nil if STRING won't fit in echo area.
-Respects `max-mini-window-height' (which see)."
-  (let ((max-height
-         (cond ((floatp max-mini-window-height) (* (frame-height)
-                                                   max-mini-window-height))
-               ((integerp max-mini-window-height) max-mini-window-height)
-               (t 1))))
-    (> (cl-count ?\n string) max-height)))
+(cl-defun eglot-doc-too-large-for-echo-area
+    (string &optional (height max-mini-window-height))
+  "Return non-nil if STRING won't fit in echo area of height HEIGHT.
+HEIGHT defaults to `max-mini-window-height' (which see) and is
+interpreted like that variable.  If non-nil, the return value is
+the number of lines available."
+  (let ((available-lines (cl-typecase height
+                           (float (truncate (* (frame-height) height)))
+                           (integer height)
+                           (t 1))))
+    (when (> (1+ (cl-count ?\n string)) available-lines)
+      available-lines)))
+
+(cl-defun eglot--truncate-string (string height &optional (width (frame-width)))
+  "Return as much from STRING as fits in HEIGHT and WIDTH.
+WIDTH, if non-nil, truncates last line to those columns."
+  (cl-flet ((maybe-trunc
+             (str) (if width (truncate-string-to-width str width
+                                                       nil nil "...")
+                     str)))
+    (cl-loop
+     repeat height
+     for i from 1
+     for break-pos = (cl-position ?\n string)
+     for (line . rest) = (and break-pos
+                              (cons (substring string 0 break-pos)
+                                    (substring string (1+ break-pos))))
+     concat (cond (line (if (= i height) (maybe-trunc line) (concat line "\n")))
+                  (t (maybe-trunc string)))
+     while rest do (setq string rest))))
 
 (defcustom eglot-put-doc-in-help-buffer
+  ;; JT@2020-05-21: TODO: this variable should be renamed and the
+  ;; decision somehow be in eldoc.el itself.
   #'eglot-doc-too-large-for-echo-area
   "If non-nil, put \"hover\" documentation in separate `*eglot-help*' buffer.
 If nil, use whatever `eldoc-message-function' decides, honouring
 `eldoc-echo-area-use-multiline-p'.  If t, use `*eglot-help*'
-unconditionally.  If a function, it is called with the docstring
-to display and should a boolean producing one of the two previous
-values."
+unconditionally.  If a function, it is called with the
+documentation string to display and returns a generalized boolean
+interpreted as one of the two preceding values."
   :type '(choice (const :tag "Never use `*eglot-help*'" nil)
                  (const :tag "Always use `*eglot-help*'" t)
                  (function :tag "Ask a function")))
@@ -2308,11 +2339,6 @@ values."
 Buffer is displayed with `display-buffer', which obeys
 `display-buffer-alist' & friends."
   :type 'boolean)
-
-(defun eglot--first-line-of-doc (string)
-  (truncate-string-to-width
-   (replace-regexp-in-string "\\(.*\\)\n.*" "\\1" string)
-   (frame-width) nil nil "..."))
 
 (defun eglot--update-doc (string hint)
   "Put updated documentation STRING where it belongs.
@@ -2336,16 +2362,22 @@ documentation.  Honour `eglot-put-doc-in-help-buffer',
              (if eglot-auto-display-help-buffer
                  (display-buffer (current-buffer))
                (unless (get-buffer-window (current-buffer))
+                 ;; This prints two lines.  Should it print 1?  Or
+                 ;; honour max-mini-window-height?
                  (eglot--message
                   "%s\n(...truncated. Full help is in `%s')"
-                  (eglot--first-line-of-doc string)
+                  (eglot--truncate-string string 1 (- (frame-width) 8))
                   (buffer-name eglot--help-buffer))))
              (help-mode))))
-        (eldoc-echo-area-use-multiline-p
-         ;; Can't really honour non-t non-nil values if this var
-         (eldoc-message string))
+        ((eq eldoc-echo-area-use-multiline-p t)
+         (if-let ((available (eglot-doc-too-large-for-echo-area string)))
+             (eldoc-message (eglot--truncate-string string available))
+           (eldoc-message string)))
+        ((eq eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit)
+         (eldoc-message (eglot--truncate-string string 1 nil)))
         (t
-         (eldoc-message (eglot--first-line-of-doc string)))))
+         ;; Can't (yet?) honour non-t non-nil values of this var
+         (eldoc-message (eglot--truncate-string string 1)))))
 
 (defun eglot-eldoc-function ()
   "EGLOT's `eldoc-documentation-function' function."
@@ -2682,16 +2714,14 @@ documentation.  Honour `eglot-put-doc-in-help-buffer',
   `(:workspaceFolders
     [,@(cl-delete-duplicates
         (mapcar #'eglot--path-to-uri
-                (let* ((roots (project-roots (eglot--project server)))
-                       (root (car roots)))
-                  (append
-                   roots
-                   (mapcar
-                    #'file-name-directory
-                    (append
-                     (file-expand-wildcards (concat root "*/pom.xml"))
-                     (file-expand-wildcards (concat root "*/build.gradle"))
-                     (file-expand-wildcards (concat root "*/.project")))))))
+                (let* ((root (project-root (eglot--project server))))
+                  (cons root
+                        (mapcar
+                         #'file-name-directory
+                         (append
+                          (file-expand-wildcards (concat root "*/pom.xml"))
+                          (file-expand-wildcards (concat root "*/build.gradle"))
+                          (file-expand-wildcards (concat root "*/.project")))))))
         :test #'string=)]
     ,@(if-let ((home (or (getenv "JAVA_HOME")
                          (ignore-errors
@@ -2739,7 +2769,7 @@ If INTERACTIVE, prompt user for details."
               (t "config_linux"))))
            (project (or (project-current) `(transient . ,default-directory)))
            (workspace
-            (expand-file-name (md5 (car (project-roots project)))
+            (expand-file-name (md5 (project-root project))
                               (concat user-emacs-directory
                                       "eglot-eclipse-jdt-cache"))))
       (unless jar
