@@ -880,7 +880,18 @@ This docstring appeases checkdoc, that's all."
                       (let ((default-directory default-directory))
                         (make-process
                          :name readable-name
-                         :command contact
+                         :command
+                         (let* ((command-name (file-local-name
+                                               (car contact)))
+                                (command-args (cdr contact)))
+                           (list
+                            "sh" "-c"
+                            (string-join
+                             (append
+                              '("stty raw;")
+                              (list command-name)
+                              command-args)
+                             " ")))
                          :connection-type 'pipe
                          :coding 'utf-8-emacs-unix
                          :noquery t
@@ -1010,8 +1021,8 @@ CONNECT-ARGS are passed as additional arguments to
                  :name (format "autostart-inferior-%s" name)
                  :stderr (format "*%s stderr*" name)
                  :noquery t
-                 :file-handler (file-remote-p
-                                default-directory)
+                 ;;:file-handler (file-remote-p
+                 ;;               default-directory)
                  :command (cl-subst
                            (format "%s" port-number) :autoport contact)))
           (setq connection
