@@ -11,9 +11,7 @@ LOAD_PATH=-L .
 ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
-ELPADEPS ?=--eval '(dolist (el (directory-files "./tramp/lisp" t "\\.el$$")) (load-file el))'			\
-           --eval '(package-refresh-contents)'			\
-           --eval '(package-refresh-contents)'			\
+ELPADEPS ?=--eval '(package-refresh-contents)'			\
            --eval '(package-install (quote jsonrpc))'		\
            --eval '(package-install (quote project))'		\
            --eval '(package-install (quote xref))'		\
@@ -47,8 +45,6 @@ eglot-check: compile
 		-l eglot						\
 		-l eglot-tests						\
 		--eval '(setq ert-batch-backtrace-right-margin 200)'	\
-		--eval '(setq default-directory (concat "/ssh:localhost:" default-directory))'	\
-		--eval '(setq tramp-verbose 10)'	\
 		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
 
 check: eglot-check
