@@ -11,7 +11,8 @@ LOAD_PATH=-L .
 ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
-ELPADEPS ?=--eval '(package-refresh-contents)'			\
+ELPADEPS ?=--eval '(package-initalize)'			\
+           --eval '(package-refresh-contents)'			\
            --eval '(package-install (quote jsonrpc))'		\
            --eval '(package-install (quote project))'		\
            --eval '(package-install (quote xref))'		\
