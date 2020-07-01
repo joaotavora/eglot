@@ -327,6 +327,28 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (eglot--find-file-noselect "anotherproject/cena.py")
         (should-error (eglot--current-server-or-lose))))))
 
+(ert-deftest remotely-auto-detect-running-server ()
+  "Copy of `auto-detect-running-server' that runs on remote server."
+  (skip-unless (and
+                (executable-find "pyls")
+                (file-remote-p default-directory)))
+  (let (server)
+    (eglot--with-fixture
+        `(("project" . (("coiso.py" . "bla")
+                        ("merdix.py" . "bla")))
+          ("anotherproject" . (("cena.py" . "bla"))))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/coiso.py")
+        (should (setq server (eglot--tests-connect)))
+        (should (eglot-current-server)))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/merdix.py")
+        (should (eglot-current-server))
+        (should (eq (eglot-current-server) server)))
+      (with-current-buffer
+          (eglot--find-file-noselect "anotherproject/cena.py")
+        (should-error (eglot--current-server-or-lose))))))
+
 (ert-deftest auto-shutdown ()
   "Visit a file and M-x eglot, then kill buffer. "
   (skip-unless (executable-find "pyls"))
@@ -1014,4 +1036,3 @@ will assume it exists."
 ;; Local Variables:
 ;; checkdoc-force-docstrings-flag: nil
 ;; End:
-
