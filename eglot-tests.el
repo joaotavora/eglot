@@ -328,11 +328,30 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (should-error (eglot--current-server-or-lose))))))
 
 (ert-deftest remotely-auto-detect-running-server ()
-  "Copy of `auto-detect-running-server' that runs on remote server."
+  "Copy of `auto-detect-running-server' that runs on remote server.
+
+Running this test will modify your ~/.ssh/config file."
   (skip-unless (and
-                (executable-find "pyls")
-                (file-remote-p default-directory)))
-  (let (server)
+                (executable-find "pyls")))
+  ;; enable ssh to localhost with no password prompt
+  (let* ((key-file (expand-file-name
+                   "~/.ssh/id_this_travis_build.pub"))
+         (commands
+          `("ssh-keygen -t rsa -C '<tramp-test@not.an.email>' -f ~/.ssh/id_this_travis_build -P ''"
+            ,(format "cat %s >> ~/.ssh/authorized_keys"
+                     key-file)
+            ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s >> ~"
+                     key-file)
+            "ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK")))
+    (should (equal 0
+                   (seq-reduce ;; make sure all commands return 0
+                    '+
+                    (seq-map
+                     'shell-command
+                     commands)
+                    0))))
+  (let ((default-directory (concat "/ssh:localhost:" default-directory))
+        server)
     (eglot--with-fixture
         `(("project" . (("coiso.py" . "bla")
                         ("merdix.py" . "bla")))
