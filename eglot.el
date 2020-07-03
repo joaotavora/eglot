@@ -881,23 +881,33 @@ This docstring appeases checkdoc, that's all."
                         (make-process
                          :name readable-name
                          :command
-                         (let* ((command-name (file-local-name
-                                               (car contact)))
-                                (command-args (cdr contact)))
-                           (list
-                            "sh" "-c"
-                            (string-join
-                             (append
-                              '("stty raw;")
-                              (list command-name)
-                              command-args)
-                             " ")))
+                         (if (file-remote-p default-directory)
+                             ;; wrap the command in an unbuffered shell script
+                             (let* ((command-name (file-local-name
+                                                   (car contact)))
+                                    (command-args (cdr contact)))
+                               (list
+                                "/bin/sh" "-c"
+                                (string-join
+                                 (append
+                                  '("stty raw;") ;; no line buffering
+                                  (list command-name)
+                                  (seq-map
+                                   'shell-quote-argument
+                                   command-args)
+                                  ;; redirect stderr because using :stderr is not fully supported
+                                  (list "2> /dev/null")
+                                  )
+                                 " ")))
+                           ;; for non-remote commands, use as-is
+                           contact)
                          :connection-type 'pipe
                          :coding 'utf-8-emacs-unix
                          :noquery t
                          :file-handler (file-remote-p default-directory)
-                         :stderr (get-buffer-create
-                                  (format "*%s stderr*" readable-name)))))))))
+                         :stderr (unless (file-remote-p default-directory)
+                                   (get-buffer-create
+                                    (format "*%s stderr*" readable-name))))))))))
          (spread (lambda (fn) (lambda (server method params)
                                 (apply fn server method (append params nil)))))
          (server
