@@ -337,11 +337,10 @@ Running this test will modify your ~/.ssh/config file."
   (let* ((key-file (expand-file-name
                     "~/.ssh/id_this_travis_build.pub"))
          (results
-          (with-current-buffer standard-output
-            (list
+          (list
              (call-process "ssh-keygen"
                            nil
-                           t
+                           standard-output
                            nil
                            "-t" "rsa"
                            "-C" "<tramp-test@not.an.email>"
@@ -349,22 +348,22 @@ Running this test will modify your ~/.ssh/config file."
                            "-P" "")
              (call-process "bash"
                            nil
-                           t
+                           standard-output
                            nil
                            "-c"  (format "cat %s >> ~/.ssh/authorized_keys"
                                          key-file))
              (call-process "bash"
                            nil
-                           t
+                           standard-output
                            nil
                            "-c" (format "printf '%%s\n' 'Host localhost' '  IdentityFile %s >> ~"
                                         key-file))
              (call-process "ssh"
                            nil
-                           t
+                           standard-output
                            nil
                            "-o" "StrictHostKeyChecking=no" "localhost"
-                           "echo" "I can ssh to localhost OK")))))
+                           "echo" "I can ssh to localhost OK"))))
     (should (equal 0
                    (seq-reduce ;; make sure all commands return 0
                     '+
