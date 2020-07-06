@@ -336,56 +336,44 @@ Running this test will modify your ~/.ssh/config file."
   ;; enable ssh to localhost with no password prompt
   (let* ((key-file (expand-file-name
                     "~/.ssh/id_this_travis_build.pub"))
-         (results
-          (list
-             (call-process "ssh-keygen"
-                           nil
-                           `(,standard-output t)
-                           nil
-                           "-t" "rsa"
-                           "-C" "<tramp-test@not.an.email>"
-                           "-f" "~/.ssh/id_this_travis_build"
-                           "-P" "")
-             (call-process "bash"
-                           nil
-                           `(,standard-output t)
-                           nil
-                           "-c"  (format "cat %s >> ~/.ssh/authorized_keys"
-                                         key-file))
-             (call-process "bash"
-                           nil
-                           `(,standard-output t)
-                           nil
-                           "-c" (format "printf '%%s\n' 'Host localhost' '  IdentityFile %s >> ~"
-                                        key-file))
-             (call-process "ssh"
-                           nil
-                           `(,standard-output t)
-                           nil
-                           "-o" "StrictHostKeyChecking=no" "localhost"
-                           "echo" "I can ssh to localhost OK"))))
-    (should (equal 0
-                   (seq-reduce ;; make sure all commands return 0
-                    '+
-                    results
-                    0))))
+         (output-buffer
+          (get-buffer-create "*setup ssh for test*")))
+    (with-current-buffer output-buffer
+      (erase-buffer))
+    (with-temp-buffer
+      (insert
+       (string-join
+        `("ssh-keygen -t rsa -C '<tramp-test@not.an.email>' -f ~/.ssh/id_this_travis_build -P ''"
+          ,(format "cat %s >> ~/.ssh/authorized_keys"
+                   key-file)
+          ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s >> ~"
+                   key-file)
+          "ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK") "\n"))
+      (when (not (equal 0
+                      (shell-command-on-region (point-min) (point-max)
+                               "bash"
+                               output-buffer)))
+        (error "Cannot run remote test:\n%s"
+               (with-current-buffer output-buffer
+                 (buffer-string))))))
+
   (let ((default-directory (concat "/ssh:localhost:" default-directory))
         server)
     (eglot--with-fixture
-     `(("project" . (("coiso.py" . "bla")
-                     ("merdix.py" . "bla")))
-       ("anotherproject" . (("cena.py" . "bla"))))
-     (with-current-buffer
-         (eglot--find-file-noselect "project/coiso.py")
-       (should (setq server (eglot--tests-connect)))
-       (should (eglot-current-server)))
-     (with-current-buffer
-         (eglot--find-file-noselect "project/merdix.py")
-       (should (eglot-current-server))
-       (should (eq (eglot-current-server) server)))
-     (with-current-buffer
-         (eglot--find-file-noselect "anotherproject/cena.py")
-       (should-error (eglot--current-server-or-lose))))))
+        `(("project" . (("coiso.py" . "bla")
+                        ("merdix.py" . "bla")))
+          ("anotherproject" . (("cena.py" . "bla"))))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/coiso.py")
+        (should (setq server (eglot--tests-connect)))
+        (should (eglot-current-server)))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/merdix.py")
+        (should (eglot-current-server))
+        (should (eq (eglot-current-server) server)))
+      (with-current-buffer
+          (eglot--find-file-noselect "anotherproject/cena.py")
+        (should-error (eglot--current-server-or-lose))))))
 
 (ert-deftest auto-shutdown ()
   "Visit a file and M-x eglot, then kill buffer. "
