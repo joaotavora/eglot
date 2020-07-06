@@ -360,7 +360,7 @@ Running this test will modify your ~/.ssh/config file."
             ;; add key to authorized
             "touch ~/.ssh/authorized_keys"
             "chmod 600 ~/.ssh/authorized_keys"
-            ,(format "cat %s >> ~/.ssh/authorized_keys"
+            ,(format "cat %s.pub >> ~/.ssh/authorized_keys"
                      key-file)
             ;; force the use of this key for ssh'ing to localhost
             "touch ~/.ssh/config"
