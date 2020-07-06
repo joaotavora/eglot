@@ -367,12 +367,7 @@ Running this test will modify your ~/.ssh/config file."
     (should (equal 0
                    (seq-reduce ;; make sure all commands return 0
                     '+
-                    (seq-map
-                     (lambda (command)
-                       (with-current-buffer
-                           standard-output
-                         (shell-command command t)))
-                     commands)
+                    results
                     0))))
   (let ((default-directory (concat "/ssh:localhost:" default-directory))
         server)
