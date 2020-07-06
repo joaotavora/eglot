@@ -346,7 +346,7 @@ Running this test will modify your ~/.ssh/config file."
         `("ssh-keygen -t rsa -C '<tramp-test@not.an.email>' -f ~/.ssh/id_this_travis_build -P ''"
           ,(format "cat %s >> ~/.ssh/authorized_keys"
                    key-file)
-          ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s >> ~"
+          ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s' >> ~"
                    key-file)
           "ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK") "\n"))
       (when (not (equal 0
