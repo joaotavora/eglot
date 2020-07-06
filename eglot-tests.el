@@ -335,38 +335,63 @@ Running this test will modify your ~/.ssh/config file."
                 (executable-find "pyls")))
   ;; enable ssh to localhost with no password prompt
   (let* ((key-file (expand-file-name
-                   "~/.ssh/id_this_travis_build.pub"))
-         (commands
-          `("ssh-keygen -t rsa -C '<tramp-test@not.an.email>' -f ~/.ssh/id_this_travis_build -P ''"
-            ,(format "cat %s >> ~/.ssh/authorized_keys"
-                     key-file)
-            ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s >> ~"
-                     key-file)
-            "ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK")))
+                    "~/.ssh/id_this_travis_build.pub"))
+         (results
+          (with-current-buffer standard-output
+            (list
+             (call-process "ssh-keygen"
+                           nil
+                           t
+                           nil
+                           "-t" "rsa"
+                           "-C" "<tramp-test@not.an.email>"
+                           "-f" "~/.ssh/id_this_travis_build"
+                           "-P" "")
+             (call-process "bash"
+                           nil
+                           t
+                           nil
+                           "-c"  (format "cat %s >> ~/.ssh/authorized_keys"
+                                         key-file))
+             (call-process "bash"
+                           nil
+                           t
+                           nil
+                           "-c" (format "printf '%%s\n' 'Host localhost' '  IdentityFile %s >> ~"
+                                        key-file))
+             (call-process "ssh"
+                           nil
+                           t
+                           nil
+                           "-o" "StrictHostKeyChecking=no" "localhost"
+                           "echo" "I can ssh to localhost OK")))))
     (should (equal 0
                    (seq-reduce ;; make sure all commands return 0
                     '+
                     (seq-map
-                     'shell-command
+                     (lambda (command)
+                       (with-current-buffer
+                           standard-output
+                         (shell-command command t)))
                      commands)
                     0))))
   (let ((default-directory (concat "/ssh:localhost:" default-directory))
         server)
     (eglot--with-fixture
-        `(("project" . (("coiso.py" . "bla")
-                        ("merdix.py" . "bla")))
-          ("anotherproject" . (("cena.py" . "bla"))))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/coiso.py")
-        (should (setq server (eglot--tests-connect)))
-        (should (eglot-current-server)))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/merdix.py")
-        (should (eglot-current-server))
-        (should (eq (eglot-current-server) server)))
-      (with-current-buffer
-          (eglot--find-file-noselect "anotherproject/cena.py")
-        (should-error (eglot--current-server-or-lose))))))
+     `(("project" . (("coiso.py" . "bla")
+                     ("merdix.py" . "bla")))
+       ("anotherproject" . (("cena.py" . "bla"))))
+     (with-current-buffer
+         (eglot--find-file-noselect "project/coiso.py")
+       (should (setq server (eglot--tests-connect)))
+       (should (eglot-current-server)))
+     (with-current-buffer
+         (eglot--find-file-noselect "project/merdix.py")
+       (should (eglot-current-server))
+       (should (eq (eglot-current-server) server)))
+     (with-current-buffer
+         (eglot--find-file-noselect "anotherproject/cena.py")
+       (should-error (eglot--current-server-or-lose))))))
 
 (ert-deftest auto-shutdown ()
   "Visit a file and M-x eglot, then kill buffer. "
