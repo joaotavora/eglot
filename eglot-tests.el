@@ -334,28 +334,38 @@ Running this test will modify your ~/.ssh/config file."
   (skip-unless (and
                 (executable-find "pyls")))
   ;; enable ssh to localhost with no password prompt
-  (let* ((key-file (expand-file-name
-                    "~/.ssh/id_this_travis_build.pub"))
-         (output-buffer
-          (get-buffer-create "*setup ssh for test*")))
-    (with-current-buffer output-buffer
-      (erase-buffer))
-    (with-temp-buffer
-      (insert
-       (string-join
-        `("ssh-keygen -t rsa -C '<tramp-test@not.an.email>' -f ~/.ssh/id_this_travis_build -P ''"
-          ,(format "cat %s >> ~/.ssh/authorized_keys"
-                   key-file)
-          ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s' >> ~"
-                   key-file)
-          "ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK") "\n"))
-      (when (not (equal 0
-                      (shell-command-on-region (point-min) (point-max)
-                               "bash"
-                               output-buffer)))
-        (error "Cannot run remote test:\n%s"
-               (with-current-buffer output-buffer
-                 (buffer-string))))))
+  (unless
+      ;; test ssh to localhost without prompt
+      (equal 0
+             (call-process "ssh"
+                    nil
+                    nil
+                    nil
+                    "-oPasswordAuthentication=No" "localhost"))
+    (let* ((key-file (expand-file-name
+                      "~/.ssh/id_this_travis_build.pub"))
+           (output-buffer
+            (get-buffer-create "*setup ssh for test*")))
+      (with-current-buffer output-buffer
+        (erase-buffer))
+      (with-temp-buffer
+        (insert
+         (string-join
+          `("set -e"
+            "ssh-keygen -t rsa -C '<tramp-test@not.an.email>' -f ~/.ssh/id_this_travis_build -P ''"
+            ,(format "cat %s >> ~/.ssh/authorized_keys"
+                     key-file)
+            "touch ~/.ssh/config"
+            ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s' >> ~/.ssh/config"
+                     key-file)
+            "ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK") "\n"))
+        (when (not (equal 0
+                          (shell-command-on-region (point-min) (point-max)
+                                                   "bash -xvf"
+                                                   output-buffer)))
+          (error "Cannot setup passwordless ssh to localhost remote test:\n%s"
+                 (with-current-buffer output-buffer
+                   (buffer-string)))))))
 
   (let ((default-directory (concat "/ssh:localhost:" default-directory))
         server)
