@@ -354,7 +354,7 @@ Running this test will modify your ~/.ssh/config file."
           `("set -e"
             ;; create key
             "mkdir -p ~/.ssh"
-            "chmod 600 ~/.ssh"
+            "chmod 700 ~/.ssh"
             "ssh-keygen -t rsa -C '<tramp-test@not.an.email>' -f ~/.ssh/id_this_travis_build -P ''"
 
             ;; add key to authorized
