@@ -367,7 +367,7 @@ Running this test will modify your ~/.ssh/config file."
             "chmod 644 ~/.ssh/config"
             ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s' >> ~/.ssh/config"
                      key-file)
-            "ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK") "\n"))
+            "ssh -vvv -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK") "\n"))
         (when (not (equal 0
                           (shell-command-on-region (point-min) (point-max)
                                                    "bash -xvf"
