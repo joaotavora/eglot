@@ -343,7 +343,7 @@ Running this test will modify your ~/.ssh/config file."
                     nil
                     "-oPasswordAuthentication=No" "localhost"))
     (let* ((key-file (expand-file-name
-                      "~/.ssh/id_this_travis_build.pub"))
+                      "~/.ssh/id_this_travis_build"))
            (output-buffer
             (get-buffer-create "*setup ssh for test*")))
       (with-current-buffer output-buffer
