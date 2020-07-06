@@ -352,10 +352,19 @@ Running this test will modify your ~/.ssh/config file."
         (insert
          (string-join
           `("set -e"
+            ;; create key
+            "mkdir -p ~/.ssh"
+            "chmod 600 ~/.ssh"
             "ssh-keygen -t rsa -C '<tramp-test@not.an.email>' -f ~/.ssh/id_this_travis_build -P ''"
+
+            ;; add key to authorized
+            "touch ~/.ssh/authorized_keys"
+            "chmod 600 ~/.ssh/authorized_keys"
             ,(format "cat %s >> ~/.ssh/authorized_keys"
                      key-file)
+            ;; force the use of this key for ssh'ing to localhost
             "touch ~/.ssh/config"
+            "chmod 644 ~/.ssh/config"
             ,(format "printf '%%s\n' 'Host localhost' '  IdentityFile %s' >> ~/.ssh/config"
                      key-file)
             "ssh -o StrictHostKeyChecking=no localhost echo I can ssh to localhost OK") "\n"))
