@@ -340,7 +340,7 @@ Running this test will modify your ~/.ssh/config file."
           (list
              (call-process "ssh-keygen"
                            nil
-                           standard-output
+                           `(,standard-output t)
                            nil
                            "-t" "rsa"
                            "-C" "<tramp-test@not.an.email>"
@@ -348,19 +348,19 @@ Running this test will modify your ~/.ssh/config file."
                            "-P" "")
              (call-process "bash"
                            nil
-                           standard-output
+                           `(,standard-output t)
                            nil
                            "-c"  (format "cat %s >> ~/.ssh/authorized_keys"
                                          key-file))
              (call-process "bash"
                            nil
-                           standard-output
+                           `(,standard-output t)
                            nil
                            "-c" (format "printf '%%s\n' 'Host localhost' '  IdentityFile %s >> ~"
                                         key-file))
              (call-process "ssh"
                            nil
-                           standard-output
+                           `(,standard-output t)
                            nil
                            "-o" "StrictHostKeyChecking=no" "localhost"
                            "echo" "I can ssh to localhost OK"))))
