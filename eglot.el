@@ -1052,8 +1052,6 @@ CONNECT-ARGS are passed as additional arguments to
                  :name (format "autostart-inferior-%s" name)
                  :stderr (format "*%s stderr*" name)
                  :noquery t
-                 ;;:file-handler (file-remote-p
-                 ;;               default-directory)
                  :command (cl-subst
                            (format "%s" port-number) :autoport contact)))
           (setq connection
