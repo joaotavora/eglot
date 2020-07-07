@@ -877,7 +877,25 @@ This docstring appeases checkdoc, that's all."
                 ((stringp (car contact))
                  `(:process
                    ,(lambda ()
-                      (let ((default-directory default-directory))
+                      (let ((default-directory default-directory)
+                            ;; modify tramp connection parameters for this process only
+                            (tramp-methods (copy-tree
+                                            tramp-methods)))
+                        (when (file-remote-p default-directory)
+                          ;; ensure a pty in ssh command by adding "-tt"
+                          (with-parsed-tramp-file-name (expand-file-name default-directory) vec
+                            (when (string-equal "ssh"
+                                                (tramp-get-method-parameter
+                                                 vec
+                                                 'tramp-login-program))
+                              (setf
+                               (cdr
+                                (tramp-get-method-parameter vec 'tramp-login-args))
+                               (append
+                                '(("-tt"))
+                                (cdr
+                                 (tramp-get-method-parameter vec 'tramp-login-args)))))))
+
                         (make-process
                          :name readable-name
                          :command
