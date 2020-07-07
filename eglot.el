@@ -889,6 +889,10 @@ This docstring appeases checkdoc, that's all."
                         (when (file-remote-p default-directory)
                           ;; ensure a pty in ssh command by adding "-tt"
                           (with-parsed-tramp-file-name (expand-file-name default-directory) vec
+                            (cl-assert (not (null vec))
+                                       nil
+                                       "vec was null for %s"
+                                       default-directory)
                             (when (string-equal "ssh"
                                                 (tramp-get-method-parameter
                                                  vec
