@@ -895,7 +895,6 @@ This docstring appeases checkdoc, that's all."
                                 '(("-tt"))
                                 (cdr
                                  (tramp-get-method-parameter vec 'tramp-login-args)))))))
-
                         (make-process
                          :name readable-name
                          :command
@@ -908,7 +907,7 @@ This docstring appeases checkdoc, that's all."
                                 "/bin/sh" "-c"
                                 (string-join
                                  (append
-                                  '("stty raw;") ;; no line buffering
+                                  '("stty raw > /dev/null;") ;; no line buffering
                                   (list command-name)
                                   (seq-map
                                    'shell-quote-argument
