@@ -72,14 +72,11 @@
 (require 'filenotify)
 (require 'ert)
 (require 'array)
+(require 'tramp)
 ;; forward-declare, but don't require (Emacs 28 doesn't seem to care)
 (defvar markdown-fontify-code-blocks-natively)
 (defvar company-backends)
 (defvar company-tooltip-align-annotations)
-(defvar tramp-methods)
-
-(declare-function with-parsed-tramp-file-name "tramp")
-(declare-function tramp-get-method-parameter "tramp")
 
 
 ;;; User tweakable stuff
@@ -854,6 +851,35 @@ received the initializing configuration.
 
 Each function is passed the server as an argument")
 
+(defun eglot--ensured-pseudo-pty-in-tramp-methods (directory)
+  "Get a copy of `tramp-methods' that ensures «-tt» is in ssh params.
+
+Use DIRECTORY as reference dir / tramp parameters.  If DIRECTORY is not remote,
+this fun returns an unaltered copy of `tramp-methods'"
+  (let ((tramp-methods
+         (copy-tree tramp-methods)))
+    (when (file-remote-p directory)
+      ;; ensure a pty in ssh command by adding "-tt"
+      (with-parsed-tramp-file-name (expand-file-name directory) vec
+        (cl-assert (not (null vec))
+                   nil
+                   "vec was null for %s (%s)"
+                   directory
+                   (expand-file-name directory))
+        (when (string-equal "ssh"
+                            (tramp-get-method-parameter
+                             vec
+                             'tramp-login-program))
+          (setf
+           (cdr
+            (tramp-get-method-parameter vec 'tramp-login-args))
+           (append
+            '(("-tt"))
+            (cdr
+             (tramp-get-method-parameter vec 'tramp-login-args)))))))
+    ;; return this copy
+    tramp-methods))
+
 (defun eglot--connect (managed-major-mode project class contact)
   "Connect to MANAGED-MAJOR-MODE, PROJECT, CLASS and CONTACT.
 This docstring appeases checkdoc, that's all."
@@ -882,29 +908,8 @@ This docstring appeases checkdoc, that's all."
                  `(:process
                    ,(lambda ()
                       (let ((default-directory default-directory)
-                            ;; modify tramp connection parameters for this process only
-                            (tramp-methods (copy-tree
-                                            tramp-methods))
-                            vec) ;; forward-declare, set by `with-parsed-tramp-file-name'
-                        (when (file-remote-p default-directory)
-                          ;; ensure a pty in ssh command by adding "-tt"
-                          (with-parsed-tramp-file-name (expand-file-name default-directory) vec
-                            (cl-assert (not (null vec))
-                                       nil
-                                       "vec was null for %s (%s)"
-                                       default-directory
-                                       (expand-file-name default-directory))
-                            (when (string-equal "ssh"
-                                                (tramp-get-method-parameter
-                                                 vec
-                                                 'tramp-login-program))
-                              (setf
-                               (cdr
-                                (tramp-get-method-parameter vec 'tramp-login-args))
-                               (append
-                                '(("-tt"))
-                                (cdr
-                                 (tramp-get-method-parameter vec 'tramp-login-args)))))))
+                            (tramp-methods (eglot--ensured-pseudo-pty-in-tramp-methods
+                                            default-directory)))
                         (make-process
                          :name readable-name
                          :command
