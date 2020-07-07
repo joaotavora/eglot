@@ -76,6 +76,10 @@
 (defvar markdown-fontify-code-blocks-natively)
 (defvar company-backends)
 (defvar company-tooltip-align-annotations)
+(defvar tramp-methods)
+
+(declare-function with-parsed-tramp-file-name "tramp")
+(declare-function tramp-get-method-parameter "tramp")
 
 
 ;;; User tweakable stuff
