@@ -376,7 +376,8 @@ Running this test will modify your ~/.ssh/config file."
                  (with-current-buffer output-buffer
                    (buffer-string)))))))
 
-  (let ((default-directory (concat "/ssh:localhost:" default-directory))
+  (let ((default-directory (concat "/ssh:localhost:"
+                                   (expand-file-name default-directory)))
         server)
     (eglot--with-fixture
         `(("project" . (("coiso.py" . "bla")
