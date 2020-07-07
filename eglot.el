@@ -884,7 +884,8 @@ This docstring appeases checkdoc, that's all."
                       (let ((default-directory default-directory)
                             ;; modify tramp connection parameters for this process only
                             (tramp-methods (copy-tree
-                                            tramp-methods)))
+                                            tramp-methods))
+                            vec) ;; forward-declare, set by `with-parsed-tramp-file-name'
                         (when (file-remote-p default-directory)
                           ;; ensure a pty in ssh command by adding "-tt"
                           (with-parsed-tramp-file-name (expand-file-name default-directory) vec
@@ -917,8 +918,7 @@ This docstring appeases checkdoc, that's all."
                                    'shell-quote-argument
                                    command-args)
                                   ;; redirect stderr because using :stderr is not fully supported
-                                  (list "2> /dev/null")
-                                  )
+                                  (list "2> /dev/null"))
                                  " ")))
                            ;; for non-remote commands, use as-is
                            contact)
