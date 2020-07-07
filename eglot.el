@@ -891,8 +891,9 @@ This docstring appeases checkdoc, that's all."
                           (with-parsed-tramp-file-name (expand-file-name default-directory) vec
                             (cl-assert (not (null vec))
                                        nil
-                                       "vec was null for %s"
-                                       default-directory)
+                                       "vec was null for %s (%s)"
+                                       default-directory
+                                       (expand-file-name default-directory))
                             (when (string-equal "ssh"
                                                 (tramp-get-method-parameter
                                                  vec
