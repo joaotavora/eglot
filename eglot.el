@@ -73,6 +73,8 @@
 (require 'ert)
 (require 'array)
 (require 'tramp)
+(require 'files) ;; for `executable-find' with tramp support
+
 ;; forward-declare, but don't require (Emacs 28 doesn't seem to care)
 (defvar markdown-fontify-code-blocks-natively)
 (defvar company-backends)
