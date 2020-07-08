@@ -19,6 +19,7 @@ ELPADEPS ?=--eval '(package-initialize)'			\
            --eval '(package-install (quote eldoc))'		\
            --eval '(package-install (quote company))'		\
            --eval '(package-install (quote yasnippet))'		\
+           --eval '(package-install (quote tramp))'		\
            --eval '(package-install 				\
                       (cadr (assoc (quote flymake)		\
                                    package-archive-contents)))'
