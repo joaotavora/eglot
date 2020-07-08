@@ -280,68 +280,20 @@ Pass TIMEOUT to `eglot--with-timeout'."
             (&key _id method &allow-other-keys)
           (string= method "language/status"))))))
 
-(ert-deftest eclipse-workspace-folders ()
-  "Check eclipse connection with multi-root projects."
-  (skip-unless (eglot--have-eclipse-jdt-ls-p))
-  (eglot--with-fixture
-      '(("project/main/src/main/java/foo" . (("Main.java" . "")))
-        ("project/sub1/" . (("pom.xml" . "")))
-        ("project/sub2/" . (("build.gradle" . "")))
-        ("project/sub3/" . (("a.txt" . "")))
-        ("project/.git/" . nil))
-    (let ((root (file-name-as-directory default-directory)))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/main/src/main/java/foo/Main.java")
-        (eglot--sniffing (:client-requests c-reqs)
-          (should (eglot--tests-connect 10))
-          (eglot--wait-for (c-reqs 10)
-              (&key _id method params &allow-other-keys)
-            (when (string= method "initialize")
-              (let ((folders (plist-get
-                              (plist-get params :initializationOptions)
-                              :workspaceFolders))
-                    (default-directory root))
-                (and
-                 (cl-find (eglot--path-to-uri "project/") folders :test #'equal)
-                 (cl-find (eglot--path-to-uri "project/sub1/") folders :test #'equal)
-                 (cl-find (eglot--path-to-uri "project/sub2/") folders :test #'equal)
-                 (= 3 (length folders)))))))))))
-
-(ert-deftest auto-detect-running-server ()
-  "Visit a file and M-x eglot, then visit a neighbour. "
-  (skip-unless (executable-find "pyls"))
-  (let (server)
-    (eglot--with-fixture
-        `(("project" . (("coiso.py" . "bla")
-                        ("merdix.py" . "bla")))
-          ("anotherproject" . (("cena.py" . "bla"))))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/coiso.py")
-        (should (setq server (eglot--tests-connect)))
-        (should (eglot-current-server)))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/merdix.py")
-        (should (eglot-current-server))
-        (should (eq (eglot-current-server) server)))
-      (with-current-buffer
-          (eglot--find-file-noselect "anotherproject/cena.py")
-        (should-error (eglot--current-server-or-lose))))))
-
-(ert-deftest remotely-auto-detect-running-server ()
-  "Copy of `auto-detect-running-server' that runs on remote server.
+(ert-deftest remotely-eclipse-connect ()
+  "Copy of `eclipse-connect' that runs on remote server.
 
 Running this test will modify your ~/.ssh/config file."
-  (skip-unless (and
-                (executable-find "pyls")))
+  (skip-unless (eglot--have-eclipse-jdt-ls-p))
   ;; enable ssh to localhost with no password prompt
   (unless
       ;; test ssh to localhost without prompt
       (equal 0
              (call-process "ssh"
-                    nil
-                    nil
-                    nil
-                    "-oPasswordAuthentication=No" "localhost"))
+                           nil
+                           nil
+                           nil
+                           "-oPasswordAuthentication=No" "localhost"))
     (let* ((key-file (expand-file-name
                       "~/.ssh/id_this_travis_build"))
            (output-buffer
@@ -375,10 +327,56 @@ Running this test will modify your ~/.ssh/config file."
           (error "Cannot setup passwordless ssh to localhost remote test:\n%s"
                  (with-current-buffer output-buffer
                    (buffer-string)))))))
-
+  ;; run the test remotely
   (let ((default-directory (concat "/ssh:localhost:"
                                    (expand-file-name default-directory)))
-        server)
+        (tramp-remote-process-environment
+         (append
+          `(,(concat "CLASSPATH="
+                     (getenv "CLASSPATH")))
+          tramp-remote-process-environment)))
+    (eglot--with-fixture
+     '(("project/src/main/java/foo" . (("Main.java" . "")))
+       ("project/.git/" . nil))
+     (with-current-buffer
+         (eglot--find-file-noselect "project/src/main/java/foo/Main.java")
+       (eglot--sniffing (:server-notifications s-notifs)
+                        (should (eglot--tests-connect 20))
+                        (eglot--wait-for (s-notifs 10)
+                                         (&key _id method &allow-other-keys)
+                                         (string= method "language/status")))))))
+
+(ert-deftest eclipse-workspace-folders ()
+  "Check eclipse connection with multi-root projects."
+  (skip-unless (eglot--have-eclipse-jdt-ls-p))
+  (eglot--with-fixture
+      '(("project/main/src/main/java/foo" . (("Main.java" . "")))
+        ("project/sub1/" . (("pom.xml" . "")))
+        ("project/sub2/" . (("build.gradle" . "")))
+        ("project/sub3/" . (("a.txt" . "")))
+        ("project/.git/" . nil))
+    (let ((root (file-name-as-directory default-directory)))
+      (with-current-buffer
+          (eglot--find-file-noselect "project/main/src/main/java/foo/Main.java")
+        (eglot--sniffing (:client-requests c-reqs)
+          (should (eglot--tests-connect 10))
+          (eglot--wait-for (c-reqs 10)
+              (&key _id method params &allow-other-keys)
+            (when (string= method "initialize")
+              (let ((folders (plist-get
+                              (plist-get params :initializationOptions)
+                              :workspaceFolders))
+                    (default-directory root))
+                (and
+                 (cl-find (eglot--path-to-uri "project/") folders :test #'equal)
+                 (cl-find (eglot--path-to-uri "project/sub1/") folders :test #'equal)
+                 (cl-find (eglot--path-to-uri "project/sub2/") folders :test #'equal)
+                 (= 3 (length folders)))))))))))
+
+(ert-deftest auto-detect-running-server ()
+  "Visit a file and M-x eglot, then visit a neighbour. "
+  (skip-unless (executable-find "pyls"))
+  (let (server)
     (eglot--with-fixture
         `(("project" . (("coiso.py" . "bla")
                         ("merdix.py" . "bla")))
