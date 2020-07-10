@@ -490,6 +490,27 @@ Running this test will modify your ~/.ssh/config file."
         (flymake-goto-next-error 1 '() t)
         (should (eq 'flymake-error (face-at-point)))))))
 
+(defun eglot--eldoc-on-demand ()
+  ;; Trick Eldoc 1.1.0 into accepting on-demand calls.
+  (let ((this-command nil) (last-command 'forward-char))
+    (should (eldoc-display-message-p))
+    (eldoc)))
+
+(defun eglot--tests-force-full-eldoc ()
+  (let ((origin (current-buffer)))
+    (with-current-buffer (eldoc-doc-buffer)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (with-current-buffer origin
+          (eglot--eldoc-on-demand))
+        (cl-loop
+         repeat 10
+         while (zerop (length (buffer-string)))
+         do (sit-for 0.1))
+        (should (cl-plusp (length (buffer-string))))
+        (message "returning %s" (buffer-string))
+        (buffer-string)))))
+
 (ert-deftest rls-hover-after-edit ()
   "Hover and highlightChanges are tricky in RLS."
   (skip-unless (executable-find "rls"))
@@ -514,7 +535,7 @@ Running this test will modify your ~/.ssh/config file."
           ;; simulate these two which don't happen when buffer isn't
           ;; visible in a window.
           (eglot--signal-textDocument/didChange)
-          (eglot-eldoc-function))
+          (eglot--eldoc-on-demand))
         (let (pending-id)
           (eglot--wait-for (c-reqs 2)
               (&key id method &allow-other-keys)
@@ -612,49 +633,49 @@ def foobazquuz(d, e, f): pass
       ;; pyls will change the representation of this candidate
       (should (member "foobazquuz(d, e, f)" company-candidates)))))
 
-(ert-deftest hover-after-completions ()
+(ert-deftest eglot-eldoc-after-completions ()
   "Test documentation echo in a python LSP"
   (skip-unless (executable-find "pyls"))
-  ;; JT@19/06/21: We check with `eldoc-last-message' because it's
-  ;; practical, which forces us to use
-  ;; `eglot-put-doc-in-help-buffer' to nil.
-  (let ((eglot-put-doc-in-help-buffer nil))
-    (eglot--with-fixture
-        `(("project" . (("something.py" . "import sys\nsys.exi"))))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/something.py")
-        (should (eglot--tests-connect))
-        (goto-char (point-max))
-        (setq eldoc-last-message nil)
-        (completion-at-point)
-        (should (looking-back "sys.exit"))
-        (while (not eldoc-last-message) (accept-process-output nil 0.1))
-        (should (string-match "^exit" eldoc-last-message))))))
+  (eglot--with-fixture
+      `(("project" . (("something.py" . "import sys\nsys.exi"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (goto-char (point-max))
+      (completion-at-point)
+      (should (looking-back "sys.exit"))
+      (should (string-match "^exit" (eglot--tests-force-full-eldoc))))))
 
-(ert-deftest hover-multiline-doc-locus ()
+(ert-deftest eglot-multiline-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
+  :expected-result (if (getenv "TRAVIS_TESTING") :failed :passed)
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
-      `(("project" . (("hover-first.py" . "from datetime import datetime")))
-        (eglot-put-doc-in-help-buffer nil))
+      `(("project" . (("hover-first.py" . "from datetime import datetime"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/hover-first.py")
       (should (eglot--tests-connect))
       (goto-char (point-max))
       ;; one-line
-      (setq eldoc-last-message nil)
-      (setq-local eldoc-echo-area-use-multiline-p nil)
-      (eglot-eldoc-function)
-      (while (not eldoc-last-message) (accept-process-output nil 0.1))
-      (should (string-match "datetim" eldoc-last-message))
-      (should (not (cl-find ?\n eldoc-last-message)))
-      ;; multi-line
-      (setq eldoc-last-message nil)
-      (setq-local eldoc-echo-area-use-multiline-p t)
-      (eglot-eldoc-function)
-      (while (not eldoc-last-message) (accept-process-output nil 0.1))
-      (should (string-match "datetim" eldoc-last-message))
-      (should (cl-find ?\n eldoc-last-message)))))
+      (let* ((eldoc-echo-area-use-multiline-p t)
+             (captured-message (eglot--tests-force-full-eldoc)))
+        (should (string-match "datetim" captured-message))
+        (should (cl-find ?\n eldoc-last-message))))))
+
+(ert-deftest eglot-single-line-eldoc ()
+  "Test if suitable amount of lines of hover info are shown."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+      `(("project" . (("hover-first.py" . "from datetime import datetime"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/hover-first.py")
+      (should (eglot--tests-connect))
+      (goto-char (point-max))
+      ;; one-line
+      (let* ((eldoc-echo-area-use-multiline-p nil)
+             (captured-message (eglot--tests-force-full-eldoc)))
+        (should (string-match "datetim" captured-message))
+        (should (not (cl-find ?\n eldoc-last-message)))))))
 
 (ert-deftest python-autopep-formatting ()
   "Test formatting in the pyls python LSP.

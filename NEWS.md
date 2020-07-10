@@ -4,6 +4,17 @@
 
 Thanks to Ingo Lohmar for the original implementation.
 
+##### Handle multiple "documentation at point" sources ([#439][github#439], [#494][github#494], [#481][github#481], [#454][github#454])
+
+Such sources include as LSP's signature, hover and also the Flymake
+diagnostic messages.  They can all be presented in the echo area
+(space permitting), or via `C-h .`.  For now, composition of different
+sources can be customized using `eldoc-documentation-strategy`,
+`eldoc-echo-area-use-multiline-p` and `eldoc-prefer-doc-buffer`.
+
+The variables `eglot-put-doc-in-help-buffer` and
+`eglot-auto-display-help-buffer` have been removed.
+
 # 1.6 (16/04/2020)
 
 ##### Column offset calculation is now LSP-conform ([#361][github#361])

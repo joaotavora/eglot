@@ -11,18 +11,24 @@ LOAD_PATH=-L .
 ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
-ELPADEPS ?=--eval '(package-initialize)'			\
-           --eval '(package-refresh-contents)'			\
-           --eval '(package-install (quote jsonrpc))'		\
-           --eval '(package-install (quote project))'		\
-           --eval '(package-install (quote xref))'		\
-           --eval '(package-install (quote eldoc))'		\
-           --eval '(package-install (quote company))'		\
-           --eval '(package-install (quote yasnippet))'		\
-           --eval '(package-install (quote tramp))'		\
-           --eval '(package-install 				\
-                      (cadr (assoc (quote flymake)		\
-                                   package-archive-contents)))'
+ELPADEPS ?=--eval '(package-initialize)'                        \
+           --eval '(package-refresh-contents)'                  \
+           --eval '(defun install-latest (p)                    \
+                     (package-install                           \
+                       (cadr (assoc p                           \
+                              package-archive-contents          \
+                              (quote equal)))))'                \
+           --eval '(install-latest (quote jsonrpc))'            \
+           --eval '(install-latest (quote project))'            \
+           --eval '(install-latest (quote xref))'               \
+           --eval '(install-latest (quote eldoc))'              \
+           --eval '(unintern                                    \
+                     (quote eldoc-documentation-function))'     \
+           --eval '(load "eldoc")'                              \
+           --eval '(install-latest (quote company))'            \
+           --eval '(install-latest (quote tramp))'              \
+           --eval '(install-latest (quote yasnippet))'          \
+           --eval '(install-latest (quote flymake))'
 
 BYTECOMP_ERROR_ON_WARN := \
 	--eval '(setq byte-compile-error-on-warn $(ERROR_ON_WARN))'
