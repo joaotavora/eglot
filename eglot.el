@@ -2771,4 +2771,3 @@ If INTERACTIVE, prompt user for details."
 ;; bug-reference-url-format: "https://github.com/joaotavora/eglot/issues/%s"
 ;; checkdoc-force-docstrings-flag: nil
 ;; End:
-
