@@ -8,6 +8,7 @@
 ;; URL: https://github.com/joaotavora/eglot
 ;; Keywords: convenience, languages
 ;; Package-Requires: ((emacs "26.1") (jsonrpc "1.0.9") (flymake "1.0.8") (project "0.3.0") (xref "1.0.1") (eldoc "1.2.0") (tramp "2.4.4"))
+;; Package-Requires: ((emacs "26.1") (jsonrpc "1.0.9") (flymake "1.0.9") (project "0.3.0") (xref "1.0.1") (eldoc "1.5.0") (tramp "2.4.4"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -74,6 +75,14 @@
 (require 'array)
 (require 'tramp)
 (require 'files) ;; for `executable-find' with tramp support
+
+;; ElDoc is preloaded in Emacs, so `require'-ing won't guarantee we are
+;; using the latest version from GNU Elpa when we load eglot.el.  Use an
+;; heuristic to see if we need to `load' it in Emacs < 28.
+(if (and (< emacs-major-version 28)
+         (not (boundp 'eldoc-documentation-strategy)))
+    (load "eldoc")
+  (require 'eldoc))
 
 ;; forward-declare, but don't require (Emacs 28 doesn't seem to care)
 (defvar markdown-fontify-code-blocks-natively)
@@ -2115,12 +2124,15 @@ is not active."
   ;; Commit logs for this function help understand what's going on.
   (when-let (completion-capability (eglot--server-capable :completionProvider))
     (let* ((server (eglot--current-server-or-lose))
-           (sort-completions (lambda (completions)
-                               (sort completions
-                                     (lambda (a b)
-                                       (string-lessp
-                                        (or (get-text-property 0 :sortText a) "")
-                                        (or (get-text-property 0 :sortText b) ""))))))
+           (sort-completions
+            (lambda (completions)
+              (cl-sort completions
+                       #'string-lessp
+                       :key (lambda (c)
+                              (or (plist-get
+                                   (get-text-property 0 'eglot--lsp-item c)
+                                   :sortText)
+                                  "")))))
            (metadata `(metadata . ((display-sort-function . ,sort-completions))))
            resp items (cached-proxies :none)
            (proxies
@@ -2153,20 +2165,20 @@ is not active."
                              (put-text-property 0 1 'eglot--lsp-item item proxy))
                            proxy))
                        items)))))
-           resolved
+           (resolved (make-hash-table))
            (resolve-maybe
             ;; Maybe completion/resolve JSON object `lsp-comp' into
             ;; another JSON object, if at all possible.  Otherwise,
             ;; just return lsp-comp.
             (lambda (lsp-comp)
-              (cond (resolved resolved)
-                    ((and (eglot--server-capable :completionProvider
-                                                 :resolveProvider)
-                          (plist-get lsp-comp :data))
-                     (setq resolved
-                           (jsonrpc-request server :completionItem/resolve
-                                            lsp-comp :cancel-on-input t)))
-                    (t lsp-comp))))
+              (or (gethash lsp-comp resolved)
+                  (setf (gethash lsp-comp resolved)
+                        (if (and (eglot--server-capable :completionProvider
+                                                        :resolveProvider)
+                                 (plist-get lsp-comp :data))
+                            (jsonrpc-request server :completionItem/resolve
+                                             lsp-comp :cancel-on-input t)
+                          lsp-comp)))))
            (bounds (bounds-of-thing-at-point 'symbol)))
       (list
        (or (car bounds) (point))
