@@ -285,15 +285,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 Running this test will modify your ~/.ssh/config file."
   (skip-unless (eglot--have-eclipse-jdt-ls-p))
-  ;; enable ssh to localhost with no password prompt
-  (unless
-      ;; test ssh to localhost without prompt
-      (equal 0
-             (call-process "ssh"
-                           nil
-                           nil
-                           nil
-                           "-oPasswordAuthentication=No" "localhost"))
+  ;; enable ssh to localhost with no password prompt for travis builds
+  (when (string-equal (getenv "USER") "travis")
     (let* ((key-file (expand-file-name
                       "~/.ssh/id_this_travis_build"))
            (output-buffer
