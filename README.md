@@ -98,6 +98,27 @@ it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
+## Connecting via Tramp
+
+You can setup `eglot` in Tramp buffers using servers present in the
+remote host. Configuring one is mostly the same as explained above.
+
+The only exception is when you're providing a full-path command in
+the remote server instead of a command in `PATH`. In this case you
+should provide it with the Tramp file name syntax like so:
+```lisp
+(defun get-clangd-command-for-remote-host (&ptional _interactive)
+    (list (concat
+                (file-remote-p default-directory)
+                "/my/path/in/remote/host/to/llvm/bin/clangd"))
+
+(add-to-list 'eglot-server-programs
+        `(c++-mode . get-clangd-command-for-remote-host))
+```
+
+The `file-remote-p` provides the proper prefix for files in the remote
+server when editing a remote file.
+
 ## Per-project server configuration
 
 Most servers can guess good defaults and will operate nicely
