@@ -986,7 +986,7 @@ This docstring appeases checkdoc, that's all."
                                (expand-file-name
                                 default-directory)))
                    (root-path-tramp-prefix
-                    (file-remote-p root-path))
+                    (file-remote-p default-directory))
                    (retval
                    (catch tag
                      (jsonrpc-async-request
