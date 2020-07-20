@@ -982,7 +982,12 @@ This docstring appeases checkdoc, that's all."
     ;; and mimic most of `jsonrpc-request'.
     (unwind-protect
         (condition-case _quit
-            (let ((retval
+            (let* ((root-path (file-local-name
+                               (expand-file-name
+                                default-directory)))
+                   (root-path-tramp-prefix
+                    (file-remote-p root-path))
+                   (retval
                    (catch tag
                      (jsonrpc-async-request
                       server
@@ -990,8 +995,7 @@ This docstring appeases checkdoc, that's all."
                       (list :processId (unless (eq (jsonrpc-process-type server)
                                                    'network)
                                          (emacs-pid))
-                            :rootPath (file-local-name (expand-file-name
-                                                         default-directory))
+                            :rootPath root-path
                             :rootUri (eglot--path-to-uri default-directory)
                             :initializationOptions (eglot-initialization-options
                                                     server)
@@ -1004,14 +1008,23 @@ This docstring appeases checkdoc, that's all."
                           (setf (eglot--capabilities server) capabilities)
                           (setf (eglot--server-info server) serverInfo)
                           (jsonrpc-notify server :initialized eglot--{})
-                          (dolist (buffer (buffer-list))
+                          (dolist (buffer
+                                   ;; activate managed mode on other buffers in the same machine this server is running in
+                                   (seq-filter
+                                    (lambda (b)
+                                      (with-current-buffer b
+                                        (when buffer-file-name
+                                          (equal root-path-tramp-prefix
+                                                 (file-remote-p
+                                                  buffer-file-name)))))
+                                    (buffer-list)))
                             (with-current-buffer buffer
-                              ;; No need to pass SERVER as an argument: it has
-                              ;; been registered in `eglot--servers-by-project',
-                              ;; so that it can be found (and cached) from
-                              ;; `eglot--maybe-activate-editing-mode' in any
-                              ;; managed buffer.
-                              (eglot--maybe-activate-editing-mode)))
+                                 ;; No need to pass SERVER as an argument: it has
+                                 ;; been registered in `eglot--servers-by-project',
+                                 ;; so that it can be found (and cached) from
+                                 ;; `eglot--maybe-activate-editing-mode' in any
+                                 ;; managed buffer.
+                                 (eglot--maybe-activate-editing-mode)))
                           (setf (eglot--inhibit-autoreconnect server)
                                 (cond
                                  ((booleanp eglot-autoreconnect)
