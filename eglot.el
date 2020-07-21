@@ -992,8 +992,9 @@ This docstring appeases checkdoc, that's all."
                      (jsonrpc-async-request
                       server
                       :initialize
-                      (list :processId (unless (eq (jsonrpc-process-type server)
-                                                   'network)
+                      (list :processId (unless (or (eq (jsonrpc-process-type server)
+                                                       'network)
+                                                   root-path-tramp-prefix)
                                          (emacs-pid))
                             :rootPath root-path
                             :rootUri (eglot--path-to-uri default-directory)
