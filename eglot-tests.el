@@ -422,8 +422,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (defun eglot--eldoc-on-demand ()
   ;; Trick Eldoc 1.1.0 into accepting on-demand calls.
-  (let ((this-command nil) (last-command 'forward-char))
-    (should (eldoc))))
+  (eldoc t))
 
 (defun eglot--tests-force-full-eldoc ()
   (let ((origin (current-buffer)))
