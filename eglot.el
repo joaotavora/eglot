@@ -85,6 +85,13 @@
     (load "eldoc")
   (require 'eldoc))
 
+;; We need to forward-declare `eldoc' symbols because the byte compiler doesn't
+;; always understand the previous form.
+(defvar eldoc-documentation-strategy)
+(defvar eldoc-documentation-functions)
+(declare-function eldoc "eldoc" (&optional interactive))
+(declare-function eldoc-documentation-enthusiast "eldoc" ())
+
 ;; forward-declare, but don't require (Emacs 28 doesn't seem to care)
 (defvar markdown-fontify-code-blocks-natively)
 (defvar company-backends)
