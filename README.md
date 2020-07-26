@@ -123,7 +123,8 @@ should have a particular buffer-local value of
 _association list_ of _parameter sections_ which are presumably
 understood by the server.  In this example, we associate section
 `pyls` with the parameters object `(:plugins (:jedi_completion
-(:include_params t)))`.
+(:include_params t)))`. We can also add more configuration to that
+section, e.g. `:configurationSources ["flake8"]`.
 
 Now, supposing that you also had some Go code in the very same
 project, you can configure the Gopls server in the same file.  Adding
@@ -132,7 +133,8 @@ a section for `go-mode`, the file's contents become:
 ```lisp
 ((python-mode
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))))))
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t))
+                   :configurationSources ["flake8"]))))))
  (go-mode
   . ((eglot-workspace-configuration
       . ((:gopls . (:usePlaceholders t)))))))
