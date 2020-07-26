@@ -217,6 +217,8 @@ Here's a summary of available commands:
 - `M-x eglot-format` asks the server to format buffer or the active
   region;
 
+- `M-x eglot-format-buffer` asks the server to format the buffer;
+
 - `M-x eglot-code-actions` asks the server for any code actions at
   point. These may tipically be simple fixes, like deleting an unused
   variable, or fixing an import. Left click on diagnostics to check if
@@ -286,6 +288,33 @@ lisp:
 - `eglot-managed-mode-hook`: Hook run after Eglot started or stopped
   managing a buffer.  Use `eglot-managed-p` to tell if current buffer
   is still being managed.
+
+## Hook Example
+
+You can configure further local setup using `eglot-managed-mode-hook`. For
+instance, we can set Eglot managed buffers to format on save automatically.
+First, we need a small function that adds (or removes) the function
+`eglot-format-buffer` to the _local_ `before-save-hook`. Here’s an example (this
+function does not exist in the Eglot package):
+
+```lisp
+(defun eglot-format-buffer-on-save ()
+  (if (eglot-managed-p)
+      (add-hook 'before-save-hook #'eglot-format-buffer nil 'local)
+    (remove-hook 'before-save-hook #'eglot-format-buffer 'local)))
+```
+
+Since the example function checks `eglot-managed-p`, we can add it to
+`eglot-managed-mode-hook`, which runs whenever Eglot stops _or_ starts managing
+a buffer:
+
+```lisp
+(add-hook 'eglot-managed-mode-hook #'eglot-format-buffer-on-save)
+```
+
+Now `eglot-format-buffer` will be run after the buffer is saved, but if Eglot
+stops managing the buffer (and so cannot successfully call it), the function
+will be removed from the hook.
 
 # How does Eglot work?
 
