@@ -54,6 +54,13 @@ eglot-check: compile
 		--eval '(setq ert-batch-backtrace-right-margin 200)'	\
 		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
 
+interactive: compile
+	$(EMACS) -Q							\
+		$(ELPADEPS)						\
+		$(LOAD_PATH)						\
+		-l eglot						\
+		-l eglot-tests						\
+
 check: eglot-check
 
 # Cleanup
