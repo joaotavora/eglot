@@ -903,7 +903,13 @@ this fun returns an unaltered copy of `tramp-methods'"
   "Connect to MANAGED-MAJOR-MODE, PROJECT, CLASS and CONTACT.
 This docstring appeases checkdoc, that's all."
   (let* ((default-directory (project-root project))
-         (nickname (file-name-base (directory-file-name default-directory)))
+         (nickname
+          (concat
+           (file-name-base (directory-file-name default-directory))
+           (when (file-remote-p default-directory)
+             (concat "@"
+                     (with-parsed-tramp-file-name default-directory v
+                       v-host)))))
          (readable-name (format "EGLOT (%s/%s)" nickname managed-major-mode))
          autostart-inferior-process
          (contact (if (functionp contact) (funcall contact) contact))
