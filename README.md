@@ -103,11 +103,15 @@ the ensuing TCP connection finds a listening server.
 You can setup `eglot` in Tramp buffers using servers present in the
 remote host. Configuring one is mostly the same as explained above.
 
-The only exception is when you're providing a full-path command in
-the remote server instead of a command in `PATH`. In this case you
-should provide it with the Tramp file name syntax like so:
+If the command your Language Server is in the remote `PATH` (say
+`clangd`), then it should be picked up with no extra hassle.
+
+However, if you're providing a full-path command in
+the remote server instead of a command in `PATH`, you will need to
+specify it as a Tramp remote file using the appropeiate name syntax 
+like so:
 ```lisp
-(defun get-clangd-command-for-remote-host (&ptional _interactive)
+(defun get-clangd-command-for-remote-host (&optional _interactive)
     (list (concat
                 (file-remote-p default-directory)
                 "/my/path/in/remote/host/to/llvm/bin/clangd"))
