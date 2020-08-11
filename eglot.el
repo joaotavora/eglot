@@ -1022,17 +1022,21 @@ This docstring appeases checkdoc, that's all."
                                     (lambda (b)
                                       (with-current-buffer b
                                         (when buffer-file-name
+                                          ;; Remove buffers belonging to a different (remote) system.  They are
+                                          ;; surely not part of this project and calling
+                                          ;; `eglot--maybe-activate-editing-mode' for them can be quite
+                                          ;; expensive.
                                           (equal root-path-tramp-prefix
                                                  (file-remote-p
                                                   buffer-file-name)))))
                                     (buffer-list)))
                             (with-current-buffer buffer
-                                 ;; No need to pass SERVER as an argument: it has
-                                 ;; been registered in `eglot--servers-by-project',
-                                 ;; so that it can be found (and cached) from
-                                 ;; `eglot--maybe-activate-editing-mode' in any
-                                 ;; managed buffer.
-                                 (eglot--maybe-activate-editing-mode)))
+                              ;; No need to pass SERVER as an argument: it has
+                              ;; been registered in `eglot--servers-by-project',
+                              ;; so that it can be found (and cached) from
+                              ;; `eglot--maybe-activate-editing-mode' in any
+                              ;; managed buffer.
+                              (eglot--maybe-activate-editing-mode)))
                           (setf (eglot--inhibit-autoreconnect server)
                                 (cond
                                  ((booleanp eglot-autoreconnect)
