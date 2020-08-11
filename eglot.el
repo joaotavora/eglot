@@ -871,7 +871,7 @@ received the initializing configuration.
 Each function is passed the server as an argument")
 
 (defun eglot--ensured-pseudo-pty-in-tramp-methods (directory)
-  "Get a copy of `tramp-methods' that ensures «-tt» is in ssh params.
+  "Get a copy of `tramp-methods' that ensures \"-tt\" is in ssh params.
 
 Use DIRECTORY as reference dir / tramp parameters.  If DIRECTORY is not remote,
 this fun returns an unaltered copy of `tramp-methods'"
