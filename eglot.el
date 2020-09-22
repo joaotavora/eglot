@@ -1670,9 +1670,11 @@ THINGS are either registrations or unregisterations (sic)."
   (append
    (eglot--VersionedTextDocumentIdentifier)
    (list :languageId
-         (if (string-match "\\(.*\\)-mode" (symbol-name major-mode))
-             (match-string 1 (symbol-name major-mode))
-           "unknown")
+	 (cond
+           ((get major-mode 'eglot-language-id))
+           ((string-match "\\(.*\\)-mode" (symbol-name major-mode))
+            (match-string 1 (symbol-name major-mode)))
+           (t "unknown"))
          :text
          (eglot--widening
           (buffer-substring-no-properties (point-min) (point-max))))))
