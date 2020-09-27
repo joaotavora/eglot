@@ -102,7 +102,7 @@
                                 (sh-mode . ("bash-language-server" "start"))
 				                        (php-mode . ("php" "vendor/felixfbecker/\
 language-server/bin/php-language-server.php"))
-                                ((c++-mode c-mode) . ("ccls"))
+                                ((c++-mode c-mode) . (eglot-ccls "ccls"))
                                 ((caml-mode tuareg-mode reason-mode)
                                  . ("ocaml-language-server" "--stdio"))
                                 (ruby-mode
@@ -2712,6 +2712,19 @@ If INTERACTIVE, prompt user for details."
   ((_server eglot-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
   "Eclipse JDT breaks spec and replies with edits as arguments."
   (mapc #'eglot--apply-workspace-edit arguments))
+
+
+;;; ccls-specific
+;;;
+(defclass eglot-ccls (eglot-lsp-server) ()
+  :documentation "CCLS")
+
+(defvar-local eglot-ccls-initialization-options nil
+  "Property list of initialization options sent to CCLS on start.")
+
+(cl-defmethod eglot-initialization-options ((_server eglot-ccls))
+  "Passes through ccls initialization options."
+  eglot-ccls-initialization-options)
 
 (provide 'eglot)
 ;;; eglot.el ends here

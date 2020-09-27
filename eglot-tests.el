@@ -401,6 +401,31 @@ Pass TIMEOUT to `eglot--with-timeout'."
                    (and (string= (eglot--path-to-uri "Cargo.toml") uri)
                         (= type 3))))))))))
 
+(ert-deftest ccls-initialization-options ()
+  "Test ccls initialization."
+  (skip-unless (executable-find "ccls"))
+  (eglot--with-fixture
+      '(("project/main/" . (("main.cc" . "")))
+        ("project/.git/" . nil))
+      (let ((root (file-name-as-directory default-directory))
+            (eglot-ccls-initialization-options '((:index . (:threads 1)))))
+      (with-current-buffer
+        (eglot--find-file-noselect "project/main/main.cc")
+        (eglot--sniffing (:client-requests c-reqs)
+          (should (eglot--tests-connect 10))
+          (eglot--wait-for (c-reqs 10)
+              (&key _id method params &allow-other-keys)
+            (when (string= method "initialize")
+              (let* ((initialization-options (plist-get params :initializationOptions))
+                     (indexing-threads-opts
+                      (plist-get
+                       (plist-get initialization-options :index) :threads)))
+                (should (equal
+                         indexing-threads-opts
+                         (plist-get
+                          (plist-get
+                           eglot-ccls-initialization-options :index) :threads)))))))))))
+
 (ert-deftest basic-diagnostics ()
   "Test basic diagnostics."
   (skip-unless (executable-find "pyls"))
