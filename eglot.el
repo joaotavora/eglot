@@ -2628,9 +2628,9 @@ code actions at point"
   "Passes through required jdt initialization options"
   `(:workspaceFolders
        [,@(mapcar #'eglot--path-to-uri
-              (let* ((root (expand-file-name (project-root (eglot--project server))))
-                      projects
-                      candidate)
+              (let ((root (expand-file-name (project-root (eglot--project server))))
+                     projects
+                     candidate)
                   (while (or (file-exists-p (setq candidate (expand-file-name "../pom.xml" root)))
                              (file-exists-p (setq candidate (expand-file-name "../build.gradle" root)))
                              (file-exists-p (setq candidate (expand-file-name "../.project" root))))
