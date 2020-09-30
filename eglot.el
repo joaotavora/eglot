@@ -2627,17 +2627,27 @@ code actions at point"
 (cl-defmethod eglot-initialization-options ((server eglot-eclipse-jdt))
   "Passes through required jdt initialization options"
   `(:workspaceFolders
-    [,@(cl-delete-duplicates
-        (mapcar #'eglot--path-to-uri
-                (let* ((root (project-root (eglot--project server))))
-                  (cons root
-                        (mapcar
-                         #'file-name-directory
-                         (append
-                          (file-expand-wildcards (concat root "*/pom.xml"))
-                          (file-expand-wildcards (concat root "*/build.gradle"))
-                          (file-expand-wildcards (concat root "*/.project")))))))
-        :test #'string=)]
+       [,@(mapcar #'eglot--path-to-uri
+              (let* ((root (expand-file-name (project-root (eglot--project server))))
+                      projects
+                      candidate)
+                  (while (or (file-exists-p (setq candidate (expand-file-name "../pom.xml" root)))
+                             (file-exists-p (setq candidate (expand-file-name "../build.gradle" root)))
+                             (file-exists-p (setq candidate (expand-file-name "../.project" root))))
+                      (setq root (file-name-directory candidate)))
+                  (setq projects  (list root)
+                        candidate projects)
+                  (cl-flet ((dig-deeper (dir) (append
+                                                  (file-expand-wildcards (concat dir "*/pom.xml"))
+                                                  (file-expand-wildcards (concat dir "*/build.gradle"))
+                                                  (file-expand-wildcards (concat dir "*/.project")))))
+                      (while (setq candidate (cl-delete-duplicates
+                                                 (mapcar #'file-name-directory
+                                                     (apply #'append
+                                                         (mapcar #'dig-deeper candidate)))
+                                                 :test #'string=))
+                          (setq projects (append projects candidate))))
+                  projects))]
     ,@(if-let ((home (or (getenv "JAVA_HOME")
                          (ignore-errors
                            (expand-file-name
