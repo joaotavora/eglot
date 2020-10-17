@@ -120,12 +120,12 @@ file named `.dir-locals.el` in the project's root:
 This tells Emacs that any `python-mode` buffers in that directory
 should have a particular buffer-local value of
 `eglot-workspace-configuration`.  That variable's value should be
-_association list_ of _parameter sections_ which are presumably
+an _association list_ of _parameter sections_, which are presumably
 understood by the server.  In this example, we associate section
 `pyls` with the parameters object `(:plugins (:jedi_completion
 (:include_params t)))`.
 
-Now, supposing that you also had some Go code in the very same
+Now, supposing that you also have some Go code in the very same
 project, you can configure the Gopls server in the same file.  Adding
 a section for `go-mode`, the file's contents become:
 
@@ -136,6 +136,16 @@ a section for `go-mode`, the file's contents become:
  (go-mode
   . ((eglot-workspace-configuration
       . ((:gopls . (:usePlaceholders t)))))))
+```
+
+When you open Python or Go files in the project, Emacs asks you
+whether it is safe to set `eglot-workspace-configuration` to one of
+the values indicated in the `.dir-locals.el` file.  This warning can
+be skipped by adding the following code to your `.emacs` file to tell
+Emacs that `eglot-workspace-configuration` may be set to any value:
+
+```lisp
+(put 'eglot-workspace-configuration 'safe-local-variable (lambda (value) t))
 ```
 
 If you can't afford an actual `.dir-locals.el` file, or if managing
