@@ -244,7 +244,7 @@ let the buffer grow forever."
 (eval-and-compile
   (defvar eglot--lsp-interface-alist
     `(
-      (CodeAction (:title) (:kind :diagnostics :edit :command))
+      (CodeAction (:title) (:kind :diagnostics :edit :command :isPreferred))
       (ConfigurationItem () (:scopeUri :section))
       (Command ((:title . string) (:command . string)) (:arguments))
       (CompletionItem (:label)
@@ -2516,12 +2516,14 @@ code actions at point"
                         (cons title all))
                       actions)
               (eglot--error "No code actions here")))
+         (preferred-item (plist-get (seq-find (jsonrpc-lambda (&key title &key isPreferred &allow-other-keys) isPreferred) actions) :title))
          (menu `("Eglot code actions:" ("dummy" ,@menu-items)))
          (action (if (listp last-nonmenu-event)
                      (x-popup-menu last-nonmenu-event menu)
                    (cdr (assoc (completing-read "[eglot] Pick an action: "
                                                 menu-items nil t
-                                                nil nil (car menu-items))
+                                                nil nil (or preferred-item
+                                                            (car menu-items)))
                                menu-items)))))
     (eglot--dcase action
       (((Command) command arguments)
