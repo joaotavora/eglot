@@ -576,7 +576,8 @@ treated as in `eglot-dbind'."
                                      ["quickfix"
                                       "refactor" "refactor.extract"
                                       "refactor.inline" "refactor.rewrite"
-                                      "source" "source.organizeImports"])))
+                                      "source" "source.organizeImports"]))
+                                  :isPreferredSupport t)
              :formatting         `(:dynamicRegistration :json-false)
              :rangeFormatting    `(:dynamicRegistration :json-false)
              :rename             `(:dynamicRegistration :json-false)
