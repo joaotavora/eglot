@@ -515,7 +515,7 @@ Under the hood:
 [haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
-[gopls]: https://github.com/golang/go/wiki/gopls
+[gopls]: https://github.com/golang/tools/tree/master/gopls
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
 [ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
 [r-languageserver]: https://cran.r-project.org/package=languageserver
