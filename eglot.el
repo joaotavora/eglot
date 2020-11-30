@@ -76,10 +76,11 @@
 ;; ElDoc is preloaded in Emacs, so `require'-ing won't guarantee we are
 ;; using the latest version from GNU Elpa when we load eglot.el.  Use an
 ;; heuristic to see if we need to `load' it in Emacs < 28.
-(if (and (< emacs-major-version 28)
-         (not (boundp 'eldoc-documentation-strategy)))
-    (load "eldoc")
-  (require 'eldoc))
+(eval-and-compile
+  (if (and (< emacs-major-version 28)
+           (not (boundp 'eldoc-documentation-strategy)))
+      (load "eldoc")
+    (require 'eldoc)))
 
 ;; forward-declare, but don't require (Emacs 28 doesn't seem to care)
 (defvar markdown-fontify-code-blocks-natively)

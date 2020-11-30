@@ -24,7 +24,6 @@ ELPADEPS ?=--eval '(package-initialize)'                        \
            --eval '(install-latest (quote eldoc))'              \
            --eval '(unintern                                    \
                      (quote eldoc-documentation-function))'     \
-           --eval '(load "eldoc")'                              \
            --eval '(install-latest (quote company))'            \
            --eval '(install-latest (quote yasnippet))'          \
            --eval '(install-latest (quote flymake))'
