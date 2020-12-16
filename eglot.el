@@ -2345,6 +2345,7 @@ is not active."
     t))
 
 (defvar eglot--highlights nil "Overlays for textDocument/documentHighlight.")
+(defvar eglot--highlight-face 'highlight "Face for textDocument/documentHighlight overlays.")
 
 (defun eglot--highlight-piggyback (_cb)
   "Request and handle `:textDocument/documentHighlight'"
@@ -2365,7 +2366,7 @@ is not active."
                     (pcase-let ((`(,beg . ,end)
                                  (eglot--range-region range)))
                       (let ((ov (make-overlay beg end)))
-                        (overlay-put ov 'face 'highlight)
+                        (overlay-put ov 'face eglot--highlight-face)
                         (overlay-put ov 'evaporate t)
                         ov)))
                   highlights))))
