@@ -2234,10 +2234,13 @@ is not active."
                         ;; symbol whose bounds we've calculated before)
                         ;; (github#160).
                         (delete-region (+ (- (point) (length proxy))
-                                          (if bounds (- (cdr bounds) (car bounds)) 0))
+                                          (if bounds
+                                              (- (cdr bounds) (car bounds))
+                                            0))
                                        (point))
                         (eglot--dbind ((TextEdit) range newText) textEdit
-                          (pcase-let ((`(,beg . ,end) (eglot--range-region range)))
+                          (pcase-let ((`(,beg . ,end)
+                                       (eglot--range-region range)))
                             (delete-region beg end)
                             (goto-char beg)
                             (funcall (or snippet-fn #'insert) newText)))
