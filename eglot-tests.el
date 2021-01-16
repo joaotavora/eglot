@@ -425,19 +425,21 @@ Pass TIMEOUT to `eglot--with-timeout'."
   (eldoc t))
 
 (defun eglot--tests-force-full-eldoc ()
-  (let ((origin (current-buffer)))
-    (with-current-buffer (eldoc-doc-buffer)
+  ;; FIXME: This uses some Eldoc implementation defatils.
+  (when (buffer-live-p eldoc--doc-buffer)
+    (with-current-buffer eldoc--doc-buffer
       (let ((inhibit-read-only t))
-        (erase-buffer)
-        (with-current-buffer origin
-          (eglot--eldoc-on-demand))
-        (cl-loop
-         repeat 10
-         while (zerop (length (buffer-string)))
-         do (sit-for 0.1))
-        (should (cl-plusp (length (buffer-string))))
-        (message "returning %s" (buffer-string))
-        (buffer-string)))))
+        (erase-buffer))))
+  (eglot--eldoc-on-demand)
+  (cl-loop
+   repeat 10
+   for retval = (and (buffer-live-p eldoc--doc-buffer)
+                     (with-current-buffer eldoc--doc-buffer
+                       (let ((bs (buffer-string)))
+                         (unless (zerop (length bs)) bs))))
+   when retval return retval
+   do (sit-for 0.1)
+   finally (error "eglot--tests-force-full-eldoc didn't deliver.")))
 
 (ert-deftest rls-hover-after-edit ()
   "Hover and highlightChanges are tricky in RLS."
@@ -588,7 +590,7 @@ def foobazquuz(d, e, f): pass
       (let* ((eldoc-echo-area-use-multiline-p t)
              (captured-message (eglot--tests-force-full-eldoc)))
         (should (string-match "datetim" captured-message))
-        (should (cl-find ?\n eldoc-last-message))))))
+        (should (cl-find ?\n captured-message))))))
 
 (ert-deftest eglot-single-line-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
