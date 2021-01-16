@@ -869,7 +869,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   (let ((eglot--lsp-interface-alist
          `((FooObject . ((:foo :bar) (:baz)))
            (CodeAction (:title) (:kind :diagnostics :edit :command))
-           (Command (:title :command) (:arguments)))))
+           (Command ((:title . string) (:command . string)) (:arguments)))))
     (should
      (equal
       "foo"
@@ -878,8 +878,10 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
          foo))))
     (should
      (equal
-      (list "foo" "some command" "some edit")
-      (eglot--dcase '(:title "foo" :command "some command" :edit "some edit")
+      (list "foo" '(:title "hey" :command "ho") "some edit")
+      (eglot--dcase '(:title "foo"
+                             :command (:title "hey" :command "ho")
+                             :edit "some edit")
         (((Command) _title _command _arguments)
          (ert-fail "Shouldn't have destructured this object as a Command"))
         (((CodeAction) title edit command)
