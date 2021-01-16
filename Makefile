@@ -54,6 +54,9 @@ eglot-check: compile
 		--eval '(setq ert-batch-backtrace-right-margin 200)'	\
 		--eval '(ert-run-tests-batch-and-exit (quote $(SELECTOR)))'
 
+eglot-check-noelpa: ELPADEPS=-f package-initialize
+eglot-check-noelpa: eglot-check
+
 interactive: compile
 	$(EMACS) -Q							\
 		$(ELPADEPS)						\
@@ -61,7 +64,7 @@ interactive: compile
 		-l eglot						\
 		-l eglot-tests						\
 
-check: eglot-check
+check: eglot-check-noelpa
 
 # Cleanup
 #
