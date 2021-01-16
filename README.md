@@ -220,8 +220,8 @@ Here's a summary of available commands:
   variable, or fixing an import. Left click on diagnostics to check if
   there are any there;
 
-- `M-x eglot-help-at-point` asks the server for help for symbol at
-  point.
+- `M-x eldoc` asks the Eldoc system for help at point (this command
+  isn't specific to Eglot, by the way, it works in other contexts).
 
 - `M-x eglot-events-buffer` jumps to the events buffer for debugging
   communication with the server.
