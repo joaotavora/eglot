@@ -217,10 +217,9 @@ Here's a summary of available commands:
 - `M-x eglot-format` asks the server to format buffer or the active
   region;
 
-- `M-x eglot-code-actions` asks the server for any code actions at
-  point. These may tipically be simple fixes, like deleting an unused
-  variable, or fixing an import. Left click on diagnostics to check if
-  there are any there;
+- `M-x eglot-code-actions` asks the server for any "code actions" at
+  point. Can also be invoked by `mouse-1`-clicking some diagnostics.
+  Also `M-x eglot-code-action-<TAB>` for shortcuts to specific actions.
 
 - `M-x eldoc` asks the Eldoc system for help at point (this command
   isn't specific to Eglot, by the way, it works in other contexts).
@@ -241,9 +240,10 @@ in `eglot-mode-map`, which is active as long as Eglot is managing a
 file in your project. The commands don't need to be Eglot-specific,
 either:
 
-```
+```lisp
 (define-key eglot-mode-map (kbd "C-c h") 'eglot-help-at-point)
 (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
+(define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
 ```
 
 <a name="customization"></a>
