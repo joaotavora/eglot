@@ -46,6 +46,7 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * Ada's [ada_language_server][ada_language_server]
 * Scala's [metals][metals]
 * TeX/LaTeX's [Digestif][digestif]
+* Nix's [rnix-lsp][rnix-lsp]
 * Godot Engine's [built-in LSP][godot]
 
 I'll add to this list as I test more servers. In the meantime you can
@@ -505,6 +506,7 @@ Under the hood:
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
+[rnix-lsp]: https://github.com/nix-community/rnix-lsp
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
 [cquery]: https://github.com/cquery-project/cquery
