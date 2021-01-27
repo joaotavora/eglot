@@ -48,6 +48,7 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * TeX/LaTeX's [Digestif][digestif]
 * Nix's [rnix-lsp][rnix-lsp]
 * Godot Engine's [built-in LSP][godot]
+* Fortran's [fortls][fortls]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -533,3 +534,4 @@ Under the hood:
 [yasnippet]: http://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
 [godot]: https://godotengine.org
+[fortls]: https://github.com/hansec/fortran-language-server
