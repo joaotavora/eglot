@@ -10,6 +10,7 @@ way:
 * 📚 Read about [servers](#connecting), [commands and
   keybindings](#commands), and [customization](#customization)
 * 📣 Read the [NEWS][news] file
+* 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
 
 # _1-2-3_
 
@@ -546,3 +547,4 @@ Under the hood:
 [markdown]: https://github.com/defunkt/markdown-mode
 [godot]: https://godotengine.org
 [fortls]: https://github.com/hansec/fortran-language-server
+[gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
