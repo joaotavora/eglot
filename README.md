@@ -21,6 +21,16 @@ Now find some source file, any source file, and type `M-x eglot`.
 *That's it*. If you're lucky, this guesses the LSP program to start
 for the language you're using. Otherwise, it prompts you to enter one.
 
+### _1-2-3-pitfall!_
+
+By design, Eglot doesn't depend on anything but Emacs.  But there
+_are_ ELPA dependencies to newer versions of so-called "core packages"
+developed _in the Emacs mainline_.  So unless you're using a
+bleeding-edge Emacs, where loading `eglot.el` is all you'd need to do,
+make sure your package system pulls in and loads the newest
+`project.el`, `xref.el`, `eldoc.el`, etc...  In case of trouble `M-x
+find-library` can help you tell if that happened.
+
 <a name="connecting"></a>
 # Connecting to a server
 
@@ -34,7 +44,7 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
 * C/C++'s [ccls][ccls]  ([cquery][cquery] and [clangd][clangd] also work)
-* Haskell's [IDE engine][haskell-ide-engine]
+* Haskell's [haskell-language-server][haskell-language-server]
 * Elm's [elm-language-server][elm-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Go's [gopls][gopls]
@@ -46,6 +56,9 @@ for the language you're using. Otherwise, it prompts you to enter one.
 * Ada's [ada_language_server][ada_language_server]
 * Scala's [metals][metals]
 * TeX/LaTeX's [Digestif][digestif]
+* Nix's [rnix-lsp][rnix-lsp]
+* Godot Engine's [built-in LSP][godot]
+* Fortran's [fortls][fortls]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -214,13 +227,12 @@ Here's a summary of available commands:
 - `M-x eglot-format` asks the server to format buffer or the active
   region;
 
-- `M-x eglot-code-actions` asks the server for any code actions at
-  point. These may tipically be simple fixes, like deleting an unused
-  variable, or fixing an import. Left click on diagnostics to check if
-  there are any there;
+- `M-x eglot-code-actions` asks the server for any "code actions" at
+  point. Can also be invoked by `mouse-1`-clicking some diagnostics.
+  Also `M-x eglot-code-action-<TAB>` for shortcuts to specific actions.
 
-- `M-x eglot-help-at-point` asks the server for help for symbol at
-  point.
+- `M-x eldoc` asks the Eldoc system for help at point (this command
+  isn't specific to Eglot, by the way, it works in other contexts).
 
 - `M-x eglot-events-buffer` jumps to the events buffer for debugging
   communication with the server.
@@ -238,8 +250,10 @@ in `eglot-mode-map`, which is active as long as Eglot is managing a
 file in your project. The commands don't need to be Eglot-specific,
 either:
 
-```
-(define-key eglot-mode-map (kbd "C-c h") 'eglot-help-at-point)
+```lisp
+(define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
+(define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
+(define-key eglot-mode-map (kbd "C-c h") 'eldoc)
 (define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
 ```
 
@@ -263,12 +277,6 @@ documentation on what these do.
 
 - `eglot-ignored-server-capabilites`: LSP server capabilities that
   Eglot could use, but won't;
-
-- `eglot-put-doc-in-help-buffer`: If non-nil, put eldoc docstrings in
-  separate `*eglot-help*` buffer;
-
-- `eglot-auto-display-help-buffer`: If non-nil, automatically display
-  `*eglot-help*` buffer;
 
 - `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
   before allowing server to edit the source buffer's text;
@@ -510,6 +518,7 @@ Under the hood:
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
+[rnix-lsp]: https://github.com/nix-community/rnix-lsp
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
 [cquery]: https://github.com/cquery-project/cquery
@@ -517,7 +526,7 @@ Under the hood:
 [clangd]: https://clang.llvm.org/extra/clangd.html
 [solargraph]: https://github.com/castwide/solargraph
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
-[haskell-ide-engine]: https://github.com/haskell/haskell-ide-engine
+[haskell-language-server]: https://github.com/haskell/haskell-language-server
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [gopls]: https://github.com/golang/go/wiki/gopls
@@ -535,3 +544,5 @@ Under the hood:
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
 [yasnippet]: http://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
+[godot]: https://godotengine.org
+[fortls]: https://github.com/hansec/fortran-language-server
