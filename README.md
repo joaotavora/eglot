@@ -21,6 +21,16 @@ Now find some source file, any source file, and type `M-x eglot`.
 *That's it*. If you're lucky, this guesses the LSP program to start
 for the language you're using. Otherwise, it prompts you to enter one.
 
+### _1-2-3-pitfall!_
+
+By design, Eglot doesn't depend on anything but Emacs.  But there
+_are_ ELPA dependencies to newer versions of so-called "core packages"
+developed _in the Emacs mainline_.  So unless you're using a
+bleeding-edge Emacs, where loading `eglot.el` is all you'd need to do,
+make sure your package system pulls in and loads the newest
+`project.el`, `xref.el`, `eldoc.el`, etc...  In case of trouble `M-x
+find-library` can help you tell if that happened.
+
 <a name="connecting"></a>
 # Connecting to a server
 
@@ -241,9 +251,10 @@ file in your project. The commands don't need to be Eglot-specific,
 either:
 
 ```lisp
-(define-key eglot-mode-map (kbd "C-c h") 'eglot-help-at-point)
-(define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
+(define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
 (define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
+(define-key eglot-mode-map (kbd "C-c h") 'eldoc)
+(define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
 ```
 
 <a name="customization"></a>
