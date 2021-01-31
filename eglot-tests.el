@@ -1044,6 +1044,33 @@ will assume it exists."
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
 
+(defun eglot--glob-match (glob str)
+  (ignore-errors (funcall (eglot--glob-compile glob) str)))
+
+(ert-deftest eglot--glob-test ()
+  (should (eglot--glob-match "foo/**/baz" "foo/bar/baz"))
+  (should (eglot--glob-match "foo/**/baz" "foo/baz"))
+  (should-not (eglot--glob-match "foo/**/baz" "foo/bar"))
+  (should (eglot--glob-match "foo/**/baz/**/quuz" "foo/baz/foo/quuz"))
+  (should (eglot--glob-match "foo/**/baz/**/quuz" "foo/foo/foo/baz/foo/quuz"))
+  (should-not (eglot--glob-match "foo/**/baz/**/quuz" "foo/foo/foo/ding/foo/quuz"))
+  (should (eglot--glob-match "*.js" "foo.js"))
+  (should-not (eglot--glob-match "*.js" "foo.jsx"))
+  (should (eglot--glob-match "foo/**/*.js" "foo/bar/baz/foo.js"))
+  (should-not (eglot--glob-match "foo/**/*.js" "foo/bar/baz/foo.jsx"))
+  (should (eglot--glob-match "*.{js,ts}" "foo.js"))
+  (should-not (eglot--glob-match "*.{js,ts}" "foo.xs"))
+  (should (eglot--glob-match "foo/**/*.{js,ts}" "foo/bar/baz/foo.ts"))
+  (should (eglot--glob-match "foo/**/*.{js,ts}x" "foo/bar/baz/foo.tsx"))
+  (should (eglot--glob-match "?oo.js" "foo.js"))
+  (should (eglot--glob-match "foo/**/*.{js,ts}?" "foo/bar/baz/foo.tsz"))
+  (should (eglot--glob-match "foo/**/*.{js,ts}?" "foo/bar/baz/foo.tsz"))
+  (should (eglot--glob-match "example.[!0-9]" "example.a"))
+  (should-not (eglot--glob-match "example.[!0-9]" "example.0"))
+  (should (eglot--glob-match "example.[0-9]" "example.0"))
+  (should-not (eglot--glob-match "example.[0-9]" "example.a"))
+  (should (eglot--glob-match "**/bar/" "foo/bar/")))
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 
