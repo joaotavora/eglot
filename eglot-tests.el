@@ -1069,7 +1069,36 @@ will assume it exists."
   (should-not (eglot--glob-match "example.[!0-9]" "example.0"))
   (should (eglot--glob-match "example.[0-9]" "example.0"))
   (should-not (eglot--glob-match "example.[0-9]" "example.a"))
-  (should (eglot--glob-match "**/bar/" "foo/bar/")))
+  (should (eglot--glob-match "**/bar/" "foo/bar/"))
+
+  ;; Some tests provided by Brian Leung
+  (should (eglot--glob-match "**/.*" ".git"))
+  (should (eglot--glob-match ".?" ".o"))
+  (should (eglot--glob-match "**/.*" ".hidden.txt"))
+  (should (eglot--glob-match "**/.*" "path/.git"))
+  (should (eglot--glob-match "**/.*" "path/.hidden.txt"))
+  (should (eglot--glob-match "**/node_modules/**" "node_modules/"))
+  (should (eglot--glob-match "{foo,bar}/**" "foo/test"))
+  (should (eglot--glob-match "{foo,bar}/**" "bar/test"))
+  (should (eglot--glob-match "some/**/*" "some/foo.js"))
+  (should (eglot--glob-match "some/**/*" "some/folder/foo.js"))
+
+  ;; These tests also by Brian.  We could support them but I'm not
+  ;; sure we should.
+  ;;
+  ;; (should (eglot--glob-match "**/node_modules/**" "node_modules"))
+  ;; (should (eglot--glob-match "{foo,bar}/**" "foo"))
+  ;; (should (eglot--glob-match "{foo,bar}/**" "bar"))
+
+  ;; Also by Brian.  We don't support nested blobs.  We could, but do
+  ;; we care?
+  ;;
+  ;; (should (eglot--glob-match "{**/*.d.ts,**/*.js}" "/testing/foo.js"))
+  ;; (should (eglot--glob-match "{**/*.d.ts,**/*.js}" "testing/foo.d.ts"))
+  ;; (should (eglot--glob-match "{**/*.d.ts,**/*.js,foo.[0-9]}" "foo.5"))
+  ;; (should (eglot--glob-match "prefix/{**/*.d.ts,**/*.js,foo.[0-9]}" "prefix/foo.8"))
+  )
+
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here

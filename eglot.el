@@ -2669,13 +2669,13 @@ at point.  With prefix argument, prompt for ACTION-KIND."
   (with-temp-buffer
     (save-excursion (insert glob))
     (cl-loop
-     with grammar = '((:**      "\\*\\*/"               eglot--glob-emit-**)
+     with grammar = '((:**      "\\*\\*/?"              eglot--glob-emit-**)
                       (:*       "\\*"                   eglot--glob-emit-*)
                       (:?       "\\?"                   eglot--glob-emit-?)
                       (:/       "/"                     eglot--glob-emit-self)
                       (:{}      "{[^][/*{}]+}"          eglot--glob-emit-{})
                       (:range   "\\[\\^?[^][/,*{}]+\\]" eglot--glob-emit-range)
-                      (:literal "[^][/,*{}]+"           eglot--glob-emit-self))
+                      (:literal "[^][/,*?{}]+"          eglot--glob-emit-self))
      until (eobp)
      collect (cl-loop
               for (_token regexp emitter) in grammar
@@ -2693,8 +2693,8 @@ If PREDICATE, return boolean predicate, else erroring function."
                                        for (self emit text) = this
                                        for (next) = that
                                        collect (funcall emit text self
-                                                        (or next 'point)))
-                    (or (= (,(caar states)) (point-max))
+                                                        (or next 'eobp)))
+                    (or (,(caar states))
                         (error "Glob done but more unmatched text: '%s'"
                                (buffer-substring (point) (point-max)))))))
          (form `(lambda (string) ,(if predicate `(ignore-errors ,body) body))))
@@ -2704,11 +2704,12 @@ If PREDICATE, return boolean predicate, else erroring function."
   `(,self () (re-search-forward ,(concat "\\=" text)) (,next)))
 
 (defun eglot--glob-emit-** (_ self next)
-  `(,self () (or (ignore-errors (,next))
-                 (and (re-search-forward "\\=/?[^/]+/") (,self)))))
+  `(,self () (or (ignore-errors (save-excursion (,next)))
+                 (and (re-search-forward "\\=/?[^/]+/?") (,self)))))
 
 (defun eglot--glob-emit-* (_ self next)
-  `(,self () (re-search-forward "\\=[^/]") (or (ignore-errors (,next)) (,self))))
+  `(,self () (re-search-forward "\\=[^/]")
+          (or (ignore-errors (save-excursion (,next))) (,self))))
 
 (defun eglot--glob-emit-? (_ self next)
   `(,self () (re-search-forward "\\=[^/]") (,next)))
