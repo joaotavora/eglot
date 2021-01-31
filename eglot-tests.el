@@ -1044,6 +1044,61 @@ will assume it exists."
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
 
+(defun eglot--glob-match (glob str)
+  (funcall (eglot--glob-compile glob t t) str))
+
+(ert-deftest eglot--glob-test ()
+  (should (eglot--glob-match "foo/**/baz" "foo/bar/baz"))
+  (should (eglot--glob-match "foo/**/baz" "foo/baz"))
+  (should-not (eglot--glob-match "foo/**/baz" "foo/bar"))
+  (should (eglot--glob-match "foo/**/baz/**/quuz" "foo/baz/foo/quuz"))
+  (should (eglot--glob-match "foo/**/baz/**/quuz" "foo/foo/foo/baz/foo/quuz"))
+  (should-not (eglot--glob-match "foo/**/baz/**/quuz" "foo/foo/foo/ding/foo/quuz"))
+  (should (eglot--glob-match "*.js" "foo.js"))
+  (should-not (eglot--glob-match "*.js" "foo.jsx"))
+  (should (eglot--glob-match "foo/**/*.js" "foo/bar/baz/foo.js"))
+  (should-not (eglot--glob-match "foo/**/*.js" "foo/bar/baz/foo.jsx"))
+  (should (eglot--glob-match "*.{js,ts}" "foo.js"))
+  (should-not (eglot--glob-match "*.{js,ts}" "foo.xs"))
+  (should (eglot--glob-match "foo/**/*.{js,ts}" "foo/bar/baz/foo.ts"))
+  (should (eglot--glob-match "foo/**/*.{js,ts}x" "foo/bar/baz/foo.tsx"))
+  (should (eglot--glob-match "?oo.js" "foo.js"))
+  (should (eglot--glob-match "foo/**/*.{js,ts}?" "foo/bar/baz/foo.tsz"))
+  (should (eglot--glob-match "foo/**/*.{js,ts}?" "foo/bar/baz/foo.tsz"))
+  (should (eglot--glob-match "example.[!0-9]" "example.a"))
+  (should-not (eglot--glob-match "example.[!0-9]" "example.0"))
+  (should (eglot--glob-match "example.[0-9]" "example.0"))
+  (should-not (eglot--glob-match "example.[0-9]" "example.a"))
+  (should (eglot--glob-match "**/bar/" "foo/bar/"))
+  (should-not (eglot--glob-match "foo.hs" "fooxhs"))
+
+  ;; Some more tests
+  (should (eglot--glob-match "**/.*" ".git"))
+  (should (eglot--glob-match ".?" ".o"))
+  (should (eglot--glob-match "**/.*" ".hidden.txt"))
+  (should (eglot--glob-match "**/.*" "path/.git"))
+  (should (eglot--glob-match "**/.*" "path/.hidden.txt"))
+  (should (eglot--glob-match "**/node_modules/**" "node_modules/"))
+  (should (eglot--glob-match "{foo,bar}/**" "foo/test"))
+  (should (eglot--glob-match "{foo,bar}/**" "bar/test"))
+  (should (eglot--glob-match "some/**/*" "some/foo.js"))
+  (should (eglot--glob-match "some/**/*" "some/folder/foo.js"))
+
+  ;; VSCode supposedly supports this, not sure if good idea.
+  ;;
+  ;; (should (eglot--glob-match "**/node_modules/**" "node_modules"))
+  ;; (should (eglot--glob-match "{foo,bar}/**" "foo"))
+  ;; (should (eglot--glob-match "{foo,bar}/**" "bar"))
+
+  ;; VSCode also supports nested blobs.  Do we care?
+  ;;
+  ;; (should (eglot--glob-match "{**/*.d.ts,**/*.js}" "/testing/foo.js"))
+  ;; (should (eglot--glob-match "{**/*.d.ts,**/*.js}" "testing/foo.d.ts"))
+  ;; (should (eglot--glob-match "{**/*.d.ts,**/*.js,foo.[0-9]}" "foo.5"))
+  ;; (should (eglot--glob-match "prefix/{**/*.d.ts,**/*.js,foo.[0-9]}" "prefix/foo.8"))
+  )
+
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 
