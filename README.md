@@ -37,7 +37,7 @@ find-library` can help you tell if that happened.
 
 `M-x eglot` can guess and work out-of-the-box with these servers:
 
-* Javascript's [javascript-typescript-stdio][javascript-typescript-langserver]
+* Javascript's [TS & JS Language Server ][typescript-language-server]
 * Rust's [rls][rls]
 * Python's [pyls][pyls]
 * Ruby's [solargraph][solargraph]
@@ -515,7 +515,7 @@ Under the hood:
 [pyls]: https://github.com/palantir/python-language-server
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
 [melpa]: http://melpa.org/#/eglot
-[javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
+[typescript-language-server]: https://github.com/theia-ide/typescript-language-server
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
