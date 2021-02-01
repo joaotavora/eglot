@@ -535,7 +535,7 @@ Under the hood:
 [ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
 [r-languageserver]: https://cran.r-project.org/package=languageserver
 [dart_language_server]: https://github.com/natebosch/dart_language_server
-[elixir-ls]: https://github.com/JakeBecker/elixir-ls
+[elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [erlang_ls]: https://github.com/erlang-ls/erlang_ls
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
