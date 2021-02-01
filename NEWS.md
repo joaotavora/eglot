@@ -1,4 +1,42 @@
-# 1.6 (upcoming)
+# (upcoming)
+
+##### Code action shortcuts ([#411][github#411])
+
+`M-x eglot-code-actions` accepts an optional `action-kind` argument,
+specified interactively with `C-u`.  Other shortcuts call specific
+actions directly (`eglot-code-action-inline`,
+`eglot-code-action-extract`, `eglot-code-action-rewrite`,
+`eglot-code-action-organize-imports` and
+`eglot-code-action-quickfix`).  One can create own shortcuts for code
+actions with specific a kind by calling `eglot-code-actions` from
+elisp.
+
+# 1.7 (16/12/2020)
+
+##### Support hierarchical symbols in Imenu ([#303][github#303])
+
+Thanks to Ingo Lohmar for the original implementation.
+
+##### Handle multiple "documentation at point" sources ([#439][github#439], [#494][github#494], [#481][github#481], [#454][github#454])
+
+Such sources include as LSP's signature, hover and also the Flymake
+diagnostic messages.  They can all be presented in the echo area
+(space permitting), or via `C-h .`.  For now, composition of different
+sources can be customized using `eldoc-documentation-strategy`,
+`eldoc-echo-area-use-multiline-p` and `eldoc-prefer-doc-buffer`.
+
+The variables `eglot-put-doc-in-help-buffer` and
+`eglot-auto-display-help-buffer` have been removed.
+
+# 1.6 (16/04/2020)
+
+##### Column offset calculation is now LSP-conform ([#361][github#361])
+
+It seems the majority of servers now comply with the language server
+specification when it comes to handling non-ASCII texts.  Therefore
+the default values of `eglot-move-to-column-function` and
+`eglot-current-column-function` have been changed.  The documentations
+of these variables help to restore the old behavior.
 
 ##### Support workspace/configuration requests ([#326][github#326])
 
@@ -199,9 +237,16 @@ and now said bunch of references-->
 [github#270]: https://github.com/joaotavora/eglot/issues/270
 [github#279]: https://github.com/joaotavora/eglot/issues/279
 [github#302]: https://github.com/joaotavora/eglot/issues/302
+[github#303]: https://github.com/joaotavora/eglot/issues/303
 [github#304]: https://github.com/joaotavora/eglot/issues/304
 [github#311]: https://github.com/joaotavora/eglot/issues/311
 [github#313]: https://github.com/joaotavora/eglot/issues/313
 [github#316]: https://github.com/joaotavora/eglot/issues/316
 [github#324]: https://github.com/joaotavora/eglot/issues/324
 [github#326]: https://github.com/joaotavora/eglot/issues/326
+[github#361]: https://github.com/joaotavora/eglot/issues/361
+[github#411]: https://github.com/joaotavora/eglot/issues/411
+[github#439]: https://github.com/joaotavora/eglot/issues/439
+[github#454]: https://github.com/joaotavora/eglot/issues/454
+[github#481]: https://github.com/joaotavora/eglot/issues/481
+[github#494]: https://github.com/joaotavora/eglot/issues/494
