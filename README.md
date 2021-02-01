@@ -299,6 +299,10 @@ lisp:
   managing a buffer.  Use `eglot-managed-p` to tell if current buffer
   is still being managed.
 
+- `eglot-stay-out-of`: List of Emacs features that Eglot shouldn't
+  automatically try to manage on users' behalf.  Useful when you need
+  non-LSP Flymake or Company backends.  See docstring for examples.
+
 # How does Eglot work?
 
 `M-x eglot` starts a server via a shell-command guessed from
