@@ -2785,25 +2785,24 @@ at point.  With prefix argument, prompt for ACTION-KIND."
     (cl-labels
         ((handle-event
           (event)
-          (pcase-let* ((`(,desc ,action ,file ,file1) event)
-                       (action-type (cl-case action
-                                      (created 1)
-                                      (changed 2)
-                                      (deleted 3)))
-                       (action-bit (when action-type
-                                     (ash 1 (1- action-type)))))
-            (cond
-             ((and (memq action '(created changed deleted))
-                   (cl-loop for (glob . kind-bitmask) in globs
-                            thereis (and (> (logand kind-bitmask action-bit) 0)
-                                         (funcall glob file))))
-              (jsonrpc-notify
-               server :workspace/didChangeWatchedFiles
-               `(:changes ,(vector `(:uri ,(eglot--path-to-uri file)
-                                          :type ,action-type)))))
-             ((eq action 'renamed)
-              (handle-event `(,desc 'deleted ,file))
-              (handle-event `(,desc 'created ,file1)))))))
+          (pcase-let ((`(,desc ,action ,file ,file1) event))
+            (cl-case action
+              ((created changed deleted)
+               (cl-loop with action-type = (cl-case action
+                                             (created 1)
+                                             (changed 2)
+                                             (deleted 3))
+                        with action-bit = (ash 1 (1- action-type))
+                        for (glob . kind-bitmask) in globs
+                        when (and (> (logand kind-bitmask action-bit) 0)
+                                  (funcall glob file))
+                        return (jsonrpc-notify
+                                server :workspace/didChangeWatchedFiles
+                                `(:changes ,(vector `(:uri ,(eglot--path-to-uri file)
+                                                           :type ,action-type))))))
+              (renamed
+               (handle-event `(,desc 'deleted ,file))
+               (handle-event `(,desc 'created ,file1)))))))
       (unwind-protect
           (progn
             (dolist (dir dirs-to-watch)
