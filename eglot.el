@@ -565,7 +565,8 @@ treated as in `eglot-dbind'."
              :signatureHelp      (list :dynamicRegistration :json-false
                                        :signatureInformation
                                        `(:parameterInformation
-                                         (:labelOffsetSupport t)))
+                                         (:labelOffsetSupport t)
+                                         :activeParameterSupport t))
              :references         `(:dynamicRegistration :json-false)
              :definition         `(:dynamicRegistration :json-false)
              :declaration        `(:dynamicRegistration :json-false)
