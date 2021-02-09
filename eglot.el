@@ -2485,8 +2485,7 @@ is not active."
                      (eglot--dbind ((VersionedTextDocumentIdentifier) uri version)
                          textDocument
                        (list (eglot--uri-to-path uri) edits version)))
-                   documentChanges))
-          edit)
+                   documentChanges)))
       (cl-loop for (uri edits) on changes by #'cddr
                do (push (list (eglot--uri-to-path uri) edits) prepared))
       (if (or confirm
@@ -2496,17 +2495,18 @@ is not active."
                    (format "[eglot] Server wants to edit:\n  %s\n Proceed? "
                            (mapconcat #'identity (mapcar #'car prepared) "\n  ")))
             (eglot--error "User cancelled server edit")))
-      (while (setq edit (car prepared))
-        (pcase-let ((`(,path ,edits ,version)  edit))
-          (with-current-buffer (find-file-noselect path)
-            (eglot--apply-text-edits edits version))
-          (pop prepared))
-        t)
       (unwind-protect
-          (if prepared (eglot--warn "Caution: edits of files %s failed."
-                                    (mapcar #'car prepared))
-            (eldoc)
-            (eglot--message "Edit successful!"))))))
+          (let (edit)
+            (while (setq edit (car prepared))
+              (pcase-let ((`(,path ,edits ,version)  edit))
+                (with-current-buffer (find-file-noselect path)
+                  (eglot--apply-text-edits edits version))
+                (pop prepared))
+              t))
+        (if prepared (eglot--warn "Caution: edits of files %s failed."
+                                  (mapcar #'car prepared))
+          (eldoc)
+          (eglot--message "Edit successful!"))))))
 
 (defun eglot-rename (newname)
   "Rename the current symbol to NEWNAME."
