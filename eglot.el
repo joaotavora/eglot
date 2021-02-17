@@ -2527,9 +2527,10 @@ is not active."
 
 (defun eglot--code-actions-menu-items (beg &optional end action-kind)
   "List code actions between BEG and END.
-Interactively, if a region is active, BEG and END are its bounds,
-else BEG is point and END is nil, which results in a request for
-code actions at point"
+If END is nil, it results in the code actions available at the
+point defined by BEG, Otherwise BEG and END are its bounds. If
+ACTION-KIND is defined, will filter the results to show only
+actions of the provided kind"
   (unless (eglot--server-capable :codeActionProvider)
     (eglot--error "Server can't execute code actions!"))
   (let* ((server (eglot--current-server-or-lose))
