@@ -2379,7 +2379,10 @@ is not active."
                                  (eglot--range-region range)))
                       (let ((ov (make-overlay beg end)))
                         (overlay-put ov 'face 'eglot-highlight-symbol-face)
-                        (overlay-put ov 'evaporate t)
+                        (overlay-put ov
+                                     'modification-hooks
+                                     `(,(lambda (ov &rest _more)
+                                          (delete-overlay ov))))
                         ov)))
                   highlights))))
        :deferred :textDocument/documentHighlight)
