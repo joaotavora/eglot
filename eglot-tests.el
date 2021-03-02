@@ -303,25 +303,28 @@ Pass TIMEOUT to `eglot--with-timeout'."
                  (cl-find (eglot--path-to-uri "project/sub2/") folders :test #'equal)
                  (= 3 (length folders)))))))))))
 
+(defun eglot-tests--auto-detect-running-server-1 ()
+  (let (server)
+    (eglot--with-fixture
+     `(("project" . (("coiso.py" . "bla")
+                     ("merdix.py" . "bla")))
+       ("anotherproject" . (("cena.py" . "bla"))))
+     (with-current-buffer
+         (eglot--find-file-noselect "project/coiso.py")
+       (should (setq server (eglot--tests-connect)))
+       (should (eglot-current-server)))
+     (with-current-buffer
+         (eglot--find-file-noselect "project/merdix.py")
+       (should (eglot-current-server))
+       (should (eq (eglot-current-server) server)))
+     (with-current-buffer
+         (eglot--find-file-noselect "anotherproject/cena.py")
+       (should-error (eglot--current-server-or-lose))))))
+
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
   (skip-unless (executable-find "pyls"))
-  (let (server)
-    (eglot--with-fixture
-        `(("project" . (("coiso.py" . "bla")
-                        ("merdix.py" . "bla")))
-          ("anotherproject" . (("cena.py" . "bla"))))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/coiso.py")
-        (should (setq server (eglot--tests-connect)))
-        (should (eglot-current-server)))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/merdix.py")
-        (should (eglot-current-server))
-        (should (eq (eglot-current-server) server)))
-      (with-current-buffer
-          (eglot--find-file-noselect "anotherproject/cena.py")
-        (should-error (eglot--current-server-or-lose))))))
+  (eglot-tests--auto-detect-running-server-1))
 
 (ert-deftest auto-shutdown ()
   "Visit a file and M-x eglot, then kill buffer. "
@@ -947,9 +950,9 @@ will assume it exists."
              (buffer-file-name "_")
              (,prompt-args-sym nil))
          (cl-letf (((symbol-function 'executable-find)
-                    (lambda (name) (unless (string-equal
-                                            name "a-missing-executable.exe")
-                                     (format "/totally-mock-bin/%s" name))))
+                    (lambda (name &optional _remote)
+                      (unless (string-equal name "a-missing-executable.exe")
+                        (format "/totally-mock-bin/%s" name))))
                    ((symbol-function 'read-shell-command)
                     (lambda (&rest args) (setq ,prompt-args-sym args) "")))
            (cl-destructuring-bind
@@ -1098,6 +1101,22 @@ will assume it exists."
   ;; (should (eglot--glob-match "prefix/{**/*.d.ts,**/*.js,foo.[0-9]}" "prefix/foo.8"))
   )
 
+(ert-deftest eglot--tramp-test ()
+  "Ensure LSP servers can be used over TRAMP."
+  (skip-unless (or (>= emacs-major-version 27) (executable-find "pyls")))
+  ;; Set up a loopback TRAMP method that’s just a shell so the remote
+  ;; host is really just the local host.
+  (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
+	(tramp-methods '(("loopback"
+                          (tramp-login-program "/bin/sh")
+                          (tramp-remote-shell "/bin/sh")
+                          (tramp-remote-shell-login ("-l"))
+                          (tramp-remote-shell-args ("-c")))))
+        (temporary-file-directory (concat "/loopback::"
+                                          temporary-file-directory)))
+    ;; With ‘temporary-file-directory’ bound to the ‘loopback’ TRAMP
+    ;; method, fixtures will be automatically made “remote".
+    (eglot-tests--auto-detect-running-server-1)))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
