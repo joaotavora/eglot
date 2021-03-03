@@ -244,32 +244,10 @@ let the buffer grow forever."
 
 (defconst eglot--{} (make-hash-table) "The empty JSON object.")
 
-;; Emacs 27.1 introduced support for finding remote executables via
-;; `executable-find', which we rely on in order to find language
-;; servers when TRAMP is in use.
-;;
-;; So on earlier Emacsen, just use the version from 27.1, which is
-;; reproduced below.
-(if (< emacs-major-version 27)
-    (defun eglot--executable-find (command &optional remote)
-      "Search for COMMAND in `exec-path' and return the absolute file name.
-Return nil if COMMAND is not found anywhere in `exec-path'.  If
-REMOTE is non-nil, search on the remote host indicated by
-`default-directory' instead."
-      (if (and remote (file-remote-p default-directory))
-          (let ((res (locate-file
-	              command
-	              (mapcar
-	               (lambda (x) (concat (file-remote-p default-directory) x))
-	               (exec-path))
-	              exec-suffixes 'file-executable-p)))
-            (when (stringp res) (file-local-name res)))
-        ;; Use 1 rather than file-executable-p to better match the
-        ;; behavior of call-process.
-        (let ((default-directory (file-name-quote default-directory 'top)))
-          (locate-file command exec-path exec-suffixes 1))))
-  (defun eglot--executable-find (command &optional remote)
-    (executable-find command remote)))
+(defun eglot--executable-find (command &optional remote)
+  "Like Emacs 27's `executable-find', ignore REMOTE on Emacs 26."
+  (if (>= emacs-major-version 27) (executable-find command remote)
+    (executable-find command)))
 
 
 ;;; Message verification helpers
@@ -904,6 +882,21 @@ received the initializing configuration.
 
 Each function is passed the server as an argument")
 
+(defun eglot--cmd (contact)
+  "Helper for `eglot--connect'."
+  (if (file-remote-p default-directory)
+      ;; TODO: this seems like a bug, although it’s everywhere. For
+      ;; some reason, for remote connections only, over a pipe, we
+      ;; need to turn off line buffering on the tty.
+      ;;
+      ;; Not only does this seem like there should be a better way,
+      ;; but it almost certainly doesn’t work on non-unix systems.
+      (list "sh" "-c"
+            (string-join (cons "stty raw > /dev/null;"
+                               (mapcar #'shell-quote-argument contact))
+             " "))
+    contact))
+
 (defun eglot--connect (managed-major-mode project class contact)
   "Connect to MANAGED-MAJOR-MODE, PROJECT, CLASS and CONTACT.
 This docstring appeases checkdoc, that's all."
@@ -931,37 +924,16 @@ This docstring appeases checkdoc, that's all."
                 ((stringp (car contact))
                  `(:process
                    ,(lambda ()
-                      (let* ((default-directory default-directory)
-                             (cmd (if (file-remote-p default-directory)
-                                      ;; TODO: this seems like a bug, although
-                                      ;; it’s everywhere. For some reason, for
-                                      ;; remote connections only, over a pipe,
-                                      ;; we need to turn off line buffering on
-                                      ;; the tty.
-                                      ;;
-                                      ;; Not only does this seem like there
-                                      ;; should be a better way, but it almost
-                                      ;; certainly doesn’t work on
-                                      ;; non-unix systems.
-                                      (list "sh" "-c"
-                                            (string-join
-                                             (cons "stty raw > /dev/null;"
-                                                   (mapcar
-                                                    #'shell-quote-argument
-                                                    contact))
-                                             " "))
-                                    contact))
-                             (args (list :name readable-name
-                                         :command cmd
-                                         :connection-type 'pipe
-                                         :coding 'utf-8-emacs-unix
-                                         :noquery t
-                                         :stderr (get-buffer-create
-                                                  (format "*%s stderr*"
-                                                          readable-name)))))
-                        (apply #'make-process
-                               (append args (and (> emacs-major-version 27)
-                                                 '(:file-handler t))))))))))
+                      (let ((default-directory default-directory))
+                        (make-process
+                         :name readable-name
+                         :command contact
+                         :connection-type 'pipe
+                         :coding 'utf-8-emacs-unix
+                         :noquery t
+                         :stderr (get-buffer-create
+                                  (format "*%s stderr*" readable-name))
+                         :file-handler t)))))))
          (spread (lambda (fn) (lambda (server method params)
                                 (apply fn server method (append params nil)))))
          (server
@@ -991,14 +963,15 @@ This docstring appeases checkdoc, that's all."
                      (jsonrpc-async-request
                       server
                       :initialize
-                      (list :processId (unless (or (file-remote-p default-directory)
-                                                  (eq (jsonrpc-process-type server)
-                                                   'network))
-                                         (emacs-pid))
-                            ;; Remove Emacs’ remote prefix, if any, so
-                            ;; the LSP process gets a path it can
-                            ;; understand.
-                            :rootPath (expand-file-name (file-local-name default-directory))
+                      (list :processId
+                            (unless (or (file-remote-p default-directory)
+                                        (eq (jsonrpc-process-type server)
+                                            'network))
+                              (emacs-pid))
+                            ;; Maybe turn trampy `/ssh:foo@bar:/path/to/baz.py'
+                            ;; into `/path/to/baz.py', so LSP groks it.
+                            :rootPath (expand-file-name
+                                       (file-local-name default-directory))
                             :rootUri (eglot--path-to-uri default-directory)
                             :initializationOptions (eglot-initialization-options
                                                     server)
@@ -1221,20 +1194,23 @@ If optional MARKER, return a marker instead"
   "URIfy PATH."
   (url-hexify-string
    (concat "file://" (if (eq system-type 'windows-nt) "/")
+           ;; Again watch out for trampy paths.
            (directory-file-name (file-local-name (file-truename path))))
    url-path-allowed-chars))
 
 (defun eglot--uri-to-path (uri)
-  "Convert URI to a file path."
+  "Convert URI to file path, helped by `eglot--current-server'."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (let* ((retval (url-filename (url-generic-parse-url (url-unhex-string uri))))
-         (normalized-path (if (and (eq system-type 'windows-nt)
-                                 (cl-plusp (length retval)))
-                              (substring retval 1)
-                            retval)))
-    (concat (file-remote-p (project-root (eglot--project
-                                          (eglot--current-server-or-lose))))
-            normalized-path)))
+         (normalized (if (and (eq system-type 'windows-nt)
+                              (cl-plusp (length retval)))
+                         (substring retval 1)
+                       retval))
+         (server (eglot-current-server))
+         (remote-prefix (and server
+                             (file-remote-p
+                              (project-root (eglot--project server))))))
+    (concat remote-prefix normalized)))
 
 (defun eglot--snippet-expansion-fn ()
   "Compute a function to expand snippets.
@@ -2834,7 +2810,7 @@ If NOERROR, return predicate, else erroring function."
                            (expand-file-name
                             ".."
                             (file-name-directory
-                             (file-chase-links (eglot--executable-find "javac" t))))))))
+                             (file-chase-links (executable-find "javac"))))))))
           `(:settings (:java (:home ,home)))
         (ignore (eglot--warn "JAVA_HOME env var not set")))))
 
@@ -2891,7 +2867,7 @@ If INTERACTIVE, prompt user for details."
       (unless (file-directory-p workspace)
         (make-directory workspace t))
       (cons 'eglot-eclipse-jdt
-            (list (eglot--executable-find "java" t)
+            (list (executable-find "java")
                   "-Declipse.application=org.eclipse.jdt.ls.core.id1"
                   "-Dosgi.bundles.defaultStartLevel=4"
                   "-Declipse.product=org.eclipse.jdt.ls.core.product"
@@ -2902,7 +2878,7 @@ If INTERACTIVE, prompt user for details."
 (cl-defmethod eglot-execute-command
   ((_server eglot-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
   "Eclipse JDT breaks spec and replies with edits as arguments."
-  (mapc (lambda (arg) (eglot--apply-workspace-edit arg)) arguments))
+  (mapc #'eglot--apply-workspace-edit arguments))
 
 (provide 'eglot)
 ;;; eglot.el ends here
