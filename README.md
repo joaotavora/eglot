@@ -180,6 +180,13 @@ See `eglot.el`'s section on Java's JDT server for an even more
 sophisticated example.
 
 <a name="reporting bugs"></a>
+
+## TRAMP support
+
+Should just work. Try `M-x eglot` in a buffer visiting a remote file
+where you've also installed the language server.  Only supported on
+Emacs 27.1.
+
 # Reporting bugs
 
 Having trouble connecting to a server?  Expected to have a certain
