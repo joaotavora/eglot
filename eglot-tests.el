@@ -1099,6 +1099,43 @@ will assume it exists."
   ;; (should (eglot--glob-match "prefix/{**/*.d.ts,**/*.js,foo.[0-9]}" "prefix/foo.8"))
   )
 
+(ert-deftest eglot--tramp-test ()
+  "Ensure LSP servers can be used over TRAMP."
+  (skip-unless (executable-find "pyls"))
+
+  ;; Set up a TRAMP method that’s just a shell so the remote host is
+  ;; really just the local host.
+  (let ((tramp-methods '(("test"
+                          (tramp-login-program "/bin/sh")
+                          (tramp-login-args ())
+                          (tramp-remote-shell "/bin/sh")
+                          (tramp-remote-shell-login ("-l"))
+                          (tramp-remote-shell-args ("-i" "-c")))))
+        server)
+    ;;
+    ;; This is just a reproduction of ‘auto-detect-running-server’. So
+    ;; if that passes, so should this.
+    ;;
+    (eglot--with-fixture
+        `(("project" . (("coiso.py" . "bla")
+                        ("merdix.py" . "bla")))
+          ("anotherproject" . (("cena.py" . "bla"))))
+      (let ((prefix (concat "/test:localhost:" default-directory)))
+        (with-current-buffer
+            (eglot--find-file-noselect (expand-file-name
+                                        "project/coiso.py" prefix))
+          (should (setq server (eglot--tests-connect)))
+          (should (eglot-current-server)))
+        (with-current-buffer
+            (eglot--find-file-noselect (expand-file-name
+                                        "project/merdix.py" prefix))
+          (should (eglot-current-server))
+          (should (eq (eglot-current-server) server)))
+        (with-current-buffer
+            (eglot--find-file-noselect (expand-file-name
+                                        "anotherproject/cena.py" prefix))
+          (should-error (eglot--current-server-or-lose)))))))
+
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
