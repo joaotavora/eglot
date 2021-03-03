@@ -250,31 +250,26 @@ let the buffer grow forever."
 ;;
 ;; So on earlier Emacsen, just use the version from 27.1, which is
 ;; reproduced below.
-;;
-;; We can tell them apart by the arity of the function: the new one
-;; has an optional argument for remote file handling, where the
-;; earlier ones did not.
-(eval-and-compile
-  (if (eq 1 (cdr (func-arity 'executable-find)))
-      (defun eglot--executable-find (command &optional remote)
-        "Search for COMMAND in `exec-path' and return the absolute file name.
+(if (< emacs-major-version 27)
+    (defun eglot--executable-find (command &optional remote)
+      "Search for COMMAND in `exec-path' and return the absolute file name.
 Return nil if COMMAND is not found anywhere in `exec-path'.  If
 REMOTE is non-nil, search on the remote host indicated by
 `default-directory' instead."
-        (if (and remote (file-remote-p default-directory))
-            (let ((res (locate-file
-	                command
-	                (mapcar
-	                 (lambda (x) (concat (file-remote-p default-directory) x))
-	                 (exec-path))
-	                exec-suffixes 'file-executable-p)))
-              (when (stringp res) (file-local-name res)))
-          ;; Use 1 rather than file-executable-p to better match the
-          ;; behavior of call-process.
-          (let ((default-directory (file-name-quote default-directory 'top)))
-            (locate-file command exec-path exec-suffixes 1))))
-    (defun eglot--executable-find (command &optional remote)
-      (executable-find command remote))))
+      (if (and remote (file-remote-p default-directory))
+          (let ((res (locate-file
+	              command
+	              (mapcar
+	               (lambda (x) (concat (file-remote-p default-directory) x))
+	               (exec-path))
+	              exec-suffixes 'file-executable-p)))
+            (when (stringp res) (file-local-name res)))
+        ;; Use 1 rather than file-executable-p to better match the
+        ;; behavior of call-process.
+        (let ((default-directory (file-name-quote default-directory 'top)))
+          (locate-file command exec-path exec-suffixes 1))))
+  (defun eglot--executable-find (command &optional remote)
+    (executable-find command remote)))
 
 
 ;;; Message verification helpers
@@ -936,31 +931,37 @@ This docstring appeases checkdoc, that's all."
                 ((stringp (car contact))
                  `(:process
                    ,(lambda ()
-                      (let ((default-directory default-directory)
-                            ;; TODO: this seems like a bug, although
-                            ;; it’s everywhere. For some reason, for
-                            ;; remote connections only, over a pipe,
-                            ;; we need to turn off line buffering on
-                            ;; the tty.
-                            ;;
-                            ;; Not only does this seem like there
-                            ;; should be a better way, but it almost
-                            ;; certainly doesn’t work on non-unix
-                            ;; systems.
-                            (cmd (list "sh" "-c"
-                                       (string-join
-                                        (cons "stty raw > /dev/null;"
-                                              (mapcar #'shell-quote-argument contact))
-                                        " "))))
-                        (make-process
-                         :name readable-name
-                         :command cmd
-                         :connection-type 'pipe
-                         :coding 'utf-8-emacs-unix
-                         :noquery t
-                         :stderr (get-buffer-create
-                                  (format "*%s stderr*" readable-name))
-                         :file-handler t)))))))
+                      (let* ((default-directory default-directory)
+                             (cmd (if (file-remote-p default-directory)
+                                      ;; TODO: this seems like a bug, although
+                                      ;; it’s everywhere. For some reason, for
+                                      ;; remote connections only, over a pipe,
+                                      ;; we need to turn off line buffering on
+                                      ;; the tty.
+                                      ;;
+                                      ;; Not only does this seem like there
+                                      ;; should be a better way, but it almost
+                                      ;; certainly doesn’t work on
+                                      ;; non-unix systems.
+                                      (list "sh" "-c"
+                                            (string-join
+                                             (cons "stty raw > /dev/null;"
+                                                   (mapcar
+                                                    #'shell-quote-argument
+                                                    contact))
+                                             " "))
+                                    contact))
+                             (args (list :name readable-name
+                                         :command cmd
+                                         :connection-type 'pipe
+                                         :coding 'utf-8-emacs-unix
+                                         :noquery t
+                                         :stderr (get-buffer-create
+                                                  (format "*%s stderr*"
+                                                          readable-name)))))
+                        (apply #'make-process
+                               (append args (and (> emacs-major-version 27)
+                                                 '(:file-handler t))))))))))
          (spread (lambda (fn) (lambda (server method params)
                                 (apply fn server method (append params nil)))))
          (server
@@ -994,6 +995,9 @@ This docstring appeases checkdoc, that's all."
                                                   (eq (jsonrpc-process-type server)
                                                    'network))
                                          (emacs-pid))
+                            ;; Remove Emacs’ remote prefix, if any, so
+                            ;; the LSP process gets a path it can
+                            ;; understand.
                             :rootPath (expand-file-name (file-local-name default-directory))
                             :rootUri (eglot--path-to-uri default-directory)
                             :initializationOptions (eglot-initialization-options
@@ -1220,18 +1224,16 @@ If optional MARKER, return a marker instead"
            (directory-file-name (file-local-name (file-truename path))))
    url-path-allowed-chars))
 
-(defun eglot--uri-to-path (uri server)
-  "Convert URI to a file path on SERVER.
-
-If SERVER is remote, as determined by `file-remote-p', the path
-returned will include the server’s prefix for use with TRAMP."
+(defun eglot--uri-to-path (uri)
+  "Convert URI to a file path."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (let* ((retval (url-filename (url-generic-parse-url (url-unhex-string uri))))
          (normalized-path (if (and (eq system-type 'windows-nt)
                                  (cl-plusp (length retval)))
                               (substring retval 1)
                             retval)))
-    (concat (file-remote-p (project-root (eglot--project server)))
+    (concat (file-remote-p (project-root (eglot--project
+                                          (eglot--current-server-or-lose))))
             normalized-path)))
 
 (defun eglot--snippet-expansion-fn ()
@@ -1653,7 +1655,7 @@ COMMAND is a symbol naming the command."
   (server (_method (eql textDocument/publishDiagnostics)) &key uri diagnostics
           &allow-other-keys) ; FIXME: doesn't respect `eglot-strict-mode'
   "Handle notification publishDiagnostics"
-  (if-let ((buffer (find-buffer-visiting (eglot--uri-to-path uri server))))
+  (if-let ((buffer (find-buffer-visiting (eglot--uri-to-path uri))))
       (with-current-buffer buffer
         (cl-loop
          for diag-spec across diagnostics
@@ -1724,9 +1726,9 @@ THINGS are either registrations or unregisterations (sic)."
   (eglot--register-unregister server unregisterations 'unregister))
 
 (cl-defmethod eglot-handle-request
-  (server (_method (eql workspace/applyEdit)) &key _label edit)
+  (_server (_method (eql workspace/applyEdit)) &key _label edit)
   "Handle server request workspace/applyEdit"
-  (eglot--apply-workspace-edit edit server eglot-confirm-server-initiated-edits))
+  (eglot--apply-workspace-edit edit eglot-confirm-server-initiated-edits))
 
 (defun eglot--TextDocumentIdentifier ()
   "Compute TextDocumentIdentifier object for current buffer."
@@ -1886,7 +1888,7 @@ When called interactively, use the currently active server"
          (mapcar
           (eglot--lambda ((ConfigurationItem) scopeUri section)
             (with-temp-buffer
-              (let* ((uri-path (eglot--uri-to-path scopeUri server))
+              (let* ((uri-path (eglot--uri-to-path scopeUri))
                      (default-directory
                        (if (and (not (string-empty-p uri-path))
                                 (file-directory-p uri-path))
@@ -2001,11 +2003,11 @@ Calls REPORT-FN maybe if server publishes diagnostics in time."
        (maphash (lambda (_uri buf) (kill-buffer buf)) eglot--temp-location-buffers)
        (clrhash eglot--temp-location-buffers))))
 
-(defun eglot--xref-make-match (name uri range server)
-  "Like `xref-make-match' but with LSP's NAME, URI, RANGE and SERVER.
+(defun eglot--xref-make-match (name uri range)
+  "Like `xref-make-match' but with LSP's NAME, URI and RANGE.
 Try to visit the target file for a richer summary line."
   (pcase-let*
-      ((file (eglot--uri-to-path uri server))
+      ((file (eglot--uri-to-path uri))
        (visiting (or (find-buffer-visiting file)
                      (gethash uri eglot--temp-location-buffers)))
        (collect (lambda ()
@@ -2065,7 +2067,7 @@ Try to visit the target file for a richer summary line."
       (mapc
        (eglot--lambda ((Location) uri range)
          (collect (eglot--xref-make-match (symbol-name (symbol-at-point))
-                                          uri range (eglot--current-server-or-lose))))
+                                          uri range)))
        (if (vectorp response) response (and response (list response)))))))
 
 (cl-defun eglot--lsp-xref-helper (method &key extra-params capability )
@@ -2108,8 +2110,7 @@ Try to visit the target file for a richer summary line."
       (mapc
        (eglot--lambda ((SymbolInformation) name location)
          (eglot--dbind ((Location) uri range) location
-           (collect (eglot--xref-make-match name uri range
-                                            (eglot--current-server-or-lose)))))
+           (collect (eglot--xref-make-match name uri range))))
        (jsonrpc-request (eglot--current-server-or-lose)
                         :workspace/symbol
                         `(:query ,pattern))))))
@@ -2538,18 +2539,18 @@ is not active."
       (undo-amalgamate-change-group change-group)
       (progress-reporter-done reporter))))
 
-(defun eglot--apply-workspace-edit (wedit server &optional confirm)
+(defun eglot--apply-workspace-edit (wedit &optional confirm)
   "Apply the workspace edit WEDIT.  If CONFIRM, ask user first."
   (eglot--dbind ((WorkspaceEdit) changes documentChanges) wedit
     (let ((prepared
            (mapcar (eglot--lambda ((TextDocumentEdit) textDocument edits)
                      (eglot--dbind ((VersionedTextDocumentIdentifier) uri version)
                          textDocument
-                       (list (eglot--uri-to-path uri server) edits version)))
+                       (list (eglot--uri-to-path uri) edits version)))
                    documentChanges))
           edit)
       (cl-loop for (uri edits) on changes by #'cddr
-               do (push (list (eglot--uri-to-path uri server) edits) prepared))
+               do (push (list (eglot--uri-to-path uri) edits) prepared))
       (if (or confirm
               (cl-notevery #'find-buffer-visiting
                            (mapcar #'car prepared)))
@@ -2581,7 +2582,6 @@ is not active."
    (jsonrpc-request (eglot--current-server-or-lose)
                     :textDocument/rename `(,@(eglot--TextDocumentPositionParams)
                                            :newName ,newname))
-   (eglot--current-server-or-lose)
    current-prefix-arg))
 
 (defun eglot--region-bounds () "Region bounds if active, else point and nil."
@@ -2646,7 +2646,7 @@ at point.  With prefix argument, prompt for ACTION-KIND."
       (((Command) command arguments)
        (eglot-execute-command server (intern command) arguments))
       (((CodeAction) edit command)
-       (when edit (eglot--apply-workspace-edit edit server))
+       (when edit (eglot--apply-workspace-edit edit))
        (when command
          (eglot--dbind ((Command) command arguments) command
            (eglot-execute-command server (intern command) arguments)))))))
@@ -2900,9 +2900,9 @@ If INTERACTIVE, prompt user for details."
                   "-data" workspace)))))
 
 (cl-defmethod eglot-execute-command
-  ((server eglot-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
+  ((_server eglot-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
   "Eclipse JDT breaks spec and replies with edits as arguments."
-  (mapc (lambda (arg) (eglot--apply-workspace-edit arg server)) arguments))
+  (mapc (lambda (arg) (eglot--apply-workspace-edit arg)) arguments))
 
 (provide 'eglot)
 ;;; eglot.el ends here

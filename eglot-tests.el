@@ -947,9 +947,8 @@ will assume it exists."
              (buffer-file-name "_")
              (,prompt-args-sym nil))
          (cl-letf (((symbol-function 'executable-find)
-                    (lambda (name &optional remote)
-                      (unless (string-equal
-                               name "a-missing-executable.exe")
+                    (lambda (name &optional _remote)
+                      (unless (string-equal name "a-missing-executable.exe")
                         (format "/totally-mock-bin/%s" name))))
                    ((symbol-function 'read-shell-command)
                     (lambda (&rest args) (setq ,prompt-args-sym args) "")))
@@ -1102,40 +1101,19 @@ will assume it exists."
 (ert-deftest eglot--tramp-test ()
   "Ensure LSP servers can be used over TRAMP."
   (skip-unless (executable-find "pyls"))
-
-  ;; Set up a TRAMP method that’s just a shell so the remote host is
-  ;; really just the local host.
-  (let ((tramp-methods '(("test"
+  ;; Set up a loopback TRAMP method that’s just a shell so the remote
+  ;; host is really just the local host.
+  (let ((tramp-methods '(("loopback"
                           (tramp-login-program "/bin/sh")
                           (tramp-login-args ())
                           (tramp-remote-shell "/bin/sh")
                           (tramp-remote-shell-login ("-l"))
                           (tramp-remote-shell-args ("-i" "-c")))))
-        server)
-    ;;
-    ;; This is just a reproduction of ‘auto-detect-running-server’. So
-    ;; if that passes, so should this.
-    ;;
-    (eglot--with-fixture
-        `(("project" . (("coiso.py" . "bla")
-                        ("merdix.py" . "bla")))
-          ("anotherproject" . (("cena.py" . "bla"))))
-      (let ((prefix (concat "/test:localhost:" default-directory)))
-        (with-current-buffer
-            (eglot--find-file-noselect (expand-file-name
-                                        "project/coiso.py" prefix))
-          (should (setq server (eglot--tests-connect)))
-          (should (eglot-current-server)))
-        (with-current-buffer
-            (eglot--find-file-noselect (expand-file-name
-                                        "project/merdix.py" prefix))
-          (should (eglot-current-server))
-          (should (eq (eglot-current-server) server)))
-        (with-current-buffer
-            (eglot--find-file-noselect (expand-file-name
-                                        "anotherproject/cena.py" prefix))
-          (should-error (eglot--current-server-or-lose)))))))
-
+        (temporary-file-directory (concat "/loopback::"
+                                          temporary-file-directory)))
+    ;; With ‘temporary-file-directory’ bound to the ‘loopback’ TRAMP
+    ;; method, fixtures will be automatically made “remote".
+    (ert 'auto-detect-running-server)))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
