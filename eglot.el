@@ -927,7 +927,7 @@ This docstring appeases checkdoc, that's all."
                       (let ((default-directory default-directory))
                         (make-process
                          :name readable-name
-                         :command contact
+                         :command (eglot--cmd contact)
                          :connection-type 'pipe
                          :coding 'utf-8-emacs-unix
                          :noquery t
