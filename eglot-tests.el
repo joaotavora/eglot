@@ -947,9 +947,10 @@ will assume it exists."
              (buffer-file-name "_")
              (,prompt-args-sym nil))
          (cl-letf (((symbol-function 'executable-find)
-                    (lambda (name) (unless (string-equal
-                                            name "a-missing-executable.exe")
-                                     (format "/totally-mock-bin/%s" name))))
+                    (lambda (name &optional remote)
+                      (unless (string-equal
+                               name "a-missing-executable.exe")
+                        (format "/totally-mock-bin/%s" name))))
                    ((symbol-function 'read-shell-command)
                     (lambda (&rest args) (setq ,prompt-args-sym args) "")))
            (cl-destructuring-bind
