@@ -1106,12 +1106,12 @@ will assume it exists."
   (skip-unless (or (>= emacs-major-version 27) (executable-find "pyls")))
   ;; Set up a loopback TRAMP method that’s just a shell so the remote
   ;; host is really just the local host.
-  (let ((tramp-methods '(("loopback"
+  (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
+	(tramp-methods '(("loopback"
                           (tramp-login-program "/bin/sh")
-                          (tramp-login-args ())
                           (tramp-remote-shell "/bin/sh")
                           (tramp-remote-shell-login ("-l"))
-                          (tramp-remote-shell-args ("-i" "-c")))))
+                          (tramp-remote-shell-args ("-c")))))
         (temporary-file-directory (concat "/loopback::"
                                           temporary-file-directory)))
     ;; With ‘temporary-file-directory’ bound to the ‘loopback’ TRAMP
