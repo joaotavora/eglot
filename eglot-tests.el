@@ -1107,7 +1107,7 @@ will assume it exists."
   ;; Set up a loopback TRAMP method that’s just a shell so the remote
   ;; host is really just the local host.
   (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
-	(tramp-methods '(("loopback"
+        (tramp-methods '(("loopback"
                           (tramp-login-program "/bin/sh")
                           (tramp-remote-shell "/bin/sh")
                           (tramp-remote-shell-login ("-l"))
@@ -1117,6 +1117,12 @@ will assume it exists."
     ;; With ‘temporary-file-directory’ bound to the ‘loopback’ TRAMP
     ;; method, fixtures will be automatically made “remote".
     (eglot-tests--auto-detect-running-server-1)))
+
+(ert-deftest eglot--path-to-uri-windows ()
+  (should (string-prefix-p "file:///"
+                           (eglot--path-to-uri "c:/Users/Foo/bar.lisp")))
+  (should (string-suffix-p "c%3A/Users/Foo/bar.lisp"
+                           (eglot--path-to-uri "c:/Users/Foo/bar.lisp"))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
