@@ -1118,6 +1118,11 @@ will assume it exists."
     ;; method, fixtures will be automatically made “remote".
     (eglot-tests--auto-detect-running-server-1)))
 
+(ert-deftest eglot--path-to-uri-windows ()
+  (should (string-prefix-p "file:///" (eglot--path-to-uri "c:/Users/Foo/bar.lisp")))
+  (should (string-suffix-p "c%3A/Users/Foo/bar.lisp" (eglot--path-to-uri "c:/Users/Foo/bar.lisp")))
+  (should-not (string-suffix-p "c:/Users/Foo/bar.lisp" (eglot--path-to-uri "c:/Users/Foo/bar.lisp"))))
+
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
 
