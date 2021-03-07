@@ -629,6 +629,10 @@ treated as in `eglot-dbind'."
    (file-watches
     :documentation "Map ID to list of WATCHES for `didChangeWatchedFiles'."
     :initform (make-hash-table :test #'equal) :accessor eglot--file-watches)
+   (diagnostics
+    :documentation "Diagnostics for server"
+    :initform (make-hash-table :test #'equal)
+    :accessor eglot--diagnostics)
    (managed-buffers
     :documentation "List of buffers managed by server."
     :accessor eglot--managed-buffers)
@@ -1461,9 +1465,6 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
   (or eglot--cached-server
       (jsonrpc-error "No current JSON-RPC connection")))
 
-(defvar-local eglot--unreported-diagnostics nil
-  "Unreported Flymake diagnostics for this buffer.")
-
 (defvar revert-buffer-preserve-modes)
 (defun eglot--after-revert-hook ()
   "Eglot's `after-revert-hook'."
@@ -1485,7 +1486,6 @@ If it is activated, also signal textDocument/didOpen."
                                             `(transient . ,default-directory))
                                         eglot--servers-by-project)
                                :key #'eglot--major-mode))))
-      (setq eglot--unreported-diagnostics `(:just-opened . nil))
       (eglot--managed-mode)
       (eglot--signal-textDocument/didOpen))))
 
@@ -1536,7 +1536,8 @@ Uses THING, FACE, DEFS and PREPEND."
                (pending (and server (hash-table-count
                                      (jsonrpc--request-continuations server))))
                (`(,_id ,doing ,done-p ,_detail) (and server (eglot--spinner server)))
-               (last-error (and server (jsonrpc-last-error server))))
+               (last-error (and server (jsonrpc-last-error server)))
+               (diagnostics (and server (eglot--diagnostics server))))
     (append
      `(,(eglot--mode-line-props "eglot" 'eglot-mode-line nil))
      (when nick
@@ -1559,7 +1560,28 @@ Uses THING, FACE, DEFS and PREPEND."
              `("/" ,(eglot--mode-line-props
                      (format "%d" pending) 'warning
                      '((mouse-3 eglot-forget-pending-continuations
-                                "forget pending continuations"))))))))))
+                                "forget pending continuations")))))))
+     (when (and diagnostics (cl-plusp (hash-table-count diagnostics)))
+       ;; Add diagnostics only when there are some.  In addition, only show
+       ;; diagnostics when there are more than zero diagnostics per type.
+       `,(let ((stats (eglot--count-diags-by-severity)))
+           (cl-destructuring-bind (errors warnings notes) stats
+             `(" ["
+               ,@(when (cl-plusp errors)
+                   `(,(eglot--mode-line-props
+                       (format "%d" errors)
+                       'error nil)))
+               ,@(when (cl-plusp warnings)
+                   `(,(if (zerop errors) "" " ")
+                     ,(eglot--mode-line-props
+                           (format "%d" warnings)
+                           'warning nil)))
+               ,@(when (cl-plusp notes)
+                   `(,(if (zerop warnings) "" " ")
+                     ,(eglot--mode-line-props
+                           (format "%d" notes)
+                           'compilation-info nil)))
+               "]")))))))
 
 (add-to-list 'mode-line-misc-info
              `(eglot--managed-mode (" [" eglot--mode-line-format "] ")))
@@ -1634,57 +1656,151 @@ COMMAND is a symbol naming the command."
   (_server (_method (eql telemetry/event)) &rest _any)
   "Handle notification telemetry/event") ;; noop, use events buffer
 
+(defun eglot--update-diags (server uri diagnostics)
+  "Update DIAGNOSTICS for SERVER at hask-key URI.
+
+Always update with the fresh set of diagnostics. When there are
+none for a URI, delete the whole entry."
+  (if (seq-empty-p diagnostics)
+      (remhash uri (eglot--diagnostics server))
+    (puthash uri diagnostics (eglot--diagnostics server))))
+
+(defun eglot--count-diags-by-severity ()
+  "Count amount of diagnostics per severity level."
+  (let* ((server (eglot-current-server))
+         (diagnostics (and server (eglot--diagnostics server)))
+         (errors 0) (warnings 0) (notes 0))
+    (when diagnostics
+      (maphash
+       (lambda (_uri diag)
+         (cl-loop
+          for diag-spec across diag
+          do (eglot--dbind ((Diagnostic) severity) diag-spec
+               (cl-case severity
+                 (1 (cl-incf errors))
+                 (2 (cl-incf warnings))
+                 (t (cl-incf notes))))))
+       diagnostics)
+      (list errors warnings notes))))
+
+(defun eglot--diagnostic-files-by-severity (sev)
+  "Get files with diagnostics of SEV kind."
+  (let* ((server (eglot-current-server))
+         (diagnostics (and server (eglot--diagnostics server)))
+         res)
+    (when diagnostics
+      (maphash
+       (lambda (uri diag)
+         (cl-loop
+          for diag-spec across diag
+          do (eglot--dbind ((Diagnostic) severity) diag-spec
+               (let ((diag-sev
+                      (cl-case severity
+                        (1 :error)
+                        (2 :warning)
+                        (t :note))))
+                 (when (eq sev diag-sev)
+                   (let ((path (eglot--uri-to-path uri)))
+                     (unless (member path res)
+                       (push path res))))))))
+       diagnostics))
+    res))
+
+(defun eglot-find-workspace-diagnostics ()
+  "Find all diagnostics in a workspace.
+
+With \\[universal-argument] prefix arg you decide what type of
+diagnostics you want:
+
+- M-x `eglot-find-workspace-diagnostics' lists files with errors.
+
+- C-u M-x `eglot-find-workspace-diagnostics' lists files with warnings.
+
+- C-u C-u M-x `eglot-find-workspace-diagnostics' lists files with
+  errors.
+
+All other numeric prefix arguments will show files with errors."
+  (interactive)
+  (let* ((server (eglot--current-server-or-lose))
+         (nick (and server (eglot-project-nickname server)))
+         (severity (pcase current-prefix-arg
+                     ('(4)  :warning)
+                     ('(16) :note)
+                     (_     :error)))
+         (diag-type (pcase current-prefix-arg
+                      ('(4)  "warning")
+                      ('(16) "note")
+                      (_   "error")))
+         (diagnostics (eglot--diagnostic-files-by-severity severity)))
+    (message "%s" current-prefix-arg)
+    (if diagnostics
+      (find-file
+       (completing-read
+        (format "Files with %s in %s:" diag-type nick)
+        diagnostics
+        nil t))
+      (eglot--message "No diagnostics of type '%s'" diag-type))))
+
 (cl-defmethod eglot-handle-notification
   (server (_method (eql textDocument/publishDiagnostics)) &key uri diagnostics
           &allow-other-keys) ; FIXME: doesn't respect `eglot-strict-mode'
-  "Handle notification publishDiagnostics"
-  (if-let ((buffer (find-buffer-visiting (eglot--uri-to-path uri))))
-      (with-current-buffer buffer
-        (cl-loop
-         for diag-spec across diagnostics
-         collect (eglot--dbind ((Diagnostic) range message severity source)
-                     diag-spec
-                   (setq message (concat source ": " message))
-                   (pcase-let
-                       ((sev severity)
-                        (`(,beg . ,end) (eglot--range-region range)))
-                     ;; Fallback to `flymake-diag-region' if server
-                     ;; botched the range
-                     (when (= beg end)
-                       (if-let* ((st (plist-get range :start))
-                                 (diag-region
-                                  (flymake-diag-region
-                                   (current-buffer) (1+ (plist-get st :line))
-                                   (plist-get st :character))))
-                           (setq beg (car diag-region) end (cdr diag-region))
-                         (eglot--widening
-                          (goto-char (point-min))
-                          (setq beg
-                                (point-at-bol
-                                 (1+ (plist-get (plist-get range :start) :line))))
-                          (setq end
-                                (point-at-eol
-                                 (1+ (plist-get (plist-get range :end) :line)))))))
-                     (eglot--make-diag (current-buffer) beg end
-                                       (cond ((<= sev 1) 'eglot-error)
-                                             ((= sev 2)  'eglot-warning)
-                                             (t          'eglot-note))
-                                       message `((eglot-lsp-diag . ,diag-spec)))))
-         into diags
-         finally (cond ((and flymake-mode eglot--current-flymake-report-fn)
-                        (save-restriction
-                          (widen)
-                          (funcall eglot--current-flymake-report-fn diags
-                                   ;; If the buffer hasn't changed since last
-                                   ;; call to the report function, flymake won't
-                                   ;; delete old diagnostics.  Using :region
-                                   ;; keyword forces flymake to delete
-                                   ;; them (github#159).
-                                   :region (cons (point-min) (point-max))))
-                        (setq eglot--unreported-diagnostics nil))
-                       (t
-                        (setq eglot--unreported-diagnostics (cons t diags))))))
-    (jsonrpc--debug server "Diagnostics received for unvisited %s" uri)))
+  "Handle notification publishDiagnostics.
+
+Set diagnostics on the current server, then update diagnostics in
+the current buffer."
+  (when (eglot--diagnostics server)
+    (eglot--update-diags server uri diagnostics)
+    (run-hook-with-args 'eglot-after-diagnostics-hook server uri)))
+
+(defcustom eglot-after-diagnostics-hook #'eglot--update-diagnostics
+  "Hook to run after `textDocument/publishDiagnostics' have been handled."
+  :type 'hook)
+
+(defun eglot--update-diagnostics (server uri)
+  (when-let* ((buffer (find-buffer-visiting (eglot--uri-to-path uri)))
+              (diagnostics (gethash uri (eglot--diagnostics server))))
+    (with-current-buffer buffer
+      (cl-loop
+       for diag-spec across diagnostics
+       collect (eglot--dbind ((Diagnostic) range message severity source)
+                   diag-spec
+                 (setq message (concat source ": " message))
+                 (pcase-let
+                     ((sev severity)
+                      (`(,beg . ,end) (eglot--range-region range)))
+                   ;; Fallback to `flymake-diag-region' if server
+                   ;; botched the range
+                   (when (= beg end)
+                     (if-let* ((st (plist-get range :start))
+                               (diag-region
+                                (flymake-diag-region
+                                 (current-buffer) (1+ (plist-get st :line))
+                                 (plist-get st :character))))
+                         (setq beg (car diag-region) end (cdr diag-region))
+                       (eglot--widening
+                        (goto-char (point-min))
+                        (setq beg
+                              (point-at-bol
+                               (1+ (plist-get (plist-get range :start) :line))))
+                        (setq end
+                              (point-at-eol
+                               (1+ (plist-get (plist-get range :end) :line)))))))
+                   (eglot--make-diag (current-buffer) beg end
+                                     (cond ((<= sev 1) 'eglot-error)
+                                           ((= sev 2)  'eglot-warning)
+                                           (t          'eglot-note))
+                                     message `((eglot-lsp-diag . ,diag-spec)))))
+       into diags
+       finally (when (and flymake-mode eglot--current-flymake-report-fn)
+                 (save-restriction
+                   (widen)
+                   (funcall eglot--current-flymake-report-fn diags
+                            ;; If the buffer hasn't changed since last
+                            ;; call to the report function, flymake won't
+                            ;; delete old diagnostics.  Using :region
+                            ;; keyword forces flymake to delete
+                            ;; them (github#159).
+                            :region (cons (point-min) (point-max)))))))))
 
 (cl-defun eglot--register-unregister (server things how)
   "Helper for `registerCapability'.
@@ -1960,12 +2076,17 @@ When called interactively, use the currently active server"
 
 (defun eglot-flymake-backend (report-fn &rest _more)
   "An EGLOT Flymake backend.
-Calls REPORT-FN maybe if server publishes diagnostics in time."
-  (setq eglot--current-flymake-report-fn report-fn)
-  ;; Report anything unreported
-  (when eglot--unreported-diagnostics
-    (funcall report-fn (cdr eglot--unreported-diagnostics))
-    (setq eglot--unreported-diagnostics nil)))
+
+Sets REPORT-FN to `eglot--current-flymake-report-fn', then if it
+is the first time it is run, try to update diagnostics with
+`eglot--update-diagnostics'."
+  (let ((first-run-p (null eglot--current-flymake-report-fn)))
+    (setq eglot--current-flymake-report-fn report-fn)
+    (when first-run-p
+      (let ((server (eglot--current-server-or-lose))
+            (uri (eglot--path-to-uri buffer-file-name)))
+        (when (and server uri)
+          (run-hook-with-args 'eglot-after-diagnostics-hook server uri))))))
 
 (defun eglot-xref-backend () "EGLOT xref backend." 'eglot)
 
