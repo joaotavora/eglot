@@ -5,7 +5,7 @@
 Thanks to Brian Cully for the minimalist approach.
 
 (also thanks to Felipe Lema who conducted many early experiments in
-#463)
+[#463][github#463])
 
 ##### Code action shortcuts ([#411][github#411])
 
@@ -17,6 +17,8 @@ actions directly (`eglot-code-action-inline`,
 `eglot-code-action-quickfix`).  One can create own shortcuts for code
 actions with specific a kind by calling `eglot-code-actions` from
 elisp.
+
+##### New command `eglot-shutdown-server` ([#643][github#643])
 
 # 1.7 (16/12/2020)
 
@@ -260,3 +262,4 @@ and now said bunch of references-->
 [github#481]: https://github.com/joaotavora/eglot/issues/481
 [github#494]: https://github.com/joaotavora/eglot/issues/494
 [github#637]: https://github.com/joaotavora/eglot/issues/637
+[github#643]: https://github.com/joaotavora/eglot/issues/643

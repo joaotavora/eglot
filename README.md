@@ -226,9 +226,11 @@ Here's a summary of available commands:
 
 - `M-x eglot`, as described above;
 
-- `M-x eglot-reconnect` reconnects to the server;
+- `M-x eglot-reconnect` reconnects to current server;
 
-- `M-x eglot-shutdown` says bye-bye to the server;
+- `M-x eglot-shutdown` says bye-bye to server of your choice;
+
+- `M-x eglot-shutdown-all` says bye-bye to every server;
 
 - `M-x eglot-rename` ask the server to rename the symbol at point;
 
