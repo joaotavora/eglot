@@ -60,6 +60,7 @@ find-library` can help you tell if that happened.
 * Nix's [rnix-lsp][rnix-lsp]
 * Godot Engine's [built-in LSP][godot]
 * Fortran's [fortls][fortls]
+* Zig's [zls][zls]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -561,3 +562,4 @@ Under the hood:
 [godot]: https://godotengine.org
 [fortls]: https://github.com/hansec/fortran-language-server
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
+[zls]: https://github.com/zigtools/zls
