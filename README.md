@@ -286,7 +286,7 @@ documentation on what these do.
 - `eglot-events-buffer-size`: Control the size of the Eglot events
   buffer;
 
-- `eglot-ignored-server-capabilites`: LSP server capabilities that
+- `eglot-ignored-server-capabilities`: LSP server capabilities that
   Eglot could use, but won't;
 
 - `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
@@ -351,7 +351,7 @@ eglot-shutdown`.
 
 ## General
 - [x] initialize
-- [x] initalized
+- [x] initialized
 - [x] shutdown
 - [x] exit
 - [ ] $/cancelRequest
