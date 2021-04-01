@@ -1341,6 +1341,12 @@ and just return it.  PROMPT shouldn't end with a question mark."
 (defvar-local eglot--current-flymake-report-fn nil
   "Current flymake report function for this buffer")
 
+(defvar-local eglot-diagnostics-hook nil
+  "Hook which allows subscribing to new diagnostics.
+When invoked, the hook function will be invoked with a single
+argument, which is a list of diagnostics as created by
+`eglot--make-diag'.")
+
 (defvar-local eglot--saved-bindings nil
   "Bindings saved by `eglot--setq-saving'.")
 
@@ -1418,6 +1424,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
                         #'eldoc-documentation-enthusiast)
     (eglot--setq-saving xref-prompt-for-identifier nil)
     (eglot--setq-saving flymake-diagnostic-functions '(eglot-flymake-backend))
+    (add-hook 'eglot-diagnostics-hook 'eglot--flymake-on-diagnostics)
     (eglot--setq-saving company-backends '(company-capf))
     (eglot--setq-saving company-tooltip-align-annotations t)
     (when (assoc 'flex completion-styles-alist)
@@ -1446,6 +1453,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
              do (set (make-local-variable var) saved-binding))
     (remove-function (local 'imenu-create-index-function) #'eglot-imenu)
     (setq eglot--current-flymake-report-fn nil)
+    (setq eglot-diagnostics-hook nil)
     (let ((server eglot--cached-server))
       (setq eglot--cached-server nil)
       (when server
@@ -1680,19 +1688,7 @@ COMMAND is a symbol naming the command."
                                              (t          'eglot-note))
                                        message `((eglot-lsp-diag . ,diag-spec)))))
          into diags
-         finally (cond ((and flymake-mode eglot--current-flymake-report-fn)
-                        (save-restriction
-                          (widen)
-                          (funcall eglot--current-flymake-report-fn diags
-                                   ;; If the buffer hasn't changed since last
-                                   ;; call to the report function, flymake won't
-                                   ;; delete old diagnostics.  Using :region
-                                   ;; keyword forces flymake to delete
-                                   ;; them (github#159).
-                                   :region (cons (point-min) (point-max))))
-                        (setq eglot--unreported-diagnostics nil))
-                       (t
-                        (setq eglot--unreported-diagnostics (cons t diags))))))
+         finally (run-hook-with-args 'eglot-diagnostics-hook diags)))
     (jsonrpc--debug server "Diagnostics received for unvisited %s" uri)))
 
 (cl-defun eglot--register-unregister (server things how)
@@ -1968,6 +1964,23 @@ When called interactively, use the currently active server"
     ;; TODO: Handle TextDocumentSaveRegistrationOptions to control this.
     :text (buffer-substring-no-properties (point-min) (point-max))
     :textDocument (eglot--TextDocumentIdentifier))))
+
+(defun eglot--flymake-on-diagnostics (diags)
+  "A flymake-specific callback function for use in `eglot-diagnostics-hook'.
+DIAGS is a list of flymake diagnostics."
+  (cond ((and flymake-mode eglot--current-flymake-report-fn)
+         (save-restriction
+           (widen)
+           (funcall eglot--current-flymake-report-fn diags
+                    ;; If the buffer hasn't changed since last
+                    ;; call to the report function, flymake won't
+                    ;; delete old diagnostics.  Using :region
+                    ;; keyword forces flymake to delete
+                    ;; them (github#159).
+                    :region (cons (point-min) (point-max))))
+         (setq eglot--unreported-diagnostics nil))
+        (t
+         (setq eglot--unreported-diagnostics (cons t diags)))))
 
 (defun eglot-flymake-backend (report-fn &rest _more)
   "An EGLOT Flymake backend.
