@@ -30,6 +30,7 @@
 (require 'edebug)
 (require 'python) ; python-mode-hook
 (require 'company nil t)
+(require 'subr-x)
 
 ;;; Helpers
 
@@ -63,7 +64,7 @@ then restored."
            (with-temp-buffer
              (insert content)
              (write-region nil nil file-or-dir-name nil 'nomessage))
-           (list file-or-dir-name))
+           (list (expand-file-name file-or-dir-name)))
           (t
            (eglot--error "Expected a string or a directory spec")))))
 
@@ -722,9 +723,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
         (should (looking-back "\"foo.bar\": \""))
         (should (looking-at "fb\"$"))))))
 
-(ert-deftest eglot-lsp-abiding-column ()
-  "Test basic `eglot-lsp-abiding-column' and `eglot-move-to-lsp-abiding-column'"
-  (skip-unless (executable-find "clangd"))
+(defun eglot-tests--lsp-abiding-column-1 ()
   (eglot--with-fixture
       '(("project" .
          (("foo.c" . "const char write_data[] = u8\"🚂🚃🚄🚅🚆🚈🚇🚈🚉🚊🚋🚌🚎🚝🚞🚟🚠🚡🛤🛲\";"))))
@@ -745,6 +744,11 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
           (should (eq eglot-move-to-column-function #'eglot-move-to-lsp-abiding-column))
           (funcall eglot-move-to-column-function 71)
           (should (looking-at "p")))))))
+
+(ert-deftest eglot-lsp-abiding-column ()
+  "Test basic `eglot-lsp-abiding-column' and `eglot-move-to-lsp-abiding-column'"
+  (skip-unless (executable-find "clangd"))
+  (eglot-tests--lsp-abiding-column-1))
 
 (ert-deftest eglot-ensure ()
   "Test basic `eglot-ensure' functionality"
@@ -1103,7 +1107,7 @@ will assume it exists."
 
 (ert-deftest eglot--tramp-test ()
   "Ensure LSP servers can be used over TRAMP."
-  (skip-unless (or (>= emacs-major-version 27) (executable-find "pyls")))
+  (skip-unless (and (>= emacs-major-version 27) (executable-find "pyls")))
   ;; Set up a loopback TRAMP method that’s just a shell so the remote
   ;; host is really just the local host.
   (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
@@ -1117,6 +1121,22 @@ will assume it exists."
     ;; With ‘temporary-file-directory’ bound to the ‘loopback’ TRAMP
     ;; method, fixtures will be automatically made “remote".
     (eglot-tests--auto-detect-running-server-1)))
+
+(ert-deftest eglot--tramp-test-2 ()
+  "Ensure LSP servers can be used over TRAMP."
+  (skip-unless (or (>= emacs-major-version 27) (executable-find "clangd")))
+  ;; Set up a loopback TRAMP method that’s just a shell so the remote
+  ;; host is really just the local host.
+  (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
+        (tramp-methods '(("loopback"
+                          (tramp-login-program "/bin/sh")
+                          (tramp-remote-shell "/bin/sh")
+                          (tramp-remote-shell-login ("-l"))
+                          (tramp-remote-shell-args ("-c")))))
+        (temporary-file-directory (concat "/loopback::"
+                                          temporary-file-directory))
+        (eglot-server-programs '((c-mode "clangd"))))
+    (eglot-tests--lsp-abiding-column-1) ))
 
 (ert-deftest eglot--path-to-uri-windows ()
   (should (string-prefix-p "file:///"
