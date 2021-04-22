@@ -67,6 +67,8 @@ customize `eglot-server-programs`:
 
 ```lisp
 (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
+;; If the server expects "bar" as the languageId, then you can specify this as:
+;; (put 'foo-mode 'eglot-language-id "bar")
 ```
 
 Let me know how well it works and we can add it to the list.  
