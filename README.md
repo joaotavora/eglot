@@ -49,7 +49,7 @@ find-library` can help you tell if that happened.
 * Elm's [elm-language-server][elm-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Go's [gopls][gopls]
-* Ocaml's [ocaml-language-server][ocaml-language-server]
+* Ocaml's [ocaml-lsp][ocaml-lsp]
 * R's [languageserver][r-languageserver]
 * Dart's [dart_language_server][dart_language_server]
 * Elixir's [elixir-ls][elixir-ls]
@@ -546,7 +546,7 @@ Under the hood:
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [gopls]: https://github.com/golang/tools/tree/master/gopls
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
-[ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
+[ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
 [r-languageserver]: https://cran.r-project.org/package=languageserver
 [dart_language_server]: https://github.com/natebosch/dart_language_server
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
