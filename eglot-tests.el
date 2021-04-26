@@ -935,7 +935,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
 
 (cl-defmacro eglot--guessing-contact ((interactive-sym
                                        prompt-args-sym
-                                       guessed-class-sym guessed-contact-sym)
+                                       guessed-class-sym guessed-contact-sym
+                                       &optional guessed-lang-id-sym)
                                       &body body)
   "Evaluate BODY twice, binding results of `eglot--guess-contact'.
 
@@ -943,10 +944,10 @@ INTERACTIVE-SYM is bound to the boolean passed to
 `eglot--guess-contact' each time. If the user would have been
 prompted, PROMPT-ARGS-SYM is bound to the list of arguments that
 would have been passed to `read-shell-command', else nil.
-GUESSED-CLASS-SYM and GUESSED-CONTACT-SYM are bound to the useful
-return values of `eglot--guess-contact'. Unless the server
-program evaluates to \"a-missing-executable.exe\", this macro
-will assume it exists."
+GUESSED-CLASS-SYM, GUESSED-CONTACT-SYM and GUESSED-LANG-ID-SYM
+are bound to the useful return values of
+`eglot--guess-contact'. Unless the server program evaluates to
+\"a-missing-executable.exe\", this macro will assume it exists."
   (declare (indent 1) (debug t))
   (let ((i-sym (cl-gensym)))
     `(dolist (,i-sym '(nil t))
@@ -960,7 +961,8 @@ will assume it exists."
                    ((symbol-function 'read-shell-command)
                     (lambda (&rest args) (setq ,prompt-args-sym args) "")))
            (cl-destructuring-bind
-               (_ _ ,guessed-class-sym ,guessed-contact-sym)
+               (_ _ ,guessed-class-sym ,guessed-contact-sym
+                  ,(or guessed-lang-id-sym '_))
                (eglot--guess-contact ,i-sym)
              ,@body))))))
 
@@ -1050,6 +1052,20 @@ will assume it exists."
       (should (not prompt-args))
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
+
+(ert-deftest eglot-server-programs-guess-lang ()
+  (let ((major-mode 'foo-mode))
+    (let ((eglot-server-programs '((foo-mode . ("prog-executable")))))
+      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+        (should (equal guessed-lang "foo"))))
+    (let ((eglot-server-programs '(((foo-mode :language-id "bar")
+                                    . ("prog-executable")))))
+      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+        (should (equal guessed-lang "bar"))))
+    (let ((eglot-server-programs '(((baz-mode (foo-mode :language-id "bar"))
+                                    . ("prog-executable")))))
+      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+        (should (equal guessed-lang "bar"))))))
 
 (defun eglot--glob-match (glob str)
   (funcall (eglot--glob-compile glob t t) str))
