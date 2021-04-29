@@ -180,6 +180,13 @@ get [cquery][cquery] working:
 See `eglot.el`'s section on Java's JDT server for an even more
 sophisticated example.
 
+Similarly, some servers require the language identifier strings they
+are sent by `eglot` to match the exact strings used by VSCode. `eglot`
+usually guesses these identifiers from the major mode name
+(e.g. `elm-mode` → `"elm"`), but the mapping can be overridden using
+the `:LANGUAGE-ID` element in the syntax of `eglot-server-programs` if
+necessary.
+
 <a name="reporting bugs"></a>
 
 ## TRAMP support
