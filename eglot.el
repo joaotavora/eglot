@@ -96,7 +96,7 @@
   :group 'applications)
 
 (defvar eglot-server-programs '((rust-mode . (eglot-rls "rls"))
-                                (python-mode . ("pyls"))
+                                (python-mode . ("pylsp"))
                                 ((js-mode typescript-mode)
                                  . ("typescript-language-server" "--stdio"))
                                 (sh-mode . ("bash-language-server" "start"))
@@ -1277,7 +1277,7 @@ If optional MARKER, return a marker instead"
   (concat "file://" (if (eq system-type 'windows-nt) "/")
           (url-hexify-string
            ;; Again watch out for trampy paths.
-           (directory-file-name (file-local-name (file-truename path))) 
+           (directory-file-name (file-local-name (file-truename path)))
            eglot--uri-path-allowed-chars)))
 
 (defun eglot--uri-to-path (uri)

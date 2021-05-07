@@ -18,10 +18,10 @@ install:
   # Install RLS
   - rustup update
   - rustup component add rls-preview rust-analysis rust-src
-  # Install https://github.com/palantir/python-language-server
+  # Install https://github.com/python-lsp/python-lsp-server
   - virtualenv .
   - . ./bin/activate
-  - pip install 'python-language-server[all]==0.31.10'
+  - pip install 'python-lsp-server[all]==1.0.1'
   # Install eclipse.jdt.ls
   - curl -fSL http://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -o eclipse.tar.gz
   - mkdir eclipse.jdt.ls
@@ -33,4 +33,3 @@ before_script:
 
 script:
   - make check
-

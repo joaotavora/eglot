@@ -39,7 +39,7 @@ find-library` can help you tell if that happened.
 
 * Javascript's [TS & JS Language Server ][typescript-language-server]
 * Rust's [rls][rls]
-* Python's [pyls][pyls]
+* Python's [pylsp][pylsp]
 * Ruby's [solargraph][solargraph]
 * Java's [Eclipse JDT Language Server][eclipse-jdt]
 * Bash's [bash-language-server][bash-language-server]
@@ -69,7 +69,7 @@ customize `eglot-server-programs`:
 (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
 ```
 
-Let me know how well it works and we can add it to the list.  
+Let me know how well it works and we can add it to the list.
 
 To skip the guess and always be prompted use `C-u M-x eglot`.
 
@@ -98,17 +98,17 @@ If you don't want to start it manually every time, you can configure
 Eglot to start it and immediately connect to it.  Ruby's
 [solargraph][solargraph] server already works this way out-of-the-box.
 
-For another example, suppose you also wanted start Python's `pyls`
+For another example, suppose you also wanted start Python's `pylsp`
 this way:
 
 ```lisp
 (add-to-list 'eglot-server-programs
-             `(python-mode . ("pyls" "-v" "--tcp" "--host"
+             `(python-mode . ("pylsp" "-v" "--tcp" "--host"
                               "localhost" "--port" :autoport)))
 ```
 
 You can see that the element associated with `python-mode` is now a
-more complicated invocation of the `pyls` program, which requests that
+more complicated invocation of the `pylsp` program, which requests that
 it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
@@ -122,13 +122,13 @@ particular server to operate differently across different projects.
 
 Per-project settings are realized with Emacs's _directory variables_
 and the Elisp variable `eglot-workspace-configuration`.  To make a
-particular Python project always enable Pyls's snippet support, put a
+particular Python project always enable Pylsp's snippet support, put a
 file named `.dir-locals.el` in the project's root:
 
 ```lisp
 ((python-mode
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t)))))))))
+      . ((:pylsp . (:plugins (:jedi_completion (:include_params t)))))))))
 ```
 
 This tells Emacs that any `python-mode` buffers in that directory
@@ -136,7 +136,7 @@ should have a particular buffer-local value of
 `eglot-workspace-configuration`.  That variable's value should be
 _association list_ of _parameter sections_ which are presumably
 understood by the server.  In this example, we associate section
-`pyls` with the parameters object `(:plugins (:jedi_completion
+`pylsp` with the parameters object `(:plugins (:jedi_completion
 (:include_params t)))`.
 
 Now, supposing that you also had some Go code in the very same
@@ -146,7 +146,7 @@ a section for `go-mode`, the file's contents become:
 ```lisp
 ((python-mode
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))))))
+      . ((:pylsp . (:plugins (:jedi_completion (:include_params t))))))))
  (go-mode
   . ((eglot-workspace-configuration
       . ((:gopls . (:usePlaceholders t)))))))
@@ -208,17 +208,17 @@ precise and objective about the problem as you can:
    buffer with `M-x eglot-events-buffer`.  It contains the JSONRPC
    messages exchanged between client and server, as well as the
    messages the server prints to stderr.
-    
+
 2. If Emacs errored (you saw -- and possibly heard -- an error
    message), make sure you repeat the process using `M-x
    toggle-debug-on-error` so you **get a backtrace** of the error that
    you should also attach to the bug report.
-   
+
 3. Try to replicate the problem with **as clean an Emacs run as
    possible**.  This means an empty `.emacs` init file or close to it
    (just loading `eglot.el`, `company.el` and `yasnippet.el` for
    example, and you don't even need `use-package.el` to do that).
-       
+
 Some more notes: it is often the case the you will have to report the
 problem to the LSP server's developers, too, though it's
 understandable that you report it Eglot first, since it is the
@@ -296,7 +296,7 @@ documentation on what these do.
 - `eglot-ignored-server-capabilites`: LSP server capabilities that
   Eglot could use, but won't;
 
-- `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
+- `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation
   before allowing server to edit the source buffer's text;
 
 There are a couple more variables that you can customize via Emacs
@@ -399,7 +399,7 @@ eglot-shutdown`.
 - [x] textDocument/completion
 - [x] completionItem/resolve (works quite well with [company-mode][company-mode])
 - [x] textDocument/hover
-- [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
+- [x] textDocument/signatureHelp (fancy stuff with Python's [pylsp][pylsp])
 - [x] textDocument/definition
 - [x] textDocument/typeDefinition (3.6.0)
 - [x] textDocument/implementation (3.6.0)
@@ -414,7 +414,7 @@ eglot-shutdown`.
 - [ ] documentLink/resolve
 - [ ] textDocument/documentColor
 - [ ] textDocument/colorPresentation (3.6.0)
-- [x] textDocument/formatting 
+- [x] textDocument/formatting
 - [x] textDocument/rangeFormatting
 - [ ] textDocument/onTypeFormatting
 - [x] textDocument/rename
@@ -516,7 +516,7 @@ User-visible differences:
 - Server-initiated edits are confirmed with the user;
 - Diagnostics work out-of-the-box (no `flycheck.el` needed);
 - Smoother/more responsive (read below).
-   
+
 Under the hood:
 
 - Message parser is much simpler.
@@ -533,7 +533,7 @@ Under the hood:
 
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
-[pyls]: https://github.com/palantir/python-language-server
+[pylsp]: https://github.com/python-lsp/python-lsp-server
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
 [melpa]: http://melpa.org/#/eglot
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server

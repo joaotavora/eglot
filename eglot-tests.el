@@ -324,12 +324,12 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest auto-detect-running-server ()
   "Visit a file and M-x eglot, then visit a neighbour. "
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot-tests--auto-detect-running-server-1))
 
 (ert-deftest auto-shutdown ()
   "Visit a file and M-x eglot, then kill buffer. "
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (let (server
         buffer)
     (eglot--with-fixture
@@ -348,7 +348,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest auto-reconnect ()
   "Start a server. Kill it. Watch it reconnect."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (let (server (eglot-autoreconnect 1))
     (eglot--with-fixture
         `(("project" . (("coiso.py" . "bla")
@@ -407,7 +407,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest basic-diagnostics ()
   "Test basic diagnostics."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("diag-project" .
                                         ; colon missing after True
@@ -481,7 +481,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest rename-a-symbol ()
   "Test basic symbol renaming"
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("rename-project"
          . (("main.py" .
@@ -496,7 +496,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest basic-completions ()
   "Test basic autocompletion in a python LSP"
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
@@ -508,7 +508,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest non-unique-completions ()
   "Test completion resulting in 'Complete, but not unique'"
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       '(("project" . (("something.py" . "foo=1\nfoobar=2\nfoo"))))
     (with-current-buffer
@@ -525,7 +525,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest basic-xref ()
   "Test basic xref functionality in a python LSP"
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()"))))
     (with-current-buffer
@@ -543,7 +543,7 @@ def foobazquuz(d, e, f): pass
 
 (ert-deftest snippet-completions ()
   "Test simple snippet completion in a python LSP"
-  (skip-unless (and (executable-find "pyls")
+  (skip-unless (and (executable-find "pylsp")
                     (functionp 'yas-minor-mode)))
   (eglot--with-fixture
       `(("project" . (("something.py" . ,eglot--test-python-buffer))))
@@ -551,7 +551,7 @@ def foobazquuz(d, e, f): pass
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
       (let ((eglot-workspace-configuration
-             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+             `((:pylsp . (:plugins (:jedi_completion (:include_params t)))))))
         (should (eglot--tests-connect)))
       (goto-char (point-max))
       (insert "foobar")
@@ -563,7 +563,7 @@ def foobazquuz(d, e, f): pass
 
 (ert-deftest snippet-completions-with-company ()
   "Test simple snippet completion in a python LSP"
-  (skip-unless (and (executable-find "pyls")
+  (skip-unless (and (executable-find "pylsp")
                     (functionp 'yas-minor-mode)
                     (functionp 'company-complete)))
   (eglot--with-fixture
@@ -572,7 +572,7 @@ def foobazquuz(d, e, f): pass
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
       (let ((eglot-workspace-configuration
-             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+             `((:pylsp . (:plugins (:jedi_completion (:include_params t)))))))
         (should (eglot--tests-connect)))
       (goto-char (point-max))
       (insert "foo")
@@ -581,12 +581,12 @@ def foobazquuz(d, e, f): pass
       (should (looking-back "fooba"))
       (should (= 2 (length company-candidates)))
       ;; this last one is brittle, since there it is possible that
-      ;; pyls will change the representation of this candidate
+      ;; pylsp will change the representation of this candidate
       (should (member "foobazquuz(d, e, f)" company-candidates)))))
 
 (ert-deftest eglot-eldoc-after-completions ()
   "Test documentation echo in a python LSP"
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
@@ -600,7 +600,7 @@ def foobazquuz(d, e, f): pass
 (ert-deftest eglot-multiline-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
   :expected-result (if (getenv "TRAVIS_TESTING") :failed :passed)
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("hover-first.py" . "from datetime import datetime"))))
     (with-current-buffer
@@ -615,7 +615,7 @@ def foobazquuz(d, e, f): pass
 
 (ert-deftest eglot-single-line-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("hover-first.py" . "from datetime import datetime"))))
     (with-current-buffer
@@ -629,11 +629,11 @@ def foobazquuz(d, e, f): pass
         (should (not (cl-find ?\n eldoc-last-message)))))))
 
 (ert-deftest python-autopep-formatting ()
-  "Test formatting in the pyls python LSP.
-pyls prefers autopep over yafp, despite its README stating the contrary."
+  "Test formatting in the pylsp python LSP.
+pylsp prefers autopep over yafp, despite its README stating the contrary."
   ;; Beware, default autopep rules can change over time, which may
   ;; affect this test.
-  (skip-unless (and (executable-find "pyls")
+  (skip-unless (and (executable-find "pylsp")
                     (executable-find "autopep8")))
   (eglot--with-fixture
       `(("project" . (("something.py" . "def a():pass\n\ndef b():pass"))))
@@ -652,8 +652,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
        (string= (buffer-string) "def a(): pass\n\n\ndef b(): pass\n")))))
 
 (ert-deftest python-yapf-formatting ()
-  "Test formatting in the pyls python LSP"
-  (skip-unless (and (executable-find "pyls")
+  "Test formatting in the pylsp python LSP"
+  (skip-unless (and (executable-find "pylsp")
                     (not (executable-find "autopep8"))
                     (executable-find "yapf")))
   (eglot--with-fixture
@@ -752,7 +752,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
 
 (ert-deftest eglot-ensure ()
   "Test basic `eglot-ensure' functionality"
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("foo.py" . "import sys\nsys.exi")
                       ("bar.py" . "import sys\nsys.exi")))
@@ -774,38 +774,38 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
 
 (ert-deftest slow-sync-connection-wait ()
   "Connect with `eglot-sync-connect' set to t."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (let ((eglot-sync-connect t)
             (eglot-server-programs
-             `((python-mode . ("sh" "-c" "sleep 1 && pyls")))))
+             `((python-mode . ("sh" "-c" "sleep 1 && pylsp")))))
         (should (eglot--tests-connect 3))))))
 
 (ert-deftest slow-sync-connection-intime ()
   "Connect synchronously with `eglot-sync-connect' set to 2."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (let ((eglot-sync-connect 2)
             (eglot-server-programs
-             `((python-mode . ("sh" "-c" "sleep 1 && pyls")))))
+             `((python-mode . ("sh" "-c" "sleep 1 && pylsp")))))
         (should (eglot--tests-connect 3))))))
 
 (ert-deftest slow-async-connection ()
   "Connect asynchronously with `eglot-sync-connect' set to 2."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/something.py")
       (let ((eglot-sync-connect 1)
             (eglot-server-programs
-             `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
+             `((python-mode . ("sh" "-c" "sleep 2 && pylsp")))))
         (should-not (apply #'eglot--connect (eglot--guess-contact)))
         (eglot--with-timeout 3
           (while (not (eglot-current-server))
@@ -814,7 +814,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
 
 (ert-deftest slow-sync-timeout ()
   "Failed attempt at connection synchronously."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
@@ -822,7 +822,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
       (let ((eglot-sync-connect t)
             (eglot-connect-timeout 1)
             (eglot-server-programs
-             `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
+             `((python-mode . ("sh" "-c" "sleep 2 && pylsp")))))
         (should-error (apply #'eglot--connect (eglot--guess-contact)))))))
 
 (ert-deftest eglot-capabilities ()
@@ -1123,7 +1123,7 @@ are bound to the useful return values of
 
 (ert-deftest eglot--tramp-test ()
   "Ensure LSP servers can be used over TRAMP."
-  (skip-unless (and (>= emacs-major-version 27) (executable-find "pyls")))
+  (skip-unless (and (>= emacs-major-version 27) (executable-find "pylsp")))
   ;; Set up a loopback TRAMP method that’s just a shell so the remote
   ;; host is really just the local host.
   (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
