@@ -33,3 +33,4 @@ before_script:
 
 script:
   - make check
+-

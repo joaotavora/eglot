@@ -516,7 +516,7 @@ User-visible differences:
 - Server-initiated edits are confirmed with the user;
 - Diagnostics work out-of-the-box (no `flycheck.el` needed);
 - Smoother/more responsive (read below).
-  
+   
 Under the hood:
 
 - Message parser is much simpler.
