@@ -1277,7 +1277,7 @@ If optional MARKER, return a marker instead"
   (concat "file://" (if (eq system-type 'windows-nt) "/")
           (url-hexify-string
            ;; Again watch out for trampy paths.
-           (directory-file-name (file-local-name (file-truename path)))
+           (directory-file-name (file-local-name (file-truename path))) 
            eglot--uri-path-allowed-chars)))
 
 (defun eglot--uri-to-path (uri)

@@ -69,7 +69,7 @@ customize `eglot-server-programs`:
 (add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
 ```
 
-Let me know how well it works and we can add it to the list.
+Let me know how well it works and we can add it to the list.  
 
 To skip the guess and always be prompted use `C-u M-x eglot`.
 
@@ -208,17 +208,17 @@ precise and objective about the problem as you can:
    buffer with `M-x eglot-events-buffer`.  It contains the JSONRPC
    messages exchanged between client and server, as well as the
    messages the server prints to stderr.
-
+   
 2. If Emacs errored (you saw -- and possibly heard -- an error
    message), make sure you repeat the process using `M-x
    toggle-debug-on-error` so you **get a backtrace** of the error that
    you should also attach to the bug report.
-
+   
 3. Try to replicate the problem with **as clean an Emacs run as
    possible**.  This means an empty `.emacs` init file or close to it
    (just loading `eglot.el`, `company.el` and `yasnippet.el` for
    example, and you don't even need `use-package.el` to do that).
-
+      
 Some more notes: it is often the case the you will have to report the
 problem to the LSP server's developers, too, though it's
 understandable that you report it Eglot first, since it is the
@@ -296,7 +296,7 @@ documentation on what these do.
 - `eglot-ignored-server-capabilites`: LSP server capabilities that
   Eglot could use, but won't;
 
-- `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation
+- `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
   before allowing server to edit the source buffer's text;
 
 There are a couple more variables that you can customize via Emacs
@@ -414,7 +414,7 @@ eglot-shutdown`.
 - [ ] documentLink/resolve
 - [ ] textDocument/documentColor
 - [ ] textDocument/colorPresentation (3.6.0)
-- [x] textDocument/formatting
+- [x] textDocument/formatting 
 - [x] textDocument/rangeFormatting
 - [ ] textDocument/onTypeFormatting
 - [x] textDocument/rename
@@ -516,7 +516,7 @@ User-visible differences:
 - Server-initiated edits are confirmed with the user;
 - Diagnostics work out-of-the-box (no `flycheck.el` needed);
 - Smoother/more responsive (read below).
-
+  
 Under the hood:
 
 - Message parser is much simpler.
