@@ -208,7 +208,7 @@ precise and objective about the problem as you can:
    buffer with `M-x eglot-events-buffer`.  It contains the JSONRPC
    messages exchanged between client and server, as well as the
    messages the server prints to stderr.
-   
+    
 2. If Emacs errored (you saw -- and possibly heard -- an error
    message), make sure you repeat the process using `M-x
    toggle-debug-on-error` so you **get a backtrace** of the error that
@@ -218,7 +218,7 @@ precise and objective about the problem as you can:
    possible**.  This means an empty `.emacs` init file or close to it
    (just loading `eglot.el`, `company.el` and `yasnippet.el` for
    example, and you don't even need `use-package.el` to do that).
-      
+       
 Some more notes: it is often the case the you will have to report the
 problem to the LSP server's developers, too, though it's
 understandable that you report it Eglot first, since it is the
