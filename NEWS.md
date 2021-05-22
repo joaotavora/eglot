@@ -1,5 +1,10 @@
 # (upcoming)
 
+##### Multiple servers supported out-of-box for same major mdoe ([#688][github#688])
+
+In practice, this removes the need for Eglot to "officially" bless one
+server over another.  Thanks to Felicián Németh for the original idea.
+
 ##### TRAMP support ([#637][github#637], ([#463][github#463], ([#84][github#84])
 
 Thanks to Brian Cully for the minimalist approach.
@@ -272,4 +277,5 @@ and now said bunch of references-->
 [github#637]: https://github.com/joaotavora/eglot/issues/637
 [github#643]: https://github.com/joaotavora/eglot/issues/643
 [github#686]: https://github.com/joaotavora/eglot/issues/686
+[github#688]: https://github.com/joaotavora/eglot/issues/688
 [github#695]: https://github.com/joaotavora/eglot/issues/695

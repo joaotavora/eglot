@@ -39,12 +39,12 @@ find-library` can help you tell if that happened.
 
 * Javascript's [TS & JS Language Server ][typescript-language-server]
 * Rust's [rls][rls]
-* Python's [pyls][pyls]
+* Python's [pylsp][pylsp] or [pyls][pyls] 
 * Ruby's [solargraph][solargraph]
 * Java's [Eclipse JDT Language Server][eclipse-jdt]
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
-* C/C++'s [ccls][ccls]  ([cquery][cquery] and [clangd][clangd] also work)
+* C/C++'s [clangd][clangd] or [ccls][ccls]
 * Haskell's [haskell-language-server][haskell-language-server]
 * Elm's [elm-language-server][elm-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
@@ -540,6 +540,7 @@ Under the hood:
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
 [pyls]: https://github.com/palantir/python-language-server
+[pylsp]: https://github.com/python-lsp/python-lsp-server
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
 [melpa]: http://melpa.org/#/eglot
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
