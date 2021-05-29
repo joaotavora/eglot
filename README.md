@@ -187,14 +187,17 @@ usually guesses these identifiers from the major mode name
 the `:LANGUAGE-ID` element in the syntax of `eglot-server-programs` if
 necessary.
 
-<a name="reporting bugs"></a>
-
 ## TRAMP support
 
 Should just work.  Try `M-x eglot` in a buffer visiting a remote file
 on a server where you've also installed the language server.  Only
-supported on Emacs 27.1.
+supported on Emacs 27.1 or later.
 
+Emacs 27 users may find some language servers [fail to start up over
+TRAMP](https://github.com/joaotavora/eglot/issues/662).  If you experience this
+issue, update TRAMP to 2.5.0.4 or later.
+
+<a name="reporting bugs"></a>
 # Reporting bugs
 
 Having trouble connecting to a server?  Expected to have a certain
