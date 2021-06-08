@@ -30,6 +30,7 @@
 (require 'edebug)
 (require 'python) ; python-mode-hook
 (require 'company nil t)
+(require 'subr-x)
 
 ;;; Helpers
 
@@ -63,7 +64,7 @@ then restored."
            (with-temp-buffer
              (insert content)
              (write-region nil nil file-or-dir-name nil 'nomessage))
-           (list file-or-dir-name))
+           (list (expand-file-name file-or-dir-name)))
           (t
            (eglot--error "Expected a string or a directory spec")))))
 
@@ -722,9 +723,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
         (should (looking-back "\"foo.bar\": \""))
         (should (looking-at "fb\"$"))))))
 
-(ert-deftest eglot-lsp-abiding-column ()
-  "Test basic `eglot-lsp-abiding-column' and `eglot-move-to-lsp-abiding-column'"
-  (skip-unless (executable-find "clangd"))
+(defun eglot-tests--lsp-abiding-column-1 ()
   (eglot--with-fixture
       '(("project" .
          (("foo.c" . "const char write_data[] = u8\"🚂🚃🚄🚅🚆🚈🚇🚈🚉🚊🚋🚌🚎🚝🚞🚟🚠🚡🛤🛲\";"))))
@@ -745,6 +744,11 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
           (should (eq eglot-move-to-column-function #'eglot-move-to-lsp-abiding-column))
           (funcall eglot-move-to-column-function 71)
           (should (looking-at "p")))))))
+
+(ert-deftest eglot-lsp-abiding-column ()
+  "Test basic `eglot-lsp-abiding-column' and `eglot-move-to-lsp-abiding-column'"
+  (skip-unless (executable-find "clangd"))
+  (eglot-tests--lsp-abiding-column-1))
 
 (ert-deftest eglot-ensure ()
   "Test basic `eglot-ensure' functionality"
@@ -931,7 +935,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
 
 (cl-defmacro eglot--guessing-contact ((interactive-sym
                                        prompt-args-sym
-                                       guessed-class-sym guessed-contact-sym)
+                                       guessed-class-sym guessed-contact-sym
+                                       &optional guessed-lang-id-sym)
                                       &body body)
   "Evaluate BODY twice, binding results of `eglot--guess-contact'.
 
@@ -939,10 +944,10 @@ INTERACTIVE-SYM is bound to the boolean passed to
 `eglot--guess-contact' each time. If the user would have been
 prompted, PROMPT-ARGS-SYM is bound to the list of arguments that
 would have been passed to `read-shell-command', else nil.
-GUESSED-CLASS-SYM and GUESSED-CONTACT-SYM are bound to the useful
-return values of `eglot--guess-contact'. Unless the server
-program evaluates to \"a-missing-executable.exe\", this macro
-will assume it exists."
+GUESSED-CLASS-SYM, GUESSED-CONTACT-SYM and GUESSED-LANG-ID-SYM
+are bound to the useful return values of
+`eglot--guess-contact'. Unless the server program evaluates to
+\"a-missing-executable.exe\", this macro will assume it exists."
   (declare (indent 1) (debug t))
   (let ((i-sym (cl-gensym)))
     `(dolist (,i-sym '(nil t))
@@ -956,7 +961,8 @@ will assume it exists."
                    ((symbol-function 'read-shell-command)
                     (lambda (&rest args) (setq ,prompt-args-sym args) "")))
            (cl-destructuring-bind
-               (_ _ ,guessed-class-sym ,guessed-contact-sym)
+               (_ _ ,guessed-class-sym ,guessed-contact-sym
+                  ,(or guessed-lang-id-sym '_))
                (eglot--guess-contact ,i-sym)
              ,@body))))))
 
@@ -1047,6 +1053,20 @@ will assume it exists."
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
 
+(ert-deftest eglot-server-programs-guess-lang ()
+  (let ((major-mode 'foo-mode))
+    (let ((eglot-server-programs '((foo-mode . ("prog-executable")))))
+      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+        (should (equal guessed-lang "foo"))))
+    (let ((eglot-server-programs '(((foo-mode :language-id "bar")
+                                    . ("prog-executable")))))
+      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+        (should (equal guessed-lang "bar"))))
+    (let ((eglot-server-programs '(((baz-mode (foo-mode :language-id "bar"))
+                                    . ("prog-executable")))))
+      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+        (should (equal guessed-lang "bar"))))))
+
 (defun eglot--glob-match (glob str)
   (funcall (eglot--glob-compile glob t t) str))
 
@@ -1103,7 +1123,7 @@ will assume it exists."
 
 (ert-deftest eglot--tramp-test ()
   "Ensure LSP servers can be used over TRAMP."
-  (skip-unless (or (>= emacs-major-version 27) (executable-find "pyls")))
+  (skip-unless (and (>= emacs-major-version 27) (executable-find "pyls")))
   ;; Set up a loopback TRAMP method that’s just a shell so the remote
   ;; host is really just the local host.
   (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
@@ -1118,6 +1138,22 @@ will assume it exists."
     ;; method, fixtures will be automatically made “remote".
     (eglot-tests--auto-detect-running-server-1)))
 
+(ert-deftest eglot--tramp-test-2 ()
+  "Ensure LSP servers can be used over TRAMP."
+  (skip-unless (or (>= emacs-major-version 27) (executable-find "clangd")))
+  ;; Set up a loopback TRAMP method that’s just a shell so the remote
+  ;; host is really just the local host.
+  (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
+        (tramp-methods '(("loopback"
+                          (tramp-login-program "/bin/sh")
+                          (tramp-remote-shell "/bin/sh")
+                          (tramp-remote-shell-login ("-l"))
+                          (tramp-remote-shell-args ("-c")))))
+        (temporary-file-directory (concat "/loopback::"
+                                          temporary-file-directory))
+        (eglot-server-programs '((c-mode "clangd"))))
+    (eglot-tests--lsp-abiding-column-1) ))
+
 (ert-deftest eglot--path-to-uri-windows ()
   (should (string-prefix-p "file:///"
                            (eglot--path-to-uri "c:/Users/Foo/bar.lisp")))
@@ -1130,4 +1166,3 @@ will assume it exists."
 ;; Local Variables:
 ;; checkdoc-force-docstrings-flag: nil
 ;; End:
-

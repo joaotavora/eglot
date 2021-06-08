@@ -39,17 +39,17 @@ find-library` can help you tell if that happened.
 
 * Javascript's [TS & JS Language Server ][typescript-language-server]
 * Rust's [rls][rls]
-* Python's [pyls][pyls]
+* Python's [pylsp][pylsp] or [pyls][pyls] 
 * Ruby's [solargraph][solargraph]
 * Java's [Eclipse JDT Language Server][eclipse-jdt]
 * Bash's [bash-language-server][bash-language-server]
 * PHP's [php-language-server][php-language-server]
-* C/C++'s [ccls][ccls]  ([cquery][cquery] and [clangd][clangd] also work)
+* C/C++'s [clangd][clangd] or [ccls][ccls]
 * Haskell's [haskell-language-server][haskell-language-server]
 * Elm's [elm-language-server][elm-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Go's [gopls][gopls]
-* Ocaml's [ocaml-language-server][ocaml-language-server]
+* Ocaml's [ocaml-lsp][ocaml-lsp]
 * R's [languageserver][r-languageserver]
 * Dart's [dart_language_server][dart_language_server]
 * Elixir's [elixir-ls][elixir-ls]
@@ -60,6 +60,7 @@ find-library` can help you tell if that happened.
 * Nix's [rnix-lsp][rnix-lsp]
 * Godot Engine's [built-in LSP][godot]
 * Fortran's [fortls][fortls]
+* Zig's [zls][zls]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -179,6 +180,13 @@ get [cquery][cquery] working:
 See `eglot.el`'s section on Java's JDT server for an even more
 sophisticated example.
 
+Similarly, some servers require the language identifier strings they
+are sent by `eglot` to match the exact strings used by VSCode. `eglot`
+usually guesses these identifiers from the major mode name
+(e.g. `elm-mode` → `"elm"`), but the mapping can be overridden using
+the `:LANGUAGE-ID` element in the syntax of `eglot-server-programs` if
+necessary.
+
 <a name="reporting bugs"></a>
 
 ## TRAMP support
@@ -226,9 +234,11 @@ Here's a summary of available commands:
 
 - `M-x eglot`, as described above;
 
-- `M-x eglot-reconnect` reconnects to the server;
+- `M-x eglot-reconnect` reconnects to current server;
 
-- `M-x eglot-shutdown` says bye-bye to the server;
+- `M-x eglot-shutdown` says bye-bye to server of your choice;
+
+- `M-x eglot-shutdown-all` says bye-bye to every server;
 
 - `M-x eglot-rename` ask the server to rename the symbol at point;
 
@@ -283,7 +293,7 @@ documentation on what these do.
 - `eglot-events-buffer-size`: Control the size of the Eglot events
   buffer;
 
-- `eglot-ignored-server-capabilites`: LSP server capabilities that
+- `eglot-ignored-server-capabilities`: LSP server capabilities that
   Eglot could use, but won't;
 
 - `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
@@ -309,6 +319,12 @@ lisp:
 - `eglot-stay-out-of`: List of Emacs features that Eglot shouldn't
   automatically try to manage on users' behalf.  Useful when you need
   non-LSP Flymake or Company backends.  See docstring for examples.
+  
+- `eglot-extend-to-xref`: If non-nil and `xref-find-definitions` lands
+  you in a file outside your project -- like a system-installed
+  library or header file -- transiently consider it managed by the
+  same LSP server.  That file is still outside your project
+  (i.e. `project-find-file` won't find it).
 
 # How does Eglot work?
 
@@ -348,7 +364,7 @@ eglot-shutdown`.
 
 ## General
 - [x] initialize
-- [x] initalized
+- [x] initialized
 - [x] shutdown
 - [x] exit
 - [ ] $/cancelRequest
@@ -524,6 +540,7 @@ Under the hood:
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [rls]: https://github.com/rust-lang-nursery/rls
 [pyls]: https://github.com/palantir/python-language-server
+[pylsp]: https://github.com/python-lsp/python-lsp-server
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
 [melpa]: http://melpa.org/#/eglot
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
@@ -543,7 +560,7 @@ Under the hood:
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [gopls]: https://github.com/golang/tools/tree/master/gopls
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
-[ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
+[ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
 [r-languageserver]: https://cran.r-project.org/package=languageserver
 [dart_language_server]: https://github.com/natebosch/dart_language_server
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
@@ -559,3 +576,4 @@ Under the hood:
 [godot]: https://godotengine.org
 [fortls]: https://github.com/hansec/fortran-language-server
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
+[zls]: https://github.com/zigtools/zls
