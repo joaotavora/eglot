@@ -113,6 +113,44 @@ it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
+## Socket-activated servers
+
+For finer-grained control over server's execution context you may want
+to spawn it indirectly as a service, using something like systemd or
+launchd. In such a case, we provide with a path to the AF_UNIX socket:
+
+``` lisp
+(add-to-list 'eglot-server-programs
+             `(c++-mode . ("/tmp/clangd-sock" :ipc)))
+```
+
+When Emacs connects to the socket, the service manager could spawn an
+instance that handles a connection. This provides us with fully
+featured service description syntax, not just command-line arguments.
+It's useful in particular when running server inside a container.
+
+In case of systemd, the service configuraton could look like this:
+
+``` ini
+# systemctl --user edit --force --full clangd.socket
+[Unit]
+Description=Clangd LSP Channel
+[Socket]
+ListenStream=/tmp/clangd-sock
+RemoveOnStop=true
+Accept=yes
+
+# systemctl --user edit --force --full clangd@.service
+[Unit]
+Description=Clangd Language Server
+[Service]
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+ExecStart=/usr/bin/clangd --log=info
+OOMScoreAdjust=500
+```
+
 ## Per-project server configuration
 
 Most servers can guess good defaults and will operate nicely

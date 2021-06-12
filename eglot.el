@@ -1025,6 +1025,16 @@ This docstring appeases checkdoc, that's all."
                                              contact)))
                                  (setq autostart-inferior-process inferior)
                                  connection))))
+                ((and (stringp (car contact)) (eq (cadr contact) :ipc))
+                 `(:process
+                   ,(lambda ()
+                      (make-network-process
+                       :name readable-name
+                       :service (car contact)
+                       :coding 'utf-8-emacs-unix
+                       :noquery t
+                       :family 'local
+                       ))))
                 ((stringp (car contact))
                  `(:process
                    ,(lambda ()
