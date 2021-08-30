@@ -65,6 +65,7 @@ find-library` can help you tell if that happened.
 * Zig's [zls][zls]
 * FSharp's [fsharp-mode][fsharp-mode] (Needs to `(require 'eglot-fsharp)` first)
 * YAML's [yaml-language-server][yaml-language-server]
+* Lua's [lua-lsp][lua-lsp]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -588,3 +589,4 @@ Under the hood:
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
 [zls]: https://github.com/zigtools/zls
 [fsharp-mode]: https://github.com/fsharp/emacs-fsharp-mode
+[lua-lsp]: https://github.com/Alloyed/lua-lsp
