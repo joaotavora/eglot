@@ -12,6 +12,12 @@ Thanks to Brian Cully for the minimalist approach.
 (also thanks to Felipe Lema who conducted many early experiments in
 [#463][github#463])
 
+##### `eglot-ignored-server-capabilities` now correctly spelled ([#724][github#724])
+
+This user-visible variable used to be spelled
+`eglot-ignored-server-capabilites`, which is still an valid but
+obsolete name.
+
 ##### Manage cross-referenced files outside project ([#76][github#76], ([#686][github#686], ([#695][github#695])
 
 This is activated by a new customization option
