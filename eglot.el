@@ -2358,10 +2358,10 @@ is not active."
          (cond
           ((eq action 'metadata) metadata)               ; metadata
           ((eq action 'lambda)                           ; test-completion
-           (test-completion probe (funcall proxies)))
+           (test-completion probe (funcall proxies) pred))
           ((eq (car-safe action) 'boundaries) nil)       ; boundaries
           ((null action)                                 ; try-completion
-           (try-completion probe (funcall proxies)))
+           (try-completion probe (funcall proxies) pred))
           ((eq action t)                                 ; all-completions
 	   (all-completions "" (funcall proxies)
 			    (lambda (cand)
