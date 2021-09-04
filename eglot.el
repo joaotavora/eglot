@@ -2363,14 +2363,12 @@ is not active."
           ((null action)                                 ; try-completion
            (try-completion probe (funcall proxies)))
           ((eq action t)                                 ; all-completions
-           (cl-remove-if-not
-            (lambda (proxy)
-              (let* ((item (get-text-property 0 'eglot--lsp-item proxy))
-                     (filterText (plist-get item :filterText)))
-                (and (or (null pred) (funcall pred proxy))
-                     (string-prefix-p
-                      probe (or filterText proxy) completion-ignore-case))))
-            (funcall proxies)))))
+	   (all-completions "" (funcall proxies)
+			    (lambda (cand)
+			      (let* ((item (get-text-property 0 'eglot--lsp-item cand))
+				     (text (or (plist-get item :filterText) cand)))
+				(and (string-prefix-p probe text completion-ignore-case)
+				     (or (not pred) (funcall pred cand)))))))))
        :annotation-function
        (lambda (proxy)
          (eglot--dbind ((CompletionItem) detail kind)
