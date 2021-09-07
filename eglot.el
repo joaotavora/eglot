@@ -2306,6 +2306,7 @@ is not active."
            (metadata `(metadata (category . eglot)
                                 (display-sort-function . ,sort-completions)))
            resp items (cached-proxies :none)
+	   (last-probe nil)
            (proxies
             (lambda ()
               (if (listp cached-proxies) cached-proxies
@@ -2355,6 +2356,12 @@ is not active."
        (or (car bounds) (point))
        (or (cdr bounds) (point))
        (lambda (probe pred action)
+	 (unless (string-empty-p probe)
+	   (if last-probe
+	       (unless (string-prefix-p last-probe probe)
+		 (setq cached-proxies :none
+		       last-probe probe))
+	     (setq last-probe probe)))
          (cond
           ((eq action 'metadata) metadata)               ; metadata
           ((eq action 'lambda)                           ; test-completion
