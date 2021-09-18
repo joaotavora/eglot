@@ -40,7 +40,7 @@ find-library` can help you tell if that happened.
 
 * Javascript's [TS & JS Language Server ][typescript-language-server]
 * Rust's [rls][rls]
-* Python's [pylsp][pylsp] or [pyls][pyls] 
+* Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
 * Ruby's [solargraph][solargraph]
 * Java's [Eclipse JDT Language Server][eclipse-jdt]
 * Bash's [bash-language-server][bash-language-server]
@@ -547,6 +547,7 @@ Under the hood:
 [rls]: https://github.com/rust-lang-nursery/rls
 [pyls]: https://github.com/palantir/python-language-server
 [pylsp]: https://github.com/python-lsp/python-lsp-server
+[pyright]: https://github.com/microsoft/pyright
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
 [melpa]: https://melpa.org/#/eglot
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
