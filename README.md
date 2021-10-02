@@ -48,6 +48,7 @@ find-library` can help you tell if that happened.
 * C/C++'s [clangd][clangd] or [ccls][ccls]
 * Haskell's [haskell-language-server][haskell-language-server]
 * Elm's [elm-language-server][elm-language-server]
+* Mint's [mint-ls][mint-ls]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Go's [gopls][gopls]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
@@ -565,6 +566,7 @@ Under the hood:
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [haskell-language-server]: https://github.com/haskell/haskell-language-server
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
+[mint-ls]: https://www.mint-lang.com/
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [gopls]: https://github.com/golang/tools/tree/master/gopls
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
