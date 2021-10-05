@@ -63,6 +63,7 @@ find-library` can help you tell if that happened.
 * Fortran's [fortls][fortls]
 * Zig's [zls][zls]
 * FSharp's [fsharp-mode][fsharp-mode] (Needs to `(require 'eglot-fsharp)` first)
+* YAML's [yaml-language-server][yaml-language-server]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -553,6 +554,7 @@ Under the hood:
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
+[yaml-language-server]: https://github.com/redhat-developer/yaml-language-server
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [company-mode]: https://github.com/company-mode/company-mode
 [cquery]: https://github.com/cquery-project/cquery
