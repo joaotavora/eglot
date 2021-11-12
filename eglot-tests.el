@@ -1140,7 +1140,7 @@ are bound to the useful return values of
 
 (ert-deftest eglot--tramp-test-2 ()
   "Ensure LSP servers can be used over TRAMP."
-  (skip-unless (or (>= emacs-major-version 27) (executable-find "clangd")))
+  (skip-unless (and (>= emacs-major-version 27) (executable-find "clangd")))
   ;; Set up a loopback TRAMP method that’s just a shell so the remote
   ;; host is really just the local host.
   (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
