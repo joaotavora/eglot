@@ -523,6 +523,39 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (forward-line -1)
         (should (looking-at "Complete, but not unique"))))))
 
+(ert-deftest basic-imenu ()
+  "Test basic imenu functionality in a python LSP"
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+      `(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()\n"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (should (imenu--make-index-alist))
+      (should
+       (equal imenu--index-alist
+              `(("Function"
+                 ("foo"
+                  [(:name "foo" :containerName nil :location
+                          (:uri ,(concat "file://" buffer-file-name) :range
+                                (:start
+                                 (:line 0 :character 0)
+                                 :end
+                                 (:line 1 :character 0)))
+                          :kind 12)]
+                  eglot--imenu-goto-function)
+                 ("bar"
+                  [(:name "bar" :containerName nil :location
+                          (:uri ,(concat "file://" buffer-file-name) :range
+                                (:start
+                                 (:line 1 :character 0)
+                                 :end
+                                 (:line 2 :character 0)))
+                          :kind 12)]
+                  eglot--imenu-goto-function)))))
+      (imenu (assoc "bar" (assoc "Function" imenu--index-alist)))
+      (should (looking-at "def bar():")))))
+
 (ert-deftest basic-xref ()
   "Test basic xref functionality in a python LSP"
   (skip-unless (executable-find "pyls"))
