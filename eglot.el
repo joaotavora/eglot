@@ -1555,7 +1555,8 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
     (eglot--setq-saving company-tooltip-align-annotations t)
     (unless (eglot--stay-out-of-p 'imenu)
       (add-function :before-until (local 'imenu-create-index-function)
-                    #'eglot-imenu))
+                    #'eglot-imenu)
+      (add-hook 'which-func-functions #'eglot-which-func nil t))
     (unless (eglot--stay-out-of-p 'flymake) (flymake-mode 1))
     (unless (eglot--stay-out-of-p 'eldoc) (eldoc-mode 1))
     (cl-pushnew (current-buffer) (eglot--managed-buffers (eglot-current-server))))
@@ -1576,6 +1577,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
     (cl-loop for (var . saved-binding) in eglot--saved-bindings
              do (set (make-local-variable var) saved-binding))
     (remove-function (local 'imenu-create-index-function) #'eglot-imenu)
+    (remove-hook 'which-func-functions #'eglot-which-func t)
     (when eglot--current-flymake-report-fn
       (eglot--report-to-flymake nil)
       (setq eglot--current-flymake-report-fn nil))
@@ -2641,6 +2643,54 @@ is not active."
                                `(:textDocument
                                  ,(eglot--TextDocumentIdentifier))
                                :cancel-on-input non-essential))))))
+
+(defun eglot-which-func ()
+  "EGLOT's hook for `which-func-functions'."
+  (let ((name) container)
+    (when (boundp 'imenu--index-alist)
+      (let ((alist imenu--index-alist)
+            entry pos imstack region)
+        ;; Elements of alist are either ("name" [pos] ...),
+        ;; or ("submenu" ("name" [pos] ...) ...).
+        ;; The list can be arbitrarily nested.
+        (while (or alist imstack)
+          (if (null alist)
+              (setq alist     (car imstack)
+                    imstack   (cdr imstack))
+
+            (setq entry (car-safe alist)
+                  alist (cdr-safe alist))
+
+            (cond
+             ((atom entry))             ; Skip anything not a cons.
+
+             ((imenu--subalist-p entry)
+              (setq imstack   (cons alist imstack)
+                    alist     (cdr entry)))
+
+             ;; entry is ("name" [pos] ...)
+             ((and (consp (setq pos (cdr entry)))
+                   (vectorp (setq pos (car pos)))
+                   (listp (setq pos (aref pos 0)))
+                   ;; pos is (:name "name" :location (...) ...)
+                   (consp (setq region
+                                (eglot--range-region
+                                 (eglot--dcase pos
+                                   (((SymbolInformation) location)
+                                    (plist-get location :range))
+                                   (((DocumentSymbol) range)
+                                    range)))))
+                   ;; region is (start . end)
+                   (>= (point) (car region))
+                   (<= (point) (cdr region)))
+              (setq name (plist-get pos :name))
+              ;; pos can also contain a :containerName
+              (when (and (boundp 'which-func-imenu-joiner-function)
+                         which-func-imenu-joiner-function
+                         (setq container (plist-get pos :containerName)))
+                (setq name (funcall which-func-imenu-joiner-function
+                                    (list container name))))))))))
+    name))
 
 (defun eglot--apply-text-edits (edits &optional version)
   "Apply EDITS for current buffer if at VERSION, or if it's nil."

@@ -523,6 +523,22 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (forward-line -1)
         (should (looking-at "Complete, but not unique"))))))
 
+(ert-deftest basic-which-func ()
+  "Test basic which-func functionality in a python LSP"
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+      `(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()\n"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "project/something.py")
+      (should (eglot--tests-connect))
+      (which-function-mode t)
+      (goto-char (point-min))           ; def foo():
+      (should (string= (which-function) "foo"))
+      (goto-char (point-max))           ; end of file
+      (should (null (which-function)))
+      (forward-line -1)                 ; def bar():
+      (should (string= (which-function) "bar")))))
+
 (ert-deftest basic-xref ()
   "Test basic xref functionality in a python LSP"
   (skip-unless (executable-find "pyls"))
