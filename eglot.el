@@ -2596,6 +2596,84 @@ is not active."
        :deferred :textDocument/documentHighlight)
       nil)))
 
+(defun eglot--update-symbols ()
+  "Update overlays for textDocument/documentSymbol."
+  (when (eglot--server-capable :documentSymbolProvider)
+    (let ((symbols (jsonrpc-request
+                    (eglot--current-server-or-lose)
+                    :textDocument/documentSymbol
+                    `(:textDocument
+                      ,(eglot--TextDocumentIdentifier))
+                    :cancel-on-input non-essential)))
+      (remove-overlays nil nil 'eglot-symbolp)
+      (mapcan #'eglot--make-symbol-overlay symbols)
+      symbols)))
+
+(defvar-local eglot--priority-symbols
+  '("File" "Module"
+    "Namespace" "Package" "Class"
+    "Method"
+    "Constructor" "Enum" "Interface"
+    "Function"
+    "Struct")
+  "Symbols returned by textDocument/documentSymbol will be given
+extra priority by `eglot--make-symbol-overlays' if their `:kind'
+matches this list.")
+
+(defun eglot--overlay-put-when (overlay prop value)
+  (when value
+    (overlay-put overlay prop value)))
+
+(defun eglot--make-symbol-overlay (symbol &optional depth parent)
+  "Create and return an overlay for a SYMBOL at depth DEPTH.
+
+SYMBOL must be of type SymbolInformation or DocumentSymbol.
+
+PARENT may be a symbol overlay for the parent scope of this SYMBOL."
+  (pcase-let* ((kind (eglot--dcase symbol
+                       (((SymbolInformation) kind)
+                        (alist-get kind eglot--symbol-kind-names))
+                       (((DocumentSymbol) kind)
+                        (alist-get kind eglot--symbol-kind-names))))
+               (depth (or depth 0))
+               (priority (if (member kind eglot--priority-symbols)
+                             (1+ depth) 0))
+               (`(,beg . ,end) (eglot--range-region
+                                (eglot--dcase symbol
+                                  (((SymbolInformation) location)
+                                   (plist-get location :range))
+                                  (((DocumentSymbol) range)
+                                   range))))
+               (ov (make-overlay beg end))
+               (overlays nil))
+    (overlay-put ov 'priority priority)
+    (overlay-put ov 'eglot-symbolp nil)
+    (overlay-put ov 'eglot-symbol symbol)
+    (overlay-put ov 'eglot-symbol-depth depth)
+    (eglot--overlay-put-when ov 'eglot-symbol-parent parent)
+    (eglot--dcase symbol
+      (((SymbolInformation)
+        name deprecated containerName)
+       (eglot--overlay-put-when ov 'eglot-symbol-name name)
+       (eglot--overlay-put-when ov 'eglot-symbol-kind kind)
+       (eglot--overlay-put-when ov 'eglot-symbol-deprecated deprecated)
+       (eglot--overlay-put-when ov 'eglot-symbol-containerName containerName))
+      (((DocumentSymbol)
+        name detail deprecated selectionRange children)
+       (eglot--overlay-put-when ov 'eglot-symbol-name name)
+       (eglot--overlay-put-when ov 'eglot-symbol-detail detail)
+       (eglot--overlay-put-when ov 'eglot-symbol-kind kind)
+       (eglot--overlay-put-when ov 'eglot-symbol-deprecated deprecated)
+       (eglot--overlay-put-when ov 'eglot-symbol-selectionRange
+                                (eglot--range-region selectionRange))
+       (when children
+         (setq overlays
+               (mapcan (lambda (sym)
+                         (eglot--make-symbol-overlay sym (1+ depth) ov))
+                       children))
+         (overlay-put ov 'eglot-symbol-children overlays))))
+    (push ov overlays)))
+
 (defun eglot-imenu ()
   "EGLOT's `imenu-create-index-function'."
   (cl-labels
@@ -2636,11 +2714,7 @@ is not active."
      (seq-group-by
       (lambda (obj) (plist-get obj :kind))
       (mapcan #'unfurl
-              (jsonrpc-request (eglot--current-server-or-lose)
-                               :textDocument/documentSymbol
-                               `(:textDocument
-                                 ,(eglot--TextDocumentIdentifier))
-                               :cancel-on-input non-essential))))))
+              (eglot--update-symbols))))))
 
 (defun eglot--apply-text-edits (edits &optional version)
   "Apply EDITS for current buffer if at VERSION, or if it's nil."
