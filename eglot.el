@@ -2597,7 +2597,7 @@ is not active."
       nil)))
 
 (defun eglot--update-symbols ()
-  "Update overlays for textDocument/documentSymbol."
+  "Update and return overlays for textDocument/documentSymbol."
   (when (eglot--server-capable :documentSymbolProvider)
     (let ((symbols (jsonrpc-request
                     (eglot--current-server-or-lose)
@@ -2606,8 +2606,7 @@ is not active."
                       ,(eglot--TextDocumentIdentifier))
                     :cancel-on-input non-essential)))
       (remove-overlays nil nil 'eglot-symbolp)
-      (mapcan #'eglot--make-symbol-overlay symbols)
-      symbols)))
+      (mapcan #'eglot--make-symbol-overlay symbols))))
 
 (defvar-local eglot--priority-symbols
   '("File" "Module"
@@ -2674,47 +2673,69 @@ PARENT may be a symbol overlay for the parent scope of this SYMBOL."
          (overlay-put ov 'eglot-symbol-children overlays))))
     (push ov overlays)))
 
+(defun eglot--imenu-element (overlay)
+  "Return a simple (NAME . MARKER) Imenu element for the symbol OVERLAY."
+  (cons (overlay-get overlay 'eglot-symbol-name)
+        (copy-marker
+         ;; Prefer :selectionRange over :range.
+         (or (car (overlay-get overlay 'eglot-symbol-selectionRange))
+             (overlay-start overlay)))))
+
+(defun eglot--imenu-elements (overlays)
+  "Return sorted (NAME . MARKER) Imenu elements for symbol OVERLAYS."
+  (sort (mapcar #'eglot--imenu-element overlays)
+        (lambda (a b)
+          (string< (car a) (car b)))))
+
+(defun eglot--imenu-group-by-kind (overlays)
+  "Return an alist with symbol OVERLAYS grouped by eglot-symbol-kind."
+  (seq-group-by (lambda (ov)
+                  (overlay-get ov 'eglot-symbol-kind))
+                overlays))
+
+(defun eglot--imenu-group-by-containerName (overlays)
+  "Return a nested alist with symbol OVERLAYS grouped by eglot-symbol-containerName."
+  ;; SymbolInformation is grouped by :containerName
+  (let ((alist (seq-group-by (lambda (ov)
+                               (overlay-get ov 'eglot-symbol-containerName))
+                             overlays)))
+    (when (or (> (length alist) 1)
+              (caar alist))
+      (seq-doseq (x alist)
+        ;; Turn (NAME . (OVERLAY ...)) into (NAME . (MARKER ...))
+        (setcdr x (eglot--imenu-elements (cdr x))))
+      ;; Ungroup nil keys.
+      (nconc alist (alist-get nil alist nil t))
+      (assq-delete-all nil alist))))
+
+(defun eglot--imenu-build-tree (overlays)
+  "Return a nested alist with symbol OVERLAYS grouped by eglot-symbol-parent."
+  ;; DocumentSymbol builds a tree with :children
+  ;; so overlays are annotated with a parent.
+  (let ((alist (seq-group-by (lambda (ov)
+                               (overlay-get ov 'eglot-symbol-parent))
+                             overlays)))
+    (setq alist
+          (mapcar (lambda (x)
+                    (let ((parent (car x))
+                          ;; Turn (PARENT . (OVERLAY ...))
+                          ;; into (PARENT . (MARKER ...))
+                          (children (eglot--imenu-elements (cdr x))))
+                      (when parent
+                        ;; BUG: this only groups the lowest level of symbols.
+                        (setq parent (overlay-get parent 'eglot-symbol-name)))
+                      (cons parent children)))
+                  alist))
+    ;; Ungroup nil keys.
+    (nconc alist (alist-get nil alist nil t))
+    (assq-delete-all nil alist)))
+
 (defun eglot-imenu ()
   "EGLOT's `imenu-create-index-function'."
-  (cl-labels
-      ((visit (_name one-obj-array)
-              (imenu-default-goto-function
-               nil (car (eglot--range-region
-                         (eglot--dcase (aref one-obj-array 0)
-                           (((SymbolInformation) location)
-                            (plist-get location :range))
-                           (((DocumentSymbol) selectionRange)
-                            selectionRange))))))
-       (unfurl (obj)
-               (eglot--dcase obj
-                 (((SymbolInformation)) (list obj))
-                 (((DocumentSymbol) name children)
-                  (cons obj
-                        (mapcar
-                         (lambda (c)
-                           (plist-put
-                            c :containerName
-                            (let ((existing (plist-get c :containerName)))
-                              (if existing (format "%s::%s" name existing)
-                                name))))
-                         (mapcan #'unfurl children)))))))
-    (mapcar
-     (pcase-lambda (`(,kind . ,objs))
-       (cons
-        (alist-get kind eglot--symbol-kind-names "Unknown")
-        (mapcan (pcase-lambda (`(,container . ,objs))
-                  (let ((elems (mapcar (lambda (obj)
-                                         (list (plist-get obj :name)
-                                               `[,obj] ;; trick
-                                               #'visit))
-                                       objs)))
-                    (if container (list (cons container elems)) elems)))
-                (seq-group-by
-                 (lambda (e) (plist-get e :containerName)) objs))))
-     (seq-group-by
-      (lambda (obj) (plist-get obj :kind))
-      (mapcan #'unfurl
-              (eglot--update-symbols))))))
+  (seq-doseq (x (eglot--imenu-group-by-kind (eglot--update-symbols)))
+    (let ((overlays (cdr x)))
+      (setcdr x (or (eglot--imenu-group-by-containerName overlays)
+                    (eglot--imenu-build-tree overlays))))))
 
 (defun eglot--apply-text-edits (edits &optional version)
   "Apply EDITS for current buffer if at VERSION, or if it's nil."
