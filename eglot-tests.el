@@ -673,14 +673,14 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
        (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")))))
 
 (ert-deftest javascript-basic ()
-  "Test basic autocompletion in a python LSP"
-  (skip-unless (executable-find "~/.yarn/bin/javascript-typescript-stdio"))
+  "Test basic autocompletion in a JavaScript LSP"
+  (skip-unless (executable-find "typescript-language-server"))
   (eglot--with-fixture
       '(("project" . (("hello.js" . "console.log('Hello world!');"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/hello.js")
       (let ((eglot-server-programs
-             '((js-mode . ("~/.yarn/bin/javascript-typescript-stdio")))))
+             '((js-mode . ("typescript-language-server" "--stdio")))))
         (goto-char (point-max))
         (eglot--sniffing (:server-notifications
                           s-notifs
@@ -1140,7 +1140,7 @@ are bound to the useful return values of
 
 (ert-deftest eglot--tramp-test-2 ()
   "Ensure LSP servers can be used over TRAMP."
-  (skip-unless (or (>= emacs-major-version 27) (executable-find "clangd")))
+  (skip-unless (and (>= emacs-major-version 27) (executable-find "clangd")))
   ;; Set up a loopback TRAMP method that’s just a shell so the remote
   ;; host is really just the local host.
   (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
