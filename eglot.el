@@ -1363,12 +1363,28 @@ If optional MARKER, return a marker instead"
                        retval)))
     (concat remote-prefix normalized)))
 
+(defvar eglot-snippet-expansion-functions
+  '(eglot--yasnippet-expansion eglot--simple-expansion))
+
 (defun eglot--snippet-expansion-fn ()
   "Compute a function to expand snippets.
 Doubles as an indicator of snippet support."
+  (run-hook-with-args-until-success 'eglot-snippet-expansion-functions))
+
+(defun eglot--yasnippet-expansion ()
   (and (boundp 'yas-minor-mode)
        (symbol-value 'yas-minor-mode)
        'yas-expand-snippet))
+
+(defun eglot--strip-yas-syntax (snippet)
+  (insert (replace-regexp-in-string
+           "[$]{[0-9]+:\\([^}]+\\)}"
+           (lambda (string)
+             (match-string 1 string))
+           snippet)))
+
+(defun eglot--simple-expansion ()
+  #'eglot--strip-yas-syntax)
 
 (defun eglot--format-markup (markup)
   "Format MARKUP according to LSP's spec."
