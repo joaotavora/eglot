@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/joaotavora/eglot.png?branch=master)](https://travis-ci.org/joaotavora/eglot)
 [![GNU ELPA](https://elpa.gnu.org/packages/eglot.svg)](https://elpa.gnu.org/packages/eglot.html)
-[![MELPA](http://melpa.org/packages/eglot-badge.svg)](http://melpa.org/#/eglot)
+[![MELPA](https://melpa.org/packages/eglot-badge.svg)](https://melpa.org/#/eglot)
 
 # M-x Eglot
 
@@ -543,7 +543,7 @@ Under the hood:
 [pyls]: https://github.com/palantir/python-language-server
 [pylsp]: https://github.com/python-lsp/python-lsp-server
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
-[melpa]: http://melpa.org/#/eglot
+[melpa]: https://melpa.org/#/eglot
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
@@ -568,11 +568,11 @@ Under the hood:
 [erlang_ls]: https://github.com/erlang-ls/erlang_ls
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
-[metals]: http://scalameta.org/metals/
+[metals]: https://scalameta.org/metals/
 [digestif]: https://github.com/astoff/digestif
-[company]: http://elpa.gnu.org/packages/company.html
+[company]: https://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
-[yasnippet]: http://elpa.gnu.org/packages/yasnippet.html
+[yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
 [godot]: https://godotengine.org
 [fortls]: https://github.com/hansec/fortran-language-server
