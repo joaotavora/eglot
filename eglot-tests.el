@@ -323,12 +323,12 @@ Pass TIMEOUT to `eglot--with-timeout'."
        (should-error (eglot--current-server-or-lose))))))
 
 (ert-deftest auto-detect-running-server ()
-  "Visit a file and M-x eglot, then visit a neighbour. "
+  "Visit a file and \\[eglot], then visit a neighbour."
   (skip-unless (executable-find "pyls"))
   (eglot-tests--auto-detect-running-server-1))
 
 (ert-deftest auto-shutdown ()
-  "Visit a file and M-x eglot, then kill buffer. "
+  "Visit a file and \\[eglot], then kill buffer."
   (skip-unless (executable-find "pyls"))
   (let (server
         buffer)
@@ -347,7 +347,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (should (not (jsonrpc-running-p server)))))))
 
 (ert-deftest auto-reconnect ()
-  "Start a server. Kill it. Watch it reconnect."
+  "Start a server.  Kill it.  Watch it reconnect."
   (skip-unless (executable-find "pyls"))
   (let (server (eglot-autoreconnect 1))
     (eglot--with-fixture
@@ -443,7 +443,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
                          (unless (zerop (length bs)) bs))))
    when retval return retval
    do (sit-for 0.1)
-   finally (error "eglot--tests-force-full-eldoc didn't deliver.")))
+   finally (error "eglot--tests-force-full-eldoc didn't deliver")))
 
 (ert-deftest rls-hover-after-edit ()
   "Hover and highlightChanges are tricky in RLS."
@@ -480,7 +480,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
             (eq id pending-id)))))))
 
 (ert-deftest rename-a-symbol ()
-  "Test basic symbol renaming"
+  "Test basic symbol renaming."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("rename-project"
@@ -495,7 +495,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
                      "def foo (bla) : 1 + bla\n\ndef bar() : pass")))))
 
 (ert-deftest basic-completions ()
-  "Test basic autocompletion in a python LSP"
+  "Test basic autocompletion in a python LSP."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
@@ -507,7 +507,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (should (looking-back "sys.exit")))))
 
 (ert-deftest non-unique-completions ()
-  "Test completion resulting in 'Complete, but not unique'"
+  "Test completion resulting in 'Complete, but not unique'."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       '(("project" . (("something.py" . "foo=1\nfoobar=2\nfoo"))))
@@ -524,7 +524,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (should (looking-at "Complete, but not unique"))))))
 
 (ert-deftest basic-xref ()
-  "Test basic xref functionality in a python LSP"
+  "Test basic xref functionality in a python LSP."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()"))))
@@ -542,7 +542,7 @@ def foobazquuz(d, e, f): pass
 ")
 
 (ert-deftest snippet-completions ()
-  "Test simple snippet completion in a python LSP"
+  "Test simple snippet completion in a python LSP."
   (skip-unless (and (executable-find "pyls")
                     (functionp 'yas-minor-mode)))
   (eglot--with-fixture
@@ -562,7 +562,7 @@ def foobazquuz(d, e, f): pass
 (defvar company-candidates)
 
 (ert-deftest snippet-completions-with-company ()
-  "Test simple snippet completion in a python LSP"
+  "Test simple snippet completion in a python LSP."
   (skip-unless (and (executable-find "pyls")
                     (functionp 'yas-minor-mode)
                     (functionp 'company-complete)))
@@ -585,7 +585,7 @@ def foobazquuz(d, e, f): pass
       (should (member "foobazquuz(d, e, f)" company-candidates)))))
 
 (ert-deftest eglot-eldoc-after-completions ()
-  "Test documentation echo in a python LSP"
+  "Test documentation echo in a python LSP."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
@@ -652,7 +652,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
        (string= (buffer-string) "def a(): pass\n\n\ndef b(): pass\n")))))
 
 (ert-deftest python-yapf-formatting ()
-  "Test formatting in the pyls python LSP"
+  "Test formatting in the pyls python LSP."
   (skip-unless (and (executable-find "pyls")
                     (not (executable-find "autopep8"))
                     (executable-find "yapf")))
@@ -673,7 +673,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
        (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")))))
 
 (ert-deftest javascript-basic ()
-  "Test basic autocompletion in a JavaScript LSP"
+  "Test basic autocompletion in a JavaScript LSP."
   (skip-unless (executable-find "typescript-language-server"))
   (eglot--with-fixture
       '(("project" . (("hello.js" . "console.log('Hello world!');"))))
@@ -702,7 +702,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
                                diagnostics)))))))))
 
 (ert-deftest json-basic ()
-  "Test basic autocompletion in vscode-json-languageserver"
+  "Test basic autocompletion in vscode-json-languageserver."
   (skip-unless (executable-find "vscode-json-languageserver"))
   (eglot--with-fixture
       '(("project" .
@@ -746,12 +746,12 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
           (should (looking-at "p")))))))
 
 (ert-deftest eglot-lsp-abiding-column ()
-  "Test basic `eglot-lsp-abiding-column' and `eglot-move-to-lsp-abiding-column'"
+  "Test basic `eglot-lsp-abiding-column' and `eglot-move-to-lsp-abiding-column'."
   (skip-unless (executable-find "clangd"))
   (eglot-tests--lsp-abiding-column-1))
 
 (ert-deftest eglot-ensure ()
-  "Test basic `eglot-ensure' functionality"
+  "Test basic `eglot-ensure' functionality."
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("project" . (("foo.py" . "import sys\nsys.exi")
@@ -941,12 +941,12 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   "Evaluate BODY twice, binding results of `eglot--guess-contact'.
 
 INTERACTIVE-SYM is bound to the boolean passed to
-`eglot--guess-contact' each time. If the user would have been
+`eglot--guess-contact' each time.  If the user would have been
 prompted, PROMPT-ARGS-SYM is bound to the list of arguments that
 would have been passed to `read-shell-command', else nil.
 GUESSED-CLASS-SYM, GUESSED-CONTACT-SYM and GUESSED-LANG-ID-SYM
 are bound to the useful return values of
-`eglot--guess-contact'. Unless the server program evaluates to
+`eglot--guess-contact'.  Unless the server program evaluates to
 \"a-missing-executable.exe\", this macro will assume it exists."
   (declare (indent 1) (debug t))
   (let ((i-sym (cl-gensym)))
