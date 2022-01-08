@@ -84,7 +84,7 @@ You can also do:
   (add-hook 'foo-mode-hook 'eglot-ensure)
 ```
 
-, to attempt to start an eglot session automatically everytime a
+, to attempt to start an eglot session automatically every time a
 `foo-mode` buffer is visited.
 
 ## Connecting via TCP

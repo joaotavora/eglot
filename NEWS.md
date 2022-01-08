@@ -1,6 +1,6 @@
 # (upcoming)
 
-##### Multiple servers supported out-of-box for same major mdoe ([#688][github#688])
+##### Multiple servers supported out-of-box for same major mode ([#688][github#688])
 
 In practice, this removes the need for Eglot to "officially" bless one
 server over another.  Thanks to Felicián Németh for the original idea.
@@ -15,7 +15,7 @@ Thanks to Brian Cully for the minimalist approach.
 ##### `eglot-ignored-server-capabilities` now correctly spelled ([#724][github#724])
 
 This user-visible variable used to be spelled
-`eglot-ignored-server-capabilites`, which is still an valid but
+`eglot-ignored-server-capabilites`, which is still a valid but
 obsolete name.
 
 ##### Manage cross-referenced files outside project ([#76][github#76], ([#686][github#686], ([#695][github#695])
