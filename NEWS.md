@@ -5,7 +5,7 @@
 In practice, this removes the need for Eglot to "officially" bless one
 server over another.  Thanks to Felicián Németh for the original idea.
 
-##### TRAMP support ([#637][github#637], ([#463][github#463], ([#84][github#84])
+##### TRAMP support ([#637][github#637], [#463][github#463], [#84][github#84])
 
 Thanks to Brian Cully for the minimalist approach.
 
@@ -18,7 +18,7 @@ This user-visible variable used to be spelled
 `eglot-ignored-server-capabilites`, which is still a valid but
 obsolete name.
 
-##### Manage cross-referenced files outside project ([#76][github#76], ([#686][github#686], ([#695][github#695])
+##### Manage cross-referenced files outside project ([#76][github#76], [#686][github#686], [#695][github#695])
 
 This is activated by a new customization option
 `eglot-extend-to-xref`, which defaults to nil.
@@ -44,10 +44,10 @@ This can be useful when using docker to run a language server.
 
 ##### Several new servers have been added to `eglot-server-programs`.
 - cmake-language-server ([#787][github#787])
-- css-languageserver ([#204][github#204])
+- css-languageserver ([#204][github#204], [#769][github#769])
 - fortls ([#603][github#603])
-- html-languageserver ([#204][github#204])
-- json-languageserver ([#204][github#204])
+- html-languageserver ([#204][github#204], [#769][github#769])
+- json-languageserver ([#204][github#204], [#769][github#769])
 - lua-lsp ([#721][github#721])
 - mint ls ([#750][github#750])
 - pyright ([#742][github#742])
@@ -311,4 +311,5 @@ and now said bunch of references-->
 [github#742]: https://github.com/joaotavora/eglot/issues/742
 [github#750]: https://github.com/joaotavora/eglot/issues/750
 [github#751]: https://github.com/joaotavora/eglot/issues/751
+[github#769]: https://github.com/joaotavora/eglot/issues/769
 [github#787]: https://github.com/joaotavora/eglot/issues/787
