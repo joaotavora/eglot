@@ -582,9 +582,9 @@ Under the hood:
 [dart_language_server]: https://github.com/natebosch/dart_language_server
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [erlang_ls]: https://github.com/erlang-ls/erlang_ls
-[html-languageserver]: https://github.com/Microsoft/vscode/tree/master/extensions/html-language-features/server
-[css-languageserver]: https://github.com/Microsoft/vscode/tree/master/extensions/css-language-features/server
-[vscode-json-languageserver]: https://www.npmjs.com/package/vscode-json-languageserver
+[html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
+[css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
+[vscode-json-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
 [docker-langserver]: https://github.com/rcjsuen/dockerfile-language-server-nodejs
 [cmake-language-server]: https://github.com/regen100/cmake-language-server
 [vim-language-server]: https://github.com/iamcco/vim-language-server
