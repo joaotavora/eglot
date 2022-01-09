@@ -38,6 +38,23 @@ elisp.
 
 ##### New command `eglot-shutdown-server` ([#643][github#643])
 
+##### New variable `eglot-withhold-process-id` ([#722][github#722])
+If non-nil, Eglot will not send the Emacs process id to the language server.
+This can be useful when using docker to run a language server.
+
+##### Several new servers have been added to `eglot-server-programs`.
+- cmake-language-server ([#787][github#787])
+- css-languageserver ([#204][github#204])
+- fortls ([#603][github#603])
+- html-languageserver ([#204][github#204])
+- json-languageserver ([#204][github#204])
+- lua-lsp ([#721][github#721])
+- mint ls ([#750][github#750])
+- pyright ([#742][github#742])
+- vim-language-server ([#787][github#787])
+- yaml-language-server ([#751][github#751])
+- zls ([#646][github#646])
+
 # 1.7 (16/12/2020)
 
 ##### Support hierarchical symbols in Imenu ([#303][github#303])
@@ -259,6 +276,7 @@ and now said bunch of references-->
 [github#190]: https://github.com/joaotavora/eglot/issues/190
 [github#196]: https://github.com/joaotavora/eglot/issues/196
 [github#198]: https://github.com/joaotavora/eglot/issues/198
+[github#204]: https://github.com/joaotavora/eglot/issues/204
 [github#217]: https://github.com/joaotavora/eglot/issues/217
 [github#235]: https://github.com/joaotavora/eglot/issues/235
 [github#258]: https://github.com/joaotavora/eglot/issues/258
@@ -280,8 +298,17 @@ and now said bunch of references-->
 [github#463]: https://github.com/joaotavora/eglot/issues/463
 [github#481]: https://github.com/joaotavora/eglot/issues/481
 [github#494]: https://github.com/joaotavora/eglot/issues/494
+[github#603]: https://github.com/joaotavora/eglot/issues/603
 [github#637]: https://github.com/joaotavora/eglot/issues/637
 [github#643]: https://github.com/joaotavora/eglot/issues/643
+[github#646]: https://github.com/joaotavora/eglot/issues/646
 [github#686]: https://github.com/joaotavora/eglot/issues/686
 [github#688]: https://github.com/joaotavora/eglot/issues/688
 [github#695]: https://github.com/joaotavora/eglot/issues/695
+[github#721]: https://github.com/joaotavora/eglot/issues/721
+[github#722]: https://github.com/joaotavora/eglot/issues/722
+[github#724]: https://github.com/joaotavora/eglot/issues/724
+[github#742]: https://github.com/joaotavora/eglot/issues/742
+[github#750]: https://github.com/joaotavora/eglot/issues/750
+[github#751]: https://github.com/joaotavora/eglot/issues/751
+[github#787]: https://github.com/joaotavora/eglot/issues/787
