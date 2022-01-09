@@ -70,6 +70,7 @@ find-library` can help you tell if that happened.
 * CSS's [css-languageserver][css-languageserver]
 * JSON's [vscode-json-languageserver][vscode-json-languageserver]
 * Dockerfile's [docker-langserver][docker-langserver]
+* CMake's [cmake-language-server][cmake-language-server]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -584,6 +585,7 @@ Under the hood:
 [css-languageserver]: https://github.com/Microsoft/vscode/tree/master/extensions/css-language-features/server
 [vscode-json-languageserver]: https://www.npmjs.com/package/vscode-json-languageserver
 [docker-langserver]: https://github.com/rcjsuen/dockerfile-language-server-nodejs
+[cmake-language-server]: https://github.com/regen100/cmake-language-server
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [metals]: https://scalameta.org/metals/
