@@ -2223,10 +2223,31 @@ above.")
       (json-pretty-print-buffer)
       (pop-to-buffer (current-buffer)))))
 
+(defun eglot--sanitize-configuration (value)
+  (cond
+   ((or (numberp value)
+        (stringp value)
+        (member value '(t nil :json-false)))
+    value)
+   ((symbolp value)
+    (string-trim-left (symbol-name value) ":"))
+   ((vectorp value)
+    (cl-map 'vector #'eglot--sanitize-configuration value))
+   ((listp value)
+    (cl-loop for elem in value
+             unless (consp elem) do
+             (eglot--error "Invalid alist entry in configuration: %S" elem)
+             collect (let ((k (car elem)))
+                       (if (keywordp k) k (intern (format ":%s" k))))
+             collect (eglot--sanitize-configuration (cdr elem))))
+   (t
+    (eglot--error "Invalid configuration value: %S" value))))
+
 (defun eglot--workspace-configuration (server)
-  (if (functionp eglot-workspace-configuration)
-      (funcall eglot-workspace-configuration server)
-    eglot-workspace-configuration))
+  (let ((conf (if (functionp eglot-workspace-configuration)
+                  (funcall eglot-workspace-configuration server)
+                eglot-workspace-configuration)))
+    (eglot--sanitize-configuration conf)))
 
 (defun eglot-signal-didChangeConfiguration (server)
   "Send a `:workspace/didChangeConfiguration' signal to SERVER.
@@ -2234,14 +2255,8 @@ When called interactively, use the currently active server"
   (interactive (list (eglot--current-server-or-lose)))
   (jsonrpc-notify
    server :workspace/didChangeConfiguration
-   (list
-    :settings
-    (or (cl-loop for (section . v) in (eglot--workspace-configuration server)
-                 collect (if (keywordp section)
-                             section
-                           (intern (format ":%s" section)))
-                 collect v)
-        eglot--{}))))
+   (list :settings (or (eglot--workspace-configuration server)
+                       eglot--{}))))
 
 (cl-defmethod eglot-handle-request
   (server (_method (eql workspace/configuration)) &key items)
