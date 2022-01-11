@@ -163,7 +163,7 @@ support, put a file named `.dir-locals.el` in the project's root:
 ```lisp
 ((python-mode
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t)))))))))
+      . ((:pyls (:plugins (:jedi_completion (:include_params . t)))))))))
 ```
 
 This tells Emacs that any `python-mode` buffers in that directory
@@ -182,10 +182,10 @@ a section for `go-mode`, the file's contents now become:
 ```lisp
 ((python-mode
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))))))
+      . ((:pyls (:plugins (:jedi_completion (:include_params . t))))))))
  (go-mode
   . ((eglot-workspace-configuration
-      . ((:gopls . (:usePlaceholders t)))))))
+      . ((:gopls (:usePlaceholders . t)))))))
 ```
 
 Alternatively, as a matter of taste, you may choose this equivalent
