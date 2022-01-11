@@ -426,6 +426,27 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (flymake-goto-next-error 1 '() t)
         (should (eq 'flymake-error (face-at-point)))))))
 
+(ert-deftest diagnostic-tags-unnecessary-code ()
+  "Test rendering of diagnostics tagged \"unnecessary\"."
+  (skip-unless (executable-find "rust-analyzer"))
+  (eglot--with-fixture
+      '(("diagnostic-tag-project" .
+         (("main.rs" .
+           "fn main() -> () { let test=3; }"))))
+    (with-current-buffer
+        (eglot--find-file-noselect "diagnostic-tag-project/main.rs")
+      (let ((eglot-server-programs '((rust-mode . ("rust-analyzer")))))
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (:server-notifications s-notifs)
+          (eglot--tests-connect)
+          (eglot--wait-for (s-notifs 5)
+              (&key _id method &allow-other-keys)
+            (string= method "textDocument/publishDiagnostics"))
+          (flymake-start)
+          (goto-char (point-min))
+          (flymake-goto-next-error 1 '() t)
+          (should (eq 'eglot-diagnostic-tag-unnecessary-face (face-at-point))))))))
+
 (defun eglot--eldoc-on-demand ()
   ;; Trick Eldoc 1.1.0 into accepting on-demand calls.
   (eldoc t))
