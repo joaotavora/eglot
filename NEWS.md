@@ -1,4 +1,4 @@
-# (upcoming)
+# 1.8 (12/1/2022)
 
 ##### Multiple servers supported out-of-box for same major mode ([#688][github#688])
 
