@@ -556,7 +556,7 @@ def foobazquuz(d, e, f): pass
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
       (let ((eglot-workspace-configuration
-             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+             `((:pyls (:plugins (:jedi_completion (:include_params . t)))))))
         (should (eglot--tests-connect)))
       (goto-char (point-max))
       (insert "foobar")
@@ -577,7 +577,7 @@ def foobazquuz(d, e, f): pass
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
       (let ((eglot-workspace-configuration
-             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+             `((:pyls (:plugins (:jedi_completion (:include_params . t)))))))
         (should (eglot--tests-connect)))
       (goto-char (point-max))
       (insert "foo")
@@ -1247,6 +1247,25 @@ are bound to the useful return values of
                            (eglot--path-to-uri "c:/Users/Foo/bar.lisp")))
   (should (string-suffix-p "c%3A/Users/Foo/bar.lisp"
                            (eglot--path-to-uri "c:/Users/Foo/bar.lisp"))))
+
+(ert-deftest eglot--compare-json-serializers ()
+  (skip-unless (fboundp 'json-serialize))
+  (let ((value (eglot--sanitize-configuration '((:k1 (:k2 . [a "b" 1 2.0]) (k3 . v1)))))
+        (expected "{\"k1\":{\"k2\":[\"a\",\"b\",1,2.0],\"k3\":\"v1\"}}"))
+    (should (equal (json-encode value) expected))
+    (should (equal (json-serialize value) expected)))
+
+  (dolist (conf '(((:pyls . (:plugins (:jedi_completion (:include_params . t)))))
+                  ((:pyls . ((:plugins (:jedi_completion (:include_params t))))))))
+    (should-error (eglot--sanitize-configuration conf)))
+
+  (dolist (conf '(((:pyls (plugins (:jedi_completion (include_params . t)))))
+                  ((:pyls ("plugins" (:jedi_completion ("include_params" . t)))))
+                  ((:pyls . (("plugins" . ((:jedi_completion (include_params . t)))))))))
+    (let ((value (eglot--sanitize-configuration conf))
+          (expected "{\"pyls\":{\"plugins\":{\"jedi_completion\":{\"include_params\":true}}}}"))
+      (should (equal (json-encode value) expected))
+      (should (equal (json-serialize value) expected)))))
 
 (provide 'eglot-tests)
 ;;; eglot-tests.el ends here
