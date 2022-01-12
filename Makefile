@@ -2,7 +2,7 @@
 ### 
 # Variables
 #
-EMACS=emacs
+EMACS?=emacs
 SELECTOR=t
 ERROR_ON_WARN=nil
 
