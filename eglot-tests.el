@@ -768,6 +768,9 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
       (with-current-buffer
           (ert-simulate-command
            '(find-file "project/foo.py"))
+        ;; FIXME: This test fails without this sleep on my machine.
+        ;; Figure out why and solve this more cleanly.
+        (sleep-for 0.1)
         (should (setq server (eglot-current-server))))
       (with-current-buffer
           (ert-simulate-command
