@@ -1,7 +1,7 @@
 # (upcoming)
 
 ##### Support optional diagnostic tags ([#794][github#794])
-A [diagnostic tag](diagnostictag) can indicate either "unused or
+A [diagnostic tag][diagnostictag] can indicate either "unused or
 unnecessary code" or "deprecated or obsolete code".  Following the
 rendering suggestions in the protocol, we fade out unnecessary code
 and strike-through deprecated code.
