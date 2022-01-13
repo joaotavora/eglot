@@ -1,13 +1,13 @@
 # (upcoming)
 
-##### Support DiagnosticTag ([#794][github#794])
-A [DiagnosticTag](diagnostictag) can indicate either "unused or
+##### Support optional diagnostic tags ([#794][github#794])
+A [diagnostic tag](diagnostictag) can indicate either "unused or
 unnecessary code" or "deprecated or obsolete code".  Following the
 rendering suggestions in the protocol, we fade out unnecessary code
 and strike-through deprecated code.
 
 ##### New servers have been added to `eglot-server-programs`
-- racket-langserver ([#694][github#694]
+- racket-langserver ([#694][github#694])
 
 # 1.8 (12/1/2022)
 
