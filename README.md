@@ -38,41 +38,41 @@ find-library` can help you tell if that happened.
 
 `M-x eglot` can guess and work out-of-the-box with these servers:
 
-* Javascript's [TS & JS Language Server ][typescript-language-server]
-* Rust's [rls][rls]
-* Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
-* Ruby's [solargraph][solargraph]
-* Java's [Eclipse JDT Language Server][eclipse-jdt]
-* Bash's [bash-language-server][bash-language-server]
-* PHP's [php-language-server][php-language-server]
-* C/C++'s [clangd][clangd] or [ccls][ccls]
-* Haskell's [haskell-language-server][haskell-language-server]
-* Elm's [elm-language-server][elm-language-server]
-* Mint's [mint-ls][mint-ls]
-* Kotlin's [kotlin-language-server][kotlin-language-server]
-* Go's [gopls][gopls]
-* Ocaml's [ocaml-lsp][ocaml-lsp]
-* R's [languageserver][r-languageserver]
-* Dart's [dart_language_server][dart_language_server]
-* Elixir's [elixir-ls][elixir-ls]
-* Erlang's [erlang_ls][erlang_ls]
 * Ada's [ada_language_server][ada_language_server]
-* Scala's [metals][metals]
-* Racket's [racket-langserver][racket-langserver]
-* TeX/LaTeX's [Digestif][digestif]
-* Nix's [rnix-lsp][rnix-lsp]
-* Godot Engine's [built-in LSP][godot]
-* Fortran's [fortls][fortls]
-* Zig's [zls][zls]
-* FSharp's [fsharp-mode][fsharp-mode] (Needs to `(require 'eglot-fsharp)` first)
-* YAML's [yaml-language-server][yaml-language-server]
-* Lua's [lua-lsp][lua-lsp]
-* HTML [html-languageserver][html-languageserver]
-* CSS's [css-languageserver][css-languageserver]
-* JSON's [vscode-json-languageserver][vscode-json-languageserver]
-* Dockerfile's [docker-langserver][docker-langserver]
+* Bash's [bash-language-server][bash-language-server]
+* C/C++'s [clangd][clangd] or [ccls][ccls]
 * CMake's [cmake-language-server][cmake-language-server]
+* CSS's [css-languageserver][css-languageserver]
+* Dart's [dart_language_server][dart_language_server]
+* Dockerfile's [docker-langserver][docker-langserver]
+* Elixir's [elixir-ls][elixir-ls]
+* Elm's [elm-language-server][elm-language-server]
+* Erlang's [erlang_ls][erlang_ls]
+* FSharp's [fsharp-mode][fsharp-mode] (Needs to `(require 'eglot-fsharp)` first)
+* Fortran's [fortls][fortls]
+* Go's [gopls][gopls]
+* Godot Engine's [built-in LSP][godot]
+* HTML [html-languageserver][html-languageserver]
+* Haskell's [haskell-language-server][haskell-language-server]
+* JSON's [vscode-json-languageserver][vscode-json-languageserver]
+* Java's [Eclipse JDT Language Server][eclipse-jdt]
+* Javascript's [TS & JS Language Server][typescript-language-server]
+* Kotlin's [kotlin-language-server][kotlin-language-server]
+* Lua's [lua-lsp][lua-lsp]
+* Mint's [mint-ls][mint-ls]
+* Nix's [rnix-lsp][rnix-lsp]
+* Ocaml's [ocaml-lsp][ocaml-lsp]
+* PHP's [php-language-server][php-language-server]
+* Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
+* R's [languageserver][r-languageserver]
+* Racket's [racket-langserver][racket-langserver]
+* Ruby's [solargraph][solargraph]
+* Rust's [rls][rls]
+* Scala's [metals][metals]
+* TeX/LaTeX's [Digestif][digestif]
 * VimScript's [vim-language-server][vim-language-server]
+* YAML's [yaml-language-server][yaml-language-server]
+* Zig's [zls][zls]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -487,55 +487,58 @@ Under the hood:
   `markdown-mode`, if you happen to have these installed.
 - Has automated tests that check against actual LSP servers."
 
-[lsp]: https://microsoft.github.io/language-server-protocol/
-[rls]: https://github.com/rust-lang-nursery/rls
+<!-- Language servers -->
+[ada_language_server]: https://github.com/AdaCore/ada_language_server
+[bash-language-server]: https://github.com/mads-hartmann/bash-language-server
+[clangd]: https://clang.llvm.org/extra/clangd.html
+[cmake-language-server]: https://github.com/regen100/cmake-language-server
+[css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
+[dart_language_server]: https://github.com/natebosch/dart_language_server
+[elixir-ls]: https://github.com/elixir-lsp/elixir-ls
+[fsharp-mode]: https://github.com/fsharp/emacs-fsharp-mode
+[elm-language-server]: https://github.com/elm-tooling/elm-language-server
+[fortls]: https://github.com/hansec/fortran-language-server
+[gopls]: https://github.com/golang/tools/tree/master/gopls
+[godot]: https://godotengine.org
+[html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
+[haskell-language-server]: https://github.com/haskell/haskell-language-server
+[vscode-json-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
+[eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
+[typescript-language-server]: https://github.com/theia-ide/typescript-language-server
+[kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
+[lua-lsp]: https://github.com/Alloyed/lua-lsp
+[mint-ls]: https://www.mint-lang.com/
+[rnix-lsp]: https://github.com/nix-community/rnix-lsp
+[ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
+[php-language-server]: https://github.com/felixfbecker/php-language-server
 [pyls]: https://github.com/palantir/python-language-server
 [pylsp]: https://github.com/python-lsp/python-lsp-server
 [pyright]: https://github.com/microsoft/pyright
+[r-languageserver]: https://cran.r-project.org/package=languageserver
+[racket-langserver]: https://github.com/jeapostrophe/racket-langserver
+[solargraph]: https://github.com/castwide/solargraph
+[rls]: https://github.com/rust-lang-nursery/rls
+[metals]: https://scalameta.org/metals/
+[digestif]: https://github.com/astoff/digestif
+[vim-language-server]: https://github.com/iamcco/vim-language-server
+[yaml-language-server]: https://github.com/redhat-developer/yaml-language-server
+[zls]: https://github.com/zigtools/zls
+
+<!-- Other references -->
+[lsp]: https://microsoft.github.io/language-server-protocol/
+[company-mode]: https://github.com/company-mode/company-mode
+[ccls]: https://github.com/MaskRay/ccls
+[cquery]: https://github.com/cquery-project/cquery
+[docker-langserver]: https://github.com/rcjsuen/dockerfile-language-server-nodejs
+[emacs-lsp-plugins]: https://github.com/emacs-lsp
+[emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
+[erlang_ls]: https://github.com/erlang-ls/erlang_ls
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
 [melpa]: https://melpa.org/#/eglot
-[typescript-language-server]: https://github.com/theia-ide/typescript-language-server
-[emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
-[emacs-lsp-plugins]: https://github.com/emacs-lsp
-[bash-language-server]: https://github.com/mads-hartmann/bash-language-server
-[rnix-lsp]: https://github.com/nix-community/rnix-lsp
-[yaml-language-server]: https://github.com/redhat-developer/yaml-language-server
-[php-language-server]: https://github.com/felixfbecker/php-language-server
-[company-mode]: https://github.com/company-mode/company-mode
-[cquery]: https://github.com/cquery-project/cquery
-[ccls]: https://github.com/MaskRay/ccls
-[clangd]: https://clang.llvm.org/extra/clangd.html
-[solargraph]: https://github.com/castwide/solargraph
-[windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
-[haskell-language-server]: https://github.com/haskell/haskell-language-server
-[elm-language-server]: https://github.com/elm-tooling/elm-language-server
-[mint-ls]: https://www.mint-lang.com/
-[kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
-[gopls]: https://github.com/golang/tools/tree/master/gopls
-[eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
-[ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
-[r-languageserver]: https://cran.r-project.org/package=languageserver
-[dart_language_server]: https://github.com/natebosch/dart_language_server
-[elixir-ls]: https://github.com/elixir-lsp/elixir-ls
-[erlang_ls]: https://github.com/erlang-ls/erlang_ls
-[html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
-[css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
-[vscode-json-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
-[docker-langserver]: https://github.com/rcjsuen/dockerfile-language-server-nodejs
-[cmake-language-server]: https://github.com/regen100/cmake-language-server
-[vim-language-server]: https://github.com/iamcco/vim-language-server
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
-[ada_language_server]: https://github.com/AdaCore/ada_language_server
-[metals]: https://scalameta.org/metals/
-[racket-langserver]: https://github.com/jeapostrophe/racket-langserver
-[digestif]: https://github.com/astoff/digestif
+[windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [company]: https://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
 [yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
-[godot]: https://godotengine.org
-[fortls]: https://github.com/hansec/fortran-language-server
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
-[zls]: https://github.com/zigtools/zls
-[fsharp-mode]: https://github.com/fsharp/emacs-fsharp-mode
-[lua-lsp]: https://github.com/Alloyed/lua-lsp
