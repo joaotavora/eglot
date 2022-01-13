@@ -22,6 +22,7 @@ ELPADEPS ?=--eval '(setq package-user-dir (expand-file-name "elpa-eglot-test" te
            --eval '(install-latest (quote jsonrpc))'            \
            --eval '(install-latest (quote project))'            \
            --eval '(install-latest (quote xref))'               \
+           --eval '(install-latest (quote seq))'                \
            --eval '(install-latest (quote eldoc))'              \
            --eval '(unintern                                    \
                      (quote eldoc-documentation-function))'     \
