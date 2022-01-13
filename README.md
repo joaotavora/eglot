@@ -58,6 +58,7 @@ find-library` can help you tell if that happened.
 * Erlang's [erlang_ls][erlang_ls]
 * Ada's [ada_language_server][ada_language_server]
 * Scala's [metals][metals]
+* Racket's [racket-langserver][racket-langserver]
 * TeX/LaTeX's [Digestif][digestif]
 * Nix's [rnix-lsp][rnix-lsp]
 * Godot Engine's [built-in LSP][godot]
@@ -591,6 +592,7 @@ Under the hood:
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [metals]: https://scalameta.org/metals/
+[racket-langserver]: https://github.com/jeapostrophe/racket-langserver
 [digestif]: https://github.com/astoff/digestif
 [company]: https://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
