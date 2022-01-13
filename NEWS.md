@@ -1,5 +1,11 @@
 # (upcoming)
 
+##### Support DiagnosticTag ([#794][github#794])
+A [DiagnosticTag](diagnostictag) can indicate either "unused or
+unnecessary code" or "deprecated or obsolete code".  Following the
+rendering suggestions in the protocol, we fade out unnecessary code
+and strike-through deprecated code.
+
 ##### New servers have been added to `eglot-server-programs`
 - racket-langserver ([#694][github#694]
 
@@ -221,6 +227,7 @@ TCP connection finds a listening server.
 
 ##### Assorted bugfixes
 
+[diagnostictag]: https://microsoft.github.io/language-server-protocol/specifications/specification-3-17/#diagnosticTag
 <!--- Now a bunch of references that I auto-generate with
 
 (cl-loop
@@ -319,3 +326,4 @@ and now said bunch of references-->
 [github#751]: https://github.com/joaotavora/eglot/issues/751
 [github#769]: https://github.com/joaotavora/eglot/issues/769
 [github#787]: https://github.com/joaotavora/eglot/issues/787
+[github#794]: https://github.com/joaotavora/eglot/issues/794
