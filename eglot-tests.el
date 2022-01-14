@@ -439,7 +439,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (should (zerop (shell-command "cargo init")))
         (eglot--sniffing (:server-notifications s-notifs)
           (eglot--tests-connect)
-          (eglot--wait-for (s-notifs 5)
+          (eglot--wait-for (s-notifs 10)
               (&key _id method &allow-other-keys)
             (string= method "textDocument/publishDiagnostics"))
           (flymake-start)
