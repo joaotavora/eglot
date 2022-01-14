@@ -7,14 +7,14 @@ jobs:
     strategy:
       matrix:
         emacs_version:
-        - 26.1
-        - 26.2
         - 26.3
         - 27.1
         - 27.2
         - snapshot
 
     steps:
+    - uses: actions/checkout@v2
+
     - name: Install emacs
       uses: purcell/setup-emacs@master
       with:
@@ -31,14 +31,15 @@ jobs:
       with:
           toolchain: stable
           override: true
-          components: rust-analysis, rust-src
+          components: rust-analysis, rust-src, rls
 
     - name: Install other depedencies
       run: |
-           sudo apt-get install clangd-9 python3-autopep8
+           pip3 install python-language-server autopep8
+           sudo apt-get install clangd-9
 
     - name: Build eglot
-      run: make -C eglot compile
+      run: make compile
 
     - name: Test eglot
-      run: make -C eglot check
+      run: make eglot-check
