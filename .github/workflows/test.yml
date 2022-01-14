@@ -1,0 +1,44 @@
+name: test
+on: [ push, pull_request ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        emacs_version:
+        - 26.1
+        - 26.2
+        - 26.3
+        - 27.1
+        - 27.2
+        - snapshot
+
+    steps:
+    - name: Install emacs
+      uses: purcell/setup-emacs@master
+      with:
+        version: ${{ matrix.emacs_version }}
+
+    - name: Install Python
+      uses: actions/setup-python@v2
+      with:
+          python-version: "3.6"
+          architecture: "x64"
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: stable
+          override: true
+          components: rust-analysis, rust-src
+
+    - name: Install other depedencies
+      run: |
+           sudo apt-get install clangd-9 python3-autopep8
+
+    - name: Build eglot
+      run: make -C eglot compile
+
+    - name: Test eglot
+      run: make -C eglot check
