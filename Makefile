@@ -11,7 +11,8 @@ LOAD_PATH=-L .
 ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
-ELPADEPS ?=--eval '(package-initialize)'                        \
+ELPADEPS ?=--eval '(setq package-user-dir (expand-file-name "elpa-eglot-test" temporary-file-directory))'	\
+           --eval '(package-initialize)'                        \
            --eval '(package-refresh-contents)'                  \
            --eval '(defun install-latest (p)                    \
                      (package-install                           \
