@@ -409,9 +409,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest basic-diagnostics ()
   "Test basic diagnostics."
-  (skip-unless (and (executable-find "pyls")
-                    ;; FIXME: Doesn't work in Github CI.
-                    (not (getenv "CI"))))
+  (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("diag-project" .
                                         ; colon missing after True
@@ -467,7 +465,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
                        (let ((bs (buffer-string)))
                          (unless (zerop (length bs)) bs))))
    when retval return retval
-   do (sit-for 0.1)
+   do (sit-for 0.5)
    finally (error "eglot--tests-force-full-eldoc didn't deliver")))
 
 (ert-deftest rls-hover-after-edit ()
@@ -625,9 +623,7 @@ def foobazquuz(d, e, f): pass
 (ert-deftest eglot-multiline-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
   :expected-result (if (getenv "TRAVIS_TESTING") :failed :passed)
-  (skip-unless (and (executable-find "pyls")
-                    ;; FIXME: Doesn't work in Github CI.
-                    (not (getenv "CI"))))
+  (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("project" . (("hover-first.py" . "from datetime import datetime"))))
     (with-current-buffer
@@ -642,9 +638,7 @@ def foobazquuz(d, e, f): pass
 
 (ert-deftest eglot-single-line-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
-  (skip-unless (and (executable-find "pyls")
-                    ;; FIXME: Doesn't work in Github CI.
-                    (not (getenv "CI"))))
+  (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("project" . (("hover-first.py" . "from datetime import datetime"))))
     (with-current-buffer
