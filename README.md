@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/joaotavora/eglot.png?branch=master)](https://travis-ci.org/joaotavora/eglot)
-[![MELPA](http://melpa.org/packages/eglot-badge.svg)](http://melpa.org/#/eglot)
+[![GNU ELPA](https://elpa.gnu.org/packages/eglot.svg)](https://elpa.gnu.org/packages/eglot.html)
+[![MELPA](https://melpa.org/packages/eglot-badge.svg)](https://melpa.org/#/eglot)
 
 # M-x Eglot
 
@@ -10,10 +11,11 @@ way:
 * 📚 Read about [servers](#connecting), [commands and
   keybindings](#commands), and [customization](#customization)
 * 📣 Read the [NEWS][news] file
+* 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
 
 # _1-2-3_
 
-Install from [ELPA][gnuelpa] or [MELPA][melpa].  Just type `M-x
+Install from [GNU ELPA][gnuelpa] or [MELPA][melpa].  Just type `M-x
 package-install RET eglot RET` into Emacs 26.1+.
 
 Now find some source file, any source file, and type `M-x eglot`.
@@ -36,29 +38,41 @@ find-library` can help you tell if that happened.
 
 `M-x eglot` can guess and work out-of-the-box with these servers:
 
-* Javascript's [javascript-typescript-stdio][javascript-typescript-langserver]
-* Rust's [rls][rls]
-* Python's [pyls][pyls]
-* Ruby's [solargraph][solargraph]
-* Java's [Eclipse JDT Language Server][eclipse-jdt]
-* Bash's [bash-language-server][bash-language-server]
-* PHP's [php-language-server][php-language-server]
-* C/C++'s [ccls][ccls]  ([cquery][cquery] and [clangd][clangd] also work)
-* Haskell's [haskell-language-server][haskell-language-server]
-* Elm's [elm-language-server][elm-language-server]
-* Kotlin's [kotlin-language-server][kotlin-language-server]
-* Go's [gopls][gopls]
-* Ocaml's [ocaml-language-server][ocaml-language-server]
-* R's [languageserver][r-languageserver]
-* Dart's [dart_language_server][dart_language_server]
-* Elixir's [elixir-ls][elixir-ls]
-* Erlang's [erlang_ls][erlang_ls]
 * Ada's [ada_language_server][ada_language_server]
+* Bash's [bash-language-server][bash-language-server]
+* C/C++'s [clangd][clangd] or [ccls][ccls]
+* CMake's [cmake-language-server][cmake-language-server]
+* CSS's [css-languageserver][css-languageserver]
+* Dart's [dart_language_server][dart_language_server]
+* Dockerfile's [docker-langserver][docker-langserver]
+* Elixir's [elixir-ls][elixir-ls]
+* Elm's [elm-language-server][elm-language-server]
+* Erlang's [erlang_ls][erlang_ls]
+* FSharp's [fsharp-mode][fsharp-mode] (Needs to `(require 'eglot-fsharp)` first)
+* Fortran's [fortls][fortls]
+* Go's [gopls][gopls]
+* Godot Engine's [built-in LSP][godot]
+* HTML [html-languageserver][html-languageserver]
+* Haskell's [haskell-language-server][haskell-language-server]
+* JSON's [vscode-json-languageserver][vscode-json-languageserver]
+* Java's [Eclipse JDT Language Server][eclipse-jdt]
+* Javascript's [TS & JS Language Server][typescript-language-server]
+* Kotlin's [kotlin-language-server][kotlin-language-server]
+* Lua's [lua-lsp][lua-lsp]
+* Mint's [mint-ls][mint-ls]
+* Nix's [rnix-lsp][rnix-lsp]
+* Ocaml's [ocaml-lsp][ocaml-lsp]
+* PHP's [php-language-server][php-language-server]
+* Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
+* R's [languageserver][r-languageserver]
+* Racket's [racket-langserver][racket-langserver]
+* Ruby's [solargraph][solargraph]
+* Rust's [rls][rls]
 * Scala's [metals][metals]
 * TeX/LaTeX's [Digestif][digestif]
-* Nix's [rnix-lsp][rnix-lsp]
-* Godot Engine's [built-in LSP][godot]
-* Fortran's [fortls][fortls]
+* VimScript's [vim-language-server][vim-language-server]
+* YAML's [yaml-language-server][yaml-language-server]
+* Zig's [zls][zls]
 
 I'll add to this list as I test more servers. In the meantime you can
 customize `eglot-server-programs`:
@@ -79,7 +93,7 @@ You can also do:
   (add-hook 'foo-mode-hook 'eglot-ensure)
 ```
 
-, to attempt to start an eglot session automatically everytime a
+, to attempt to start an eglot session automatically every time a
 `foo-mode` buffer is visited.
 
 ## Connecting via TCP
@@ -178,6 +192,23 @@ get [cquery][cquery] working:
 See `eglot.el`'s section on Java's JDT server for an even more
 sophisticated example.
 
+Similarly, some servers require the language identifier strings they
+are sent by `eglot` to match the exact strings used by VSCode. `eglot`
+usually guesses these identifiers from the major mode name
+(e.g. `elm-mode` → `"elm"`), but the mapping can be overridden using
+the `:LANGUAGE-ID` element in the syntax of `eglot-server-programs` if
+necessary.
+
+## TRAMP support
+
+Should just work.  Try `M-x eglot` in a buffer visiting a remote file
+on a server where you've also installed the language server.  Only
+supported on Emacs 27.1 or later.
+
+Emacs 27 users may find some language servers [fail to start up over
+TRAMP](https://github.com/joaotavora/eglot/issues/662).  If you experience this
+issue, update TRAMP to 2.5.0.4 or later.
+
 <a name="reporting bugs"></a>
 # Reporting bugs
 
@@ -218,9 +249,11 @@ Here's a summary of available commands:
 
 - `M-x eglot`, as described above;
 
-- `M-x eglot-reconnect` reconnects to the server;
+- `M-x eglot-reconnect` reconnects to current server;
 
-- `M-x eglot-shutdown` says bye-bye to the server;
+- `M-x eglot-shutdown` says bye-bye to server of your choice;
+
+- `M-x eglot-shutdown-all` says bye-bye to every server;
 
 - `M-x eglot-rename` ask the server to rename the symbol at point;
 
@@ -275,7 +308,7 @@ documentation on what these do.
 - `eglot-events-buffer-size`: Control the size of the Eglot events
   buffer;
 
-- `eglot-ignored-server-capabilites`: LSP server capabilities that
+- `eglot-ignored-server-capabilities`: LSP server capabilities that
   Eglot could use, but won't;
 
 - `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
@@ -297,6 +330,16 @@ lisp:
 - `eglot-managed-mode-hook`: Hook run after Eglot started or stopped
   managing a buffer.  Use `eglot-managed-p` to tell if current buffer
   is still being managed.
+
+- `eglot-stay-out-of`: List of Emacs features that Eglot shouldn't
+  automatically try to manage on users' behalf.  Useful when you need
+  non-LSP Flymake or Company backends.  See docstring for examples.
+  
+- `eglot-extend-to-xref`: If non-nil and `xref-find-definitions` lands
+  you in a file outside your project -- like a system-installed
+  library or header file -- transiently consider it managed by the
+  same LSP server.  That file is still outside your project
+  (i.e. `project-find-file` won't find it).
 
 # How does Eglot work?
 
@@ -331,71 +374,6 @@ use them automatically if they are found to be active.
 
 To "unmanage" a project's buffers, shutdown the server with `M-x
 eglot-shutdown`.
-
-# Supported Protocol features
-
-## General
-- [x] initialize
-- [x] initalized
-- [x] shutdown
-- [x] exit
-- [ ] $/cancelRequest
-
-## Window
-- [x] window/showMessage
-- [x] window/showMessageRequest
-- [x] window/logMessage
-- [x] telemetry/event
-
-## Client
-- [x] client/registerCapability (but only
-  `workspace/didChangeWatchedFiles`, like RLS asks)
-- [x] client/unregisterCapability  (ditto)
-
-## Workspace
-- [ ] workspace/workspaceFolders (3.6.0)
-- [ ] workspace/didChangeWorkspaceFolders (3.6.0)
-- [x] workspace/didChangeConfiguration
-- [x] workspace/configuration (3.6.0)
-- [x] workspace/didChangeWatchedFiles
-- [x] workspace/symbol
-- [x] workspace/executeCommand
-- [x] workspace/applyEdit
-
-## Text Synchronization
-- [x] textDocument/didOpen
-- [x] textDocument/didChange (incremental or full)
-- [x] textDocument/willSave
-- [x] textDocument/willSaveWaitUntil
-- [x] textDocument/didSave
-- [x] textDocument/didClose
-
-## Diagnostics
-- [x] textDocument/publishDiagnostics
-
-## Language features
-- [x] textDocument/completion
-- [x] completionItem/resolve (works quite well with [company-mode][company-mode])
-- [x] textDocument/hover
-- [x] textDocument/signatureHelp (fancy stuff with Python's [pyls][pyls])
-- [x] textDocument/definition
-- [x] textDocument/typeDefinition (3.6.0)
-- [x] textDocument/implementation (3.6.0)
-- [x] textDocument/declaration (3.14)
-- [x] textDocument/references
-- [x] textDocument/documentHighlight
-- [x] textDocument/documentSymbol
-- [x] textDocument/codeAction
-- [ ] textDocument/codeLens
-- [ ] codeLens/resolve
-- [ ] textDocument/documentLink
-- [ ] documentLink/resolve
-- [ ] textDocument/documentColor
-- [ ] textDocument/colorPresentation (3.6.0)
-- [x] textDocument/formatting 
-- [x] textDocument/rangeFormatting
-- [ ] textDocument/onTypeFormatting
-- [x] textDocument/rename
 
 <a name="animated_gifs"></a>
 # _Obligatory animated gif section_
@@ -509,40 +487,58 @@ Under the hood:
   `markdown-mode`, if you happen to have these installed.
 - Has automated tests that check against actual LSP servers."
 
-[lsp]: https://microsoft.github.io/language-server-protocol/
-[rls]: https://github.com/rust-lang-nursery/rls
-[pyls]: https://github.com/palantir/python-language-server
-[gnuelpa]: https://elpa.gnu.org/packages/eglot.html
-[melpa]: http://melpa.org/#/eglot
-[javascript-typescript-langserver]: https://github.com/sourcegraph/javascript-typescript-langserver
-[emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
-[emacs-lsp-plugins]: https://github.com/emacs-lsp
-[bash-language-server]: https://github.com/mads-hartmann/bash-language-server
-[rnix-lsp]: https://github.com/nix-community/rnix-lsp
-[php-language-server]: https://github.com/felixfbecker/php-language-server
-[company-mode]: https://github.com/company-mode/company-mode
-[cquery]: https://github.com/cquery-project/cquery
-[ccls]: https://github.com/MaskRay/ccls
-[clangd]: https://clang.llvm.org/extra/clangd.html
-[solargraph]: https://github.com/castwide/solargraph
-[windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
-[haskell-language-server]: https://github.com/haskell/haskell-language-server
-[elm-language-server]: https://github.com/elm-tooling/elm-language-server
-[kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
-[gopls]: https://github.com/golang/go/wiki/gopls
-[eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
-[ocaml-language-server]: https://github.com/freebroccolo/ocaml-language-server
-[r-languageserver]: https://cran.r-project.org/package=languageserver
-[dart_language_server]: https://github.com/natebosch/dart_language_server
-[elixir-ls]: https://github.com/JakeBecker/elixir-ls
-[erlang_ls]: https://github.com/erlang-ls/erlang_ls
-[news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
+<!-- Language servers -->
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
-[metals]: http://scalameta.org/metals/
-[digestif]: https://github.com/astoff/digestif
-[company]: http://elpa.gnu.org/packages/company.html
-[flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
-[yasnippet]: http://elpa.gnu.org/packages/yasnippet.html
-[markdown]: https://github.com/defunkt/markdown-mode
-[godot]: https://godotengine.org
+[bash-language-server]: https://github.com/mads-hartmann/bash-language-server
+[clangd]: https://clang.llvm.org/extra/clangd.html
+[cmake-language-server]: https://github.com/regen100/cmake-language-server
+[css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
+[dart_language_server]: https://github.com/natebosch/dart_language_server
+[elixir-ls]: https://github.com/elixir-lsp/elixir-ls
+[fsharp-mode]: https://github.com/fsharp/emacs-fsharp-mode
+[elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [fortls]: https://github.com/hansec/fortran-language-server
+[gopls]: https://github.com/golang/tools/tree/master/gopls
+[godot]: https://godotengine.org
+[html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
+[haskell-language-server]: https://github.com/haskell/haskell-language-server
+[vscode-json-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
+[eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
+[typescript-language-server]: https://github.com/theia-ide/typescript-language-server
+[kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
+[lua-lsp]: https://github.com/Alloyed/lua-lsp
+[mint-ls]: https://www.mint-lang.com/
+[rnix-lsp]: https://github.com/nix-community/rnix-lsp
+[ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
+[php-language-server]: https://github.com/felixfbecker/php-language-server
+[pyls]: https://github.com/palantir/python-language-server
+[pylsp]: https://github.com/python-lsp/python-lsp-server
+[pyright]: https://github.com/microsoft/pyright
+[r-languageserver]: https://cran.r-project.org/package=languageserver
+[racket-langserver]: https://github.com/jeapostrophe/racket-langserver
+[solargraph]: https://github.com/castwide/solargraph
+[rls]: https://github.com/rust-lang-nursery/rls
+[metals]: https://scalameta.org/metals/
+[digestif]: https://github.com/astoff/digestif
+[vim-language-server]: https://github.com/iamcco/vim-language-server
+[yaml-language-server]: https://github.com/redhat-developer/yaml-language-server
+[zls]: https://github.com/zigtools/zls
+
+<!-- Other references -->
+[lsp]: https://microsoft.github.io/language-server-protocol/
+[company-mode]: https://github.com/company-mode/company-mode
+[ccls]: https://github.com/MaskRay/ccls
+[cquery]: https://github.com/cquery-project/cquery
+[docker-langserver]: https://github.com/rcjsuen/dockerfile-language-server-nodejs
+[emacs-lsp-plugins]: https://github.com/emacs-lsp
+[emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
+[erlang_ls]: https://github.com/erlang-ls/erlang_ls
+[gnuelpa]: https://elpa.gnu.org/packages/eglot.html
+[melpa]: https://melpa.org/#/eglot
+[news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
+[windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
+[company]: https://elpa.gnu.org/packages/company.html
+[flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
+[yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
+[markdown]: https://github.com/defunkt/markdown-mode
+[gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html

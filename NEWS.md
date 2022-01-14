@@ -1,5 +1,41 @@
 # (upcoming)
 
+##### Support optional diagnostic tags ([#794][github#794])
+A [diagnostic tag][diagnostictag] can indicate either "unused or
+unnecessary code" or "deprecated or obsolete code".  Following the
+rendering suggestions in the protocol, we fade out unnecessary code
+and strike-through deprecated code.
+
+##### New servers have been added to `eglot-server-programs`
+- racket-langserver ([#694][github#694])
+
+# 1.8 (12/1/2022)
+
+##### Multiple servers supported out-of-box for same major mode ([#688][github#688])
+
+In practice, this removes the need for Eglot to "officially" bless one
+server over another.  Thanks to Felicián Németh for the original idea.
+
+##### TRAMP support ([#637][github#637], [#463][github#463], [#84][github#84])
+
+Thanks to Brian Cully for the minimalist approach.
+
+(also thanks to Felipe Lema who conducted many early experiments in
+[#463][github#463])
+
+##### `eglot-ignored-server-capabilities` now correctly spelled ([#724][github#724])
+
+This user-visible variable used to be spelled
+`eglot-ignored-server-capabilites`, which is still a valid but
+obsolete name.
+
+##### Manage cross-referenced files outside project ([#76][github#76], [#686][github#686], [#695][github#695])
+
+This is activated by a new customization option
+`eglot-extend-to-xref`, which defaults to nil.
+
+Thanks to Michael Livshin for the investigation an elegant solution.
+
 ##### Code action shortcuts ([#411][github#411])
 
 `M-x eglot-code-actions` accepts an optional `action-kind` argument,
@@ -10,6 +46,25 @@ actions directly (`eglot-code-action-inline`,
 `eglot-code-action-quickfix`).  One can create own shortcuts for code
 actions with specific a kind by calling `eglot-code-actions` from
 elisp.
+
+##### New command `eglot-shutdown-server` ([#643][github#643])
+
+##### New variable `eglot-withhold-process-id` ([#722][github#722])
+If non-nil, Eglot will not send the Emacs process id to the language server.
+This can be useful when using docker to run a language server.
+
+##### Several new servers have been added to `eglot-server-programs`
+- cmake-language-server ([#787][github#787])
+- css-languageserver ([#204][github#204], [#769][github#769])
+- fortls ([#603][github#603])
+- html-languageserver ([#204][github#204], [#769][github#769])
+- json-languageserver ([#204][github#204], [#769][github#769])
+- lua-lsp ([#721][github#721])
+- mint ls ([#750][github#750])
+- pyright ([#742][github#742])
+- vim-language-server ([#787][github#787])
+- yaml-language-server ([#751][github#751])
+- zls ([#646][github#646])
 
 # 1.7 (16/12/2020)
 
@@ -172,6 +227,7 @@ TCP connection finds a listening server.
 
 ##### Assorted bugfixes
 
+[diagnostictag]: https://microsoft.github.io/language-server-protocol/specifications/specification-3-17/#diagnosticTag
 <!--- Now a bunch of references that I auto-generate with
 
 (cl-loop
@@ -205,10 +261,12 @@ and now said bunch of references-->
 [github#68]: https://github.com/joaotavora/eglot/issues/68
 [github#73]: https://github.com/joaotavora/eglot/issues/73
 [github#74]: https://github.com/joaotavora/eglot/issues/74
+[github#76]: https://github.com/joaotavora/eglot/issues/76
 [github#80]: https://github.com/joaotavora/eglot/issues/80
 [github#81]: https://github.com/joaotavora/eglot/issues/81
 [github#82]: https://github.com/joaotavora/eglot/issues/82
 [github#83]: https://github.com/joaotavora/eglot/issues/83
+[github#84]: https://github.com/joaotavora/eglot/issues/84
 [github#86]: https://github.com/joaotavora/eglot/issues/86
 [github#87]: https://github.com/joaotavora/eglot/issues/87
 [github#93]: https://github.com/joaotavora/eglot/issues/93
@@ -230,6 +288,7 @@ and now said bunch of references-->
 [github#190]: https://github.com/joaotavora/eglot/issues/190
 [github#196]: https://github.com/joaotavora/eglot/issues/196
 [github#198]: https://github.com/joaotavora/eglot/issues/198
+[github#204]: https://github.com/joaotavora/eglot/issues/204
 [github#217]: https://github.com/joaotavora/eglot/issues/217
 [github#235]: https://github.com/joaotavora/eglot/issues/235
 [github#258]: https://github.com/joaotavora/eglot/issues/258
@@ -248,5 +307,23 @@ and now said bunch of references-->
 [github#411]: https://github.com/joaotavora/eglot/issues/411
 [github#439]: https://github.com/joaotavora/eglot/issues/439
 [github#454]: https://github.com/joaotavora/eglot/issues/454
+[github#463]: https://github.com/joaotavora/eglot/issues/463
 [github#481]: https://github.com/joaotavora/eglot/issues/481
 [github#494]: https://github.com/joaotavora/eglot/issues/494
+[github#603]: https://github.com/joaotavora/eglot/issues/603
+[github#637]: https://github.com/joaotavora/eglot/issues/637
+[github#643]: https://github.com/joaotavora/eglot/issues/643
+[github#646]: https://github.com/joaotavora/eglot/issues/646
+[github#686]: https://github.com/joaotavora/eglot/issues/686
+[github#688]: https://github.com/joaotavora/eglot/issues/688
+[github#694]: https://github.com/joaotavora/eglot/issues/694
+[github#695]: https://github.com/joaotavora/eglot/issues/695
+[github#721]: https://github.com/joaotavora/eglot/issues/721
+[github#722]: https://github.com/joaotavora/eglot/issues/722
+[github#724]: https://github.com/joaotavora/eglot/issues/724
+[github#742]: https://github.com/joaotavora/eglot/issues/742
+[github#750]: https://github.com/joaotavora/eglot/issues/750
+[github#751]: https://github.com/joaotavora/eglot/issues/751
+[github#769]: https://github.com/joaotavora/eglot/issues/769
+[github#787]: https://github.com/joaotavora/eglot/issues/787
+[github#794]: https://github.com/joaotavora/eglot/issues/794
