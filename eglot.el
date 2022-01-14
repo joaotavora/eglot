@@ -357,42 +357,256 @@ This can be useful when using docker to run a language server.")
 (eval-and-compile
   (defvar eglot--lsp-interface-alist
     `(
-      (CodeAction (:title) (:kind :diagnostics :edit :command :isPreferred))
-      (ConfigurationItem () (:scopeUri :section))
-      (Command ((:title . string) (:command . string)) (:arguments))
-      (CompletionItem (:label)
-                      (:kind :detail :documentation :deprecated :preselect
-                             :sortText :filterText :insertText :insertTextFormat
-                             :textEdit :additionalTextEdits :commitCharacters
-                             :command :data))
-      (Diagnostic (:range :message) (:severity :code :source :relatedInformation :codeDescription :tags))
-      (DocumentHighlight (:range) (:kind))
-      (FileSystemWatcher (:globPattern) (:kind))
-      (Hover (:contents) (:range))
-      (InitializeResult (:capabilities) (:serverInfo))
-      (Location (:uri :range))
-      (LocationLink (:targetUri :targetRange :targetSelectionRange) (:originSelectionRange))
-      (LogMessageParams (:type :message))
-      (MarkupContent (:kind :value))
-      (ParameterInformation (:label) (:documentation))
-      (Position (:line :character))
-      (Range (:start :end))
-      (Registration (:id :method) (:registerOptions))
-      (ResponseError (:code :message) (:data))
-      (ShowMessageParams (:type :message))
-      (ShowMessageRequestParams (:type :message) (:actions))
-      (SignatureHelp (:signatures) (:activeSignature :activeParameter))
-      (SignatureInformation (:label) (:documentation :parameters :activeParameter))
-      (SymbolInformation (:name :kind :location)
-                         (:deprecated :containerName))
-      (DocumentSymbol (:name :range :selectionRange :kind)
-                      ;; `:containerName' isn't really allowed , but
-                      ;; it simplifies the impl of `eglot-imenu'.
-                      (:detail :deprecated :children :containerName))
-      (TextDocumentEdit (:textDocument :edits) ())
-      (TextEdit (:range :newText))
-      (VersionedTextDocumentIdentifier (:uri :version) ())
-      (WorkspaceEdit () (:changes :documentChanges))
+      (AnnotatedTextEdit
+       (:range :newtext)
+       (:annotationId))
+      (ChangeAnnotation
+       ((:label . string))
+       ((:needsConfirmation . boolean) (:description . string)))
+      (CodeAction
+       (:title)
+       (:kind :diagnostics :isPreferred :disabled :edit :command :data))
+      (CodeDescription
+       (:href)
+       ())
+      (ConfigurationItem
+       ()
+       (:scopeUri :section))
+      (Command
+       ((:title . string) (:command . string))
+       (:arguments))
+      (CompletionItem
+       (:label)
+       (:kind :detail :documentation :deprecated :preselect
+              :sortText :filterText :insertText :insertTextFormat
+              :textEdit :additionalTextEdits :commitCharacters
+              :command :data))
+      (CreateFile
+       ((:kind . string) :uri)
+       (:options :annotationId))
+      (CreateFileOptions
+       ()
+       ((:overwrite . boolean) (:ignoreIfExists . boolean)))
+      (DeleteFile
+       ((:kind . string) :uri)
+       (:options :annotationId))
+      (DeleteFileOptions
+       ()
+       ((:recursive . boolean) (:ignoreIfNotExists . boolean)))
+      (Diagnostic
+       (:range :message)
+       (:severity :code :codeDescription
+                  (:source . string) (:message . string)
+                  :tags :relatedInformation :data))
+      (DiagnosticRelatedInformation
+       (:location (:message . string))
+       ())
+      (DocumentHighlight
+       (:range)
+       (:kind))
+      (FileSystemWatcher
+       (:globPattern)
+       (:kind))
+      (Hover
+       (:contents)
+       (:range))
+      (InitializeResult
+       (:capabilities)
+       (:serverInfo))
+      (Location
+       (:uri :range)
+       ())
+      (LocationLink
+       (:targetUri :targetRange :targetSelectionRange)
+       (:originSelectionRange))
+      (LogMessageParams
+       (:type :message)
+       ())
+      (MarkupContent
+       (:kind :value)
+       ())
+      (MarkdownClientCapabilities
+       ((:parser . string))
+       ((:version . string)))
+      (ParameterInformation
+       (:label)
+       (:documentation))
+      (Position
+       (:line :character)
+       ())
+      (Range
+       (:start :end)
+       ())
+      (Registration
+       (:id :method)
+       (:registerOptions))
+      (RegistrationParams
+       (:registrations)
+       ())
+      (Unregistration
+       (:id :method)
+       ())
+      (RegistrationParams
+       (:unregisterations) ;; sic - woop!
+       ())
+      (RenameFile
+       ((:kind . string) :oldUri :newUri)
+       (:options :annotationId))
+      (RenameFileOptions
+       ()
+       ((:overwrite . boolean) (:ignoreIfExists . boolean)))
+      (ResponseError
+       (:code :message)
+       (:data))
+      (ShowMessageParams
+       (:type :message)
+       ())
+      (ShowMessageRequestParams
+       (:type :message)
+       (:actions))
+      (ShowMessageRequestClientCapabilities
+       ()
+       (:messageActionItem))
+      (MessageActionItem
+       (:title)
+       ())
+      (ShowDocumentClientCapabilities
+       (:support)
+       ())
+      (ShowDocumentParams
+       (:uri)
+       (:external :takeFocus :selection))
+      (ShowDocumentResult
+       (:success)
+       ())
+      (LogMessageParams
+       (:type :message)
+       ())
+      (SignatureHelp
+       (:signatures)
+       (:activeSignature :activeParameter))
+      (SignatureInformation
+       (:label)
+       (:documentation :parameters :activeParameter))
+      (SymbolInformation
+       (:name :kind :location)
+       (:deprecated :containerName))
+      (DocumentSymbol
+       (:name :range :selectionRange :kind)
+       ;; `:containerName' isn't really allowed , but
+       ;; it simplifies the impl of `elsp-imenu'.
+       (:detail :deprecated :children :containerName))
+      (LogTraceParams
+       (:message)
+       (:verbose))
+      (SetTraceParams
+       (:value)
+       ())
+      (TextDocumentClientCapabilities
+       ()
+       (:synchronization :completion :hover :signatureHelp :declaration
+                         :definition :typeDefinition :implementation
+                         :references :documentHighlight :documentSymbol
+                         :codeAction :codeLens :documentLink :colorProvider
+                         :formatting :rangeFormatting :onTypeFormatting
+                         :rename :publishDiagnostics :foldingRange
+                         :selectionRange :linkedEditingRange :callHierarchy
+                         :semanticTokens :moniker))
+      (ClientCapabilities
+       ()
+       (:workspace :textDocument :window :general :experimental))
+      (ServerCapabilities
+       ()
+       (:textDocumentSync :completionProvider :hoverProvider
+                          :signatureHelpProvider :declarationProvider
+                          :definitionProvider :typeDefinitionProvider
+                          :implementationProvider :referencesProvider
+                          :documentHighlightProvider :documentSymbolProvider
+                          :codeActionProvider :codeLensProvider
+                          :documentLinkProvider :colorProvider
+                          :documentFormattingProvider :documentRangeFormattingProvider
+                          :documentOnTypeFormattingProvider
+                          :renameProvider
+                          :foldingRangeProvider :executeCommandProvider
+                          :selectionRangeProvider :linkedEditingRangeProvider
+                          :callHierarchyProvider :semanticTokensProvider
+                          :monikerProvider :workspaceSymbolProvider
+                          :workspace :experimental))
+      (InitializeResult
+       (:capabilities)
+       (:serverInfo))
+      (InitializeError
+       (:retry)
+       ())
+      (InitializedParams
+       ()
+       ())
+      (TextDocumentEdit
+       (:textDocument :edits)
+       ())
+      (TextDocumentIdentifier
+       (:uri)
+       ())
+      (VersionedTextDocumentIdentifier
+       (:uri :version)
+       ())
+      (OptionalVersionedTextDocumentIdentifier
+       (:uri)
+       (:version))
+      (TextDocumentItem
+       (:uri (:languageId . string) (:version . integer) (:text . string))
+       ())
+      (TextDocumentPositionParams
+       (:textDocument :position)
+       ())
+      (TextDocumentRegistrationOptions
+       (:documentSelector)
+       ())
+      (DocumentFilter
+       ()
+       ((:language . string) (:scheme . string) (:pattern . string)))
+      (TextEdit
+       (:range :newText)
+       ())
+      (StaticRegistrationOptions
+       ()
+       ((:id . string)))
+      (WorkspaceEdit
+       ()
+       (:changes :documentChanges :changeAnnotations))
+      (WorkspaceEditClientCapabilities
+       ()
+       ((:documentChanges . boolean) :resourceOperations :failureHandling
+        (:normalizesEndings . boolean) :changeAnnotationSupport))
+      (WorkDoneProgressCreateParams
+       (:token)
+       ())
+      (WorkDoneProgressCancelParams
+       (:token)
+       ())
+      (WorkDoneProgressBegin
+       ((:kind . string) (:title . string))
+       ((:cancellable . boolean) (:message . string) (:percentage . integer)))
+      (WorkDoneProgressReport
+       ((:kind . string))
+       ((:cancellable . boolean) (:message . string) (:percentage . integer)))
+      (WorkDoneProgressEnd
+       ((:kind . string)
+        (:message . string))
+       ())
+      (WorkDoneProgressParams
+       ()
+       (:workDoneToken))
+      (WorkDoneProgressOptions
+       ()
+       ((:workDoneProgress . boolean)))
+      (PartialResultParams
+       ()
+       (:partialResultToken))
+      (InitializeParams
+       (:processId)
+       (:clentInfo :locale :rootPath :rootUri :initializationOptions
+                   :capabilities :trace :workspaceFolders :workDoneToken))
       )
     "Alist (INTERFACE-NAME . INTERFACE) of known external LSP interfaces.
 
