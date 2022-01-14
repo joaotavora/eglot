@@ -6,6 +6,10 @@ unnecessary code" or "deprecated or obsolete code".  Following the
 rendering suggestions in the protocol, we fade out unnecessary code
 and strike-through deprecated code.
 
+##### The Rust language server is now rust-analyzer by default ([#803][github#803])
+Eglot will now prefer starting "rust-analazyer" to "rls" when it is
+available.  The special support code for RLS has been removed.
+
 ##### New servers have been added to `eglot-server-programs`
 - racket-langserver ([#694][github#694])
 
@@ -327,3 +331,4 @@ and now said bunch of references-->
 [github#769]: https://github.com/joaotavora/eglot/issues/769
 [github#787]: https://github.com/joaotavora/eglot/issues/787
 [github#794]: https://github.com/joaotavora/eglot/issues/794
+[github#803]: https://github.com/joaotavora/eglot/issues/803

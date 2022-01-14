@@ -67,7 +67,7 @@ find-library` can help you tell if that happened.
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
 * Ruby's [solargraph][solargraph]
-* Rust's [rls][rls]
+* Rust's [rust-analyzer][rust-analyzer]
 * Scala's [metals][metals]
 * TeX/LaTeX's [Digestif][digestif]
 * VimScript's [vim-language-server][vim-language-server]
@@ -467,7 +467,7 @@ User-visible differences:
   connection name;
 - Pretty interactive mode-line section for live tracking of server
   communication;
-- Automatically restarts frequently crashing servers (like RLS);
+- Automatically restarts frequently crashing servers;
 - Slow-to-start servers start asynchronously in the background;
 - Server-initiated edits are confirmed with the user;
 - Diagnostics work out-of-the-box (no `flycheck.el` needed);
@@ -517,7 +517,7 @@ Under the hood:
 [r-languageserver]: https://cran.r-project.org/package=languageserver
 [racket-langserver]: https://github.com/jeapostrophe/racket-langserver
 [solargraph]: https://github.com/castwide/solargraph
-[rls]: https://github.com/rust-lang-nursery/rls
+[rust-analyzer]: https://github.com/rust-analyzer/rust-analyzer
 [metals]: https://scalameta.org/metals/
 [digestif]: https://github.com/astoff/digestif
 [vim-language-server]: https://github.com/iamcco/vim-language-server
