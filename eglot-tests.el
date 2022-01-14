@@ -678,7 +678,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
   "Test formatting in the pyls python LSP."
   (skip-unless (and (executable-find "pyls")
                     (not (executable-find "autopep8"))
-                    (executable-find "yapf")))
+                    (or (executable-find "yapf")
+                        (executable-find "yapf3"))))
   (eglot--with-fixture
       `(("project" . (("something.py" . "def a():pass\ndef b():pass"))))
     (with-current-buffer
