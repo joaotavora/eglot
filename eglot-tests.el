@@ -371,9 +371,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (while (process-live-p proc) (accept-process-output nil 0.5)))
         (should (not (eglot-current-server)))))))
 
-(ert-deftest rls-watches-files ()
-  "Start RLS server.  Notify it when a critical file changes."
-  (skip-unless (executable-find "rls"))
+(ert-deftest rust-analyzer-watches-files ()
+  "Start rust-analyzer.  Notify it when a critical file changes."
+  (skip-unless (executable-find "rust-analyzer"))
   (skip-unless (executable-find "cargo"))
   (let ((eglot-autoreconnect 1))
     (eglot--with-fixture
@@ -467,9 +467,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
    do (sit-for 0.5)
    finally (error "eglot--tests-force-full-eldoc didn't deliver")))
 
-(ert-deftest rls-hover-after-edit ()
-  "Hover and highlightChanges are tricky in RLS."
-  (skip-unless (executable-find "rls"))
+(ert-deftest rust-analyzer-hover-after-edit ()
+  "Hover and highlightChanges."
+  (skip-unless (executable-find "rust-analyzer"))
   (skip-unless (executable-find "cargo"))
   (eglot--with-fixture
       '(("hover-project" .
