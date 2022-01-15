@@ -1,3 +1,4 @@
+![Build status](https://github.com/joaotavora/eglot/actions/workflows/test.yml/badge.svg?master)
 [![GNU ELPA](https://elpa.gnu.org/packages/eglot.svg)](https://elpa.gnu.org/packages/eglot.html)
 [![MELPA](https://melpa.org/packages/eglot-badge.svg)](https://melpa.org/#/eglot)
 
