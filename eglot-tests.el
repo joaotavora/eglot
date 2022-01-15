@@ -375,7 +375,6 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Start RLS server.  Notify it when a critical file changes."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
-  (skip-unless (null (getenv "TRAVIS_TESTING")))
   (let ((eglot-autoreconnect 1))
     (eglot--with-fixture
         '(("watch-project" . (("coiso.rs" . "bla")
@@ -472,7 +471,6 @@ Pass TIMEOUT to `eglot--with-timeout'."
   "Hover and highlightChanges are tricky in RLS."
   (skip-unless (executable-find "rls"))
   (skip-unless (executable-find "cargo"))
-  (skip-unless (null (getenv "TRAVIS_TESTING")))
   (eglot--with-fixture
       '(("hover-project" .
          (("main.rs" .
@@ -622,7 +620,6 @@ def foobazquuz(d, e, f): pass
 
 (ert-deftest eglot-multiline-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
-  :expected-result (if (getenv "TRAVIS_TESTING") :failed :passed)
   (skip-unless (executable-find "pyls"))
   (eglot--with-fixture
       `(("project" . (("hover-first.py" . "from datetime import datetime"))))
