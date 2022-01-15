@@ -1,5 +1,12 @@
 # (upcoming)
 
+##### Rework mode-line menus ([#792][github#792])
+
+The new menus help discovering Egolot's features and shows which of
+them are supported by the current server.  Additionally, customizing
+variable `eglot-mode-line-string` can leave more space on the
+mode-line.
+
 ##### Easier to use LSP initialize.initializationOptions ([#901][github#901], [#845][github#845])
 In `eglot-server-programs` a plist may be appended to the usual list
 of strings passed as command line arguments.  The value of its
@@ -358,6 +365,7 @@ and now said bunch of references-->
 [github#751]: https://github.com/joaotavora/eglot/issues/751
 [github#769]: https://github.com/joaotavora/eglot/issues/769
 [github#787]: https://github.com/joaotavora/eglot/issues/787
+[github#792]: https://github.com/joaotavora/eglot/issues/792
 [github#794]: https://github.com/joaotavora/eglot/issues/794
 [github#797]: https://github.com/joaotavora/eglot/issues/797
 [github#803]: https://github.com/joaotavora/eglot/issues/803
