@@ -8,7 +8,7 @@ ERROR_ON_WARN=nil
 
 LOAD_PATH=-L .
 
-ELFILES := eglot.el eglot-tests.el
+ELFILES := eglot.el eglot-jdt.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
 ELPADEPS ?=--eval '(setq package-user-dir (expand-file-name "elpa-eglot-test" temporary-file-directory))'	\
