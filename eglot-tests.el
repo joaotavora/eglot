@@ -257,7 +257,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
 
 (defun eglot--tests-connect (&optional timeout)
-  (let* ((timeout (or timeout 5))
+  (let* ((timeout (or timeout 10))
          (eglot-sync-connect t)
          (eglot-connect-timeout timeout))
     (apply #'eglot--connect (eglot--guess-contact))))
