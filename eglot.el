@@ -85,6 +85,14 @@
     (load "eldoc")
   (require 'eldoc))
 
+(defconst eglot--version
+  (eval-when-compile
+    (when byte-compile-current-file
+      (require 'lisp-mnt)
+      (lm-version byte-compile-current-file)))
+  "The version as a string of this version of Eglot.
+It is nil if Eglot is not byte-complied.")
+
 ;; forward-declare, but don't require (Emacs 28 doesn't seem to care)
 (defvar markdown-fontify-code-blocks-natively)
 (defvar company-backends)
@@ -1149,6 +1157,10 @@ This docstring appeases checkdoc, that's all."
                                         (eq (jsonrpc-process-type server)
                                             'network))
                               (emacs-pid))
+                            :clientInfo (if eglot--version
+                                            `( :name "Eglot"
+                                               :version ,eglot--version)
+                                          '(:name "Eglot"))
                             ;; Maybe turn trampy `/ssh:foo@bar:/path/to/baz.py'
                             ;; into `/path/to/baz.py', so LSP groks it.
                             :rootPath (file-local-name

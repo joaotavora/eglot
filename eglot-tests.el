@@ -371,6 +371,24 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (while (process-live-p proc) (accept-process-output nil 0.5)))
         (should (not (eglot-current-server)))))))
 
+(ert-deftest client-info ()
+  "Check clientInfo in Eglot's initialize request."
+  (skip-unless (executable-find "pyls"))
+  (eglot--with-fixture
+   `(("project" . (("coiso.py" . "def coiso: pass"))))
+   (with-current-buffer
+       (eglot--find-file-noselect "project/coiso.py")
+     (eglot--sniffing (:client-requests c-reqs)
+       (should (eglot--tests-connect 10))
+       (eglot--wait-for (c-reqs 10)
+           (&key _id method params &allow-other-keys)
+         (when (string= method "initialize")
+           (let* ((clientInfo (plist-get params :clientInfo))
+                  (name (plist-get clientInfo :name))
+                  (version (plist-get clientInfo :version)))
+             (should (equal name "Eglot"))
+             (should (version<= "1.8" (or version "0"))))))))))
+
 (ert-deftest rust-analyzer-watches-files ()
   "Start rust-analyzer.  Notify it when a critical file changes."
   (skip-unless (executable-find "rust-analyzer"))
