@@ -1,5 +1,12 @@
 # (upcoming)
 
+##### Show project wide diagnosics ([#810][github#810])
+Some LSP servers report diagnostics for all files in the current
+workspace.  Flymake has as of version 1.2.1 the option to show
+diagnostics from buffers other than the currently visited one.  The
+command `M-x flymake-show-project-diagnostics` will now show all
+diagnostics relevant to a workspace.
+
 ##### Support optional diagnostic tags ([#794][github#794])
 A [diagnostic tag][diagnostictag] can indicate either "unused or
 unnecessary code" or "deprecated or obsolete code".  Following the
