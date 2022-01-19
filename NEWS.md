@@ -11,6 +11,7 @@ Eglot will now prefer starting "rust-analazyer" to "rls" when it is
 available.  The special support code for RLS has been removed.
 
 ##### New servers have been added to `eglot-server-programs`
+- clojure-lsp ([#813][github#813])
 - racket-langserver ([#694][github#694])
 
 # 1.8 (12/1/2022)
@@ -332,3 +333,4 @@ and now said bunch of references-->
 [github#787]: https://github.com/joaotavora/eglot/issues/787
 [github#794]: https://github.com/joaotavora/eglot/issues/794
 [github#803]: https://github.com/joaotavora/eglot/issues/803
+[github#813]: https://github.com/joaotavora/eglot/issues/813
