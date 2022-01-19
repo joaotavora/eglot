@@ -41,6 +41,7 @@ find-library` can help you tell if that happened.
 * Ada's [ada_language_server][ada_language_server]
 * Bash's [bash-language-server][bash-language-server]
 * C/C++'s [clangd][clangd] or [ccls][ccls]
+* Clojure's [clojure-lsp][clojure-lsp]
 * CMake's [cmake-language-server][cmake-language-server]
 * CSS's [css-languageserver][css-languageserver]
 * Dart's [dart_language_server][dart_language_server]
@@ -491,6 +492,7 @@ Under the hood:
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 [clangd]: https://clang.llvm.org/extra/clangd.html
+[clojure-lsp]: https://clojure-lsp.io
 [cmake-language-server]: https://github.com/regen100/cmake-language-server
 [css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
 [dart_language_server]: https://github.com/natebosch/dart_language_server
