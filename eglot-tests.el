@@ -33,6 +33,7 @@
 (require 'python) ; python-mode-hook
 (require 'company nil t)
 (require 'subr-x)
+(require 'flymake) ; project-diagnostics
 
 ;;; Helpers
 
@@ -250,11 +251,17 @@ Pass TIMEOUT to `eglot--with-timeout'."
        (eglot--message "Event detected:\n%s"
                        (pp-to-string (car event))))))
 
-;; `rust-mode' is not a part of emacs. So define these two shims which
-;; should be more than enough for testing
+;; `rust-mode' is not a part of Emacs, so we define these two shims
+;; which should be more than enough for testing.
 (unless (functionp 'rust-mode)
-  (define-derived-mode rust-mode prog-mode "Rust"))
-(add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+  (define-derived-mode rust-mode prog-mode "Rust")
+  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
+
+;; `typescript-mode' is not a part of Emacs, so we define these two
+;; shims which should be more than enough for testing.
+(unless (functionp 'typescript-mode)
+  (define-derived-mode typescript-mode prog-mode "TypeScript")
+  (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-mode)))
 
 (defun eglot--tests-connect (&optional timeout)
   (let* ((timeout (or timeout 10))
@@ -725,6 +732,62 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
                    (cl-find-if (jsonrpc-lambda (&key severity &allow-other-keys)
                                  (= severity 1))
                                diagnostics)))))))))
+
+(ert-deftest project-wide-diagnostics-typescript ()
+  "Test diagnostics through multiple files in a TypeScript LSP."
+  (skip-unless (executable-find "typescript-language-server"))
+  (eglot--with-fixture
+      '(("project" . (("hello.ts" . "const thing = 5;\nexport { thin }")
+                      ("hello2.ts" . "import { thing } from './hello'"))))
+    (eglot--make-file-or-dir '(".git"))
+    (let ((eglot-server-programs
+           '((typescript-mode . ("typescript-language-server" "--stdio")))))
+      ;; Check both files because typescript-language-server doesn't
+      ;; report all errors on startup, at least not with such a simple
+      ;; setup.
+      (with-current-buffer (eglot--find-file-noselect "project/hello2.ts")
+        (eglot--sniffing (:server-notifications s-notifs)
+          (eglot--tests-connect)
+          (flymake-start)
+          (eglot--wait-for (s-notifs 10)
+              (&key _id method &allow-other-keys)
+            (string= method "textDocument/publishDiagnostics"))
+          (should (= 2 (length (flymake--project-diagnostics)))))
+        (with-current-buffer (eglot--find-file-noselect "hello.ts")
+          (eglot--sniffing (:server-notifications s-notifs)
+            (flymake-start)
+            (eglot--wait-for (s-notifs 10)
+                (&key _id method &allow-other-keys)
+              (string= method "textDocument/publishDiagnostics"))
+            (should (= 4 (length (flymake--project-diagnostics))))))))))
+
+(ert-deftest project-wide-diagnostics-rust-analyzer ()
+  "Test diagnostics through multiple files in a TypeScript LSP."
+  (skip-unless (executable-find "rust-analyzer"))
+  (eglot--with-fixture
+      '(("project" .
+         (("main.rs" .
+           "fn main() -> () { let test=3; }")
+          ("other-file.rs" .
+           "fn foo() -> () { let hi=3; }"))))
+    (eglot--make-file-or-dir '(".git"))
+    (let ((eglot-server-programs '((rust-mode . ("rust-analyzer")))))
+      ;; Open other-file, and see diagnostics arrive for main.rs
+      (with-current-buffer (eglot--find-file-noselect "project/other-file.rs")
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (:server-notifications s-notifs)
+          (eglot--tests-connect)
+          (flymake-start)
+          (eglot--wait-for (s-notifs 10)
+              (&key _id method &allow-other-keys)
+            (string= method "textDocument/publishDiagnostics"))
+          (let ((diags (flymake--project-diagnostics)))
+            (should (= 2 (length diags)))
+            ;; Check that we really get a diagnostic from main.rs, and
+            ;; not from other-file.rs
+            (should (string-suffix-p
+                     "main.rs"
+                     (flymake-diagnostic-buffer (car diags))))))))))
 
 (ert-deftest json-basic ()
   "Test basic autocompletion in vscode-json-languageserver."

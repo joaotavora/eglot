@@ -357,7 +357,8 @@ primarily with Emacs' built-in libraries and _not_ with third-party
 replacements for those facilities.
 
 * definitions can be found via `xref-find-definitions`;
-* on-the-fly diagnostics are given by `flymake-mode`;
+* on-the-fly diagnostics for the buffer or project are given by
+  `flymake-mode`;
 * function signature hints are given by `eldoc-mode`;
 * completion can be summoned with `completion-at-point`.
 * projects are discovered via `project.el`'s API;
