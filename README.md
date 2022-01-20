@@ -49,7 +49,6 @@ find-library` can help you tell if that happened.
 * Elixir's [elixir-ls][elixir-ls]
 * Elm's [elm-language-server][elm-language-server]
 * Erlang's [erlang_ls][erlang_ls]
-* FSharp's [fsharp-mode][fsharp-mode] (Needs to `(require 'eglot-fsharp)` first)
 * Fortran's [fortls][fortls]
 * Go's [gopls][gopls]
 * Godot Engine's [built-in LSP][godot]
@@ -497,7 +496,6 @@ Under the hood:
 [css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
 [dart_language_server]: https://github.com/natebosch/dart_language_server
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
-[fsharp-mode]: https://github.com/fsharp/emacs-fsharp-mode
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [fortls]: https://github.com/hansec/fortran-language-server
 [gopls]: https://github.com/golang/tools/tree/master/gopls
