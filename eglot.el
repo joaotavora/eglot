@@ -3050,7 +3050,6 @@ particular FILE-NAME and MODE."
       (eglot--clients-flow-tag-file-present-p file-name)))
 
 (defun eglot--choose-js-server  (interactive)
-  (message (buffer-file-name))
   (if (eglot--clients-flow-activate-p (buffer-file-name))
       '("flow" "lsp")
     '("typescript-language-server" "--stdio")))
