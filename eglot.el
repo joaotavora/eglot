@@ -148,8 +148,8 @@ chosen (interactively or automatically)."
                                 (python-mode
                                  . ,(eglot-alternatives
                                      '("pylsp" "pyls" ("pyright-langserver" "--stdio"))))
-                                ((js-mode typescript-mode)
-                                 . ("typescript-language-server" "--stdio"))
+                                ((js-mode web-mode js2-mode flow-js2-mode rjsx-mode) . eglot--choose-js-server)
+                                (typescript-mode . ("typescript-language-server" "--stdio"))
                                 (sh-mode . ("bash-language-server" "start"))
                                 ((php-mode phps-mode)
                                  . ("php" "vendor/felixfbecker/\
@@ -3001,6 +3001,59 @@ If NOERROR, return predicate, else erroring function."
 (defun eglot--glob-emit-range (arg self next)
   (when (eq ?! (aref arg 1)) (aset arg 1 ?^))
   `(,self () (re-search-forward ,(concat "\\=" arg)) (,next)))
+
+
+;;; Flow (javascript) specific
+;;;
+(defun eglot--clients-flow-tag-file-present-p (file-name)
+  "Check if the '// @flow' or `/* @flow */' tag is present in
+the contents of FILE-NAME."
+  (if-let ((buffer (find-buffer-visiting file-name)))
+      (with-current-buffer buffer
+        (eglot--clients-flow-tag-string-present-p))
+    (with-temp-buffer
+      (insert-file-contents file-name)
+      (eglot--clients-flow-tag-string-present-p))))
+
+(defun eglot--clients-flow-tag-string-present-p ()
+  "Helper for `lsp-clients-flow-tag-file-present-p' that works
+with the file contents."
+  (save-excursion
+    (goto-char (point-min))
+    (let (stop found)
+      (while (not stop)
+        (unless (re-search-forward "[^\n[:space:]]" nil t)
+          (setq stop t))
+        (if (= (point) (point-min)) (setq stop t) (backward-char))
+        (cond ((or (looking-at "//+[ ]*@flow")
+                   (looking-at "/\\**[ ]*@flow")
+                   (looking-at "[ ]*\\*[ ]*@flow"))
+               (setq found t) (setq stop t))
+              ((or (looking-at "//") (looking-at "*"))
+               (forward-line))
+              ((looking-at "/\\*")
+               (save-excursion
+                 (unless (re-search-forward "*/" nil t) (setq stop t)))
+               (forward-line))
+              (t (setq stop t))))
+      found)))
+
+(defun eglot--clients-flow-project-p (file-name)
+  "Check if FILE-NAME is part of a Flow project, that is, if
+there is a .flowconfig file in the folder hierarchy."
+  (locate-dominating-file file-name ".flowconfig"))
+
+(defun eglot--clients-flow-activate-p (file-name)
+  "Check if the Flow language server should be enabled for a
+particular FILE-NAME and MODE."
+  (or (eglot--clients-flow-project-p file-name)
+      (eglot--clients-flow-tag-file-present-p file-name)))
+
+(defun eglot--choose-js-server  (interactive)
+  (message (buffer-file-name))
+  (if (eglot--clients-flow-activate-p (buffer-file-name))
+      '("flow" "lsp")
+    '("typescript-language-server" "--stdio")))
 
 
 ;;; eclipse-jdt-specific
