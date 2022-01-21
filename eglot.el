@@ -3016,7 +3016,7 @@ the contents of FILE-NAME."
       (eglot--clients-flow-tag-string-present-p))))
 
 (defun eglot--clients-flow-tag-string-present-p ()
-  "Helper for `lsp-clients-flow-tag-file-present-p' that works
+  "Helper for `eglot--clients-flow-tag-file-present-p' that works
 with the file contents."
   (save-excursion
     (goto-char (point-min))
