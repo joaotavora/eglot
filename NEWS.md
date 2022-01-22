@@ -345,5 +345,7 @@ and now said bunch of references-->
 [github#769]: https://github.com/joaotavora/eglot/issues/769
 [github#787]: https://github.com/joaotavora/eglot/issues/787
 [github#794]: https://github.com/joaotavora/eglot/issues/794
+[github#797]: https://github.com/joaotavora/eglot/issues/797
 [github#803]: https://github.com/joaotavora/eglot/issues/803
+[github#810]: https://github.com/joaotavora/eglot/issues/810
 [github#813]: https://github.com/joaotavora/eglot/issues/813
