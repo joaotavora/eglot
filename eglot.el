@@ -2144,7 +2144,8 @@ When called interactively, use the currently active server"
   "Send textDocument/willSave to server."
   (let ((server (eglot--current-server-or-lose))
         (params `(:reason 1 :textDocument ,(eglot--TextDocumentIdentifier))))
-    (jsonrpc-notify server :textDocument/willSave params)
+    (when (eglot--server-capable :textDocumentSync :willSave)
+      (jsonrpc-notify server :textDocument/willSave params))
     (when (eglot--server-capable :textDocumentSync :willSaveWaitUntil)
       (ignore-errors
         (eglot--apply-text-edits
