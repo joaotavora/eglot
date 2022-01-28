@@ -488,6 +488,15 @@ Under the hood:
   `markdown-mode`, if you happen to have these installed.
 - Has automated tests that check against actual LSP servers."
 
+# Copyright Assignment
+
+`Eglot` is subject to the same [copyright assignment][copyright-assignment]
+policy as `GNU Emacs`.
+
+Any [legally significant][legally-significant] contributions can only
+be merged after the author has completed their paperwork.  Please ask
+for the request form, and we'll send it to you.
+
 <!-- Language servers -->
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
@@ -543,3 +552,5 @@ Under the hood:
 [yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
+[copyright-assignment]: https://www.fsf.org/licensing/contributor-faq
+[legally-significant]: https://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant
