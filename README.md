@@ -60,7 +60,7 @@ find-library` can help you tell if that happened.
 * Java's [Eclipse JDT Language Server][eclipse-jdt]
 * Javascript's [TS & JS Language Server][typescript-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
-* Lua's [lua-lsp][lua-lsp]
+* Lua's [lua-language-server][lua-language-server] or [lua-lsp][lua-lsp]
 * Mint's [mint-ls][mint-ls]
 * Nix's [rnix-lsp][rnix-lsp]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
@@ -517,6 +517,7 @@ for the request form, and we'll send it to you.
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
+[lua-language-server]: https://github.com/sumneko/lua-language-server
 [lua-lsp]: https://github.com/Alloyed/lua-lsp
 [mint-ls]: https://www.mint-lang.com/
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
