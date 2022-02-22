@@ -3039,7 +3039,8 @@ Reconnect to server for changes to take effect."
 (defcustom eglot-semantic-tokens-use-delta t
   "If non-nil, request delta of tokens from server instead of full token list.
 Setting this to t will speed up token processing and highlighting, but
-may cause highlighting to be inaccurate."
+may cause highlighting to be inaccurate.  The value is ignored when
+the server doesn't support it."
   :type 'boolean
   :safe #'booleanp)
 
