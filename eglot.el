@@ -1404,13 +1404,16 @@ If optional MARKER, return a marker instead"
          (remote-prefix (and server
                              (file-remote-p
                               (project-root (eglot--project server)))))
-         (retval (url-filename (url-generic-parse-url (url-unhex-string uri))))
+         (url (url-generic-parse-url (url-unhex-string uri)))
+         (retval (url-filename url))
          ;; Remove the leading "/" for local MS Windows-style paths.
          (normalized (if (and (not remote-prefix)
                               (eq system-type 'windows-nt)
                               (cl-plusp (length retval)))
                          (substring retval 1)
                        retval)))
+    (when (not (string-equal "file" (downcase (url-type url))))
+      (eglot--warn "URI with unexpected scheme: %s" uri))
     (concat remote-prefix normalized)))
 
 (defun eglot--snippet-expansion-fn ()
