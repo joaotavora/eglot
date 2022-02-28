@@ -715,6 +715,7 @@ treated as in `eglot-dbind'."
                                        `(:valueSet
                                          [,@(mapcar
                                              #'car eglot--tag-faces)])))
+            :window '(:showDocument (:support t))
             :experimental eglot--{})))
 
 (defclass eglot-lsp-server (jsonrpc-process-connection)
@@ -1822,6 +1823,28 @@ COMMAND is a symbol naming the command."
 (cl-defmethod eglot-handle-notification
   (_server (_method (eql window/logMessage)) &key _type _message)
   "Handle notification window/logMessage.") ;; noop, use events buffer
+
+(cl-defmethod eglot-handle-request
+  (_server (_method (eql window/showDocument)) &key
+           uri external takeFocus selection)
+  "Handle request window/showDocument."
+  (if (not (eq external :json-false))
+      (browse-url uri)
+    (let ((filename (eglot--uri-to-path uri)))
+      (if (eq takeFocus :json-false)
+          (find-file-noselect filename)
+        (find-file filename))
+      (when selection
+        (with-current-buffer (get-file-buffer filename)
+          (save-restriction
+            (widen)
+            (pcase-let ((`(,beg . ,end) (eglot--range-region selection)))
+              (if (equal beg end)
+                  (goto-char beg)
+                (goto-char end)
+                (set-mark-command nil)
+                (goto-char beg))))))
+      '(:success t))))
 
 (cl-defmethod eglot-handle-notification
   (_server (_method (eql telemetry/event)) &rest _any)
