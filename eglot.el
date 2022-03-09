@@ -3016,6 +3016,13 @@ If NOERROR, return predicate, else erroring function."
 
 ;;; eclipse-jdt-specific
 ;;;
+(defcustom eglot-eclipse-jdt-vmargs '()
+  "Configure Java VM to tune its behaviour or support particular libraries.
+For example, if you are a Lombok user, you can specify the argument needed here.
+You can also specify some arguments to reduce memory consumption,
+see https://github.com/redhat-developer/vscode-java/pull/1262 for more details."
+  :type '(repeat string))
+
 (defclass eglot-eclipse-jdt (eglot-lsp-server) ()
   :documentation "Eclipse's Java Development Tools Language Server.")
 
@@ -3094,13 +3101,14 @@ If INTERACTIVE, prompt user for details."
       (unless (file-directory-p workspace)
         (make-directory workspace t))
       (cons 'eglot-eclipse-jdt
-            (list (executable-find "java")
-                  "-Declipse.application=org.eclipse.jdt.ls.core.id1"
-                  "-Dosgi.bundles.defaultStartLevel=4"
-                  "-Declipse.product=org.eclipse.jdt.ls.core.product"
-                  "-jar" jar
-                  "-configuration" config
-                  "-data" workspace)))))
+            `(,(executable-find "java")
+              "-Declipse.application=org.eclipse.jdt.ls.core.id1"
+              "-Dosgi.bundles.defaultStartLevel=4"
+              "-Declipse.product=org.eclipse.jdt.ls.core.product"
+              ,@eglot-eclipse-jdt-vmargs
+              "-jar" ,jar
+              "-configuration" ,config
+              "-data" ,workspace)))))
 
 (cl-defmethod eglot-execute-command
   ((_server eglot-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
