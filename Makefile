@@ -3,7 +3,7 @@
 # Variables
 #
 EMACS?=emacs
-SELECTOR=t
+SELECTOR?=t
 ERROR_ON_WARN=nil
 
 LOAD_PATH=-L .
