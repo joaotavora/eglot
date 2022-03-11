@@ -314,6 +314,19 @@ let the buffer grow forever."
   "If non-nil, activate Eglot in cross-referenced non-project files."
   :type 'boolean)
 
+(defcustom eglot-markup-formatter 'gfm-view-mode
+  "Major mode to format markdown texts.
+The third-party markdown-mode works for almost all possible input
+texts.  Eglot's simple, built-in formatter usually provides
+acceptable output for practical cases."
+  :type '(choice (const :tag "markdown-mode" gfm-view-mode)
+                 (const :tag "Eglot's rudimentary formatter"
+                        eglot-simple-markdown-mode)
+                 (const :tag "No formatter: view raw text"
+                        text-mode)
+                 (const :tag "(Prefer plain-text)" nil)
+                 (function :tag "Other")))
+
 (defvar eglot-withhold-process-id nil
   "If non-nil, Eglot will not send the Emacs process id to the language server.
 This can be useful when using docker to run a language server.")
@@ -669,7 +682,7 @@ treated as in `eglot-dbind'."
                                     :contextSupport t)
              :hover              (list :dynamicRegistration :json-false
                                        :contentFormat
-                                       (if (fboundp 'gfm-view-mode)
+                                       (if (fboundp eglot-markup-formatter)
                                            ["markdown" "plaintext"]
                                          ["plaintext"]))
              :signatureHelp      (list :dynamicRegistration :json-false
@@ -1420,13 +1433,24 @@ Doubles as an indicator of snippet support."
        (symbol-value 'yas-minor-mode)
        'yas-expand-snippet))
 
+(define-derived-mode eglot-simple-markdown-mode org-mode "md"
+  (goto-char (point-min))
+  (while (re-search-forward "^```\\(.*\\)$" nil t)
+    (replace-match (concat "#+BEGIN_SRC"
+                           (if (equal "" (match-string 1))
+                               ""
+                             (concat " " (match-string 1)))))
+    (when (re-search-forward "^```.*$" nil t)
+      (replace-match "#+END_SRC")))
+  (view-mode))
+
 (defun eglot--format-markup (markup)
   "Format MARKUP according to LSP's spec."
   (pcase-let ((`(,string ,mode)
-               (if (stringp markup) (list markup 'gfm-view-mode)
+               (if (stringp markup) (list markup eglot-markup-formatter)
                  (list (plist-get markup :value)
                        (pcase (plist-get markup :kind)
-                         ("markdown" 'gfm-view-mode)
+                         ("markdown" eglot-markup-formatter)
                          ("plaintext" 'text-mode)
                          (_ major-mode))))))
     (with-temp-buffer
