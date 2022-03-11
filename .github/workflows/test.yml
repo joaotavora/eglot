@@ -38,7 +38,7 @@ jobs:
         curl -fSL https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -o eclipse.tar.gz
         mkdir eclipse.jdt.ls
         tar -C eclipse.jdt.ls -xzf eclipse.tar.gz
-        echo "$GITHUB_WORKSPACE/eclipse.jdt.ls/bin >> $GITHUB_PATH
+        echo "$GITHUB_WORKSPACE/eclipse.jdt.ls/bin" >> $GITHUB_PATH
 
     # - name: Install other depedencies
     #   run: |
