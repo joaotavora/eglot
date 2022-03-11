@@ -26,12 +26,12 @@ jobs:
           python-version: "3.9"
           architecture: "x64"
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-          toolchain: stable
-          override: true
-          components: rust-analysis, rust-src, rls
+    # - name: Install Rust
+    #   uses: actions-rs/toolchain@v1
+    #   with:
+    #       toolchain: stable
+    #       override: true
+    #       components: rust-analysis, rust-src, rls
 
     - name: Install eclipse.jdt.ls
       run: |
@@ -40,10 +40,10 @@ jobs:
         tar -C eclipse.jdt.ls -xzf eclipse.tar.gz
         echo "$GITHUB_WORKSPACE/eclipse.jdt.ls/bin >> $GITHUB_PATH
 
-    - name: Install other depedencies
-      run: |
-           pip3 install python-language-server autopep8 rope pycodestyle pyflakes pydocstyle mccabe pylint
-           sudo apt-get install clangd-9
+    # - name: Install other depedencies
+    #   run: |
+    #        pip3 install python-language-server autopep8 rope pycodestyle pyflakes pydocstyle mccabe pylint
+    #        sudo apt-get install clangd-9
 
     - name: Build eglot
       run: make compile
