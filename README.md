@@ -190,9 +190,6 @@ get [cquery][cquery] working:
           :progressReportFrequencyMs -1)))
 ```
 
-See `eglot.el`'s section on Java's JDT server for an even more
-sophisticated example.
-
 Similarly, some servers require the language identifier strings they
 are sent by `eglot` to match the exact strings used by VSCode. `eglot`
 usually guesses these identifiers from the major mode name
