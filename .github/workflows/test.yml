@@ -7,8 +7,8 @@ jobs:
     strategy:
       matrix:
         emacs_version:
-        - 26.3
-        - 27.1
+        # - 26.3
+        # - 27.1
         - 27.2
         # - snapshot
 
@@ -39,6 +39,9 @@ jobs:
         mkdir eclipse.jdt.ls
         tar -C eclipse.jdt.ls -xzf eclipse.tar.gz
         export PATH=$PATH:$(pwd)/eclipse.jdt.ls/bin
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Install other depedencies
       run: |
