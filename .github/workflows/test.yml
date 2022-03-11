@@ -23,7 +23,7 @@ jobs:
     - name: Install Python
       uses: actions/setup-python@v2
       with:
-          python-version: "3.6"
+          python-version: "3.9"
           architecture: "x64"
 
     - name: Install Rust
@@ -38,6 +38,7 @@ jobs:
         curl -fSL https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -o eclipse.tar.gz
         mkdir eclipse.jdt.ls
         tar -C eclipse.jdt.ls -xzf eclipse.tar.gz
+        echo "$GITHUB_WORKSPACE/eclipse.jdt.ls/bin" >> $GITHUB_PATH
 
     - name: Install other depedencies
       run: |
@@ -49,5 +50,4 @@ jobs:
 
     - name: Test eglot
       run: |
-        export CLASSPATH=$(pwd)/$(find eclipse.jdt.ls/ -regex eclipse.jdt.ls/plugins/org.eclipse.equinox.launcher_.*.jar):${CLASSPATH}
         make eglot-check
