@@ -293,7 +293,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (eglot--find-file-noselect "project/main/src/main/java/foo/Main.java")
         (eglot--sniffing (:client-requests c-reqs)
           (should (eglot--tests-connect 10))
-          (eglot--wait-for (c-reqs 10)
+          (eglot--wait-for (c-reqs 20)
               (&key _id method params &allow-other-keys)
             (when (string= method "initialize")
               (let ((folders (plist-get
