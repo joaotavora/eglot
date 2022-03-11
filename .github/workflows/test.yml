@@ -38,7 +38,7 @@ jobs:
         curl -fSL https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -o eclipse.tar.gz
         mkdir eclipse.jdt.ls
         tar -C eclipse.jdt.ls -xzf eclipse.tar.gz
-        export PATH=$PATH:$(pwd)/eclipse.jdt.ls/bin
+        echo "$GITHUB_WORKSPACE/eclipse.jdt.ls/bin >> $GITHUB_PATH
 
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
