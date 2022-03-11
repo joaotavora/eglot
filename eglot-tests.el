@@ -37,13 +37,6 @@
 
 ;;; Helpers
 
-(defun eglot--have-eclipse-jdt-ls-p ()
-  (and (getenv "CLASSPATH")
-       (cl-some
-        (lambda (x)
-          (string-match-p "org\\.eclipse\\.equinox\\.launcher_.*\\.jar$" x))
-        (split-string (getenv "CLASSPATH") ":"))))
-
 (defmacro eglot--with-fixture (fixture &rest body)
   "Setup FIXTURE, call BODY, teardown FIXTURE.
 FIXTURE is a list.  Its elements are of the form (FILE . CONTENT)
@@ -274,7 +267,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest eclipse-connect ()
   "Connect to eclipse.jdt.ls server."
-  (skip-unless (eglot--have-eclipse-jdt-ls-p))
+  (skip-unless (executable-find "jdtls"))
   (eglot--with-fixture
       '(("project/src/main/java/foo" . (("Main.java" . "")))
         ("project/.git/" . nil))
@@ -288,7 +281,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest eclipse-workspace-folders ()
   "Check eclipse connection with multi-root projects."
-  (skip-unless (eglot--have-eclipse-jdt-ls-p))
+  (skip-unless (executable-find "jdtls"))
   (eglot--with-fixture
       '(("project/main/src/main/java/foo" . (("Main.java" . "")))
         ("project/sub1/" . (("pom.xml" . "")))
