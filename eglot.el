@@ -644,7 +644,7 @@ treated as in `eglot-dbind'."
 
 (cl-defgeneric eglot-client-capabilities (server)
   "What the EGLOT LSP client supports for SERVER."
-  (:method (_s)
+  (:method (server)
            (list
             :workspace (list
                         :applyEdit t
@@ -696,12 +696,9 @@ treated as in `eglot-dbind'."
              :codeAction         (list
                                   :dynamicRegistration :json-false
                                   :codeActionLiteralSupport
-                                  '(:codeActionKind
-                                    (:valueSet
-                                     ["quickfix"
-                                      "refactor" "refactor.extract"
-                                      "refactor.inline" "refactor.rewrite"
-                                      "source" "source.organizeImports"]))
+                                  `(:codeActionKind
+                                    ,`(:valueSet
+                                       ,(vconcat (eglot--code-action-kinds server))))
                                   :isPreferredSupport t)
              :formatting         `(:dynamicRegistration :json-false)
              :rangeFormatting    `(:dynamicRegistration :json-false)
@@ -758,7 +755,10 @@ treated as in `eglot-dbind'."
     :accessor eglot--saved-initargs)
    (inferior-process
     :documentation "Server subprocess started automatically."
-    :accessor eglot--inferior-process))
+    :accessor eglot--inferior-process)
+   (code-action-kinds
+    :documentation "List of code-actions the client can request."
+    :accessor eglot--code-action-kinds))
   :documentation
   "Represents a server. Wraps a process for LSP communication.")
 
@@ -1138,6 +1138,9 @@ This docstring appeases checkdoc, that's all."
     (setf (eglot--major-mode server) managed-major-mode)
     (setf (eglot--language-id server) language-id)
     (setf (eglot--inferior-process server) autostart-inferior-process)
+    (setf (eglot--code-action-kinds server)
+          '("quickfix" "refactor" "refactor.extract" "refactor.inline"
+            "refactor.rewrite" "source" "source.organizeImports"))
     (run-hook-with-args 'eglot-server-initialized-hook server)
     ;; Now start the handshake.  To honour `eglot-sync-connect'
     ;; maybe-sync-maybe-async semantics we use `jsonrpc-async-request'
@@ -1170,6 +1173,14 @@ This docstring appeases checkdoc, that's all."
                                 (gethash project eglot--servers-by-project))
                           (setf (eglot--capabilities server) capabilities)
                           (setf (eglot--server-info server) serverInfo)
+                          (setf (eglot--code-action-kinds server)
+                                (cl-remove-duplicates
+                                 (append
+                                  (plist-get
+                                   (plist-get capabilities :codeActionProvider)
+                                   :codeActionKinds)
+                                  (eglot--code-action-kinds server))
+                                 :test 'equal))
                           (jsonrpc-notify server :initialized eglot--{})
                           (dolist (buffer (buffer-list))
                             (with-current-buffer buffer
@@ -2829,9 +2840,9 @@ at point.  With prefix argument, prompt for ACTION-KIND."
   (interactive
    `(,@(eglot--region-bounds)
      ,(and current-prefix-arg
-           (completing-read "[eglot] Action kind: "
-                            '("quickfix" "refactor.extract" "refactor.inline"
-                              "refactor.rewrite" "source.organizeImports")))))
+           (completing-read
+            "[eglot] Action kind: "
+            (eglot--code-action-kinds (eglot--current-server-or-lose))))))
   (unless (eglot--server-capable :codeActionProvider)
     (eglot--error "Server can't execute code actions!"))
   (let* ((server (eglot--current-server-or-lose))
