@@ -1401,9 +1401,10 @@ If optional MARKER, return a marker instead"
   "Convert URI to file path, helped by `eglot--current-server'."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (let* ((server (eglot-current-server))
-         (remote-prefix (and server
-                             (file-remote-p
-                              (project-root (eglot--project server)))))
+         (remote-prefix (when (and server
+                                   (file-remote-p
+                                    (project-root (eglot--project server))))
+                          (project-root (eglot--project server))))
          (retval (url-filename (url-generic-parse-url (url-unhex-string uri))))
          ;; Remove the leading "/" for local MS Windows-style paths.
          (normalized (if (and (not remote-prefix)
