@@ -174,7 +174,7 @@ language-server/bin/php-language-server.php"))
                                 ((R-mode ess-r-mode) . ("R" "--slave" "-e"
                                                         "languageserver::run()"))
                                 (java-mode . ("jdtls"))
-                                (dart-mode . ("dart_language_server"))
+                                (dart-mode . ("dart" "language-server"))
                                 (elixir-mode . ("language_server.sh"))
                                 (ada-mode . ("ada_language_server"))
                                 (scala-mode . ("metals-emacs"))
