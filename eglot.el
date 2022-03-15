@@ -1406,7 +1406,10 @@ If optional MARKER, return a marker instead"
          ;; Fix #876?OA
          (trampish (and server (eglot--trampish-p server)))
          (remote-prefix (and trampish (if (string-empty-p uri)
-                                          (project-root (eglot--project server))
+                                          (prog1
+                                            (project-root (eglot--project server))
+                                            (jsonrpc--log-event server
+                                                                (format "By the way trampish is %s" trampish)))
                                         trampish)))
          (retval (url-filename (url-generic-parse-url (url-unhex-string uri))))
          ;; Remove the leading "/" for local MS Windows-style paths.
