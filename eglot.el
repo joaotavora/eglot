@@ -642,6 +642,10 @@ treated as in `eglot-dbind'."
    (eglot--warn "Server tried to unregister unsupported capability `%s'"
                 method)))
 
+(cl-defgeneric eglot-client-initialize-params (server)
+  "Additional parameters for EGLOT LSP client initialization for SERVER."
+  (:method (_s) nil))
+
 (cl-defgeneric eglot-client-capabilities (server)
   "What the EGLOT LSP client supports for SERVER."
   (:method (s)
@@ -1151,20 +1155,22 @@ This docstring appeases checkdoc, that's all."
                      (jsonrpc-async-request
                       server
                       :initialize
-                      (list :processId
-                            (unless (or eglot-withhold-process-id
-                                        (file-remote-p default-directory)
-                                        (eq (jsonrpc-process-type server)
-                                            'network))
-                              (emacs-pid))
-                            ;; Maybe turn trampy `/ssh:foo@bar:/path/to/baz.py'
-                            ;; into `/path/to/baz.py', so LSP groks it.
-                            :rootPath (file-local-name
-                                       (expand-file-name default-directory))
-                            :rootUri (eglot--path-to-uri default-directory)
-                            :initializationOptions (eglot-initialization-options
-                                                    server)
-                            :capabilities (eglot-client-capabilities server))
+                      (append
+                       (list :processId
+                             (unless (or eglot-withhold-process-id
+                                         (file-remote-p default-directory)
+                                         (eq (jsonrpc-process-type server)
+                                             'network))
+                               (emacs-pid))
+                             ;; Maybe turn trampy `/ssh:foo@bar:/path/to/baz.py'
+                             ;; into `/path/to/baz.py', so LSP groks it.
+                             :rootPath (file-local-name
+                                        (expand-file-name default-directory))
+                             :rootUri (eglot--path-to-uri default-directory)
+                             :initializationOptions (eglot-initialization-options
+                                                     server)
+                             :capabilities (eglot-client-capabilities server))
+                       (eglot-client-initialize-params server))
                       :success-fn
                       (eglot--lambda ((InitializeResult) capabilities serverInfo)
                         (unless cancelled
