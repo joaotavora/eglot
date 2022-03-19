@@ -644,7 +644,10 @@ treated as in `eglot-dbind'."
 
 (cl-defgeneric eglot-workspace-folders (server)
   "Workspace folders configured in EGLOT LSP client for SERVER."
-  (:method (_s) nil))
+  (:method (_s)
+           ;; rootUri is deprecated in favor of workspaceFolders
+           ;; initialize workspaceFolders[0] with rootUri
+           `[(:name "rootUri" :uri ,(eglot--path-to-uri default-directory))]))
 
 (cl-defgeneric eglot-client-capabilities (server)
   "What the EGLOT LSP client supports for SERVER."
