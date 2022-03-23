@@ -1,5 +1,7 @@
 # (upcoming)
 
+##### Support on-type-formatting ([#899][github#899])
+
 ##### Provide basic workspace-folders support ([#893][github#893])
 Eglot now advertises `project-root` and `project-external-roots` as
 workspace-folders.  (Configuring `tags-table-list` sets the external
@@ -355,3 +357,4 @@ and now said bunch of references-->
 [github#810]: https://github.com/joaotavora/eglot/issues/810
 [github#813]: https://github.com/joaotavora/eglot/issues/813
 [github#893]: https://github.com/joaotavora/eglot/issues/893
+[github#899]: https://github.com/joaotavora/eglot/issues/899
