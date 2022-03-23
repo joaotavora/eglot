@@ -262,6 +262,13 @@ Pass TIMEOUT to `eglot--with-timeout'."
          (eglot-connect-timeout timeout))
     (apply #'eglot--connect (eglot--guess-contact))))
 
+(defun eglot--simulate-key-event (char)
+  "Like (execute-kbd-macro (vector char)), but with `call-interactively'."
+  ;; Also, this is a bit similar to what electric-tests.el does.
+  (setq last-input-event char)
+  (setq last-command-event char)
+  (call-interactively (key-binding (vector char))))
+
 
 ;;; Unit tests
 
@@ -669,6 +676,26 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
       (eglot-format-buffer)
       (should
        (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")))))
+
+(ert-deftest rust-on-type-formatting ()
+  "Test textDocument/onTypeFormatting agains rust-analyzer."
+  (skip-unless (executable-find "rust-analyzer"))
+  (skip-unless (executable-find "cargo"))
+  (eglot--with-fixture
+      '(("on-type-formatting-project" .
+         (("main.rs" .
+           "fn main() -> () {\n  foo\n    .bar()\n  "))))
+    (with-current-buffer
+        (eglot--find-file-noselect "on-type-formatting-project/main.rs")
+      (let ((eglot-server-programs '((rust-mode . ("rust-analyzer")))))
+        (should (zerop (shell-command "cargo init")))
+        (eglot--sniffing (:server-notifications s-notifs)
+          (should (eglot--tests-connect))
+          (eglot--wait-for (s-notifs 10) (&key method &allow-other-keys)
+             (string= method "textDocument/publishDiagnostics")))
+        (goto-char (point-max))
+        (eglot--simulate-key-event ?.)
+        (should (looking-back "^    \\."))))))
 
 (ert-deftest javascript-basic ()
   "Test basic autocompletion in a JavaScript LSP."
