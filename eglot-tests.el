@@ -37,13 +37,6 @@
 
 ;;; Helpers
 
-(defun eglot--have-eclipse-jdt-ls-p ()
-  (and (getenv "CLASSPATH")
-       (cl-some
-        (lambda (x)
-          (string-match-p "org\\.eclipse\\.equinox\\.launcher_.*\\.jar$" x))
-        (split-string (getenv "CLASSPATH") ":"))))
-
 (defmacro eglot--with-fixture (fixture &rest body)
   "Setup FIXTURE, call BODY, teardown FIXTURE.
 FIXTURE is a list.  Its elements are of the form (FILE . CONTENT)
@@ -274,7 +267,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest eclipse-connect ()
   "Connect to eclipse.jdt.ls server."
-  (skip-unless (eglot--have-eclipse-jdt-ls-p))
+  (skip-unless (executable-find "jdtls"))
   (eglot--with-fixture
       '(("project/src/main/java/foo" . (("Main.java" . "")))
         ("project/.git/" . nil))
@@ -285,33 +278,6 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (eglot--wait-for (s-notifs 10)
             (&key _id method &allow-other-keys)
           (string= method "language/status"))))))
-
-(ert-deftest eclipse-workspace-folders ()
-  "Check eclipse connection with multi-root projects."
-  (skip-unless (eglot--have-eclipse-jdt-ls-p))
-  (eglot--with-fixture
-      '(("project/main/src/main/java/foo" . (("Main.java" . "")))
-        ("project/sub1/" . (("pom.xml" . "")))
-        ("project/sub2/" . (("build.gradle" . "")))
-        ("project/sub3/" . (("a.txt" . "")))
-        ("project/.git/" . nil))
-    (let ((root (file-name-as-directory default-directory)))
-      (with-current-buffer
-          (eglot--find-file-noselect "project/main/src/main/java/foo/Main.java")
-        (eglot--sniffing (:client-requests c-reqs)
-          (should (eglot--tests-connect 10))
-          (eglot--wait-for (c-reqs 10)
-              (&key _id method params &allow-other-keys)
-            (when (string= method "initialize")
-              (let ((folders (plist-get
-                              (plist-get params :initializationOptions)
-                              :workspaceFolders))
-                    (default-directory root))
-                (and
-                 (cl-find (eglot--path-to-uri "project/") folders :test #'equal)
-                 (cl-find (eglot--path-to-uri "project/sub1/") folders :test #'equal)
-                 (cl-find (eglot--path-to-uri "project/sub2/") folders :test #'equal)
-                 (= 3 (length folders)))))))))))
 
 (defun eglot-tests--auto-detect-running-server-1 ()
   (let (server)

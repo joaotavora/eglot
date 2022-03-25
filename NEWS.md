@@ -1,5 +1,10 @@
 # (upcoming)
 
+##### Provide basic workspace-folders support ([#893][github#893])
+Eglot now advertises `project-root` and `project-external-roots` as
+workspace-folders.  (Configuring `tags-table-list` sets the external
+roots of a simple git project.)
+
 ##### Show project wide diagnosics ([#810][github#810])
 Some LSP servers report diagnostics for all files in the current
 workspace.  Flymake has as of version 1.2.1 the option to show
@@ -349,3 +354,4 @@ and now said bunch of references-->
 [github#803]: https://github.com/joaotavora/eglot/issues/803
 [github#810]: https://github.com/joaotavora/eglot/issues/810
 [github#813]: https://github.com/joaotavora/eglot/issues/813
+[github#893]: https://github.com/joaotavora/eglot/issues/893

@@ -645,16 +645,19 @@ treated as in `eglot-dbind'."
 
 (cl-defgeneric eglot-client-capabilities (server)
   "What the EGLOT LSP client supports for SERVER."
-  (:method (_s)
+  (:method (s)
            (list
             :workspace (list
                         :applyEdit t
                         :executeCommand `(:dynamicRegistration :json-false)
-                        :workspaceEdit `(:documentChanges :json-false)
-                        :didChangeWatchedFiles `(:dynamicRegistration t)
+                        :workspaceEdit `(:documentChanges t)
+                        :didChangeWatchedFiles
+                        `(:dynamicRegistration
+                          ,(if (eglot--trampish-p s) :json-false t))
                         :symbol `(:dynamicRegistration :json-false)
                         :configuration t
-                        :semanticTokens `(:refreshSupport :json-false))
+                        :semanticTokens `(:refreshSupport :json-false)
+                        :workspaceFolders t)
             :textDocument
             (list
              :synchronization (list
@@ -728,6 +731,15 @@ treated as in `eglot-dbind'."
                                        :overlappingTokenSupport :json-false
                                        :multilineTokenSupport t))
             :experimental eglot--{})))
+
+(cl-defgeneric eglot-workspace-folders (server)
+  "Return workspaceFolders for SERVER."
+  (let ((project (eglot--project server)))
+    (vconcat
+     (mapcar (lambda (dir)
+               (list :uri (eglot--path-to-uri dir)
+                     :name (abbreviate-file-name dir)))
+             `(,(project-root project) ,@(project-external-roots project))))))
 
 (defclass eglot-lsp-server (jsonrpc-process-connection)
   ((project-nickname
@@ -1174,7 +1186,8 @@ This docstring appeases checkdoc, that's all."
                             :rootUri (eglot--path-to-uri default-directory)
                             :initializationOptions (eglot-initialization-options
                                                     server)
-                            :capabilities (eglot-client-capabilities server))
+                            :capabilities (eglot-client-capabilities server)
+                            :workspaceFolders (eglot-workspace-folders server))
                       :success-fn
                       (eglot--lambda ((InitializeResult) capabilities serverInfo)
                         (unless cancelled
@@ -1322,7 +1335,8 @@ fully LSP-compliant servers, this should be set to
   "Calculate current COLUMN as defined by the LSP spec.
 LBP defaults to `line-beginning-position'."
   (/ (- (length (encode-coding-region (or lbp (line-beginning-position))
-                                      (point) 'utf-16 t))
+                                      ;; Fix github#860
+                                      (min (point) (point-max)) 'utf-16 t))
         2)
      2))
 
@@ -1413,9 +1427,7 @@ If optional MARKER, return a marker instead"
   "Convert URI to file path, helped by `eglot--current-server'."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (let* ((server (eglot-current-server))
-         (remote-prefix (and server
-                             (file-remote-p
-                              (project-root (eglot--project server)))))
+         (remote-prefix (and server (eglot--trampish-p server)))
          (retval (url-filename (url-generic-parse-url (url-unhex-string uri))))
          ;; Remove the leading "/" for local MS Windows-style paths.
          (normalized (if (and (not remote-prefix)
@@ -1529,6 +1541,10 @@ and just return it.  PROMPT shouldn't end with a question mark."
                          default)))
              (cl-find read servers :key name :test #'equal)))
           (t (car servers)))))
+
+(defun eglot--trampish-p (server)
+  "Tell if SERVER's project root is `file-remote-p'."
+  (file-remote-p (project-root (eglot--project server))))
 
 
 ;;; Minor modes
@@ -1931,6 +1947,11 @@ THINGS are either registrations or unregisterations (sic)."
   (_server (_method (eql workspace/applyEdit)) &key _label edit)
   "Handle server request workspace/applyEdit."
   (eglot--apply-workspace-edit edit eglot-confirm-server-initiated-edits))
+
+(cl-defmethod eglot-handle-request
+  (server (_method (eql workspace/workspaceFolders)))
+  "Handle server request workspace/workspaceFolders."
+  (eglot-workspace-folders server))
 
 (defun eglot--TextDocumentIdentifier ()
   "Compute TextDocumentIdentifier object for current buffer."
@@ -2831,8 +2852,11 @@ is not active."
                                            :newName ,newname))
    current-prefix-arg))
 
-(defun eglot--region-bounds () "Region bounds if active, else point and nil."
-  (if (use-region-p) `(,(region-beginning) ,(region-end)) `(,(point) nil)))
+(defun eglot--region-bounds ()
+  "Region bounds if active, else bounds of things at point."
+  (if (use-region-p) `(,(region-beginning) ,(region-end))
+    (let ((boftap (bounds-of-thing-at-point 'sexp)))
+      (list (car boftap) (cdr boftap)))))
 
 (defun eglot-code-actions (beg &optional end action-kind)
   "Offer to execute actions of ACTION-KIND between BEG and END.
