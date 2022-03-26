@@ -41,6 +41,7 @@ find-library` can help you tell if that happened.
 * Ada's [ada_language_server][ada_language_server]
 * Bash's [bash-language-server][bash-language-server]
 * C/C++'s [clangd][clangd] or [ccls][ccls]
+* C#'s [omnisharp][omnisharp]
 * Clojure's [clojure-lsp][clojure-lsp]
 * CMake's [cmake-language-server][cmake-language-server]
 * CSS's [css-languageserver][css-languageserver]
@@ -501,6 +502,7 @@ for the request form, and we'll send it to you.
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 [clangd]: https://clang.llvm.org/extra/clangd.html
+[omnisharp]: https://github.com/OmniSharp/omnisharp-roslyn
 [clojure-lsp]: https://clojure-lsp.io
 [cmake-language-server]: https://github.com/regen100/cmake-language-server
 [css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
