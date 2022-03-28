@@ -1,5 +1,13 @@
 # (upcoming)
 
+##### Easier to use LSP initialize.initializationOptions
+For controlling some servers' startup, in `eglot-server-programs` a
+plist can be appended to the usual list of strings passed as command
+line arguments.  The value of its `:initializationOptions` key is
+another plist used to construct the corresponding LSP JSON object.
+This may be easier than creating `defclass` for a specific server and
+specializing `eglot-initialization-options` to that class.
+
 ##### Provide basic workspace-folders support ([#893][github#893])
 Eglot now advertises `project-root` and `project-external-roots` as
 workspace-folders.  (Configuring `tags-table-list` sets the external
