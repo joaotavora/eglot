@@ -221,7 +221,9 @@ CONTACT can be:
 * A list (PROGRAM [ARGS...] :initializationOptions OPTIONS),
   whereupon PROGRAM is called with ARGS as in the first option,
   and the LSP \"initializationOptions\" JSON object is
-  constructed from the plist OPTIONS.
+  constructed from OPTIONS.  If OPTIONS is plist, contruction is
+  direct, if a function it is called with the server instance and
+  should return a plist.
 
 * A list (HOST PORT [TCP-ARGS...]) where HOST is a string and
   PORT is a positive integer for connecting to a server via TCP.
@@ -632,9 +634,11 @@ treated as in `eglot-dbind'."
 
 (cl-defgeneric eglot-initialization-options (server)
   "JSON object to send under `initializationOptions'."
-  (:method (s) (or (plist-get (eglot--saved-initargs s)
-                              :initializationOptions)
-                   eglot--{})))
+  (:method (s)
+   (let ((probe (plist-get (eglot--saved-initargs s) :initializationOptions)))
+     (cond ((functionp probe) (funcall probe s))
+           (probe)
+           (t eglot--{})))))
 
 (cl-defgeneric eglot-register-capability (server method id &rest params)
   "Ask SERVER to register capability METHOD marked with ID."
