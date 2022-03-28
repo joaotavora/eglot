@@ -26,7 +26,7 @@ rendering suggestions in the protocol, we fade out unnecessary code
 and strike-through deprecated code.
 
 ##### The Rust language server is now rust-analyzer by default ([#803][github#803])
-Eglot will now prefer starting "rust-analazyer" to "rls" when it is
+Eglot will now prefer starting "rust-analyzer" to "rls" when it is
 available.  The special support code for RLS has been removed.
 
 ##### New servers have been added to `eglot-server-programs`
