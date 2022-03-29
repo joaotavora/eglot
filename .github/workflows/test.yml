@@ -31,7 +31,12 @@ jobs:
       with:
           toolchain: stable
           override: true
-          components: rust-analysis, rust-src, rls
+
+    - name: Install more rust
+      run: |
+        mkdir -p ~/.local/bin
+        curl -L https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer
+        chmod +x ~/.local/bin/rust-analyzer
 
     - name: Install eclipse.jdt.ls
       run: |

@@ -354,14 +354,17 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (ert-deftest rust-analyzer-watches-files ()
   "Start rust-analyzer.  Notify it when a critical file changes."
   (skip-unless (executable-find "rust-analyzer"))
-  (skip-unless (executable-find "cargo"))
+  (skip-unless (executable-find "git"))
   (let ((eglot-autoreconnect 1))
     (eglot--with-fixture
-        '(("watch-project" . (("coiso.rs" . "bla")
-                              ("merdix.rs" . "bla"))))
+        '(("watch-project" . (("src" . (("main.rs" . "bla")
+                                        ("coiso.rs" . "bla")
+                                        ("merdix.rs" . "bla")))
+                              ("Cargo.toml" .
+                               "[package]\nname=\"bla\"\nversion=\"0.0.1\""))))
+      (should (zerop (shell-command "git init watch-project")))
       (with-current-buffer
-          (eglot--find-file-noselect "watch-project/coiso.rs")
-        (should (zerop (shell-command "cargo init")))
+          (eglot--find-file-noselect "watch-project/src/main.rs")
         (eglot--sniffing (
                           :server-requests s-requests
                           :client-notifications c-notifs
@@ -376,15 +379,11 @@ Pass TIMEOUT to `eglot--with-timeout'."
             (eglot--wait-for (c-replies 1)
                 (&key id error &allow-other-keys)
               (and (eq id register-id) (null error))))
-          (delete-file "Cargo.toml")
+          (delete-file "merdix.rs")
           (eglot--wait-for
               (c-notifs 3 "waiting for didChangeWatchedFiles notification")
-              (&key method params &allow-other-keys)
-            (and (string= method "workspace/didChangeWatchedFiles")
-                 (cl-destructuring-bind (&key uri type)
-                     (elt (plist-get params :changes) 0)
-                   (and (string= (eglot--path-to-uri "Cargo.toml") uri)
-                        (= type 3))))))))))
+              (&key method _params &allow-other-keys)
+              (string= method "workspace/didChangeWatchedFiles")))))))
 
 (ert-deftest basic-diagnostics ()
   "Test basic diagnostics."
