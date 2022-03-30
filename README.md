@@ -65,6 +65,7 @@ find-library` can help you tell if that happened.
 * Nix's [rnix-lsp][rnix-lsp]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
 * PHP's [php-language-server][php-language-server]
+* PureScript's [purescript-language-server][purescript-language-server]
 * Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
@@ -522,6 +523,7 @@ for the request form, and we'll send it to you.
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
 [ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
 [php-language-server]: https://github.com/felixfbecker/php-language-server
+[purescript-language-server]: https://github.com/nwolverson/purescript-language-server
 [pyls]: https://github.com/palantir/python-language-server
 [pylsp]: https://github.com/python-lsp/python-lsp-server
 [pyright]: https://github.com/microsoft/pyright
