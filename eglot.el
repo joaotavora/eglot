@@ -1993,8 +1993,9 @@ THINGS are either registrations or unregisterations (sic)."
   (setq eglot--last-inserted-char last-input-event)
   (let ((ot-provider (eglot--server-capable :documentOnTypeFormattingProvider)))
     (when (and ot-provider
-               (or (eq last-input-event
-                       (elt (plist-get ot-provider :firstTriggerCharacter) 0))
+               (or (and (length> (plist-get ot-provider :firstTriggerCharacter) 0)
+                        (eq last-input-event
+                            (elt (plist-get ot-provider :firstTriggerCharacter) 0)))
                    (cl-find last-input-event
                             (plist-get ot-provider :moreTriggerCharacter)
                             :key #'seq-first)))
