@@ -2,10 +2,9 @@
 
 ##### Rework mode-line menus ([#792][github#792])
 
-The new menus help discovering Egolot's features and shows which of
-them are supported by the current server.  Additionally, customizing
-variable `eglot-mode-line-string` can leave more space on the
-mode-line.
+New menus help discover Eglot's features and show which of them are
+supported by the current server.  Menus can be customized away via
+`eglot-menu-string`, making space in mode-line.
 
 ##### Easier to use LSP initialize.initializationOptions ([#901][github#901], [#845][github#845])
 In `eglot-server-programs` a plist may be appended to the usual list
