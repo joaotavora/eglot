@@ -45,7 +45,7 @@ find-library` can help you tell if that happened.
 * Clojure's [clojure-lsp][clojure-lsp]
 * CMake's [cmake-language-server][cmake-language-server]
 * CSS's [css-languageserver][css-languageserver]
-* Dart's [dart_language_server][dart_language_server]
+* Dart's [analysis_server][dart-analysis-server]
 * Dockerfile's [docker-langserver][docker-langserver]
 * Elixir's [elixir-ls][elixir-ls]
 * Elm's [elm-language-server][elm-language-server]
@@ -503,7 +503,7 @@ for the request form, and we'll send it to you.
 [clojure-lsp]: https://clojure-lsp.io
 [cmake-language-server]: https://github.com/regen100/cmake-language-server
 [css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
-[dart_language_server]: https://github.com/natebosch/dart_language_server
+[dart-analysis-server]: https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [fortls]: https://github.com/hansec/fortran-language-server
