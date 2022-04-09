@@ -735,6 +735,7 @@ treated as in `eglot-dbind'."
                                        `(:valueSet
                                          [,@(mapcar
                                              #'car eglot--tag-faces)])))
+            :general '(:positionEncodings ["utf-32" "utf-16"])
             :experimental eglot--{})))
 
 (cl-defgeneric eglot-workspace-folders (server)
@@ -1331,6 +1332,12 @@ CONNECT-ARGS are passed as additional arguments to
 
 (defun eglot-current-column () (- (point) (point-at-bol)))
 
+(defun eglot-negotiated-column ()
+  "Calculate current COLUMN as defined by the negotiated encoding."
+  (if (equal "utf-32" (eglot--server-capable :positionEncoding))
+      (eglot-current-column)
+    (eglot-lsp-abiding-column)))
+
 (defvar eglot-current-column-function #'eglot-lsp-abiding-column
   "Function to calculate the current column.
 
@@ -1338,7 +1345,7 @@ This is the inverse operation of
 `eglot-move-to-column-function' (which see).  It is a function of
 no arguments returning a column number.  For buffers managed by
 fully LSP-compliant servers, this should be set to
-`eglot-lsp-abiding-column' (the default), and
+`eglot-negotiated-column' (the default), and
 `eglot-current-column' for all others.")
 
 (defun eglot-lsp-abiding-column (&optional lbp)
@@ -1367,8 +1374,14 @@ where X is a multi-byte character, it actually means `b', not
 `c'. However, many servers don't follow the spec this closely.
 
 For buffers managed by fully LSP-compliant servers, this should
-be set to `eglot-move-to-lsp-abiding-column' (the default), and
+be set to `eglot-move-to-negotiated-column' (the default), and
 `eglot-move-to-column' for all others.")
+
+(defun eglot-move-to-negotiated-column (column)
+  "Move to COLUMN given in the negotiated encoding."
+  (if (equal "utf-32" (eglot--server-capable :positionEncoding))
+      (eglot-move-to-column column)
+    (eglot-move-to-lsp-abiding-column column)))
 
 (defun eglot-move-to-column (column)
   "Move to COLUMN without closely following the LSP spec."
@@ -1502,7 +1515,8 @@ under cursor."
           (const :tag "Highlight links in document" :documentLinkProvider)
           (const :tag "Decorate color references" :colorProvider)
           (const :tag "Fold regions of buffer" :foldingRangeProvider)
-          (const :tag "Execute custom commands" :executeCommandProvider)))
+          (const :tag "Execute custom commands" :executeCommandProvider)
+          (const :tag "Negotiate position encoding" :positionEncoding)))
 
 (defun eglot--server-capable (&rest feats)
   "Determine if current server is capable of FEATS."
