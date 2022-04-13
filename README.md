@@ -70,6 +70,7 @@ find-library` can help you tell if that happened.
 * Ruby's [solargraph][solargraph]
 * Rust's [rust-analyzer][rust-analyzer]
 * Scala's [metals][metals]
+* Svelte's [svelte-language-server][svelte-language-server]
 * TeX/LaTeX's [Digestif][digestif]
 * VimScript's [vim-language-server][vim-language-server]
 * YAML's [yaml-language-server][yaml-language-server]
@@ -528,6 +529,7 @@ for the request form, and we'll send it to you.
 [solargraph]: https://github.com/castwide/solargraph
 [rust-analyzer]: https://github.com/rust-analyzer/rust-analyzer
 [metals]: https://scalameta.org/metals/
+[svelte-language-server]: https://github.com/sveltejs/language-tools
 [digestif]: https://github.com/astoff/digestif
 [vim-language-server]: https://github.com/iamcco/vim-language-server
 [yaml-language-server]: https://github.com/redhat-developer/yaml-language-server
