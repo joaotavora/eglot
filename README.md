@@ -416,6 +416,14 @@ queries the server for possible code actions at point.  See variable
 ## Hover on symbol
 ![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
 
+Eglot will use `eldoc-mode` to display signature hints relayed by the
+server.
+
+For some servers, this can be a bit verbose. You can use
+`eldoc-echo-area-use-multiline-p` to tweak the number of lines shown,
+and `eldoc-documentation-strategy` to prevent this from interfering
+with `flymake` diagnostics.
+
 ## Rename
 ![eglot-rename](./gif-examples/eglot-rename.gif)
 
