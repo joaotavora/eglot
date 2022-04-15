@@ -51,6 +51,7 @@ find-library` can help you tell if that happened.
 * Elm's [elm-language-server][elm-language-server]
 * Erlang's [erlang_ls][erlang_ls]
 * Fortran's [fortls][fortls]
+* Futhark's [futhark lsp][futhark-lsp]
 * Go's [gopls][gopls]
 * Godot Engine's [built-in LSP][godot]
 * HTML [html-languageserver][html-languageserver]
@@ -507,6 +508,7 @@ for the request form, and we'll send it to you.
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [fortls]: https://github.com/hansec/fortran-language-server
+[futhark-lsp]: https://futhark-lang.org
 [gopls]: https://github.com/golang/tools/tree/master/gopls
 [godot]: https://godotengine.org
 [html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
