@@ -45,6 +45,7 @@ available.  The special support code for RLS has been removed.
 ##### New servers have been added to `eglot-server-programs`
 - clojure-lsp ([#813][github#813])
 - racket-langserver ([#694][github#694])
+- futhark lsp ([#922](github#922))
 
 # 1.8 (12/1/2022)
 
@@ -374,3 +375,4 @@ and now said bunch of references-->
 [github#893]: https://github.com/joaotavora/eglot/issues/893
 [github#899]: https://github.com/joaotavora/eglot/issues/899
 [github#901]: https://github.com/joaotavora/eglot/issues/901
+[github#922]: https://github.com/joaotavora/eglot/issues/922
