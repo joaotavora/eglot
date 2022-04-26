@@ -945,6 +945,11 @@ be guessed."
 (put 'eglot-lsp-context 'variable-documentation
      "Dynamically non-nil when searching for projects in LSP context.")
 
+(defun eglot--xrefed-file-key (file-name)
+  (if (eq system-type 'windows-nt)
+      (downcase (expand-file-name file-name))
+    (expand-file-name file-name)))
+
 (defvar eglot--servers-by-xrefed-file
   (make-hash-table :test 'equal :weakness 'value))
 
@@ -1669,7 +1674,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
                      :key #'eglot--major-mode)
             (and eglot-extend-to-xref
                  buffer-file-name
-                 (gethash (expand-file-name buffer-file-name)
+                 (gethash (eglot--xrefed-file-key buffer-file-name)
                           eglot--servers-by-xrefed-file)))))
 
 (defun eglot--current-server-or-lose ()
@@ -2264,7 +2269,7 @@ Try to visit the target file for a richer summary line."
                  (start-pos (cl-getf start :character))
                  (end-pos (cl-getf (cl-getf range :end) :character)))
             (list name line start-pos (- end-pos start-pos)))))))
-    (setf (gethash (expand-file-name file) eglot--servers-by-xrefed-file)
+    (setf (gethash (eglot--xrefed-file-key file) eglot--servers-by-xrefed-file)
           (eglot--current-server-or-lose))
     (xref-make-match summary (xref-make-file-location file line column) length)))
 
