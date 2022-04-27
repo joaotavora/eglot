@@ -946,9 +946,12 @@ be guessed."
      "Dynamically non-nil when searching for projects in LSP context.")
 
 (defun eglot--xrefed-file-key (file-name)
-  (if (eq system-type 'windows-nt)
-      (downcase (expand-file-name file-name))
-    (expand-file-name file-name)))
+  (let ((path (expand-file-name file-name)))
+    (if (and (eq system-type 'windows-nt)
+             (cl-plusp (length path)))
+        ;; `expand-file-name' under Windows does not down-case driver letter for absolute path
+        (concat (downcase (substring path 0 1)) (substring path 1))
+      path)))
 
 (defvar eglot--servers-by-xrefed-file
   (make-hash-table :test 'equal :weakness 'value))
