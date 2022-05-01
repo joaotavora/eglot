@@ -1213,9 +1213,9 @@ This docstring appeases checkdoc, that's all."
                               ;; No need to pass SERVER as an argument: it has
                               ;; been registered in `eglot--servers-by-project',
                               ;; so that it can be found (and cached) from
-                              ;; `eglot--maybe-activate-editing-mode' in any
+                              ;; `eglot--maybe-activate-managed-mode' in any
                               ;; managed buffer.
-                              (eglot--maybe-activate-editing-mode)))
+                              (eglot--maybe-activate-managed-mode)))
                           (setf (eglot--inhibit-autoreconnect server)
                                 (cond
                                  ((booleanp eglot-autoreconnect)
@@ -1711,7 +1711,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
   "Eglot's `after-revert-hook'."
   (when revert-buffer-preserve-modes (eglot--signal-textDocument/didOpen)))
 
-(defun eglot--maybe-activate-editing-mode ()
+(defun eglot--maybe-activate-managed-mode ()
   "Maybe activate `eglot--managed-mode'.
 
 If it is activated, also signal textDocument/didOpen."
@@ -1723,8 +1723,8 @@ If it is activated, also signal textDocument/didOpen."
       (eglot--managed-mode)
       (eglot--signal-textDocument/didOpen))))
 
-(add-hook 'find-file-hook 'eglot--maybe-activate-editing-mode)
-(add-hook 'after-change-major-mode-hook 'eglot--maybe-activate-editing-mode)
+(add-hook 'find-file-hook 'eglot--maybe-activate-managed-mode)
+(add-hook 'after-change-major-mode-hook 'eglot--maybe-activate-managed-mode)
 
 (defun eglot-clear-status (server)
   "Clear the last JSONRPC error for SERVER."
