@@ -1047,7 +1047,7 @@ INTERACTIVE is t if called interactively."
           ()
           (remove-hook 'post-command-hook #'maybe-connect nil)
           (eglot--when-live-buffer buffer
-            (unless eglot--managed-mode
+            (unless (eglot-current-server)
               (apply #'eglot--connect (eglot--guess-contact))))))
       (when buffer-file-name
         (add-hook 'post-command-hook #'maybe-connect 'append nil)))))
@@ -1715,13 +1715,20 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
   "Maybe activate `eglot--managed-mode'.
 
 If it is activated, also signal textDocument/didOpen."
-  (unless eglot--managed-mode
-    ;; Called when `revert-buffer-in-progress-p' is t but
-    ;; `revert-buffer-preserve-modes' is nil.
-    (when (and buffer-file-name (eglot-current-server))
-      (setq eglot--diagnostics nil)
-      (eglot--managed-mode)
-      (eglot--signal-textDocument/didOpen))))
+  (let ((buffer (current-buffer)))
+    (cl-labels
+        ((maybe-activate
+          ()
+          (remove-hook 'post-command-hook #'maybe-activate nil)
+          (eglot--when-live-buffer buffer
+            (unless eglot--managed-mode
+              ;; Called when `revert-buffer-in-progress-p' is t but
+              ;; `revert-buffer-preserve-modes' is nil.
+              (when (and buffer-file-name (eglot-current-server))
+                (setq eglot--diagnostics nil)
+                (eglot--managed-mode)
+                (eglot--signal-textDocument/didOpen))))))
+      (add-hook 'post-command-hook #'maybe-activate 'append nil))))
 
 (add-hook 'find-file-hook 'eglot--maybe-activate-managed-mode)
 (add-hook 'after-change-major-mode-hook 'eglot--maybe-activate-managed-mode)
