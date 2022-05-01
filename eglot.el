@@ -1047,9 +1047,8 @@ INTERACTIVE is t if called interactively."
           ()
           (remove-hook 'post-command-hook #'maybe-connect nil)
           (eglot--when-live-buffer buffer
-            (unless (eglot-current-server)
-              (apply #'eglot--connect (eglot--guess-contact)))
-            (eglot--maybe-activate-editing-mode))))
+            (unless eglot--managed-mode
+              (apply #'eglot--connect (eglot--guess-contact))))))
       (when buffer-file-name
         (add-hook 'post-command-hook #'maybe-connect 'append nil)))))
 
@@ -1723,6 +1722,9 @@ If it is activated, also signal textDocument/didOpen."
       (setq eglot--diagnostics nil)
       (eglot--managed-mode)
       (eglot--signal-textDocument/didOpen))))
+
+(add-hook 'find-file-hook 'eglot--maybe-activate-editing-mode)
+(add-hook 'after-change-major-mode-hook 'eglot--maybe-activate-editing-mode)
 
 (defun eglot-clear-status (server)
   "Clear the last JSONRPC error for SERVER."
