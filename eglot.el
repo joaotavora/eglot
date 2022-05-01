@@ -618,6 +618,15 @@ treated as in `eglot-dbind'."
   (let ((b (cl-gensym)))
     `(let ((,b ,buf)) (if (buffer-live-p ,b) (with-current-buffer ,b ,@body)))))
 
+(cl-defmacro eglot--eval-post-command (&rest body)
+  "Eval body in `post-command-hook'"
+  `(cl-labels
+       ((func
+         ()
+         (remove-hook 'post-command-hook #'func nil)
+         ,@body))
+     (add-hook 'post-command-hook #'func 'append nil)))
+
 (cl-defmacro eglot--when-buffer-window (buf &body body)
   "Check BUF showing somewhere, then do BODY in it." (declare (indent 1) (debug t))
   (let ((b (cl-gensym)))
@@ -1041,16 +1050,12 @@ INTERACTIVE is t if called interactively."
 ;;;###autoload
 (defun eglot-ensure ()
   "Start Eglot session for current buffer if there isn't one."
-  (let ((buffer (current-buffer)))
-    (cl-labels
-        ((maybe-connect
-          ()
-          (remove-hook 'post-command-hook #'maybe-connect nil)
-          (eglot--when-live-buffer buffer
-            (unless (eglot-current-server)
-              (apply #'eglot--connect (eglot--guess-contact))))))
-      (when buffer-file-name
-        (add-hook 'post-command-hook #'maybe-connect 'append nil)))))
+  (when buffer-file-name
+    (let ((buffer (current-buffer)))
+      (eglot--eval-post-command
+       (eglot--when-live-buffer buffer
+         (unless (eglot-current-server)
+           (apply #'eglot--connect (eglot--guess-contact))))))))
 
 (defun eglot-events-buffer (server)
   "Display events buffer for SERVER.
@@ -1716,19 +1721,15 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
 
 If it is activated, also signal textDocument/didOpen."
   (let ((buffer (current-buffer)))
-    (cl-labels
-        ((maybe-activate
-          ()
-          (remove-hook 'post-command-hook #'maybe-activate nil)
-          (eglot--when-live-buffer buffer
-            (unless eglot--managed-mode
-              ;; Called when `revert-buffer-in-progress-p' is t but
-              ;; `revert-buffer-preserve-modes' is nil.
-              (when (and buffer-file-name (eglot-current-server))
-                (setq eglot--diagnostics nil)
-                (eglot--managed-mode)
-                (eglot--signal-textDocument/didOpen))))))
-      (add-hook 'post-command-hook #'maybe-activate 'append nil))))
+    (eglot--eval-post-command
+     (eglot--when-live-buffer buffer
+       (unless eglot--managed-mode
+         ;; Called when `revert-buffer-in-progress-p' is t but
+         ;; `revert-buffer-preserve-modes' is nil.
+         (when (and buffer-file-name (eglot-current-server))
+           (setq eglot--diagnostics nil)
+           (eglot--managed-mode)
+           (eglot--signal-textDocument/didOpen)))))))
 
 (add-hook 'find-file-hook 'eglot--maybe-activate-managed-mode)
 (add-hook 'after-change-major-mode-hook 'eglot--maybe-activate-managed-mode)
