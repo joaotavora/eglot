@@ -276,11 +276,6 @@ CONTACT can be:
   '((t . (:inherit shadow :strike-through t)))
   "Face used to render deprecated or obsolete code.")
 
-(defcustom eglot-automanage t
-  "Automatically enable eglot when visiting files for a EGLOT project.
-If disabled, you can still enable eglot by `eglot-ensure'."
-  :type 'boolean)
-
 (defcustom eglot-autoreconnect 3
   "Control ability to reconnect automatically to the LSP server.
 If t, always reconnect automatically (not recommended).  If nil,
@@ -1728,10 +1723,6 @@ If it is activated, also signal textDocument/didOpen."
       (setq eglot--diagnostics nil)
       (eglot--managed-mode)
       (eglot--signal-textDocument/didOpen))))
-
-(when eglot-automanage
-  (add-hook 'find-file-hook 'eglot--maybe-activate-editing-mode)
-  (add-hook 'after-change-major-mode-hook 'eglot--maybe-activate-editing-mode))
 
 (defun eglot-clear-status (server)
   "Clear the last JSONRPC error for SERVER."
