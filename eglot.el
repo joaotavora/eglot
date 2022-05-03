@@ -173,7 +173,7 @@ language-server/bin/php-language-server.php"))
                                 (go-mode . ("gopls"))
                                 ((R-mode ess-r-mode) . ("R" "--slave" "-e"
                                                         "languageserver::run()"))
-                                (java-mode . (eglot-eclipse-jdt "jdtls"))
+                                (java-mode . ("jdtls"))
                                 (dart-mode . ("dart" "language-server"
                                               "--client-id" "emacs.eglot-dart"))
                                 (elixir-mode . ("language_server.sh"))
@@ -3049,12 +3049,8 @@ at point.  With prefix argument, prompt for ACTION-KIND."
 
 ;;; eclipse-jdt breaks the spec which in turn breaks code actions
 ;;; This behaviour can't be disabled and needs to be worked around
-;;;
-(defclass eglot-eclipse-jdt (eglot-lsp-server) ()
-  :documentation "Eclipse's Java Development Tools Language Server.")
-
 (cl-defmethod eglot-execute-command
-  ((_server eglot-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
+  (_server (_cmd (eql java.apply.workspaceEdit)) arguments)
   "Eclipse JDT breaks spec and replies with edits as arguments."
   (mapc #'eglot--apply-workspace-edit arguments))
 
