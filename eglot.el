@@ -2934,8 +2934,12 @@ for which LSP on-type-formatting should be requested."
                          textDocument
                        (list (eglot--uri-to-path uri) edits version)))
                    documentChanges)))
-      (cl-loop for (uri edits) on changes by #'cddr
-               do (push (list (eglot--uri-to-path uri) edits) prepared))
+      (unless (and changes documentChanges)
+        ;; We don't want double edits, and some servers send both
+        ;; changes and documentChanges.  This unless ensures that we
+        ;; prefer documentChanges over changes.
+        (cl-loop for (uri edits) on changes by #'cddr
+                 do (push (list (eglot--uri-to-path uri) edits) prepared)))
       (if (or confirm
               (cl-notevery #'find-buffer-visiting
                            (mapcar #'car prepared)))
