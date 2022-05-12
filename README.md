@@ -1,4 +1,4 @@
-![Build status](https://github.com/joaotavora/eglot/actions/workflows/test.yml/badge.svg?master)
+[![Build status](https://github.com/joaotavora/eglot/actions/workflows/test.yml/badge.svg)](https://github.com/joaotavora/eglot/actions/workflows/test.yml)
 [![GNU ELPA](https://elpa.gnu.org/packages/eglot.svg)](https://elpa.gnu.org/packages/eglot.html)
 [![MELPA](https://melpa.org/packages/eglot-badge.svg)](https://melpa.org/#/eglot)
 
@@ -45,12 +45,13 @@ find-library` can help you tell if that happened.
 * Clojure's [clojure-lsp][clojure-lsp]
 * CMake's [cmake-language-server][cmake-language-server]
 * CSS's [css-languageserver][css-languageserver]
-* Dart's [dart_language_server][dart_language_server]
+* Dart's [analysis_server][dart-analysis-server]
 * Dockerfile's [docker-langserver][docker-langserver]
 * Elixir's [elixir-ls][elixir-ls]
 * Elm's [elm-language-server][elm-language-server]
 * Erlang's [erlang_ls][erlang_ls]
 * Fortran's [fortls][fortls]
+* Futhark's [futhark lsp][futhark-lsp]
 * Go's [gopls][gopls]
 * Godot Engine's [built-in LSP][godot]
 * HTML [html-languageserver][html-languageserver]
@@ -64,6 +65,7 @@ find-library` can help you tell if that happened.
 * Nix's [rnix-lsp][rnix-lsp]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
 * PHP's [php-language-server][php-language-server]
+* PureScript's [purescript-language-server][purescript-language-server]
 * Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
@@ -189,9 +191,6 @@ get [cquery][cquery] working:
     (list :cacheDirectory (file-name-as-directory cache)
           :progressReportFrequencyMs -1)))
 ```
-
-See `eglot.el`'s section on Java's JDT server for an even more
-sophisticated example.
 
 Similarly, some servers require the language identifier strings they
 are sent by `eglot` to match the exact strings used by VSCode. `eglot`
@@ -506,10 +505,11 @@ for the request form, and we'll send it to you.
 [clojure-lsp]: https://clojure-lsp.io
 [cmake-language-server]: https://github.com/regen100/cmake-language-server
 [css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
-[dart_language_server]: https://github.com/natebosch/dart_language_server
+[dart-analysis-server]: https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [fortls]: https://github.com/hansec/fortran-language-server
+[futhark-lsp]: https://futhark-lang.org
 [gopls]: https://github.com/golang/tools/tree/master/gopls
 [godot]: https://godotengine.org
 [html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
@@ -523,6 +523,7 @@ for the request form, and we'll send it to you.
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
 [ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
 [php-language-server]: https://github.com/felixfbecker/php-language-server
+[purescript-language-server]: https://github.com/nwolverson/purescript-language-server
 [pyls]: https://github.com/palantir/python-language-server
 [pylsp]: https://github.com/python-lsp/python-lsp-server
 [pyright]: https://github.com/microsoft/pyright

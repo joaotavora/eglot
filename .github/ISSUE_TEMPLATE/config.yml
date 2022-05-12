@@ -1,0 +1,15 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Discuss Eglot, request features, report bugs informally"
+    url: https://github.com/joaotavora/eglot/discussions
+    about: Ask questions, request features, answer questions
+  - name: "Additional Support: Emacs Help"
+    url: https://lists.gnu.org/mailman/listinfo/help-gnu-emacs
+    about: Search, ask and answer questions
+  - name: "Additional Support: Emacs StackExchange"
+    url: https://emacs.stackexchange.com/questions/tagged/eglot
+    about: Search, ask and answer questions
+  - name: "Additional Support: Emacs Reddit"
+    url: https://www.reddit.com/r/emacs
+    about: Search, ask and answer questions
+  
