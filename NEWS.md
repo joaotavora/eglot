@@ -45,8 +45,8 @@ available.  The special support code for RLS has been removed.
 ##### New servers have been added to `eglot-server-programs`
 - clojure-lsp ([#813][github#813])
 - racket-langserver ([#694][github#694])
-- futhark lsp ([#922](github#922))
-- purescript-language-server ([#905](github#905))
+- futhark lsp ([#922][github#922])
+- purescript-language-server ([#905][github#905])
 
 # 1.8 (12/1/2022)
 
