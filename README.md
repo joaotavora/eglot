@@ -399,24 +399,43 @@ snippets.
 ## Diagnostics
 ![eglot-diagnostics](./gif-examples/eglot-diagnostics.gif)
 
-Eglot relays the diagnostics information received from the server to
-[flymake][flymake].  Command `display-local-help` (bound to `C-h .`)
-shows the diagnostic message under point, but flymake provides other
-convenient ways to handle diagnostic errors.
+Eglot relays the diagnostics information received from the LSP server
+to Emacs's [Flymake][flymake], which annotates/underlines the
+problematic parts of the buffer.  The information is shared with the
+[ElDoc][eldoc] system, meaning that the commands `eldoc` and
+`eldoc-doc-buffer` (the latter bound to `C-h-.` for convenience) show
+diagnostics along with other documentation under point.
 
-When Eglot manages a buffer, it disables other flymake backends.  See
-variable `eglot-stay-out-of` to change that.
+[Flymake][flymake] provides other convenient ways to view and manage
+diagnostic errors.  These are described in its [manual][flymake].
+
+When Eglot manages a buffer, it disables pre-existing Flymake
+backends.  See variable `eglot-stay-out-of` to change that.
 
 ## Code Actions
 ![eglot-code-actions](./gif-examples/eglot-code-actions.gif)
 
-The server may provide code actions, for example, to fix a diagnostic
-error or to suggest refactoring edits.  Command `eglot-code-actions`
-queries the server for possible code actions at point.  See variable
-`eglot-confirm-server-initiated-edits` to customize its behavior.
+The LSP server may provide code actions, for example, to fix a
+diagnostic error or to suggest refactoring edits.  The commands are
+frequently associating with Flymake diagnostic annotations, so that
+left-clicking them shows a menu.  Additionally, the command
+`eglot-code-actions` asks the server for any code spanning a given
+region.
 
-## Hover on symbol
+Sometimes, these code actions are initiated by the server.  See
+`eglot-confirm-server-initiated-edits` to control that behaviour.
+
+## Hover on symbol /function signature
 ![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
+
+Here, too, the LSP server's view of a given symbol or function
+signature is relayed to the [ElDoc][eldoc] system.  The commands
+`eldoc` and `eldoc-doc-buffer` commands access that information.
+
+There are customization variables to help adjust [ElDoc][eldoc]'s
+liberal use of the lower "echo area", among other options.  If you
+still find the solicitous nature of this LSP feature too distracing,
+you can use `eglot-ignored-server-capabilities` to turn it off.
 
 ## Rename
 ![eglot-rename](./gif-examples/eglot-rename.gif)
@@ -432,7 +451,7 @@ To jump to the definition of a symbol, use the built-in
 ## Find references
 ![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
 
-Eglot here relies on emacs' built-in functionality as well.
+Eglot here relies on Emacs' built-in functionality as well.
 `xref-find-references` is bound to `M-?`.  Additionally, Eglot
 provides the following similar commands: `eglot-find-declaration`,
 `eglot-find-implementation`, `eglot-find-typeDefinition`.
@@ -552,6 +571,7 @@ for the request form, and we'll send it to you.
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [company]: https://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
+[eldoc]: https://github.com/emacs-mirror/emacs/blob/master/lisp/emacs-lisp/eldoc.el
 [yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
