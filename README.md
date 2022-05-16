@@ -1,4 +1,4 @@
-![Build status](https://github.com/joaotavora/eglot/actions/workflows/test.yml/badge.svg?master)
+[![Build status](https://github.com/joaotavora/eglot/actions/workflows/test.yml/badge.svg)](https://github.com/joaotavora/eglot/actions/workflows/test.yml)
 [![GNU ELPA](https://elpa.gnu.org/packages/eglot.svg)](https://elpa.gnu.org/packages/eglot.html)
 [![MELPA](https://melpa.org/packages/eglot-badge.svg)](https://melpa.org/#/eglot)
 
@@ -41,15 +41,17 @@ find-library` can help you tell if that happened.
 * Ada's [ada_language_server][ada_language_server]
 * Bash's [bash-language-server][bash-language-server]
 * C/C++'s [clangd][clangd] or [ccls][ccls]
+* C#'s [omnisharp][omnisharp]
 * Clojure's [clojure-lsp][clojure-lsp]
 * CMake's [cmake-language-server][cmake-language-server]
 * CSS's [css-languageserver][css-languageserver]
-* Dart's [dart_language_server][dart_language_server]
+* Dart's [analysis_server][dart-analysis-server]
 * Dockerfile's [docker-langserver][docker-langserver]
 * Elixir's [elixir-ls][elixir-ls]
 * Elm's [elm-language-server][elm-language-server]
 * Erlang's [erlang_ls][erlang_ls]
 * Fortran's [fortls][fortls]
+* Futhark's [futhark lsp][futhark-lsp]
 * Go's [gopls][gopls]
 * Godot Engine's [built-in LSP][godot]
 * HTML [html-languageserver][html-languageserver]
@@ -63,6 +65,7 @@ find-library` can help you tell if that happened.
 * Nix's [rnix-lsp][rnix-lsp]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
 * PHP's [php-language-server][php-language-server]
+* PureScript's [purescript-language-server][purescript-language-server]
 * Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
@@ -188,9 +191,6 @@ get [cquery][cquery] working:
     (list :cacheDirectory (file-name-as-directory cache)
           :progressReportFrequencyMs -1)))
 ```
-
-See `eglot.el`'s section on Java's JDT server for an even more
-sophisticated example.
 
 Similarly, some servers require the language identifier strings they
 are sent by `eglot` to match the exact strings used by VSCode. `eglot`
@@ -399,24 +399,43 @@ snippets.
 ## Diagnostics
 ![eglot-diagnostics](./gif-examples/eglot-diagnostics.gif)
 
-Eglot relays the diagnostics information received from the server to
-[flymake][flymake].  Command `display-local-help` (bound to `C-h .`)
-shows the diagnostic message under point, but flymake provides other
-convenient ways to handle diagnostic errors.
+Eglot relays the diagnostics information received from the LSP server
+to Emacs's [Flymake][flymake], which annotates/underlines the
+problematic parts of the buffer.  The information is shared with the
+[ElDoc][eldoc] system, meaning that the commands `eldoc` and
+`eldoc-doc-buffer` (the latter bound to `C-h-.` for convenience) show
+diagnostics along with other documentation under point.
 
-When Eglot manages a buffer, it disables other flymake backends.  See
-variable `eglot-stay-out-of` to change that.
+[Flymake][flymake] provides other convenient ways to view and manage
+diagnostic errors.  These are described in its [manual][flymake].
+
+When Eglot manages a buffer, it disables pre-existing Flymake
+backends.  See variable `eglot-stay-out-of` to change that.
 
 ## Code Actions
 ![eglot-code-actions](./gif-examples/eglot-code-actions.gif)
 
-The server may provide code actions, for example, to fix a diagnostic
-error or to suggest refactoring edits.  Command `eglot-code-actions`
-queries the server for possible code actions at point.  See variable
-`eglot-confirm-server-initiated-edits` to customize its behavior.
+The LSP server may provide code actions, for example, to fix a
+diagnostic error or to suggest refactoring edits.  The commands are
+frequently associating with Flymake diagnostic annotations, so that
+left-clicking them shows a menu.  Additionally, the command
+`eglot-code-actions` asks the server for any code spanning a given
+region.
 
-## Hover on symbol
+Sometimes, these code actions are initiated by the server.  See
+`eglot-confirm-server-initiated-edits` to control that behaviour.
+
+## Hover on symbol /function signature
 ![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
+
+Here, too, the LSP server's view of a given symbol or function
+signature is relayed to the [ElDoc][eldoc] system.  The commands
+`eldoc` and `eldoc-doc-buffer` commands access that information.
+
+There are customization variables to help adjust [ElDoc][eldoc]'s
+liberal use of the lower "echo area", among other options.  If you
+still find the solicitous nature of this LSP feature too distracing,
+you can use `eglot-ignored-server-capabilities` to turn it off.
 
 ## Rename
 ![eglot-rename](./gif-examples/eglot-rename.gif)
@@ -432,7 +451,7 @@ To jump to the definition of a symbol, use the built-in
 ## Find references
 ![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
 
-Eglot here relies on emacs' built-in functionality as well.
+Eglot here relies on Emacs' built-in functionality as well.
 `xref-find-references` is bound to `M-?`.  Additionally, Eglot
 provides the following similar commands: `eglot-find-declaration`,
 `eglot-find-implementation`, `eglot-find-typeDefinition`.
@@ -501,13 +520,15 @@ for the request form, and we'll send it to you.
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 [clangd]: https://clang.llvm.org/extra/clangd.html
+[omnisharp]: https://github.com/OmniSharp/omnisharp-roslyn
 [clojure-lsp]: https://clojure-lsp.io
 [cmake-language-server]: https://github.com/regen100/cmake-language-server
 [css-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
-[dart_language_server]: https://github.com/natebosch/dart_language_server
+[dart-analysis-server]: https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
 [fortls]: https://github.com/hansec/fortran-language-server
+[futhark-lsp]: https://futhark-lang.org
 [gopls]: https://github.com/golang/tools/tree/master/gopls
 [godot]: https://godotengine.org
 [html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
@@ -521,6 +542,7 @@ for the request form, and we'll send it to you.
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
 [ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
 [php-language-server]: https://github.com/felixfbecker/php-language-server
+[purescript-language-server]: https://github.com/nwolverson/purescript-language-server
 [pyls]: https://github.com/palantir/python-language-server
 [pylsp]: https://github.com/python-lsp/python-lsp-server
 [pyright]: https://github.com/microsoft/pyright
@@ -549,6 +571,7 @@ for the request form, and we'll send it to you.
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [company]: https://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
+[eldoc]: https://github.com/emacs-mirror/emacs/blob/master/lisp/emacs-lisp/eldoc.el
 [yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
