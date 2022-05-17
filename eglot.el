@@ -329,6 +329,10 @@ let the buffer grow forever."
   "String displayed in mode line when Eglot is active."
   :type 'string)
 
+(defcustom eglot-flymake-immediate-report t
+  "Whether to display diagnostic immediately when notified."
+  :type 'boolean)
+
 (defvar eglot-withhold-process-id nil
   "If non-nil, Eglot will not send the Emacs process id to the language server.
 This can be useful when using docker to run a language server.")
@@ -1996,7 +2000,7 @@ COMMAND is a symbol naming the command."
                                              collect it)))
                           `((face . ,faces))))))
            into diags
-           finally (cond (eglot--current-flymake-report-fn
+           finally (cond ((and eglot--current-flymake-report-fn eglot-flymake-immediate-report)
                           (eglot--report-to-flymake diags))
                          (t
                           (setq eglot--diagnostics diags)))))
