@@ -1045,10 +1045,17 @@ INTERACTIVE is t if called interactively."
     (cl-labels
         ((maybe-connect
           ()
-          (remove-hook 'post-command-hook #'maybe-connect nil)
-          (eglot--when-live-buffer buffer
-            (unless eglot--managed-mode
-              (apply #'eglot--connect (eglot--guess-contact))))))
+          (condition-case error-obj
+              (progn
+                (remove-hook 'post-command-hook #'maybe-connect nil)
+                (eglot--when-live-buffer buffer
+                  (unless eglot--managed-mode
+                    (apply #'eglot--connect (eglot--guess-contact)))))
+            (file-missing
+             (display-warning 'eglot
+                              (format "When %s, %s: %s" (nth 1 error-obj) (nth 2 error-obj) (nth 3 error-obj))
+                              :error)
+             nil))))
       (when buffer-file-name
         (add-hook 'post-command-hook #'maybe-connect 'append nil)))))
 
