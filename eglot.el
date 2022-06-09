@@ -3300,7 +3300,8 @@ Set to nil to disable special treatment of modifiers."
                      :end nil
                      :type 0
                      :modifiers 0)))
-  "Make a semantic token in internal format from TOKEN, LEGEND and its PREVIOUS token."
+  "Make a semantic token in internal formats.
+The token is made from TOKEN, LEGEND and its PREVIOUS token."
   (cl-destructuring-bind (delta-line delta-col length type modifiers &rest _) token
     (let* ((prev-pos (if (plist-get previous :begin)
                          (eglot--pos-to-lsp-position
@@ -3559,7 +3560,8 @@ When RANGE is non-nil, RESPONSE is treated as the response of
 
 (define-minor-mode eglot--semantic-tokens-mode
   "Toggle semantic token support."
-  nil nil nil
+  :lighter nil
+  :inteactive nil
   (if (and eglot--semantic-tokens-mode
            (not (and (eglot-managed-p)
                      (eglot-current-server)
