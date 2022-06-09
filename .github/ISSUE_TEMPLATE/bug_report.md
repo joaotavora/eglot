@@ -5,15 +5,14 @@ title: ''
 labels: ''
 assignees: ''
 ---
-<!-- Hello there, prospective issue reporter! Your bug reports are
-     very valuable 💛 💛 💛.  They really are, and Eglot couldn't be 
-     made without them.  But there are lots of bugs and so little 
-     time.  So:
-
-        PLEASE - DO NOT - REMOVE OR SKIP PARTS OF THIS TEMPLATE.
+<!-- To continue,  you will need to provide some elements
+     including a description of a [MINIMUM REPRODUCIBLE EXAMPLE][1] (MRE).  If
+     you don't have that, DON'T CREATE AN BUG REPORT ISSUE.  
   
      👉 Need help configuring or understanding Emacs, Eglot, or LSP?
-       Have an idea for a feature?  Please DON'T OPEN A NEW ISSUE!
+       Have an idea for a feature?  Strongly sususpect there is an
+       Eglot bug, but can't supply a MINIMUM REPRODUCIBLE EXAMPLE?
+       Please DON'T OPEN A NEW BUG REPORT ISSUE!
   
        Head to https://github.com/joaotavora/eglot/discussions to
        discuss.  Start a new discussion, there are no templates there,
@@ -28,13 +27,6 @@ assignees: ''
        send email to `bug-gnu-emacs@gnu.org`.  Be sure to `CC:` (or
        better, `X-Debbugs-CC:` ) Eglot's maintainer, currently
        `joaotavora@gmail.com`.
-  
-     To make an issue, you need to provide some elements, which aren't
-     hard to find.  Can't find all the elements for this template?
-     No problem, just make a discussion 👆.
-
-     Here's an example of a 👌 fine issue report following this template:
-     https://github.com/joaotavora/eglot/issues/696
      
      If you don't provide the needed elements, WE MAY CLOSE THE ISSUE
      JUST LIKE THAT 😐. 
@@ -84,59 +76,63 @@ Debugger entered--Lisp error: (error "oh no")
   command-execute(pp-eval-expression)
 ```
    
-#### Minimal configuration (mandatory)
+#### Minimum Reproducible Example (mandatory)
 <!-- DO NOT SKIP: 
-
-     Are you using Doom Emacs or Spacemacs Emacs or some very special 
-     pimped-out Emacs?  That's fine, but for this report we need to be 
-     able to replicate the problem JUST AS IT HAPPENED TO YOU.  
-
-     We can't and don't have time to replicate your complex configuration 
-     and environment, so you need to provide a MINIMAL, REPRODUCIBLE and 
-     COMPLETE recipe.
      
-     How to do this?  The easiest recipes just start Emacs from the shell:
+     You need to provide a MINIMAL, REPRODUCIBLE and COMPLETE recipe.
+     This is the bit most trouble to some people.  So please, I kindly
+     ask that you read [this first][1] for a general idea of what is
+     requested.  
+     
+     You have to create a short guide to help us replicate the problem
+     JUST AS IT HAPPENED TO YOU.  Make sure to double check that
+     following your own guide leads to the problem reliably.
 -->
      
- ```sh
- # Type this in a shell to start an Emacs with Eglot configured
- $ /path/to/a/certain/version/of/emacs -Q -f package-initialize -L /path/to/git-cloned/eglot -l eglot.el 
- ```
- 
- <!-- Then you add a bit of Elisp code that can be typed into *scratch* -->
- 
- ```lisp
- ;; Example of a minimal configuration
- ;;
- (add-to-list 'eglot-server-programs '(foo-mode "foo-server"))
- (setq eglot-special-option-2000 '(foo bar with the airplane)) 
- (some-clearly-identified-third-party-package)
-  ```
- 
- <!-- WHEW!! THANK YOU!
- 
-      For some bugs, all this may seem like overkill but believe us,
-      very often what seems like a "clear issue" is actually specific
-      to some details of your setup. Having a runnable reproduction
-      not only "proves" your bug to us but also allows us to spend all
-      our effort fixing the bug instead of struggling to understand
-      your issue.
- 
-      Anyway, after you've launched Emacs + Eglot that please explain
-      what options you clicked on or what commands you entered, in a
-      way that is clear to the Eglot maintainers so they can replicate
-      the problem JUST AS IT HAPPENED TO YOU.
-      
-      If this requires some bits of .emacs or init.el configuration,
-      you need to add them (just as in the example above)
-      
-      If reproducing your error requires others files and or programs,
-      you NEED TO ADD snippets for them or provide links to them.
+Make sure to describe:
 
-      Some users also provide whole Git repositories perfectly
-      "sandboxing" a configuration and setup.  If you're confident on
-      how do to this, that also works.
+1. How Emacs is started
+
+3. Where the language server executable lives in the machine and how
+   it is installed
+   
+4. What project files are needed to demonstrate the problem.  Please
+   don't say "_just open any Zglorb source file_".
+
+   Don't assume the Eglot maintainers have any time to learn about a
+   specific programming language and its associated toolchain. Attach
+   the actual file or files, or link to a repository containing them.
+   
+5. How Emacs is operated/configured before you invoke Eglot
+
+6. How Emacs is operated after you invoke Eglot
+
+7. What actions must be taken for the problem to manifest itself
+
+8. What the expected behaviour is
+
+9. What the observed behaviour is
+
+10. IMPORTANT: Double check that doing steps 1-9 all over again by
+   yourself leads to the error.
+   
+You don't HAVE to follow this guide if you are confident you can
+describe your own [COMPLETE, MINIMAL and REPRODUCIBLE][1] recipe.  See
+https://github.com/joaotavora/eglot/issues/696 for a good example of
+an issue following this template.
+ 
+ <!-- THANK YOU!
+ 
+      Having a runnable reproduction not only "proves" your bug to us
+      but also allows us to spend all our effort fixing the bug
+      instead of struggling to understand your issue.  
       
-      Thank you very much.
-      
-      (Adapted this template from RollupJS's bug tracker). -->
+      If you find that building the MRE takes a lot of work, well,
+      that may be so, but keep in mind that that work will have to be
+      expended at least once to solve your problem, and it's often the
+      most time-consuming task.  So it pays if you can do that work
+      upfront.
+ 
+      Thank you very much. -->
+
+[1]: https://stackoverflow.com/help/minimal-reproducible-example
