@@ -1043,18 +1043,45 @@ INTERACTIVE is t if called interactively."
 (defvar eglot--managed-mode) ; forward decl
 
 ;;;###autoload
-(defun eglot-ensure ()
-  "Start Eglot session for current buffer if there isn't one."
-  (let ((buffer (current-buffer)))
+(defun eglot-ensure (&optional deferred)
+  "Start Eglot session for current buffer if there isn't one.
+DEFERRED is a list of symbols designating conditions to wait for
+before actually starting the check. Currently recognized conditions are
+`post-command', for waiting until the current command is over,
+`on-display', for waiting until the buffer is actually displayed
+in a window.
+
+If DEFERRED is nil, wait for all known conditions."
+  (let ((deferred (if (not deferred)
+                      '(post-command on-display)
+                    deferred))
+	(buffer (current-buffer)))
     (cl-labels
-        ((maybe-connect
-          ()
-          (remove-hook 'post-command-hook #'maybe-connect nil)
-          (eglot--when-live-buffer buffer
-            (unless eglot--managed-mode
-              (apply #'eglot--connect (eglot--guess-contact))))))
-      (when buffer-file-name
-        (add-hook 'post-command-hook #'maybe-connect 'append nil)))))
+        ((ensure-post-command
+           ()
+           (remove-hook 'post-command-hook #'ensure-post-command
+                        nil)
+           (eglot--when-live-buffer buffer
+             (eglot-ensure (remove 'post-command deferred))))
+	 (ensure-on-display
+	   ()
+	   (remove-hook 'window-configuration-change-hook #'ensure-on-display
+			'local)
+	   (eglot-ensure (remove 'on-display deferred))))
+      (cond ((and (memq 'post-command deferred)
+                  this-command ;; maybe don't?
+                  buffer-file-name)
+             (add-hook 'post-command-hook
+                       #'ensure-post-command
+                       'append nil))
+            ((and (memq 'on-display deferred)
+                  (not (get-buffer-window buffer)))
+             (add-hook 'window-configuration-change-hook
+                       #'ensure-on-display
+                       'append 'local))
+            ((not eglot--managed-mode)
+             (apply #'eglot--connect (eglot--guess-contact)))
+	    nil))))
 
 (defun eglot-events-buffer (server)
   "Display events buffer for SERVER.
