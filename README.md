@@ -66,7 +66,7 @@ find-library` can help you tell if that happened.
 * Ocaml's [ocaml-lsp][ocaml-lsp]
 * PHP's [php-language-server][php-language-server]
 * PureScript's [purescript-language-server][purescript-language-server]
-* Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
+* Python's [pylsp][pylsp], [pyls][pyls] [pyright][pyright], or [jedi-language-server][jedi-language-server]
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
 * Ruby's [solargraph][solargraph]
@@ -533,6 +533,7 @@ for the request form, and we'll send it to you.
 [godot]: https://godotengine.org
 [html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
 [haskell-language-server]: https://github.com/haskell/haskell-language-server
+[jedi-language-server]: https://github.com/pappasam/jedi-language-server
 [vscode-json-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
