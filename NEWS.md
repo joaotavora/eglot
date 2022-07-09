@@ -64,6 +64,7 @@ available.  The special support code for RLS has been removed.
 - purescript-language-server ([#905][github#905])
 - Perl::LanguageServer ([#952][github#952])
 - marksman ([#1013][github#1013])
+- jedi-language-server ([#994](github#994))
 
 # 1.8 (12/1/2022)
 
@@ -401,4 +402,5 @@ and now said bunch of references-->
 [github#922]: https://github.com/joaotavora/eglot/issues/922
 [github#952]: https://github.com/joaotavora/eglot/issues/952
 [github#967]: https://github.com/joaotavora/eglot/issues/967
-[github#1013]: https://github.com/joaotavora/eglot/pull/1013
+[github#994]: https://github.com/joaotavora/eglot/issues/994
+[github#1013]: https://github.com/joaotavora/eglot/issues/1013
