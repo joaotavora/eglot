@@ -527,7 +527,7 @@ for the request form, and we'll send it to you.
 [dart-analysis-server]: https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
-[fortls]: https://github.com/hansec/fortran-language-server
+[fortls]: https://github.com/gnikit/fortls
 [futhark-lsp]: https://futhark-lang.org
 [gopls]: https://github.com/golang/tools/tree/master/gopls
 [godot]: https://godotengine.org
