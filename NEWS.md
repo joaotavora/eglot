@@ -1,5 +1,10 @@
 # (upcoming)
 
+##### C-u M-. lists and completes arbitrary workspace symbols [#131][github#131])
+
+A very old request, now made possible by a relatively recent change to
+the `workspace/symbol` RPC method.
+
 ##### Rework mode-line menus ([#792][github#792])
 
 New menus help discover Eglot's features and show which of them are
