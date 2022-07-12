@@ -417,7 +417,7 @@ This can be useful when using docker to run a language server.")
       (TextEdit (:range :newText))
       (VersionedTextDocumentIdentifier (:uri :version) ())
       (WorkspaceEdit () (:changes :documentChanges))
-      )
+      (WorkspaceSymbol (:name :kind) (:containerName :location :data)))
     "Alist (INTERFACE-NAME . INTERFACE) of known external LSP interfaces.
 
 INTERFACE-NAME is a symbol designated by the spec as
@@ -2101,8 +2101,12 @@ THINGS are either registrations or unregisterations (sic)."
                               :key #'seq-first))))
       (eglot-format (point) nil last-input-event))))
 
+(defvar eglot--xref-workspace-symbols-completion-table nil
+  "Temporary completion table used by `xref-find-definitions'.")
+
 (defun eglot--pre-command-hook ()
-  "Reset `eglot--last-inserted-char'."
+  "Reset some temporary variables."
+  (setq eglot--xref-workspace-symbols-completion-table nil)
   (setq eglot--last-inserted-char nil))
 
 (defun eglot--CompletionParams ()
@@ -2393,7 +2397,21 @@ Try to visit the target file for a richer summary line."
     (xref-make-match summary (xref-make-file-location file line column) length)))
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql eglot)))
-  (eglot--error "Cannot (yet) provide reliable completion table for LSP symbols"))
+  (if (eglot--server-capable :workspaceSymbolProvider)
+      (setq
+       eglot--xref-workspace-symbols-completion-table
+       (mapcar
+        (lambda (wss)
+          (eglot--dbind ((WorkspaceSymbol) name containerName) wss
+            (propertize (concat (and (not (zerop (length containerName)))
+                                     (format "%s::" containerName))
+                                name)
+                        'eglot--lsp-workspaceSymbol wss)))
+        (jsonrpc-request (eglot--current-server-or-lose)
+                         :workspace/symbol
+                         `(:query ""))))
+    (eglot--error
+     "Cannot (yet) provide reliable completion table for LSP symbols")))
 
 (cl-defmethod xref-backend-identifier-at-point ((_backend (eql eglot)))
   ;; JT@19/10/09: This is a totally dummy identifier that isn't even
@@ -2456,8 +2474,15 @@ Try to visit the target file for a richer summary line."
   (interactive)
   (eglot--lsp-xref-helper :textDocument/typeDefinition))
 
-(cl-defmethod xref-backend-definitions ((_backend (eql eglot)) _identifier)
-  (eglot--lsp-xrefs-for-method :textDocument/definition))
+(cl-defmethod xref-backend-definitions ((_backend (eql eglot)) id)
+  (let ((probe (cl-find id eglot--xref-workspace-symbols-completion-table
+                        :test #'equal)))
+    (if probe
+        (eglot--dbind ((WorkspaceSymbol) name location)
+            (get-text-property 0 'eglot--lsp-workspaceSymbol probe)
+          (eglot--dbind ((Location) uri range) location
+            (list (eglot--xref-make-match name uri range))))
+        (eglot--lsp-xrefs-for-method :textDocument/definition))))
 
 (cl-defmethod xref-backend-references ((_backend (eql eglot)) _identifier)
   (or
