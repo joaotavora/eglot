@@ -2456,6 +2456,46 @@ Try to visit the target file for a richer summary line."
   (interactive)
   (eglot--lsp-xref-helper :textDocument/typeDefinition))
 
+
+(defun eglot--read-workspace-symbol ()
+  "Read a query string while running a search on it in idle time.
+Symbol at point is in future history."
+  (eglot-x--check-capability :workspaceSymbolProvider)
+  (let ((timer
+         (run-with-idle-timer 1 t #'eglot-x--ws-timer-function
+                              (current-buffer))))
+    (unwind-protect
+        (save-window-excursion
+          (read-from-minibuffer "WS-symbol: " nil eglot-x-ws-keymap nil nil
+                                (symbol-name (symbol-at-point))))
+      (when timer
+        (cancel-timer timer)))))
+
+(defun eglot--ws-timer-function (buf)
+  (when (minibufferp)
+    (when (string-equal "WS-symbol:" (buffer-substring 1 11))
+      (let ((xref-backend-functions 'eglot-xref-backend)
+            (xref-auto-jump-to-first-xref 'show)
+            (pattern (minibuffer-contents)))
+        (with-current-buffer buf
+          (condition-case err
+              (xref-find-apropos pattern)
+            (user-error
+             (let ((message-log-max nil)
+                   (s (cadr err))
+                   ;; This is rust-analyzer specific.
+                   (outro (format " for: %s$" pattern)))
+               (message "%s" (replace-regexp-in-string outro "" s))))))
+        (select-window (minibuffer-window) t)))))
+
+(defun eglot-find-workspace-symbol (pattern)
+  "Find a workspace symbol iteratively."
+  (interactive (list (eglot-x--read-workspace-symbol)))
+  (let ((xref-backend-functions 'eglot-xref-backend)
+        (xref-auto-jump-to-first-xref 'show)
+        (xref-show-xrefs-function 'xref-show-definitions-buffer))
+    (xref-find-apropos pattern)))
+
 (cl-defmethod xref-backend-definitions ((_backend (eql eglot)) _identifier)
   (eglot--lsp-xrefs-for-method :textDocument/definition))
 
