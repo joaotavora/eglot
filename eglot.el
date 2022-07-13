@@ -2415,9 +2415,31 @@ Try to visit the target file for a richer summary line."
                           probe))))
           (lambda (string _pred action)
             (pcase action
-              (`metadata '(metadata
+              (`metadata `(metadata
                            (display-sort-function . identity)
-                           (category . eglot-indirection-joy)))
+                           (category . eglot-indirection-joy)
+                           ;; (annotation-function
+                           ;;  . ,(lambda (c)
+                           ;;       (plist-get (get-text-property
+                           ;;                   0 'eglot--lsp-workspaceSymbol c)
+                           ;;                  :containerName)))
+                           ;; (affixation-function
+                           ;;  . ,(lambda (comps)
+                           ;;       (mapcar (lambda (c)
+                           ;;                 (list c
+                           ;;                       (plist-get (get-text-property
+                           ;;                                   0 'eglot--lsp-workspaceSymbol c)
+                           ;;                                  :containerName)
+                           ;;                       " bla"))
+                           ;;               comps)))
+                           ;; (group-function
+                           ;;  . ,(lambda (c transformp)
+                           ;;       (if (not transformp)
+                           ;;           (plist-get (get-text-property
+                           ;;                       0 'eglot--lsp-workspaceSymbol c)
+                           ;;                      :containerName)
+                           ;;         c)))
+                           ))
               (`(eglot--lsp-tryc . ,point) `(eglot--lsp-tryc . (,string . ,point)))
               (`(eglot--lsp-allc . ,_point) `(eglot--lsp-allc . ,(lookup string)))
               (`lambda
