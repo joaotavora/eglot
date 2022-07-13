@@ -2403,12 +2403,8 @@ Try to visit the target file for a richer summary line."
         (cl-labels ((refresh (pat)
                       (mapcar
                        (lambda (wss)
-                         (eglot--dbind ((WorkspaceSymbol) name containerName) wss
-                           (propertize
-                            (concat (and (not (zerop (length containerName)))
-                                         (format "%s::" containerName))
-                                    name)
-                            'eglot--lsp-workspaceSymbol wss)))
+                         (eglot--dbind ((WorkspaceSymbol) name) wss
+                           (propertize name 'eglot--lsp-workspaceSymbol wss)))
                        (with-current-buffer buf
                          (jsonrpc-request (eglot--current-server-or-lose)
                                           :workspace/symbol
@@ -2502,8 +2498,7 @@ Try to visit the target file for a richer summary line."
   (eglot--lsp-xref-helper :textDocument/typeDefinition))
 
 (cl-defmethod xref-backend-definitions ((_backend (eql eglot)) id)
-  (let ((probe (and (string=
-                     id eglot--workspace-symbols-chosen-completion)
+  (let ((probe (and (string= id eglot--workspace-symbols-chosen-completion)
                     eglot--workspace-symbols-chosen-completion)))
     (if probe
         (eglot--dbind ((WorkspaceSymbol) name location)
