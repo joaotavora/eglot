@@ -2101,12 +2101,12 @@ THINGS are either registrations or unregisterations (sic)."
                               :key #'seq-first))))
       (eglot-format (point) nil last-input-event))))
 
-(defvar eglot--xref-workspace-symbols-completion-table nil
+(defvar eglot--workspace-symbols-chosen-completion nil
   "Temporary completion table used by `xref-find-definitions'.")
 
 (defun eglot--pre-command-hook ()
   "Reset some temporary variables."
-  (setq eglot--xref-workspace-symbols-completion-table nil)
+  (setq eglot--workspace-symbols-chosen-completion nil)
   (setq eglot--last-inserted-char nil))
 
 (defun eglot--CompletionParams ()
@@ -2398,20 +2398,47 @@ Try to visit the target file for a richer summary line."
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql eglot)))
   (if (eglot--server-capable :workspaceSymbolProvider)
-      (setq
-       eglot--xref-workspace-symbols-completion-table
-       (mapcar
-        (lambda (wss)
-          (eglot--dbind ((WorkspaceSymbol) name containerName) wss
-            (propertize (concat (and (not (zerop (length containerName)))
-                                     (format "%s::" containerName))
-                                name)
-                        'eglot--lsp-workspaceSymbol wss)))
-        (jsonrpc-request (eglot--current-server-or-lose)
-                         :workspace/symbol
-                         `(:query ""))))
-    (eglot--error
-     "Cannot (yet) provide reliable completion table for LSP symbols")))
+      (let ((buf (current-buffer))
+            (cache (make-hash-table :test #'equal)))
+        (cl-labels ((refresh (pat)
+                      (mapcar
+                       (lambda (wss)
+                         (eglot--dbind ((WorkspaceSymbol) name containerName) wss
+                           (propertize
+                            (concat (and (not (zerop (length containerName)))
+                                         (format "%s::" containerName))
+                                    name)
+                            'eglot--lsp-workspaceSymbol wss)))
+                       (with-current-buffer buf
+                         (jsonrpc-request (eglot--current-server-or-lose)
+                                          :workspace/symbol
+                                          `(:query ,pat)))))
+                    (lookup (pat) ;; check cache, else refresh
+                      (let ((probe (gethash pat cache :missing)))
+                        (if (eq probe :missing) (puthash pat (refresh pat) cache)
+                          probe))))
+          (lambda (string _pred action)
+            (pcase action
+              (`metadata '(metadata
+                           (display-sort-function . identity)
+                           (category . eglot-indirection-joy)))
+              (`(eglot--lsp-tryc . ,point) `(eglot--lsp-tryc . (,string . ,point)))
+              (`(eglot--lsp-allc . ,_point) `(eglot--lsp-allc . ,(lookup string)))
+              (`lambda
+                ;; HACK: transmit the essential proprties about the
+                ;; chosen completion to xref-backend-definitions
+                (setq eglot--workspace-symbols-chosen-completion
+                      (catch 'found
+                        (maphash (lambda (_k v)
+                                   (let ((probe (member string v)))
+                                     (when probe (throw 'found (car probe)))))
+                                 cache)))
+                nil)
+              (_ nil)))))
+    (eglot--error "This LSP server isn't a :workspaceSymbolProvider")))
+
+(add-to-list 'completion-category-overrides
+             '(eglot-indirection-joy (styles . (eglot--lsp-backend-style))))
 
 (cl-defmethod xref-backend-identifier-at-point ((_backend (eql eglot)))
   ;; JT@19/10/09: This is a totally dummy identifier that isn't even
@@ -2475,8 +2502,9 @@ Try to visit the target file for a richer summary line."
   (eglot--lsp-xref-helper :textDocument/typeDefinition))
 
 (cl-defmethod xref-backend-definitions ((_backend (eql eglot)) id)
-  (let ((probe (cl-find id eglot--xref-workspace-symbols-completion-table
-                        :test #'equal)))
+  (let ((probe (and (string=
+                     id eglot--workspace-symbols-chosen-completion)
+                    eglot--workspace-symbols-chosen-completion)))
     (if probe
         (eglot--dbind ((WorkspaceSymbol) name location)
             (get-text-property 0 'eglot--lsp-workspaceSymbol probe)
@@ -3212,6 +3240,43 @@ If NOERROR, return predicate, else erroring function."
 (make-obsolete-variable 'eglot--managed-mode-hook
                         'eglot-managed-mode-hook "1.6")
 (provide 'eglot)
+
+
+;;; Backend completion
+
+;; Written by Stefan Monnier circa 2016.  Something to move to
+;; minibuffer.el "ASAP" (with all the `eglot--lsp-' replaced by
+;; something else. The very same code already in SLY and stable for a
+;; long time.
+
+;; This "completion style" delegates all the work to the "programmable
+;; completion" table which is then free to implement its own
+;; completion style.  Typically this is used to take advantage of some
+;; external tool which already has its own completion system and
+;; doesn't give you efficient access to the prefix completion needed
+;; by other completion styles.  The table should recognize the symbols
+;; 'eglot--lsp-tryc and 'eglot--lsp-allc as ACTION, reply with
+;; (eglot--lsp-tryc COMP...) or (eglot--lsp-allc . (STRING . POINT)),
+;; accordingly.  tryc/allc names made akward/recognizable on purpose.
+
+(add-to-list 'completion-styles-alist
+             '(eglot--lsp-backend-style
+               eglot--lsp-backend-style-try-completion
+               eglot--lsp-backend-style-all-completions
+               "Ad-hoc completion style provided by the completion table."))
+
+(defun eglot--lsp-backend-style-call (op string table pred point)
+  (when (functionp table)
+    (let ((res (funcall table string pred (cons op point))))
+      (when (eq op (car-safe res))
+        (cdr res)))))
+
+(defun eglot--lsp-backend-style-try-completion (string table pred point)
+  (eglot--lsp-backend-style-call 'eglot--lsp-tryc string table pred point))
+
+(defun eglot--lsp-backend-style-all-completions (string table pred point)
+  (eglot--lsp-backend-style-call 'eglot--lsp-allc string table pred point))
+
 
 ;; Local Variables:
 ;; bug-reference-bug-regexp: "\\(github#\\([0-9]+\\)\\)"
