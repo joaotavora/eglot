@@ -2412,11 +2412,21 @@ Try to visit the target file for a richer summary line."
                     (lookup (pat) ;; check cache, else refresh
                       (let ((probe (gethash pat cache :missing)))
                         (if (eq probe :missing) (puthash pat (refresh pat) cache)
-                          probe))))
+                          probe)))
+                    (container (c)
+                      (plist-get (get-text-property
+                                  0 'eglot--lsp-workspaceSymbol c)
+                                 :containerName)))
           (lambda (string _pred action)
             (pcase action
               (`metadata `(metadata
-                           (display-sort-function . identity)
+                           (cycle-sort-function
+                            . ,(lambda (completions)
+                                 (cl-sort completions
+                                          #'string-lessp
+                                          :key (lambda (c)
+                                                 (or (container c)
+                                                     "")))))
                            (category . eglot-indirection-joy)
                            ;; (annotation-function
                            ;;  . ,(lambda (c)
@@ -2432,13 +2442,11 @@ Try to visit the target file for a richer summary line."
                            ;;                                  :containerName)
                            ;;                       " bla"))
                            ;;               comps)))
-                           ;; (group-function
-                           ;;  . ,(lambda (c transformp)
-                           ;;       (if (not transformp)
-                           ;;           (plist-get (get-text-property
-                           ;;                       0 'eglot--lsp-workspaceSymbol c)
-                           ;;                      :containerName)
-                           ;;         c)))
+                           (group-function
+                            . ,(lambda (c transformp)
+                                 (if (not transformp)
+                                     (container c)
+                                   c)))
                            ))
               (`(eglot--lsp-tryc . ,point) `(eglot--lsp-tryc . (,string . ,point)))
               (`(eglot--lsp-allc . ,_point) `(eglot--lsp-allc . ,(lookup string)))
