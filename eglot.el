@@ -2101,12 +2101,12 @@ THINGS are either registrations or unregisterations (sic)."
                               :key #'seq-first))))
       (eglot-format (point) nil last-input-event))))
 
-(defvar eglot--workspace-symbols-chosen-completion nil
-  "Temporary completion table used by `xref-find-definitions'.")
+(defvar eglot--workspace-symbols-cache (make-hash-table :test #'equal)
+  "Cache of `workspace/Symbol' results  used by `xref-find-definitions'.")
 
 (defun eglot--pre-command-hook ()
   "Reset some temporary variables."
-  (setq eglot--workspace-symbols-chosen-completion nil)
+  (clrhash eglot--workspace-symbols-cache)
   (setq eglot--last-inserted-char nil))
 
 (defun eglot--CompletionParams ()
@@ -2398,8 +2398,7 @@ Try to visit the target file for a richer summary line."
 
 (cl-defmethod xref-backend-identifier-completion-table ((_backend (eql eglot)))
   (if (eglot--server-capable :workspaceSymbolProvider)
-      (let ((buf (current-buffer))
-            (cache (make-hash-table :test #'equal)))
+      (let ((buf (current-buffer)))
         (cl-labels ((refresh (pat)
                       (mapcar
                        (lambda (wss)
@@ -2410,7 +2409,8 @@ Try to visit the target file for a richer summary line."
                                           :workspace/symbol
                                           `(:query ,pat)))))
                     (lookup (pat) ;; check cache, else refresh
-                      (let ((probe (gethash pat cache :missing)))
+                      (let* ((cache eglot--workspace-symbols-cache)
+                             (probe (gethash pat cache :missing)))
                         (if (eq probe :missing) (puthash pat (refresh pat) cache)
                           probe)))
                     (container (c)
@@ -2450,18 +2450,16 @@ Try to visit the target file for a richer summary line."
                            ))
               (`(eglot--lsp-tryc . ,point) `(eglot--lsp-tryc . (,string . ,point)))
               (`(eglot--lsp-allc . ,_point) `(eglot--lsp-allc . ,(lookup string)))
-              (`lambda
-                ;; HACK: transmit the essential proprties about the
-                ;; chosen completion to xref-backend-definitions
-                (setq eglot--workspace-symbols-chosen-completion
-                      (catch 'found
-                        (maphash (lambda (_k v)
-                                   (let ((probe (member string v)))
-                                     (when probe (throw 'found (car probe)))))
-                                 cache)))
-                nil)
               (_ nil)))))
     (eglot--error "This LSP server isn't a :workspaceSymbolProvider")))
+
+(defun eglot--recover-workspace-symbol-meta (string)
+  "Search `eglot--workspace-symbols-cache' for rich entry of STRING."
+  (catch 'found
+    (maphash (lambda (_k v)
+               (let ((probe (member string v)))
+                 (when probe (throw 'found (car probe)))))
+             eglot--workspace-symbols-cache)))
 
 (add-to-list 'completion-category-overrides
              '(eglot-indirection-joy (styles . (eglot--lsp-backend-style))))
@@ -2528,8 +2526,7 @@ Try to visit the target file for a richer summary line."
   (eglot--lsp-xref-helper :textDocument/typeDefinition))
 
 (cl-defmethod xref-backend-definitions ((_backend (eql eglot)) id)
-  (let ((probe (and (string= id eglot--workspace-symbols-chosen-completion)
-                    eglot--workspace-symbols-chosen-completion)))
+  (let ((probe (eglot--recover-workspace-symbol-meta id)))
     (if probe
         (eglot--dbind ((WorkspaceSymbol) name location)
             (get-text-property 0 'eglot--lsp-workspaceSymbol probe)
