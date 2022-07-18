@@ -128,7 +128,7 @@ it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
-## Per-project server configuration
+## Workspace configuration
 
 Most servers can guess good defaults and will operate nicely
 out-of-the-box, but some need to be configured specially via LSP
@@ -147,12 +147,14 @@ file named `.dir-locals.el` in the project's root:
 ```
 
 This tells Emacs that any `python-mode` buffers in that directory
-should have a particular buffer-local value of
-`eglot-workspace-configuration`.  That variable's value should be
-_association list_ of _parameter sections_ which are presumably
-understood by the server.  In this example, we associate section
-`pyls` with the parameters object `(:plugins (:jedi_completion
-(:include_params t)))`.
+should have a particular value of `eglot-workspace-configuration`.
+That variable's value should be _association list_ of _parameter
+sections_ which are presumably understood by the server.
+
+In this above, we associated the _section_ `:pyls` with the parameters
+object `(:plugins (:jedi_completion (:include_params t)))`.
+
+### More than one language server per project
 
 Now, supposing that you also had some Go code in the very same
 project, you can configure the Gopls server in the same file.  Adding
@@ -167,9 +169,30 @@ a section for `go-mode`, the file's contents become:
       . ((:gopls . (:usePlaceholders t)))))))
 ```
 
+You can also simplify the file if you're sure the servers won't
+report step on each other's toes:
+
+```lisp
+((nil
+  . ((eglot-workspace-configuration
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))
+         (:gopls . (:usePlaceholders t)))))))
+```
+
+### Setting `eglot-workspace-configuration` without `.dir-locals.el`  
+
 If you can't afford an actual `.dir-locals.el` file, or if managing
 these files becomes cumbersome, the Emacs manual teaches you
-programmatic ways to leverage per-directory local variables.
+programmatic ways to leverage per-directory local variables (see
+Emacs Manual: 49.2.5 Per-Directory Local Variables).
+
+Here's an example... TODO
+
+### Setting a dynamic `eglot-workspace-configuration` dynamically
+
+`eglot-workspace-configuration` can be a function, too.
+
+Here's an example... TODO
 
 ## Handling quirky servers
 
