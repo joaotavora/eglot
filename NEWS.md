@@ -1,6 +1,8 @@
 # (upcoming)
 
-##### C-u M-. lists and completes arbitrary workspace symbols [#131][github#131])
+##### `eglot-workspace-configuration` can be a function ([#967][github#967])
+
+##### C-u M-. lists and completes arbitrary workspace symbols ([#131][github#131])
 
 A very old request, now made possible by a relatively recent change to
 the `workspace/symbol` RPC method.
@@ -322,6 +324,7 @@ and now said bunch of references-->
 [github#121]: https://github.com/joaotavora/eglot/issues/121
 [github#124]: https://github.com/joaotavora/eglot/issues/124
 [github#126]: https://github.com/joaotavora/eglot/issues/126
+[github#131]: https://github.com/joaotavora/eglot/issues/131
 [github#138]: https://github.com/joaotavora/eglot/issues/138
 [github#144]: https://github.com/joaotavora/eglot/issues/144
 [github#154]: https://github.com/joaotavora/eglot/issues/154
@@ -383,3 +386,4 @@ and now said bunch of references-->
 [github#901]: https://github.com/joaotavora/eglot/issues/901
 [github#905]: https://github.com/joaotavora/eglot/issues/905
 [github#922]: https://github.com/joaotavora/eglot/issues/922
+[github#967]: https://github.com/joaotavora/eglot/issues/967

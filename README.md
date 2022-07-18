@@ -128,14 +128,14 @@ it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
-## Per-project server configuration
+## Workspace configuration
 
 Most servers can guess good defaults and will operate nicely
 out-of-the-box, but some need to be configured specially via LSP
 interfaces.  Additionally, in some situations, you may also want a
 particular server to operate differently across different projects.
 
-Per-project settings are realized with Emacs's _directory variables_
+Per-project settings are realized with Emacs's _directory variables
 and the Elisp variable `eglot-workspace-configuration`.  To make a
 particular Python project always enable Pyls's snippet support, put a
 file named `.dir-locals.el` in the project's root:
@@ -147,15 +147,17 @@ file named `.dir-locals.el` in the project's root:
 ```
 
 This tells Emacs that any `python-mode` buffers in that directory
-should have a particular buffer-local value of
-`eglot-workspace-configuration`.  That variable's value should be
-_association list_ of _parameter sections_ which are presumably
-understood by the server.  In this example, we associate section
-`pyls` with the parameters object `(:plugins (:jedi_completion
-(:include_params t)))`.
+should have a particular value of `eglot-workspace-configuration`.
+That variable's value should be _association list_ of _parameter
+sections_ which are presumably understood by the server.
 
-Now, supposing that you also had some Go code in the very same
-project, you can configure the Gopls server in the same file.  Adding
+In this above, we associated the _section_ `:pyls` with the parameters
+object `(:plugins (:jedi_completion (:include_params t)))`.
+
+### Multiple workspace configuration for multiple servers
+
+Suppose you also had some Go code in the very same project, you can
+configure the Gopls server in the same `.dir-locals.el' file.  Adding
 a section for `go-mode`, the file's contents become:
 
 ```lisp
@@ -167,9 +169,28 @@ a section for `go-mode`, the file's contents become:
       . ((:gopls . (:usePlaceholders t)))))))
 ```
 
+As a matter of taste, you might prefer this equivalent setup.
+
+```lisp
+((nil
+  . ((eglot-workspace-configuration
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))
+         (:gopls . (:usePlaceholders t)))))))
+```
+
+### Setting up without `.dir-locals.el`
+
 If you can't afford an actual `.dir-locals.el` file, or if managing
-these files becomes cumbersome, the Emacs manual teaches you
-programmatic ways to leverage per-directory local variables.
+this file becomes cumbersome, the Emacs manual (49.2.5 Per-Directory
+Local Variables) teaches you programmatic ways to leverage
+per-directory local variables.  Look for the functions
+`dir-locals-set-directory-class` and `dir-locals-set-class-variables`.
+
+### Setting a dynamic `eglot-workspace-configuration` dynamically
+
+If you need to decide `eglot-workspace-configuration` can be a function, too.  It is passed
+the `eglot-lsp-server` instance and runs with `default-directory` set
+to the root of your project.
 
 ## Handling quirky servers
 
