@@ -8,8 +8,11 @@
 way:
 
 * 📽 Scroll down this README for some [pretty gifs](#animated_gifs)
-* 📚 Read about [servers](#connecting), [commands and
-  keybindings](#commands), and [customization](#customization)
+* 📚 Read about:
+**    [Connecting to a server](#connecting)
+**    [Commands and keybindings](#commands)
+**    [Workspace configuration](#workspace-configuration)
+**    [Customization](#customization)
 * 📣 Read the [NEWS][news] file
 * 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
 
@@ -128,6 +131,7 @@ it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
+<a name="workspace-configuration"></a>
 ## Workspace configuration
 
 Many servers can guess good defaults and operate nicely
