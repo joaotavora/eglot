@@ -9,10 +9,10 @@ way:
 
 * 📽 Scroll down this README for some [pretty gifs](#animated_gifs)
 * 📚 Read about:
-**    [Connecting to a server](#connecting)
-**    [Commands and keybindings](#commands)
-**    [Workspace configuration](#workspace-configuration)
-**    [Customization](#customization)
+  - [Connecting to a server](#connecting)
+  - [Commands and keybindings](#commands)
+  - [Workspace configuration](#workspace-configuration)
+  - [Customization](#customization)
 * 📣 Read the [NEWS][news] file
 * 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
 
