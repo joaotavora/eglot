@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: "Discuss Eglot, request features, report bugs informally"
+  - name: "Report bugs informally, discuss Eglot, request features"
     url: https://github.com/joaotavora/eglot/discussions
-    about: Ask questions, request features, answer questions
+    about: Informally and freely report problems, ask questions, etc
   - name: "Additional Support: Emacs Help"
     url: https://lists.gnu.org/mailman/listinfo/help-gnu-emacs
     about: Search, ask and answer questions
