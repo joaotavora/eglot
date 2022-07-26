@@ -274,6 +274,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 (ert-deftest eclipse-connect ()
   "Connect to eclipse.jdt.ls server."
+  ;; FIXME: Doesn't work in Github CI.
+  (skip-unless (not (getenv "CI")))
   (skip-unless (executable-find "jdtls"))
   (eglot--with-fixture
       '(("project/src/main/java/foo" . (("Main.java" . "")))

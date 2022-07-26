@@ -33,13 +33,6 @@ jobs:
           override: true
           components: rust-analysis, rust-src, rls
 
-    - name: Install eclipse.jdt.ls
-      run: |
-        curl -fSL https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz -o eclipse.tar.gz
-        mkdir eclipse.jdt.ls
-        tar -C eclipse.jdt.ls -xzf eclipse.tar.gz
-        echo "$GITHUB_WORKSPACE/eclipse.jdt.ls/bin" >> $GITHUB_PATH
-
     - name: Install other depedencies
       run: |
            pip3 install python-language-server autopep8 rope pycodestyle pyflakes pydocstyle mccabe pylint

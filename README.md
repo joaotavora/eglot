@@ -8,8 +8,11 @@
 way:
 
 * 📽 Scroll down this README for some [pretty gifs](#animated_gifs)
-* 📚 Read about [servers](#connecting), [commands and
-  keybindings](#commands), and [customization](#customization)
+* 📚 Read about:
+  - [Connecting to a server](#connecting)
+  - [Commands and keybindings](#commands)
+  - [Workspace configuration](#workspace-configuration)
+  - [Customization](#customization)
 * 📣 Read the [NEWS][news] file
 * 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
 
@@ -129,17 +132,32 @@ it be started as a server.  Notice the `:autoport` symbol in there: it
 is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
-## Per-project server configuration
+<a name="workspace-configuration"></a>
+## Workspace configuration
 
-Most servers can guess good defaults and will operate nicely
-out-of-the-box, but some need to be configured specially via LSP
-interfaces.  Additionally, in some situations, you may also want a
-particular server to operate differently across different projects.
+Many servers can guess good defaults and operate nicely
+out-of-the-box, but some need to be configured via a special LSP
+`workspace/configuration` RPC call to work at all.  Additionally, you
+may also want a particular server to operate differently across
+different projects.
 
-Per-project settings are realized with Emacs's _directory variables_
-and the Elisp variable `eglot-workspace-configuration`.  To make a
-particular Python project always enable Pyls's snippet support, put a
-file named `.dir-locals.el` in the project's root:
+Per-project settings are realized with the Elisp variable
+`eglot-workspace-configuration`. 
+
+Before considering what to set the variable to, one must understand
+_how_ to set it.  `eglot-workspace-configuration` is a
+"directory-local" variable, and setting its variable globally or
+buffer-locally likely makes no sense. It should be set via
+`.dir-locals.el` or equivalent mechanisms.
+
+The variable's value is an _association list_ of _parameter sections_
+to _parameter objects_.  Names and formats of section and parameter
+objects are server specific.
+
+#### Simple `eglot-workspace-configuration`
+
+To make a particular Python project always enable Pyls's snippet
+support, put a file named `.dir-locals.el` in the project's root:
 
 ```lisp
 ((python-mode
@@ -148,16 +166,17 @@ file named `.dir-locals.el` in the project's root:
 ```
 
 This tells Emacs that any `python-mode` buffers in that directory
-should have a particular buffer-local value of
-`eglot-workspace-configuration`.  That variable's value should be
-_association list_ of _parameter sections_ which are presumably
-understood by the server.  In this example, we associate section
-`pyls` with the parameters object `(:plugins (:jedi_completion
-(:include_params t)))`.
+should have a particular value of `eglot-workspace-configuration`.
 
-Now, supposing that you also had some Go code in the very same
-project, you can configure the Gopls server in the same file.  Adding
-a section for `go-mode`, the file's contents become:
+Here, the value in question associates section `:pyls` with parameters
+`(:plugins (:jedi_completion (:include_params t)))`.  The parameter
+object is a plist converted to JSON before being sent to the server.
+
+#### Multiple servers in `eglot-workspace-configuration`
+
+Suppose you also had some Go code in the very same project, you can
+configure the Gopls server in the same `.dir-locals.el` file.  Adding
+a section for `go-mode`, the file's contents now become:
 
 ```lisp
 ((python-mode
@@ -168,9 +187,33 @@ a section for `go-mode`, the file's contents become:
       . ((:gopls . (:usePlaceholders t)))))))
 ```
 
+Alternatively, as a matter of taste, you may choose this equivalent
+setup, which sets the variables value in all all major modes of all
+buffers of a given project.
+
+```lisp
+((nil
+  . ((eglot-workspace-configuration
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))
+         (:gopls . (:usePlaceholders t)))))))
+```
+
+#### `eglot-workspace-configuration` without `.dir-locals.el`
+
 If you can't afford an actual `.dir-locals.el` file, or if managing
-these files becomes cumbersome, the Emacs manual teaches you
-programmatic ways to leverage per-directory local variables.
+this file becomes cumbersome, the [Emacs
+manual][dir-locals-emacs-manual] teaches you programmatic ways to
+leverage per-directory local variables.  Look for the functions
+`dir-locals-set-directory-class` and `dir-locals-set-class-variables`.
+
+#### Dynamic `eglot-workspace-configuration` as a function
+
+If you need to determine the workspace configuration base on some
+dynamic context, make `eglot-workspace-configuration` a function.  It
+is passed the `eglot-lsp-server` instance and runs with
+`default-directory` set to the root of your project.  The function
+should return a value of the same form as described in the previous
+paragraphs.
 
 ## Handling quirky servers
 
@@ -400,24 +443,43 @@ snippets.
 ## Diagnostics
 ![eglot-diagnostics](./gif-examples/eglot-diagnostics.gif)
 
-Eglot relays the diagnostics information received from the server to
-[flymake][flymake].  Command `display-local-help` (bound to `C-h .`)
-shows the diagnostic message under point, but flymake provides other
-convenient ways to handle diagnostic errors.
+Eglot relays the diagnostics information received from the LSP server
+to Emacs's [Flymake][flymake], which annotates/underlines the
+problematic parts of the buffer.  The information is shared with the
+[ElDoc][eldoc] system, meaning that the commands `eldoc` and
+`eldoc-doc-buffer` (the latter bound to `C-h-.` for convenience) show
+diagnostics along with other documentation under point.
 
-When Eglot manages a buffer, it disables other flymake backends.  See
-variable `eglot-stay-out-of` to change that.
+[Flymake][flymake] provides other convenient ways to view and manage
+diagnostic errors.  These are described in its [manual][flymake].
+
+When Eglot manages a buffer, it disables pre-existing Flymake
+backends.  See variable `eglot-stay-out-of` to change that.
 
 ## Code Actions
 ![eglot-code-actions](./gif-examples/eglot-code-actions.gif)
 
-The server may provide code actions, for example, to fix a diagnostic
-error or to suggest refactoring edits.  Command `eglot-code-actions`
-queries the server for possible code actions at point.  See variable
-`eglot-confirm-server-initiated-edits` to customize its behavior.
+The LSP server may provide code actions, for example, to fix a
+diagnostic error or to suggest refactoring edits.  The commands are
+frequently associating with Flymake diagnostic annotations, so that
+left-clicking them shows a menu.  Additionally, the command
+`eglot-code-actions` asks the server for any code spanning a given
+region.
 
-## Hover on symbol
+Sometimes, these code actions are initiated by the server.  See
+`eglot-confirm-server-initiated-edits` to control that behaviour.
+
+## Hover on symbol /function signature
 ![eglot-hover-on-symbol](./gif-examples/eglot-hover-on-symbol.gif)
+
+Here, too, the LSP server's view of a given symbol or function
+signature is relayed to the [ElDoc][eldoc] system.  The commands
+`eldoc` and `eldoc-doc-buffer` commands access that information.
+
+There are customization variables to help adjust [ElDoc][eldoc]'s
+liberal use of the lower "echo area", among other options.  If you
+still find the solicitous nature of this LSP feature too distracting,
+you can use `eglot-ignored-server-capabilities` to turn it off.
 
 ## Rename
 ![eglot-rename](./gif-examples/eglot-rename.gif)
@@ -433,7 +495,7 @@ To jump to the definition of a symbol, use the built-in
 ## Find references
 ![eglot-xref-find-references](./gif-examples/eglot-xref-find-references.gif)
 
-Eglot here relies on emacs' built-in functionality as well.
+Eglot here relies on Emacs' built-in functionality as well.
 `xref-find-references` is bound to `M-?`.  Additionally, Eglot
 provides the following similar commands: `eglot-find-declaration`,
 `eglot-find-implementation`, `eglot-find-typeDefinition`.
@@ -554,8 +616,10 @@ for the request form, and we'll send it to you.
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [company]: https://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
+[eldoc]: https://github.com/emacs-mirror/emacs/blob/master/lisp/emacs-lisp/eldoc.el
 [yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
 [copyright-assignment]: https://www.fsf.org/licensing/contributor-faq
 [legally-significant]: https://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant
+[dir-locals-emacs-manual]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
