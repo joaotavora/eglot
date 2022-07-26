@@ -67,6 +67,7 @@ find-library` can help you tell if that happened.
 * Mint's [mint-ls][mint-ls]
 * Nix's [rnix-lsp][rnix-lsp]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
+* Perl's [Perl::LanguageServer][perl-language-server]
 * PHP's [php-language-server][php-language-server]
 * PureScript's [purescript-language-server][purescript-language-server]
 * Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
@@ -584,6 +585,7 @@ for the request form, and we'll send it to you.
 [mint-ls]: https://www.mint-lang.com/
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
 [ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
+[perl-language-server]: https://github.com/richterger/Perl-LanguageServer
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [purescript-language-server]: https://github.com/nwolverson/purescript-language-server
 [pyls]: https://github.com/palantir/python-language-server
