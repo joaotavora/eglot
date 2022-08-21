@@ -64,6 +64,7 @@ find-library` can help you tell if that happened.
 * Javascript's [TS & JS Language Server][typescript-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Lua's [lua-lsp][lua-lsp]
+* Markdown's [marksman][marksman]
 * Mint's [mint-ls][mint-ls]
 * Nix's [rnix-lsp][rnix-lsp]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
@@ -582,6 +583,7 @@ for the request form, and we'll send it to you.
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [lua-lsp]: https://github.com/Alloyed/lua-lsp
+[marksman]: https://github.com/artempyanykh/marksman
 [mint-ls]: https://www.mint-lang.com/
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
 [ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
