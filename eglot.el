@@ -1109,6 +1109,9 @@ Each function is passed the server as an argument")
 (defvar-local eglot--cached-server nil
   "A cached reference to the current EGLOT server.")
 
+(defvar tramp-ssh-controlmaster-options) ;; forward-declare
+(defvar tramp-use-ssh-controlmaster-options) ;; forward-declare
+
 (defun eglot--connect (managed-major-mode project class contact language-id)
   "Connect to MANAGED-MAJOR-MODE, LANGUAGE-ID, PROJECT, CLASS and CONTACT.
 This docstring appeases checkdoc, that's all."
@@ -1143,7 +1146,9 @@ This docstring appeases checkdoc, that's all."
                         (contact (cl-subseq contact 0 probe)))
                    `(:process
                      ,(lambda ()
-                        (let ((default-directory default-directory))
+                        (let ((default-directory default-directory)
+                              (tramp-use-ssh-controlmaster-options t)
+                              (tramp-ssh-controlmaster-options "-o ControlMaster=no"))
                           (make-process
                            :name readable-name
                            :command (setq server-info (eglot--cmd contact))
