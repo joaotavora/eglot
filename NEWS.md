@@ -1,5 +1,13 @@
 # (upcoming)
 
+##### `eglot-imenu` no longer uses problematic "special elements" ([#758][github#758], [#536][github#536], [#535][github#535])
+
+Though Eglot's `eglot-imenu` returned a fully compliant `imenu`
+structure, that object was not understood by many other frontends
+other than `M-x imenu` itself.  Since the special functionality it
+enabled wasn't being used anyway, decided to remove it to fix these
+longstanding problems.
+
 ##### `eglot-workspace-configuration` can be a function ([#967][github#967])
 
 ##### C-u M-. lists and completes arbitrary workspace symbols ([#131][github#131])
@@ -360,6 +368,8 @@ and now said bunch of references-->
 [github#463]: https://github.com/joaotavora/eglot/issues/463
 [github#481]: https://github.com/joaotavora/eglot/issues/481
 [github#494]: https://github.com/joaotavora/eglot/issues/494
+[github#535]: https://github.com/joaotavora/eglot/issues/535
+[github#536]: https://github.com/joaotavora/eglot/issues/536
 [github#603]: https://github.com/joaotavora/eglot/issues/603
 [github#637]: https://github.com/joaotavora/eglot/issues/637
 [github#643]: https://github.com/joaotavora/eglot/issues/643
@@ -374,6 +384,7 @@ and now said bunch of references-->
 [github#742]: https://github.com/joaotavora/eglot/issues/742
 [github#750]: https://github.com/joaotavora/eglot/issues/750
 [github#751]: https://github.com/joaotavora/eglot/issues/751
+[github#758]: https://github.com/joaotavora/eglot/issues/758
 [github#769]: https://github.com/joaotavora/eglot/issues/769
 [github#787]: https://github.com/joaotavora/eglot/issues/787
 [github#792]: https://github.com/joaotavora/eglot/issues/792
