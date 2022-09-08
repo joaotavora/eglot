@@ -2915,18 +2915,20 @@ for which LSP on-type-formatting should be requested."
        :deferred :textDocument/documentHighlight)
       nil)))
 
+(defun eglot--imenu-goto-function (_name one-obj-array)
+  "EGLOT's go to function for the special elements created by `eglot-imenu'."
+  (imenu-default-goto-function
+   nil (car (eglot--range-region
+             (eglot--dcase (aref one-obj-array 0)
+               (((SymbolInformation) location)
+                (plist-get location :range))
+               (((DocumentSymbol) selectionRange)
+                selectionRange))))))
+
 (defun eglot-imenu ()
   "EGLOT's `imenu-create-index-function'."
   (cl-labels
-      ((visit (_name one-obj-array)
-              (imenu-default-goto-function
-               nil (car (eglot--range-region
-                         (eglot--dcase (aref one-obj-array 0)
-                           (((SymbolInformation) location)
-                            (plist-get location :range))
-                           (((DocumentSymbol) selectionRange)
-                            selectionRange))))))
-       (unfurl (obj)
+      ((unfurl (obj)
                (eglot--dcase obj
                  (((SymbolInformation)) (list obj))
                  (((DocumentSymbol) name children)
@@ -2947,7 +2949,7 @@ for which LSP on-type-formatting should be requested."
                   (let ((elems (mapcar (lambda (obj)
                                          (list (plist-get obj :name)
                                                `[,obj] ;; trick
-                                               #'visit))
+                                               #'eglot--imenu-goto-function))
                                        objs)))
                     (if container (list (cons container elems)) elems)))
                 (seq-group-by
