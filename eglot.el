@@ -2223,12 +2223,15 @@ When called interactively, use the currently active server"
    server :workspace/didChangeConfiguration
    (list
     :settings
-    (or (cl-loop for (section . v) in (eglot--workspace-configuration server)
-                 collect (if (keywordp section)
-                             section
-                           (intern (format ":%s" section)))
-                 collect v)
-        eglot--{}))))
+    (let ((config (eglot--workspace-configuration server)))
+      (or (and (consp (car config))
+               (cl-loop for (section . v) in config
+                        collect (if (keywordp section)
+                                    section
+                                  (intern (format ":%s" section)))
+                        collect v))
+          config
+          eglot--{})))))
 
 (cl-defmethod eglot-handle-request
   (server (_method (eql workspace/configuration)) &key items)
@@ -2245,14 +2248,19 @@ When called interactively, use the currently active server"
                          (project-root (eglot--project server)))))
                 (setq-local major-mode (eglot--major-mode server))
                 (hack-dir-local-variables-non-file-buffer)
-                (alist-get section (eglot--workspace-configuration server)
-                           nil nil
-                           (lambda (wsection section)
-                             (string=
-                              (if (keywordp wsection)
-                                  (substring (symbol-name wsection) 1)
-                                wsection)
-                              section))))))
+                (let ((config (eglot--workspace-configuration server)))
+                  (alist-get section
+                             (if (symbolp (car config))
+                                 (cl-loop for (a b) on config by #'cddr
+                                          collect (list a b))
+                               config)
+                             nil nil
+                             (lambda (wsection section)
+                               (string=
+                                (if (keywordp wsection)
+                                    (substring (symbol-name wsection) 1)
+                                  wsection)
+                                section)))))))
           items)))
 
 (defun eglot--signal-textDocument/didChange ()
