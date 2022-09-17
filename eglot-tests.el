@@ -1066,7 +1066,8 @@ are bound to the useful return values of
     (eglot--guessing-contact (interactive-p prompt-args guessed-class guessed-contact)
       (should (equal (not prompt-args) (not interactive-p)))
       (should (equal guessed-class 'eglot-lsp-server))
-      (should (equal guessed-contact '("a-missing-executable.exe"))))))
+      (should (or prompt-args
+                  (equal guessed-contact '("a-missing-executable.exe")))))))
 
 (ert-deftest eglot-server-programs-executable-multiple-major-modes ()
   (let ((eglot-server-programs '(((bar-mode foo-mode) "some-executable")))

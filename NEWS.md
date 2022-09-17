@@ -21,7 +21,7 @@ New menus help discover Eglot's features and show which of them are
 supported by the current server.  Menus can be customized away via
 `eglot-menu-string`, making space in mode-line.
 
-##### Easier to use LSP initialize.initializationOptions ([#901][github#901], [#845][github#845])
+##### Easier to use LSP initialize.initializationOptions ([#901][github#901], [#845][github#845], [#940][github#940])
 In `eglot-server-programs` a plist may be appended to the usual list
 of strings passed as command line arguments.  The value of its
 `:initializationOptions` key constructs the corresponding LSP JSON
@@ -400,6 +400,7 @@ and now said bunch of references-->
 [github#901]: https://github.com/joaotavora/eglot/issues/901
 [github#905]: https://github.com/joaotavora/eglot/issues/905
 [github#922]: https://github.com/joaotavora/eglot/issues/922
+[github#940]: https://github.com/joaotavora/eglot/issues/940
 [github#952]: https://github.com/joaotavora/eglot/issues/952
 [github#967]: https://github.com/joaotavora/eglot/issues/967
 [github#994]: https://github.com/joaotavora/eglot/issues/994
