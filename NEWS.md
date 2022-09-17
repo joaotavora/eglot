@@ -8,7 +8,12 @@ other than `M-x imenu` itself.  Since the special functionality it
 enabled wasn't being used anyway, decided to remove it to fix these
 longstanding problems.
 
-##### `eglot-workspace-configuration` can be a function ([#967][github#967])
+##### `eglot-workspace-configuration` overhauled ([#967][github#967], [#590][github#590], [#790][github#790])
+
+This variable and its uses are now more thoroughly documented.  It can
+be a set to a function for dynamic calculation of the configuration.
+The preferred format is a plist, though the earlier alist format is
+still supported.
 
 ##### C-u M-. lists and completes arbitrary workspace symbols ([#131][github#131])
 
@@ -371,6 +376,7 @@ and now said bunch of references-->
 [github#494]: https://github.com/joaotavora/eglot/issues/494
 [github#535]: https://github.com/joaotavora/eglot/issues/535
 [github#536]: https://github.com/joaotavora/eglot/issues/536
+[github#590]: https://github.com/joaotavora/eglot/issues/590
 [github#603]: https://github.com/joaotavora/eglot/issues/603
 [github#637]: https://github.com/joaotavora/eglot/issues/637
 [github#643]: https://github.com/joaotavora/eglot/issues/643
@@ -388,6 +394,7 @@ and now said bunch of references-->
 [github#758]: https://github.com/joaotavora/eglot/issues/758
 [github#769]: https://github.com/joaotavora/eglot/issues/769
 [github#787]: https://github.com/joaotavora/eglot/issues/787
+[github#790]: https://github.com/joaotavora/eglot/issues/790
 [github#792]: https://github.com/joaotavora/eglot/issues/792
 [github#794]: https://github.com/joaotavora/eglot/issues/794
 [github#797]: https://github.com/joaotavora/eglot/issues/797
