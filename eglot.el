@@ -2231,12 +2231,15 @@ format described above.")
     eglot-workspace-configuration))
 
 (defun eglot--workspace-configuration-plist (server)
-  "Returns `eglot-workspace-configuraiton' suitable serialization."
-  (or (cl-loop for (section . v) in (eglot--workspace-configuration server)
-               collect (if (keywordp section) section
-                         (intern (format ":%s" section)))
-               collect v)
-      eglot--{}))
+  "Returns `eglot-workspace-configuration' suitable for serialization."
+  (let ((val (eglot--workspace-configuration server)))
+    (or (and (consp (car val))
+             (cl-loop for (section . v) in val
+                      collect (if (keywordp section) section
+                                (intern (format ":%s" section)))
+                      collect v))
+        val
+        eglot--{})))
 
 (defun eglot-signal-didChangeConfiguration (server)
   "Send a `:workspace/didChangeConfiguration' signal to SERVER.
@@ -2263,9 +2266,8 @@ When called interactively, use the currently active server"
                          (project-root (eglot--project server)))))
                 (setq-local major-mode (eglot--major-mode server))
                 (hack-dir-local-variables-non-file-buffer)
-                (alist-get section (eglot--workspace-configuration server)
-                           nil nil
-                           (lambda (wsection section)
+                (plist-get (eglot--workspace-configuration-plist server) section
+                           (lambda (section wsection)
                              (string=
                               (if (keywordp wsection)
                                   (substring (symbol-name wsection) 1)

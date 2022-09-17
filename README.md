@@ -173,15 +173,16 @@ functions][dir-locals-emacs-manual].
 
 #### Format of the value
 
-The variable's value is an _association list_:
+The recommended format for this variable's value is an _property list_:
 
 ```
-((SECTION-1 . PARAM-OBJECT-1)
- ...
- (SECTION-N . PARAM-OBJECT-N))
+(SECTION-1 PARAM-OBJECT-1 ... SECTION-N PARAM-OBJECT-N)
 ```
 
-`SECTION-N` is an Elisp keyword naming the parameter section
+(Yes, earlier it used to be an association list.  That format is still
+supported, but discouraged)
+
+Each `SECTION-N` is an Elisp keyword naming the parameter section
 understood by the server.  `PARAM-OBJECT-N` contains one or more
 settings pertaining to that server.
 
@@ -208,9 +209,9 @@ root:
   . ((eglot-workspace-configuration
       .
       ;; the value in the format described above starts here
-      ((:pyls . (:plugins (:jedi_completion (:include_params t
+      (:pyls (:plugins (:jedi_completion (:include_params t
                                              :fuzzy t)
-                           :pylint (:enabled :json-false)))))
+                        :pylint (:enabled :json-false))))
       ;; and ends here
       ))))
 ```
@@ -219,7 +220,7 @@ This tells Emacs that any `python-mode` buffers in that directory
 should have a particular value of `eglot-workspace-configuration`.
 
 Here, the value in question associates a parameter section `:pyls`
-with a parameter objct that is a plist of plists.  It is converted to
+with a parameter object that is a plist of plists.  It is converted to
 JSON before being sent to the server:
 
 ```json
@@ -242,12 +243,12 @@ file.  Adding a section for `go-mode`, the file's contents now become:
 ```lisp
 ((python-mode
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t
-                                               :fuzzy t)
-                             :pylint (:enabled :json-false))))))))
+      . (:pyls (:plugins (:jedi_completion (:include_params t
+                                            :fuzzy t)
+                            :pylint (:enabled :json-false)))))))
  (go-mode
   . ((eglot-workspace-configuration
-      . ((:gopls . (:usePlaceholders t)))))))
+      . (:gopls (:usePlaceholders t))))))
 ```
 
 Alternatively, as a matter of taste, one may choose to lay out 
@@ -256,10 +257,10 @@ Alternatively, as a matter of taste, one may choose to lay out
 ```lisp
 ((nil
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t
-                                               :fuzzy t)
-                             :pylint (:enabled :json-false))))
-         (:gopls . (:usePlaceholders t)))))))
+      . (:pyls (:plugins (:jedi_completion (:include_params t
+                                              :fuzzy t)
+                            :pylint (:enabled :json-false)))
+         :gopls (:usePlaceholders t))))))
 ```
 
 This is an equivalent setup which sets the value in all major-modes
