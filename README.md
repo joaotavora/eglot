@@ -141,9 +141,7 @@ out-of-the-box, but some need to know project-specific settings, which
 LSP calls "workspace configuration".
 
 These per-project settings are realized with the Elisp variable
-`eglot-workspace-configuration`.
-
-This variable's value is sent over to the server:
+`eglot-workspace-configuration`.  They are sent over to the server:
 
 * initially, as a [`didChangeConfiguration` notification][did-change-configuration];
 * as the response to [configuration request][configuration-request] from the server.
