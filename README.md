@@ -134,26 +134,44 @@ is replaced dynamically by a local port believed to be vacant, so that
 the ensuing TCP connection finds a listening server.
 
 <a name="workspace-configuration"></a>
-## Workspace configuration
+## `eglot-workspace-configuration`
 
 Many servers can guess good defaults and operate nicely
 out-of-the-box, but some need to know project-specific settings, which
 LSP calls "workspace configuration".
 
-These per-project settings are realized with the Elisp variable
-`eglot-workspace-configuration`.  They are sent over to the server:
+Within Eglot, these per-project settings are realized with the Elisp
+variable `eglot-workspace-configuration`.  They are sent over to the
+server:
 
 * initially, as a [`didChangeConfiguration` notification][did-change-configuration];
 * as the response to [configuration request][configuration-request] from the server.
 
+#### How to set (and whether to set it at all)
+
 Before considering what to set the variable to, one must understand
-_how_ to set it.  `eglot-workspace-configuration` is a ["directory
-variable"][dir-locals-emacs-manual].  Setting it globally or
-buffer-locally makes little sense.  It is usually set via
+how to set it and whether to set it at all.
+
+Most servers can be configured globally using some kind of global file
+in the user's home directory or in the project directory --
+[Pylsp][pylsp] reads `~/.config/pycodestyle` and [Clangd][clangd]
+reads `.clangd` anywhere up the current project tree.
+
+This type of configuration is done completely independently from Eglot
+and Emacs and has the advantage that it'll work with other LSP clients.
+
+On the other hand, one may find this not flexible enough or wish to
+consolidate all configuration within Emacs.
+
+In that case, the [directory  variable][dir-locals-emacs-manual]
+`eglot-workspace-configuration` should be used.
+
+Note that while it is possible to set this variable globally or
+buffer-locally, doing so makes little sense.  It is usually set via
 `.dir-locals.el` or [special-purpose elisp
 functions][dir-locals-emacs-manual].
 
-#### Format
+#### Format of the value
 
 The variable's value is an _association list_:
 
@@ -170,17 +188,19 @@ settings pertaining to that server.
 `PARAM-OBJECT-N` is an Elisp object serialized to JSON by
 [`json-serialize`][json-serialize].  The recommended format used in
 this manual's examples is a [plist][plist] of keyword-value pairs,
-though `json-serialize` also accepts other formats.
+though `json-serialize` also accepts other formats.  In any case, the
+JSON values `true`, `false` and `{}` are represented by the Elisp
+values `t`, `:json-false` and `nil`, respectively.
 
 When experimenting with settings, one may use `M-x
 eglot-show-workspace-configuration` to inspect/debug the definite JSON
 value sent over to the server.  This helper function works even before
 actually connecting to the server.
 
-#### Simple `eglot-workspace-configuration`
+#### Simple example
 
-To make a particular Python project always enable Pyls's snippet
-support, you may put a file named `.dir-locals.el` in the project's
+To make a particular Python project always enable [Pyls][pyls]'s
+snippet support, put a file named `.dir-locals.el` in the project's
 root:
 
 ```lisp
@@ -213,11 +233,11 @@ JSON before being sent to the server:
 }
 ```
 
-#### Multiple servers in `eglot-workspace-configuration`
+#### Multiple servers
 
-Suppose you also had some Go code in the very same project, you can
-configure the Gopls server in the same `.dir-locals.el` file.  Adding
-a section for `go-mode`, the file's contents now become:
+Suppose one also has some Go code in the very same project, the
+[Gopls][gopls] server can be configured in the same `.dir-locals.el`
+file.  Adding a section for `go-mode`, the file's contents now become:
 
 ```lisp
 ((python-mode
@@ -230,10 +250,8 @@ a section for `go-mode`, the file's contents now become:
       . ((:gopls . (:usePlaceholders t)))))))
 ```
 
-Alternatively, as a matter of taste, you may choose this equivalent
-setup.  This sets the value in all major-modes inside the project: the
-major-mode specification is unneeded because the LSP server will
-retrieve only the parameter section it is interested in.
+Alternatively, as a matter of taste, one may choose to lay out 
+`.dir-locals.el` like so:
 
 ```lisp
 ((nil
@@ -244,22 +262,27 @@ retrieve only the parameter section it is interested in.
          (:gopls . (:usePlaceholders t)))))))
 ```
 
-#### `eglot-workspace-configuration` without `.dir-locals.el`
+This is an equivalent setup which sets the value in all major-modes
+inside the project: the major-mode specification is unneeded because
+the LSP server will retrieve only the parameter section it is
+interested in.
 
-If you can't afford an actual `.dir-locals.el` file, or if managing
-this file becomes cumbersome, the [Emacs
-manual][dir-locals-emacs-manual] teaches you programmatic ways to
-leverage per-directory local variables.  Look for the functions
-`dir-locals-set-directory-class` and `dir-locals-set-class-variables`.
+#### Setting the value without `.dir-locals.el`
 
-#### Dynamic `eglot-workspace-configuration` as a function
+If adding a `.dir-locals.el` file isn't suitable, or if managing this
+file becomes cumbersome, the [Emacs manual][dir-locals-emacs-manual]
+teaches you programmatic ways to leverage per-directory local
+variables.  Look for the functions `dir-locals-set-directory-class`
+and `dir-locals-set-class-variables`.
 
-If you need to determine the workspace configuration base on some
-dynamic context, make `eglot-workspace-configuration` a function.  It
-is passed the `eglot-lsp-server` instance of the connected server (if
-any) and runs with `default-directory` set to the root of your
-project.  The function should return a value of the same form as
-described in the previous paragraphs.
+#### Dynamically setting the value
+
+If one needs to determine the workspace configuration based on some
+dynamic context, `eglot-workspace-configuration` can be set to a
+function.  It is passed the `eglot-lsp-server` instance of the
+connected server (if any) and runs with `default-directory` set to the
+root of your project.  The function should return a value of the same
+form as described in the previous paragraphs.
 
 ## Handling quirky servers
 
