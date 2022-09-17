@@ -223,13 +223,6 @@ CONTACT can be:
   PROGRAM is called with ARGS and is expected to serve LSP requests
   over the standard input/output channels.
 
-* A list (PROGRAM [ARGS...] :initializationOptions OPTIONS),
-  whereupon PROGRAM is called with ARGS as in the first option,
-  and the LSP \"initializationOptions\" JSON object is
-  constructed from OPTIONS.  If OPTIONS is a unary function, it
-  is called with the server instance and should return a JSON
-  object.
-
 * A list (HOST PORT [TCP-ARGS...]) where HOST is a string and
   PORT is a positive integer for connecting to a server via TCP.
   Remaining ARGS are passed to `open-network-stream' for
@@ -260,7 +253,13 @@ CONTACT can be:
   the call is interactive, the function can ask the user for
   hints on finding the required programs, etc.  Otherwise, it
   should not ask the user for any input, and return nil or signal
-  an error if it can't produce a valid CONTACT.")
+  an error if it can't produce a valid CONTACT.
+
+In all of the above cases, if the final computed CONTACT value
+contains a (:initializationOptions OPTIONS) pair, it is removed
+and the LSP \"initializationOptions\" JSON object is constructed
+from OPTIONS.  If OPTIONS is a unary function, it is called with
+the server instance and should return a JSON object.")
 
 (defface eglot-highlight-symbol-face
   '((t (:inherit bold)))
@@ -1119,6 +1118,10 @@ This docstring appeases checkdoc, that's all."
          autostart-inferior-process
          server-info
          (contact (if (functionp contact) (funcall contact) contact))
+         (initopts (when-let ((probe (cl-position :initializationOptions contact)))
+                     (prog1 (nth (1+ probe) contact)
+                       (setq contact (append (cl-subseq contact 0 probe)
+                                             (cl-subseq contact (+ 2 probe)))))))
          (initargs
           (cond ((keywordp (car contact)) contact)
                 ((integerp (cadr contact))
@@ -1139,22 +1142,18 @@ This docstring appeases checkdoc, that's all."
                                  (setq autostart-inferior-process inferior)
                                  connection))))
                 ((stringp (car contact))
-                 (let* ((probe (cl-position-if #'keywordp contact))
-                        (more-initargs (and probe (cl-subseq contact probe)))
-                        (contact (cl-subseq contact 0 probe)))
-                   `(:process
-                     ,(lambda ()
-                        (let ((default-directory default-directory))
-                          (make-process
-                           :name readable-name
-                           :command (setq server-info (eglot--cmd contact))
-                           :connection-type 'pipe
-                           :coding 'utf-8-emacs-unix
-                           :noquery t
-                           :stderr (get-buffer-create
-                                    (format "*%s stderr*" readable-name))
-                           :file-handler t)))
-                     ,@more-initargs)))))
+                 `(:process
+                   ,(lambda ()
+                      (let ((default-directory default-directory))
+                        (make-process
+                         :name readable-name
+                         :command (setq server-info (eglot--cmd contact))
+                         :connection-type 'pipe
+                         :coding 'utf-8-emacs-unix
+                         :noquery t
+                         :stderr (get-buffer-create
+                                  (format "*%s stderr*" readable-name))
+                         :file-handler t)))))))
          (spread (lambda (fn) (lambda (server method params)
                                 (let ((eglot--cached-server server))
                                  (apply fn server method (append params nil))))))
@@ -1172,7 +1171,8 @@ This docstring appeases checkdoc, that's all."
     (when server-info
       (jsonrpc--debug server "Running language server: %s"
                       (string-join server-info " ")))
-    (setf (eglot--saved-initargs server) initargs)
+    (setf (eglot--saved-initargs server)
+          (append initargs `(:initializationOptions ,initopts)))
     (setf (eglot--project server) project)
     (setf (eglot--project-nickname server) nickname)
     (setf (eglot--major-mode server) managed-major-mode)
