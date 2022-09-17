@@ -137,41 +137,83 @@ the ensuing TCP connection finds a listening server.
 ## Workspace configuration
 
 Many servers can guess good defaults and operate nicely
-out-of-the-box, but some need to be configured via a special LSP
-`workspace/configuration` RPC call to work at all.  Additionally, you
-may also want a particular server to operate differently across
-different projects.
+out-of-the-box, but some need to know project-specific settings, which
+LSP calls "workspace configuration".
 
-Per-project settings are realized with the Elisp variable
-`eglot-workspace-configuration`. 
+These per-project settings are realized with the Elisp variable
+`eglot-workspace-configuration`.
+
+This variable's value is sent over to the server:
+
+* initially, as a [`didChangeConfiguration` notification][did-change-configuration];
+* as the response to [configuration request][configuration-request] from the server.
 
 Before considering what to set the variable to, one must understand
-_how_ to set it.  `eglot-workspace-configuration` is a
-"directory-local" variable, and setting its variable globally or
-buffer-locally likely makes no sense. It should be set via
-`.dir-locals.el` or equivalent mechanisms.
+_how_ to set it.  `eglot-workspace-configuration` is a ["directory
+variable"][dir-locals-emacs-manual].  Setting it globally or
+buffer-locally makes little sense.  It is usually set via
+`.dir-locals.el` or [special-purpose elisp
+functions][dir-locals-emacs-manual].
 
-The variable's value is an _association list_ of _parameter sections_
-to _parameter objects_.  Names and formats of section and parameter
-objects are server specific.
+#### Format
+
+The variable's value is an _association list_:
+
+```
+((SECTION-1 . PARAM-OBJECT-1)
+ ...
+ (SECTION-N . PARAM-OBJECT-N))
+```
+
+`SECTION-N` is an Elisp keyword naming the parameter section
+understood by the server.  `PARAM-OBJECT-N` contains one or more
+settings pertaining to that server.
+
+`PARAM-OBJECT-N` is an Elisp object serialized to JSON by
+[`json-serialize`][json-serialize].  The recommended format used in
+this manual's examples is a [plist][plist] of keyword-value pairs,
+though `json-serialize` also accepts other formats.
+
+When experimenting with settings, one may use `M-x
+eglot-show-workspace-configuration` to inspect/debug the definite JSON
+value sent over to the server.  This helper function works even before
+actually connecting to the server.
 
 #### Simple `eglot-workspace-configuration`
 
 To make a particular Python project always enable Pyls's snippet
-support, put a file named `.dir-locals.el` in the project's root:
+support, you may put a file named `.dir-locals.el` in the project's
+root:
 
 ```lisp
 ((python-mode
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t)))))))))
+      .
+      ;; the value in the format described above starts here
+      ((:pyls . (:plugins (:jedi_completion (:include_params t
+                                             :fuzzy t)
+                           :pylint (:enabled :json-false)))))
+      ;; and ends here
+      ))))
 ```
 
 This tells Emacs that any `python-mode` buffers in that directory
 should have a particular value of `eglot-workspace-configuration`.
 
-Here, the value in question associates section `:pyls` with parameters
-`(:plugins (:jedi_completion (:include_params t)))`.  The parameter
-object is a plist converted to JSON before being sent to the server.
+Here, the value in question associates a parameter section `:pyls`
+with a parameter objct that is a plist of plists.  It is converted to
+JSON before being sent to the server:
+
+```json
+{
+  "pyls": {
+    "plugins": {
+      "jedi_completion": { "include_params": true, "fuzzy": true },
+      "pylint": { "enabled": false }
+    }
+  }
+}
+```
 
 #### Multiple servers in `eglot-workspace-configuration`
 
@@ -182,20 +224,25 @@ a section for `go-mode`, the file's contents now become:
 ```lisp
 ((python-mode
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))))))
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t
+                                               :fuzzy t)
+                             :pylint (:enabled :json-false))))))))
  (go-mode
   . ((eglot-workspace-configuration
       . ((:gopls . (:usePlaceholders t)))))))
 ```
 
 Alternatively, as a matter of taste, you may choose this equivalent
-setup, which sets the variables value in all all major modes of all
-buffers of a given project.
+setup.  This sets the value in all major-modes inside the project: the
+major-mode specification is unneeded because the LSP server will
+retrieve only the parameter section it is interested in.
 
 ```lisp
 ((nil
   . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))
+      . ((:pyls . (:plugins (:jedi_completion (:include_params t
+                                               :fuzzy t)
+                             :pylint (:enabled :json-false))))
          (:gopls . (:usePlaceholders t)))))))
 ```
 
@@ -211,10 +258,10 @@ leverage per-directory local variables.  Look for the functions
 
 If you need to determine the workspace configuration base on some
 dynamic context, make `eglot-workspace-configuration` a function.  It
-is passed the `eglot-lsp-server` instance and runs with
-`default-directory` set to the root of your project.  The function
-should return a value of the same form as described in the previous
-paragraphs.
+is passed the `eglot-lsp-server` instance of the connected server (if
+any) and runs with `default-directory` set to the root of your
+project.  The function should return a value of the same form as
+described in the previous paragraphs.
 
 ## Handling quirky servers
 
@@ -626,3 +673,7 @@ for the request form, and we'll send it to you.
 [copyright-assignment]: https://www.fsf.org/licensing/contributor-faq
 [legally-significant]: https://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant
 [dir-locals-emacs-manual]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
+[configuration-request]: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_configuration
+[did-change-configuration]: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_didChangeConfiguration
+[json-serialize]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Parsing-JSON.html
+[plist]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html
