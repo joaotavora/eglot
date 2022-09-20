@@ -63,6 +63,7 @@ Eglot will now prefer starting "rust-analyzer" to "rls" when it is
 available.  The special support code for RLS has been removed.
 
 ##### New servers have been added to `eglot-server-programs`
+- fennel-lsp ([#1052][github#1052])
 - clojure-lsp ([#813][github#813])
 - racket-langserver ([#694][github#694])
 - futhark lsp ([#922][github#922])
@@ -412,3 +413,4 @@ and now said bunch of references-->
 [github#967]: https://github.com/joaotavora/eglot/issues/967
 [github#994]: https://github.com/joaotavora/eglot/issues/994
 [github#1013]: https://github.com/joaotavora/eglot/issues/1013
+[github#1052]: https://github.com/joaotavora/eglot/issues/1052

@@ -53,6 +53,7 @@ find-library` can help you tell if that happened.
 * Elixir's [elixir-ls][elixir-ls]
 * Elm's [elm-language-server][elm-language-server]
 * Erlang's [erlang_ls][erlang_ls]
+* Fennel's [fennel-ls][fennel-ls]
 * Fortran's [fortls][fortls]
 * Futhark's [futhark lsp][futhark-lsp]
 * Go's [gopls][gopls]
@@ -643,6 +644,7 @@ for the request form, and we'll send it to you.
 [dart-analysis-server]: https://github.com/dart-lang/sdk/blob/master/pkg/analysis_server/tool/lsp_spec/README.md
 [elixir-ls]: https://github.com/elixir-lsp/elixir-ls
 [elm-language-server]: https://github.com/elm-tooling/elm-language-server
+[fennel-ls]: https://git.sr.ht/~xerool/fennel-ls
 [fortls]: https://github.com/hansec/fortran-language-server
 [futhark-lsp]: https://futhark-lang.org
 [gopls]: https://github.com/golang/tools/tree/master/gopls
