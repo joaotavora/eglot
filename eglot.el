@@ -1323,9 +1323,7 @@ CONNECT-ARGS are passed as additional arguments to
 ;;;
 
 (defun eglot--user-error (format &rest args)
-  "User errorewith FORMAT with ARGS.
-Should be used when error can be too intrusive, i.e. the users
-has `debug-on-error' set to non-nil values."
+  "User errorewith FORMAT with ARGS."
   (user-error "[eglot] %s" (apply #'format format args)))
 
 (defun eglot--error (format &rest args)
