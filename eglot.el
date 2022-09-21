@@ -609,9 +609,9 @@ treated as in `eglot-dbind'."
                          ,obj-once
                        ,@body)))
         (t
-         (eglot--error "%S didn't match any of %S"
-                       ,obj-once
-                       ',(mapcar #'car clauses)))))))
+         (eglot--user-error "%S didn't match any of %S"
+                            ,obj-once
+                            ',(mapcar #'car clauses)))))))
 
 
 ;;; API (WORK-IN-PROGRESS!)
@@ -1321,6 +1321,13 @@ CONNECT-ARGS are passed as additional arguments to
 
 ;;; Helpers (move these to API?)
 ;;;
+
+(defun eglot--user-error (format &rest args)
+  "User errorewith FORMAT with ARGS.
+Should be used when error can be too intrusive, i.e. the users
+has `debug-on-error' set to non-nil values."
+  (user-error "[eglot] %s" (apply #'format format args)))
+
 (defun eglot--error (format &rest args)
   "Error out with FORMAT with ARGS."
   (error "[eglot] %s" (apply #'format format args)))
@@ -3135,7 +3142,7 @@ at point.  With prefix argument, prompt for ACTION-KIND."
                        when (or (not action-kind)
                                 (equal action-kind (plist-get action :kind)))
                        collect (cons (plist-get action :title) action))
-              (apply #'eglot--error
+              (apply #'eglot--user-error
                      (if action-kind `("No \"%s\" code actions here" ,action-kind)
                        `("No code actions here")))))
          (preferred-action (cl-find-if
