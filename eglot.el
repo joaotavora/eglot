@@ -1323,7 +1323,7 @@ CONNECT-ARGS are passed as additional arguments to
 ;;;
 
 (defun eglot--user-error (format &rest args)
-  "User errorewith FORMAT with ARGS."
+  "Signal Eglot-specific `user-error' with FORMAT and ARGS."
   (user-error "[eglot] %s" (apply #'format format args)))
 
 (defun eglot--error (format &rest args)
