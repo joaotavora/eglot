@@ -3146,8 +3146,13 @@ at point.  With prefix argument, prompt for ACTION-KIND."
          (action (if (and action-kind (null (cadr menu-items)))
                      (cdr (car menu-items))
                    (if (listp last-nonmenu-event)
-                       (x-popup-menu last-nonmenu-event `("Eglot code actions:"
-                                                          ("dummy" ,@menu-items)))
+                       (x-popup-menu
+                        ;; Using t explicitly to quit, if menu lost
+                        ;; focus (see x-popup-menu).  Since mouse-1
+                        ;; moves point, t should be safe to use.
+                        t               ; last-nonmenu-event
+                        `("Eglot code actions:"
+                          ("dummy" ,@menu-items)))
                      (cdr (assoc (completing-read
                                   (format "[eglot] Pick an action (default %s): "
                                           default-action)
