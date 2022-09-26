@@ -390,6 +390,7 @@ and now said bunch of references-->
 [github#637]: https://github.com/joaotavora/eglot/issues/637
 [github#643]: https://github.com/joaotavora/eglot/issues/643
 [github#646]: https://github.com/joaotavora/eglot/issues/646
+[github#681]: https://github.com/joaotavora/eglot/issues/681
 [github#686]: https://github.com/joaotavora/eglot/issues/686
 [github#688]: https://github.com/joaotavora/eglot/issues/688
 [github#694]: https://github.com/joaotavora/eglot/issues/694
