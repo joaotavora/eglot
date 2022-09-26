@@ -1,5 +1,14 @@
 # (upcoming)
 
+#### Support for "single server, multiple modes" ([#681][github#681])
+
+Previously, if an entry such as `((c++-mode c-mode) . ("clangd)")` was
+found in `eglot-server-programs`, it meant that `.cpp` files `.c`
+files would lead to two `clangd` instances for managing them, even if
+these files were in the same project.  Now only one is created.  It is
+assumed that most, if not all, servers configured in
+`eglot-server-programs` handle this correctly.
+
 ##### `eglot-imenu` no longer uses problematic "special elements" ([#758][github#758], [#536][github#536], [#535][github#535])
 
 Though Eglot's `eglot-imenu` returned a fully compliant `imenu`
