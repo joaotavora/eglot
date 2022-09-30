@@ -2096,6 +2096,9 @@ THINGS are either registrations or unregisterations (sic)."
   (append (eglot--TextDocumentIdentifier)
           `(:version ,eglot--versioned-identifier)))
 
+(defun eglot--buffer-content ()
+  (buffer-substring-no-properties (point-min) (point-max)))
+
 (defun eglot--TextDocumentItem ()
   "Compute TextDocumentItem object for current buffer."
   (append
@@ -2104,7 +2107,7 @@ THINGS are either registrations or unregisterations (sic)."
 	 (eglot--language-id (eglot--current-server-or-lose))
          :text
          (eglot--widening
-          (buffer-substring-no-properties (point-min) (point-max))))))
+          (eglot--buffer-content)))))
 
 (defun eglot--TextDocumentPositionParams ()
   "Compute TextDocumentPositionParams."
@@ -2338,8 +2341,7 @@ When called interactively, use the currently active server"
         :contentChanges
         (if full-sync-p
             (vector `(:text ,(eglot--widening
-                              (buffer-substring-no-properties (point-min)
-                                                              (point-max)))))
+                              (eglot--buffer-content))))
           (cl-loop for (beg end len text) in (reverse eglot--recent-changes)
                    ;; github#259: `capitalize-word' and commands based
                    ;; on `casify_region' will cause multiple duplicate
@@ -2388,7 +2390,7 @@ When called interactively, use the currently active server"
    :textDocument/didSave
    (list
     ;; TODO: Handle TextDocumentSaveRegistrationOptions to control this.
-    :text (buffer-substring-no-properties (point-min) (point-max))
+    :text (eglot--buffer-content)
     :textDocument (eglot--TextDocumentIdentifier))))
 
 (defun eglot-flymake-backend (report-fn &rest _more)
