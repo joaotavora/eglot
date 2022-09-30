@@ -2096,8 +2096,7 @@ THINGS are either registrations or unregisterations (sic)."
   (append (eglot--TextDocumentIdentifier)
           `(:version ,eglot--versioned-identifier)))
 
-(defun eglot--buffer-content ()
-  (buffer-substring-no-properties (point-min) (point-max)))
+(defalias 'eglot--region-content 'substring-no-properties)
 
 (defun eglot--TextDocumentItem ()
   "Compute TextDocumentItem object for current buffer."
@@ -2107,7 +2106,7 @@ THINGS are either registrations or unregisterations (sic)."
 	 (eglot--language-id (eglot--current-server-or-lose))
          :text
          (eglot--widening
-          (eglot--buffer-content)))))
+          (eglot--region-content (point-min) (point-max))))))
 
 (defun eglot--TextDocumentPositionParams ()
   "Compute TextDocumentPositionParams."
@@ -2200,11 +2199,11 @@ Records BEG, END and PRE-CHANGE-LENGTH locally."
               (or (/= beg b-beg) (/= end b-end)))
          (setcar eglot--recent-changes
                  `(,lsp-beg ,lsp-end ,(- b-end-marker b-beg-marker)
-                            ,(buffer-substring-no-properties b-beg-marker
+                            ,(eglot--region-content b-beg-marker
                                                              b-end-marker)))
        (setcar eglot--recent-changes
                `(,lsp-beg ,lsp-end ,pre-change-length
-                          ,(buffer-substring-no-properties beg end)))))
+                          ,(eglot--region-content beg end)))))
     (_ (setf eglot--recent-changes :emacs-messup)))
   (when eglot--change-idle-timer (cancel-timer eglot--change-idle-timer))
   (let ((buf (current-buffer)))
@@ -2341,7 +2340,7 @@ When called interactively, use the currently active server"
         :contentChanges
         (if full-sync-p
             (vector `(:text ,(eglot--widening
-                              (eglot--buffer-content))))
+                              (eglot--region-content (point-min) (point-max)))))
           (cl-loop for (beg end len text) in (reverse eglot--recent-changes)
                    ;; github#259: `capitalize-word' and commands based
                    ;; on `casify_region' will cause multiple duplicate
@@ -2390,7 +2389,7 @@ When called interactively, use the currently active server"
    :textDocument/didSave
    (list
     ;; TODO: Handle TextDocumentSaveRegistrationOptions to control this.
-    :text (eglot--buffer-content)
+    :text (eglot--region-content (point-min) (point-max))
     :textDocument (eglot--TextDocumentIdentifier))))
 
 (defun eglot-flymake-backend (report-fn &rest _more)
