@@ -26,29 +26,28 @@ Eglot -- *E*macs Poly*glot* -- is the Emacs LSP client that stays out
 of your way.
 
 The [Language Server Protocol (LSP)][language-server-protocol] defines
-standardized communication between *client programs*, typically source
-code editors, and *server programs*, which analyze that source code on
-behalf of the clients.
-
-LSP enables a single language server to be useful in many different
+standardized communication between source code editors and language
+server programs, which analyze that source code on behalf of the
 editors.
 
-Likewise, many different language servers exist, each specializing in
-a different programming language.  LSP enables a single editor to
-speak to all of them.
+Using Eglot, Emacs may be enriched with a language server and its
+findings, such as the location of functions calls, types of variables,
+class definitions or syntactic mistakes.  This enables new editing
+features and significantly enhances Emacs existing features such as
+[automatic code completion, go-to definition, at-point documentation,
+automatic refactoring, diagnostics, and more][readme-pretty-gifs].
 
-Server programs advertise the results of their analysis to the client,
-such as where in the source code there is a call to a specific
-function, a variable definition or a syntactic mistake.  Clients
-present these results to the user without specific knowledge of the
-language.  As the user edits, creates and deletes source file clients
+As the user edits, creates and deletes source files, clients
 continuously inform the server of this, so that the server can update
 its analysis.
 
-When using Emacs as a source code editor, combining Eglot with a
-suitable language server program enables many common useful features
-such as [completion, go-to definition, at-point documentation,
-diagnostics, etc.][readme-pretty-gifs].
+LSP enables a single language server to be useful to many different
+editors and a single editor to speak to many different language
+servers.
+
+As long as there is a server language to connect to, Eglot doesn't
+require Emacs to know anything about a particular programming language
+to enable these features.
 
 ## Setting up Eglot
 

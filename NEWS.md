@@ -1,5 +1,7 @@
 # (upcoming)
 
+#### Manual now lives in a separate MANUAL.md file
+
 #### Support for "single server, multiple modes" ([#681][github#681])
 
 Previously, if an entry such as `((c++-mode c-mode) . ("clangd)")` was
