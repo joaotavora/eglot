@@ -4,38 +4,73 @@
 
 # M-x Eglot
 
-*E*macs Poly*glot*: an Emacs [LSP][lsp] client that stays out of your
-way:
+*E*macs Poly*glot* is the Emacs [LSP][lsp] client that stays out of
+your way:
 
 * 📽 Scroll down this README for some [pretty gifs](#animated_gifs)
-* 📚 Read the [manual][manual]
-* 📣 Read the [NEWS][news] file
+* 📚 Read Eglot's [manual][manual]
 * 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
+* 👾 Eglot now lives in [Emacs itself](#emacscore)!
 
-# _1-2-3_
+# Get stable [GNU ELPA][gnuelpa] version
 
-Install from [GNU ELPA][gnuelpa] or [MELPA][melpa].  Just type `M-x
-package-install RET eglot RET` into Emacs 26.1+.
+Just type `M-x package-install RET eglot RET` into Emacs 26.3+.
 
 Now find some source file, any source file, and type `M-x eglot`.
 
 *That's it*. If you're lucky, this guesses the LSP program to start
-for the language you're using. Otherwise, it prompts you to enter one.
+for the language you're using.  Otherwise, it prompts you to enter
+one.
 
-### _1-2-3-pitfall!_
+<a name=emacscore></a>
+# Get [latest development version][emacs-upstream]
 
-By design, Eglot doesn't depend on anything but Emacs.  But there
-_are_ ELPA dependencies to newer versions of so-called "core packages"
-developed _in the Emacs mainline_.  So unless you're using a
-bleeding-edge Emacs, where loading `eglot.el` is all you'd need to do,
-make sure your package system pulls in and loads the newest
-`project.el`, `xref.el`, `eldoc.el`, etc...  In case of trouble `M-x
-find-library` can help you tell if that happened.
+_**Eglot is now in Emacs's core!**_ Upcoming Emacs 29 will have `M-x
+eglot` built-in.
+
+The recommended way to try out the latest Eglot and experiment with
+changes is to [compile][compile-emacs1] [Emacs][compile-emacs2]
+[yourself][compile-emacs3-official].  
+
+From a development perspective, moving to core allows us to work on
+Eglot in tandem with other related packages already in Emacs, such as
+[Flymake][flymake], [ElDoc][eldoc], [Xref][xref], [Project][project].
+
+This means adding or tweaking an Emacs LSP feature is a matter of
+submitting a single patch targetting multiple relevant packages, not
+just Eglot.
+
+These `:core` packages (Eglot included) are then released periodically
+to GNU ELPA, so users of other Emacs's versions can get them via
+`M-x package-install`.
+
+# Status of this GitHub repository
+
+This repository is **not the development upstream anymore**, but it's
+**not** dead (yet):
+
+* It may be used to start [discussions][discussion].
+
+  Sometimes, it's possible the discussion or bug report will be moved
+  to [Emacs's bug tracker][emacs-bug-tracker-eglot].  You may take the
+  initiative and start discussion there using `M-x report-emacs-bug`
+  or simply sending mail to `bug-gnu-emacs@gnu.org`.
+  
+  Please the [Eglot-specific bug-reporting instructions][bug-reporting].
+  
+* [eglot.el][eglot.el] be perodically updated to mirror the [Emacs
+  upstream][upstream-eglot.el]
+
+* It may be used to rehearse patches that go through the GitHub CI
+  tests.
 
 <a name="connecting"></a>
 # Connecting to a server
 
-`M-x eglot` can guess and work out-of-the-box with these servers:
+These are just some of the servers that `M-x eglot` can work out of
+the box.  The full list can be consulted in the
+`eglot-server-programs` variable, where you can [easily add your own
+servers][manual].
 
 * Ada's [ada_language_server][ada_language_server]
 * Bash's [bash-language-server][bash-language-server]
@@ -77,8 +112,6 @@ find-library` can help you tell if that happened.
 * VimScript's [vim-language-server][vim-language-server]
 * YAML's [yaml-language-server][yaml-language-server]
 * Zig's [zls][zls]
-
-I'll add to this list as I test more servers. 
 
 <a name="animated_gifs"></a>
 # _Obligatory animated gif section_
@@ -264,7 +297,7 @@ for the request form, and we'll send it to you.
 [zls]: https://github.com/zigtools/zls
 
 <!-- Other references -->
-[manual]: https://github.com/joaotavora/eglot/blob/master/MANUAL.md
+[manual]: https://joaotavora.github.io/eglot
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [company-mode]: https://github.com/company-mode/company-mode
 [ccls]: https://github.com/MaskRay/ccls
@@ -279,6 +312,8 @@ for the request form, and we'll send it to you.
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [company]: https://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
+[xref]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Xref.html
+[imenu]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html
 [eldoc]: https://github.com/emacs-mirror/emacs/blob/master/lisp/emacs-lisp/eldoc.el
 [yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
@@ -290,3 +325,14 @@ for the request form, and we'll send it to you.
 [did-change-configuration]: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_didChangeConfiguration
 [json-serialize]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Parsing-JSON.html
 [plist]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html
+[discussion]: https://github.com/joaotavora/eglot/discussions
+[upstream-eglot.el]: https://github.com/emacs-mirror/emacs/blob/master/lisp/progmodes/eglot.el
+[eglot.el]: https://github.com/joaotavora/eglot/blob/master/eglot.el
+[announcement]: https://github.com/joaotavora/eglot/discussions
+[compile-emacs1]: https://lars.ingebrigtsen.no/2014/11/13/welcome-new-emacs-developers/
+[compile-emacs2]: https://batsov.com/articles/2021/12/19/building-emacs-from-source-with-pgtk/
+[compile-emacs3-official]: https://github.com/emacs-mirror/emacs/blob/master/INSTALL
+[emacs-bug-tracker-eglot]: https://debbugs.gnu.org/cgi/pkgreport.cgi?include=subject%3Aeglot;package=emacs
+[bug-reporting]: https://joaotavora.github.io/eglot/#Troubleshooting-Eglot
+[project]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Projects.html
+[emacs-upstream]: https://github.com/emacs-mirror/emacs
