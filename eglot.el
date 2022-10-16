@@ -184,7 +184,7 @@ language-server/bin/php-language-server.php"))
                                 (scala-mode . ("metals-emacs"))
                                 (racket-mode . ("racket" "-l" "racket-langserver"))
                                 ((tex-mode context-mode texinfo-mode bibtex-mode)
-                                 . ("digestif"))
+                                 . ,(eglot-alternatives '(("digestif") ("ltex-ls"))))
                                 (erlang-mode . ("erlang_ls" "--transport" "stdio"))
                                 (yaml-mode . ("yaml-language-server" "--stdio"))
                                 (nix-mode . ("rnix-lsp"))
@@ -202,7 +202,8 @@ language-server/bin/php-language-server.php"))
                                 (csharp-mode . ("omnisharp" "-lsp"))
                                 (purescript-mode . ("purescript-language-server" "--stdio"))
                                 (perl-mode . ("perl" "-MPerl::LanguageServer" "-e" "Perl::LanguageServer::run"))
-                                (markdown-mode . ("marksman" "server")))
+                                (markdown-mode . ,(eglot-alternatives '(("marksman" "server") ("ltex-ls"))))
+                                ((org-mode rst-mode) . ("ltex-ls")))
   "How the command `eglot' guesses the server to start.
 An association list of (MAJOR-MODE . CONTACT) pairs.  MAJOR-MODE
 identifies the buffers that are to be managed by a specific
