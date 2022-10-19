@@ -654,8 +654,9 @@ object serialized to JSON by [`json-serialize`][json-serialize].  The
 recommended format is again a [plist][plist], though `json-serialize`
 also accepts other formats.
 
-In any case, the JSON values `true`, `false` and `{}` are represented
-by the Elisp values `t`, `:json-false` and `nil`, respectively.
+In any case, the JSON values `true`, `false`, `null`, and `[]` are
+represented by the Elisp values `t`, `:json-false`, `nil`, and `[]`
+respectively.
 
 When experimenting with settings, one may use `M-x
 eglot-show-workspace-configuration` to inspect/debug the definite JSON
