@@ -117,9 +117,9 @@ modify this GNU manual.&rdquo;
   <li><a id="toc-Quick-Start-1" href="#Quick-Start">1 Quick Start</a></li>
   <li><a id="toc-Eglot-and-LSP-Servers-1" href="#Eglot-and-LSP-Servers">2 Eglot and LSP Servers</a>
   <ul class="no-bullet">
-    <li><a id="toc-Setting-Up-LSP-Server-1" href="#Setting-Up-LSP-Server">2.1 Setting Up LSP Server</a></li>
+    <li><a id="toc-Setting-Up-LSP-Servers-1" href="#Setting-Up-LSP-Servers">2.1 Setting Up LSP Servers</a></li>
     <li><a id="toc-Starting-Eglot-1" href="#Starting-Eglot">2.2 Starting Eglot</a></li>
-    <li><a id="toc-Shutting-Down-LSP-Server-1" href="#Shutting-Down-LSP-Server">2.3 Shutting Down LSP Server</a></li>
+    <li><a id="toc-Shutting-Down-LSP-Servers-1" href="#Shutting-Down-LSP-Servers">2.3 Shutting Down LSP Servers</a></li>
   </ul></li>
   <li><a id="toc-Using-Eglot-1" href="#Using-Eglot">3 Using Eglot</a>
   <ul class="no-bullet">
@@ -161,7 +161,7 @@ there satisfy your needs for the programming language(s) with which
 you want to use Eglot, you just need to make sure those servers are
 installed on your system.  Alternatively, install one or more servers
 of your choice and add them to the value of
-<code>eglot-server-programs</code>, as described in <a href="#Setting-Up-LSP-Server">Setting Up LSP Server</a>.
+<code>eglot-server-programs</code>, as described in <a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>.
 </p>
 </li><li> Turn on Eglot for your project.
 
@@ -205,17 +205,17 @@ start it.
 </p>
 
 <ul class="section-toc">
-<li><a href="#Setting-Up-LSP-Server" accesskey="1">Setting Up LSP Server</a></li>
+<li><a href="#Setting-Up-LSP-Servers" accesskey="1">Setting Up LSP Servers</a></li>
 <li><a href="#Starting-Eglot" accesskey="2">Starting Eglot</a></li>
-<li><a href="#Shutting-Down-LSP-Server" accesskey="3">Shutting Down LSP Server</a></li>
+<li><a href="#Shutting-Down-LSP-Servers" accesskey="3">Shutting Down LSP Servers</a></li>
 </ul>
 <hr>
-<div class="section" id="Setting-Up-LSP-Server">
+<div class="section" id="Setting-Up-LSP-Servers">
 <div class="header">
 <p>
 Next: <a href="#Starting-Eglot" accesskey="n" rel="next">Starting Eglot</a>, Up: <a href="#Eglot-and-LSP-Servers" accesskey="u" rel="up">Eglot and LSP Servers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Setting-Up-LSP-Server-1"></span><h3 class="section">2.1 Setting Up LSP Server</h3>
+<span id="Setting-Up-LSP-Servers-1"></span><h3 class="section">2.1 Setting Up LSP Servers</h3>
 <span id="index-setting-up-LSP-server-for-Eglot"></span>
 <span id="index-language-server-for-Eglot"></span>
 
@@ -230,8 +230,10 @@ further discussed in this manual; refer to the documentation of the
 particular server(s) you want to install.
 </p>
 <p>To use a language server, Eglot must know how to start it and which
-programming languages each server supports.  This information is
-provided by the <code>eglot-server-programs</code> variable.
+programming languages each server supports.  Eglot comes with a fairly
+complete set of associations of major-modes to popular language
+servers predefined.  This information is provided by the
+<code>eglot-server-programs</code> variable.
 </p>
 <dl class="def">
 <dt id="index-eglot_002dserver_002dprograms"><span class="category">Variable: </span><span><strong>eglot-server-programs</strong><a href='#index-eglot_002dserver_002dprograms' class='copiable-anchor'> &para;</a></span></dt>
@@ -246,13 +248,13 @@ the source you are editing.
 </p>
 <p>The <var>major-mode</var> of the alist elements can be either a symbol of
 an Emacs major mode or a list of the form <code>(<var>mode</var>&nbsp;<span class="nolinebreak">:language-id</span>&nbsp;<var>id</var>)</code><!-- /@w -->, with <var>mode</var> being a major-mode symbol
-and <var>id</var> a string that identifies the language to the server (if
-Eglot cannot by itself convert the major-mode to the language
-identifier string required by the server).  In addition,
-<var>major-mode</var> can be a list of several major mode specified in one
-of the above forms &ndash; this means a running instance of the associated
-server is responsible for files of multiple major modes or languages
-in the project.
+and <var>id</var> a string that identifies the language to the server.  The
+latter form should be used if Eglot cannot by itself convert the
+major-mode to the language identifier string required by the server.
+In addition, <var>major-mode</var> can be a list of several major modes
+specified in one of the above forms &ndash; this means a running instance
+of the associated server is responsible for files of multiple major
+modes or languages in the project.
 </p>
 <p>The <var>server</var> part of the alist elements can be one of the
 following:
@@ -298,9 +300,7 @@ arguments.
 
 </dd></dl>
 
-<p>Eglot comes with a fairly complete set of associations of major-modes
-to popular language servers predefined in this variable.  If you need
-to add server associations to the default list, use
+<p>If you need to add server associations to the default list, use
 <code>add-to-list</code>.  For example, if there is a hypothetical language
 server program <code>fools</code> for the language <code>Foo</code> which is
 supported by an Emacs major-mode <code>foo-mode</code>, you can add it to
@@ -325,7 +325,7 @@ able to find it.
 <div class="section" id="Starting-Eglot">
 <div class="header">
 <p>
-Next: <a href="#Shutting-Down-LSP-Server" accesskey="n" rel="next">Shutting Down LSP Server</a>, Previous: <a href="#Setting-Up-LSP-Server" accesskey="p" rel="prev">Setting Up LSP Server</a>, Up: <a href="#Eglot-and-LSP-Servers" accesskey="u" rel="up">Eglot and LSP Servers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Shutting-Down-LSP-Servers" accesskey="n" rel="next">Shutting Down LSP Servers</a>, Previous: <a href="#Setting-Up-LSP-Servers" accesskey="p" rel="prev">Setting Up LSP Servers</a>, Up: <a href="#Eglot-and-LSP-Servers" accesskey="u" rel="up">Eglot and LSP Servers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <span id="Starting-Eglot-1"></span><h3 class="section">2.2 Starting Eglot</h3>
 <span id="index-starting-Eglot"></span>
@@ -377,22 +377,22 @@ Emacs session, it runs the hook <code>eglot-connect-hook</code>
 </p>
 <hr>
 </div>
-<div class="section" id="Shutting-Down-LSP-Server">
+<div class="section" id="Shutting-Down-LSP-Servers">
 <div class="header">
 <p>
 Previous: <a href="#Starting-Eglot" accesskey="p" rel="prev">Starting Eglot</a>, Up: <a href="#Eglot-and-LSP-Servers" accesskey="u" rel="up">Eglot and LSP Servers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<span id="Shutting-Down-LSP-Server-1"></span><h3 class="section">2.3 Shutting Down LSP Server</h3>
+<span id="Shutting-Down-LSP-Servers-1"></span><h3 class="section">2.3 Shutting Down LSP Servers</h3>
 <span id="index-shutting-down-LSP-server"></span>
 
 <p>When Eglot is turned on, it arranges for turning itself off
 automatically if the language server process terminates.  Turning off
-Eglot means it shuts down the server connection, ceases its management
-of all the buffers that use the server connection which was
+Eglot means that it shuts down the server connection, ceases its
+management of all the buffers that use the server connection which was
 terminated, deactivates its minor mode, and restores the original
 values of the Emacs variables that Eglot changed when it was turned
-on.  See <a href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, for more details of what does Eglot
-management of a buffer entail.
+on.  See <a href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, for more details of what Eglot
+management of a buffer entails.
 </p>
 <span id="index-eglot_002dshutdown"></span>
 <p>You can also shut down a language server manually, by using the
@@ -444,7 +444,7 @@ Next: <a href="#Eglot-and-Buffers" accesskey="n" rel="next">Buffers, Projects, a
 <p>Once Eglot is enabled in a buffer, it uses LSP and the language-server
 capabilities to activate, enable, and enhance modern IDE features in
 Emacs.  The features themselves are usually provided via other Emacs
-packages.  Here are the main features Eglot enables and provides:
+packages.  These are the main features that Eglot enables and provides:
 </p>
 <ul>
 <li> At-point documentation: when point is at or near a symbol or an
@@ -463,7 +463,7 @@ Flymake backends.
 capabilities which uses the language-server understanding of the
 program source.  In particular, it eliminates the need to generate
 tags tables (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Tags-tables">Tags tables</a> in <cite>GNU Emacs Manual</cite>) for
-languages which are only supported by the <code>etags</code> backend.
+languages that are only supported by the <code>etags</code> backend.
 
 </li><li> Buffer navigation by name of function, class, method, etc., via Imenu
 (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Imenu">Imenu</a> in <cite>GNU Emacs Manual</cite>).  Eglot provides its own
@@ -479,19 +479,21 @@ to what the <code>eglot-format</code> command does (see below), but is
 activated automatically as you type.
 
 </li><li> If a completion package such as <code>company-mode</code>, a popular
-3rd-party completion package, is installed, Eglot enhances it by
+third-party completion package, is installed, Eglot enhances it by
 providing completion candidates based on the language-server analysis
-of the source code.
+of the source code.  (<code>company-mode</code> can be installed from GNU ELPA.)
 
-</li><li> If <code>yasnippet</code>, a popular package for automatic insertion of code
-templates (snippets), is installed, and the language server supports
-snippet completion candidates, Eglot arranges for the completion
-package to instantiate these snippets using <code>yasnippet</code>.
+</li><li> If <code>yasnippet</code>, a popular third-party package for automatic
+insertion of code templates (snippets), is installed, and the language
+server supports snippet completion candidates, Eglot arranges for the
+completion package to instantiate these snippets using
+<code>yasnippet</code>.  (<code>yasnippet</code> can be installed from GNU ELPA.)
 
-</li><li> If the popular package <code>markdown-mode</code> is installed, and the
-server provides at-point documentation formatted as Markdown in
-addition to plain text, Eglot arranges for the ElDoc package to enrich
-this text with e.g. fontification before displaying it to the user.
+</li><li> If the popular third-party package <code>markdown-mode</code> is installed,
+and the server provides at-point documentation formatted as Markdown
+in addition to plain text, Eglot arranges for the ElDoc package to
+enrich this text with e.g. fontification before displaying it to the
+user.
 
 </li><li> In addition to enabling and enhancing other features and packages,
 Eglot also provides a small number of user commands based directly on
@@ -572,7 +574,7 @@ single file.  But there are other more complex projects:
 directory.
 
 </li><li> A VC project: source files in a directory hierarchy under some VCS,
-i.e. a VCS repository (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Version-Control">Version Control</a> in <cite>GNU Emacs
+e.g. a Git repository (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Version-Control">Version Control</a> in <cite>GNU Emacs
 Manual</cite>).
 
 </li><li> An EDE project: source files in a directory hierarchy managed via the
@@ -685,8 +687,9 @@ will be added to those managed by an existing server session.
 <p>The command attempts to figure out the buffer&rsquo;s major mode and the
 suitable language server; in case it fails, it might prompt for the
 major mode to use and for the server program to start.  If invoked
-with <kbd>C-u</kbd>, it always prompts for the server program, and if
-invoked with <kbd>C-u C-u</kbd>, also prompt for the major mode.
+with a prefix argument <kbd>C-u</kbd>, it always prompts for the server
+program, and if invoked with <kbd>C-u C-u</kbd>, also prompt for the major
+mode.
 </p>
 <p>If the language server is successfully started and contacted, this
 command arranges for any other buffers belonging to the same project
@@ -709,7 +712,7 @@ connection.
 </p>
 </dd>
 <dt id='index-M_002dx-eglot_002dshutdown'><span><code>M-x eglot-shutdown</code><a href='#index-M_002dx-eglot_002dshutdown' class='copiable-anchor'> &para;</a></span></dt>
-<dd><p>Shut down a language server.  This commands prompts for a language
+<dd><p>Shuts down a language server.  This commands prompts for a language
 server to shut down (unless there&rsquo;s only one server session, and it
 manages the current buffer).  Then the command shuts down the server
 and stops managing the buffers the server was used for.  Emacs
@@ -895,7 +898,7 @@ See <a href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>, for when this co
 </dd>
 <dt id='index-eglot_002dautoshutdown'><span><code>eglot-autoshutdown</code><a href='#index-eglot_002dautoshutdown' class='copiable-anchor'> &para;</a></span></dt>
 <dd><p>If this is non-<code>nil</code>, Eglot shuts down a language server when the
-last buffer managed by it is killed.  See <a href="#Shutting-Down-LSP-Server">Shutting Down LSP Server</a>.
+last buffer managed by it is killed.  See <a href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a>.
 The default is <code>nil</code>; if you want to shut down a server, use
 <kbd>M-x eglot-shutdown</kbd> (see <a href="#Eglot-Commands">Eglot Commands</a>).
 </p>
@@ -965,7 +968,7 @@ customize the Flymake faces <code>flymake-error</code> and
 <code>flymake-error</code>.
 
 </li><li> To configure the amount of space taken up by documentation in the
-echo area, the customize the ElDoc variable
+echo area, customize the ElDoc variable
 <code>eldoc-echo-area-use-multiline-p</code>.
 
 </li><li> To completely change how ElDoc displays the at-point documentation
@@ -981,11 +984,11 @@ connections and the server features to be used by Eglot.
 <dt><span><code>eglot-server-programs</code></span></dt>
 <dd><p>This variable determines which language server to start for each
 supported major mode, and how to invoke that server&rsquo;s program.
-See <a href="#Setting-Up-LSP-Server">Setting Up LSP Server</a>, for the details.
+See <a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>, for the details.
 </p>
 <span id="index-eglot_002dstrict_002dmode"></span>
 </dd>
-<dt><span><code>eglot-strict-mode:</code></span></dt>
+<dt><span><code>eglot-strict-mode</code></span></dt>
 <dd><p>This is <code>nil</code> by default, meaning that Eglot is generally lenient
 about non-conforming servers.  If you need to debug a server, set this
 to <code><span class="nolinebreak">(disallow-non-standard-keys</span>&nbsp;<span class="nolinebreak">enforce-required-keys)</span></code><!-- /@w -->.
@@ -1066,11 +1069,12 @@ this variable should be a property list of the following format:
 
 <p>Here <code>:<var>server</var></code> identifies a particular language server and
 <var>plist</var> is the corresponding keyword-value property list of one or
-more parameter settings for that server.  That list of parameters is
-serialized to JSON by Eglot and sent to the server.  For that reason
-JSON values <code>true</code>, <code>false</code>, and <code>{}</code> should be
-represented in the property lists as Lisp symbols <code>t</code>,
-<code>:json-false</code>, and <code>nil</code>, respectively.
+more parameter settings for that server, serialized by Eglot as a JSON
+object.  <var>plist</var> may be arbitrarity complex, generally containing
+other keywork-value property sublists corresponding to JSON subobjects.
+The JSON values <code>true</code>, <code>false</code>, <code>null</code> and <code>{}</code>
+are represented by the Lisp values <code>t</code>, <code>:json-false</code>,
+<code>nil</code>, and <code>eglot-{}</code>, respectively.
 </p>
 <span id="index-eglot_002dshow_002dworkspace_002dconfiguration"></span>
 <p>When experimenting with workspace settings, you can use the command
@@ -1112,7 +1116,7 @@ root directory.  It sets up the value of
 
 <p>This is an equivalent setup which sets the value for all the
 major-modes inside the project; Eglot will use for each server only
-the section of the parameters intended for that server
+the section of the parameters intended for that server.
 </p>
 <p>As yet another alternative, you can set the value of
 <code>eglot-workspace-configuration</code> programmatically, via the
@@ -1765,9 +1769,9 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td valign="top"><a href="#index-eglot_002dmenu"><code>eglot-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dmode_002dmap"><code>eglot-mode-map</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dserver_002dinitialized_002dhook"><code>eglot-server-initialized-hook</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-eglot_002dserver_002dprograms"><code>eglot-server-programs</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Server">Setting Up LSP Server</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-eglot_002dserver_002dprograms"><code>eglot-server-programs</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dshow_002dworkspace_002dconfiguration"><code>eglot-show-workspace-configuration</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-eglot_002dshutdown"><code>eglot-shutdown</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Shutting-Down-LSP-Server">Shutting Down LSP Server</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-eglot_002dshutdown"><code>eglot-shutdown</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dstay_002dout_002dof"><code>eglot-stay-out-of</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dstrict_002dmode"><code>eglot-strict-mode</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dsync_002dconnect"><code>eglot-sync-connect</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
@@ -1783,7 +1787,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td valign="top"><a href="#index-imenu-navigation-using-Eglot">imenu navigation using Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-L">L</th><td></td><td></td></tr>
-<tr><td></td><td valign="top"><a href="#index-language-server-for-Eglot">language server for Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Server">Setting Up LSP Server</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-language-server-for-Eglot">language server for Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-language-server-protocol">language server protocol</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Top">Top</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-LSP">LSP</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Top">Top</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
@@ -1821,8 +1825,8 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-S">S</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-server-workspace-configuration">server workspace configuration</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-setting-up-LSP-server-for-Eglot">setting up LSP server for Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Server">Setting Up LSP Server</a></td></tr>
-<tr><td></td><td valign="top"><a href="#index-shutting-down-LSP-server">shutting down LSP server</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Shutting-Down-LSP-Server">Shutting Down LSP Server</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-setting-up-LSP-server-for-Eglot">setting up LSP server for Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-shutting-down-LSP-server">shutting down LSP server</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-starting-Eglot">starting Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-symbol-completion-using-Eglot">symbol completion using Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
