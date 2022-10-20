@@ -5,10 +5,10 @@
 Probably not very useful for now.  More keybindings and clickable
 shortcuts to connection-specific commands to be added later.
 
-#### Manual now lives in a separate MANUAL.md file
+#### Manual temporarily living in separate MANUAL.md file
 
 The manual has been rewritten mostly from scratch.  It is structured
-hierarchically and more complete.  After the merge into Emacs, the
+hierarchically and more complete.  After the merge into Emacs, this 
 upcoming TexInfo manual uses this manual as a starting point.
 
 #### Support for "single server, multiple modes" ([#681][github#681])
