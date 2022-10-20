@@ -95,20 +95,22 @@ servers][manual].
 * Javascript's [TS & JS Language Server][typescript-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Lua's [lua-lsp][lua-lsp]
-* Markdown's [marksman][marksman]
+* Markdown's [marksman][marksman] or [ltex-ls][ltex-ls]
 * Mint's [mint-ls][mint-ls]
 * Nix's [rnix-lsp][rnix-lsp]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
+* Org's [ltex-ls][ltex-ls]
 * Perl's [Perl::LanguageServer][perl-language-server]
 * PHP's [php-language-server][php-language-server]
 * PureScript's [purescript-language-server][purescript-language-server]
 * Python's [pylsp][pylsp], [pyls][pyls] [pyright][pyright], or [jedi-language-server][jedi-language-server]
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
+* reStructuredText's [ltex-ls][ltex-ls]
 * Ruby's [solargraph][solargraph]
 * Rust's [rust-analyzer][rust-analyzer]
 * Scala's [metals][metals]
-* TeX/LaTeX's [Digestif][digestif]
+* TeX/LaTeX's [Digestif][digestif] or [ltex-ls][ltex-ls]
 * VimScript's [vim-language-server][vim-language-server]
 * YAML's [yaml-language-server][yaml-language-server]
 * Zig's [zls][zls]
@@ -276,6 +278,7 @@ for the request form, and we'll send it to you.
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [lua-lsp]: https://github.com/Alloyed/lua-lsp
+[ltex-ls]: https://github.com/valentjn/ltex-ls
 [marksman]: https://github.com/artempyanykh/marksman
 [mint-ls]: https://www.mint-lang.com/
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
