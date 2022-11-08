@@ -92,6 +92,7 @@ servers][manual].
 * Haskell's [haskell-language-server][haskell-language-server]
 * JSON's [vscode-json-languageserver][vscode-json-languageserver]
 * Java's [Eclipse JDT Language Server][eclipse-jdt]
+* Java's [java-language-server][java-language-server]
 * Javascript's [TS & JS Language Server][typescript-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Lua's [lua-lsp][lua-lsp]
@@ -273,6 +274,7 @@ for the request form, and we'll send it to you.
 [jedi-language-server]: https://github.com/pappasam/jedi-language-server
 [vscode-json-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
+[java-language-server]: https://github.com/georgewfraser/java-language-server
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [lua-lsp]: https://github.com/Alloyed/lua-lsp

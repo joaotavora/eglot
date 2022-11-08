@@ -207,7 +207,8 @@ language-server/bin/php-language-server.php"))
                                 (go-mode . ("gopls"))
                                 ((R-mode ess-r-mode) . ("R" "--slave" "-e"
                                                         "languageserver::run()"))
-                                (java-mode . ("jdtls"))
+                                (java-mode
+                                 . ,(eglot-alternatives '("jdtls" "java-language-server")))
                                 (dart-mode . ("dart" "language-server"
                                               "--client-id" "emacs.eglot-dart"))
                                 (elixir-mode . ("language_server.sh"))
@@ -228,7 +229,7 @@ language-server/bin/php-language-server.php"))
                                 (html-mode . ,(eglot-alternatives '(("vscode-html-language-server" "--stdio") ("html-languageserver" "--stdio"))))
                                 (json-mode . ,(eglot-alternatives '(("vscode-json-language-server" "--stdio") ("json-languageserver" "--stdio"))))
                                 (dockerfile-mode . ("docker-langserver" "--stdio"))
-                                ((clojure-mode clojurescript-mode clojurec-mode) 
+                                ((clojure-mode clojurescript-mode clojurec-mode)
                                  . ("clojure-lsp"))
                                 (csharp-mode . ("omnisharp" "-lsp"))
                                 (purescript-mode . ("purescript-language-server" "--stdio"))
