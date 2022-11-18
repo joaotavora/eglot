@@ -1,7 +1,13 @@
 blank_issues_enabled: false
 contact_links:
+  - name: "Read Troubleshooting section of the Eglot manual"
+    url: https://joaotavora.github.io/eglot/#Troubleshooting-Eglot
+    name: How to troubleshoot and report problems related to Eglot
   - name: "Report bugs informally, discuss Eglot, request features"
     url: https://github.com/joaotavora/eglot/discussions
+    about: Informally and freely report problems, ask questions, etc
+  - name: "Start an email discussion in bug-gnu-emacs@gnu.org"
+    url: https://www.gnu.org/software/emacs/manual/html_node/efaq/Reporting-bugs.html
     about: Informally and freely report problems, ask questions, etc
   - name: "Additional Support: Emacs Help"
     url: https://lists.gnu.org/mailman/listinfo/help-gnu-emacs

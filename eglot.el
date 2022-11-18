@@ -1,17 +1,17 @@
-;;; eglot.el --- Client for Language Server Protocol (LSP) servers  -*- lexical-binding: t; -*-
+;;; eglot.el --- The Emacs Client for LSP servers  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018-2022 Free Software Foundation, Inc.
 
-;; Version: 1.8
+;; Version: 1.9
 ;; Author: João Távora <joaotavora@gmail.com>
 ;; Maintainer: João Távora <joaotavora@gmail.com>
 ;; URL: https://github.com/joaotavora/eglot
 ;; Keywords: convenience, languages
-;; Package-Requires: ((emacs "26.1") (jsonrpc "1.0.14") (flymake "1.2.1") (project "0.3.0") (xref "1.0.1") (eldoc "1.11.0") (seq "2.23"))
+;; Package-Requires: ((emacs "26.3") (jsonrpc "1.0.14") (flymake "1.2.1") (project "0.3.0") (xref "1.0.1") (eldoc "1.11.0") (seq "2.23"))
 
-;; This is (or will soon) be a GNU ELPA :core package.  Avoid using
-;; functionality that not compatible with the version of Emacs
-;; recorded above.
+;; This is is a GNU ELPA :core package.  Avoid adding functionality
+;; that is not available in the version of Emacs recorded above or any
+;; of the package dependencies.
 
 ;; This file is part of GNU Emacs.
 
@@ -33,32 +33,63 @@
 ;; Eglot ("Emacs Polyglot") is an Emacs LSP client that stays out of
 ;; your way.
 ;;
-;; Typing M-x eglot should be enough to get you started, but here's a
-;; little info (see the accompanying README.md or the URL for more).
+;; Typing M-x eglot in some source file is often enough to get you
+;; started, if the language server you're looking to use is installed
+;; in your system.  Please refer to the manual, available from
+;; https://joaotavora.github.io/eglot/ or from M-x info for more usage
+;; instructions.
 ;;
-;; M-x eglot starts a server via a shell command guessed from
-;; `eglot-server-programs', using the current major mode (for whatever
-;; language you're programming in) as a hint.  If it can't guess, it
-;; prompts you in the minibuffer for these things.  Actually, the
-;; server does not need to be running locally: you can connect to a
-;; running server via TCP by entering a <host:port> syntax.
+;; If you wish to contribute changes to Eglot, please do read the user
+;; manual first.  Additionally, take the following in consideration:
+
+;; * Eglot's main job is to hook up the information that language
+;;   servers offer via LSP to Emacs's UI facilities: Xref for
+;;   definition-chasing, Flymake for diagnostics, Eldoc for at-point
+;;   documentation, etc.  Eglot's job is generally *not* to provide
+;;   such a UI itself, though a small number of simple
+;;   counter-examples do exist, for example in the `eglot-rename'
+;;   command.  When a new UI is evidently needed, consider adding a
+;;   new package to Emacs, or extending an existing one.
 ;;
-;; If the connection is successful, you should see an `eglot'
-;; indicator pop up in your mode-line.  More importantly, this means
-;; that current *and future* file buffers of that major mode *inside
-;; your current project* automatically become \"managed\" by the LSP
-;; server.  In other words, information about their content is
-;; exchanged periodically to provide enhanced code analysis using
-;; `xref-find-definitions', `flymake-mode', `eldoc-mode',
-;; `completion-at-point', among others.
+;; * Eglot was designed to function with just the UI facilities found
+;;   in the latest Emacs core, as long as those facilities are also
+;;   available as GNU ELPA :core packages.  Historically, a number of
+;;   :core packages were added or reworked in Emacs to make this
+;;   possible.  This principle should be upheld when adding new LSP
+;;   features or tweaking exising ones.  Design any new facilities in
+;;   a way that they could work in the absence of LSP or using some
+;;   different protocol, then make sure Eglot can link up LSP
+;;   information to it.
+
+;; * There are few Eglot configuration variables.  This principle
+;;   should also be upheld.  If Eglot had these variables, it could be
+;;   duplicating configuration found elsewhere, bloating itself up,
+;;   and making it generally hard to integrate with the ever growing
+;;   set of LSP features and Emacs packages.  For instance, this is
+;;   why one finds a single variable
+;;   `eglot-ignored-server-capabilities' instead of a number of
+;;   capability-specific flags, or why customizing the display of
+;;   LSP-provided documentation is done via ElDoc's variables, not
+;;   Eglot's.
 ;;
-;; To "unmanage" these buffers, shutdown the server with
-;; M-x eglot-shutdown.
+;; * Linking up LSP information to other libraries is generally done
+;;   in the `eglot--managed-mode' minor mode function, by
+;;   buffer-locally setting the other library's variables to
+;;   Eglot-specific versions.  When deciding what to set the variable
+;;   to, the general idea is to choose a good default for beginners
+;;   that doesn't clash with Emacs's defaults.  The settings are only
+;;   in place during Eglot's LSP-enriched tenure over a project.  Even
+;;   so, some of those decisions will invariably aggravate a minority
+;;   of Emacs power users, but these users can use `eglot-stay-out-of'
+;;   and `eglot-managed-mode-hook' to quench their OCD.
 ;;
-;; To start an eglot session automatically when a foo-mode buffer is
-;; visited, you can put this in your init file:
-;;
-;;   (add-hook 'foo-mode-hook 'eglot-ensure)
+;; * On occasion, to enable new features, Eglot can have soft
+;;   dependencies on popular libraries that are not in Emacs core.
+;;   "Soft" means that the dependency doesn't impair any other use of
+;;   Eglot beyond that feature.  Such is the case of the snippet
+;;   functionality, via the Yasnippet package, Markdown formatting of
+;;   at-point documentation via the markdown-mode package, and nicer
+;;   looking completions when the Company package is used.
 
 ;;; Code:
 
@@ -274,7 +305,7 @@ CONTACT can be:
 
 (defface eglot-mode-line
   '((t (:inherit font-lock-constant-face :weight bold)))
-  "Face for package-name in EGLOT's mode line.")
+  "Face for package-name in Eglot's mode line.")
 
 (defface eglot-diagnostic-tag-unnecessary-face
   '((t (:inherit shadow)))
@@ -377,6 +408,7 @@ This can be useful when using docker to run a language server.")
     (2 . eglot-diagnostic-tag-deprecated-face)))
 
 (defconst eglot--{} (make-hash-table :size 1) "The empty JSON object.")
+(defvaralias 'eglot-{} 'eglot--{})
 
 (defun eglot--executable-find (command &optional remote)
   "Like Emacs 27's `executable-find', ignore REMOTE on Emacs 26."
@@ -672,7 +704,7 @@ treated as in `eglot-dbind'."
                 method)))
 
 (cl-defgeneric eglot-client-capabilities (server)
-  "What the EGLOT LSP client supports for SERVER."
+  "What the Eglot LSP client supports for SERVER."
   (:method (s)
            (list
             :workspace (list
@@ -1143,7 +1175,7 @@ Each function is passed the server as an argument")
     contact))
 
 (defvar-local eglot--cached-server nil
-  "A cached reference to the current EGLOT server.")
+  "A cached reference to the current Eglot server.")
 
 (defun eglot--connect (managed-modes project class contact language-id)
   "Connect to MANAGED-MODES, LANGUAGE-ID, PROJECT, CLASS and CONTACT.
@@ -1294,7 +1326,8 @@ in project `%s'."
                      (cond ((numberp eglot-sync-connect)
                             (accept-process-output nil eglot-sync-connect))
                            (eglot-sync-connect
-                            (while t (accept-process-output nil 30)))))))
+                            (while t (accept-process-output
+                                      nil eglot-connect-timeout)))))))
               (pcase retval
                 (`(error . ,msg) (eglot--error msg))
                 (`nil (eglot--message "Waiting in background for server `%s'"
@@ -1637,7 +1670,7 @@ For example, to keep your Company customization, add the symbol
 `company' to this variable.")
 
 (defun eglot--stay-out-of-p (symbol)
-  "Tell if EGLOT should stay of of SYMBOL."
+  "Tell if Eglot should stay of of SYMBOL."
   (cl-find (symbol-name symbol) eglot-stay-out-of
            :test (lambda (s thing)
                    (let ((re (if (symbolp thing) (symbol-name thing) thing)))
@@ -1649,15 +1682,15 @@ For example, to keep your Company customization, add the symbol
      (setq-local ,symbol ,binding)))
 
 (defun eglot-managed-p ()
-  "Tell if current buffer is managed by EGLOT."
+  "Tell if current buffer is managed by Eglot."
   eglot--managed-mode)
 
 (defvar eglot-managed-mode-hook nil
-  "A hook run by EGLOT after it started/stopped managing a buffer.
+  "A hook run by Eglot after it started/stopped managing a buffer.
 Use `eglot-managed-p' to determine if current buffer is managed.")
 
 (define-minor-mode eglot--managed-mode
-  "Mode for source buffers managed by some EGLOT project."
+  "Mode for source buffers managed by some Eglot project."
   :init-value nil :lighter nil :keymap eglot-mode-map
   (cond
    (eglot--managed-mode
@@ -1727,7 +1760,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
   (eglot--managed-mode -1))
 
 (defun eglot-current-server ()
-  "Return logical EGLOT server for current buffer, nil if none."
+  "Return logical Eglot server for current buffer, nil if none."
   (setq eglot--cached-server
         (or eglot--cached-server
             (cl-find major-mode
@@ -1740,7 +1773,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
                           eglot--servers-by-xrefed-file)))))
 
 (defun eglot--current-server-or-lose ()
-  "Return current logical EGLOT server connection or error."
+  "Return current logical Eglot server connection or error."
   (or (eglot-current-server)
       (jsonrpc-error "No current JSON-RPC connection")))
 
@@ -1872,7 +1905,7 @@ Uses THING, FACE, DEFS and PREPEND."
                                          mouse-face mode-line-highlight))))
 
 (defun eglot--mode-line-format ()
-  "Compose the EGLOT's mode-line."
+  "Compose the Eglot's mode-line."
   (pcase-let* ((server (eglot-current-server))
                (nick (and server (eglot-project-nickname server)))
                (pending (and server (hash-table-count
@@ -2430,7 +2463,7 @@ may be called multiple times (respecting the protocol of
              :region (cons (point-min) (point-max))))
   (setq eglot--diagnostics diags))
 
-(defun eglot-xref-backend () "EGLOT xref backend." 'eglot)
+(defun eglot-xref-backend () "Eglot xref backend." 'eglot)
 
 (defvar eglot--temp-location-buffers (make-hash-table :test #'equal)
   "Helper variable for `eglot--handling-xrefs'.")
@@ -2680,7 +2713,7 @@ for which LSP on-type-formatting should be requested."
       :deferred method))))
 
 (defun eglot-completion-at-point ()
-  "EGLOT's `completion-at-point' function."
+  "Eglot's `completion-at-point' function."
   ;; Commit logs for this function help understand what's going on.
   (when-let (completion-capability (eglot--server-capable :completionProvider))
     (let* ((server (eglot--current-server-or-lose))
@@ -2997,7 +3030,7 @@ for which LSP on-type-formatting should be requested."
       nil)))
 
 (defun eglot-imenu ()
-  "EGLOT's `imenu-create-index-function'.
+  "Eglot's `imenu-create-index-function'.
 Returns a list as described in docstring of `imenu--index-alist'."
   (cl-labels
       ((unfurl (obj)
@@ -3138,8 +3171,9 @@ Returns a list as described in docstring of `imenu--index-alist'."
     (let ((boftap (bounds-of-thing-at-point 'sexp)))
       (list (car boftap) (cdr boftap)))))
 
-(defun eglot-code-actions (beg &optional end action-kind)
-  "Offer to execute actions of ACTION-KIND between BEG and END.
+(defun eglot-code-actions (beg &optional end action-kind interactive)
+  "Find LSP code actions of type ACTION-KIND between BEG and END.
+Interactively, offer to execute them.
 If ACTION-KIND is nil, consider all kinds of actions.
 Interactively, default BEG and END to region's bounds else BEG is
 point and END is nil, which results in a request for code actions
@@ -3149,8 +3183,10 @@ at point.  With prefix argument, prompt for ACTION-KIND."
      ,(and current-prefix-arg
            (completing-read "[eglot] Action kind: "
                             '("quickfix" "refactor.extract" "refactor.inline"
-                              "refactor.rewrite" "source.organizeImports")))))
-  (unless (eglot--server-capable :codeActionProvider)
+                              "refactor.rewrite" "source.organizeImports")))
+     t))
+  (unless (or (not interactive)
+              (eglot--server-capable :codeActionProvider))
     (eglot--error "Server can't execute code actions!"))
   (let* ((server (eglot--current-server-or-lose))
          (actions
@@ -3168,13 +3204,20 @@ at point.  With prefix argument, prompt for ACTION-KIND."
                                collect it)]
                    ,@(when action-kind `(:only [,action-kind]))))
            :deferred t))
-         (menu-items
-          (or (cl-loop for action across actions
-                       ;; Do filtering ourselves, in case the `:only'
-                       ;; didn't go through.
-                       when (or (not action-kind)
-                                (equal action-kind (plist-get action :kind)))
-                       collect (cons (plist-get action :title) action))
+         ;; Redo filtering, in case the `:only' didn't go through.
+         (actions (cl-loop for a across actions
+                           when (or (not action-kind)
+                                    (equal action-kind (plist-get a :kind)))
+                           collect a)))
+    (if interactive
+        (eglot--read-execute-code-action actions server action-kind)
+      actions)))
+
+(defun eglot--read-execute-code-action (actions server &optional action-kind)
+  "Helper for interactive calls to `eglot-code-actions'"
+  (let* ((menu-items
+          (or (cl-loop for a in actions
+                       collect (cons (plist-get a :title) a))
               (apply #'eglot--error
                      (if action-kind `("No \"%s\" code actions here" ,action-kind)
                        `("No code actions here")))))
@@ -3183,7 +3226,7 @@ at point.  With prefix argument, prompt for ACTION-KIND."
                               (plist-get (cdr menu-item) :isPreferred))
                             menu-items))
          (default-action (car (or preferred-action (car menu-items))))
-         (action (if (and action-kind (null (cadr menu-items)))
+         (chosen (if (and action-kind (null (cadr menu-items)))
                      (cdr (car menu-items))
                    (if (listp last-nonmenu-event)
                        (x-popup-menu last-nonmenu-event `("Eglot code actions:"
@@ -3193,7 +3236,7 @@ at point.  With prefix argument, prompt for ACTION-KIND."
                                           default-action)
                                   menu-items nil t nil nil default-action)
                                  menu-items))))))
-    (eglot--dcase action
+    (eglot--dcase chosen
       (((Command) command arguments)
        (eglot-execute-command server (intern command) arguments))
       (((CodeAction) edit command)
@@ -3329,6 +3372,39 @@ If NOERROR, return predicate, else erroring function."
 (defun eglot--glob-emit-range (arg self next)
   (when (eq ?! (aref arg 1)) (aset arg 1 ?^))
   `(,self () (re-search-forward ,(concat "\\=" arg)) (,next)))
+
+
+;;; List connections mode
+
+(define-derived-mode eglot-list-connections-mode  tabulated-list-mode
+  "" "Eglot mode for listing server connections
+\\{eglot-list-connections-mode-map}"
+  (setq-local tabulated-list-format
+              `[("Language server" 16) ("Project name" 16) ("Modes handled" 16)])
+  (tabulated-list-init-header))
+
+(defun eglot-list-connections ()
+  "List currently active Eglot connections."
+  (interactive)
+  (with-current-buffer
+      (get-buffer-create "*EGLOT connections*")
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (eglot-list-connections-mode)
+      (setq-local tabulated-list-entries
+                  (mapcar
+                   (lambda (server)
+                     (list server
+                           `[,(or (plist-get (eglot--server-info server) :name)
+                                  (jsonrpc-name server))
+                             ,(eglot-project-nickname server)
+                             ,(mapconcat #'symbol-name
+                                         (eglot--major-modes server)
+                                         ", ")]))
+                   (cl-reduce #'append
+                              (hash-table-values eglot--servers-by-project))))
+      (revert-buffer)
+      (pop-to-buffer (current-buffer)))))
 
 
 ;;; Semantic Tokens

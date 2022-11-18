@@ -1,4 +1,15 @@
-# (upcoming)
+# 1.9 (8/10/2022 - last release before integration into Emacs proper)
+
+#### New `M-x eglot-list-connections` command
+
+Probably not very useful for now.  More keybindings and clickable
+shortcuts to connection-specific commands to be added later.
+
+#### Manual temporarily living in separate MANUAL.md file
+
+The manual has been rewritten mostly from scratch.  It is structured
+hierarchically and more complete.  After the merge into Emacs, this 
+upcoming TexInfo manual uses this manual as a starting point.
 
 #### Support for "single server, multiple modes" ([#681][github#681])
 
@@ -51,7 +62,7 @@ roots of a simple git project.)
 
 ##### Show project wide diagnosics ([#810][github#810])
 Some LSP servers report diagnostics for all files in the current
-workspace.  Flymake has as of version 1.2.1 the option to show
+workspace.  Flymake has (as of version 1.2.1) the option to show
 diagnostics from buffers other than the currently visited one.  The
 command `M-x flymake-show-project-diagnostics` will now show all
 diagnostics relevant to a workspace.
