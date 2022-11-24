@@ -1,4 +1,44 @@
-# (upcoming)
+# 1.9 (8/10/2022 - last release before integration into Emacs proper)
+
+#### New `M-x eglot-list-connections` command
+
+Probably not very useful for now.  More keybindings and clickable
+shortcuts to connection-specific commands to be added later.
+
+#### Manual temporarily living in separate MANUAL.md file
+
+The manual has been rewritten mostly from scratch.  It is structured
+hierarchically and more complete.  After the merge into Emacs, this 
+upcoming TexInfo manual uses this manual as a starting point.
+
+#### Support for "single server, multiple modes" ([#681][github#681])
+
+Previously, if an entry such as `((c++-mode c-mode) . ("clangd)")` was
+found in `eglot-server-programs`, it meant that `.cpp` files `.c`
+files would lead to two `clangd` instances for managing them, even if
+these files were in the same project.  Now only one is created.  It is
+assumed that most, if not all, servers configured in
+`eglot-server-programs` handle this correctly.
+
+##### `eglot-imenu` no longer uses problematic "special elements" ([#758][github#758], [#536][github#536], [#535][github#535])
+
+Though Eglot's `eglot-imenu` returned a fully compliant `imenu`
+structure, that object was not understood by many other frontends
+other than `M-x imenu` itself.  Since the special functionality it
+enabled wasn't being used anyway, decided to remove it to fix these
+longstanding problems.
+
+##### `eglot-workspace-configuration` overhauled ([#967][github#967], [#590][github#590], [#790][github#790])
+
+This variable and its uses are now more thoroughly documented.  It can
+be a set to a function for dynamic calculation of the configuration.
+The preferred format is a plist, though the earlier alist format is
+still supported.
+
+##### C-u M-. lists and completes arbitrary workspace symbols ([#131][github#131])
+
+A very old request, now made possible by a relatively recent change to
+the `workspace/symbol` RPC method.
 
 ##### Rework mode-line menus ([#792][github#792])
 
@@ -6,7 +46,7 @@ New menus help discover Eglot's features and show which of them are
 supported by the current server.  Menus can be customized away via
 `eglot-menu-string`, making space in mode-line.
 
-##### Easier to use LSP initialize.initializationOptions ([#901][github#901], [#845][github#845])
+##### Easier to use LSP initialize.initializationOptions ([#901][github#901], [#845][github#845], [#940][github#940])
 In `eglot-server-programs` a plist may be appended to the usual list
 of strings passed as command line arguments.  The value of its
 `:initializationOptions` key constructs the corresponding LSP JSON
@@ -22,7 +62,7 @@ roots of a simple git project.)
 
 ##### Show project wide diagnosics ([#810][github#810])
 Some LSP servers report diagnostics for all files in the current
-workspace.  Flymake has as of version 1.2.1 the option to show
+workspace.  Flymake has (as of version 1.2.1) the option to show
 diagnostics from buffers other than the currently visited one.  The
 command `M-x flymake-show-project-diagnostics` will now show all
 diagnostics relevant to a workspace.
@@ -45,8 +85,11 @@ available.  The special support code for RLS has been removed.
 ##### New servers have been added to `eglot-server-programs`
 - clojure-lsp ([#813][github#813])
 - racket-langserver ([#694][github#694])
-- futhark lsp ([#922](github#922))
-- purescript-language-server ([#905](github#905))
+- futhark lsp ([#922][github#922])
+- purescript-language-server ([#905][github#905])
+- Perl::LanguageServer ([#952][github#952])
+- marksman ([#1013][github#1013])
+- jedi-language-server ([#994](github#994))
 
 # 1.8 (12/1/2022)
 
@@ -317,6 +360,7 @@ and now said bunch of references-->
 [github#121]: https://github.com/joaotavora/eglot/issues/121
 [github#124]: https://github.com/joaotavora/eglot/issues/124
 [github#126]: https://github.com/joaotavora/eglot/issues/126
+[github#131]: https://github.com/joaotavora/eglot/issues/131
 [github#138]: https://github.com/joaotavora/eglot/issues/138
 [github#144]: https://github.com/joaotavora/eglot/issues/144
 [github#154]: https://github.com/joaotavora/eglot/issues/154
@@ -350,10 +394,14 @@ and now said bunch of references-->
 [github#463]: https://github.com/joaotavora/eglot/issues/463
 [github#481]: https://github.com/joaotavora/eglot/issues/481
 [github#494]: https://github.com/joaotavora/eglot/issues/494
+[github#535]: https://github.com/joaotavora/eglot/issues/535
+[github#536]: https://github.com/joaotavora/eglot/issues/536
+[github#590]: https://github.com/joaotavora/eglot/issues/590
 [github#603]: https://github.com/joaotavora/eglot/issues/603
 [github#637]: https://github.com/joaotavora/eglot/issues/637
 [github#643]: https://github.com/joaotavora/eglot/issues/643
 [github#646]: https://github.com/joaotavora/eglot/issues/646
+[github#681]: https://github.com/joaotavora/eglot/issues/681
 [github#686]: https://github.com/joaotavora/eglot/issues/686
 [github#688]: https://github.com/joaotavora/eglot/issues/688
 [github#694]: https://github.com/joaotavora/eglot/issues/694
@@ -364,8 +412,10 @@ and now said bunch of references-->
 [github#742]: https://github.com/joaotavora/eglot/issues/742
 [github#750]: https://github.com/joaotavora/eglot/issues/750
 [github#751]: https://github.com/joaotavora/eglot/issues/751
+[github#758]: https://github.com/joaotavora/eglot/issues/758
 [github#769]: https://github.com/joaotavora/eglot/issues/769
 [github#787]: https://github.com/joaotavora/eglot/issues/787
+[github#790]: https://github.com/joaotavora/eglot/issues/790
 [github#792]: https://github.com/joaotavora/eglot/issues/792
 [github#794]: https://github.com/joaotavora/eglot/issues/794
 [github#797]: https://github.com/joaotavora/eglot/issues/797
@@ -378,3 +428,8 @@ and now said bunch of references-->
 [github#901]: https://github.com/joaotavora/eglot/issues/901
 [github#905]: https://github.com/joaotavora/eglot/issues/905
 [github#922]: https://github.com/joaotavora/eglot/issues/922
+[github#940]: https://github.com/joaotavora/eglot/issues/940
+[github#952]: https://github.com/joaotavora/eglot/issues/952
+[github#967]: https://github.com/joaotavora/eglot/issues/967
+[github#994]: https://github.com/joaotavora/eglot/issues/994
+[github#1013]: https://github.com/joaotavora/eglot/issues/1013

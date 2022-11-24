@@ -4,39 +4,73 @@
 
 # M-x Eglot
 
-*E*macs Poly*glot*: an Emacs [LSP][lsp] client that stays out of your
-way:
+*E*macs Poly*glot* is the Emacs [LSP][lsp] client that stays out of
+your way:
 
 * 📽 Scroll down this README for some [pretty gifs](#animated_gifs)
-* 📚 Read about [servers](#connecting), [commands and
-  keybindings](#commands), and [customization](#customization)
-* 📣 Read the [NEWS][news] file
+* 📚 Read Eglot's [manual][manual]
 * 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
+* 👾 Eglot now lives in [Emacs itself](#emacscore)!
 
-# _1-2-3_
+# Get stable [GNU ELPA][gnuelpa] version
 
-Install from [GNU ELPA][gnuelpa] or [MELPA][melpa].  Just type `M-x
-package-install RET eglot RET` into Emacs 26.1+.
+Just type `M-x package-install RET eglot RET` into Emacs 26.3+.
 
 Now find some source file, any source file, and type `M-x eglot`.
 
 *That's it*. If you're lucky, this guesses the LSP program to start
-for the language you're using. Otherwise, it prompts you to enter one.
+for the language you're using.  Otherwise, it prompts you to enter
+one.
 
-### _1-2-3-pitfall!_
+<a name=emacscore></a>
+# Get [latest development version][emacs-upstream]
 
-By design, Eglot doesn't depend on anything but Emacs.  But there
-_are_ ELPA dependencies to newer versions of so-called "core packages"
-developed _in the Emacs mainline_.  So unless you're using a
-bleeding-edge Emacs, where loading `eglot.el` is all you'd need to do,
-make sure your package system pulls in and loads the newest
-`project.el`, `xref.el`, `eldoc.el`, etc...  In case of trouble `M-x
-find-library` can help you tell if that happened.
+_**Eglot is now in Emacs's core!**_ Upcoming Emacs 29 will have `M-x
+eglot` built-in.
+
+The recommended way to try out the latest Eglot and experiment with
+changes is to [compile][compile-emacs1] [Emacs][compile-emacs2]
+[yourself][compile-emacs3-official].  
+
+From a development perspective, moving to core allows us to work on
+Eglot in tandem with other related packages already in Emacs, such as
+[Flymake][flymake], [ElDoc][eldoc], [Xref][xref], [Project][project].
+
+This means adding or tweaking an Emacs LSP feature is a matter of
+submitting a single patch targetting multiple relevant packages, not
+just Eglot.
+
+These `:core` packages (Eglot included) are then released periodically
+to GNU ELPA, so users of other Emacs's versions can get them via
+`M-x package-install`.
+
+# Status of this GitHub repository
+
+This repository is **not the development upstream anymore**, but it's
+**not** dead (yet):
+
+* It may be used to start [discussions][discussion].
+
+  Sometimes, it's possible the discussion or bug report will be moved
+  to [Emacs's bug tracker][emacs-bug-tracker-eglot].  You may take the
+  initiative and start discussion there using `M-x report-emacs-bug`
+  or simply sending mail to `bug-gnu-emacs@gnu.org`.
+  
+  Please the [Eglot-specific bug-reporting instructions][bug-reporting].
+  
+* [eglot.el][eglot.el] be perodically updated to mirror the [Emacs
+  upstream][upstream-eglot.el]
+
+* It may be used to rehearse patches that go through the GitHub CI
+  tests.
 
 <a name="connecting"></a>
 # Connecting to a server
 
-`M-x eglot` can guess and work out-of-the-box with these servers:
+These are just some of the servers that `M-x eglot` can work out of
+the box.  The full list can be consulted in the
+`eglot-server-programs` variable, where you can [easily add your own
+servers][manual].
 
 * Ada's [ada_language_server][ada_language_server]
 * Bash's [bash-language-server][bash-language-server]
@@ -61,12 +95,14 @@ find-library` can help you tell if that happened.
 * Javascript's [TS & JS Language Server][typescript-language-server]
 * Kotlin's [kotlin-language-server][kotlin-language-server]
 * Lua's [lua-lsp][lua-lsp]
+* Markdown's [marksman][marksman]
 * Mint's [mint-ls][mint-ls]
 * Nix's [rnix-lsp][rnix-lsp]
 * Ocaml's [ocaml-lsp][ocaml-lsp]
+* Perl's [Perl::LanguageServer][perl-language-server]
 * PHP's [php-language-server][php-language-server]
 * PureScript's [purescript-language-server][purescript-language-server]
-* Python's [pylsp][pylsp], [pyls][pyls] or [pyright][pyright]
+* Python's [pylsp][pylsp], [pyls][pyls] [pyright][pyright], or [jedi-language-server][jedi-language-server]
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
 * Ruby's [solargraph][solargraph]
@@ -76,305 +112,6 @@ find-library` can help you tell if that happened.
 * VimScript's [vim-language-server][vim-language-server]
 * YAML's [yaml-language-server][yaml-language-server]
 * Zig's [zls][zls]
-
-I'll add to this list as I test more servers. In the meantime you can
-customize `eglot-server-programs`:
-
-```lisp
-(add-to-list 'eglot-server-programs '(foo-mode . ("foo-language-server" "--args")))
-```
-
-Let me know how well it works and we can add it to the list.  
-
-To skip the guess and always be prompted use `C-u M-x eglot`.
-
-## Connecting automatically
-
-You can also do:
-
-```lisp
-  (add-hook 'foo-mode-hook 'eglot-ensure)
-```
-
-, to attempt to start an eglot session automatically every time a
-`foo-mode` buffer is visited.
-
-## Connecting via TCP
-
-The examples above use a "pipe" to talk to the server, which works
-fine on Linux and OSX but in some cases
-[*may not work on Windows*][windows-subprocess-hang].
-
-To circumvent this limitation, or if the server doesn't like pipes,
-you can use `C-u M-x eglot` and give it `server:port` pattern to
-connect to a previously started TCP server serving LSP information.
-
-If you don't want to start it manually every time, you can configure
-Eglot to start it and immediately connect to it.  Ruby's
-[solargraph][solargraph] server already works this way out-of-the-box.
-
-For another example, suppose you also wanted start Python's `pyls`
-this way:
-
-```lisp
-(add-to-list 'eglot-server-programs
-             `(python-mode . ("pyls" "-v" "--tcp" "--host"
-                              "localhost" "--port" :autoport)))
-```
-
-You can see that the element associated with `python-mode` is now a
-more complicated invocation of the `pyls` program, which requests that
-it be started as a server.  Notice the `:autoport` symbol in there: it
-is replaced dynamically by a local port believed to be vacant, so that
-the ensuing TCP connection finds a listening server.
-
-## Per-project server configuration
-
-Most servers can guess good defaults and will operate nicely
-out-of-the-box, but some need to be configured specially via LSP
-interfaces.  Additionally, in some situations, you may also want a
-particular server to operate differently across different projects.
-
-Per-project settings are realized with Emacs's _directory variables_
-and the Elisp variable `eglot-workspace-configuration`.  To make a
-particular Python project always enable Pyls's snippet support, put a
-file named `.dir-locals.el` in the project's root:
-
-```lisp
-((python-mode
-  . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t)))))))))
-```
-
-This tells Emacs that any `python-mode` buffers in that directory
-should have a particular buffer-local value of
-`eglot-workspace-configuration`.  That variable's value should be
-_association list_ of _parameter sections_ which are presumably
-understood by the server.  In this example, we associate section
-`pyls` with the parameters object `(:plugins (:jedi_completion
-(:include_params t)))`.
-
-Now, supposing that you also had some Go code in the very same
-project, you can configure the Gopls server in the same file.  Adding
-a section for `go-mode`, the file's contents become:
-
-```lisp
-((python-mode
-  . ((eglot-workspace-configuration
-      . ((:pyls . (:plugins (:jedi_completion (:include_params t))))))))
- (go-mode
-  . ((eglot-workspace-configuration
-      . ((:gopls . (:usePlaceholders t)))))))
-```
-
-If you can't afford an actual `.dir-locals.el` file, or if managing
-these files becomes cumbersome, the Emacs manual teaches you
-programmatic ways to leverage per-directory local variables.
-
-## Handling quirky servers
-
-Some servers need even more special hand-holding to operate correctly.
-If your server has some quirk or non-conformity, it's possible to
-extend Eglot via Elisp to adapt to it.  Here's an example on how to
-get [cquery][cquery] working:
-
-```lisp
-(add-to-list 'eglot-server-programs '((c++ mode c-mode) . (eglot-cquery "cquery")))
-
-(defclass eglot-cquery (eglot-lsp-server) ()
-  :documentation "A custom class for cquery's C/C++ langserver.")
-
-(cl-defmethod eglot-initialization-options ((server eglot-cquery))
-  "Passes through required cquery initialization options"
-  (let* ((root (car (project-roots (eglot--project server))))
-         (cache (expand-file-name ".cquery_cached_index/" root)))
-    (list :cacheDirectory (file-name-as-directory cache)
-          :progressReportFrequencyMs -1)))
-```
-
-Similarly, some servers require the language identifier strings they
-are sent by `eglot` to match the exact strings used by VSCode. `eglot`
-usually guesses these identifiers from the major mode name
-(e.g. `elm-mode` → `"elm"`), but the mapping can be overridden using
-the `:LANGUAGE-ID` element in the syntax of `eglot-server-programs` if
-necessary.
-
-## TRAMP support
-
-Should just work.  Try `M-x eglot` in a buffer visiting a remote file
-on a server where you've also installed the language server.  Only
-supported on Emacs 27.1 or later.
-
-Emacs 27 users may find some language servers [fail to start up over
-TRAMP](https://github.com/joaotavora/eglot/issues/662).  If you experience this
-issue, update TRAMP to 2.5.0.4 or later.
-
-<a name="reporting bugs"></a>
-# Reporting bugs
-
-Having trouble connecting to a server?  Expected to have a certain
-capability supported by it (e.g. completion) but nothing happens?  Or
-do you get spurious and annoying errors in an otherwise smooth
-operation?  We may have help, so open a [new
-issue](https://github.com/joaotavora/eglot/issues) and try to be as
-precise and objective about the problem as you can:
-
-1. Include the invaluable **events transcript**.  You can display that
-   buffer with `M-x eglot-events-buffer`.  It contains the JSONRPC
-   messages exchanged between client and server, as well as the
-   messages the server prints to stderr.
-    
-2. If Emacs errored (you saw -- and possibly heard -- an error
-   message), make sure you repeat the process using `M-x
-   toggle-debug-on-error` so you **get a backtrace** of the error that
-   you should also attach to the bug report.
-   
-3. Try to replicate the problem with **as clean an Emacs run as
-   possible**.  This means an empty `.emacs` init file or close to it
-   (just loading `eglot.el`, `company.el` and `yasnippet.el` for
-   example, and you don't even need `use-package.el` to do that).
-       
-Some more notes: it is often the case the you will have to report the
-problem to the LSP server's developers, too, though it's
-understandable that you report it Eglot first, since it is the
-user-facing frontend first.  If the problem is indeed on Eglot's side,
-we _do_ want to fix it, but because Eglot's developers have limited
-resources and no way to test all the possible server combinations,
-you'll sometimes have to do most of the testing.
-
-<a name="commands"></a>
-# Commands and keybindings
-
-Here's a summary of available commands:
-
-- `M-x eglot`, as described above;
-
-- `M-x eglot-reconnect` reconnects to current server;
-
-- `M-x eglot-shutdown` says bye-bye to server of your choice;
-
-- `M-x eglot-shutdown-all` says bye-bye to every server;
-
-- `M-x eglot-rename` ask the server to rename the symbol at point;
-
-- `M-x eglot-format` asks the server to format buffer or the active
-  region;
-
-- `M-x eglot-code-actions` asks the server for any "code actions" at
-  point. Can also be invoked by `mouse-1`-clicking some diagnostics.
-  Also `M-x eglot-code-action-<TAB>` for shortcuts to specific actions.
-
-- `M-x eldoc` asks the Eldoc system for help at point (this command
-  isn't specific to Eglot, by the way, it works in other contexts).
-
-- `M-x eglot-events-buffer` jumps to the events buffer for debugging
-  communication with the server.
-
-- `M-x eglot-stderr-buffer` if the LSP server is printing useful debug
-information in stderr, jumps to a buffer with these contents.
-
-- `M-x eglot-signal-didChangeConfiguration` updates the LSP server
-configuration according to the value of the variable
-`eglot-workspace-configuration`, which you may be set in a
-`.dir-locals` file, for example.
-
-There are *no keybindings* specific to Eglot, but you can bind stuff
-in `eglot-mode-map`, which is active as long as Eglot is managing a
-file in your project. The commands don't need to be Eglot-specific,
-either:
-
-```lisp
-(define-key eglot-mode-map (kbd "C-c r") 'eglot-rename)
-(define-key eglot-mode-map (kbd "C-c o") 'eglot-code-action-organize-imports)
-(define-key eglot-mode-map (kbd "C-c h") 'eldoc)
-(define-key eglot-mode-map (kbd "<f6>") 'xref-find-definitions)
-```
-
-<a name="customization"></a>
-# Customization
-
-Here's a quick summary of the customization options.  In Eglot's
-customization group (`M-x customize-group`) there is more
-documentation on what these do.
-
-- `eglot-autoreconnect`: Control ability to reconnect automatically to
-  the LSP server;
-
-- `eglot-connect-timeout`: Number of seconds before timing out LSP
-  connection attempts;
-
-- `eglot-sync-connect`: Control blocking of LSP connection attempts;
-
-- `eglot-events-buffer-size`: Control the size of the Eglot events
-  buffer;
-
-- `eglot-ignored-server-capabilities`: LSP server capabilities that
-  Eglot could use, but won't;
-
-- `eglot-confirm-server-initiated-edits`: If non-nil, ask for confirmation 
-  before allowing server to edit the source buffer's text;
-
-There are a couple more variables that you can customize via Emacs
-lisp:
-
-- `eglot-server-programs`: as described [above](#connecting);
-
-- `eglot-strict-mode`: Set to `nil` by default, meaning Eglot is
-  generally lenient about non-conforming servers.  Set this to
-  `(disallow-non-standard-keys enforce-required-keys)` when debugging
-  servers.
-
-- `eglot-server-initialized-hook`: Hook run after server is
-  successfully initialized;
-
-- `eglot-managed-mode-hook`: Hook run after Eglot started or stopped
-  managing a buffer.  Use `eglot-managed-p` to tell if current buffer
-  is still being managed.
-
-- `eglot-stay-out-of`: List of Emacs features that Eglot shouldn't
-  automatically try to manage on users' behalf.  Useful when you need
-  non-LSP Flymake or Company backends.  See docstring for examples.
-  
-- `eglot-extend-to-xref`: If non-nil and `xref-find-definitions` lands
-  you in a file outside your project -- like a system-installed
-  library or header file -- transiently consider it managed by the
-  same LSP server.  That file is still outside your project
-  (i.e. `project-find-file` won't find it).
-
-# How does Eglot work?
-
-`M-x eglot` starts a server via a shell-command guessed from
-`eglot-server-programs`, using the current major-mode (for whatever
-language you're programming in) as a hint.
-
-If the connection is successful, you see an `[eglot:<server>]`
-indicator pop up in your mode-line.  More importantly, this means
-current *and future* file buffers of that major mode *inside your
-current project* automatically become \"managed\" by the LSP server,
-This means that information about these file's contents is exchanged
-periodically to provide enhanced coding assistance.  Eglot works
-primarily with Emacs' built-in libraries and _not_ with third-party
-replacements for those facilities.
-
-* definitions can be found via `xref-find-definitions`;
-* on-the-fly diagnostics for the buffer or project are given by
-  `flymake-mode`;
-* function signature hints are given by `eldoc-mode`;
-* completion can be summoned with `completion-at-point`.
-* projects are discovered via `project.el`'s API;
-
-Some extra features are provided if certain libraries are installed
-and enabled, such as:
-
-* completion dropdowns via [company];
-* snippet completions via [yasnippet];
-* marked-up documentation via [markdown].
-
-Eglot doesn't _require_ these libraries to work effectively, but will
-use them automatically if they are found to be active.
-
-To "unmanage" a project's buffers, shutdown the server with `M-x
-eglot-shutdown`.
 
 <a name="animated_gifs"></a>
 # _Obligatory animated gif section_
@@ -434,7 +171,7 @@ signature is relayed to the [ElDoc][eldoc] system.  The commands
 
 There are customization variables to help adjust [ElDoc][eldoc]'s
 liberal use of the lower "echo area", among other options.  If you
-still find the solicitous nature of this LSP feature too distracting,
+still find the solicitous nature of this LSP feature too distracing,
 you can use `eglot-ignored-server-capabilities` to turn it off.
 
 ## Rename
@@ -533,14 +270,17 @@ for the request form, and we'll send it to you.
 [godot]: https://godotengine.org
 [html-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
 [haskell-language-server]: https://github.com/haskell/haskell-language-server
+[jedi-language-server]: https://github.com/pappasam/jedi-language-server
 [vscode-json-languageserver]: https://github.com/hrsh7th/vscode-langservers-extracted
 [eclipse-jdt]: https://github.com/eclipse/eclipse.jdt.ls
 [typescript-language-server]: https://github.com/theia-ide/typescript-language-server
 [kotlin-language-server]: https://github.com/fwcd/KotlinLanguageServer
 [lua-lsp]: https://github.com/Alloyed/lua-lsp
+[marksman]: https://github.com/artempyanykh/marksman
 [mint-ls]: https://www.mint-lang.com/
 [rnix-lsp]: https://github.com/nix-community/rnix-lsp
 [ocaml-lsp]: https://github.com/ocaml/ocaml-lsp/
+[perl-language-server]: https://github.com/richterger/Perl-LanguageServer
 [php-language-server]: https://github.com/felixfbecker/php-language-server
 [purescript-language-server]: https://github.com/nwolverson/purescript-language-server
 [pyls]: https://github.com/palantir/python-language-server
@@ -557,6 +297,7 @@ for the request form, and we'll send it to you.
 [zls]: https://github.com/zigtools/zls
 
 <!-- Other references -->
+[manual]: https://joaotavora.github.io/eglot
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [company-mode]: https://github.com/company-mode/company-mode
 [ccls]: https://github.com/MaskRay/ccls
@@ -571,9 +312,27 @@ for the request form, and we'll send it to you.
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
 [company]: https://elpa.gnu.org/packages/company.html
 [flymake]: https://www.gnu.org/software/emacs/manual/html_node/flymake/index.html#Top
+[xref]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Xref.html
+[imenu]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Imenu.html
 [eldoc]: https://github.com/emacs-mirror/emacs/blob/master/lisp/emacs-lisp/eldoc.el
 [yasnippet]: https://elpa.gnu.org/packages/yasnippet.html
 [markdown]: https://github.com/defunkt/markdown-mode
 [gospb]: https://opensource.googleblog.com/2020/10/announcing-latest-google-open-source.html
 [copyright-assignment]: https://www.fsf.org/licensing/contributor-faq
 [legally-significant]: https://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant
+[dir-locals-emacs-manual]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
+[configuration-request]: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_configuration
+[did-change-configuration]: https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspace_didChangeConfiguration
+[json-serialize]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Parsing-JSON.html
+[plist]: https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html
+[discussion]: https://github.com/joaotavora/eglot/discussions
+[upstream-eglot.el]: https://github.com/emacs-mirror/emacs/blob/master/lisp/progmodes/eglot.el
+[eglot.el]: https://github.com/joaotavora/eglot/blob/master/eglot.el
+[announcement]: https://github.com/joaotavora/eglot/discussions
+[compile-emacs1]: https://lars.ingebrigtsen.no/2014/11/13/welcome-new-emacs-developers/
+[compile-emacs2]: https://batsov.com/articles/2021/12/19/building-emacs-from-source-with-pgtk/
+[compile-emacs3-official]: https://github.com/emacs-mirror/emacs/blob/master/INSTALL
+[emacs-bug-tracker-eglot]: https://debbugs.gnu.org/cgi/pkgreport.cgi?include=subject%3Aeglot;package=emacs
+[bug-reporting]: https://joaotavora.github.io/eglot/#Troubleshooting-Eglot
+[project]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Projects.html
+[emacs-upstream]: https://github.com/emacs-mirror/emacs
