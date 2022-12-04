@@ -3362,6 +3362,7 @@ If NOERROR, return predicate, else erroring function."
 
 ;;; List connections mode
 
+;;;###autoload
 (define-derived-mode eglot-list-connections-mode  tabulated-list-mode
   "" "Eglot mode for listing server connections
 \\{eglot-list-connections-mode-map}"
