@@ -218,6 +218,7 @@ Next: <a href="#Starting-Eglot" accesskey="n" rel="next">Starting Eglot</a>, Up:
 </div>
 <span id="Setting-Up-LSP-Servers-1"></span><h3 class="section">2.1 Setting Up LSP Servers</h3>
 <span id="index-setting-up-LSP-server-for-Eglot"></span>
+<span id="index-LSP-server-for-Eglot_002c-setting-up"></span>
 <span id="index-language-server-for-Eglot"></span>
 
 <p>For Eglot to be useful, it must first be combined with a suitable
@@ -324,7 +325,7 @@ able to find it.
 </p>
 <p>Sometimes, multiple servers are acceptable alternatives for handling a
 given major-mode.  In those cases, you may combine the helper function
-<code>eglot-alternatives</code> with the funcional form of
+<code>eglot-alternatives</code> with the functional form of
 <code>eglot-server-programs</code>.
 </p>
 <div class="example lisp">
@@ -1053,6 +1054,14 @@ example:
 to use Eglot in your <code>eglot-managed-mode-hook</code> or via some other
 mechanism.
 </p>
+<span id="index-eglot_002dreport_002dprogress"></span>
+<span id="index-progress"></span>
+</dd>
+<dt><span><code>eglot-report-progress</code></span></dt>
+<dd><p>Set this variable to true if you&rsquo;d like progress notifications coming
+from the LSP server to be handled as Emacs&rsquo;s progress reporting
+facilities.
+</p>
 <span id="index-eglot_002dworkspace_002dconfiguration"></span>
 <span id="index-server-workspace-configuration"></span>
 </dd>
@@ -1094,8 +1103,8 @@ this variable should be a property list of the following format:
 <p>Here <code>:<var>server</var></code> identifies a particular language server and
 <var>plist</var> is the corresponding keyword-value property list of one or
 more parameter settings for that server, serialized by Eglot as a JSON
-object.  <var>plist</var> may be arbitrarity complex, generally containing
-other keywork-value property sublists corresponding to JSON subobjects.
+object.  <var>plist</var> may be arbitrarily complex, generally containing
+other keyword-value property sublists corresponding to JSON subobjects.
 The JSON values <code>true</code>, <code>false</code>, <code>null</code> and <code>{}</code>
 are represented by the Lisp values <code>t</code>, <code>:json-false</code>,
 <code>nil</code>, and <code>eglot-{}</code>, respectively.
@@ -1795,6 +1804,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td valign="top"><a href="#index-eglot_002dmanaged_002dp"><code>eglot-managed-p</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dmenu"><code>eglot-menu</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dmode_002dmap"><code>eglot-mode-map</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-eglot_002dreport_002dprogress"><code>eglot-report-progress</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dserver_002dinitialized_002dhook"><code>eglot-server-initialized-hook</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dserver_002dprograms"><code>eglot-server-programs</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-eglot_002dshow_002dworkspace_002dconfiguration"><code>eglot-show-workspace-configuration</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
@@ -1817,6 +1827,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td valign="top"><a href="#index-language-server-for-Eglot">language server for Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-language-server-protocol">language server protocol</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Top">Top</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-LSP">LSP</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Top">Top</a></td></tr>
+<tr><td></td><td valign="top"><a href="#index-LSP-server-for-Eglot_002c-setting-up">LSP server for Eglot, setting up</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-M">M</th><td></td><td></td></tr>
 <tr><td></td><td valign="top"><a href="#index-M_002dx-eglot"><code>M-x eglot</code></a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
@@ -1845,6 +1856,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td valign="top"><a href="#index-on_002dthe_002dfly-diagnostics-using-Eglot">on-the-fly diagnostics using Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-P">P</th><td></td><td></td></tr>
+<tr><td></td><td valign="top"><a href="#index-progress">progress</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td valign="top"><a href="#index-projects-and-Eglot">projects and Eglot</a>:</td><td>&nbsp;</td><td valign="top"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-Q">Q</th><td></td><td></td></tr>
