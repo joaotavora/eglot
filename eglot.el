@@ -180,17 +180,17 @@ chosen (interactively or automatically)."
                       when probe return (cons probe args)
                       finally (funcall err)))))))
 
-(defvar eglot-server-programs `((rust-mode . ,(eglot-alternatives '("rust-analyzer" "rls")))
-                                (cmake-mode . ("cmake-language-server"))
-                                (vimrc-mode . ("vim-language-server" "--stdio"))
-                                (python-mode
-                                 . ,(eglot-alternatives
-                                     '("pylsp" "pyls" ("pyright-langserver" "--stdio") "jedi-language-server")))
-                                ((js-mode typescript-mode)
-                                 . ("typescript-language-server" "--stdio"))
-                                (sh-mode . ("bash-language-server" "start"))
-                                ((php-mode phps-mode)
-                                 . ("php" "vendor/felixfbecker/\
+(defvar eglot-server-programs `((rust-mode . ("rust-analyzer"))
+                                 (cmake-mode . ("cmake-language-server"))
+                                 (vimrc-mode . ("vim-language-server" "--stdio"))
+                                 (python-mode
+                                   . ,(eglot-alternatives
+                                        '("pylsp" "pyls" ("pyright-langserver" "--stdio") "jedi-language-server")))
+                                 ((js-mode typescript-mode)
+                                   . ("typescript-language-server" "--stdio"))
+                                 (sh-mode . ("bash-language-server" "start"))
+                                 ((php-mode phps-mode)
+                                   . ("php" "vendor/felixfbecker/\
 language-server/bin/php-language-server.php"))
                                 ((c++-mode c-mode) . ,(eglot-alternatives
                                                        '("clangd" "ccls")))
@@ -228,7 +228,7 @@ language-server/bin/php-language-server.php"))
                                 (html-mode . ,(eglot-alternatives '(("vscode-html-language-server" "--stdio") ("html-languageserver" "--stdio"))))
                                 (json-mode . ,(eglot-alternatives '(("vscode-json-language-server" "--stdio") ("json-languageserver" "--stdio"))))
                                 (dockerfile-mode . ("docker-langserver" "--stdio"))
-                                ((clojure-mode clojurescript-mode clojurec-mode) 
+                                ((clojure-mode clojurescript-mode clojurec-mode)
                                  . ("clojure-lsp"))
                                 (csharp-mode . ("omnisharp" "-lsp"))
                                 (purescript-mode . ("purescript-language-server" "--stdio"))
@@ -2893,7 +2893,7 @@ for which LSP on-type-formatting should be requested."
 (defun eglot--hover-info (contents &optional _range)
   (mapconcat #'eglot--format-markup
              (if (vectorp contents) contents (list contents)) "\n"))
- 
+
 (defun eglot--sig-info (sigs active-sig sig-help-active-param)
   (cl-loop
    for (sig . moresigs) on (append sigs nil) for i from 0
