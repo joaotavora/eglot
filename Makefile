@@ -29,6 +29,7 @@ ELPADEPS ?=--eval '(setq package-user-dir (expand-file-name "elpa-eglot-test" te
            --eval '(load "eldoc")'                              \
            --eval '(install-latest (quote company))'            \
            --eval '(install-latest (quote yasnippet))'          \
+           --eval '(install-latest (quote external-completion))'\
            --eval '(install-latest (quote flymake))'
 
 BYTECOMP_ERROR_ON_WARN := \

@@ -35,8 +35,8 @@ jobs:
 
     - name: Install other depedencies
       run: |
-           pip3 install python-language-server autopep8 rope pycodestyle pyflakes pydocstyle mccabe pylint
-           sudo apt-get install clangd-9
+           pip3 install python-lsp-server autopep8 rope pycodestyle pyflakes pydocstyle mccabe pylint
+           sudo apt-get install clangd
 
     - name: Build eglot
       run: make compile
