@@ -133,11 +133,11 @@ modify this GNU manual.&rdquo;
   <li><a id="toc-Customizing-Eglot-1" href="#Customizing-Eglot">4 Customizing Eglot</a></li>
   <li><a id="toc-Advanced-server-configuration-1" href="#Advanced-server-configuration">5 Advanced server configuration</a>
   <ul class="toc-numbered-mark">
-    <li><a id="toc-User_002dspecific-configuration-1" href="#User_002dspecific-configuration">5.1 User-specific configuration</a></li>
-    <li><a id="toc-Project_002dspecific-configuration-1" href="#Project_002dspecific-configuration">5.2 Project-specific configuration</a>
+    <li><a id="toc-Project_002dspecific-configuration-1" href="#Project_002dspecific-configuration">5.1 Project-specific configuration</a>
     <ul class="toc-numbered-mark">
-      <li><a id="toc-Examples" href="#Examples">5.2.1 Examples</a></li>
+      <li><a id="toc-Examples" href="#Examples">5.1.1 Examples</a></li>
     </ul></li>
+    <li><a id="toc-User_002dspecific-configuration-1" href="#User_002dspecific-configuration">5.2 User-specific configuration</a></li>
     <li><a id="toc-JSONRPC-objects-in-Elisp-1" href="#JSONRPC-objects-in-Elisp">5.3 JSONRPC objects in Elisp</a></li>
   </ul></li>
   <li><a id="toc-Troubleshooting-Eglot-1" href="#Troubleshooting-Eglot">6 Troubleshooting Eglot</a></li>
@@ -1103,9 +1103,9 @@ of these options.  You should first distinguish two main kinds of
 server configuration:
 </p>
 <ul class="itemize mark-bullet">
-<li>User-specific, applying to all projects the server is used for;
+<li>Project-specific, applying to a specific project;
 
-</li><li>Project-specific, applying to a specific project.
+</li><li>User-specific, applying to all projects the server is used for.
 </li></ul>
 
 <p>When you have decided which kind you need, the following sections
@@ -1114,7 +1114,7 @@ teach how Eglot&rsquo;s user variables can be used to achieve it:
 
 <p>It&rsquo;s important to note that not all servers allow both kinds of
 configuration, nor is it guaranteed that user options can be copied
-over project options, and vice-versa.  When in doubt, consult your
+over to project options, and vice-versa.  When in doubt, consult your
 language server&rsquo;s documentation.
 </p>
 <p>It&rsquo;s also worth noting that some language servers can read these
@@ -1128,62 +1128,17 @@ use these mechanisms instead of Eglot&rsquo;s, as the latter have the
 advantage of working with other LSP clients.
 </p>
 <ul class="mini-toc">
-<li><a href="#User_002dspecific-configuration" accesskey="1">User-specific configuration</a></li>
-<li><a href="#Project_002dspecific-configuration" accesskey="2">Project-specific configuration</a></li>
+<li><a href="#Project_002dspecific-configuration" accesskey="1">Project-specific configuration</a></li>
+<li><a href="#User_002dspecific-configuration" accesskey="2">User-specific configuration</a></li>
 <li><a href="#JSONRPC-objects-in-Elisp" accesskey="3">JSONRPC objects in Elisp</a></li>
 </ul>
 <hr>
-<div class="section-level-extent" id="User_002dspecific-configuration">
-<div class="nav-panel">
-<p>
-Next: <a href="#Project_002dspecific-configuration" accesskey="n" rel="next">Project-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
-</div>
-<h3 class="section" id="User_002dspecific-configuration-1">5.1 User-specific configuration</h3>
-<a class="index-entry-id" id="index-initializationOptions"></a>
-<a class="index-entry-id" id="index-command_002dline-arguments"></a>
-
-<p>This kind of configuration applies to all projects the server is used
-for.  Here, there are again two main ways to do this inside Eglot.
-</p>
-<p>A common way is to pass command-line options to the server invocation
-via <code class="code">eglot-server-programs</code>.  Let&rsquo;s say we want to configure
-where the <code class="command">clangd</code> server reads its
-<code class="code">compile_commands.json</code> from.  This can be done like so:
-</p>
-<div class="example lisp">
-<pre class="lisp-preformatted">(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               `(c++-mode . (&quot;clangd&quot; &quot;--compile-commands-dir=/tmp&quot;))))
-
-</pre></div>
-
-<p>Another way is to have Eglot pass a JSON object to the server during
-the LSP handshake.  This is done using the
-<code class="code">:initializationOptions</code> syntax of <code class="code">eglot-server-programs</code>:
-</p>
-<div class="example lisp">
-<pre class="lisp-preformatted">(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               `(c++-mode . (&quot;clangd&quot; :initializationOptions
-                                      (:compilationDatabasePath &quot;/tmp&quot;)))))
-</pre></div>
-
-<p>The argument <code class="code">(:compilationDatabasePath &quot;/tmp&quot;)</code> is Emacs&rsquo;s
-representation in plist format of a simple JSON object
-<code class="code">{&quot;compilationDatabasePath&quot;: &quot;/tmp&quot;}</code>.  To learn how to
-represent more deeply nested options in this format, See <a class="xref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>.
-</p>
-<p>In this case, the two examples achieve exactly the same, but notice
-how the option&rsquo;s name has changed between them.
-</p>
-<hr>
-</div>
 <div class="section-level-extent" id="Project_002dspecific-configuration">
 <div class="nav-panel">
 <p>
-Next: <a href="#JSONRPC-objects-in-Elisp" accesskey="n" rel="next">JSONRPC objects in Elisp</a>, Previous: <a href="#User_002dspecific-configuration" accesskey="p" rel="prev">User-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#User_002dspecific-configuration" accesskey="n" rel="next">User-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Project_002dspecific-configuration-1">5.2 Project-specific configuration</h3>
+<h3 class="section" id="Project_002dspecific-configuration-1">5.1 Project-specific configuration</h3>
 <a class="index-entry-id" id="index-eglot_002dworkspace_002dconfiguration"></a>
 <a class="index-entry-id" id="index-workspace-configuration"></a>
 
@@ -1194,7 +1149,7 @@ Next: <a href="#JSONRPC-objects-in-Elisp" accesskey="n" rel="next">JSONRPC objec
 <p>This variable is a directory-local variable (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Directory-Variables">Per-directory Local Variables</a> in <cite class="cite">The GNU Emacs
 Manual</cite>).  It&rsquo;s important to recognize that this variable really only
 makes sense when set directory-locally.  It usually does not make
-sense to set it globally or in a major-mode hook.
+sense to set it file-locally or in a major-mode hook.
 </p>
 <p>The most common way to set <code class="code">eglot-workspace-configuration </code> is
 using a <samp class="file">.dir-locals.el</samp> file in the root of your project.  If
@@ -1232,7 +1187,7 @@ an ongoing Eglot session.
 <li><a href="#Examples" accesskey="1">Examples</a></li>
 </ul>
 <div class="subsection-level-extent" id="Examples">
-<h4 class="subsection">5.2.1 Examples</h4>
+<h4 class="subsection">5.1.1 Examples</h4>
 
 <p>For some users, setting <code class="code">eglot-workspace-configuration</code> is a
 somewhat daunting task.  One of the reasons is having to manage the
@@ -1244,7 +1199,7 @@ plists.  Some examples are useful.
 <p>Let&rsquo;s say you want to configure two language servers to be used in a
 project written in a combination of the Python and Go languages.  You
 want to use the <code class="command">pylsp</code> and <code class="command">gopls</code> LSP servers. In
-the documentation of the servers in question(or in some other editor&rsquo;s
+the documentation of the servers in question (or in some other editor&rsquo;s
 configuration file, or in some blog article), you find the following
 configuration options in informal dotted-notation syntax:
 </p>
@@ -1331,10 +1286,75 @@ value.
 <hr>
 </div>
 </div>
+<div class="section-level-extent" id="User_002dspecific-configuration">
+<div class="nav-panel">
+<p>
+Next: <a href="#JSONRPC-objects-in-Elisp" accesskey="n" rel="next">JSONRPC objects in Elisp</a>, Previous: <a href="#Project_002dspecific-configuration" accesskey="p" rel="prev">Project-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<h3 class="section" id="User_002dspecific-configuration-1">5.2 User-specific configuration</h3>
+<a class="index-entry-id" id="index-initializationOptions"></a>
+<a class="index-entry-id" id="index-command_002dline-arguments"></a>
+
+<p>This kind of configuration applies to all projects the server is used
+for.  Here, there are a number of ways to do this inside Eglot.
+</p>
+<p>A common way is to pass command-line options to the server invocation
+via <code class="code">eglot-server-programs</code>.  Let&rsquo;s say we want to configure
+where the <code class="command">clangd</code> server reads its
+<code class="code">compile_commands.json</code> from.  This can be done like so:
+</p>
+<div class="example lisp">
+<pre class="lisp-preformatted">(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               `(c++-mode . (&quot;clangd&quot; &quot;--compile-commands-dir=/tmp&quot;))))
+
+</pre></div>
+
+<p>Another way is to have Eglot pass a JSON object to the server during
+the LSP handshake.  This is done using the
+<code class="code">:initializationOptions</code> syntax of <code class="code">eglot-server-programs</code>:
+</p>
+<div class="example lisp">
+<pre class="lisp-preformatted">(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               `(c++-mode . (&quot;clangd&quot; :initializationOptions
+                                      (:compilationDatabasePath &quot;/tmp&quot;)))))
+</pre></div>
+
+<p>The argument <code class="code">(:compilationDatabasePath &quot;/tmp&quot;)</code> is Emacs&rsquo;s
+representation in plist format of a simple JSON object
+<code class="code">{&quot;compilationDatabasePath&quot;: &quot;/tmp&quot;}</code>.  To learn how to
+represent more deeply nested options in this format, See <a class="xref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>.
+</p>
+<p>In this case, the two examples achieve exactly the same, but notice
+how the option&rsquo;s name has changed between them.
+</p>
+<a class="index-entry-id" id="index-eglot_002dworkspace_002dconfiguration-1"></a>
+<p>Finally there is another way to do user-specific configuration of
+language servers, which may be used if the methods above are not
+supported.  It consists of <em class="emph">globally</em> setting
+<code class="code">eglot-workspace-configuration</code>, a variable originally intended
+for project-specific configuration.  This has the same effect as
+giving all your projects a certain default configuration, as described
+in See <a class="xref" href="#Project_002dspecific-configuration">Project-specific configuration</a>.  Here is an example.
+</p>
+<div class="example lisp">
+<pre class="lisp-preformatted">(setq-default eglot-workspace-configuration
+              '(:pylsp (:plugins (:jedi_completion (:include_params t
+                                                    :fuzzy t)
+                                  :pylint (:enabled :json-false)))
+                :gopls (:usePlaceholders t)))
+</pre></div>
+
+<p>Note that the global value of <code class="code">eglot-workspace-configuration</code> is
+always overriden if a directory-local value is detected.
+</p>
+<hr>
+</div>
 <div class="section-level-extent" id="JSONRPC-objects-in-Elisp">
 <div class="nav-panel">
 <p>
-Previous: <a href="#Project_002dspecific-configuration" accesskey="p" rel="prev">Project-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+Previous: <a href="#User_002dspecific-configuration" accesskey="p" rel="prev">User-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <h3 class="section" id="JSONRPC-objects-in-Elisp-1">5.3 JSONRPC objects in Elisp</h3>
 
@@ -2004,6 +2024,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstrict_002dmode"><code>eglot-strict-mode</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dsync_002dconnect"><code>eglot-sync-connect</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dworkspace_002dconfiguration"><code>eglot-workspace-configuration</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dworkspace_002dconfiguration-1"><code>eglot-workspace-configuration</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eldoc_002c-and-Eglot">eldoc, and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-F">F</th><td></td><td></td></tr>
