@@ -8,7 +8,7 @@
 your way:
 
 * 📽 Scroll down this README for some [pretty gifs](#animated_gifs)
-* 📚 Read Eglot's [manual][manual]
+* 📚 Read Eglot's [manual][manual] and [release notes][release-notes]
 * 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
 * 👾 Eglot now lives in [Emacs itself](#emacscore)!
 
@@ -58,7 +58,7 @@ This repository is **not the development upstream anymore**, but it's
   
   Please the [Eglot-specific bug-reporting instructions][bug-reporting].
   
-* [eglot.el][eglot.el] be perodically updated to mirror the [Emacs
+* [eglot.el][eglot.el] is periodically updated to mirror the [Emacs
   upstream][upstream-eglot.el]
 
 * It may be used to rehearse patches that go through the GitHub CI
@@ -67,10 +67,9 @@ This repository is **not the development upstream anymore**, but it's
 <a name="connecting"></a>
 # Connecting to a server
 
-These are just some of the servers that `M-x eglot` can work out of
-the box.  The full list can be consulted in the
-`eglot-server-programs` variable, where you can [easily add your own
-servers][manual].
+These are just some of the servers that `M-x eglot` can use out of the
+box.  The full list can be consulted in the `eglot-server-programs`
+variable, where you can [easily add your own servers][manual].
 
 * Ada's [ada_language_server][ada_language_server]
 * Bash's [bash-language-server][bash-language-server]
@@ -336,3 +335,4 @@ for the request form, and we'll send it to you.
 [bug-reporting]: https://joaotavora.github.io/eglot/#Troubleshooting-Eglot
 [project]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Projects.html
 [emacs-upstream]: https://github.com/emacs-mirror/emacs
+[release-notes]: https://github.com/emacs-mirror/emacs/blob/master/etc/EGLOT-NEWS
