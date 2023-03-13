@@ -1,6 +1,6 @@
 ;;; eglot-tests.el --- Tests for eglot.el            -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2022 Free Software Foundation, Inc.
+;; Copyright (C) 2018-2023 Free Software Foundation, Inc.
 
 ;; Author: João Távora <joaotavora@gmail.com>
 ;; Keywords: tests
@@ -22,16 +22,38 @@
 
 ;;; Commentary:
 
-;; Tests for eglot.el
+;; Tests for lisp/progmodes/eglot.el
+;;
+;; Many of these tests rely on the availability of third-party LSP
+;; servers.  They are automatically skipped if the program is not
+;; available.
+;;
+;; Some of these tests rely on the GNU ELPA package company.el and
+;; yasnippet.el being available.
+
+;; Some of the tests require access to a remote host files.  Since
+;; this could be problematic, a mock-up connection method "mock" is
+;; used.  Emulating a remote connection, it simply calls "sh -i".
+;; Tramp's file name handlers still run, so this test is sufficient
+;; except for connection establishing.
+
+;; If you want to test a real Tramp connection, set
+;; $REMOTE_TEMPORARY_FILE_DIRECTORY to a suitable value in order to
+;; overwrite the default value.  If you want to skip tests accessing a
+;; remote host, set this environment variable to "/dev/null" or
+;; whatever is appropriate on your system.
 
 ;;; Code:
 (require 'eglot)
 (require 'cl-lib)
 (require 'ert)
+(require 'tramp) ; must be prior ert-x
 (require 'ert-x) ; ert-simulate-command
 (require 'edebug)
-(require 'python) ; python-mode-hook
+(require 'python) ; some tests use pylsp
+(require 'cc-mode) ; c-mode-hook
 (require 'company nil t)
+(require 'yasnippet nil t)
 (require 'subr-x)
 (require 'flymake) ; project-diagnostics
 
@@ -66,7 +88,7 @@ then restored."
 
 (defun eglot--call-with-fixture (fixture fn)
   "Helper for `eglot--with-fixture'.  Run FN under FIXTURE."
-  (let* ((fixture-directory (make-temp-file "eglot--fixture" t))
+  (let* ((fixture-directory (make-nearby-temp-file "eglot--fixture" t))
          (default-directory fixture-directory)
          file-specs created-files
          syms-to-restore
@@ -81,14 +103,26 @@ then restored."
              (set (car spec) (cadr spec)))
             ((stringp (car spec)) (push spec file-specs))))
     (unwind-protect
-        (let ((process-environment
-               ;; Prevent user-configuration to have an influence on
-               ;; language servers. (See github#441)
-               (cons "XDG_CONFIG_HOME=/dev/null" process-environment))
-              ;; Prevent "Can't guess python-indent-offset ..." messages.
-              (python-indent-guess-indent-offset-verbose . nil)
-              (eglot-server-initialized-hook
-               (lambda (server) (push server new-servers))))
+        (let* ((process-environment
+                (append
+                 `(;; Set XDF_CONFIG_HOME to /dev/null to prevent
+                   ;; user-configuration to have an influence on
+                   ;; language servers. (See github#441)
+                   "XDG_CONFIG_HOME=/dev/null"
+                   ;; ... on the flip-side, a similar technique by
+                   ;; Emacs's test makefiles means that HOME is
+                   ;; spoofed to /nonexistent, or sometimes /tmp.
+                   ;; This breaks some common installations for LSP
+                   ;; servers like pylsp, rust-analyzer making these
+                   ;; tests mostly useless, so we hack around it here
+                   ;; with a great big hack.
+                   ,(format "HOME=%s"
+                            (expand-file-name (format "~%s" (user-login-name)))))
+                 process-environment))
+               ;; Prevent "Can't guess python-indent-offset ..." messages.
+               (python-indent-guess-indent-offset-verbose . nil)
+               (eglot-server-initialized-hook
+                (lambda (server) (push server new-servers))))
           (setq created-files (mapcan #'eglot--make-file-or-dir file-specs))
           (prog1 (funcall fn)
             (setq test-body-successful-p t)))
@@ -135,7 +169,11 @@ then restored."
              do (set sym val))
     (dolist (buf buffers-to-delete) ;; have to save otherwise will get prompted
       (with-current-buffer buf (save-buffer) (kill-buffer)))
-    (delete-directory fixture-directory 'recursive)))
+    (delete-directory fixture-directory 'recursive)
+    ;; Delete Tramp buffers if needed.
+    (when (file-remote-p temporary-file-directory)
+      (tramp-cleanup-connection
+       (tramp-dissect-file-name temporary-file-directory) nil 'keep-password))))
 
 (cl-defmacro eglot--with-timeout (timeout &body body)
   (declare (indent 1) (debug t))
@@ -272,10 +310,8 @@ Pass TIMEOUT to `eglot--with-timeout'."
 
 ;;; Unit tests
 
-(ert-deftest eclipse-connect ()
+(ert-deftest eglot-test-eclipse-connect ()
   "Connect to eclipse.jdt.ls server."
-  ;; FIXME: Doesn't work in Github CI.
-  (skip-unless (not (getenv "CI")))
   (skip-unless (executable-find "jdtls"))
   (eglot--with-fixture
       '(("project/src/main/java/foo" . (("Main.java" . "")))
@@ -291,35 +327,35 @@ Pass TIMEOUT to `eglot--with-timeout'."
 (defun eglot-tests--auto-detect-running-server-1 ()
   (let (server)
     (eglot--with-fixture
-     `(("project" . (("coiso.py" . "bla")
-                     ("merdix.py" . "bla")))
-       ("anotherproject" . (("cena.py" . "bla"))))
+     `(("project" . (("coiso.c" . "bla")
+                     ("merdix.c" . "bla")))
+       ("anotherproject" . (("cena.c" . "bla"))))
      (with-current-buffer
-         (eglot--find-file-noselect "project/coiso.py")
+         (eglot--find-file-noselect "project/coiso.c")
        (should (setq server (eglot--tests-connect)))
        (should (eglot-current-server)))
      (with-current-buffer
-         (eglot--find-file-noselect "project/merdix.py")
+         (eglot--find-file-noselect "project/merdix.c")
        (should (eglot-current-server))
        (should (eq (eglot-current-server) server)))
      (with-current-buffer
-         (eglot--find-file-noselect "anotherproject/cena.py")
+         (eglot--find-file-noselect "anotherproject/cena.c")
        (should-error (eglot--current-server-or-lose))))))
 
-(ert-deftest auto-detect-running-server ()
-  "Visit a file and \\[eglot], then visit a neighbour."
-  (skip-unless (executable-find "pyls"))
+(ert-deftest eglot-test-auto-detect-running-server ()
+  "Visit a file and \\[eglot], then visit a neighbor."
+  (skip-unless (executable-find "clangd"))
   (eglot-tests--auto-detect-running-server-1))
 
-(ert-deftest auto-shutdown ()
+(ert-deftest eglot-test-auto-shutdown ()
   "Visit a file and \\[eglot], then kill buffer."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (let (server
         buffer)
     (eglot--with-fixture
-        `(("project" . (("coiso.py" . "def coiso: pass"))))
+        `(("project" . (("thingy.c" . "int main() {return 0;}"))))
       (with-current-buffer
-          (setq buffer (eglot--find-file-noselect "project/coiso.py"))
+          (setq buffer (eglot--find-file-noselect "project/thingy.c"))
         (should (setq server (eglot--tests-connect)))
         (should (eglot-current-server))
         (let ((eglot-autoshutdown nil)) (kill-buffer buffer))
@@ -330,15 +366,15 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (let ((eglot-autoshutdown t)) (kill-buffer buffer))
         (should (not (jsonrpc-running-p server)))))))
 
-(ert-deftest auto-reconnect ()
+(ert-deftest eglot-test-auto-reconnect ()
   "Start a server.  Kill it.  Watch it reconnect."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (let (server (eglot-autoreconnect 1))
     (eglot--with-fixture
-        `(("project" . (("coiso.py" . "bla")
-                        ("merdix.py" . "bla"))))
+        `(("project" . (("thingy.c" . "bla")
+                        ("thingy2.c" . "bla"))))
       (with-current-buffer
-          (eglot--find-file-noselect "project/coiso.py")
+          (eglot--find-file-noselect "project/thingy.c")
         (should (setq server (eglot--tests-connect)))
         ;; In 1.2 seconds > `eglot-autoreconnect' kill servers. We
         ;; should have a automatic reconnection.
@@ -353,7 +389,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
           (while (process-live-p proc) (accept-process-output nil 0.5)))
         (should (not (eglot-current-server)))))))
 
-(ert-deftest rust-analyzer-watches-files ()
+(ert-deftest eglot-test-rust-analyzer-watches-files ()
   "Start rust-analyzer.  Notify it when a critical file changes."
   (skip-unless (executable-find "rust-analyzer"))
   (skip-unless (executable-find "cargo"))
@@ -388,15 +424,14 @@ Pass TIMEOUT to `eglot--with-timeout'."
                    (and (string= (eglot--path-to-uri "Cargo.toml") uri)
                         (= type 3))))))))))
 
-(ert-deftest basic-diagnostics ()
+(ert-deftest eglot-test-basic-diagnostics ()
   "Test basic diagnostics."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (eglot--with-fixture
       `(("diag-project" .
-                                        ; colon missing after True
-         (("main.py" . "def foo(): if True pass"))))
+         (("main.c" . "int main(){froat a = 42.2; return 0;}"))))
     (with-current-buffer
-        (eglot--find-file-noselect "diag-project/main.py")
+        (eglot--find-file-noselect "diag-project/main.c")
       (eglot--sniffing (:server-notifications s-notifs)
         (eglot--tests-connect)
         (eglot--wait-for (s-notifs 2)
@@ -407,9 +442,10 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (flymake-goto-next-error 1 '() t)
         (should (eq 'flymake-error (face-at-point)))))))
 
-(ert-deftest diagnostic-tags-unnecessary-code ()
+(ert-deftest eglot-test-diagnostic-tags-unnecessary-code ()
   "Test rendering of diagnostics tagged \"unnecessary\"."
   (skip-unless (executable-find "rust-analyzer"))
+  (skip-unless (executable-find "cargo"))
   (eglot--with-fixture
       '(("diagnostic-tag-project" .
          (("main.rs" .
@@ -449,7 +485,7 @@ Pass TIMEOUT to `eglot--with-timeout'."
    do (sit-for 0.5)
    finally (error "eglot--tests-force-full-eldoc didn't deliver")))
 
-(ert-deftest rust-analyzer-hover-after-edit ()
+(ert-deftest eglot-test-rust-analyzer-hover-after-edit ()
   "Hover and highlightChanges."
   (skip-unless (executable-find "rust-analyzer"))
   (skip-unless (executable-find "cargo"))
@@ -482,24 +518,24 @@ Pass TIMEOUT to `eglot--with-timeout'."
               (&key id &allow-other-keys)
             (eq id pending-id)))))))
 
-(ert-deftest rename-a-symbol ()
+(ert-deftest eglot-test-rename-a-symbol ()
   "Test basic symbol renaming."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (eglot--with-fixture
       `(("rename-project"
-         . (("main.py" .
-             "def foo (bar) : 1 + bar\n\ndef bar() : pass"))))
+         . (("main.c" .
+             "int foo() {return 42;} int main() {return foo();}"))))
     (with-current-buffer
-        (eglot--find-file-noselect "rename-project/main.py")
+        (eglot--find-file-noselect "rename-project/main.c")
       (eglot--tests-connect)
-      (goto-char (point-min)) (search-forward "bar")
-      (eglot-rename "bla")
+      (goto-char (point-min)) (search-forward "foo")
+      (eglot-rename "bar")
       (should (equal (buffer-string)
-                     "def foo (bla) : 1 + bla\n\ndef bar() : pass")))))
+                     "int bar() {return 42;} int main() {return bar();}")))))
 
-(ert-deftest basic-completions ()
+(ert-deftest eglot-test-basic-completions ()
   "Test basic autocompletion in a python LSP."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
@@ -509,11 +545,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
       (completion-at-point)
       (should (looking-back "sys.exit")))))
 
-(ert-deftest non-unique-completions ()
+(ert-deftest eglot-test-non-unique-completions ()
   "Test completion resulting in 'Complete, but not unique'."
-  (skip-unless (executable-find "pyls"))
-  ;; FIXME: Doesn't work in Github CI.
-  (skip-unless (not (getenv "CI")))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       '(("project" . (("something.py" . "foo=1\nfoobar=2\nfoo"))))
     (with-current-buffer
@@ -528,9 +562,9 @@ Pass TIMEOUT to `eglot--with-timeout'."
         (forward-line -1)
         (should (looking-at "Complete, but not unique"))))))
 
-(ert-deftest basic-xref ()
+(ert-deftest eglot-test-basic-xref ()
   "Test basic xref functionality in a python LSP."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "def foo(): pass\ndef bar(): foo()"))))
     (with-current-buffer
@@ -546,9 +580,11 @@ def foobarquux(a, b, c=True): pass
 def foobazquuz(d, e, f): pass
 ")
 
-(ert-deftest snippet-completions ()
+(declare-function yas-minor-mode nil)
+
+(ert-deftest eglot-test-snippet-completions ()
   "Test simple snippet completion in a python LSP."
-  (skip-unless (and (executable-find "pyls")
+  (skip-unless (and (executable-find "pylsp")
                     (functionp 'yas-minor-mode)))
   (eglot--with-fixture
       `(("project" . (("something.py" . ,eglot--test-python-buffer))))
@@ -556,7 +592,7 @@ def foobazquuz(d, e, f): pass
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
       (let ((eglot-workspace-configuration
-             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+             `((:pylsp . (:plugins (:jedi_completion (:include_params t)))))))
         (should (eglot--tests-connect)))
       (goto-char (point-max))
       (insert "foobar")
@@ -565,10 +601,12 @@ def foobazquuz(d, e, f): pass
       (should (looking-at "a, b)")))))
 
 (defvar company-candidates)
+(declare-function company-mode nil)
+(declare-function company-complete nil)
 
-(ert-deftest snippet-completions-with-company ()
+(ert-deftest eglot-test-snippet-completions-with-company ()
   "Test simple snippet completion in a python LSP."
-  (skip-unless (and (executable-find "pyls")
+  (skip-unless (and (executable-find "pylsp")
                     (functionp 'yas-minor-mode)
                     (functionp 'company-complete)))
   (eglot--with-fixture
@@ -577,7 +615,7 @@ def foobazquuz(d, e, f): pass
         (eglot--find-file-noselect "project/something.py")
       (yas-minor-mode 1)
       (let ((eglot-workspace-configuration
-             `((:pyls . (:plugins (:jedi_completion (:include_params t)))))))
+             `((:pylsp . (:plugins (:jedi_completion (:include_params t)))))))
         (should (eglot--tests-connect)))
       (goto-char (point-max))
       (insert "foo")
@@ -586,12 +624,12 @@ def foobazquuz(d, e, f): pass
       (should (looking-back "fooba"))
       (should (= 2 (length company-candidates)))
       ;; this last one is brittle, since there it is possible that
-      ;; pyls will change the representation of this candidate
+      ;; pylsp will change the representation of this candidate
       (should (member "foobazquuz(d, e, f)" company-candidates)))))
 
-(ert-deftest eglot-eldoc-after-completions ()
+(ert-deftest eglot-test-eldoc-after-completions ()
   "Test documentation echo in a python LSP."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("something.py" . "import sys\nsys.exi"))))
     (with-current-buffer
@@ -602,9 +640,9 @@ def foobazquuz(d, e, f): pass
       (should (looking-back "sys.exit"))
       (should (string-match "^exit" (eglot--tests-force-full-eldoc))))))
 
-(ert-deftest eglot-multiline-eldoc ()
+(ert-deftest eglot-test-multiline-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("hover-first.py" . "from datetime import datetime"))))
     (with-current-buffer
@@ -617,9 +655,9 @@ def foobazquuz(d, e, f): pass
         (should (string-match "datetim" captured-message))
         (should (cl-find ?\n captured-message))))))
 
-(ert-deftest eglot-single-line-eldoc ()
+(ert-deftest eglot-test-single-line-eldoc ()
   "Test if suitable amount of lines of hover info are shown."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "pylsp"))
   (eglot--with-fixture
       `(("project" . (("hover-first.py" . "from datetime import datetime"))))
     (with-current-buffer
@@ -632,15 +670,13 @@ def foobazquuz(d, e, f): pass
         (should (string-match "datetim" captured-message))
         (should (not (cl-find ?\n eldoc-last-message)))))))
 
-(ert-deftest python-autopep-formatting ()
-  "Test formatting in the pyls python LSP.
-pyls prefers autopep over yafp, despite its README stating the contrary."
+(ert-deftest eglot-test-python-autopep-formatting ()
+  "Test formatting in the pylsp python LSP.
+pylsp prefers autopep over yafp, despite its README stating the contrary."
   ;; Beware, default autopep rules can change over time, which may
   ;; affect this test.
-  (skip-unless (and (executable-find "pyls")
-                    (executable-find "autopep8")
-                    ;; FIXME: Doesn't work in Github CI.
-                    (not (getenv "CI"))))
+  (skip-unless (and (executable-find "pylsp")
+                    (executable-find "autopep8")))
   (eglot--with-fixture
       `(("project" . (("something.py" . "def a():pass\n\ndef b():pass"))))
     (with-current-buffer
@@ -648,18 +684,20 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
       (should (eglot--tests-connect))
       ;; Try to format just the second line
       (search-forward "b():pa")
-      (eglot-format (point-at-bol) (point-at-eol))
+      (eglot-format (line-beginning-position) (line-end-position))
       (should (looking-at "ss"))
       (should
-       (string= (buffer-string) "def a():pass\n\n\ndef b(): pass\n"))
+       (or (string= (buffer-string) "def a():pass\n\n\ndef b(): pass\n")
+           ;; autopep8 2.0.0 (pycodestyle: 2.9.1)
+           (string= (buffer-string) "def a():pass\n\ndef b(): pass")))
       ;; now format the whole buffer
       (eglot-format-buffer)
       (should
        (string= (buffer-string) "def a(): pass\n\n\ndef b(): pass\n")))))
 
-(ert-deftest python-yapf-formatting ()
-  "Test formatting in the pyls python LSP."
-  (skip-unless (and (executable-find "pyls")
+(ert-deftest eglot-test-python-yapf-formatting ()
+  "Test formatting in the pylsp python LSP."
+  (skip-unless (and (executable-find "pylsp")
                     (not (executable-find "autopep8"))
                     (or (executable-find "yapf")
                         (executable-find "yapf3"))))
@@ -670,7 +708,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
       (should (eglot--tests-connect))
       ;; Try to format just the second line
       (search-forward "b():pa")
-      (eglot-format (point-at-bol) (point-at-eol))
+      (eglot-format (line-beginning-position) (line-end-position))
       (should (looking-at "ss"))
       (should
        (string= (buffer-string) "def a():pass\n\n\ndef b():\n    pass\n"))
@@ -679,8 +717,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
       (should
        (string= (buffer-string) "def a():\n    pass\n\n\ndef b():\n    pass\n")))))
 
-(ert-deftest rust-on-type-formatting ()
-  "Test textDocument/onTypeFormatting agains rust-analyzer."
+(ert-deftest eglot-test-rust-on-type-formatting ()
+  "Test textDocument/onTypeFormatting against rust-analyzer."
   (skip-unless (executable-find "rust-analyzer"))
   (skip-unless (executable-find "cargo"))
   (eglot--with-fixture
@@ -699,9 +737,10 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
         (eglot--simulate-key-event ?.)
         (should (looking-back "^    \\."))))))
 
-(ert-deftest javascript-basic ()
+(ert-deftest eglot-test-javascript-basic ()
   "Test basic autocompletion in a JavaScript LSP."
-  (skip-unless (executable-find "typescript-language-server"))
+  (skip-unless (and (executable-find "typescript-language-server")
+                    (executable-find "tsserver")))
   (eglot--with-fixture
       '(("project" . (("hello.js" . "console.log('Hello world!');"))))
     (with-current-buffer
@@ -728,9 +767,10 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
                                  (= severity 1))
                                diagnostics)))))))))
 
-(ert-deftest project-wide-diagnostics-typescript ()
+(ert-deftest eglot-test-project-wide-diagnostics-typescript ()
   "Test diagnostics through multiple files in a TypeScript LSP."
-  (skip-unless (executable-find "typescript-language-server"))
+  (skip-unless (and (executable-find "typescript-language-server")
+                    (executable-find "tsserver")))
   (eglot--with-fixture
       '(("project" . (("hello.ts" . "const thing = 5;\nexport { thin }")
                       ("hello2.ts" . "import { thing } from './hello'"))))
@@ -756,9 +796,10 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
               (string= method "textDocument/publishDiagnostics"))
             (should (= 4 (length (flymake--project-diagnostics))))))))))
 
-(ert-deftest project-wide-diagnostics-rust-analyzer ()
+(ert-deftest eglot-test-project-wide-diagnostics-rust-analyzer ()
   "Test diagnostics through multiple files in a TypeScript LSP."
   (skip-unless (executable-find "rust-analyzer"))
+  (skip-unless (executable-find "cargo"))
   (eglot--with-fixture
       '(("project" .
          (("main.rs" .
@@ -784,7 +825,7 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
                      "main.rs"
                      (flymake-diagnostic-buffer (car diags))))))))))
 
-(ert-deftest json-basic ()
+(ert-deftest eglot-test-json-basic ()
   "Test basic autocompletion in vscode-json-languageserver."
   (skip-unless (executable-find "vscode-json-languageserver"))
   (eglot--with-fixture
@@ -814,8 +855,8 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
            '((c-mode . ("clangd")))))
       (with-current-buffer
           (eglot--find-file-noselect "project/foo.c")
-        (setq-local eglot-move-to-column-function #'eglot-move-to-lsp-abiding-column)
-        (setq-local eglot-current-column-function #'eglot-lsp-abiding-column)
+        (setq-local eglot-move-to-linepos-function #'eglot-move-to-utf-16-linepos)
+        (setq-local eglot-current-linepos-function #'eglot-utf-16-linepos)
         (eglot--sniffing (:client-notifications c-notifs)
           (eglot--tests-connect)
           (end-of-line)
@@ -824,94 +865,91 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
           (eglot--wait-for (c-notifs 2) (&key params &allow-other-keys)
             (should (equal 71 (cadddr (cadadr (aref (cadddr params) 0))))))
           (beginning-of-line)
-          (should (eq eglot-move-to-column-function #'eglot-move-to-lsp-abiding-column))
-          (funcall eglot-move-to-column-function 71)
+          (should (eq eglot-move-to-linepos-function #'eglot-move-to-utf-16-linepos))
+          (funcall eglot-move-to-linepos-function 71)
           (should (looking-at "p")))))))
 
-(ert-deftest eglot-lsp-abiding-column ()
-  "Test basic `eglot-lsp-abiding-column' and `eglot-move-to-lsp-abiding-column'."
+(ert-deftest eglot-test-lsp-abiding-column ()
+  "Test basic LSP character counting logic."
   (skip-unless (executable-find "clangd"))
   (eglot-tests--lsp-abiding-column-1))
 
-(ert-deftest eglot-ensure ()
+(ert-deftest eglot-test-ensure ()
   "Test basic `eglot-ensure' functionality."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (eglot--with-fixture
-      `(("project" . (("foo.py" . "import sys\nsys.exi")
-                      ("bar.py" . "import sys\nsys.exi")))
-        (python-mode-hook
-         (eglot-ensure
-          (lambda ()
-            (remove-hook 'flymake-diagnostic-functions 'python-flymake)))))
+      `(("project" . (("foo.c" . "int foo() {return 42;}")
+                      ("bar.c" . "int bar() {return 42;}")))
+        (c-mode-hook (eglot-ensure)))
     (let (server)
       ;; need `ert-simulate-command' because `eglot-ensure'
       ;; relies on `post-command-hook'.
       (with-current-buffer
           (ert-simulate-command
-           '(find-file "project/foo.py"))
+           '(find-file "project/foo.c"))
         ;; FIXME: This test fails without this sleep on my machine.
         ;; Figure out why and solve this more cleanly.
         (sleep-for 0.1)
         (should (setq server (eglot-current-server))))
       (with-current-buffer
           (ert-simulate-command
-           '(find-file "project/bar.py"))
+           '(find-file "project/bar.c"))
         (should (eq server (eglot-current-server)))))))
 
-(ert-deftest slow-sync-connection-wait ()
+(ert-deftest eglot-test-slow-sync-connection-wait ()
   "Connect with `eglot-sync-connect' set to t."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (eglot--with-fixture
-      `(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.c" . "int foo() {return 42;}"))))
     (with-current-buffer
-        (eglot--find-file-noselect "project/something.py")
+        (eglot--find-file-noselect "project/something.c")
       (let ((eglot-sync-connect t)
             (eglot-server-programs
-             `((python-mode . ("sh" "-c" "sleep 1 && pyls")))))
+             `((c-mode . ("sh" "-c" "sleep 1 && clangd")))))
         (should (eglot--tests-connect 3))))))
 
-(ert-deftest slow-sync-connection-intime ()
+(ert-deftest eglot-test-slow-sync-connection-intime ()
   "Connect synchronously with `eglot-sync-connect' set to 2."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (eglot--with-fixture
-      `(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.c" . "int foo() {return 42;}"))))
     (with-current-buffer
-        (eglot--find-file-noselect "project/something.py")
+        (eglot--find-file-noselect "project/something.c")
       (let ((eglot-sync-connect 2)
             (eglot-server-programs
-             `((python-mode . ("sh" "-c" "sleep 1 && pyls")))))
+             `((c-mode . ("sh" "-c" "sleep 1 && clangd")))))
         (should (eglot--tests-connect 3))))))
 
-(ert-deftest slow-async-connection ()
+(ert-deftest eglot-test-slow-async-connection ()
   "Connect asynchronously with `eglot-sync-connect' set to 2."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (eglot--with-fixture
-      `(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.c" . "int foo() {return 42;}"))))
     (with-current-buffer
-        (eglot--find-file-noselect "project/something.py")
+        (eglot--find-file-noselect "project/something.c")
       (let ((eglot-sync-connect 1)
             (eglot-server-programs
-             `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
+             `((c-mode . ("sh" "-c" "sleep 2 && clangd")))))
         (should-not (apply #'eglot--connect (eglot--guess-contact)))
         (eglot--with-timeout 3
           (while (not (eglot-current-server))
             (accept-process-output nil 0.2))
           (should (eglot-current-server)))))))
 
-(ert-deftest slow-sync-timeout ()
+(ert-deftest eglot-test-slow-sync-timeout ()
   "Failed attempt at connection synchronously."
-  (skip-unless (executable-find "pyls"))
+  (skip-unless (executable-find "clangd"))
   (eglot--with-fixture
-      `(("project" . (("something.py" . "import sys\nsys.exi"))))
+      `(("project" . (("something.c" . "int foo() {return 42;}"))))
     (with-current-buffer
-        (eglot--find-file-noselect "project/something.py")
+        (eglot--find-file-noselect "project/something.c")
       (let ((eglot-sync-connect t)
             (eglot-connect-timeout 1)
             (eglot-server-programs
-             `((python-mode . ("sh" "-c" "sleep 2 && pyls")))))
+             `((c-mode . ("sh" "-c" "sleep 2 && clangd")))))
         (should-error (apply #'eglot--connect (eglot--guess-contact)))))))
 
-(ert-deftest eglot-capabilities ()
+(ert-deftest eglot-test-capabilities ()
   "Unit test for `eglot--server-capable'."
   (cl-letf (((symbol-function 'eglot--capabilities)
              (lambda (_dummy)
@@ -933,79 +971,84 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
     (should-not (eglot--server-capable :foobarbaz))
     (should-not (eglot--server-capable :textDocumentSync :foobarbaz))))
 
+(defmacro eglot--without-interface-warnings (&rest body)
+  (let ((eglot-strict-mode nil))
+    (macroexpand-all (macroexp-progn body) macroexpand-all-environment)))
 
-(ert-deftest eglot-strict-interfaces ()
+(ert-deftest eglot-test-strict-interfaces ()
   (let ((eglot--lsp-interface-alist
          `((FooObject . ((:foo :bar) (:baz))))))
-    (should
-     (equal '("foo" . "bar")
-            (let ((eglot-strict-mode nil))
-              (eglot--dbind (foo bar) `(:foo "foo" :bar "bar")
-                (cons foo bar)))))
-    (should-error
-     (let ((eglot-strict-mode '(disallow-non-standard-keys)))
-       (eglot--dbind (foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
-         (cons foo bar))))
-    (should
-     (equal '("foo" . "bar")
-            (let ((eglot-strict-mode nil))
-              (eglot--dbind (foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
-                (cons foo bar)))))
-    (should-error
-     (let ((eglot-strict-mode '(disallow-non-standard-keys)))
-       (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
-         (cons foo bar))))
-    (should
-     (equal '("foo" . "bar")
-            (let ((eglot-strict-mode '(disallow-non-standard-keys)))
-              (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :baz bargh)
-                (cons foo bar)))))
-    (should
-     (equal '("foo" . nil)
-            (let ((eglot-strict-mode nil))
-              (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :baz bargh)
-                (cons foo bar)))))
-    (should
-     (equal '("foo" . "bar")
-            (let ((eglot-strict-mode '(enforce-required-keys)))
-              (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :baz bargh)
-                (cons foo bar)))))
-    (should-error
-     (let ((eglot-strict-mode '(enforce-required-keys)))
-       (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :baz bargh)
-         (cons foo bar))))))
+    (eglot--without-interface-warnings
+     (should
+      (equal '("foo" . "bar")
+             (let ((eglot-strict-mode nil))
+               (eglot--dbind (foo bar) `(:foo "foo" :bar "bar")
+                 (cons foo bar)))))
+     (should-error
+      (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+        (eglot--dbind (foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+          (cons foo bar))))
+     (should
+      (equal '("foo" . "bar")
+             (let ((eglot-strict-mode nil))
+               (eglot--dbind (foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+                 (cons foo bar)))))
+     (should-error
+      (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+        (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :fotrix bargh)
+          (cons foo bar))))
+     (should
+      (equal '("foo" . "bar")
+             (let ((eglot-strict-mode '(disallow-non-standard-keys)))
+               (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :baz bargh)
+                 (cons foo bar)))))
+     (should
+      (equal '("foo" . nil)
+             (let ((eglot-strict-mode nil))
+               (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :baz bargh)
+                 (cons foo bar)))))
+     (should
+      (equal '("foo" . "bar")
+             (let ((eglot-strict-mode '(enforce-required-keys)))
+               (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :bar "bar" :baz bargh)
+                 (cons foo bar)))))
+     (should-error
+      (let ((eglot-strict-mode '(enforce-required-keys)))
+        (eglot--dbind ((FooObject) foo bar) `(:foo "foo" :baz bargh)
+          (cons foo bar)))))))
 
-(ert-deftest eglot-dcase ()
-  (let ((eglot--lsp-interface-alist
-         `((FooObject . ((:foo :bar) (:baz)))
-           (CodeAction (:title) (:kind :diagnostics :edit :command))
-           (Command ((:title . string) (:command . string)) (:arguments)))))
-    (should
-     (equal
-      "foo"
-      (eglot--dcase `(:foo "foo" :bar "bar")
-        (((FooObject) foo)
-         foo))))
-    (should
-     (equal
-      (list "foo" '(:title "hey" :command "ho") "some edit")
-      (eglot--dcase '(:title "foo"
-                             :command (:title "hey" :command "ho")
-                             :edit "some edit")
-        (((Command) _title _command _arguments)
-         (ert-fail "Shouldn't have destructured this object as a Command"))
-        (((CodeAction) title edit command)
-         (list title command edit)))))
-    (should
-     (equal
-      (list "foo" "some command" nil)
-      (eglot--dcase '(:title "foo" :command "some command")
-        (((Command) title command arguments)
-         (list title command arguments))
-        (((CodeAction) _title _edit _command)
-         (ert-fail "Shouldn't have destructured this object as a CodeAction")))))))
+(ert-deftest eglot-test-dcase ()
+  (eglot--without-interface-warnings
+   (let ((eglot--lsp-interface-alist
+          `((FooObject . ((:foo :bar) (:baz)))
+            (CodeAction (:title) (:kind :diagnostics :edit :command))
+            (Command ((:title . string) (:command . string)) (:arguments)))))
+     (should
+      (equal
+       "foo"
+       (eglot--dcase `(:foo "foo" :bar "bar")
+         (((FooObject) foo)
+          foo))))
+     (should
+      (equal
+       (list "foo" '(:title "hey" :command "ho") "some edit")
+       (eglot--dcase '(:title "foo"
+                              :command (:title "hey" :command "ho")
+                              :edit "some edit")
+         (((Command) _title _command _arguments)
+          (ert-fail "Shouldn't have destructured this object as a Command"))
+         (((CodeAction) title edit command)
+          (list title command edit)))))
+     (should
+      (equal
+       (list "foo" "some command" nil)
+       (eglot--dcase '(:title "foo" :command "some command")
+         (((Command) title command arguments)
+          (list title command arguments))
+         (((CodeAction) _title _edit _command)
+          (ert-fail "Shouldn't have destructured this object as a CodeAction"))))))))
 
-(ert-deftest eglot-dcase-issue-452 ()
+(ert-deftest eglot-test-dcase-issue-452 ()
   (let ((eglot--lsp-interface-alist
          `((FooObject . ((:foo :bar) (:baz)))
            (CodeAction (:title) (:kind :diagnostics :edit :command))
@@ -1024,35 +1067,39 @@ pyls prefers autopep over yafp, despite its README stating the contrary."
                                        guessed-class-sym guessed-contact-sym
                                        &optional guessed-lang-id-sym)
                                       &body body)
-  "Evaluate BODY twice, binding results of `eglot--guess-contact'.
+  "Guess LSP contact with `eglot--guessing-contact', evaluate BODY.
 
-INTERACTIVE-SYM is bound to the boolean passed to
-`eglot--guess-contact' each time.  If the user would have been
-prompted, PROMPT-ARGS-SYM is bound to the list of arguments that
-would have been passed to `read-shell-command', else nil.
-GUESSED-CLASS-SYM, GUESSED-CONTACT-SYM and GUESSED-LANG-ID-SYM
-are bound to the useful return values of
-`eglot--guess-contact'.  Unless the server program evaluates to
-\"a-missing-executable.exe\", this macro will assume it exists."
+BODY is evaluated twice, with INTERACTIVE bound to the boolean passed to
+`eglot--guess-contact' each time.
+
+If the user would have been prompted, PROMPT-ARGS-SYM is bound to
+the list of arguments that would have been passed to
+`read-shell-command', else nil.  GUESSED-CLASS-SYM,
+GUESSED-CONTACT-SYM and GUESSED-LANG-ID-SYM are bound to the
+useful return values of `eglot--guess-contact'.  Unless the
+server program evaluates to \"a-missing-executable.exe\", this
+macro will assume it exists."
   (declare (indent 1) (debug t))
   (let ((i-sym (cl-gensym)))
     `(dolist (,i-sym '(nil t))
        (let ((,interactive-sym ,i-sym)
              (buffer-file-name "_")
-             (,prompt-args-sym nil))
+             ,@(when prompt-args-sym `((,prompt-args-sym nil))))
          (cl-letf (((symbol-function 'executable-find)
                     (lambda (name &optional _remote)
                       (unless (string-equal name "a-missing-executable.exe")
                         (format "/totally-mock-bin/%s" name))))
                    ((symbol-function 'read-shell-command)
-                    (lambda (&rest args) (setq ,prompt-args-sym args) "")))
+                    ,(if prompt-args-sym
+                         `(lambda (&rest args) (setq ,prompt-args-sym args) "")
+                       `(lambda (&rest _dummy) ""))))
            (cl-destructuring-bind
                (_ _ ,guessed-class-sym ,guessed-contact-sym
                   ,(or guessed-lang-id-sym '_))
                (eglot--guess-contact ,i-sym)
              ,@body))))))
 
-(ert-deftest eglot-server-programs-simple-executable ()
+(ert-deftest eglot-test-server-programs-simple-executable ()
   (let ((eglot-server-programs '((foo-mode "some-executable")))
         (major-mode 'foo-mode))
     (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
@@ -1060,7 +1107,7 @@ are bound to the useful return values of
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
 
-(ert-deftest eglot-server-programs-simple-missing-executable ()
+(ert-deftest eglot-test-server-programs-simple-missing-executable ()
   (let ((eglot-server-programs '((foo-mode "a-missing-executable.exe")))
         (major-mode 'foo-mode))
     (eglot--guessing-contact (interactive-p prompt-args guessed-class guessed-contact)
@@ -1069,7 +1116,7 @@ are bound to the useful return values of
       (should (or prompt-args
                   (equal guessed-contact '("a-missing-executable.exe")))))))
 
-(ert-deftest eglot-server-programs-executable-multiple-major-modes ()
+(ert-deftest eglot-test-server-programs-executable-multiple-major-modes ()
   (let ((eglot-server-programs '(((bar-mode foo-mode) "some-executable")))
         (major-mode 'foo-mode))
     (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
@@ -1077,7 +1124,7 @@ are bound to the useful return values of
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
 
-(ert-deftest eglot-server-programs-executable-with-arg ()
+(ert-deftest eglot-test-server-programs-executable-with-arg ()
   (let ((eglot-server-programs '((foo-mode "some-executable" "arg1")))
         (major-mode 'foo-mode))
     (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
@@ -1085,7 +1132,7 @@ are bound to the useful return values of
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable" "arg1"))))))
 
-(ert-deftest eglot-server-programs-executable-with-args-and-autoport ()
+(ert-deftest eglot-test-server-programs-executable-with-args-and-autoport ()
   (let ((eglot-server-programs '((foo-mode "some-executable" "arg1"
                                            :autoport "arg2")))
         (major-mode 'foo-mode))
@@ -1095,7 +1142,7 @@ are bound to the useful return values of
       (should (equal guessed-contact '("some-executable" "arg1"
                                        :autoport "arg2"))))))
 
-(ert-deftest eglot-server-programs-host-and-port ()
+(ert-deftest eglot-test-server-programs-host-and-port ()
   (let ((eglot-server-programs '((foo-mode "somehost.example.com" 7777)))
         (major-mode 'foo-mode))
     (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
@@ -1103,7 +1150,7 @@ are bound to the useful return values of
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("somehost.example.com" 7777))))))
 
-(ert-deftest eglot-server-programs-host-and-port-and-tcp-args ()
+(ert-deftest eglot-test-server-programs-host-and-port-and-tcp-args ()
   (let ((eglot-server-programs '((foo-mode "somehost.example.com" 7777
                                            :type network)))
         (major-mode 'foo-mode))
@@ -1113,7 +1160,7 @@ are bound to the useful return values of
       (should (equal guessed-contact '("somehost.example.com" 7777
                                        :type network))))))
 
-(ert-deftest eglot-server-programs-class-name-and-plist ()
+(ert-deftest eglot-test-server-programs-class-name-and-plist ()
   (let ((eglot-server-programs '((foo-mode bar-class :init-key init-val)))
         (major-mode 'foo-mode))
     (eglot--guessing-contact (_ prompt-args guessed-class guessed-contact)
@@ -1121,7 +1168,7 @@ are bound to the useful return values of
       (should (equal guessed-class 'bar-class))
       (should (equal guessed-contact '(:init-key init-val))))))
 
-(ert-deftest eglot-server-programs-class-name-and-contact-spec ()
+(ert-deftest eglot-test-server-programs-class-name-and-contact-spec ()
   (let ((eglot-server-programs '((foo-mode bar-class "some-executable" "arg1"
                                            :autoport "arg2")))
         (major-mode 'foo-mode))
@@ -1131,7 +1178,7 @@ are bound to the useful return values of
       (should (equal guessed-contact '("some-executable" "arg1"
                                        :autoport "arg2"))))))
 
-(ert-deftest eglot-server-programs-function ()
+(ert-deftest eglot-test-server-programs-function ()
   (let ((eglot-server-programs '((foo-mode . (lambda (&optional _)
                                                '("some-executable")))))
         (major-mode 'foo-mode))
@@ -1140,24 +1187,24 @@ are bound to the useful return values of
       (should (equal guessed-class 'eglot-lsp-server))
       (should (equal guessed-contact '("some-executable"))))))
 
-(ert-deftest eglot-server-programs-guess-lang ()
+(ert-deftest eglot-test-server-programs-guess-lang ()
   (let ((major-mode 'foo-mode))
     (let ((eglot-server-programs '((foo-mode . ("prog-executable")))))
-      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+      (eglot--guessing-contact (_ nil _ _ guessed-lang)
         (should (equal guessed-lang "foo"))))
     (let ((eglot-server-programs '(((foo-mode :language-id "bar")
                                     . ("prog-executable")))))
-      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+      (eglot--guessing-contact (_ nil _ _ guessed-lang)
         (should (equal guessed-lang "bar"))))
     (let ((eglot-server-programs '(((baz-mode (foo-mode :language-id "bar"))
                                     . ("prog-executable")))))
-      (eglot--guessing-contact (_ _ _ _ guessed-lang)
+      (eglot--guessing-contact (_ nil _ _ guessed-lang)
         (should (equal guessed-lang "bar"))))))
 
 (defun eglot--glob-match (glob str)
   (funcall (eglot--glob-compile glob t t) str))
 
-(ert-deftest eglot--glob-test ()
+(ert-deftest eglot-test-glob-test ()
   (should (eglot--glob-match "foo/**/baz" "foo/bar/baz"))
   (should (eglot--glob-match "foo/**/baz" "foo/baz"))
   (should-not (eglot--glob-match "foo/**/baz" "foo/bar"))
@@ -1208,48 +1255,38 @@ are bound to the useful return values of
   ;; (should (eglot--glob-match "prefix/{**/*.d.ts,**/*.js,foo.[0-9]}" "prefix/foo.8"))
   )
 
-(ert-deftest eglot--tramp-test ()
-  "Ensure LSP servers can be used over TRAMP."
-  (skip-unless (and (>= emacs-major-version 27) (executable-find "pyls")))
-  ;; FIXME: Doesn't work in Github CI.
-  (skip-unless (not (getenv "CI")))
-  ;; Set up a loopback TRAMP method that’s just a shell so the remote
-  ;; host is really just the local host.
-  (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
-        (tramp-methods '(("loopback"
-                          (tramp-login-program "/bin/sh")
-                          (tramp-remote-shell "/bin/sh")
-                          (tramp-remote-shell-login ("-l"))
-                          (tramp-remote-shell-args ("-c")))))
-        (temporary-file-directory (concat "/loopback::"
-                                          temporary-file-directory)))
-    ;; With ‘temporary-file-directory’ bound to the ‘loopback’ TRAMP
-    ;; method, fixtures will be automatically made “remote".
-    (eglot-tests--auto-detect-running-server-1)))
+(defvar tramp-histfile-override)
+(defun eglot--call-with-tramp-test (fn)
+  ;; Set up a Tramp method that’s just a shell so the remote host is
+  ;; really just the local host.
+  (let* ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
+         (tramp-histfile-override t)
+         (tramp-verbose 1)
+         (temporary-file-directory ert-remote-temporary-file-directory)
+         (default-directory temporary-file-directory))
+    ;; We must check the remote LSP server.  So far, just "clangd" is used.
+    (unless (executable-find "clangd" 'remote)
+      (ert-skip "Remote clangd not found"))
+    (funcall fn)))
 
-(ert-deftest eglot--tramp-test-2 ()
+(ert-deftest eglot-test-tramp-test ()
   "Ensure LSP servers can be used over TRAMP."
-  (skip-unless (and (>= emacs-major-version 27) (executable-find "clangd")))
-  ;; Set up a loopback TRAMP method that’s just a shell so the remote
-  ;; host is really just the local host.
-  (let ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
-        (tramp-methods '(("loopback"
-                          (tramp-login-program "/bin/sh")
-                          (tramp-remote-shell "/bin/sh")
-                          (tramp-remote-shell-login ("-l"))
-                          (tramp-remote-shell-args ("-c")))))
-        (temporary-file-directory (concat "/loopback::"
-                                          temporary-file-directory))
-        (eglot-server-programs '((c-mode "clangd"))))
-    (eglot-tests--lsp-abiding-column-1) ))
+  :tags '(:expensive-test)
+  (eglot--call-with-tramp-test #'eglot-tests--auto-detect-running-server-1))
 
-(ert-deftest eglot--path-to-uri-windows ()
+(ert-deftest eglot-test-tramp-test-2 ()
+  "Ensure LSP servers can be used over TRAMP."
+  :tags '(:expensive-test)
+  (eglot--call-with-tramp-test #'eglot-tests--lsp-abiding-column-1))
+
+(ert-deftest eglot-test-path-to-uri-windows ()
+  (skip-unless (eq system-type 'windows-nt))
   (should (string-prefix-p "file:///"
-                           (eglot--path-to-uri "c:/Users/Foo/bar.lisp")))
+                             (eglot--path-to-uri "c:/Users/Foo/bar.lisp")))
   (should (string-suffix-p "c%3A/Users/Foo/bar.lisp"
                            (eglot--path-to-uri "c:/Users/Foo/bar.lisp"))))
 
-(ert-deftest eglot--same-server-multi-mode ()
+(ert-deftest eglot-test-same-server-multi-mode ()
   "Check single LSP instance manages multiple modes in same project."
   (skip-unless (executable-find "clangd"))
   (let (server)
