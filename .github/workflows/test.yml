@@ -38,12 +38,13 @@ jobs:
       with:
           toolchain: stable
           override: true
-          components: rust-analysis, rust-src, rls
+          components: rust-analyzer
 
     - name: Install other depedencies
       run: |
            pip3 install python-lsp-server autopep8 rope pycodestyle pyflakes pydocstyle mccabe pylint
            sudo apt-get install clangd
+           ln -sf `rustup which --toolchain stable rust-analyzer` ~/.cargo/bin/rust-analyzer
 
     - name: Build eglot
       run: make compile
