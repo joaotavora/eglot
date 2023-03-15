@@ -184,7 +184,7 @@ chosen (interactively or automatically)."
                       when probe return (cons probe args)
                       finally (funcall err)))))))
 
-(defvar eglot-server-programs `(((rust-ts-mode rust-mode) . ,(eglot-alternatives '("rust-analyzer" "rls")))
+(defvar eglot-server-programs `(((rust-ts-mode rust-mode) . ("rust-analyzer"))
                                 ((cmake-mode cmake-ts-mode) . ("cmake-language-server"))
                                 (vimrc-mode . ("vim-language-server" "--stdio"))
                                 ((python-mode python-ts-mode)
@@ -221,7 +221,7 @@ chosen (interactively or automatically)."
                                 ((java-mode java-ts-mode) . ("jdtls"))
                                 (dart-mode . ("dart" "language-server"
                                               "--client-id" "emacs.eglot-dart"))
-                                (elixir-mode . ("language_server.sh"))
+                                ((elixir-ts-mode elixir-mode) . ("language_server.sh"))
                                 (ada-mode . ("ada_language_server"))
                                 (scala-mode . ,(eglot-alternatives
                                                 '("metals" "metals-emacs")))
@@ -2148,8 +2148,7 @@ COMMAND is a symbol naming the command."
   "Handle notification telemetry/event.") ;; noop, use events buffer
 
 (defalias 'eglot--reporter-update
-  (if (<= emacs-major-version 26)
-      #'progress-reporter-update
+  (if (> emacs-major-version 26) #'progress-reporter-update
     (lambda (a b &optional _c) (progress-reporter-update a b))))
 
 (cl-defmethod eglot-handle-notification

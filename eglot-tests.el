@@ -47,7 +47,7 @@
 (require 'eglot)
 (require 'cl-lib)
 (require 'ert)
-(require 'tramp) ; must be prior ert-x
+(require 'tramp)
 (require 'ert-x) ; ert-simulate-command
 (require 'edebug)
 (require 'python) ; some tests use pylsp
@@ -463,7 +463,7 @@ then restored."
       (eglot--make-file-or-dir '(".git"))
       (eglot--make-file-or-dir
        `("compile_commands.json" .
-         ,(json-serialize
+         ,(jsonrpc--json-encode
            `[(:directory ,default-directory :command "/usr/bin/c++ -Wall -c main.cpp"
                          :file ,(expand-file-name "main.cpp"))])))
       (let ((eglot-server-programs '((c++-mode . ("clangd")))))
@@ -1272,18 +1272,27 @@ macro will assume it exists."
 
 (defvar tramp-histfile-override)
 (defun eglot--call-with-tramp-test (fn)
+  (unless (>= emacs-major-version 27)
+    (ert-skip "Eglot Tramp support only on Emacs >= 27"))
   ;; Set up a Tramp method that’s just a shell so the remote host is
   ;; really just the local host.
-  (let* ((tramp-remote-path (cons 'tramp-own-remote-path tramp-remote-path))
+  (let* ((tramp-remote-path (cons 'tramp-own-remote-path
+                                  tramp-remote-path))
          (tramp-histfile-override t)
          (tramp-verbose 1)
          (temporary-file-directory
-          (or (bound-and-true-p ert-remote-temporary-file-directory)
-              temporary-file-directory))
+          (prog1 (format "/mock::%s" temporary-file-directory)
+            (add-to-list
+             'tramp-methods
+             '("mock"
+               (tramp-login-program "sh")       (tramp-login-args (("-i")))
+               (tramp-direct-async ("-c"))      (tramp-remote-shell "/bin/sh")
+               (tramp-remote-shell-args ("-c")) (tramp-connection-timeout 10)))
+            (add-to-list 'tramp-default-host-alist
+             `("\\`mock\\'" nil ,(system-name)))
+            (when (and noninteractive (not (file-directory-p "~/")))
+              (setenv "HOME" temporary-file-directory))))
          (default-directory temporary-file-directory))
-    ;; We must check the remote LSP server.  So far, just "clangd" is used.
-    (unless (executable-find "clangd" 'remote)
-      (ert-skip "Remote clangd not found"))
     (funcall fn)))
 
 (ert-deftest eglot-test-tramp-test ()
