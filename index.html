@@ -1092,9 +1092,9 @@ Next: <a href="#Troubleshooting-Eglot" accesskey="n" rel="next">Troubleshooting 
 
 <p>Though many language servers work well out-of-the-box, most allow
 fine-grained control of their operation via specific configuration
-options that vary from server to server.  A small number of servers
-require such special configuration to work acceptably, or even to work
-at all.
+options that are transmitted over the LSP protocol and vary from
+server to server.  A small number of servers require such special
+configuration to work acceptably, or even to work at all.
 </p>
 <p>After having setup a server executable program in
 <code class="code">eglot-server-programs</code> (see <a class="pxref" href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>) and
@@ -1124,8 +1124,9 @@ server reads the file <samp class="file">~/.config/pycodestyle</samp> for user
 configuration.  The <code class="command">clangd</code> C/C++ server reads both
 <samp class="file">~/.config/clangd/config.yaml</samp> for user configuration and
 <samp class="file">.clangd</samp> for project configuration.  It may be advantageous to
-use these mechanisms instead of Eglot&rsquo;s, as the latter have the
-advantage of working with other LSP clients.
+use these mechanisms instead of Eglot&rsquo;s, as this will probably work
+with other LSP clients and may be easier to debug than options riding
+on the LSP wire.
 </p>
 <ul class="mini-toc">
 <li><a href="#Project_002dspecific-configuration" accesskey="1">Project-specific configuration</a></li>
@@ -1324,7 +1325,7 @@ the LSP handshake.  This is done using the
 <p>The argument <code class="code">(:compilationDatabasePath &quot;/tmp&quot;)</code> is Emacs&rsquo;s
 representation in plist format of a simple JSON object
 <code class="code">{&quot;compilationDatabasePath&quot;: &quot;/tmp&quot;}</code>.  To learn how to
-represent more deeply nested options in this format, See <a class="xref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>.
+represent more deeply nested options in this format, see <a class="pxref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>.
 </p>
 <p>In this case, the two examples achieve exactly the same, but notice
 how the option&rsquo;s name has changed between them.
@@ -1336,7 +1337,7 @@ supported.  It consists of <em class="emph">globally</em> setting
 <code class="code">eglot-workspace-configuration</code>, a variable originally intended
 for project-specific configuration.  This has the same effect as
 giving all your projects a certain default configuration, as described
-in See <a class="xref" href="#Project_002dspecific-configuration">Project-specific configuration</a>.  Here is an example.
+in <a class="ref" href="#Project_002dspecific-configuration">Project-specific configuration</a>.  Here is an example:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">(setq-default eglot-workspace-configuration
@@ -1369,17 +1370,20 @@ keyword-value property sub-plists corresponding to JSON sub-objects.
 <p>For representing the JSON leaf values <code class="code">true</code>, <code class="code">false</code>,
 <code class="code">null</code> and <code class="code">{}</code>, you can use the Lisp values <code class="code">t</code>,
 <code class="code">:json-false</code>, <code class="code">nil</code>, and <code class="code">eglot-{}</code>, respectively.
+JSON arrays are represented as Elisp vectors surrounded by square brackets
+(see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Vectors">Vectors</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>).
 </p>
-<p>For example, this plist:
+<p>For example, the plist
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">(:pylsp (:plugins (:jedi_completion (:include_params t
-                                             :fuzzy t)
-                           :pylint (:enabled :json-false)))
+                                     :fuzzy t
+                                     :cache_for [&quot;pandas&quot; &quot;numpy&quot;]
+                   :pylint (:enabled :json-false))))
  :gopls (:usePlaceholders t))
 </pre></div>
 
-<p>Is serialized by Eglot to the following JSON text:
+<p>is serialized by Eglot to the following JSON text:
 </p>
 <div class="example">
 <pre class="example-preformatted">{
@@ -1387,7 +1391,8 @@ keyword-value property sub-plists corresponding to JSON sub-objects.
     &quot;plugins&quot;: {
       &quot;jedi_completion&quot;: {
         &quot;include_params&quot;: true,
-        &quot;fuzzy&quot;: true
+        &quot;fuzzy&quot;: true,
+        &quot;cache_for&quot;: [ &quot;pandas&quot;, &quot;numpy&quot; ],
       },
       &quot;pylint&quot;: {
         &quot;enabled&quot;: false
@@ -1421,46 +1426,95 @@ pop up special buffers that can be used to inspect the communications
 between the Eglot and language server.  In many cases, this will
 indicate the problems or at least provide a hint.
 </p>
+<a class="index-entry-id" id="index-performance"></a>
 <p>A common and easy-to-fix cause of performance problems is the length
-of these two buffers.  If Eglot is operating correctly but slowly,
-customize the variable <code class="code">eglot-events-buffer-size</code> (see <a class="pxref" href="#Eglot-Variables">Eglot Variables</a>) to limit logging, and thus speed things up.
+of the Eglot events buffer because it represent additional work that
+Eglot must do.  After verifying Eglot is operating correctly but
+slowly, try to customize the variable <code class="code">eglot-events-buffer-size</code>
+(see <a class="pxref" href="#Eglot-Variables">Eglot Variables</a>) to 0.  This will disable any debug logging
+and may speed things up.
 </p>
-<p>If you need to report an Eglot bug, please keep in mind that, because
-there are so many variables involved, it is generally both very
-<em class="emph">difficult</em> and <em class="emph">absolutely essential</em> to reproduce bugs
-exactly as they happened to you, the user.  Therefore, every bug
-report should include:
+<p>In other situations, the cause of poor performance lies in the LSP
+server itself.  Servers use aggressive caching and other techniques to
+improve their performance.  Often, this can be tweaked by changing the
+server configuration (see <a class="pxref" href="#Advanced-server-configuration">Advanced server configuration</a>).
+</p>
+<p>If you think you have found a bug, we want to hear about it.  Before
+reporting a bug, keep in mind that interaction with LSP servers
+represents a large quantity of unknown variables.  Therefore, it is
+generally both <em class="emph">difficult</em> and <em class="emph">absolutely essential</em> that
+the maintainers reproduce bugs exactly as they happened to you, the
+user.
+</p>
+<p>To report an Eglot bug, send e-mail to <a class="email" href="mailto:bug-gnu-emacs@gnu.org">bug-gnu-emacs@gnu.org</a>.
+</p>
+<p>Get acquainted with Emacs&rsquo;s bug reporting guidelines (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Bugs">Bugs</a> in <cite class="cite">GNU Emacs Manual</cite>).  Then, follow this checklist specific to
+Eglot bug rerpots.
 </p>
 <ol class="enumerate">
-<li> The transcript of events obtained from the buffer popped up by
-<kbd class="kbd">M-x eglot-events-buffer</kbd>.  If the transcript can be narrowed down
-to show the problematic exchange, so much the better.  This is
-invaluable for the investigation and reproduction of the problem.
+<li> Include the transcript of JSONRPC events obtained from the buffer
+popped up by <kbd class="kbd">M-x eglot-events-buffer</kbd>.  You may narrow down the
+transcript if you are sure of where the problematic exchange is, but
+it&rsquo;s safer to include the whole transcript, either attached or inline.
 
 </li><li> If Emacs signaled an error (an error message was seen or heard), make
-sure to repeat the process after toggling <code class="code">debug-on-error</code> on
-(via <kbd class="kbd">M-x toggle-debug-on-error</kbd>).  This normally produces a
-backtrace of the error that should also be attached to the bug report.
+sure to repeat the process after turning on <code class="code">debug-on-error</code> via
+<kbd class="kbd">M-x toggle-debug-on-error</kbd>.  This normally produces a backtrace
+of the error that should also be attached to the bug report.
 
-</li><li> An explanation of how to obtain, install, and configure the language
-server you used.  If possible, try to replicate the problem with the
-C/C<code class="t">++</code> or Python servers, as these are very easy to install.
+</li><li> Include a description of how the maintainer should obtain, install,
+and configure the language server you used.  Maintainers usually have
+access to GNU/Linux systems, though not necessarily the distribution
+that you may be using.  If possible, try to replicate the problem with
+the C/C<code class="t">++</code> or Python servers, as these are very easy to install.
 
-</li><li> A description of how to setup the <em class="emph">minimal</em> project (one or two
-files and their contents) where the problem happens.
+</li><li> Describe how to setup a <em class="emph">minimal</em> project directory where Eglot
+should be started for the problem to happen.  Describe each file&rsquo;s
+name and its contents.  Alternatively, you can supply the address of a
+public Git repository.
 
-</li><li> A recipe to replicate the problem with <em class="emph">a clean Emacs run</em>.  This
-means <kbd class="kbd">emacs -Q</kbd> invocation or a very minimal (no more that 10
-lines) <samp class="file">.emacs</samp> initialization file.  <code class="code">eglot-ensure</code> and
-<code class="code">use-package</code> calls are generally <em class="emph">not</em> needed.
+</li><li> Include versions of the software used.  The Emacs version can be
+obtained with <kbd class="kbd">M-x emacs-version</kbd>.
 
-</li><li> Make sure to double check all the above elements and re-run the
-recipe to see that the problem is reproducible.
+<p>It&rsquo;s also essential to include the version of ELPA packages that are
+explicitly or implicitly loaded.  The optional but popular Company or
+Markdown packages are distributed as GNU ELPA packages, not to mention
+Eglot itself in some situations.  Some major modes (Go, Rust, etc.)
+are provided by ELPA packages.  It&rsquo;s sometimes easy to miss these,
+since they are usually implicitly loaded when visiting a file in that
+language.
+</p>
+<p>ELPA packages usually live in <code class="code">~/.emacs.d/elpa</code> (or what is in
+<code class="code">package-user-dir</code>).  Please show the listing of files in that
+directory as well.
+</p>
+</li><li> Include a recipe to replicate the problem with <em class="emph">a clean Emacs
+run</em>.  This means <kbd class="kbd">emacs -Q -f package-initialize</kbd> invocation
+which starts Emacs with no configuration and initializes the ELPA
+packages.  A very minimal (no more that 10 lines) <samp class="file">.emacs</samp>
+initialization file is also acceptable and good means to describe
+changes to variables.
+
+<p>There is usually no need to include <kbd class="kbd">require</kbd> statements in the
+recipe, as Eglot&rsquo;s functionality uses autoloads.
+</p>
+<p>Likewise, there is rarely the need to use things like
+<code class="code">use-package</code> or <code class="code">eglot-ensure</code>.  This just makes the recipe
+harder to follow.  Prefer setting variables with <code class="code">setq</code> and
+adding to hooks with <code class="code">add-hook</code>.  Prefer starting Eglot with
+<code class="code">M-x eglot</code>.
+</p>
+</li><li> Make sure to double check all the above elements and re-run the recipe
+to see that the problem is reproducible.  Following the recipe should
+produce event transcript and error backtraces that are exactly the
+same or very similar to the ones you included.  If the problem only
+happens sometimes, include this information in your bug report.
 </li></ol>
 
 <p>Please keep in mind that some problems reported against Eglot may
 actually be bugs in the language server or the Emacs feature/package
-that used Eglot to communicate with the language server.
+that used Eglot to communicate with the language server.  Eglot is, in
+many cases, just a frontend to that functionality.
 </p>
 <hr>
 </div>
@@ -2069,6 +2123,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-on_002dthe_002dfly-diagnostics-using-Eglot">on-the-fly diagnostics using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-P">P</th><td></td><td></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-performance">performance</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Troubleshooting-Eglot">Troubleshooting Eglot</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-progress">progress</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-projects-and-Eglot">projects and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
