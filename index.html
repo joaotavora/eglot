@@ -193,11 +193,11 @@ hook of the mode used for the programming language; see <a class="ref" href="#St
 
 <p>Most Eglot facilities are integrated into Emacs features, such as
 ElDoc, Flymake, Xref, and Imenu.  However, Eglot also provides
-commands of its own, mainly to perform tasks by the LSP server, such
-as <kbd class="kbd">M-x eglot-rename</kbd> (to rename an identifier across the entire
-project), <kbd class="kbd">M-x eglot-format</kbd> (to reformat and reindent code), and
-some others.  See <a class="xref" href="#Eglot-Commands">Eglot Commands</a>, for the detailed list of Eglot
-commands.
+commands of its own, mainly to perform tasks by the language server,
+such as <kbd class="kbd">M-x eglot-rename</kbd> (to rename an identifier across the
+entire project), <kbd class="kbd">M-x eglot-format</kbd> (to reformat and reindent
+code), and some others.  See <a class="xref" href="#Eglot-Commands">Eglot Commands</a>, for the detailed list
+of Eglot commands.
 </p>
 </li><li> That&rsquo;s it!
 </li></ol>
@@ -528,55 +528,10 @@ displaying it to the user.  This makes the documentation shown by
 ElDoc look nicer on display.
 
 </li><li>In addition to enabling and enhancing other features and packages,
-Eglot also provides a small number of user commands based directly on
-the capabilities of language servers.  These commands are:
-
-<dl class="table">
-<dt><kbd class="kbd">M-x eglot-rename</kbd></dt>
-<dd><p>This prompts for a new name for the symbol at point, and then modifies
-all the project source files to rename the symbol to the new name,
-based on editing data received from the language-server.  See <a class="xref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, for the details of how project files are defined.
-</p>
-</dd>
-<dt><kbd class="kbd">M-x eglot-format</kbd></dt>
-<dd><p>This reformats and prettifies the current active region according to
-source formatting rules of the language-server.  If the region is not
-active, it reformats the entire buffer instead.
-</p>
-</dd>
-<dt><kbd class="kbd">M-x eglot-format-buffer</kbd></dt>
-<dd><p>This reformats and prettifies the current buffer according to source
-formatting rules of the language-server.
-</p>
-<a class="index-entry-id" id="index-code-actions"></a>
-</dd>
-<dt><kbd class="kbd">M-x eglot-code-actions</kbd></dt>
-<dt><kbd class="kbd">M-x eglot-code-action-organize-imports</kbd></dt>
-<dt><kbd class="kbd">M-x eglot-code-action-quickfix</kbd></dt>
-<dt><kbd class="kbd">M-x eglot-code-action-extract</kbd></dt>
-<dt><kbd class="kbd">M-x eglot-code-action-inline</kbd></dt>
-<dt><kbd class="kbd">M-x eglot-code-action-rewrite</kbd></dt>
-<dd><p>These command allow you to invoke the so-called <em class="dfn">code actions</em>:
-requests for the language-server to provide editing commands for
-various code fixes, typically either to fix an error diagnostic or to
-beautify/refactor code.  For example,
-<code class="code">eglot-code-action-organize-imports</code> rearranges the program
-<em class="dfn">imports</em>&mdash;declarations of modules whose capabilities the program
-uses.  These commands affect all the files that belong to the
-project.  The command <kbd class="kbd">M-x eglot-code-actions</kbd> will pop up a menu
-of code applicable actions at point.
-</p></dd>
-</dl>
-
-</li><li>M-x eglot-inlay-hints-mode
-This command toggles LSP &ldquo;inlay hints&rdquo; on and off for the current
-buffer.  Inlay hints are small text annotations to specific parts of
-the whole buffer, not unlike diagnostics, but designed to help
-readability instead of indicating problems.  For example, a C++ LSP
-server can serve hints about positional parameter names in function
-calls and a variable&rsquo;s automatically deduced type.  Inlay hints help
-the user not have to remember these things by heart.
-
+Eglot also provides a number of user commands based on the
+capabilities of language servers.  Examples include renaming symbols
+with <kbd class="kbd">eglot-rename</kbd> and asking to automatically correct problems
+with <kbd class="kbd">eglot-code-actions</kbd>.  See <a class="xref" href="#Eglot-Commands">Eglot Commands</a>.
 </li></ul>
 
 <p>Not all servers support the full set of LSP capabilities, but most of
@@ -791,19 +746,42 @@ entire current buffer.
 </p>
 </dd>
 <dt id='index-M_002dx-eglot_002dcode_002dactions'><span><code class="code">M-x eglot-code-actions</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002dactions'> &para;</a></span></dt>
-<dt id='index-mouse_002d1'><span><code class="code">mouse-1</code><a class="copiable-link" href='#index-mouse_002d1'> &para;</a></span></dt>
-<dd><p>This command asks the server for any <em class="dfn">code actions</em> applicable at
-point.  It can also be invoked by <kbd class="kbd">mouse-1</kbd> clicking on
-diagnostics provided by the server.
-</p>
-</dd>
 <dt id='index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports'><span><code class="code">M-x eglot-code-action-organize-imports</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports'> &para;</a></span></dt>
 <dt id='index-M_002dx-eglot_002dcode_002daction_002dquickfix'><span><code class="code">M-x eglot-code-action-quickfix</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dquickfix'> &para;</a></span></dt>
 <dt id='index-M_002dx-eglot_002dcode_002daction_002dextract'><span><code class="code">M-x eglot-code-action-extract</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dextract'> &para;</a></span></dt>
 <dt id='index-M_002dx-eglot_002dcode_002daction_002dinline'><span><code class="code">M-x eglot-code-action-inline</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dinline'> &para;</a></span></dt>
 <dt id='index-M_002dx-eglot_002dcode_002daction_002drewrite'><span><code class="code">M-x eglot-code-action-rewrite</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002drewrite'> &para;</a></span></dt>
-<dd><p>These commands invoke specific code actions supported by the language
-server.
+<dd><p>These commands allow you to invoke the so-called <em class="dfn">code actions</em>:
+requests for the language server to provide editing commands for
+correcting, refactoring or beautifying your code.  These commands may
+affect more than one visited file belong to the project.
+</p>
+<p>The command <code class="code">eglot-code-actions</code> asks the server if there any
+code actions for any point in the buffer or contained in the active
+region.  If there are, you the choice to execute one of them via the
+minibuffer.
+</p>
+<p>A common use of code actions is fixing the Flymake error diagnostics
+issued by Eglot (see <cite class="cite"><a data-manual="flymake" href="https://www.gnu.org/software/emacs/manual/html_mono/flymake.html#Top">GNU Flymake manual</a></cite>).
+Clicking on a diagnostic with <kbd class="kbd">mouse-2</kbd> invokes
+<code class="code">eglot-code-actions-at-mouse</code> which pops up a menu of available
+code actions.  The variable <code class="code">eglot-diagnostics-map</code> can be used
+to control the mouse binding.
+</p>
+<p>Other commands execute a specific code action.  For example,
+<code class="code">eglot-code-action-organize-imports</code> rearranges the program&rsquo;s
+<em class="dfn">imports</em>&mdash;declarations of modules whose capabilities the program
+uses.
+</p>
+</dd>
+<dt id='index-M_002dx-eglot_002dinlay_002dhints_002dmode'><span><code class="code">M-x eglot-inlay-hints-mode</code><a class="copiable-link" href='#index-M_002dx-eglot_002dinlay_002dhints_002dmode'> &para;</a></span></dt>
+<dd><p>This command toggles LSP &ldquo;inlay hints&rdquo; on and off for the current
+buffer.  Inlay hints are small text annotations to specific parts of
+the whole buffer, not unlike diagnostics, but designed to help
+readability instead of indicating problems.  For example, a C++
+language server can serve hints about positional parameter names in
+function calls and a variable&rsquo;s automatically deduced type.  Inlay
+hints help the user not have to remember these things by heart.
 </p></dd>
 </dl>
 
@@ -1076,7 +1054,7 @@ mechanism.
 </dd>
 <dt><code class="code">eglot-report-progress</code></dt>
 <dd><p>Set this variable to true if you&rsquo;d like progress notifications coming
-from the LSP server to be handled as Emacs&rsquo;s progress reporting
+from the language server to be handled as Emacs&rsquo;s progress reporting
 facilities.
 </p></dd>
 </dl>
@@ -1199,10 +1177,11 @@ plists.  Some examples are useful.
 </p>
 <p>Let&rsquo;s say you want to configure two language servers to be used in a
 project written in a combination of the Python and Go languages.  You
-want to use the <code class="command">pylsp</code> and <code class="command">gopls</code> LSP servers. In
-the documentation of the servers in question (or in some other editor&rsquo;s
-configuration file, or in some blog article), you find the following
-configuration options in informal dotted-notation syntax:
+want to use the <code class="command">pylsp</code> and <code class="command">gopls</code> languages
+servers. In the documentation of the servers in question (or in some
+other editor&rsquo;s configuration file, or in some blog article), you find
+the following configuration options in informal dotted-notation
+syntax:
 </p>
 <div class="example">
 <pre class="example-preformatted">pylsp.plugins.jedi_completion.include_params: true
@@ -1434,13 +1413,13 @@ slowly, try to customize the variable <code class="code">eglot-events-buffer-siz
 (see <a class="pxref" href="#Eglot-Variables">Eglot Variables</a>) to 0.  This will disable any debug logging
 and may speed things up.
 </p>
-<p>In other situations, the cause of poor performance lies in the LSP
-server itself.  Servers use aggressive caching and other techniques to
-improve their performance.  Often, this can be tweaked by changing the
-server configuration (see <a class="pxref" href="#Advanced-server-configuration">Advanced server configuration</a>).
+<p>In other situations, the cause of poor performance lies in the
+language server itself.  Servers use aggressive caching and other
+techniques to improve their performance.  Often, this can be tweaked
+by changing the server configuration (see <a class="pxref" href="#Advanced-server-configuration">Advanced server configuration</a>).
 </p>
 <p>If you think you have found a bug, we want to hear about it.  Before
-reporting a bug, keep in mind that interaction with LSP servers
+reporting a bug, keep in mind that interaction with language servers
 represents a large quantity of unknown variables.  Therefore, it is
 generally both <em class="emph">difficult</em> and <em class="emph">absolutely essential</em> that
 the maintainers reproduce bugs exactly as they happened to you, the
@@ -2046,7 +2025,6 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-buffers-managed-by-Eglot">buffers managed by Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-C">C</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-code-actions">code actions</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Features">Eglot Features</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-command_002dline-arguments">command-line arguments</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-commands_002c-Eglot">commands, Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-customizing-Eglot">customizing Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
@@ -2109,6 +2087,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dforget_002dpending_002dcontinuations"><code>M-x eglot-forget-pending-continuations</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dformat"><code>M-x eglot-format</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dformat_002dbuffer"><code>M-x eglot-format-buffer</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dinlay_002dhints_002dmode"><code>M-x eglot-inlay-hints-mode</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dreconnect"><code>M-x eglot-reconnect</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002drename"><code>M-x eglot-rename</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dshutdown"><code>M-x eglot-shutdown</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
@@ -2117,7 +2096,6 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dstderr_002dbuffer"><code>M-x eglot-stderr-buffer</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-mode_002dline-indication-of-language-server">mode-line indication of language server</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-mouse-clicks-on-mode_002dline_002c-and-Eglot">mouse clicks on mode-line, and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-mouse_002d1"><code>mouse-1</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-O">O</th><td></td><td></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-on_002dthe_002dfly-diagnostics-using-Eglot">on-the-fly diagnostics using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
