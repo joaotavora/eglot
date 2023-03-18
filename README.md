@@ -1,4 +1,4 @@
-[![Build status](https://github.com/joaotavora/eglot/actions/workflows/test.yml/badge.svg)](https://github.com/joaotavora/eglot/actions/workflows/test.yml)
+[![Build status](https://github.com/joaotavora/eglot/actions/workflows/test.yml/badge.svg)][build-status]
 [![GNU ELPA](https://elpa.gnu.org/packages/eglot.svg)](https://elpa.gnu.org/packages/eglot.html)
 [![MELPA](https://melpa.org/packages/eglot-badge.svg)](https://melpa.org/#/eglot)
 
@@ -22,14 +22,24 @@ Now find some source file, any source file, and type `M-x eglot`.
 for the language you're using.  Otherwise, it prompts you to enter
 one.
 
+# Get latest development from [GNU-Devel ELPA][gnudevelelpa] version
+
+First, configure this repository.
+```lisp
+(add-to-list 'package-archives '("gnu-devel" . "https://elpa.gnu.org/devel/"))
+```
+
+Then, use `M-x package-install` or `M-x package-update` to install
+an ELPA package from the latest upstream.
+
 <a name=emacscore></a>
-# Get [latest development version][emacs-upstream]
+# Contribute to Eglot's development
 
 _**Eglot is now in Emacs's core!**_ Upcoming Emacs 29 will have `M-x
 eglot` built-in.
 
-The recommended way to try out the latest Eglot and experiment with
-changes is to [compile][compile-emacs1] [Emacs][compile-emacs2]
+The recommended way to experiment with changes to the latest Eglot is
+to [compile][compile-emacs1] [Emacs][compile-emacs2]
 [yourself][compile-emacs3-official].  
 
 From a development perspective, moving to core allows us to work on
@@ -58,11 +68,12 @@ This repository is **not the development upstream anymore**, but it's
   
   Please the [Eglot-specific bug-reporting instructions][bug-reporting].
   
-* [eglot.el][eglot.el] is periodically updated to mirror the [Emacs
-  upstream][upstream-eglot.el]
+* The [`eglot.el`][eglot.el] file here is periodically updated to mirror
+  the [Emacs upstream][upstream-eglot.el]
 
-* It may be used to rehearse patches that go through the GitHub CI
-  tests.
+* The existing tests of [`eglot-tests.el`][eglot-tests.el], also
+  periodically updated, may be used to rehearse and validate patches
+  using [GitHub CI infrastructure][build-status].
 
 <a name="connecting"></a>
 # Connecting to a server
@@ -306,6 +317,7 @@ for the request form, and we'll send it to you.
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
 [erlang_ls]: https://github.com/erlang-ls/erlang_ls
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
+[gnudevelelpa]: https://elpa.gnu.org/devel/eglot.html
 [melpa]: https://melpa.org/#/eglot
 [news]: https://github.com/joaotavora/eglot/blob/master/NEWS.md
 [windows-subprocess-hang]: https://www.gnu.org/software/emacs/manual/html_node/efaq-w32/Subprocess-hang.html
@@ -327,6 +339,7 @@ for the request form, and we'll send it to you.
 [discussion]: https://github.com/joaotavora/eglot/discussions
 [upstream-eglot.el]: https://github.com/emacs-mirror/emacs/blob/master/lisp/progmodes/eglot.el
 [eglot.el]: https://github.com/joaotavora/eglot/blob/master/eglot.el
+[eglot-tests.el]: https://github.com/joaotavora/eglot/blob/master/eglot-tests.el
 [announcement]: https://github.com/joaotavora/eglot/discussions
 [compile-emacs1]: https://lars.ingebrigtsen.no/2014/11/13/welcome-new-emacs-developers/
 [compile-emacs2]: https://batsov.com/articles/2021/12/19/building-emacs-from-source-with-pgtk/
@@ -336,3 +349,4 @@ for the request form, and we'll send it to you.
 [project]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Projects.html
 [emacs-upstream]: https://github.com/emacs-mirror/emacs
 [release-notes]: https://github.com/emacs-mirror/emacs/blob/master/etc/EGLOT-NEWS
+[build-status]: https://github.com/joaotavora/eglot/actions/workflows/test.yml
