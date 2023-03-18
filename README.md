@@ -22,7 +22,7 @@ Now find some source file, any source file, and type `M-x eglot`.
 for the language you're using.  Otherwise, it prompts you to enter
 one.
 
-# Get latest development from [GNU-Devel ELPA][gnudevelelpa] version
+# Get latest development from [GNU-Devel ELPA][gnudevelelpa]
 
 First, configure this repository.
 ```lisp
