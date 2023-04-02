@@ -744,6 +744,7 @@ entire current buffer.
 <dd><p>This command reformats the current buffer, in the same manner as
 <code class="code">eglot-format</code> does.
 </p>
+<a class="index-entry-id" id="index-code-actions"></a>
 </dd>
 <dt id='index-M_002dx-eglot_002dcode_002dactions'><span><code class="code">M-x eglot-code-actions</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002dactions'> &para;</a></span></dt>
 <dt id='index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports'><span><code class="code">M-x eglot-code-action-organize-imports</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports'> &para;</a></span></dt>
@@ -773,9 +774,10 @@ to control the mouse binding.
 <em class="dfn">imports</em>&mdash;declarations of modules whose capabilities the program
 uses.
 </p>
+<a class="index-entry-id" id="index-inlay-hints"></a>
 </dd>
 <dt id='index-M_002dx-eglot_002dinlay_002dhints_002dmode'><span><code class="code">M-x eglot-inlay-hints-mode</code><a class="copiable-link" href='#index-M_002dx-eglot_002dinlay_002dhints_002dmode'> &para;</a></span></dt>
-<dd><p>This command toggles LSP &ldquo;inlay hints&rdquo; on and off for the current
+<dd><p>This command toggles LSP <em class="dfn">inlay hints</em> on and off for the current
 buffer.  Inlay hints are small text annotations to specific parts of
 the whole buffer, not unlike diagnostics, but designed to help
 readability instead of indicating problems.  For example, a C++
@@ -1178,7 +1180,7 @@ plists.  Some examples are useful.
 <p>Let&rsquo;s say you want to configure two language servers to be used in a
 project written in a combination of the Python and Go languages.  You
 want to use the <code class="command">pylsp</code> and <code class="command">gopls</code> languages
-servers. In the documentation of the servers in question (or in some
+servers.  In the documentation of the servers in question (or in some
 other editor&rsquo;s configuration file, or in some blog article), you find
 the following configuration options in informal dotted-notation
 syntax:
@@ -1427,8 +1429,9 @@ user.
 </p>
 <p>To report an Eglot bug, send e-mail to <a class="email" href="mailto:bug-gnu-emacs@gnu.org">bug-gnu-emacs@gnu.org</a>.
 </p>
-<p>Get acquainted with Emacs&rsquo;s bug reporting guidelines (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Bugs">Bugs</a> in <cite class="cite">GNU Emacs Manual</cite>).  Then, follow this checklist specific to
-Eglot bug rerpots.
+<p>To understand how to write this email, get acquainted with Emacs&rsquo;s bug
+reporting guidelines (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Bugs">Bugs</a> in <cite class="cite">GNU Emacs Manual</cite>).  Then,
+follow this Eglot-specific checklist:
 </p>
 <ol class="enumerate">
 <li> Include the transcript of JSONRPC events obtained from the buffer
@@ -1464,17 +1467,17 @@ since they are usually implicitly loaded when visiting a file in that
 language.
 </p>
 <p>ELPA packages usually live in <code class="code">~/.emacs.d/elpa</code> (or what is in
-<code class="code">package-user-dir</code>).  Please show the listing of files in that
-directory as well.
+<code class="code">package-user-dir</code>).  Including a listing of files in that
+directory is a way to tell the maintainers about ELPA package
+versions.
 </p>
 </li><li> Include a recipe to replicate the problem with <em class="emph">a clean Emacs
-run</em>.  This means <kbd class="kbd">emacs -Q -f package-initialize</kbd> invocation
-which starts Emacs with no configuration and initializes the ELPA
-packages.  A very minimal (no more that 10 lines) <samp class="file">.emacs</samp>
-initialization file is also acceptable and good means to describe
-changes to variables.
+run</em>.  The invocation <code class="code">emacs -Q -f package-initialize</code> starts
+Emacs with no configuration and initializes the ELPA packages.  A very
+minimal <samp class="file">.emacs</samp> initialization file (10 lines or less) is also
+acceptable and good means to describe changes to variables.
 
-<p>There is usually no need to include <kbd class="kbd">require</kbd> statements in the
+<p>There is usually no need to include <code class="code">require</code> statements in the
 recipe, as Eglot&rsquo;s functionality uses autoloads.
 </p>
 <p>Likewise, there is rarely the need to use things like
@@ -1485,9 +1488,9 @@ adding to hooks with <code class="code">add-hook</code>.  Prefer starting Eglot 
 </p>
 </li><li> Make sure to double check all the above elements and re-run the recipe
 to see that the problem is reproducible.  Following the recipe should
-produce event transcript and error backtraces that are exactly the
-same or very similar to the ones you included.  If the problem only
-happens sometimes, include this information in your bug report.
+produce event transcript and error backtraces that are very similar to
+the ones you included.  If the problem only happens sometimes, mention
+this in your report.
 </li></ol>
 
 <p>Please keep in mind that some problems reported against Eglot may
@@ -2025,6 +2028,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-buffers-managed-by-Eglot">buffers managed by Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-C">C</th><td></td><td></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-code-actions">code actions</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-command_002dline-arguments">command-line arguments</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-commands_002c-Eglot">commands, Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-customizing-Eglot">customizing Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
@@ -2067,6 +2071,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><th id="Index_cp_letter-I">I</th><td></td><td></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-imenu-navigation-using-Eglot">imenu navigation using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-initializationOptions">initializationOptions</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-inlay-hints">inlay hints</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-L">L</th><td></td><td></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-language-server-for-Eglot">language server for Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
