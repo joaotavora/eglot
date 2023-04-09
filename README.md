@@ -118,7 +118,7 @@ variable, where you can [easily add your own servers][manual].
 * Ruby's [solargraph][solargraph]
 * Rust's [rust-analyzer][rust-analyzer]
 * Scala's [metals][metals]
-* TeX/LaTeX's [Digestif][digestif]
+* TeX/LaTeX's [Digestif][digestif] ot [texlab][texlab]
 * VimScript's [vim-language-server][vim-language-server]
 * YAML's [yaml-language-server][yaml-language-server]
 * Zig's [zls][zls]
@@ -302,6 +302,7 @@ for the request form, and we'll send it to you.
 [rust-analyzer]: https://github.com/rust-analyzer/rust-analyzer
 [metals]: https://scalameta.org/metals/
 [digestif]: https://github.com/astoff/digestif
+[texlab]: https://github.com/latex-lsp/texlab
 [vim-language-server]: https://github.com/iamcco/vim-language-server
 [yaml-language-server]: https://github.com/redhat-developer/yaml-language-server
 [zls]: https://github.com/zigtools/zls
