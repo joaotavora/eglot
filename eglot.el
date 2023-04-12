@@ -231,7 +231,7 @@ chosen (interactively or automatically)."
                                 (erlang-mode . ("erlang_ls" "--transport" "stdio"))
                                 ((yaml-ts-mode yaml-mode) . ("yaml-language-server" "--stdio"))
                                 (nix-mode . ,(eglot-alternatives '("nil" "rnix-lsp")))
-                                (gdscript-mode . ("localhost" 6008))
+                                (gdscript-mode . ("localhost" 6005))
                                 ((fortran-mode f90-mode) . ("fortls"))
                                 (futhark-mode . ("futhark" "lsp"))
                                 (lua-mode . ,(eglot-alternatives
