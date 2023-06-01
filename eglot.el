@@ -1457,6 +1457,7 @@ CONNECT-ARGS are passed as additional arguments to
 ;;;
 (defun eglot--error (format &rest args)
   "Error out with FORMAT with ARGS."
+  (apply #'eglot--message (concat "(error) " format) args)
   (error "[eglot] %s" (apply #'format format args)))
 
 (defun eglot--message (format &rest args)
@@ -3517,6 +3518,11 @@ at point.  With prefix argument, prompt for ACTION-KIND."
                     (cl-loop for (glob . kind-bitmask) in globs
                              thereis (and (> (logand kind-bitmask action-bit) 0)
                                           (funcall glob file))))
+              ;; Add watcher for created directories
+              (if (and (eq action 'created)
+                       (file-directory-p file))
+                  (push (file-notify-add-watch file '(change) #'handle-event)
+                        (gethash id (eglot--file-watches server))))
                (jsonrpc-notify
                 server :workspace/didChangeWatchedFiles
                 `(:changes ,(vector `(:uri ,(eglot--path-to-uri file)
@@ -3526,21 +3532,48 @@ at point.  With prefix argument, prompt for ACTION-KIND."
                (handle-event `(,desc 'created ,file1)))))))
       (unwind-protect
           (progn
-            (dolist (dir dirs-to-watch)
-              (when (file-readable-p dir)
-                (push (file-notify-add-watch dir '(change) #'handle-event)
-                      (gethash id (eglot--file-watches server)))))
-            (setq
-             success
-             `(:message ,(format "OK, watching %s directories in %s watchers"
-                                 (length dirs-to-watch) (length watchers)))))
+            (let* ((watched-dirs (make-hash-table :test 'equal)))
+              ;; Fill in watched-dirs hash to make easy to lookup by descriptor or name
+              (maphash (lambda (descriptor info)
+                         (let ((dir (concat (file-notify--watch-directory info) "/")))
+                           (puthash dir descriptor watched-dirs)))
+                       file-notify-descriptors)
+              (dolist (dir dirs-to-watch)
+                (when (file-readable-p dir)
+                  (condition-case err
+                      (let* ((descriptor (gethash dir watched-dirs)))
+                        ;; If not currently watched, add notify, else copy descriptor
+                        ;; over to this server id
+                        (unless descriptor
+                          (setq descriptor
+                                (file-notify-add-watch dir '(change) #'handle-event)))
+                        ;; Lastly, add to eglot list of watch descriptors
+                        (push descriptor
+                              (gethash id (eglot--file-watches server))))
+                    (file-notify-error
+                     (eglot--error "File Notify file-notify-error: %s"
+                                   (error-message-string err)))
+                    (wrong-type-argument
+                     (eglot--error "File Notify wrong-type-argument: %s"
+                                   (error-message-string err))))))
+              (setq
+               success
+               `(:message ,(format "OK, watching %s directories in %s watchers"
+                                   (length dirs-to-watch) (length watchers))))))
         (unless success
           (eglot-unregister-capability server method id))))))
 
 (cl-defmethod eglot-unregister-capability
   (server (_method (eql workspace/didChangeWatchedFiles)) id)
   "Handle dynamic unregistration of workspace/didChangeWatchedFiles."
-  (mapc #'file-notify-rm-watch (gethash id (eglot--file-watches server)))
+  ;; Remove only the watchers where descriptors are no longer shared
+  (let* ((unreg (gethash id (eglot--file-watches server)))
+         (keep '()))
+    (maphash (lambda (_id watches)
+               (unless (string= _id id)
+                 (setq keep (nconc keep watches))))
+             (eglot--file-watches server))
+    (mapc #'file-notify-rm-watch (cl-set-difference unreg keep)))
   (remhash id (eglot--file-watches server))
   (list t "OK"))
 
