@@ -19,7 +19,7 @@ Just type `M-x package-install RET eglot RET` into Emacs 26.3+.
 Now find some source file, any source file, and type `M-x eglot`.
 
 *That's it*. If you're lucky, this guesses the LSP program to start
-for the language you're using.  Otherwise, it prompts you to enter
+for the language you're using. Otherwise, it prompts you to enter
 one.
 
 # Get latest development version from [GNU-Devel ELPA][gnudevelelpa]
