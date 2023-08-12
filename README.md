@@ -118,6 +118,7 @@ variable, where you can [easily add your own servers][manual].
 * Ruby's [solargraph][solargraph]
 * Rust's [rust-analyzer][rust-analyzer]
 * Scala's [metals][metals]
+* Terraform's [terraform-ls][terraform-ls]
 * TeX/LaTeX's [Digestif][digestif] ot [texlab][texlab]
 * VimScript's [vim-language-server][vim-language-server]
 * YAML's [yaml-language-server][yaml-language-server]
@@ -306,6 +307,8 @@ for the request form, and we'll send it to you.
 [vim-language-server]: https://github.com/iamcco/vim-language-server
 [yaml-language-server]: https://github.com/redhat-developer/yaml-language-server
 [zls]: https://github.com/zigtools/zls
+[terraform-ls]: https://github.com/hashicorp/terraform-ls
+
 
 <!-- Other references -->
 [manual]: https://joaotavora.github.io/eglot
