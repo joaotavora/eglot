@@ -2547,7 +2547,9 @@ use the root of SERVER's `eglot--project'."
   (let ((val (with-temp-buffer
                (setq default-directory
                      (if path
-                         (file-name-directory path)
+                         (if (file-directory-p path)
+                             (file-name-as-directory path)
+                           (file-name-directory path))
                        (project-root (eglot--project server))))
                ;; Set the major mode to be the first of the managed
                ;; modes.  This is the one the user started eglot in.
