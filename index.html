@@ -140,7 +140,13 @@ modify this GNU manual.&rdquo;
     <li><a id="toc-User_002dspecific-configuration-1" href="#User_002dspecific-configuration">5.2 User-specific configuration</a></li>
     <li><a id="toc-JSONRPC-objects-in-Elisp-1" href="#JSONRPC-objects-in-Elisp">5.3 JSONRPC objects in Elisp</a></li>
   </ul></li>
-  <li><a id="toc-Troubleshooting-Eglot-1" href="#Troubleshooting-Eglot">6 Troubleshooting Eglot</a></li>
+  <li><a id="toc-Extending-Eglot-1" href="#Extending-Eglot">6 Extending Eglot</a></li>
+  <li><a id="toc-Troubleshooting-Eglot-1" href="#Troubleshooting-Eglot">7 Troubleshooting Eglot</a>
+  <ul class="toc-numbered-mark">
+    <li><a id="toc-Performance-1" href="#Performance">7.1 Performance</a></li>
+    <li><a id="toc-Getting-the-latest-version-1" href="#Getting-the-latest-version">7.2 Getting the latest version</a></li>
+    <li><a id="toc-Reporting-bugs-1" href="#Reporting-bugs">7.3 Reporting bugs</a></li>
+  </ul></li>
   <li><a id="toc-GNU-Free-Documentation-License-1" href="#GNU-Free-Documentation-License">Appendix A GNU Free Documentation License</a></li>
   <li><a id="toc-Index-1" href="#Index" rel="index">Index</a></li>
 </ul>
@@ -480,9 +486,10 @@ provides:
 <li>At-point documentation: when point is at or near a symbol or an
 identifier, the information about the symbol/identifier, such as the
 signature of a function or class method and server-generated
-diagnostics, is made available via the ElDoc package (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Lisp-Doc">Lisp
-Doc</a> in <cite class="cite">GNU Emacs Manual</cite>).  This allows major modes to provide
-extensive help and documentation about the program identifiers.
+diagnostics, is made available via the ElDoc package
+(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Programming-Language-Doc">Programming Language Doc</a> in <cite class="cite">GNU Emacs Manual</cite>).  This
+allows major modes to provide extensive help and documentation about
+the program identifiers.
 
 </li><li>On-the-fly diagnostic annotations with server-suggested fixes, via the
 Flymake package (see <cite class="cite"><a data-manual="flymake" href="https://www.gnu.org/software/emacs/manual/html_mono/flymake.html#Top">GNU Flymake manual</a></cite>).  This
@@ -924,12 +931,14 @@ The default is <code class="code">nil</code>; if you want to shut down a server,
 <kbd class="kbd">M-x eglot-shutdown</kbd> (see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
 </p>
 </dd>
-<dt id='index-eglot_002dconfirm_002dserver_002dinitiated_002dedits'><span><code class="code">eglot-confirm-server-initiated-edits</code><a class="copiable-link" href='#index-eglot_002dconfirm_002dserver_002dinitiated_002dedits'> &para;</a></span></dt>
+<dt id='index-eglot_002dconfirm_002dserver_002dedits'><span><code class="code">eglot-confirm-server-edits</code><a class="copiable-link" href='#index-eglot_002dconfirm_002dserver_002dedits'> &para;</a></span></dt>
 <dd><p>Various Eglot commands and code actions result in the language server
 sending editing commands to Emacs.  If this option&rsquo;s value is
-non-<code class="code">nil</code> (the default), Eglot will ask for confirmation before
-performing edits initiated by the server or edits whose scope affects
-buffers other than the one where the user initiated the request.
+non-<code class="code">nil</code>, Eglot will ask for confirmation before performing
+edits proposed by the language server.  This option&rsquo;s value can be
+crafted to require this confirmation for specific commands or only
+when the edit affects files not yet visited by the user.  Consult this
+option&rsquo;s docstring for more information.
 </p>
 </dd>
 <dt id='index-eglot_002dignored_002dserver_002dcapabilities'><span><code class="code">eglot-ignored-server-capabilities</code><a class="copiable-link" href='#index-eglot_002dignored_002dserver_002dcapabilities'> &para;</a></span></dt>
@@ -1066,7 +1075,7 @@ facilities.
 <div class="chapter-level-extent" id="Advanced-server-configuration">
 <div class="nav-panel">
 <p>
-Next: <a href="#Troubleshooting-Eglot" accesskey="n" rel="next">Troubleshooting Eglot</a>, Previous: <a href="#Customizing-Eglot" accesskey="p" rel="prev">Customizing Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Extending-Eglot" accesskey="n" rel="next">Extending Eglot</a>, Previous: <a href="#Customizing-Eglot" accesskey="p" rel="prev">Customizing Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <h2 class="chapter" id="Advanced-server-configuration-1">5 Advanced server configuration</h2>
 
@@ -1389,15 +1398,166 @@ JSON arrays are represented as Elisp vectors surrounded by square brackets
 <hr>
 </div>
 </div>
+<div class="chapter-level-extent" id="Extending-Eglot">
+<div class="nav-panel">
+<p>
+Next: <a href="#Troubleshooting-Eglot" accesskey="n" rel="next">Troubleshooting Eglot</a>, Previous: <a href="#Advanced-server-configuration" accesskey="p" rel="prev">Advanced server configuration</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<h2 class="chapter" id="Extending-Eglot-1">6 Extending Eglot</h2>
+
+<p>Sometimes it may be useful to extend existing Eglot functionality
+using Elisp its public methods.  A good example of when this need may
+arise is adding support for a custom LSP protocol extension only
+implemented by a specific server.
+</p>
+<p>The best source of documentation for this is probably Eglot source
+code itself, particularly the section marked &ldquo;API&rdquo;.
+</p>
+<p>Most of the functionality is implemented with Common-Lisp style
+generic functions (see <a data-manual="eieio" href="https://www.gnu.org/software/emacs/manual/html_mono/eieio.html#Generics">Generics</a> in <cite class="cite">EIEIO</cite>) that can be easily
+extended or overridden.  The Eglot code itself is an example on how to
+do this.
+</p>
+<p>The following is a relatively simple example that adds support for the
+<code class="code">inactiveRegions</code> experimental feature introduced in version 17
+of the <code class="command">clangd</code> C/C++ language server++.
+</p>
+<p>Summarily, the feature works by first having the server detect the
+Eglot&rsquo;s advertisement of the <code class="code">inactiveRegions</code> client capability
+during startup, whereupon the language server will report a list of
+regions of inactive code for each buffer.  This is usually code
+surrounded by C/C++ <code class="code">#ifdef</code> macros that the preprocessor removes
+based on compile-time information.
+</p>
+<p>The language server reports the regions by periodically sending a
+<code class="code">textDocument/inactiveRegions</code> notification for each managed
+buffer (see <a class="pxref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>). Normally, unknown server
+notifications are ignored by Eglot, but we&rsquo;re going change that.
+</p>
+<p>Both the announcement of the client capability and the handling of the
+new notification is done by adding methods to generic functions.
+</p>
+<ul class="itemize mark-bullet">
+<li>The first method extends <code class="code">eglot-client-capabilities</code> using a
+simple heuristic to detect if current server is <code class="command">clangd</code> and
+enables the <code class="code">inactiveRegion</code> capability.
+
+<div class="example lisp">
+<pre class="lisp-preformatted">(cl-defmethod eglot-client-capabilities :around (server)
+  (let ((base (cl-call-next-method)))
+    (when (cl-find &quot;clangd&quot; (process-command
+                              (jsonrpc--process server))
+                   :test #'string-match)
+      (setf (cl-getf (cl-getf base :textDocument)
+                     :inactiveRegionsCapabilities)
+            '(:inactiveRegions t)))
+    base))
+</pre></div>
+
+<p>Notice we use an internal function of the <code class="code">jsonrpc.el</code> library,
+and a regexp search to detect <code class="command">clangd</code>.  An alternative would
+be to define a new EIEIO subclass of <code class="code">eglot-lsp-server</code>, maybe
+called <code class="code">eglot-clangd</code>, so that the method would be simplified:
+</p>
+<div class="example lisp">
+<pre class="lisp-preformatted">(cl-defmethod eglot-client-capabilities :around ((_s eglot-clangd))
+  (let ((base (cl-call-next-method)))
+    (setf (cl-getf (cl-getf base :textDocument)
+                     :inactiveRegionsCapabilities)
+            '(:inactiveRegions t))))
+</pre></div>
+
+<p>However, this would require that users tweak
+<code class="code">eglot-server-program</code> to tell Eglot instantiate such sub-classes
+instead of the generic <code class="code">eglot-lsp-server</code> (see <a class="pxref" href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>). For the purposes of this particular demonstration, we&rsquo;re
+going to use the more hacky regexp route which doesn&rsquo;t require that.
+</p>
+<p>Note, however, that detecting server versions before announcing new
+capabilities is generally not needed, as both server and client are
+required by LSP to ignore unknown capabilities advertised by their
+counterparts.
+</p>
+</li><li>The second method implements <code class="code">eglot-handle-notification</code> to
+process the server notification for the LSP method
+<code class="code">textDocument/inactiveRegions</code>.  For each region received it
+creates an overlay applying the <code class="code">shadow</code> face to the region.
+Overlays are recreated every time a new notification of this kind is
+received.
+
+<p>To learn about how <code class="command">clangd</code>&rsquo;s special JSONRPC notification
+message is structured in detail you could consult that server&rsquo;s
+documentation.  Another possibility is to evaluate the first
+capability-announcing method, reconnect to the server and peek in the
+events buffer (see <a class="pxref" href="#Eglot-Commands">eglot-events-buffer</a>).  You
+could find something like:
+</p>
+<div class="example lisp">
+<pre class="lisp-preformatted">[server-notification] Mon Sep  4 01:10:04 2023:
+(:jsonrpc &quot;2.0&quot; :method &quot;textDocument/inactiveRegions&quot; :params
+          (:textDocument
+           (:uri &quot;file:///path/to/file.cpp&quot;)
+           :regions
+           [(:start (:character 0 :line 18)
+             :end (:character 58 :line 19))
+            (:start (:character 0 :line 36)
+             :end (:character 1 :line 38))]))
+</pre></div>
+
+<p>This reveals that the <code class="code">textDocument/inactiveRegions</code> notification
+contains a <code class="code">:textDocument</code> property to designate the managed
+buffer and an array of LSP regions under the <code class="code">:regions</code> property.
+Notice how the message (originally in JSON format), is represented as
+Elisp plists (see <a class="pxref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>).
+</p>
+<p>The Eglot generic function machinery will automatically destructure
+the incoming message, so these two properties can simply be added to
+the new method&rsquo;s lambda list as <code class="code">&amp;key</code> arguments.  Also, the
+<code class="code">eglot-uri-to-path</code> and <code class="code">eglot-range-region</code> may be used to
+easily parse the LSP <code class="code">:uri</code> and <code class="code">:start ... :end ...</code>
+objects to obtain Emacs objects for file names and positions.
+</p>
+<p>The remainder of the implementation consists of standard Elisp
+techniques to loop over arrays, manage buffers and overlays.
+</p>
+<div class="example lisp">
+<pre class="lisp-preformatted">(defvar-local eglot-clangd-inactive-region-overlays '())
+
+(cl-defmethod eglot-handle-notification
+  (_server (_method (eql textDocument/inactiveRegions))
+           &amp;key regions textDocument &amp;allow-other-keys)
+  (if-let* ((path (expand-file-name (eglot-uri-to-path
+                                     (cl-getf textDocument :uri))))
+            (buffer (find-buffer-visiting path)))
+      (with-current-buffer buffer
+        (mapc #'delete-overlay eglot-clangd-inactive-region-overlays)
+        (cl-loop
+         for r across regions
+         for (beg . end) = (eglot-range-region r)
+         for ov = (make-overlay beg end)
+         do
+         (overlay-put ov 'face 'shadow)
+         (push ov eglot-clangd-inactive-region-overlays)))))
+</pre></div>
+
+</li></ul>
+
+<p>After evaluating these two additions and reconnecting to the
+<code class="command">clangd</code> language server (version 17), the result will be that
+all the inactive code in the buffer will be nicely grayed out using
+the LSP server knowledge about current compile time preprocessor
+defines.
+</p>
+<hr>
+</div>
 <div class="chapter-level-extent" id="Troubleshooting-Eglot">
 <div class="nav-panel">
 <p>
-Next: <a href="#GNU-Free-Documentation-License" accesskey="n" rel="next">GNU Free Documentation License</a>, Previous: <a href="#Advanced-server-configuration" accesskey="p" rel="prev">Advanced server configuration</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#GNU-Free-Documentation-License" accesskey="n" rel="next">GNU Free Documentation License</a>, Previous: <a href="#Extending-Eglot" accesskey="p" rel="prev">Extending Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="chapter" id="Troubleshooting-Eglot-1">6 Troubleshooting Eglot</h2>
+<h2 class="chapter" id="Troubleshooting-Eglot-1">7 Troubleshooting Eglot</h2>
 <a class="index-entry-id" id="index-troubleshooting-Eglot"></a>
 
-<p>This section documents commands and variables that can be used to
+<p>This chapter documents commands and variables that can be used to
 troubleshoot Eglot problems.  It also provides guidelines for
 reporting Eglot bugs in a way that facilitates their resolution.
 </p>
@@ -1407,7 +1567,20 @@ pop up special buffers that can be used to inspect the communications
 between the Eglot and language server.  In many cases, this will
 indicate the problems or at least provide a hint.
 </p>
-<a class="index-entry-id" id="index-performance"></a>
+
+<ul class="mini-toc">
+<li><a href="#Performance" accesskey="1">Performance</a></li>
+<li><a href="#Getting-the-latest-version" accesskey="2">Getting the latest version</a></li>
+<li><a href="#Reporting-bugs" accesskey="3">Reporting bugs</a></li>
+</ul>
+<hr>
+<div class="section-level-extent" id="Performance">
+<div class="nav-panel">
+<p>
+Next: <a href="#Getting-the-latest-version" accesskey="n" rel="next">Getting the latest version</a>, Up: <a href="#Troubleshooting-Eglot" accesskey="u" rel="up">Troubleshooting Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<h3 class="section" id="Performance-1">7.1 Performance</h3>
+<a class="index-entry-id" id="index-performance-problems_002c-with-Eglot"></a>
 <p>A common and easy-to-fix cause of performance problems is the length
 of the Eglot events buffer because it represent additional work that
 Eglot must do.  After verifying Eglot is operating correctly but
@@ -1420,6 +1593,44 @@ language server itself.  Servers use aggressive caching and other
 techniques to improve their performance.  Often, this can be tweaked
 by changing the server configuration (see <a class="pxref" href="#Advanced-server-configuration">Advanced server configuration</a>).
 </p>
+<hr>
+</div>
+<div class="section-level-extent" id="Getting-the-latest-version">
+<div class="nav-panel">
+<p>
+Next: <a href="#Reporting-bugs" accesskey="n" rel="next">Reporting bugs</a>, Previous: <a href="#Performance" accesskey="p" rel="prev">Performance</a>, Up: <a href="#Troubleshooting-Eglot" accesskey="u" rel="up">Troubleshooting Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<h3 class="section" id="Getting-the-latest-version-1">7.2 Getting the latest version</h3>
+<a class="index-entry-id" id="index-upgrading-Eglot"></a>
+
+<p>To install the latest Eglot in an Emacs version that does not bundle
+Eglot, use <kbd class="kbd">M-x package-install</kbd>.
+</p>
+<p>Often, a newer Eglot version exists that has fixed a longstanding bug,
+has more LSP features, or just better supports a particular language
+server.  Recent Eglot versions can self-update via the command
+<kbd class="kbd">M-x eglot-upgrade-eglot</kbd>.  This will replace any currently
+installed version with the newest one available from the ELPA archives
+configured in <code class="code">package-archives</code>.
+</p>
+<p>You can also update Eglot through other methods, such as
+<code class="code">use-package</code> (see <a data-manual="use-package" href="use-package.html#Installing-packages">Installing packages</a> in <cite class="cite">use-package User Manual</cite>), <code class="code">package-install</code>,
+<code class="code">list-packages</code> or the newer <code class="code">package-upgrade</code>
+(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Packages">Packages</a> in <cite class="cite">GNU Emacs Manual</cite>).  However, do read the
+docstrings of the command you intend to use before you use it, as some
+of them may not work in exactly the same way across Emacs versions,
+meaning your configuration may be not portable.
+</p>
+<hr>
+</div>
+<div class="section-level-extent" id="Reporting-bugs">
+<div class="nav-panel">
+<p>
+Previous: <a href="#Getting-the-latest-version" accesskey="p" rel="prev">Getting the latest version</a>, Up: <a href="#Troubleshooting-Eglot" accesskey="u" rel="up">Troubleshooting Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<h3 class="section" id="Reporting-bugs-1">7.3 Reporting bugs</h3>
+<a class="index-entry-id" id="index-bug-reports"></a>
+
 <p>If you think you have found a bug, we want to hear about it.  Before
 reporting a bug, keep in mind that interaction with language servers
 represents a large quantity of unknown variables.  Therefore, it is
@@ -1458,6 +1669,10 @@ public Git repository.
 </li><li> Include versions of the software used.  The Emacs version can be
 obtained with <kbd class="kbd">M-x emacs-version</kbd>.
 
+<p>We welcome bug reports about all Eglot versions, but it is helpful to
+first check if the problem isn&rsquo;t already fixed in the latest version
+(see <a class="pxref" href="#Getting-the-latest-version">Getting the latest version</a>).
+</p>
 <p>It&rsquo;s also essential to include the version of ELPA packages that are
 explicitly or implicitly loaded.  The optional but popular Company or
 Markdown packages are distributed as GNU ELPA packages, not to mention
@@ -1499,6 +1714,7 @@ that used Eglot to communicate with the language server.  Eglot is, in
 many cases, just a frontend to that functionality.
 </p>
 <hr>
+</div>
 </div>
 <div class="appendix-level-extent" id="GNU-Free-Documentation-License">
 <div class="nav-panel">
@@ -2011,6 +2227,8 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
  &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-T"><b>T</b></a>
  &nbsp; 
+<a class="summary-letter-printindex" href="#Index_cp_letter-U"><b>U</b></a>
+ &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-V"><b>V</b></a>
  &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-W"><b>W</b></a>
@@ -2026,6 +2244,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-B">B</th><td></td><td></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-buffers-managed-by-Eglot">buffers managed by Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-bug-reports">bug reports</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Reporting-bugs">Reporting bugs</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-C">C</th><td></td><td></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-code-actions">code actions</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
@@ -2040,7 +2259,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot"><code>eglot</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoreconnect"><code>eglot-autoreconnect</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoshutdown"><code>eglot-autoshutdown</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconfirm_002dserver_002dinitiated_002dedits"><code>eglot-confirm-server-initiated-edits</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconfirm_002dserver_002dedits"><code>eglot-confirm-server-edits</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dhook"><code>eglot-connect-hook</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dtimeout"><code>eglot-connect-timeout</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002densure"><code>eglot-ensure</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
@@ -2106,7 +2325,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-on_002dthe_002dfly-diagnostics-using-Eglot">on-the-fly diagnostics using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-P">P</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-performance">performance</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Troubleshooting-Eglot">Troubleshooting Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-performance-problems_002c-with-Eglot">performance problems, with Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Performance">Performance</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-progress">progress</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-projects-and-Eglot">projects and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
@@ -2121,6 +2340,9 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-T">T</th><td></td><td></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-troubleshooting-Eglot">troubleshooting Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Troubleshooting-Eglot">Troubleshooting Eglot</a></td></tr>
+<tr><td colspan="4"> <hr></td></tr>
+<tr><th id="Index_cp_letter-U">U</th><td></td><td></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-upgrading-Eglot">upgrading Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Getting-the-latest-version">Getting the latest version</a></td></tr>
 <tr><td colspan="4"> <hr></td></tr>
 <tr><th id="Index_cp_letter-V">V</th><td></td><td></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-variables_002c-Eglot">variables, Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
@@ -2160,6 +2382,8 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <a class="summary-letter-printindex" href="#Index_cp_letter-S"><b>S</b></a>
  &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-T"><b>T</b></a>
+ &nbsp; 
+<a class="summary-letter-printindex" href="#Index_cp_letter-U"><b>U</b></a>
  &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-V"><b>V</b></a>
  &nbsp; 
