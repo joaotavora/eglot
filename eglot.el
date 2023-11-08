@@ -254,6 +254,7 @@ chosen (interactively or automatically)."
                                  . ,(eglot-alternatives
                                      '(("marksman" "server")
                                        ("vscode-markdown-language-server" "--stdio"))))
+                                ((typst-mode typst-ts-mode) . ("typst-lsp"))
                                 (graphviz-dot-mode . ("dot-language-server" "--stdio")))
   "How the command `eglot' guesses the server to start.
 An association list of (MAJOR-MODE . CONTACT) pairs.  MAJOR-MODE
