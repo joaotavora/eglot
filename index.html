@@ -186,14 +186,19 @@ of your choice and add them to the value of
 a buffer visiting any file that belongs to the project.  This starts
 the language server configured for the programming language of that
 buffer, and causes Eglot to start managing all the files of the
-project which use the same programming language.  The notion of a
-&ldquo;project&rdquo; used by Eglot is the same Emacs uses (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Projects">Projects</a> in <cite class="cite">GNU Emacs Manual</cite>): in the simplest case, the &ldquo;project&rdquo; is
-the single file you are editing, but it can also be all the files in a
-single directory or a directory tree under some version control
-system, such as Git.
+project which use the same programming language.  This includes files
+of a given project that are already visited at the time the
+<code class="code">eglot</code> command is invoked as well as files visited after this
+invocation.
 </p>
-<p>Alternatively, you can start Eglot automatically from the major-mode
-hook of the mode used for the programming language; see <a class="ref" href="#Starting-Eglot">Starting Eglot</a>.
+<p>The notion of a &ldquo;project&rdquo; used by Eglot is the same Emacs uses
+(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Projects">Projects</a> in <cite class="cite">GNU Emacs Manual</cite>): in the simplest case,
+the &ldquo;project&rdquo; is the single file you are editing, but it can also be
+all the files in a single directory or a directory tree under some
+version control system, such as Git.
+</p>
+<p>There are alternate ways of starting Eglot; see <a class="ref" href="#Starting-Eglot">Starting Eglot</a>
+for details.
 </p>
 </li><li> Use Eglot.
 
@@ -405,6 +410,12 @@ an Eglot session that handles the buffer.  Note that this variant of
 starting an Eglot session is non-interactive, so it should be used
 only when you are confident that Eglot can be started reliably for any
 file which may be visited with the major-mode in question.
+</p>
+<p>Note that it&rsquo;s often difficult to establish this confidence fully, so
+it may be wise to use the interactive command <code class="code">eglot</code> instead.
+You only need to invoke it once per project, as all other files
+visited within the same project will automatically be managed with no
+further user intervention needed.
 </p>
 <p>When Eglot connects to a language server for the first time in an
 Emacs session, it runs the hook <code class="code">eglot-connect-hook</code>
@@ -762,12 +773,12 @@ entire current buffer.
 <dd><p>These commands allow you to invoke the so-called <em class="dfn">code actions</em>:
 requests for the language server to provide editing commands for
 correcting, refactoring or beautifying your code.  These commands may
-affect more than one visited file belong to the project.
+affect more than one visited file belonging to the project.
 </p>
 <p>The command <code class="code">eglot-code-actions</code> asks the server if there any
 code actions for any point in the buffer or contained in the active
-region.  If there are, you the choice to execute one of them via the
-minibuffer.
+region.  If there are, you have the choice to execute one of them via
+the minibuffer.
 </p>
 <p>A common use of code actions is fixing the Flymake error diagnostics
 issued by Eglot (see <cite class="cite"><a data-manual="flymake" href="https://www.gnu.org/software/emacs/manual/html_mono/flymake.html#Top">GNU Flymake manual</a></cite>).
@@ -1338,7 +1349,7 @@ in <a class="ref" href="#Project_002dspecific-configuration">Project-specific co
 </pre></div>
 
 <p>Note that the global value of <code class="code">eglot-workspace-configuration</code> is
-always overriden if a directory-local value is detected.
+always overridden if a directory-local value is detected.
 </p>
 <hr>
 </div>
@@ -1368,8 +1379,8 @@ JSON arrays are represented as Elisp vectors surrounded by square brackets
 <div class="example lisp">
 <pre class="lisp-preformatted">(:pylsp (:plugins (:jedi_completion (:include_params t
                                      :fuzzy t
-                                     :cache_for [&quot;pandas&quot; &quot;numpy&quot;]
-                   :pylint (:enabled :json-false))))
+                                     :cache_for [&quot;pandas&quot; &quot;numpy&quot;])
+                   :pylint (:enabled :json-false)))
  :gopls (:usePlaceholders t))
 </pre></div>
 
@@ -1382,7 +1393,7 @@ JSON arrays are represented as Elisp vectors surrounded by square brackets
       &quot;jedi_completion&quot;: {
         &quot;include_params&quot;: true,
         &quot;fuzzy&quot;: true,
-        &quot;cache_for&quot;: [ &quot;pandas&quot;, &quot;numpy&quot; ],
+        &quot;cache_for&quot;: [ &quot;pandas&quot;, &quot;numpy&quot; ]
       },
       &quot;pylint&quot;: {
         &quot;enabled&quot;: false
@@ -1390,8 +1401,8 @@ JSON arrays are represented as Elisp vectors surrounded by square brackets
     }
   },
   &quot;gopls&quot;: {
-    &quot;usePlaceholders&quot;:true
-  },
+    &quot;usePlaceholders&quot;: true
+  }
 }
 </pre></div>
 
