@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<!-- Created by GNU Texinfo 7.0.2, https://www.gnu.org/software/texinfo/ -->
+<!-- Created by GNU Texinfo 7.1, https://www.gnu.org/software/texinfo/ -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!-- This manual is for Eglot, the Emacs LSP client.
@@ -39,13 +39,12 @@ div.example {margin-left: 3.2em}
 kbd.kbd {font-style: oblique}
 kbd.key {font-style: normal}
 pre.display-preformatted {font-family: inherit}
-span.w-nolinebreak-text {white-space: nowrap}
 span:hover a.copiable-link {visibility: visible}
 strong.def-name {font-family: monospace; font-weight: bold; font-size: larger}
 td.printindex-index-entry {vertical-align: top}
-td.printindex-index-section {vertical-align: top}
+td.printindex-index-section {vertical-align: top; padding-left: 1em}
 th.entries-header-printindex {text-align:left}
-th.sections-header-printindex {text-align:left}
+th.sections-header-printindex {text-align:left; padding-left: 1em}
 ul.mark-bullet {list-style-type: disc}
 ul.toc-numbered-mark {list-style: none}
 -->
@@ -66,7 +65,7 @@ ul.toc-numbered-mark {list-style: none}
 <p>
 Next: <a href="#Quick-Start" accesskey="n" rel="next">Quick Start</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h1 class="top" id="Eglot">Eglot</h1>
+<h1 class="top" id="Eglot"><span>Eglot<a class="copiable-link" href="#Eglot"> &para;</a></span></h1>
 
 <a class="index-entry-id" id="index-LSP"></a>
 <a class="index-entry-id" id="index-language-server-protocol"></a>
@@ -158,7 +157,7 @@ modify this GNU manual.&rdquo;
 <p>
 Next: <a href="#Eglot-and-LSP-Servers" accesskey="n" rel="next">Eglot and LSP Servers</a>, Previous: <a href="#Top" accesskey="p" rel="prev">Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="chapter" id="Quick-Start-1">1 Quick Start</h2>
+<h2 class="chapter" id="Quick-Start-1"><span>1 Quick Start<a class="copiable-link" href="#Quick-Start-1"> &para;</a></span></h2>
 <a class="index-entry-id" id="index-quick-start"></a>
 
 <p>This chapter provides concise instructions for setting up and using
@@ -185,11 +184,10 @@ of your choice and add them to the value of
 <p>To start using Eglot for a project, type <kbd class="kbd">M-x eglot <kbd class="key">RET</kbd></kbd> in
 a buffer visiting any file that belongs to the project.  This starts
 the language server configured for the programming language of that
-buffer, and causes Eglot to start managing all the files of the
-project which use the same programming language.  This includes files
-of a given project that are already visited at the time the
-<code class="code">eglot</code> command is invoked as well as files visited after this
-invocation.
+buffer, and causes Eglot to start <em class="dfn">managing</em> file-visiting buffers
+related to that programming language.  This includes files that are
+already visited at the time the <code class="code">eglot</code> command is invoked, as
+well as any files visited after this invocation.
 </p>
 <p>The notion of a &ldquo;project&rdquo; used by Eglot is the same Emacs uses
 (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Projects">Projects</a> in <cite class="cite">GNU Emacs Manual</cite>): in the simplest case,
@@ -220,7 +218,7 @@ of Eglot commands.
 <p>
 Next: <a href="#Using-Eglot" accesskey="n" rel="next">Using Eglot</a>, Previous: <a href="#Quick-Start" accesskey="p" rel="prev">Quick Start</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="chapter" id="Eglot-and-LSP-Servers-1">2 Eglot and LSP Servers</h2>
+<h2 class="chapter" id="Eglot-and-LSP-Servers-1"><span>2 Eglot and LSP Servers<a class="copiable-link" href="#Eglot-and-LSP-Servers-1"> &para;</a></span></h2>
 
 <p>This chapter describes how to set up Eglot for your needs, and how to
 start it.
@@ -237,7 +235,7 @@ start it.
 <p>
 Next: <a href="#Starting-Eglot" accesskey="n" rel="next">Starting Eglot</a>, Up: <a href="#Eglot-and-LSP-Servers" accesskey="u" rel="up">Eglot and LSP Servers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Setting-Up-LSP-Servers-1">2.1 Setting Up LSP Servers</h3>
+<h3 class="section" id="Setting-Up-LSP-Servers-1"><span>2.1 Setting Up LSP Servers<a class="copiable-link" href="#Setting-Up-LSP-Servers-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-setting-up-LSP-server-for-Eglot"></a>
 <a class="index-entry-id" id="index-LSP-server-for-Eglot_002c-setting-up"></a>
 <a class="index-entry-id" id="index-language-server-for-Eglot"></a>
@@ -257,7 +255,7 @@ programming languages each server supports.  This information is
 provided by the variable <code class="code">eglot-server-programs</code>.
 </p>
 <dl class="first-defvr first-defvar-alias-first-defvr">
-<dt class="defvr defvar-alias-defvr" id="index-eglot_002dserver_002dprograms"><span class="category-def">Variable: </span><span><strong class="def-name">eglot-server-programs</strong><a class="copiable-link" href='#index-eglot_002dserver_002dprograms'> &para;</a></span></dt>
+<dt class="defvr defvar-alias-defvr" id="index-eglot_002dserver_002dprograms"><span class="category-def">Variable: </span><span><strong class="def-name">eglot-server-programs</strong><a class="copiable-link" href="#index-eglot_002dserver_002dprograms"> &para;</a></span></dt>
 <dd><p>This variable associates major modes with names and command-line
 arguments of the language server programs corresponding to the
 programming language of each major mode.  It provides all the
@@ -265,10 +263,10 @@ information that Eglot needs to know about the programming language of
 the source you are editing.
 </p>
 <p>The value of the variable is an alist, whose elements are of the form
-<code class="code">(<var class="var"><span class="w-nolinebreak-text">major-mode</span></var>&nbsp;.&nbsp;<var class="var">server</var>)</code><!-- /@w -->.
+<code class="code">(<var class="var">major-mode</var>&nbsp;.&nbsp;<var class="var">server</var>)</code><!-- /@w -->.
 </p>
 <p>The <var class="var">major-mode</var> of the alist elements can be either a symbol of
-an Emacs major mode or a list of the form <code class="code">(<var class="var">mode</var>&nbsp;<span class="w-nolinebreak-text">:language-id</span>&nbsp;<var class="var">id</var>)</code><!-- /@w -->, with <var class="var">mode</var> being a major-mode symbol
+an Emacs major mode or a list of the form <code class="code">(<var class="var">mode</var>&nbsp;:language-id&nbsp;<var class="var">id</var>)</code><!-- /@w -->, with <var class="var">mode</var> being a major-mode symbol
 and <var class="var">id</var> a string that identifies the language to the server (if
 Eglot cannot by itself convert the major-mode to the language
 identifier string required by the server).  In addition,
@@ -367,7 +365,7 @@ is available.
 <p>
 Next: <a href="#Shutting-Down-LSP-Servers" accesskey="n" rel="next">Shutting Down LSP Servers</a>, Previous: <a href="#Setting-Up-LSP-Servers" accesskey="p" rel="prev">Setting Up LSP Servers</a>, Up: <a href="#Eglot-and-LSP-Servers" accesskey="u" rel="up">Eglot and LSP Servers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Starting-Eglot-1">2.2 Starting Eglot</h3>
+<h3 class="section" id="Starting-Eglot-1"><span>2.2 Starting Eglot<a class="copiable-link" href="#Starting-Eglot-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-starting-Eglot"></a>
 <a class="index-entry-id" id="index-activating-Eglot-for-a-project"></a>
 
@@ -428,7 +426,7 @@ Emacs session, it runs the hook <code class="code">eglot-connect-hook</code>
 <p>
 Previous: <a href="#Starting-Eglot" accesskey="p" rel="prev">Starting Eglot</a>, Up: <a href="#Eglot-and-LSP-Servers" accesskey="u" rel="up">Eglot and LSP Servers</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Shutting-Down-LSP-Servers-1">2.3 Shutting Down LSP Servers</h3>
+<h3 class="section" id="Shutting-Down-LSP-Servers-1"><span>2.3 Shutting Down LSP Servers<a class="copiable-link" href="#Shutting-Down-LSP-Servers-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-shutting-down-LSP-server"></a>
 
 <p>When Eglot is turned on, it arranges for turning itself off
@@ -465,7 +463,7 @@ default allows you to start a server only once in each Emacs session.
 <p>
 Next: <a href="#Customizing-Eglot" accesskey="n" rel="next">Customizing Eglot</a>, Previous: <a href="#Eglot-and-LSP-Servers" accesskey="p" rel="prev">Eglot and LSP Servers</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="chapter" id="Using-Eglot-1">3 Using Eglot</h2>
+<h2 class="chapter" id="Using-Eglot-1"><span>3 Using Eglot<a class="copiable-link" href="#Using-Eglot-1"> &para;</a></span></h2>
 
 <p>This chapter describes in detail the features that Eglot provides and
 how it does that.  It also provides reference sections for Eglot
@@ -484,14 +482,16 @@ commands and variables.
 <p>
 Next: <a href="#Eglot-and-Buffers" accesskey="n" rel="next">Buffers, Projects, and Eglot</a>, Up: <a href="#Using-Eglot" accesskey="u" rel="up">Using Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Eglot-Features-1">3.1 Eglot Features</h3>
+<h3 class="section" id="Eglot-Features-1"><span>3.1 Eglot Features<a class="copiable-link" href="#Eglot-Features-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-features-in-buffers-supported-by-Eglot"></a>
 
-<p>Once Eglot is enabled in a buffer, it uses LSP and the language-server
-capabilities to activate, enable, and enhance modern IDE features in
-Emacs.  The features themselves are usually provided via other Emacs
-packages.  Here&rsquo;s the list of the main features that Eglot enables and
-provides:
+<p>While Eglot is enabled in a buffer, it is said to be <em class="dfn">managing</em>
+it, using LSP and the specific capabilities of the language server to
+activate and enhance modern IDE features in Emacs.  Some of these
+features are provided via other Emacs packages, and some via Eglot
+directly (see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
+</p>
+<p>Here&rsquo;s an overview of the main features that Eglot provides:
 </p>
 <ul class="itemize mark-bullet">
 <li>At-point documentation: when point is at or near a symbol or an
@@ -502,10 +502,11 @@ diagnostics, is made available via the ElDoc package
 allows major modes to provide extensive help and documentation about
 the program identifiers.
 
-</li><li>On-the-fly diagnostic annotations with server-suggested fixes, via the
-Flymake package (see <cite class="cite"><a data-manual="flymake" href="https://www.gnu.org/software/emacs/manual/html_mono/flymake.html#Top">GNU Flymake manual</a></cite>).  This
-improves and enhances the Flymake diagnostics, replacing the other
-Flymake backends.
+</li><li>On-the-fly diagnostic annotations, via the Flymake package
+(see <cite class="cite"><a data-manual="flymake" href="https://www.gnu.org/software/emacs/manual/html_mono/flymake.html#Top">GNU Flymake manual</a></cite>).  Eglot&rsquo;s Flymake backend
+replaces other Flymake backends while it is managing a buffer, and
+enhances diagnostics with interactive server-suggested fixes
+(so-called <em class="dfn">code actions</em>, see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>)
 
 </li><li>Finding definitions and uses of identifiers, via Xref (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Xref">Xref</a> in <cite class="cite">GNU Emacs Manual</cite>).  Eglot provides a backend for the Xref
 capabilities which uses the language-server understanding of the
@@ -554,9 +555,16 @@ with <kbd class="kbd">eglot-code-actions</kbd>.  See <a class="xref" href="#Eglo
 
 <p>Not all servers support the full set of LSP capabilities, but most of
 them support enough to enable the basic set of features mentioned
-above.  Conversely, some servers offer capabilities for which no
-equivalent Emacs package exists yet, and so Eglot cannot (yet) expose
-these capabilities to Emacs users.
+above.
+</p>
+<p>Conversely, some servers offer capabilities for which no equivalent
+Emacs package exists yet, and so Eglot cannot (yet) expose these
+capabilities to Emacs users.  However, See <a class="xref" href="#Extending-Eglot">Extending Eglot</a>.
+</p>
+<p>Finally, it&rsquo;s worth noting that, by default, Eglot generally turns on
+all features that it <em class="emph">can</em> turn on.  It&rsquo;s possible to opt out of
+some features via user options (see <a class="pxref" href="#Customizing-Eglot">Customizing Eglot</a>) and a hook
+that runs after Eglot starts managing a buffer (see <a class="pxref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>).
 </p>
 <hr>
 </div>
@@ -565,7 +573,7 @@ these capabilities to Emacs users.
 <p>
 Next: <a href="#Eglot-Commands" accesskey="n" rel="next">Eglot Commands</a>, Previous: <a href="#Eglot-Features" accesskey="p" rel="prev">Eglot Features</a>, Up: <a href="#Using-Eglot" accesskey="u" rel="up">Using Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Buffers_002c-Projects_002c-and-Eglot">3.2 Buffers, Projects, and Eglot</h3>
+<h3 class="section" id="Buffers_002c-Projects_002c-and-Eglot"><span>3.2 Buffers, Projects, and Eglot<a class="copiable-link" href="#Buffers_002c-Projects_002c-and-Eglot"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-buffers-managed-by-Eglot"></a>
 <a class="index-entry-id" id="index-projects-and-Eglot"></a>
 
@@ -683,14 +691,14 @@ visiting the file.
 <p>
 Next: <a href="#Eglot-Variables" accesskey="n" rel="next">Eglot Variables</a>, Previous: <a href="#Eglot-and-Buffers" accesskey="p" rel="prev">Buffers, Projects, and Eglot</a>, Up: <a href="#Using-Eglot" accesskey="u" rel="up">Using Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Eglot-Commands-1">3.3 Eglot Commands</h3>
+<h3 class="section" id="Eglot-Commands-1"><span>3.3 Eglot Commands<a class="copiable-link" href="#Eglot-Commands-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-commands_002c-Eglot"></a>
 
 <p>This section provides a reference for the most commonly used Eglot
 commands:
 </p>
 <dl class="ftable">
-<dt id='index-M_002dx-eglot'><span><code class="code">M-x eglot</code><a class="copiable-link" href='#index-M_002dx-eglot'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot"></a><span><code class="code">M-x eglot</code><a class="copiable-link" href="#index-M_002dx-eglot"> &para;</a></span></dt>
 <dd><p>This command adds the current buffer and the file it visits to the
 group of buffers and files managed by Eglot on behalf of a suitable
 language server.  If a language server for the buffer&rsquo;s
@@ -717,14 +725,14 @@ Emacs features will be configured to use Eglot, use the
 <code class="code">eglot-stay-out-of</code> option (see <a class="pxref" href="#Customizing-Eglot">Customizing Eglot</a>).
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dreconnect'><span><code class="code">M-x eglot-reconnect</code><a class="copiable-link" href='#index-M_002dx-eglot_002dreconnect'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dreconnect"></a><span><code class="code">M-x eglot-reconnect</code><a class="copiable-link" href="#index-M_002dx-eglot_002dreconnect"> &para;</a></span></dt>
 <dd><p>This command shuts down the current connection to the language
 server and immediately restarts it using the same options used
 originally.  This can sometimes be useful to unclog a partially
 malfunctioning server connection.
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dshutdown'><span><code class="code">M-x eglot-shutdown</code><a class="copiable-link" href='#index-M_002dx-eglot_002dshutdown'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dshutdown"></a><span><code class="code">M-x eglot-shutdown</code><a class="copiable-link" href="#index-M_002dx-eglot_002dshutdown"> &para;</a></span></dt>
 <dd><p>This command shuts down a language server.  It prompts for a language
 server to shut down (unless there&rsquo;s only one server session, and it
 manages the current buffer).  Then the command shuts down the server
@@ -738,44 +746,44 @@ the command doesn&rsquo;t kill those buffers, allowing them to be used for
 diagnostics and problem reporting (see <a class="pxref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>).
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dshutdown_002dall'><span><code class="code">M-x eglot-shutdown-all</code><a class="copiable-link" href='#index-M_002dx-eglot_002dshutdown_002dall'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dshutdown_002dall"></a><span><code class="code">M-x eglot-shutdown-all</code><a class="copiable-link" href="#index-M_002dx-eglot_002dshutdown_002dall"> &para;</a></span></dt>
 <dd><p>This command shuts down all the language servers active in the current
 Emacs session.  As with <code class="code">eglot-shutdown</code>, invoking this command
 with a prefix argument avoids killing the buffers used for
 communications with the language servers.
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002drename'><span><code class="code">M-x eglot-rename</code><a class="copiable-link" href='#index-M_002dx-eglot_002drename'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002drename"></a><span><code class="code">M-x eglot-rename</code><a class="copiable-link" href="#index-M_002dx-eglot_002drename"> &para;</a></span></dt>
 <dd><p>This command renames the program symbol (a.k.a. <em class="dfn">identifier</em>) at
 point to another name.  It prompts for the new name of the symbol, and
 then modifies all the files in the project which are managed by the
 language server of the current buffer to implement the renaming.
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dformat'><span><code class="code">M-x eglot-format</code><a class="copiable-link" href='#index-M_002dx-eglot_002dformat'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dformat"></a><span><code class="code">M-x eglot-format</code><a class="copiable-link" href="#index-M_002dx-eglot_002dformat"> &para;</a></span></dt>
 <dd><p>This command reformats the active region according to the
 language-server rules.  If no region is active, it reformats the
 entire current buffer.
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dformat_002dbuffer'><span><code class="code">M-x eglot-format-buffer</code><a class="copiable-link" href='#index-M_002dx-eglot_002dformat_002dbuffer'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dformat_002dbuffer"></a><span><code class="code">M-x eglot-format-buffer</code><a class="copiable-link" href="#index-M_002dx-eglot_002dformat_002dbuffer"> &para;</a></span></dt>
 <dd><p>This command reformats the current buffer, in the same manner as
 <code class="code">eglot-format</code> does.
 </p>
-<a class="index-entry-id" id="index-code-actions"></a>
 </dd>
-<dt id='index-M_002dx-eglot_002dcode_002dactions'><span><code class="code">M-x eglot-code-actions</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002dactions'> &para;</a></span></dt>
-<dt id='index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports'><span><code class="code">M-x eglot-code-action-organize-imports</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports'> &para;</a></span></dt>
-<dt id='index-M_002dx-eglot_002dcode_002daction_002dquickfix'><span><code class="code">M-x eglot-code-action-quickfix</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dquickfix'> &para;</a></span></dt>
-<dt id='index-M_002dx-eglot_002dcode_002daction_002dextract'><span><code class="code">M-x eglot-code-action-extract</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dextract'> &para;</a></span></dt>
-<dt id='index-M_002dx-eglot_002dcode_002daction_002dinline'><span><code class="code">M-x eglot-code-action-inline</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002dinline'> &para;</a></span></dt>
-<dt id='index-M_002dx-eglot_002dcode_002daction_002drewrite'><span><code class="code">M-x eglot-code-action-rewrite</code><a class="copiable-link" href='#index-M_002dx-eglot_002dcode_002daction_002drewrite'> &para;</a></span></dt>
+<dt><a class="index-entry-id" id="index-code-actions"></a>
+<a id="index-M_002dx-eglot_002dcode_002dactions"></a><span><code class="code">M-x eglot-code-actions</code><a class="copiable-link" href="#index-M_002dx-eglot_002dcode_002dactions"> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports"></a><span><code class="code">M-x eglot-code-action-organize-imports</code><a class="copiable-link" href="#index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports"> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dcode_002daction_002dquickfix"></a><span><code class="code">M-x eglot-code-action-quickfix</code><a class="copiable-link" href="#index-M_002dx-eglot_002dcode_002daction_002dquickfix"> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dcode_002daction_002dextract"></a><span><code class="code">M-x eglot-code-action-extract</code><a class="copiable-link" href="#index-M_002dx-eglot_002dcode_002daction_002dextract"> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dcode_002daction_002dinline"></a><span><code class="code">M-x eglot-code-action-inline</code><a class="copiable-link" href="#index-M_002dx-eglot_002dcode_002daction_002dinline"> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dcode_002daction_002drewrite"></a><span><code class="code">M-x eglot-code-action-rewrite</code><a class="copiable-link" href="#index-M_002dx-eglot_002dcode_002daction_002drewrite"> &para;</a></span></dt>
 <dd><p>These commands allow you to invoke the so-called <em class="dfn">code actions</em>:
 requests for the language server to provide editing commands for
 correcting, refactoring or beautifying your code.  These commands may
 affect more than one visited file belonging to the project.
 </p>
-<p>The command <code class="code">eglot-code-actions</code> asks the server if there any
+<p>The command <code class="code">eglot-code-actions</code> asks the server if there are any
 code actions for any point in the buffer or contained in the active
 region.  If there are, you have the choice to execute one of them via
 the minibuffer.
@@ -792,9 +800,9 @@ to control the mouse binding.
 <em class="dfn">imports</em>&mdash;declarations of modules whose capabilities the program
 uses.
 </p>
-<a class="index-entry-id" id="index-inlay-hints"></a>
 </dd>
-<dt id='index-M_002dx-eglot_002dinlay_002dhints_002dmode'><span><code class="code">M-x eglot-inlay-hints-mode</code><a class="copiable-link" href='#index-M_002dx-eglot_002dinlay_002dhints_002dmode'> &para;</a></span></dt>
+<dt><a class="index-entry-id" id="index-inlay-hints"></a>
+<a id="index-M_002dx-eglot_002dinlay_002dhints_002dmode"></a><span><code class="code">M-x eglot-inlay-hints-mode</code><a class="copiable-link" href="#index-M_002dx-eglot_002dinlay_002dhints_002dmode"> &para;</a></span></dt>
 <dd><p>This command toggles LSP <em class="dfn">inlay hints</em> on and off for the current
 buffer.  Inlay hints are small text annotations to specific parts of
 the whole buffer, not unlike diagnostics, but designed to help
@@ -809,27 +817,27 @@ hints help the user not have to remember these things by heart.
 diagnostic and troubleshooting purposes:
 </p>
 <dl class="ftable">
-<dt id='index-M_002dx-eglot_002devents_002dbuffer'><span><code class="code">M-x eglot-events-buffer</code><a class="copiable-link" href='#index-M_002dx-eglot_002devents_002dbuffer'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002devents_002dbuffer"></a><span><code class="code">M-x eglot-events-buffer</code><a class="copiable-link" href="#index-M_002dx-eglot_002devents_002dbuffer"> &para;</a></span></dt>
 <dd><p>This command pops up the events buffer used for communication with the
 language server of the current buffer.
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dstderr_002dbuffer'><span><code class="code">M-x eglot-stderr-buffer</code><a class="copiable-link" href='#index-M_002dx-eglot_002dstderr_002dbuffer'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dstderr_002dbuffer"></a><span><code class="code">M-x eglot-stderr-buffer</code><a class="copiable-link" href="#index-M_002dx-eglot_002dstderr_002dbuffer"> &para;</a></span></dt>
 <dd><p>This command pops up the buffer with the debug info printed by the
 language server to its standard error stream.
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dforget_002dpending_002dcontinuations'><span><code class="code">M-x eglot-forget-pending-continuations</code><a class="copiable-link" href='#index-M_002dx-eglot_002dforget_002dpending_002dcontinuations'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dforget_002dpending_002dcontinuations"></a><span><code class="code">M-x eglot-forget-pending-continuations</code><a class="copiable-link" href="#index-M_002dx-eglot_002dforget_002dpending_002dcontinuations"> &para;</a></span></dt>
 <dd><p>Forget pending requests for the server of the current buffer.
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration'><span><code class="code">M-x eglot-signal-didChangeConfiguration</code><a class="copiable-link" href='#index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration"></a><span><code class="code">M-x eglot-signal-didChangeConfiguration</code><a class="copiable-link" href="#index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration"> &para;</a></span></dt>
 <dd><p>This command updates the language server configuration according to
 the current value of the variable <code class="code">eglot-workspace-configuration</code>
 (see <a class="pxref" href="#Customizing-Eglot">Customizing Eglot</a>).
 </p>
 </dd>
-<dt id='index-M_002dx-eglot_002dclear_002dstatus'><span><code class="code">M-x eglot-clear-status</code><a class="copiable-link" href='#index-M_002dx-eglot_002dclear_002dstatus'> &para;</a></span></dt>
+<dt><a id="index-M_002dx-eglot_002dclear_002dstatus"></a><span><code class="code">M-x eglot-clear-status</code><a class="copiable-link" href="#index-M_002dx-eglot_002dclear_002dstatus"> &para;</a></span></dt>
 <dd><p>Clear the last JSONRPC error for the server of the current buffer.
 Eglot keeps track of erroneous situations encountered by the server in
 its mode-line indication so that the user may inspect the
@@ -849,16 +857,13 @@ of commands of those other packages that are very commonly used in
 Eglot-managed buffers:
 </p>
 <dl class="table">
-<dd><a class="index-entry-id" id="index-eldoc_002c-and-Eglot"></a>
-<a class="index-entry-id" id="index-documentation-using-Eglot"></a>
-</dd>
-<dt><code class="code">M-x eldoc</code></dt>
+<dt><a class="index-entry-id" id="index-documentation-using-Eglot"></a>
+<a id="index-eldoc_002c-and-Eglot"></a><span><code class="code">M-x eldoc</code><a class="copiable-link" href="#index-eldoc_002c-and-Eglot"> &para;</a></span></dt>
 <dd><p>Ask the ElDoc system for help at point.
 </p>
-<a class="index-entry-id" id="index-flymake_002c-and-Eglot"></a>
-<a class="index-entry-id" id="index-on_002dthe_002dfly-diagnostics-using-Eglot"></a>
 </dd>
-<dt><code class="code">M-x flymake-show-buffer-diagnostics</code></dt>
+<dt><a class="index-entry-id" id="index-on_002dthe_002dfly-diagnostics-using-Eglot"></a>
+<a id="index-flymake_002c-and-Eglot"></a><span><code class="code">M-x flymake-show-buffer-diagnostics</code><a class="copiable-link" href="#index-flymake_002c-and-Eglot"> &para;</a></span></dt>
 <dd><p>Ask Flymake system to display diagnostics for the current buffer.
 </p>
 </dd>
@@ -866,22 +871,19 @@ Eglot-managed buffers:
 <dd><p>Ask Flymake to list diagnostics for all the files in the current
 project.
 </p>
-<a class="index-entry-id" id="index-xref_002c-and-Eglot"></a>
-<a class="index-entry-id" id="index-finding-definitions-of-identifiers-using-Eglot"></a>
 </dd>
-<dt><code class="code">M-x xref-find-definitions</code></dt>
+<dt><a class="index-entry-id" id="index-finding-definitions-of-identifiers-using-Eglot"></a>
+<a id="index-xref_002c-and-Eglot"></a><span><code class="code">M-x xref-find-definitions</code><a class="copiable-link" href="#index-xref_002c-and-Eglot"> &para;</a></span></dt>
 <dd><p>Ask Xref to go the definition of the identifier at point.
 </p>
-<a class="index-entry-id" id="index-imenu-navigation-using-Eglot"></a>
 </dd>
-<dt><code class="code">M-x imenu</code></dt>
+<dt><a id="index-imenu-navigation-using-Eglot"></a><span><code class="code">M-x imenu</code><a class="copiable-link" href="#index-imenu-navigation-using-Eglot"> &para;</a></span></dt>
 <dd><p>Let the user navigate the program source code using buffer index,
 categorizing program elements by syntactic class (class, method,
 variable, etc.) and offering completion.
 </p>
-<a class="index-entry-id" id="index-symbol-completion-using-Eglot"></a>
 </dd>
-<dt><code class="code">M-x completion-at-point</code></dt>
+<dt><a id="index-symbol-completion-using-Eglot"></a><span><code class="code">M-x completion-at-point</code><a class="copiable-link" href="#index-symbol-completion-using-Eglot"> &para;</a></span></dt>
 <dd><p>Request completion of the symbol at point.
 </p></dd>
 </dl>
@@ -893,13 +895,13 @@ variable, etc.) and offering completion.
 <p>
 Previous: <a href="#Eglot-Commands" accesskey="p" rel="prev">Eglot Commands</a>, Up: <a href="#Using-Eglot" accesskey="u" rel="up">Using Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Eglot-Variables-1">3.4 Eglot Variables</h3>
+<h3 class="section" id="Eglot-Variables-1"><span>3.4 Eglot Variables<a class="copiable-link" href="#Eglot-Variables-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-variables_002c-Eglot"></a>
 
 <p>This section provides a reference for the Eglot user options.
 </p>
 <dl class="vtable">
-<dt id='index-eglot_002dautoreconnect'><span><code class="code">eglot-autoreconnect</code><a class="copiable-link" href='#index-eglot_002dautoreconnect'> &para;</a></span></dt>
+<dt><a id="index-eglot_002dautoreconnect"></a><span><code class="code">eglot-autoreconnect</code><a class="copiable-link" href="#index-eglot_002dautoreconnect"> &para;</a></span></dt>
 <dd><p>This option controls the ability to reconnect automatically to the
 language server when Eglot detects that the server process terminated
 unexpectedly.  The default value <code class="code">3</code> means to attempt reconnection only
@@ -911,13 +913,13 @@ always reconnect automatically, and <code class="code">nil</code> means never re
 eglot</kbd>).
 </p>
 </dd>
-<dt id='index-eglot_002dconnect_002dtimeout'><span><code class="code">eglot-connect-timeout</code><a class="copiable-link" href='#index-eglot_002dconnect_002dtimeout'> &para;</a></span></dt>
+<dt><a id="index-eglot_002dconnect_002dtimeout"></a><span><code class="code">eglot-connect-timeout</code><a class="copiable-link" href="#index-eglot_002dconnect_002dtimeout"> &para;</a></span></dt>
 <dd><p>This specifies the number of seconds before connection attempt to a
 language server times out.  The value of <code class="code">nil</code> means never time
 out.  The default is 30 seconds.
 </p>
 </dd>
-<dt id='index-eglot_002dsync_002dconnect'><span><code class="code">eglot-sync-connect</code><a class="copiable-link" href='#index-eglot_002dsync_002dconnect'> &para;</a></span></dt>
+<dt><a id="index-eglot_002dsync_002dconnect"></a><span><code class="code">eglot-sync-connect</code><a class="copiable-link" href="#index-eglot_002dsync_002dconnect"> &para;</a></span></dt>
 <dd><p>This setting is mainly important for connections which are slow to
 establish.  Whereas the variable <code class="code">eglot-connect-timeout</code> controls
 how long to wait for, this variable controls whether to block Emacs&rsquo;s
@@ -928,21 +930,22 @@ waiting period.  The value of <code class="code">nil</code> or <code class="code
 all during the waiting period.
 </p>
 </dd>
-<dt id='index-eglot_002devents_002dbuffer_002dsize'><span><code class="code">eglot-events-buffer-size</code><a class="copiable-link" href='#index-eglot_002devents_002dbuffer_002dsize'> &para;</a></span></dt>
-<dd><p>This determines the size of the Eglot events buffer.  See <a class="xref" href="#Eglot-Commands">eglot-events-buffer</a>, for how to display that buffer.  If
-the value is changed, for it to take effect the connection should be
-restarted using <kbd class="kbd">M-x eglot-reconnect</kbd>.
+<dt><a id="index-eglot_002devents_002dbuffer_002dconfig"></a><span><code class="code">eglot-events-buffer-config</code><a class="copiable-link" href="#index-eglot_002devents_002dbuffer_002dconfig"> &para;</a></span></dt>
+<dd><p>This configures the size and format of the Eglot events buffer.
+See <a class="xref" href="#Eglot-Commands">eglot-events-buffer</a>, for how to access that
+buffer.  If the value is changed, the connection should be restarted
+using <kbd class="kbd">M-x eglot-reconnect</kbd> for the new value to take effect.
 See <a class="xref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>, for when this could be useful.
 </p>
 </dd>
-<dt id='index-eglot_002dautoshutdown'><span><code class="code">eglot-autoshutdown</code><a class="copiable-link" href='#index-eglot_002dautoshutdown'> &para;</a></span></dt>
+<dt><a id="index-eglot_002dautoshutdown"></a><span><code class="code">eglot-autoshutdown</code><a class="copiable-link" href="#index-eglot_002dautoshutdown"> &para;</a></span></dt>
 <dd><p>If this is non-<code class="code">nil</code>, Eglot shuts down a language server when the
 last buffer managed by it is killed.  See <a class="xref" href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a>.
 The default is <code class="code">nil</code>; if you want to shut down a server, use
 <kbd class="kbd">M-x eglot-shutdown</kbd> (see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
 </p>
 </dd>
-<dt id='index-eglot_002dconfirm_002dserver_002dedits'><span><code class="code">eglot-confirm-server-edits</code><a class="copiable-link" href='#index-eglot_002dconfirm_002dserver_002dedits'> &para;</a></span></dt>
+<dt><a id="index-eglot_002dconfirm_002dserver_002dedits"></a><span><code class="code">eglot-confirm-server-edits</code><a class="copiable-link" href="#index-eglot_002dconfirm_002dserver_002dedits"> &para;</a></span></dt>
 <dd><p>Various Eglot commands and code actions result in the language server
 sending editing commands to Emacs.  If this option&rsquo;s value is
 non-<code class="code">nil</code>, Eglot will ask for confirmation before performing
@@ -952,13 +955,13 @@ when the edit affects files not yet visited by the user.  Consult this
 option&rsquo;s docstring for more information.
 </p>
 </dd>
-<dt id='index-eglot_002dignored_002dserver_002dcapabilities'><span><code class="code">eglot-ignored-server-capabilities</code><a class="copiable-link" href='#index-eglot_002dignored_002dserver_002dcapabilities'> &para;</a></span></dt>
+<dt><a id="index-eglot_002dignored_002dserver_002dcapabilities"></a><span><code class="code">eglot-ignored-server-capabilities</code><a class="copiable-link" href="#index-eglot_002dignored_002dserver_002dcapabilities"> &para;</a></span></dt>
 <dd><p>This variable&rsquo;s value is a list of language server capabilities that
 Eglot should not use.  The default is <code class="code">nil</code>: Eglot uses all of
 the capabilities supported by each server.
 </p>
 </dd>
-<dt id='index-eglot_002dextend_002dto_002dxref'><span><code class="code">eglot-extend-to-xref</code><a class="copiable-link" href='#index-eglot_002dextend_002dto_002dxref'> &para;</a></span></dt>
+<dt><a id="index-eglot_002dextend_002dto_002dxref"></a><span><code class="code">eglot-extend-to-xref</code><a class="copiable-link" href="#index-eglot_002dextend_002dto_002dxref"> &para;</a></span></dt>
 <dd><p>If this is non-<code class="code">nil</code>, and <kbd class="kbd">M-.</kbd>
 (<code class="code">xref-find-definitions</code>) lands you in a file outside of your
 project, such as a system-installed library or header file,
@@ -968,7 +971,7 @@ won&rsquo;t find it), but Eglot and the server will consider it to be part
 of the workspace.  The default is <code class="code">nil</code>.
 </p>
 </dd>
-<dt id='index-eglot_002dmode_002dmap'><span><code class="code">eglot-mode-map</code><a class="copiable-link" href='#index-eglot_002dmode_002dmap'> &para;</a></span></dt>
+<dt><a id="index-eglot_002dmode_002dmap"></a><span><code class="code">eglot-mode-map</code><a class="copiable-link" href="#index-eglot_002dmode_002dmap"> &para;</a></span></dt>
 <dd><p>This variable is the keymap for binding Eglot-related command.  It is
 in effect only as long as the buffer is managed by Eglot.  By default,
 it is empty, with the single exception: <kbd class="kbd">C-h .</kbd> is remapped to
@@ -996,7 +999,7 @@ connections, are documented in <a class="ref" href="#Customizing-Eglot">Customiz
 <p>
 Next: <a href="#Advanced-server-configuration" accesskey="n" rel="next">Advanced server configuration</a>, Previous: <a href="#Using-Eglot" accesskey="p" rel="prev">Using Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="chapter" id="Customizing-Eglot-1">4 Customizing Eglot</h2>
+<h2 class="chapter" id="Customizing-Eglot-1"><span>4 Customizing Eglot<a class="copiable-link" href="#Customizing-Eglot-1"> &para;</a></span></h2>
 <a class="index-entry-id" id="index-customizing-Eglot"></a>
 
 <p>Eglot itself has a relatively small number of customization options.
@@ -1028,21 +1031,18 @@ connections and the server features to be used by Eglot.
 supported major mode, and how to invoke that server&rsquo;s program.
 See <a class="xref" href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>, for the details.
 </p>
-<a class="index-entry-id" id="index-eglot_002dstrict_002dmode"></a>
 </dd>
-<dt><code class="code">eglot-strict-mode</code></dt>
+<dt><a id="index-eglot_002dstrict_002dmode"></a><span><code class="code">eglot-strict-mode</code><a class="copiable-link" href="#index-eglot_002dstrict_002dmode"> &para;</a></span></dt>
 <dd><p>This is <code class="code">nil</code> by default, meaning that Eglot is generally lenient
 about non-conforming servers.  If you need to debug a server, set this
-to <code class="code"><span class="w-nolinebreak-text">(disallow-non-standard-keys</span>&nbsp;<span class="w-nolinebreak-text">enforce-required-keys)</span></code><!-- /@w -->.
+to <code class="code">(disallow-non-standard-keys&nbsp;enforce-required-keys)</code><!-- /@w -->.
 </p>
-<a class="index-entry-id" id="index-eglot_002dserver_002dinitialized_002dhook"></a>
 </dd>
-<dt><code class="code">eglot-server-initialized-hook</code></dt>
+<dt><a id="index-eglot_002dserver_002dinitialized_002dhook"></a><span><code class="code">eglot-server-initialized-hook</code><a class="copiable-link" href="#index-eglot_002dserver_002dinitialized_002dhook"> &para;</a></span></dt>
 <dd><p>A hook run after the server object is successfully initialized.
 </p>
-<a class="index-entry-id" id="index-eglot_002dconnect_002dhook"></a>
 </dd>
-<dt><code class="code">eglot-connect-hook</code></dt>
+<dt><a id="index-eglot_002dconnect_002dhook"></a><span><code class="code">eglot-connect-hook</code><a class="copiable-link" href="#index-eglot_002dconnect_002dhook"> &para;</a></span></dt>
 <dd><p>A hook run after connection to the server is successfully
 established.  See <a class="xref" href="#Starting-Eglot">Starting Eglot</a>.
 </p>
@@ -1051,9 +1051,8 @@ established.  See <a class="xref" href="#Starting-Eglot">Starting Eglot</a>.
 <dd><p>A hook run after Eglot started or stopped managing a buffer.
 See <a class="xref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, for details of its usage.
 </p>
-<a class="index-entry-id" id="index-eglot_002dstay_002dout_002dof"></a>
 </dd>
-<dt><code class="code">eglot-stay-out-of</code></dt>
+<dt><a id="index-eglot_002dstay_002dout_002dof"></a><span><code class="code">eglot-stay-out-of</code><a class="copiable-link" href="#index-eglot_002dstay_002dout_002dof"> &para;</a></span></dt>
 <dd><p>This variable&rsquo;s value lists Emacs features that Eglot shouldn&rsquo;t
 automatically try to manage on the user&rsquo;s behalf.  It is useful, for
 example, when you need to use non-LSP Flymake or Company back-ends.
@@ -1071,10 +1070,9 @@ example:
 to use Eglot in your <code class="code">eglot-managed-mode-hook</code> or via some other
 mechanism.
 </p>
-<a class="index-entry-id" id="index-eglot_002dreport_002dprogress"></a>
-<a class="index-entry-id" id="index-progress"></a>
 </dd>
-<dt><code class="code">eglot-report-progress</code></dt>
+<dt><a class="index-entry-id" id="index-progress"></a>
+<a id="index-eglot_002dreport_002dprogress"></a><span><code class="code">eglot-report-progress</code><a class="copiable-link" href="#index-eglot_002dreport_002dprogress"> &para;</a></span></dt>
 <dd><p>Set this variable to true if you&rsquo;d like progress notifications coming
 from the language server to be handled as Emacs&rsquo;s progress reporting
 facilities.
@@ -1088,7 +1086,7 @@ facilities.
 <p>
 Next: <a href="#Extending-Eglot" accesskey="n" rel="next">Extending Eglot</a>, Previous: <a href="#Customizing-Eglot" accesskey="p" rel="prev">Customizing Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="chapter" id="Advanced-server-configuration-1">5 Advanced server configuration</h2>
+<h2 class="chapter" id="Advanced-server-configuration-1"><span>5 Advanced server configuration<a class="copiable-link" href="#Advanced-server-configuration-1"> &para;</a></span></h2>
 
 <p>Though many language servers work well out-of-the-box, most allow
 fine-grained control of their operation via specific configuration
@@ -1139,7 +1137,7 @@ on the LSP wire.
 <p>
 Next: <a href="#User_002dspecific-configuration" accesskey="n" rel="next">User-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Project_002dspecific-configuration-1">5.1 Project-specific configuration</h3>
+<h3 class="section" id="Project_002dspecific-configuration-1"><span>5.1 Project-specific configuration<a class="copiable-link" href="#Project_002dspecific-configuration-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-eglot_002dworkspace_002dconfiguration"></a>
 <a class="index-entry-id" id="index-workspace-configuration"></a>
 
@@ -1163,7 +1161,7 @@ Local Variables</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>
 the following format:
 </p>
 <div class="example lisp">
-<pre class="lisp-preformatted"> (<var class="var">:server1</var> <var class="var">plist1</var> <var class="var">:server2</var> <var class="var">plist2</var> &hellip;)
+<pre class="lisp-preformatted"> (<var class="var">:server1</var> <var class="var">plist1</var> <var class="var">:server2</var> <var class="var">plist2</var> ...)
 </pre></div>
 
 <p>Here, <var class="var">:server1</var> and <var class="var">:server2</var> are keywords whose names
@@ -1188,7 +1186,7 @@ an ongoing Eglot session.
 <li><a href="#Examples" accesskey="1">Examples</a></li>
 </ul>
 <div class="subsection-level-extent" id="Examples">
-<h4 class="subsection">5.1.1 Examples</h4>
+<h4 class="subsection"><span>5.1.1 Examples<a class="copiable-link" href="#Examples"> &para;</a></span></h4>
 
 <p>For some users, setting <code class="code">eglot-workspace-configuration</code> is a
 somewhat daunting task.  One of the reasons is having to manage the
@@ -1222,8 +1220,8 @@ gopls.usePlaceholders: true
                                              :fuzzy t)
                            :pylint (:enabled :json-false)))
          :gopls (:usePlaceholders t)))))
- (python-mode . ((indent-tabs-mode . nil)))
- (go-mode     . ((indent-tabs-mode . t))))
+ (python-base-mode . ((indent-tabs-mode . nil)))
+ (go-mode          . ((indent-tabs-mode . t))))
 </pre></div>
 
 <p>This sets the value of <code class="code">eglot-workspace-configuration</code> in all the
@@ -1237,7 +1235,7 @@ plists are used inside the value of
 <p>This following form may also be used:
 </p>
 <div class="example lisp">
-<pre class="lisp-preformatted">((python-mode
+<pre class="lisp-preformatted">((python-base-mode
   . ((eglot-workspace-configuration
       . (:pylsp (:plugins (:jedi_completion (:include_params t
                                              :fuzzy t)
@@ -1251,7 +1249,7 @@ plists are used inside the value of
 
 <p>This sets up the value of <code class="code">eglot-workspace-configuration</code>
 separately depending on the major mode of each of that project&rsquo;s
-buffers.  <code class="code">python-mode</code> buffers will have the variable set to
+buffers.  <code class="code">python-base-mode</code> buffers will have the variable set to
 <code class="code">(:pylsp (:plugins ...))</code>.  <code class="code">go-mode</code> buffers will have the
 variable set to <code class="code">(:gopls (:usePlaceholders t))</code>.
 </p>
@@ -1262,7 +1260,7 @@ want to set a different option for <code class="code">gopls.usePlaceholders</cod
 may use something like:
 </p>
 <div class="example lisp">
-<pre class="lisp-preformatted">((python-mode
+<pre class="lisp-preformatted">((python-base-mode
   . ((eglot-workspace-configuration
       . (:pylsp (:plugins (:jedi_completion (:include_params t
                                              :fuzzy t)
@@ -1293,7 +1291,7 @@ value.
 <p>
 Next: <a href="#JSONRPC-objects-in-Elisp" accesskey="n" rel="next">JSONRPC objects in Elisp</a>, Previous: <a href="#Project_002dspecific-configuration" accesskey="p" rel="prev">Project-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="User_002dspecific-configuration-1">5.2 User-specific configuration</h3>
+<h3 class="section" id="User_002dspecific-configuration-1"><span>5.2 User-specific configuration<a class="copiable-link" href="#User_002dspecific-configuration-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-initializationOptions"></a>
 <a class="index-entry-id" id="index-command_002dline-arguments"></a>
 
@@ -1358,7 +1356,7 @@ always overridden if a directory-local value is detected.
 <p>
 Previous: <a href="#User_002dspecific-configuration" accesskey="p" rel="prev">User-specific configuration</a>, Up: <a href="#Advanced-server-configuration" accesskey="u" rel="up">Advanced server configuration</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="JSONRPC-objects-in-Elisp-1">5.3 JSONRPC objects in Elisp</h3>
+<h3 class="section" id="JSONRPC-objects-in-Elisp-1"><span>5.3 JSONRPC objects in Elisp<a class="copiable-link" href="#JSONRPC-objects-in-Elisp-1"> &para;</a></span></h3>
 
 <p>Emacs&rsquo;s preferred way of representing JSON is via Lisp lists.  In
 Eglot, the syntax of this list is the simplest possible (the one with
@@ -1414,7 +1412,7 @@ JSON arrays are represented as Elisp vectors surrounded by square brackets
 <p>
 Next: <a href="#Troubleshooting-Eglot" accesskey="n" rel="next">Troubleshooting Eglot</a>, Previous: <a href="#Advanced-server-configuration" accesskey="p" rel="prev">Advanced server configuration</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="chapter" id="Extending-Eglot-1">6 Extending Eglot</h2>
+<h2 class="chapter" id="Extending-Eglot-1"><span>6 Extending Eglot<a class="copiable-link" href="#Extending-Eglot-1"> &para;</a></span></h2>
 
 <p>Sometimes it may be useful to extend existing Eglot functionality
 using Elisp its public methods.  A good example of when this need may
@@ -1565,7 +1563,7 @@ defines.
 <p>
 Next: <a href="#GNU-Free-Documentation-License" accesskey="n" rel="next">GNU Free Documentation License</a>, Previous: <a href="#Extending-Eglot" accesskey="p" rel="prev">Extending Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="chapter" id="Troubleshooting-Eglot-1">7 Troubleshooting Eglot</h2>
+<h2 class="chapter" id="Troubleshooting-Eglot-1"><span>7 Troubleshooting Eglot<a class="copiable-link" href="#Troubleshooting-Eglot-1"> &para;</a></span></h2>
 <a class="index-entry-id" id="index-troubleshooting-Eglot"></a>
 
 <p>This chapter documents commands and variables that can be used to
@@ -1590,14 +1588,15 @@ indicate the problems or at least provide a hint.
 <p>
 Next: <a href="#Getting-the-latest-version" accesskey="n" rel="next">Getting the latest version</a>, Up: <a href="#Troubleshooting-Eglot" accesskey="u" rel="up">Troubleshooting Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Performance-1">7.1 Performance</h3>
+<h3 class="section" id="Performance-1"><span>7.1 Performance<a class="copiable-link" href="#Performance-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-performance-problems_002c-with-Eglot"></a>
-<p>A common and easy-to-fix cause of performance problems is the length
-of the Eglot events buffer because it represent additional work that
-Eglot must do.  After verifying Eglot is operating correctly but
-slowly, try to customize the variable <code class="code">eglot-events-buffer-size</code>
-(see <a class="pxref" href="#Eglot-Variables">Eglot Variables</a>) to 0.  This will disable any debug logging
-and may speed things up.
+<p>A common and easy-to-fix cause of performance problems in Eglot
+(especially in older versions) is its events buffer, since it
+represent additional work that Eglot must do (see <a class="pxref" href="#Eglot-Commands">eglot-events-buffer</a>).  If you find Eglot is operating correctly but
+slowly, try to customize the variable
+<code class="code">eglot-events-buffer-config</code> (see <a class="pxref" href="#Eglot-Variables">Eglot Variables</a>) and set
+its <code class="code">:size</code> property to 0.  This will disable recording any
+events and may speed things up.
 </p>
 <p>In other situations, the cause of poor performance lies in the
 language server itself.  Servers use aggressive caching and other
@@ -1611,7 +1610,7 @@ by changing the server configuration (see <a class="pxref" href="#Advanced-serve
 <p>
 Next: <a href="#Reporting-bugs" accesskey="n" rel="next">Reporting bugs</a>, Previous: <a href="#Performance" accesskey="p" rel="prev">Performance</a>, Up: <a href="#Troubleshooting-Eglot" accesskey="u" rel="up">Troubleshooting Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Getting-the-latest-version-1">7.2 Getting the latest version</h3>
+<h3 class="section" id="Getting-the-latest-version-1"><span>7.2 Getting the latest version<a class="copiable-link" href="#Getting-the-latest-version-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-upgrading-Eglot"></a>
 
 <p>To install the latest Eglot in an Emacs version that does not bundle
@@ -1639,7 +1638,7 @@ meaning your configuration may be not portable.
 <p>
 Previous: <a href="#Getting-the-latest-version" accesskey="p" rel="prev">Getting the latest version</a>, Up: <a href="#Troubleshooting-Eglot" accesskey="u" rel="up">Troubleshooting Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Reporting-bugs-1">7.3 Reporting bugs</h3>
+<h3 class="section" id="Reporting-bugs-1"><span>7.3 Reporting bugs<a class="copiable-link" href="#Reporting-bugs-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-bug-reports"></a>
 
 <p>If you think you have found a bug, we want to hear about it.  Before
@@ -1732,7 +1731,7 @@ many cases, just a frontend to that functionality.
 <p>
 Next: <a href="#Index" accesskey="n" rel="next">Index</a>, Previous: <a href="#Troubleshooting-Eglot" accesskey="p" rel="prev">Troubleshooting Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="appendix" id="GNU-Free-Documentation-License-1">Appendix A GNU Free Documentation License</h2>
+<h2 class="appendix" id="GNU-Free-Documentation-License-1"><span>Appendix A GNU Free Documentation License<a class="copiable-link" href="#GNU-Free-Documentation-License-1"> &para;</a></span></h2>
 <div class="center">Version 1.3, 3 November 2008
 </div>
 
@@ -2166,7 +2165,7 @@ provided the MMC is eligible for relicensing.
 </p>
 </li></ol>
 
-<h3 class="heading" id="ADDENDUM_003a-How-to-use-this-License-for-your-documents">ADDENDUM: How to use this License for your documents</h3>
+<h3 class="heading" id="ADDENDUM_003a-How-to-use-this-License-for-your-documents"><span>ADDENDUM: How to use this License for your documents<a class="copiable-link" href="#ADDENDUM_003a-How-to-use-this-License-for-your-documents"> &para;</a></span></h3>
 
 <p>To use this License in a document you have written, include a copy of
 the License in the document and put the following copyright and
@@ -2208,7 +2207,7 @@ to permit their use in free software.
 <p>
 Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU Free Documentation License</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h2 class="unnumbered" id="Index-1">Index</h2>
+<h2 class="unnumbered" id="Index-1"><span>Index<a class="copiable-link" href="#Index-1"> &para;</a></span></h2>
 <div class="printindex cp-printindex">
 <table class="cp-letters-header-printindex"><tr><th>Jump to: &nbsp; </th><td><a class="summary-letter-printindex" href="#Index_cp_letter-A"><b>A</b></a>
  &nbsp; 
@@ -2248,123 +2247,123 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
  &nbsp; 
 </td></tr></table>
 <table class="cp-entries-printindex" border="0">
-<tr><td></td><th class="entries-header-printindex">Index Entry</th><td>&nbsp;</td><th class="sections-header-printindex"> Section</th></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-A">A</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-activating-Eglot-for-a-project">activating Eglot for a project</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-B">B</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-buffers-managed-by-Eglot">buffers managed by Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-bug-reports">bug reports</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Reporting-bugs">Reporting bugs</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-C">C</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-code-actions">code actions</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-command_002dline-arguments">command-line arguments</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-commands_002c-Eglot">commands, Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-customizing-Eglot">customizing Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-D">D</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-documentation-using-Eglot">documentation using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-E">E</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot"><code>eglot</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoreconnect"><code>eglot-autoreconnect</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoshutdown"><code>eglot-autoshutdown</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconfirm_002dserver_002dedits"><code>eglot-confirm-server-edits</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dhook"><code>eglot-connect-hook</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dtimeout"><code>eglot-connect-timeout</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002densure"><code>eglot-ensure</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002devents_002dbuffer_002dsize"><code>eglot-events-buffer-size</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dextend_002dto_002dxref"><code>eglot-extend-to-xref</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dignored_002dserver_002dcapabilities"><code>eglot-ignored-server-capabilities</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmanaged_002dmode_002dhook"><code>eglot-managed-mode-hook</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmanaged_002dp"><code>eglot-managed-p</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmenu"><code>eglot-menu</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmode_002dmap"><code>eglot-mode-map</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dreport_002dprogress"><code>eglot-report-progress</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dserver_002dinitialized_002dhook"><code>eglot-server-initialized-hook</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dserver_002dprograms"><code>eglot-server-programs</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dshow_002dworkspace_002dconfiguration"><code>eglot-show-workspace-configuration</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dshutdown"><code>eglot-shutdown</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstay_002dout_002dof"><code>eglot-stay-out-of</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstrict_002dmode"><code>eglot-strict-mode</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dsync_002dconnect"><code>eglot-sync-connect</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dworkspace_002dconfiguration"><code>eglot-workspace-configuration</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dworkspace_002dconfiguration-1"><code>eglot-workspace-configuration</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eldoc_002c-and-Eglot">eldoc, and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-F">F</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-features-in-buffers-supported-by-Eglot">features in buffers supported by Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Features">Eglot Features</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-finding-definitions-of-identifiers-using-Eglot">finding definitions of identifiers using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-flymake_002c-and-Eglot">flymake, and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-I">I</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-imenu-navigation-using-Eglot">imenu navigation using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-initializationOptions">initializationOptions</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-inlay-hints">inlay hints</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-L">L</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-language-server-for-Eglot">language server for Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-language-server-protocol">language server protocol</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Top">Top</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-LSP">LSP</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Top">Top</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-LSP-server-for-Eglot_002c-setting-up">LSP server for Eglot, setting up</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-M">M</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot"><code>M-x eglot</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dclear_002dstatus"><code>M-x eglot-clear-status</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dextract"><code>M-x eglot-code-action-extract</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dinline"><code>M-x eglot-code-action-inline</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports"><code>M-x eglot-code-action-organize-imports</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dquickfix"><code>M-x eglot-code-action-quickfix</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002drewrite"><code>M-x eglot-code-action-rewrite</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002dactions"><code>M-x eglot-code-actions</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002devents_002dbuffer"><code>M-x eglot-events-buffer</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dforget_002dpending_002dcontinuations"><code>M-x eglot-forget-pending-continuations</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dformat"><code>M-x eglot-format</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dformat_002dbuffer"><code>M-x eglot-format-buffer</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dinlay_002dhints_002dmode"><code>M-x eglot-inlay-hints-mode</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dreconnect"><code>M-x eglot-reconnect</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002drename"><code>M-x eglot-rename</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dshutdown"><code>M-x eglot-shutdown</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dshutdown_002dall"><code>M-x eglot-shutdown-all</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration"><code>M-x eglot-signal-didChangeConfiguration</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dstderr_002dbuffer"><code>M-x eglot-stderr-buffer</code></a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-mode_002dline-indication-of-language-server">mode-line indication of language server</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-mouse-clicks-on-mode_002dline_002c-and-Eglot">mouse clicks on mode-line, and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-O">O</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-on_002dthe_002dfly-diagnostics-using-Eglot">on-the-fly diagnostics using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-P">P</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-performance-problems_002c-with-Eglot">performance problems, with Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Performance">Performance</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-progress">progress</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-projects-and-Eglot">projects and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-Q">Q</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-quick-start">quick start</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Quick-Start">Quick Start</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-S">S</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-setting-up-LSP-server-for-Eglot">setting up LSP server for Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-shutting-down-LSP-server">shutting down LSP server</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-starting-Eglot">starting Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-symbol-completion-using-Eglot">symbol completion using Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-T">T</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-troubleshooting-Eglot">troubleshooting Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Troubleshooting-Eglot">Troubleshooting Eglot</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-U">U</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-upgrading-Eglot">upgrading Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Getting-the-latest-version">Getting the latest version</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-V">V</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-variables_002c-Eglot">variables, Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-W">W</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-workspace">workspace</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-workspace-configuration">workspace configuration</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
-<tr><th id="Index_cp_letter-X">X</th><td></td><td></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-xref_002c-and-Eglot">xref, and Eglot</a>:</td><td>&nbsp;</td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td colspan="4"> <hr></td></tr>
+<tr><td></td><th class="entries-header-printindex">Index Entry</th><th class="sections-header-printindex">Section</th></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-A">A</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-activating-Eglot-for-a-project">activating Eglot for a project</a></td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-B">B</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-buffers-managed-by-Eglot">buffers managed by Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-bug-reports">bug reports</a></td><td class="printindex-index-section"><a href="#Reporting-bugs">Reporting bugs</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-C">C</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-code-actions">code actions</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-command_002dline-arguments">command-line arguments</a></td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-commands_002c-Eglot">commands, Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-customizing-Eglot">customizing Eglot</a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-D">D</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-documentation-using-Eglot">documentation using Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-E">E</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot"><code>eglot</code></a></td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoreconnect"><code>eglot-autoreconnect</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoshutdown"><code>eglot-autoshutdown</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconfirm_002dserver_002dedits"><code>eglot-confirm-server-edits</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dhook"><code>eglot-connect-hook</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dtimeout"><code>eglot-connect-timeout</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002densure"><code>eglot-ensure</code></a></td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002devents_002dbuffer_002dconfig"><code>eglot-events-buffer-config</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dextend_002dto_002dxref"><code>eglot-extend-to-xref</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dignored_002dserver_002dcapabilities"><code>eglot-ignored-server-capabilities</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmanaged_002dmode_002dhook"><code>eglot-managed-mode-hook</code></a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmanaged_002dp"><code>eglot-managed-p</code></a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmenu"><code>eglot-menu</code></a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmode_002dmap"><code>eglot-mode-map</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dreport_002dprogress"><code>eglot-report-progress</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dserver_002dinitialized_002dhook"><code>eglot-server-initialized-hook</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dserver_002dprograms"><code>eglot-server-programs</code></a></td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dshow_002dworkspace_002dconfiguration"><code>eglot-show-workspace-configuration</code></a></td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dshutdown"><code>eglot-shutdown</code></a></td><td class="printindex-index-section"><a href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstay_002dout_002dof"><code>eglot-stay-out-of</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstrict_002dmode"><code>eglot-strict-mode</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dsync_002dconnect"><code>eglot-sync-connect</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dworkspace_002dconfiguration"><code>eglot-workspace-configuration</code></a></td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dworkspace_002dconfiguration-1"><code>eglot-workspace-configuration</code></a></td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eldoc_002c-and-Eglot">eldoc, and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-F">F</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-features-in-buffers-supported-by-Eglot">features in buffers supported by Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Features">Eglot Features</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-finding-definitions-of-identifiers-using-Eglot">finding definitions of identifiers using Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-flymake_002c-and-Eglot">flymake, and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-I">I</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-imenu-navigation-using-Eglot">imenu navigation using Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-initializationOptions">initializationOptions</a></td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-inlay-hints">inlay hints</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-L">L</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-language-server-for-Eglot">language server for Eglot</a></td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-language-server-protocol">language server protocol</a></td><td class="printindex-index-section"><a href="#Top">Top</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-LSP">LSP</a></td><td class="printindex-index-section"><a href="#Top">Top</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-LSP-server-for-Eglot_002c-setting-up">LSP server for Eglot, setting up</a></td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-M">M</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot"><code>M-x eglot</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dclear_002dstatus"><code>M-x eglot-clear-status</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dextract"><code>M-x eglot-code-action-extract</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dinline"><code>M-x eglot-code-action-inline</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dorganize_002dimports"><code>M-x eglot-code-action-organize-imports</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dquickfix"><code>M-x eglot-code-action-quickfix</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002drewrite"><code>M-x eglot-code-action-rewrite</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002dactions"><code>M-x eglot-code-actions</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002devents_002dbuffer"><code>M-x eglot-events-buffer</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dforget_002dpending_002dcontinuations"><code>M-x eglot-forget-pending-continuations</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dformat"><code>M-x eglot-format</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dformat_002dbuffer"><code>M-x eglot-format-buffer</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dinlay_002dhints_002dmode"><code>M-x eglot-inlay-hints-mode</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dreconnect"><code>M-x eglot-reconnect</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002drename"><code>M-x eglot-rename</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dshutdown"><code>M-x eglot-shutdown</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dshutdown_002dall"><code>M-x eglot-shutdown-all</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration"><code>M-x eglot-signal-didChangeConfiguration</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dstderr_002dbuffer"><code>M-x eglot-stderr-buffer</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-mode_002dline-indication-of-language-server">mode-line indication of language server</a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-mouse-clicks-on-mode_002dline_002c-and-Eglot">mouse clicks on mode-line, and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-O">O</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-on_002dthe_002dfly-diagnostics-using-Eglot">on-the-fly diagnostics using Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-P">P</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-performance-problems_002c-with-Eglot">performance problems, with Eglot</a></td><td class="printindex-index-section"><a href="#Performance">Performance</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-progress">progress</a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-projects-and-Eglot">projects and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-Q">Q</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-quick-start">quick start</a></td><td class="printindex-index-section"><a href="#Quick-Start">Quick Start</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-S">S</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-setting-up-LSP-server-for-Eglot">setting up LSP server for Eglot</a></td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-shutting-down-LSP-server">shutting down LSP server</a></td><td class="printindex-index-section"><a href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-starting-Eglot">starting Eglot</a></td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-symbol-completion-using-Eglot">symbol completion using Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-T">T</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-troubleshooting-Eglot">troubleshooting Eglot</a></td><td class="printindex-index-section"><a href="#Troubleshooting-Eglot">Troubleshooting Eglot</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-U">U</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-upgrading-Eglot">upgrading Eglot</a></td><td class="printindex-index-section"><a href="#Getting-the-latest-version">Getting the latest version</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-V">V</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-variables_002c-Eglot">variables, Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-W">W</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-workspace">workspace</a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-workspace-configuration">workspace configuration</a></td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-X">X</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-xref_002c-and-Eglot">xref, and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
 </table>
 <table class="cp-letters-footer-printindex"><tr><th>Jump to: &nbsp; </th><td><a class="summary-letter-printindex" href="#Index_cp_letter-A"><b>A</b></a>
  &nbsp; 
