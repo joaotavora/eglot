@@ -199,40 +199,40 @@ directory hierarchy."
                               &rest body)
   "Run BODY saving LSP JSON messages in variables, most recent first."
   (declare (indent 1) (debug (sexp &rest form)))
-  (let ((log-event-ad-sym (make-symbol "eglot--event-sniff")))
-    `(unwind-protect
-         (let ,(delq nil (list server-requests
-                               server-notifications
-                               server-replies
-                               client-requests
-                               client-notifications
-                               client-replies))
-           (advice-add
-            #'jsonrpc--log-event :before
-            (lambda (_proc message &optional type)
-              (cl-destructuring-bind (&key method id _error &allow-other-keys)
-                  message
-                (let ((req-p (and method id))
-                      (notif-p method)
-                      (reply-p id))
-                  (cond
-                   ((eq type 'server)
-                    (cond (req-p ,(when server-requests
-                                    `(push message ,server-requests)))
-                          (notif-p ,(when server-notifications
-                                      `(push message ,server-notifications)))
-                          (reply-p ,(when server-replies
-                                      `(push message ,server-replies)))))
-                   ((eq type 'client)
-                    (cond (req-p ,(when client-requests
-                                    `(push message ,client-requests)))
-                          (notif-p ,(when client-notifications
-                                      `(push message ,client-notifications)))
-                          (reply-p ,(when client-replies
-                                      `(push message ,client-replies)))))))))
-            '((name . ,log-event-ad-sym)))
-           ,@body)
-       (advice-remove #'jsonrpc--log-event ',log-event-ad-sym))))
+  (let ((log-event-hook-sym (make-symbol "eglot--event-sniff")))
+    `(let* (,@(delq nil (list server-requests
+                              server-notifications
+                              server-replies
+                              client-requests
+                              client-notifications
+                              client-replies)))
+       (cl-flet ((,log-event-hook-sym (_connection
+                                       origin
+                                       &key _json kind message _foreign-message
+                                       &allow-other-keys)
+                   (let ((req-p (eq kind 'request))
+                         (notif-p (eq kind 'notification))
+                         (reply-p (eql kind 'reply)))
+                     (cond
+                      ((eq origin 'server)
+                       (cond (req-p ,(when server-requests
+                                       `(push message ,server-requests)))
+                             (notif-p ,(when server-notifications
+                                         `(push message ,server-notifications)))
+                             (reply-p ,(when server-replies
+                                         `(push message ,server-replies)))))
+                      ((eq origin 'client)
+                       (cond (req-p ,(when client-requests
+                                       `(push message ,client-requests)))
+                             (notif-p ,(when client-notifications
+                                         `(push message ,client-notifications)))
+                             (reply-p ,(when client-replies
+                                         `(push message ,client-replies)))))))))
+         (unwind-protect
+             (progn
+               (add-hook 'jsonrpc-event-hook #',log-event-hook-sym)
+               ,@body)
+           (remove-hook 'jsonrpc-event-hook #',log-event-hook-sym))))))
 
 (cl-defmacro eglot--wait-for ((events-sym &optional (timeout 1) message) args &body body)
   (declare (indent 2) (debug (sexp sexp sexp &rest form)))
@@ -415,7 +415,7 @@ directory hierarchy."
             (and (string= method "workspace/didChangeWatchedFiles")
                  (cl-destructuring-bind (&key uri type)
                      (elt (plist-get params :changes) 0)
-                   (and (string= (eglot--path-to-uri "Cargo.toml") uri)
+                   (and (string= (eglot-path-to-uri "Cargo.toml") uri)
                         (= type 3))))))))))
 
 (ert-deftest eglot-test-basic-diagnostics ()
@@ -544,10 +544,7 @@ directory hierarchy."
       `(("project" . (("coiso.c" . "#include <stdio.h>\nint main () {fprin"))))
     (with-current-buffer
         (eglot--find-file-noselect "project/coiso.c")
-      (eglot--sniffing (:server-notifications s-notifs)
-        (eglot--wait-for-clangd)
-        (eglot--wait-for (s-notifs 20) (&key method &allow-other-keys)
-          (string= method "textDocument/publishDiagnostics")))
+      (eglot--wait-for-clangd)
       (goto-char (point-max))
       (completion-at-point)
       (message (buffer-string))
@@ -927,7 +924,7 @@ int main() {
         (should-error (apply #'eglot--connect (eglot--guess-contact)))))))
 
 (ert-deftest eglot-test-capabilities ()
-  "Unit test for `eglot--server-capable'."
+  "Unit test for `eglot-server-capable'."
   (cl-letf (((symbol-function 'eglot--capabilities)
              (lambda (_dummy)
                ;; test data lifted from Golangserver example at
@@ -942,11 +939,11 @@ int main() {
                      :xdefinitionProvider t :xworkspaceSymbolByProperties t)))
             ((symbol-function 'eglot--current-server-or-lose)
              (lambda () nil)))
-    (should (eql 2 (eglot--server-capable :textDocumentSync)))
-    (should (eglot--server-capable :completionProvider :triggerCharacters))
-    (should (equal '(:triggerCharacters ["."]) (eglot--server-capable :completionProvider)))
-    (should-not (eglot--server-capable :foobarbaz))
-    (should-not (eglot--server-capable :textDocumentSync :foobarbaz))))
+    (should (eql 2 (eglot-server-capable :textDocumentSync)))
+    (should (eglot-server-capable :completionProvider :triggerCharacters))
+    (should (equal '(:triggerCharacters ["."]) (eglot-server-capable :completionProvider)))
+    (should-not (eglot-server-capable :foobarbaz))
+    (should-not (eglot-server-capable :textDocumentSync :foobarbaz))))
 
 (defmacro eglot--without-interface-warnings (&rest body)
   (let ((eglot-strict-mode nil))
@@ -1237,8 +1234,6 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
 
 (defvar tramp-histfile-override)
 (defun eglot--call-with-tramp-test (fn)
-  (unless (>= emacs-major-version 27)
-    (ert-skip "Eglot Tramp support only on Emacs >= 27"))
   ;; Set up a Tramp method that’s just a shell so the remote host is
   ;; really just the local host.
   (let* ((tramp-remote-path (cons 'tramp-own-remote-path
@@ -1260,6 +1255,9 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
                 (when (and noninteractive (not (file-directory-p "~/")))
                   (setenv "HOME" temporary-file-directory)))))
          (default-directory temporary-file-directory))
+    ;; We must check the remote LSP server.  So far, just "clangd" is used.
+    (unless (ignore-errors (executable-find "clangd" 'remote))
+      (ert-skip "Remote clangd not found"))
     (funcall fn)))
 
 (ert-deftest eglot-test-tramp-test ()
@@ -1275,9 +1273,9 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
 (ert-deftest eglot-test-path-to-uri-windows ()
   (skip-unless (eq system-type 'windows-nt))
   (should (string-prefix-p "file:///"
-                           (eglot--path-to-uri "c:/Users/Foo/bar.lisp")))
+                           (eglot-path-to-uri "c:/Users/Foo/bar.lisp")))
   (should (string-suffix-p "c%3A/Users/Foo/bar.lisp"
-                           (eglot--path-to-uri "c:/Users/Foo/bar.lisp"))))
+                           (eglot-path-to-uri "c:/Users/Foo/bar.lisp"))))
 
 (ert-deftest eglot-test-same-server-multi-mode ()
   "Check single LSP instance manages multiple modes in same project."
