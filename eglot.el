@@ -2386,6 +2386,21 @@ still unanswered LSP requests to the server\n")))
              (assoc-delete-all path flymake-list-only-diagnostics))
        (push (cons path diags) flymake-list-only-diagnostics)))))
 
+(cl-defmethod eglot-handle-notification
+  ((server eglot-lsp-server) (_method (eql $ccls/publishSkippedRanges)) &key uri skippedRanges)
+  (let ((visiting (or (find-buffer-visiting (eglot--uri-to-path uri))
+                      (gethash uri eglot--temp-location-buffers))))
+    (with-current-buffer
+	visiting
+      (remove-overlays nil nil 'inactive--code t)
+      (dotimes (idx (length skippedRanges))
+	(pcase-let*
+	    ((`(,beg . ,end) (eglot--range-region (aref skippedRanges idx))))
+	  (let ((overlay (make-overlay beg end visiting t nil)))
+	    (overlay-put overlay 'face 'font-lock-comment-face)
+	    (overlay-put overlay 'eglot--overlay t)
+	    (overlay-put overlay 'inactive--code t)))))))
+
 (cl-defun eglot--register-unregister (server things how)
   "Helper for `registerCapability'.
 THINGS are either registrations or unregisterations (sic)."
