@@ -12,6 +12,8 @@ your way:
 * 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
 * 👾 Eglot now lives in [Emacs itself](#emacscore)!
 
+See also [eglot-x][eglot-x] for non-standard protocol extensions support.
+
 # Get stable [GNU ELPA][gnuelpa] version
 
 Just type `M-x package-install RET eglot RET` into Emacs 26.3+.
@@ -351,3 +353,4 @@ for the request form, and we'll send it to you.
 [emacs-upstream]: https://github.com/emacs-mirror/emacs
 [release-notes]: https://github.com/emacs-mirror/emacs/blob/master/etc/EGLOT-NEWS
 [build-status]: https://github.com/joaotavora/eglot/actions/workflows/test.yml
+[eglot-x]: https://github.com/nemethf/eglot-x
