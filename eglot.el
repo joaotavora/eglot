@@ -275,6 +275,7 @@ automatically)."
                                 ((yaml-ts-mode yaml-mode) . ("yaml-language-server" "--stdio"))
                                 (nix-mode . ,(eglot-alternatives '("nil" "rnix-lsp" "nixd")))
                                 (nickel-mode . ("nls"))
+                                ((nushell-mode nushell-ts-mode) . ("nu" "--lsp"))
                                 (gdscript-mode . ("localhost" 6008))
                                 ((fortran-mode f90-mode) . ("fortls"))
                                 (futhark-mode . ("futhark" "lsp"))
