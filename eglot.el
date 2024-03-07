@@ -3890,7 +3890,8 @@ If NOERROR, return predicate, else erroring function."
     ;; a lot of "non-contextual" calls come in all at once and do verify
     ;; the condition.  Notice it is a 0 second timer though, so we're
     ;; not introducing any more delay over jit-lock's timers.
-    (when (= jit-lock-context-unfontify-pos (point-max))
+    (when (and jit-lock-context-unfontify-pos
+               (= jit-lock-context-unfontify-pos (point-max)))
       (if timer (cancel-timer timer))
       (let ((buf (current-buffer)))
         (setq timer (run-at-time
