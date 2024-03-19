@@ -114,7 +114,7 @@ variable, where you can [easily add your own servers][manual].
 * Perl's [Perl::LanguageServer][perl-language-server]
 * PHP's [php-language-server][php-language-server]
 * PureScript's [purescript-language-server][purescript-language-server]
-* Python's [pylsp][pylsp], [pyls][pyls] [pyright][pyright], or [jedi-language-server][jedi-language-server]
+* Python's [pylsp][pylsp], [pyls][pyls], [basedpyright][basedpyright], [pyright][pyright], or [jedi-language-server][jedi-language-server]
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
 * Ruby's [solargraph][solargraph]
@@ -267,6 +267,7 @@ for the request form, and we'll send it to you.
 
 <!-- Language servers -->
 [ada_language_server]: https://github.com/AdaCore/ada_language_server
+[basedpyright]: https://detachhead.github.io/basedpyright
 [bash-language-server]: https://github.com/mads-hartmann/bash-language-server
 [clangd]: https://clang.llvm.org/extra/clangd.html
 [omnisharp]: https://github.com/OmniSharp/omnisharp-roslyn
