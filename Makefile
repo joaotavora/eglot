@@ -19,6 +19,7 @@ ELPADEPS ?=--eval '(setq package-user-dir (expand-file-name "elpa-eglot-test" te
                        (cadr (assoc p                           \
                               package-archive-contents          \
                               (quote equal)))))'                \
+           --eval '(install-latest (quote compat))'             \
            --eval '(install-latest (quote jsonrpc))'            \
            --eval '(install-latest (quote project))'            \
            --eval '(install-latest (quote xref))'               \
