@@ -191,8 +191,8 @@ path of the PROGRAM that was chosen (interactively or
 automatically)."
   (lambda (&optional interactive _project)
     ;; JT@2021-06-13: This function is way more complicated than it
-    ;; could be because it accounts for the fact that
-    ;; `eglot--executable-find' may take much longer to execute on
+    ;; could be because it accounts for the fact that Compat's
+    ;; `executable-find' may take much longer to execute on
     ;; remote files.
     (let* ((listified (cl-loop for a in alternatives
                                collect (if (listp a) a (list a))))
@@ -1320,7 +1320,7 @@ be guessed."
                               main-mode base-prompt))
                      ((and program
                            (not (file-name-absolute-p program))
-                           (not (eglot--executable-find program t)))
+                           (not (compat-call executable-find program t)))
                       (if full-program-invocation
                           (concat (format "[eglot] I guess you want to run `%s'"
                                           full-program-invocation)
