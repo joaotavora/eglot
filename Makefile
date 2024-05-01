@@ -12,6 +12,7 @@ ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 
 ELPADEPS ?=--eval '(setq package-user-dir (expand-file-name "elpa-eglot-test" temporary-file-directory))'	\
+           --eval '(setq package-check-signature nil)'          \
            --eval '(package-initialize)'                        \
            --eval '(package-refresh-contents)'                  \
            --eval '(defun install-latest (p)                    \
