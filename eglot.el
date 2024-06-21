@@ -2936,7 +2936,7 @@ If BUFFER, switch to it before."
                                :extra-params extra-params
                                :capability capability)))
     (if eglot--lsp-xref-refs
-        (xref-find-references "LSP identifier at point.")
+        (xref-find-references eglot--lsp-xref-refs)
       (eglot--message "%s returned no references" method))))
 
 (defun eglot-find-declaration ()
