@@ -114,7 +114,7 @@ variable, where you can [easily add your own servers][manual].
 * Perl's [Perl::LanguageServer][perl-language-server]
 * PHP's [php-language-server][php-language-server]
 * PureScript's [purescript-language-server][purescript-language-server]
-* Python's [pylsp][pylsp], [pyls][pyls] [pyright][pyright], or [jedi-language-server][jedi-language-server]
+* Python's [pylsp][pylsp], [pyls][pyls] [pyright][pyright], [jedi-language-server][jedi-language-server], or [ruff][ruff]
 * R's [languageserver][r-languageserver]
 * Racket's [racket-langserver][racket-langserver]
 * Ruby's [solargraph][solargraph]
@@ -300,6 +300,7 @@ for the request form, and we'll send it to you.
 [pyright]: https://github.com/microsoft/pyright
 [r-languageserver]: https://cran.r-project.org/package=languageserver
 [racket-langserver]: https://github.com/jeapostrophe/racket-langserver
+[ruff]: https://docs.astral.sh/ruff/editors/setup/#emacs
 [solargraph]: https://github.com/castwide/solargraph
 [rust-analyzer]: https://github.com/rust-analyzer/rust-analyzer
 [metals]: https://scalameta.org/metals/
