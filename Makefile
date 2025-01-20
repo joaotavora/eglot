@@ -30,14 +30,16 @@ ELPADEPS ?=--eval '(setq package-user-dir (expand-file-name "elpa-eglot-test" te
            --eval '(install-latest (quote company))'            \
            --eval '(install-latest (quote yasnippet))'          \
            --eval '(install-latest (quote external-completion))'\
-           --eval '(install-latest (quote flymake))'
+           --eval '(install-latest (quote flymake))'            \
+           --eval '(install-latest (quote compat))'             \
+           --eval '(install-latest (quote track-changes))'
 
 BYTECOMP_ERROR_ON_WARN := \
 	--eval '(setq byte-compile-error-on-warn $(ERROR_ON_WARN))'
 
 all: compile
 
-# Compilation.  Note BYTECOMP_ERROR_ON_WARN after ELPADEPS 
+# Compilation.  Note BYTECOMP_ERROR_ON_WARN after ELPADEPS
 # so deps can still warn on compilation.
 #
 %.elc: %.el

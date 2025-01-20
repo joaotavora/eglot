@@ -1,13 +1,13 @@
 ;;; eglot.el --- The Emacs Client for LSP servers  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2023 Free Software Foundation, Inc.
+;; Copyright (C) 2018-2025 Free Software Foundation, Inc.
 
-;; Version: 1.16
+;; Version: 1.18
 ;; Author: João Távora <joaotavora@gmail.com>
 ;; Maintainer: João Távora <joaotavora@gmail.com>
 ;; URL: https://github.com/joaotavora/eglot
 ;; Keywords: convenience, languages
-;; Package-Requires: ((emacs "26.3") (jsonrpc "1.0.23") (flymake "1.2.1") (project "0.9.8") (xref "1.6.2") (eldoc "1.14.0") (seq "2.23") (external-completion "0.1"))
+;; Package-Requires: ((emacs "26.3") (compat "27.1") (eldoc "1.14.0") (external-completion "0.1") (flymake "1.2.1") (jsonrpc "1.0.24") (project "0.9.8") (seq "2.23") (track-changes "1.2") (xref "1.6.2"))
 
 ;; This is a GNU ELPA :core package.  Avoid adding functionality
 ;; that is not available in the version of Emacs recorded above or any
@@ -103,26 +103,39 @@
 (require 'pcase)
 (require 'compile) ; for some faces
 (require 'warnings)
-(eval-when-compile
-  (require 'subr-x))
 (require 'filenotify)
 (require 'ert)
 (require 'text-property-search nil t)
 (require 'diff-mode)
 (require 'diff)
+(require 'track-changes)
+(require 'compat)
 
 ;; These dependencies are also GNU ELPA core packages.  Because of
 ;; bug#62576, since there is a risk that M-x package-install, despite
 ;; having installed them, didn't correctly re-load them over the
 ;; built-in versions.
 (eval-and-compile
-  (load "project")
-  (load "eldoc")
-  (load "seq")
-  (load "flymake")
-  (load "xref")
-  (load "jsonrpc")
-  (load "external-completion"))
+  ;; For those packages that are preloaded, reload them if needed,
+  ;; since that's the best we can do anyway.
+  ;; FIXME: Maybe the ELPA packages for those preloaded packages should
+  ;; force-reload themselves eagerly when the package is activated!
+  (let ((reload (if (fboundp 'require-with-check) ;Emacs≥30
+                    #'require-with-check
+                  (lambda (feature &rest _)
+                    ;; Just blindly reload like we used to do before
+                    ;; `require-with-check'.
+                    (load (symbol-name feature) nil 'nomessage)))))
+
+    (funcall reload 'eldoc nil 'reload)
+    (funcall reload 'seq nil 'reload)
+    ;; For those packages which are not preloaded OTOH, signal an error if
+    ;; the loaded file is not the one that should have been loaded.
+    (mapc reload '(project flymake xref jsonrpc external-completion))))
+
+;; Keep the eval-when-compile requires at the end, in case it's already been
+;; required unconditionally by some earlier `require'.
+(eval-when-compile (require 'subr-x))
 
 ;; forward-declare, but don't require (Emacs 28 doesn't seem to care)
 (defvar markdown-fontify-code-blocks-natively)
@@ -140,34 +153,41 @@
   'eglot-confirm-server-edits "1.16")
 (make-obsolete-variable 'eglot-events-buffer-size
   'eglot-events-buffer-config "1.16")
-(define-obsolete-function-alias 'eglot--uri-to-path 'eglot-uri-to-path "1.16")
-(define-obsolete-function-alias 'eglot--path-to-uri 'eglot-path-to-uri "1.16")
-(define-obsolete-function-alias 'eglot--range-region 'eglot-range-region "1.16")
-(define-obsolete-function-alias 'eglot--server-capable 'eglot-server-capable "1.16")
-(define-obsolete-function-alias 'eglot--server-capable-or-lose 'eglot-server-capable-or-lose "1.16")
+(define-obsolete-function-alias 'eglot--uri-to-path #'eglot-uri-to-path "1.16")
+(define-obsolete-function-alias 'eglot--path-to-uri #'eglot-path-to-uri "1.16")
+(define-obsolete-function-alias 'eglot--range-region #'eglot-range-region "1.16")
+(define-obsolete-function-alias 'eglot--server-capable #'eglot-server-capable "1.16")
+(define-obsolete-function-alias 'eglot--server-capable-or-lose #'eglot-server-capable-or-lose "1.16")
 (define-obsolete-function-alias
-  'eglot-lsp-abiding-column 'eglot-utf-16-linepos "1.12")
+  'eglot-lsp-abiding-column #'eglot-utf-16-linepos "1.12")
 (define-obsolete-function-alias
-  'eglot-current-column 'eglot-utf-32-linepos "1.12")
+  'eglot-current-column #'eglot-utf-32-linepos "1.12")
 (define-obsolete-variable-alias
   'eglot-current-column-function 'eglot-current-linepos-function "1.12")
 (define-obsolete-function-alias
-  'eglot-move-to-current-column 'eglot-move-to-utf-32-linepos "1.12")
+  'eglot-move-to-current-column #'eglot-move-to-utf-32-linepos "1.12")
 (define-obsolete-function-alias
-  'eglot-move-to-lsp-abiding-column 'eglot-move-to-utf-16-linepos "1.12")
+  'eglot-move-to-lsp-abiding-column #'eglot-move-to-utf-16-linepos "1.12")
 (define-obsolete-variable-alias
-'eglot-move-to-column-function 'eglot-move-to-linepos-function "1.12")
+  'eglot-move-to-column-function 'eglot-move-to-linepos-function "1.12")
 (define-obsolete-variable-alias 'eglot-ignored-server-capabilites
   'eglot-ignored-server-capabilities "1.8")
 ;;;###autoload
-(define-obsolete-function-alias 'eglot-update 'eglot-upgrade-eglot "29.1")
+(define-obsolete-function-alias 'eglot-update #'eglot-upgrade-eglot "29.1")
 
 
 ;;; User tweakable stuff
 (defgroup eglot nil
-  "Interaction with Language Server Protocol servers."
+  "Interaction with Language Server Protocol (LSP) servers."
   :prefix "eglot-"
-  :group 'applications)
+  :group 'tools)
+
+(add-to-list 'customize-package-emacs-version-alist
+             '(Eglot ("1.12" . "29.1")
+                     ("1.12" . "29.2")
+                     ("1.12" . "29.3")
+                     ("1.12.29" . "29.4")
+                     ("1.17.30" . "30.1")))
 
 (defun eglot-alternatives (alternatives)
   "Compute server-choosing function for `eglot-server-programs'.
@@ -180,8 +200,8 @@ path of the PROGRAM that was chosen (interactively or
 automatically)."
   (lambda (&optional interactive _project)
     ;; JT@2021-06-13: This function is way more complicated than it
-    ;; could be because it accounts for the fact that
-    ;; `eglot--executable-find' may take much longer to execute on
+    ;; could be because it accounts for the fact that Compat's
+    ;; `executable-find' may take much longer to execute on
     ;; remote files.
     (let* ((listified (cl-loop for a in alternatives
                                collect (if (listp a) a (list a))))
@@ -193,7 +213,7 @@ automatically)."
              nil)
             (interactive
              (let* ((augmented (mapcar (lambda (a)
-                                         (let ((found (eglot--executable-find
+                                         (let ((found (compat-call executable-find
                                                        (car a) t)))
                                            (and found
                                                 (cons (car a) (cons found (cdr a))))))
@@ -213,94 +233,116 @@ automatically)."
                       nil))))
             (t
              (cl-loop for (p . args) in listified
-                      for probe = (eglot--executable-find p t)
+                      for probe = (compat-call executable-find p t)
                       when probe return (cons probe args)
                       finally (funcall err)))))))
 
-(defvar eglot-server-programs `(((rust-ts-mode rust-mode) . ("rust-analyzer"))
-                                ((cmake-mode cmake-ts-mode) . ("cmake-language-server"))
-                                (vimrc-mode . ("vim-language-server" "--stdio"))
-                                ((python-mode python-ts-mode)
-                                 . ,(eglot-alternatives
-                                     '("pylsp" "pyls" ("pyright-langserver" "--stdio") "jedi-language-server" "ruff-lsp")))
-                                ((js-json-mode json-mode json-ts-mode)
-                                 . ,(eglot-alternatives '(("vscode-json-language-server" "--stdio")
-                                                          ("vscode-json-languageserver" "--stdio")
-                                                          ("json-languageserver" "--stdio"))))
-                                (((js-mode :language-id "javascript")
-                                  (js-ts-mode :language-id "javascript")
-                                  (tsx-ts-mode :language-id "typescriptreact")
-                                  (typescript-ts-mode :language-id "typescript")
-                                  (typescript-mode :language-id "typescript"))
-                                 . ("typescript-language-server" "--stdio"))
-                                ((bash-ts-mode sh-mode) . ("bash-language-server" "start"))
-                                ((php-mode phps-mode)
-                                 . ,(eglot-alternatives
-                                     '(("phpactor" "language-server")
-                                       ("php" "vendor/felixfbecker/language-server/bin/php-language-server.php"))))
-                                ((c-mode c-ts-mode c++-mode c++-ts-mode objc-mode)
-                                 . ,(eglot-alternatives
-                                     '("clangd" "ccls")))
-                                (((caml-mode :language-id "ocaml")
-                                  (tuareg-mode :language-id "ocaml") reason-mode)
-                                 . ("ocamllsp"))
-                                ((ruby-mode ruby-ts-mode)
-                                 . ("solargraph" "socket" "--port" :autoport))
-                                (haskell-mode
-                                 . ("haskell-language-server-wrapper" "--lsp"))
-                                (elm-mode . ("elm-language-server"))
-                                (mint-mode . ("mint" "ls"))
-                                (kotlin-mode . ("kotlin-language-server"))
-                                ((go-mode go-dot-mod-mode go-dot-work-mode go-ts-mode go-mod-ts-mode)
-                                 . ("gopls"))
-                                ((R-mode ess-r-mode) . ("R" "--slave" "-e"
-                                                        "languageserver::run()"))
-                                ((java-mode java-ts-mode) . ("jdtls"))
-                                ((dart-mode dart-ts-mode)
-                                 . ("dart" "language-server"
-                                    "--client-id" "emacs.eglot-dart"))
-                                ((elixir-mode elixir-ts-mode heex-ts-mode)
-                                 . ,(if (and (fboundp 'w32-shell-dos-semantics)
-                                             (w32-shell-dos-semantics))
-                                        '("language_server.bat")
-                                      (eglot-alternatives
-                                       '("language_server.sh" "start_lexical.sh"))))
-                                (ada-mode . ("ada_language_server"))
-                                (scala-mode . ,(eglot-alternatives
-                                                '("metals" "metals-emacs")))
-                                (racket-mode . ("racket" "-l" "racket-langserver"))
-                                ((tex-mode context-mode texinfo-mode bibtex-mode)
-                                 . ,(eglot-alternatives '("digestif" "texlab")))
-                                (erlang-mode . ("erlang_ls" "--transport" "stdio"))
-                                ((yaml-ts-mode yaml-mode) . ("yaml-language-server" "--stdio"))
-                                (nix-mode . ,(eglot-alternatives '("nil" "rnix-lsp" "nixd")))
-                                (nickel-mode . ("nls"))
-                                (gdscript-mode . ("localhost" 6008))
-                                ((fortran-mode f90-mode) . ("fortls"))
-                                (futhark-mode . ("futhark" "lsp"))
-                                ((lua-mode lua-ts-mode) . ,(eglot-alternatives
-                                                            '("lua-language-server" "lua-lsp")))
-                                (zig-mode . ("zls"))
-                                ((css-mode css-ts-mode)
-                                 . ,(eglot-alternatives '(("vscode-css-language-server" "--stdio")
-                                                          ("css-languageserver" "--stdio"))))
-                                (html-mode . ,(eglot-alternatives '(("vscode-html-language-server" "--stdio") ("html-languageserver" "--stdio"))))
-                                ((dockerfile-mode dockerfile-ts-mode) . ("docker-langserver" "--stdio"))
-                                ((clojure-mode clojurescript-mode clojurec-mode clojure-ts-mode)
-                                 . ("clojure-lsp"))
-                                ((csharp-mode csharp-ts-mode)
-                                 . ,(eglot-alternatives
-                                     '(("omnisharp" "-lsp")
-                                       ("csharp-ls"))))
-                                (purescript-mode . ("purescript-language-server" "--stdio"))
-                                ((perl-mode cperl-mode) . ("perl" "-MPerl::LanguageServer" "-e" "Perl::LanguageServer::run"))
-                                (markdown-mode
-                                 . ,(eglot-alternatives
-                                     '(("marksman" "server")
-                                       ("vscode-markdown-language-server" "--stdio"))))
-                                (graphviz-dot-mode . ("dot-language-server" "--stdio"))
-                                (terraform-mode . ("terraform-ls" "serve"))
-                                ((uiua-ts-mode uiua-mode) . ("uiua" "lsp")))
+(defvar eglot-server-programs
+  ;; FIXME: Maybe this info should be distributed into the major modes
+  ;; themselves where they could set a buffer-local `eglot-server-program'
+  ;; instead of keeping this database centralized.
+  ;; FIXME: With `derived-mode-add-parents' in Emacs≥30, some of
+  ;; those entries can be simplified, but we keep them for when
+  ;; `eglot.el' is installed via GNU ELPA in an older Emacs.
+  `(((rust-ts-mode rust-mode) . ("rust-analyzer"))
+    ((cmake-mode cmake-ts-mode) . ("cmake-language-server"))
+    (vimrc-mode . ("vim-language-server" "--stdio"))
+    ((python-mode python-ts-mode)
+     . ,(eglot-alternatives
+         '("pylsp" "pyls" ("basedpyright-langserver" "--stdio")
+           ("pyright-langserver" "--stdio")
+           "jedi-language-server" "ruff-lsp")))
+    ((js-json-mode json-mode json-ts-mode jsonc-mode)
+     . ,(eglot-alternatives '(("vscode-json-language-server" "--stdio")
+                              ("vscode-json-languageserver" "--stdio")
+                              ("json-languageserver" "--stdio"))))
+    (((js-mode :language-id "javascript")
+      (js-ts-mode :language-id "javascript")
+      (tsx-ts-mode :language-id "typescriptreact")
+      (typescript-ts-mode :language-id "typescript")
+      (typescript-mode :language-id "typescript"))
+     . ("typescript-language-server" "--stdio"))
+    ((bash-ts-mode sh-mode) . ("bash-language-server" "start"))
+    ((php-mode phps-mode php-ts-mode)
+     . ,(eglot-alternatives
+         '(("phpactor" "language-server")
+           ("php" "vendor/felixfbecker/language-server/bin/php-language-server.php"))))
+    ((c-mode c-ts-mode c++-mode c++-ts-mode objc-mode)
+     . ,(eglot-alternatives
+         '("clangd" "ccls")))
+    (((caml-mode :language-id "ocaml")
+      (tuareg-mode :language-id "ocaml") reason-mode)
+     . ("ocamllsp"))
+    ((ruby-mode ruby-ts-mode)
+     . ("solargraph" "socket" "--port" :autoport))
+    (haskell-mode
+     . ("haskell-language-server-wrapper" "--lsp"))
+    (elm-mode . ("elm-language-server"))
+    (mint-mode . ("mint" "ls"))
+    ((kotlin-mode kotlin-ts-mode) . ("kotlin-language-server"))
+    ((go-mode go-dot-mod-mode go-dot-work-mode go-ts-mode go-mod-ts-mode)
+     . ("gopls"))
+    ((R-mode ess-r-mode) . ("R" "--slave" "-e"
+                            "languageserver::run()"))
+    ((java-mode java-ts-mode) . ("jdtls"))
+    ((dart-mode dart-ts-mode)
+     . ("dart" "language-server"
+        "--client-id" "emacs.eglot-dart"))
+    ((elixir-mode elixir-ts-mode heex-ts-mode)
+     . ,(if (and (fboundp 'w32-shell-dos-semantics)
+                 (w32-shell-dos-semantics))
+            '("language_server.bat")
+          (eglot-alternatives
+           '("language_server.sh" "start_lexical.sh"))))
+    ((ada-mode ada-ts-mode) . ("ada_language_server"))
+    ((gpr-mode gpr-ts-mode) . ("ada_language_server" "--language-gpr"))
+    (scala-mode . ,(eglot-alternatives
+                    '("metals" "metals-emacs")))
+    (racket-mode . ("racket" "-l" "racket-langserver"))
+    ((latex-mode plain-tex-mode context-mode texinfo-mode bibtex-mode tex-mode)
+     . ,(eglot-alternatives '("digestif" "texlab")))
+    (erlang-mode . ("erlang_ls" "--transport" "stdio"))
+    ((yaml-ts-mode yaml-mode) . ("yaml-language-server" "--stdio"))
+    (nix-mode . ,(eglot-alternatives '("nil" "rnix-lsp" "nixd")))
+    (nickel-mode . ("nls"))
+    ((nushell-mode nushell-ts-mode) . ("nu" "--lsp"))
+    (gdscript-mode . ("localhost" 6008))
+    (fennel-mode . ("fennel-ls"))
+    (move-mode . ("move-analyzer"))
+    ((fortran-mode f90-mode) . ("fortls"))
+    (futhark-mode . ("futhark" "lsp"))
+    ((lua-mode lua-ts-mode) . ,(eglot-alternatives
+                                '("lua-language-server" "lua-lsp")))
+    (yang-mode . ("yang-language-server"))
+    ((zig-mode zig-ts-mode) . ("zls"))
+    ((css-mode css-ts-mode)
+     . ,(eglot-alternatives '(("vscode-css-language-server" "--stdio")
+                              ("css-languageserver" "--stdio"))))
+    (html-mode . ,(eglot-alternatives
+                   '(("vscode-html-language-server" "--stdio")
+                     ("html-languageserver" "--stdio"))))
+    ((dockerfile-mode dockerfile-ts-mode) . ("docker-langserver" "--stdio"))
+    ((clojure-mode clojurescript-mode clojurec-mode clojure-ts-mode)
+     . ("clojure-lsp"))
+    ((csharp-mode csharp-ts-mode)
+     . ,(eglot-alternatives
+         '(("omnisharp" "-lsp")
+           ("csharp-ls"))))
+    (purescript-mode . ("purescript-language-server" "--stdio"))
+    ((perl-mode cperl-mode)
+     . ("perl" "-MPerl::LanguageServer" "-e" "Perl::LanguageServer::run"))
+    (markdown-mode
+     . ,(eglot-alternatives
+         '(("marksman" "server")
+           ("vscode-markdown-language-server" "--stdio"))))
+    (graphviz-dot-mode . ("dot-language-server" "--stdio"))
+    (terraform-mode . ("terraform-ls" "serve"))
+    ((uiua-ts-mode uiua-mode) . ("uiua" "lsp"))
+    (sml-mode
+     . ,(lambda (_interactive project)
+          (list "millet-ls" (project-root project))))
+    ((blueprint-mode blueprint-ts-mode) . ("blueprint-compiler" "lsp"))
+    ((odin-mode odin-ts-mode) . ("ols")))
   "How the command `eglot' guesses the server to start.
 An association list of (MAJOR-MODE . CONTACT) pairs.  MAJOR-MODE
 identifies the buffers that are to be managed by a specific
@@ -441,7 +483,8 @@ the LSP connection.  That can be done by `eglot-reconnect'."
                            (choice
                             (const :tag "Full with original JSON" full)
                             (const :tag "Shortened" short)
-                            (const :tag "Pretty-printed lisp" lisp))))))
+                            (const :tag "Pretty-printed lisp" lisp)))))
+  :package-version '(Eglot . "1.17.30"))
 
 (defcustom eglot-confirm-server-edits '((eglot-rename . nil)
                                         (t . maybe-summary))
@@ -460,7 +503,7 @@ If this variable's value can also be an alist ((COMMAND . ACTION)
 ...) where COMMAND is a symbol designating a command, such as
 `eglot-rename', `eglot-code-actions',
 `eglot-code-action-quickfix', etc.  ACTION is one of the symbols
-described above.  The value `t' for COMMAND is accepted and its
+described above.  The value t for COMMAND is accepted and its
 ACTION is the default value for commands not in the alist."
   :type (let ((basic-choices
                '((const :tag "Use diff" diff)
@@ -472,7 +515,8 @@ ACTION is the default value for commands not in the alist."
                    (alist :tag "Per-command alist"
                           :key-type (choice (function :tag "Command")
                                             (const :tag "Default" t))
-                          :value-type (choice . ,basic-choices)))))
+                          :value-type (choice . ,basic-choices))))
+  :package-version '(Eglot . "1.17.30"))
 
 (defcustom eglot-extend-to-xref nil
   "If non-nil, activate Eglot in cross-referenced non-project files."
@@ -480,7 +524,8 @@ ACTION is the default value for commands not in the alist."
 
 (defcustom eglot-prefer-plaintext nil
   "If non-nil, always request plaintext responses to hover requests."
-  :type 'boolean)
+  :type 'boolean
+  :package-version '(Eglot . "1.17.30"))
 
 (defcustom eglot-menu-string "eglot"
   "String displayed in mode line when Eglot is active."
@@ -489,11 +534,14 @@ ACTION is the default value for commands not in the alist."
 (defcustom eglot-report-progress t
   "If non-nil, show progress of long running LSP server work.
 If set to `messages', use *Messages* buffer, else use Eglot's
-mode line indicator."
+mode line indicator.
+
+For changes on this variable to take effect, you need to restart
+the LSP connection.  That can be done by `eglot-reconnect'."
   :type '(choice (const :tag "Don't show progress" nil)
                  (const :tag "Show progress in *Messages*" messages)
                  (const :tag "Show progress in Eglot's mode line indicator" t))
-  :version "1.10")
+  :package-version '(Eglot . "1.10"))
 
 (defcustom eglot-ignored-server-capabilities (list)
   "LSP server capabilities that Eglot could use, but won't.
@@ -532,13 +580,6 @@ This can be useful when using docker to run a language server.")
 
 ;;; Constants
 ;;;
-(defconst eglot--version
-  (eval-when-compile
-    (when byte-compile-current-file
-      (require 'lisp-mnt)
-      (lm-version byte-compile-current-file)))
-  "The version as a string of this version of Eglot.
-It is nil if Eglot is not byte-complied.")
 
 (defconst eglot--symbol-kind-names
   `((1 . "File") (2 . "Module")
@@ -566,12 +607,7 @@ It is nil if Eglot is not byte-complied.")
 
 (defvaralias 'eglot-{} 'eglot--{})
 
-(defconst eglot--{} (make-hash-table :size 1) "The empty JSON object.")
-
-(defun eglot--executable-find (command &optional remote)
-  "Like Emacs 27's `executable-find', ignore REMOTE on Emacs 26."
-  (if (>= emacs-major-version 27) (executable-find command remote)
-    (executable-find command)))
+(defconst eglot--{} (make-hash-table :size 0) "The empty JSON object.")
 
 (defun eglot--accepted-formats ()
   (if (and (not eglot-prefer-plaintext) (fboundp 'gfm-view-mode))
@@ -581,7 +617,7 @@ It is nil if Eglot is not byte-complied.")
   (let ((vec (copy-sequence url-path-allowed-chars)))
     (aset vec ?: nil) ;; see github#639
     vec)
-  "Like `url-path-allows-chars' but more restrictive.")
+  "Like `url-path-allowed-chars' but more restrictive.")
 
 
 ;;; Message verification helpers
@@ -599,6 +635,7 @@ It is nil if Eglot is not byte-complied.")
                              :command :data :tags))
       (Diagnostic (:range :message) (:severity :code :source :relatedInformation :codeDescription :tags))
       (DocumentHighlight (:range) (:kind))
+      (ExecuteCommandParams ((:command . string)) (:arguments))
       (FileSystemWatcher (:globPattern) (:kind))
       (Hover (:contents) (:range))
       (InitializeResult (:capabilities) (:serverInfo))
@@ -621,6 +658,7 @@ It is nil if Eglot is not byte-complied.")
                       (:detail :deprecated :children))
       (TextDocumentEdit (:textDocument :edits) ())
       (TextEdit (:range :newText))
+      (InsertReplaceEdit (:newText :insert :replace))
       (VersionedTextDocumentIdentifier (:uri :version) ())
       (WorkDoneProgress (:kind) (:title :message :percentage :cancellable))
       (WorkspaceEdit () (:changes :documentChanges))
@@ -684,14 +722,14 @@ compile time if an undeclared LSP interface is used."))
   (cl-destructuring-bind
       (&key types required-keys optional-keys &allow-other-keys)
       (eglot--interface interface-name)
-    (when-let ((missing (and enforce-required
-                             (cl-set-difference required-keys
-                                                (eglot--plist-keys object)))))
+    (when-let* ((missing (and enforce-required
+                              (cl-set-difference required-keys
+                                                 (eglot--plist-keys object)))))
       (eglot--error "A `%s' must have %s" interface-name missing))
-    (when-let ((excess (and disallow-non-standard
-                            (cl-set-difference
-                             (eglot--plist-keys object)
-                             (append required-keys optional-keys)))))
+    (when-let* ((excess (and disallow-non-standard
+                             (cl-set-difference
+                              (eglot--plist-keys object)
+                              (append required-keys optional-keys)))))
       (eglot--error "A `%s' mustn't have %s" interface-name excess))
     (when check-types
       (cl-loop
@@ -859,17 +897,25 @@ treated as in `eglot--dbind'."
 
 (cl-defgeneric eglot-execute (server action)
   "Ask SERVER to execute ACTION.
-ACTION is an LSP object of either `CodeAction' or `Command' type."
+ACTION is an LSP `CodeAction', `Command' or `ExecuteCommandParams'
+object."
   (:method
    (server action) "Default implementation."
    (eglot--dcase action
-     (((Command)) (eglot--request server :workspace/executeCommand action))
+     (((Command))
+      ;; Convert to ExecuteCommandParams and recurse (bug#71642)
+      (cl-remf action :title)
+      (eglot-execute server action))
+     (((ExecuteCommandParams))
+      (eglot--request server :workspace/executeCommand action))
      (((CodeAction) edit command data)
       (if (and (null edit) (null command) data
                (eglot-server-capable :codeActionProvider :resolveProvider))
           (eglot-execute server (eglot--request server :codeAction/resolve action))
         (when edit (eglot--apply-workspace-edit edit this-command))
-        (when command (eglot--request server :workspace/executeCommand command)))))))
+        (when command
+          ;; Recursive call with what must be a Command object (bug#71642)
+          (eglot-execute server command)))))))
 
 (cl-defgeneric eglot-initialization-options (server)
   "JSON object to send under `initializationOptions'."
@@ -925,7 +971,8 @@ ACTION is an LSP object of either `CodeAction' or `Command' type."
                                                        ["documentation"
                                                         "details"
                                                         "additionalTextEdits"])
-                                      :tagSupport (:valueSet [1]))
+                                      :tagSupport (:valueSet [1])
+                                      :insertReplaceSupport t)
                                     :contextSupport t)
              :hover              (list :dynamicRegistration :json-false
                                        :contentFormat (eglot--accepted-formats))
@@ -977,7 +1024,7 @@ ACTION is an LSP object of either `CodeAction' or `Command' type."
                                          [,@(mapcar
                                              #'car eglot--tag-faces)])))
             :window `(:showDocument (:support t)
-                      :workDoneProgress t)
+                      :workDoneProgress ,(if eglot-report-progress t :json-false))
             :general (list :positionEncodings ["utf-32" "utf-8" "utf-16"])
             :experimental eglot--{})))
 
@@ -1037,7 +1084,7 @@ ACTION is an LSP object of either `CodeAction' or `Command' type."
 
 (declare-function w32-long-file-name "w32proc.c" (fn))
 (defun eglot-uri-to-path (uri)
-  "Convert URI to file path, helped by `eglot--current-server'."
+  "Convert URI to file path, helped by `eglot-current-server'."
   (when (keywordp uri) (setq uri (substring (symbol-name uri) 1)))
   (let* ((server (eglot-current-server))
          (remote-prefix (and server (eglot--trampish-p server)))
@@ -1056,15 +1103,21 @@ ACTION is an LSP object of either `CodeAction' or `Command' type."
           (concat remote-prefix normalized))
       uri)))
 
-(defun eglot-path-to-uri (path)
-  "Convert PATH, a file name, to LSP URI string and return it."
-  (let ((truepath (file-truename path)))
+(cl-defun eglot-path-to-uri (path &key truenamep)
+  "Convert PATH, a file name, to LSP URI string and return it.
+TRUENAMEP indicated PATH is already a truename."
+  ;; LSP servers should not be expected to access the filesystem, and
+  ;; therefore are generally oblivious that some filenames are
+  ;; different, but point to the same file, like a symlink and its
+  ;; target.  Make sure we hand the server the true name of a file by
+  ;; calling file-truename.
+  (let ((truepath (if truenamep path (file-truename path))))
     (if (and (url-type (url-generic-parse-url path))
-             ;; It might be MS Windows path which includes a drive
-             ;; letter that looks like a URL scheme (bug#59338)
+             ;; PATH might be MS Windows file name which includes a
+             ;; drive letter that looks like a URL scheme (bug#59338).
              (not (and (eq system-type 'windows-nt)
                        (file-name-absolute-p truepath))))
-        ;; Path is already a URI, so forward it to the LSP server
+        ;; PATH is already a URI, so forward it to the LSP server
         ;; untouched.  The server should be able to handle it, since
         ;; it provided this URI to clients in the first place.
         path
@@ -1198,38 +1251,31 @@ PRESERVE-BUFFERS as in `eglot-shutdown', which see."
   "Lookup `eglot-server-programs' for MODE.
 Return (LANGUAGES . CONTACT-PROXY).
 
-MANAGED-MODES is a list with MODE as its first element.
-Subsequent elements are other major modes also potentially
-managed by the server that is to manage MODE.
-
-LANGUAGE-IDS is a list of the same length as MANAGED-MODES.  Each
-elem is derived from the corresponding mode name, if not
-specified in `eglot-server-programs' (which see).
+LANGUAGES is a list ((MANAGED-MODE . LANGUAGE-ID) ...).  MANAGED-MODE is
+a major mode also potentially managed by the server that is to manage
+MODE.  LANGUAGE-ID is string identifying the language to the LSP server.
+It's derived from the corresponding mode name, or explicitly specified
+in `eglot-server-programs' (which see).
 
 CONTACT-PROXY is the value of the corresponding
 `eglot-server-programs' entry."
-  (cl-flet ((languages (main-mode-sym specs)
-              (let* ((res
-                      (mapcar (jsonrpc-lambda (sym &key language-id &allow-other-keys)
-                                (cons sym
-                                      (or language-id
-                                          (or (get sym 'eglot-language-id)
-                                              (replace-regexp-in-string
-                                               "\\(?:-ts\\)?-mode$" ""
-                                               (symbol-name sym))))))
-                              specs))
-                     (head (cl-find main-mode-sym res :key #'car)))
-                (cons head (delq head res)))))
-    (cl-loop
-     for (modes . contact) in eglot-server-programs
-     for specs = (mapcar #'eglot--ensure-list
-                         (if (or (symbolp modes) (keywordp (cadr modes)))
-                             (list modes) modes))
-     thereis (cl-some (lambda (spec)
-                        (cl-destructuring-bind (sym &key &allow-other-keys) spec
-                          (and (provided-mode-derived-p mode sym)
-                               (cons (languages sym specs) contact))))
-                      specs))))
+  (cl-loop
+   for (modes . contact) in eglot-server-programs
+   for llists = (mapcar #'eglot--ensure-list
+                           (if (or (symbolp modes) (keywordp (cadr modes)))
+                               (list modes) modes))
+   for normalized = (mapcar (jsonrpc-lambda (sym &key language-id &allow-other-keys)
+                              (cons sym
+                                    (or language-id
+                                        (or (get sym 'eglot-language-id)
+                                            (replace-regexp-in-string
+                                             "\\(?:-ts\\)?-mode$" ""
+                                             (symbol-name sym))))))
+                            llists)
+   when (cl-some (lambda (cell)
+                   (provided-mode-derived-p mode (car cell)))
+                 normalized)
+   return (cons normalized contact)))
 
 (defun eglot--guess-contact (&optional interactive)
   "Helper for `eglot'.
@@ -1282,16 +1328,19 @@ be guessed."
           (and base-prompt
                (cond (current-prefix-arg base-prompt)
                      ((null guess)
-                      (format "[eglot] Couldn't guess LSP server for `%s'\n%s"
-                              main-mode base-prompt))
+                      (eglot--format
+                       "[eglot] Couldn't guess LSP server for `%s'\n%s"
+                       main-mode base-prompt))
                      ((and program
                            (not (file-name-absolute-p program))
-                           (not (eglot--executable-find program t)))
+                           (not (compat-call executable-find program t)))
                       (if full-program-invocation
-                          (concat (format "[eglot] I guess you want to run `%s'"
-                                          full-program-invocation)
-                                  (format ", but I can't find `%s' in PATH!"
-                                          program)
+                          (concat (eglot--format
+                                   "[eglot] I guess you want to run `%s'"
+                                   full-program-invocation)
+                                  (eglot--format
+                                   ", but I can't find `%s' in PATH!"
+                                   program)
                                   "\n" base-prompt)
                         (eglot--error
                          (concat "`%s' not found in PATH, but can't form"
@@ -1375,7 +1424,7 @@ INTERACTIVE is ignored and provided for backward compatibility."
      (unless (or (null current-server)
                  (y-or-n-p "\
 [eglot] Shut down current connection before attempting new one?"))
-       (user-error "[eglot] Connection attempt aborted by user."))
+       (user-error "[eglot] Connection attempt aborted by user"))
      (prog1 (append (eglot--guess-contact t) '(t))
        (when current-server (ignore-errors (eglot-shutdown current-server))))))
   (eglot--connect (eglot--ensure-list managed-major-modes)
@@ -1447,18 +1496,21 @@ Use current server's or first available Eglot events buffer."
 
 (defvar eglot-connect-hook
   '(eglot-signal-didChangeConfiguration)
-  "Hook run after connecting in `eglot--connect'.")
+  "Hook run after connecting to a server.
+Each function is passed an `eglot-lsp-server' instance
+as argument.")
 
 (defvar eglot-server-initialized-hook
   '()
   "Hook run after a `eglot-lsp-server' instance is created.
 
-That is before a connection was established.  Use
+That is before a connection is established.  Use
 `eglot-connect-hook' to hook into when a connection was
 successfully established and the server on the other side has
 received the initializing configuration.
 
-Each function is passed the server as an argument")
+Each function is passed an `eglot-lsp-server' instance
+as argument.")
 
 (defun eglot--cmd (contact)
   "Helper for `eglot--connect'."
@@ -1483,7 +1535,12 @@ Each function is passed the server as an argument")
 This docstring appeases checkdoc, that's all."
   (let* ((default-directory (project-root project))
          (nickname (project-name project))
-         (readable-name (format "EGLOT (%s/%s)" nickname managed-modes))
+         (readable-name
+          (progn
+            (unless (file-exists-p default-directory)
+              ;; could happen because of bug#70724 or just because
+              (eglot--error "Project '%s' is gone!" nickname))
+            (format "EGLOT (%s/%s)" nickname managed-modes)))
          server-info
          (contact (if (functionp contact) (funcall contact) contact))
          (initargs
@@ -1572,8 +1629,10 @@ This docstring appeases checkdoc, that's all."
                                             'network))
                               (emacs-pid))
                             :clientInfo
-                            `(:name "Eglot" ,@(when eglot--version
-                                                `(:version ,eglot--version)))
+                            (append
+                             '(:name "Eglot")
+                             (let ((v (package-get-version)))
+                               (and v (list :version v))))
                             ;; Maybe turn trampy `/ssh:foo@bar:/path/to/baz.py'
                             ;; into `/path/to/baz.py', so LSP groks it.
                             :rootPath (file-local-name
@@ -1649,19 +1708,23 @@ in project `%s'."
 
 ;;; Helpers (move these to API?)
 ;;;
+(defun eglot--format (format &rest args)
+  "Like `format`, but substitutes quotes."
+  (apply #'format (substitute-quotes format) args))
+
 (defun eglot--error (format &rest args)
   "Error out with FORMAT with ARGS."
-  (error "[eglot] %s" (apply #'format format args)))
+  (error "[eglot] %s" (apply #'eglot--format format args)))
 
 (defun eglot--message (format &rest args)
   "Message out with FORMAT with ARGS."
-  (message "[eglot] %s" (apply #'format format args)))
+  (message "[eglot] %s" (apply #'eglot--format format args)))
 
 (defun eglot--warn (format &rest args)
   "Warning message with FORMAT and ARGS."
   (apply #'eglot--message (concat "(warning) " format) args)
   (let ((warning-minimum-level :error))
-    (display-warning 'eglot (apply #'format format args) :warning)))
+    (display-warning 'eglot (apply #'eglot--format format args) :warning)))
 
 (defalias 'eglot--bol
   (if (fboundp 'pos-bol) #'pos-bol
@@ -1705,6 +1768,9 @@ return value is fed through the corresponding inverse function
   "Calculate number of UTF-16 code units from position given by LBP.
 LBP defaults to `eglot--bol'."
   (/ (- (length (encode-coding-region (or lbp (eglot--bol))
+                                      ;; FIXME: How could `point' ever be
+                                      ;; larger than `point-max' (sounds like
+                                      ;; a bug in Emacs).
                                       ;; Fix github#860
                                       (min (point) (point-max)) 'utf-16 t))
         2)
@@ -1721,6 +1787,24 @@ LBP defaults to `eglot--bol'."
    (list :line (1- (line-number-at-pos pos t))
          :character (progn (when pos (goto-char pos))
                            (funcall eglot-current-linepos-function)))))
+
+(defun eglot--virtual-pos-to-lsp-position (pos string)
+  "Return the LSP position at the end of STRING if it were inserted at POS."
+  (eglot--widening
+   (goto-char pos)
+   (forward-line 0)
+   ;; LSP line is zero-origin; Emacs is one-origin.
+   (let ((posline (1- (line-number-at-pos nil t)))
+         (linebeg (buffer-substring (point) pos))
+         (colfun eglot-current-linepos-function))
+     ;; Use a temp buffer because:
+     ;; - I don't know of a fast way to count newlines in a string.
+     ;; - We currently don't have `eglot-current-linepos-function' for strings.
+     (with-temp-buffer
+       (insert linebeg string)
+       (goto-char (point-max))
+       (list :line (+ posline (1- (line-number-at-pos nil t)))
+             :character (funcall colfun))))))
 
 (defvar eglot-move-to-linepos-function #'eglot-move-to-utf-16-linepos
   "Function to move to a position within a line reported by the LSP server.
@@ -1788,6 +1872,12 @@ If optional MARKER, return a marker instead"
 
 
 ;;; More helpers
+(defconst eglot--uri-path-allowed-chars
+  (let ((vec (copy-sequence url-path-allowed-chars)))
+    (aset vec ?: nil) ;; see github#639
+    vec)
+  "Like `url-path-allowed-chars' but more restrictive.")
+
 (defun eglot--snippet-expansion-fn ()
   "Compute a function to expand snippets.
 Doubles as an indicator of snippet support."
@@ -1797,15 +1887,25 @@ Doubles as an indicator of snippet support."
            (unless (bound-and-true-p yas-minor-mode) (yas-minor-mode 1))
            (apply #'yas-expand-snippet args)))))
 
-(defun eglot--format-markup (markup)
-  "Format MARKUP according to LSP's spec."
-  (pcase-let ((`(,string ,mode)
-               (if (stringp markup) (list markup 'gfm-view-mode)
-                 (list (plist-get markup :value)
-                       (pcase (plist-get markup :kind)
-                         ("markdown" 'gfm-view-mode)
-                         ("plaintext" 'text-mode)
-                         (_ major-mode))))))
+ (defun eglot--format-markup (markup)
+  "Format MARKUP according to LSP's spec.
+MARKUP is either an LSP MarkedString or MarkupContent object."
+  (let (string mode language)
+    (cond ((stringp markup)
+           (setq string markup
+                 mode 'gfm-view-mode))
+          ((setq language (plist-get markup :language))
+           ;; Deprecated MarkedString
+           (setq string (concat "```" language "\n"
+                                (plist-get markup :value) "\n```")
+                 mode 'gfm-view-mode))
+          (t
+           ;; MarkupContent
+           (setq string (plist-get markup :value)
+                 mode (pcase (plist-get markup :kind)
+                        ("markdown" 'gfm-view-mode)
+                        ("plaintext" 'text-mode)
+                        (_ major-mode)))))
     (with-temp-buffer
       (setq-local markdown-fontify-code-blocks-natively t)
       (insert string)
@@ -1816,10 +1916,9 @@ Doubles as an indicator of snippet support."
         (font-lock-ensure)
         (goto-char (point-min))
         (let ((inhibit-read-only t))
-          (when (fboundp 'text-property-search-forward) ;; FIXME: use compat
-            (while (setq match (text-property-search-forward 'invisible))
-              (delete-region (prop-match-beginning match)
-                             (prop-match-end match)))))
+          (while (setq match (text-property-search-forward 'invisible))
+            (delete-region (prop-match-beginning match)
+                           (prop-match-end match))))
         (string-trim (buffer-string))))))
 
 (defun eglot--read-server (prompt &optional dont-if-just-the-one)
@@ -1835,7 +1934,7 @@ and just return it.  PROMPT shouldn't end with a question mark."
     (cond ((null servers)
            (eglot--error "No servers!"))
           ((or (cdr servers) (not dont-if-just-the-one))
-           (let* ((default (when-let ((current (eglot-current-server)))
+           (let* ((default (when-let* ((current (eglot-current-server)))
                              (funcall name current)))
                   (read (completing-read
                          (if default
@@ -1913,9 +2012,11 @@ For example, to keep your Company customization, add the symbol
   "A hook run by Eglot after it started/stopped managing a buffer.
 Use `eglot-managed-p' to determine if current buffer is managed.")
 
+(defvar-local eglot--track-changes nil)
+
 (define-minor-mode eglot--managed-mode
   "Mode for source buffers managed by some Eglot project."
-  :init-value nil :lighter nil :keymap eglot-mode-map
+  :init-value nil :lighter nil :keymap eglot-mode-map :interactive nil
   (cond
    (eglot--managed-mode
     (pcase (plist-get (eglot--capabilities (eglot-current-server))
@@ -1926,23 +2027,25 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
       ("utf-8"
        (eglot--setq-saving eglot-current-linepos-function #'eglot-utf-8-linepos)
        (eglot--setq-saving eglot-move-to-linepos-function #'eglot-move-to-utf-8-linepos)))
-    (add-hook 'after-change-functions 'eglot--after-change nil t)
-    (add-hook 'before-change-functions 'eglot--before-change nil t)
+    (unless eglot--track-changes
+      (setq eglot--track-changes
+            (track-changes-register
+             #'eglot--track-changes-signal :disjoint t)))
     (add-hook 'kill-buffer-hook #'eglot--managed-mode-off nil t)
     ;; Prepend "didClose" to the hook after the "nonoff", so it will run first
-    (add-hook 'kill-buffer-hook 'eglot--signal-textDocument/didClose nil t)
-    (add-hook 'before-revert-hook 'eglot--signal-textDocument/didClose nil t)
-    (add-hook 'after-revert-hook 'eglot--after-revert-hook nil t)
-    (add-hook 'before-save-hook 'eglot--signal-textDocument/willSave nil t)
-    (add-hook 'after-save-hook 'eglot--signal-textDocument/didSave nil t)
+    (add-hook 'kill-buffer-hook #'eglot--signal-textDocument/didClose nil t)
+    (add-hook 'before-revert-hook #'eglot--signal-textDocument/didClose nil t)
+    (add-hook 'after-revert-hook #'eglot--after-revert-hook nil t)
+    (add-hook 'before-save-hook #'eglot--signal-textDocument/willSave nil t)
+    (add-hook 'after-save-hook #'eglot--signal-textDocument/didSave nil t)
     (unless (eglot--stay-out-of-p 'xref)
-      (add-hook 'xref-backend-functions 'eglot-xref-backend nil t))
+      (add-hook 'xref-backend-functions #'eglot-xref-backend nil t))
     (add-hook 'completion-at-point-functions #'eglot-completion-at-point nil t)
     (add-hook 'completion-in-region-mode-hook #'eglot--capf-session-flush nil t)
     (add-hook 'company-after-completion-hook #'eglot--capf-session-flush nil t)
     (add-hook 'change-major-mode-hook #'eglot--managed-mode-off nil t)
-    (add-hook 'post-self-insert-hook 'eglot--post-self-insert-hook nil t)
-    (add-hook 'pre-command-hook 'eglot--pre-command-hook nil t)
+    (add-hook 'post-self-insert-hook #'eglot--post-self-insert-hook nil t)
+    (add-hook 'pre-command-hook #'eglot--pre-command-hook nil t)
     (eglot--setq-saving xref-prompt-for-identifier nil)
     (eglot--setq-saving flymake-diagnostic-functions '(eglot-flymake-backend))
     (eglot--setq-saving company-backends '(company-capf))
@@ -1961,21 +2064,19 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
       (eldoc-mode 1))
     (cl-pushnew (current-buffer) (eglot--managed-buffers (eglot-current-server))))
    (t
-    (remove-hook 'after-change-functions 'eglot--after-change t)
-    (remove-hook 'before-change-functions 'eglot--before-change t)
     (remove-hook 'kill-buffer-hook #'eglot--managed-mode-off t)
-    (remove-hook 'kill-buffer-hook 'eglot--signal-textDocument/didClose t)
-    (remove-hook 'before-revert-hook 'eglot--signal-textDocument/didClose t)
-    (remove-hook 'after-revert-hook 'eglot--after-revert-hook t)
-    (remove-hook 'before-save-hook 'eglot--signal-textDocument/willSave t)
-    (remove-hook 'after-save-hook 'eglot--signal-textDocument/didSave t)
-    (remove-hook 'xref-backend-functions 'eglot-xref-backend t)
+    (remove-hook 'kill-buffer-hook #'eglot--signal-textDocument/didClose t)
+    (remove-hook 'before-revert-hook #'eglot--signal-textDocument/didClose t)
+    (remove-hook 'after-revert-hook #'eglot--after-revert-hook t)
+    (remove-hook 'before-save-hook #'eglot--signal-textDocument/willSave t)
+    (remove-hook 'after-save-hook #'eglot--signal-textDocument/didSave t)
+    (remove-hook 'xref-backend-functions #'eglot-xref-backend t)
     (remove-hook 'completion-at-point-functions #'eglot-completion-at-point t)
     (remove-hook 'completion-in-region-mode-hook #'eglot--capf-session-flush t)
     (remove-hook 'company-after-completion-hook #'eglot--capf-session-flush t)
     (remove-hook 'change-major-mode-hook #'eglot--managed-mode-off t)
-    (remove-hook 'post-self-insert-hook 'eglot--post-self-insert-hook t)
-    (remove-hook 'pre-command-hook 'eglot--pre-command-hook t)
+    (remove-hook 'post-self-insert-hook #'eglot--post-self-insert-hook t)
+    (remove-hook 'pre-command-hook #'eglot--pre-command-hook t)
     (remove-hook 'eldoc-documentation-functions #'eglot-hover-eldoc-function t)
     (remove-hook 'eldoc-documentation-functions #'eglot-signature-eldoc-function t)
     (cl-loop for (var . saved-binding) in eglot--saved-bindings
@@ -1984,6 +2085,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
     (when eglot--current-flymake-report-fn
       (eglot--report-to-flymake nil)
       (setq eglot--current-flymake-report-fn nil))
+    (run-hooks 'eglot-managed-mode-hook)
     (let ((server eglot--cached-server))
       (setq eglot--cached-server nil)
       (when server
@@ -1991,7 +2093,10 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
               (delq (current-buffer) (eglot--managed-buffers server)))
         (when (and eglot-autoshutdown
                    (null (eglot--managed-buffers server)))
-          (eglot-shutdown server)))))))
+          (eglot-shutdown server))))
+    (when eglot--track-changes
+      (track-changes-unregister eglot--track-changes)
+      (setq eglot--track-changes nil)))))
 
 (defun eglot--managed-mode-off ()
   "Turn off `eglot--managed-mode' unconditionally."
@@ -2024,6 +2129,7 @@ Use `eglot-managed-p' to determine if current buffer is managed.")
 (defvar revert-buffer-preserve-modes)
 (defun eglot--after-revert-hook ()
   "Eglot's `after-revert-hook'."
+  ;; FIXME: Do we really need this?
   (when revert-buffer-preserve-modes (eglot--signal-textDocument/didOpen)))
 
 (defun eglot--maybe-activate-editing-mode ()
@@ -2042,7 +2148,7 @@ If it is activated, also signal textDocument/didOpen."
       (eglot-inlay-hints-mode 1)
       (run-hooks 'eglot-managed-mode-hook))))
 
-(add-hook 'after-change-major-mode-hook 'eglot--maybe-activate-editing-mode)
+(add-hook 'after-change-major-mode-hook #'eglot--maybe-activate-editing-mode)
 
 (defun eglot-clear-status (server)
   "Clear the last JSONRPC error for SERVER."
@@ -2078,7 +2184,7 @@ If it is activated, also signal textDocument/didOpen."
   (with-no-warnings
     (require 'package)
     (unless package-archive-contents (package-refresh-contents))
-    (when-let ((existing (cadr (assoc 'eglot package-alist))))
+    (when-let* ((existing (cadr (assoc 'eglot package-alist))))
       (package-delete existing t))
     (package-install (cadr (assoc 'eglot package-archive-contents)))))
 
@@ -2215,12 +2321,12 @@ still unanswered LSP requests to the server\n")))
 (put 'eglot-warning 'flymake-category 'flymake-warning)
 (put 'eglot-error 'flymake-category 'flymake-error)
 
-(defalias 'eglot--make-diag 'flymake-make-diagnostic)
-(defalias 'eglot--diag-data 'flymake-diagnostic-data)
+(defalias 'eglot--make-diag #'flymake-make-diagnostic)
+(defalias 'eglot--diag-data #'flymake-diagnostic-data)
 
 (defvar eglot-diagnostics-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-2] 'eglot-code-actions-at-mouse)
+    (define-key map [mouse-2] #'eglot-code-actions-at-mouse)
     map)
   "Keymap active in Eglot-backed Flymake diagnostic overlays.")
 
@@ -2312,8 +2418,14 @@ still unanswered LSP requests to the server\n")))
                         (lambda ()
                           (remhash token (eglot--progress-reporters server))))))))))
 
+(defvar-local eglot--TextDocumentIdentifier-cache nil
+  "LSP TextDocumentIdentifier-related cached info for current buffer.
+Value is (TRUENAME . (:uri STR)), where STR is what is sent to the
+server on textDocument/didOpen and similar calls.  TRUENAME is the
+expensive cached value of `file-truename'.")
+
 (cl-defmethod eglot-handle-notification
-  (_server (_method (eql textDocument/publishDiagnostics)) &key uri diagnostics
+  (server (_method (eql textDocument/publishDiagnostics)) &key uri diagnostics
            &allow-other-keys) ; FIXME: doesn't respect `eglot-strict-mode'
   "Handle notification publishDiagnostics."
   (cl-flet ((eglot--diag-type (sev)
@@ -2322,9 +2434,17 @@ still unanswered LSP requests to the server\n")))
                     ((= sev 2)  'eglot-warning)
                     (t          'eglot-note)))
             (mess (source code message)
-              (concat source (and code (format " [%s]" code)) ": " message)))
+              (concat source (and code (format " [%s]" code)) ": " message))
+            (find-it (abspath)
+              ;; `find-buffer-visiting' would be natural, but calls the
+              ;; potentially slow `file-truename' (bug#70036).
+              (cl-loop for b in (eglot--managed-buffers server)
+                       when (with-current-buffer b
+                              (equal (car eglot--TextDocumentIdentifier-cache)
+                                     abspath))
+                       return b)))
     (if-let* ((path (expand-file-name (eglot-uri-to-path uri)))
-              (buffer (find-buffer-visiting path)))
+              (buffer (find-it path)))
         (with-current-buffer buffer
           (cl-loop
            initially
@@ -2357,10 +2477,10 @@ still unanswered LSP requests to the server\n")))
                         (current-buffer) beg end
                         (eglot--diag-type severity)
                         message `((eglot-lsp-diag . ,diag-spec))
-                        (when-let ((faces
-                                    (cl-loop for tag across tags
-                                             when (alist-get tag eglot--tag-faces)
-                                             collect it)))
+                        (when-let* ((faces
+                                     (cl-loop for tag across tags
+                                              when (alist-get tag eglot--tag-faces)
+                                              collect it)))
                           `((face . ,faces))))))
            into diags
            finally (cond ((and
@@ -2450,11 +2570,16 @@ THINGS are either registrations or unregisterations (sic)."
     `(:success ,success)))
 
 (defun eglot--TextDocumentIdentifier ()
-  "Compute TextDocumentIdentifier object for current buffer."
-  `(:uri ,(eglot-path-to-uri (or buffer-file-name
-                                  (ignore-errors
-                                    (buffer-file-name
-                                     (buffer-base-buffer)))))))
+  "Compute TextDocumentIdentifier object for current buffer.
+Sets `eglot--TextDocumentIdentifier-cache' (which see) as a side effect."
+  (unless eglot--TextDocumentIdentifier-cache
+    (let ((truename (file-truename (or buffer-file-name
+                                       (ignore-errors
+                                         (buffer-file-name
+                                          (buffer-base-buffer)))))))
+      (setq eglot--TextDocumentIdentifier-cache
+            `(,truename . (:uri ,(eglot-path-to-uri truename :truenamep t))))))
+  (cdr eglot--TextDocumentIdentifier-cache))
 
 (defvar-local eglot--versioned-identifier 0)
 
@@ -2514,16 +2639,16 @@ buffer."
   (append
    (eglot--TextDocumentPositionParams)
    `(:context
-     ,(if-let (trigger (and (characterp eglot--last-inserted-char)
-                            (cl-find eglot--last-inserted-char
-                                     (eglot-server-capable :completionProvider
-                                                            :triggerCharacters)
-                                     :key (lambda (str) (aref str 0))
-                                     :test #'char-equal)))
+     ,(if-let* ((trigger (and (characterp eglot--last-inserted-char)
+                              (cl-find eglot--last-inserted-char
+                                       (eglot-server-capable :completionProvider
+                                                             :triggerCharacters)
+                                       :key (lambda (str) (aref str 0))
+                                       :test #'char-equal))))
           `(:triggerKind 2 :triggerCharacter ,trigger) `(:triggerKind 1)))))
 
 (defvar-local eglot--recent-changes nil
-  "Recent buffer changes as collected by `eglot--before-change'.")
+  "Recent buffer changes as collected by `eglot--track-changes-fetch'.")
 
 (cl-defmethod jsonrpc-connection-ready-p ((_server eglot-lsp-server) _what)
   "Tell if SERVER is ready for WHAT in current buffer."
@@ -2531,63 +2656,59 @@ buffer."
 
 (defvar-local eglot--change-idle-timer nil "Idle timer for didChange signals.")
 
-(defun eglot--before-change (beg end)
-  "Hook onto `before-change-functions' with BEG and END."
-  (when (listp eglot--recent-changes)
-    ;; Records BEG and END, crucially convert them into LSP
-    ;; (line/char) positions before that information is lost (because
-    ;; the after-change thingy doesn't know if newlines were
-    ;; deleted/added).  Also record markers of BEG and END
-    ;; (github#259)
-    (push `(,(eglot--pos-to-lsp-position beg)
-            ,(eglot--pos-to-lsp-position end)
-            (,beg . ,(copy-marker beg nil))
-            (,end . ,(copy-marker end t)))
-          eglot--recent-changes)))
-
 (defvar eglot--document-changed-hook '(eglot--signal-textDocument/didChange)
   "Internal hook for doing things when the document changes.")
 
-(defun eglot--after-change (beg end pre-change-length)
-  "Hook onto `after-change-functions'.
-Records BEG, END and PRE-CHANGE-LENGTH locally."
-  (cl-incf eglot--versioned-identifier)
-  (pcase (car-safe eglot--recent-changes)
-    (`(,lsp-beg ,lsp-end
-                (,b-beg . ,b-beg-marker)
-                (,b-end . ,b-end-marker))
-     ;; github#259 and github#367: with `capitalize-word' & friends,
-     ;; `before-change-functions' records the whole word's `b-beg' and
-     ;; `b-end'.  Similarly, when `fill-paragraph' coalesces two
-     ;; lines, `b-beg' and `b-end' mark end of first line and end of
-     ;; second line, resp.  In both situations, `beg' and `end'
-     ;; received here seemingly contradict that: they will differ by 1
-     ;; and encompass the capitalized character or, in the coalescing
-     ;; case, the replacement of the newline with a space.  We keep
-     ;; both markers and positions to detect and correct this.  In
-     ;; this specific case, we ignore `beg', `len' and
-     ;; `pre-change-len' and send richer information about the region
-     ;; from the markers.  I've also experimented with doing this
-     ;; unconditionally but it seems to break when newlines are added.
-     (if (and (= b-end b-end-marker) (= b-beg b-beg-marker)
-              (or (/= beg b-beg) (/= end b-end)))
-         (setcar eglot--recent-changes
-                 `(,lsp-beg ,lsp-end ,(- b-end-marker b-beg-marker)
-                            ,(buffer-substring-no-properties b-beg-marker
-                                                             b-end-marker)))
-       (setcar eglot--recent-changes
-               `(,lsp-beg ,lsp-end ,pre-change-length
-                          ,(buffer-substring-no-properties beg end)))))
-    (_ (setf eglot--recent-changes :emacs-messup)))
+(defun eglot--track-changes-fetch (id)
+  (if (eq eglot--recent-changes :pending) (setq eglot--recent-changes nil))
+  (track-changes-fetch
+   id (lambda (beg end before)
+        (cl-incf eglot--versioned-identifier)
+        (cond
+         ((eq eglot--recent-changes :emacs-messup) nil)
+         ((eq before 'error) (setf eglot--recent-changes :emacs-messup))
+         (t (push `(,(eglot--pos-to-lsp-position beg)
+                    ,(eglot--virtual-pos-to-lsp-position beg before)
+                    ,(length before)
+                    ,(buffer-substring-no-properties beg end))
+                  eglot--recent-changes))))))
+
+(defun eglot--add-one-shot-hook (hook function &optional append local)
+  "Like `add-hook' but calls FUNCTION only once."
+  (let* ((fname (make-symbol (format "eglot--%s-once" function)))
+         (fun (lambda (&rest args)
+                (remove-hook hook fname local)
+                (apply function args))))
+    (fset fname fun)
+    (add-hook hook fname append local)))
+
+(defun eglot--track-changes-signal (id &optional distance)
+  (cond
+   (distance
+    ;; When distance is <100, we may as well coalesce the changes.
+    (when (> distance 100) (eglot--track-changes-fetch id)))
+   (eglot--recent-changes nil)
+   ;; Note that there are pending changes, for the benefit of those
+   ;; who check it as a boolean.
+   (t (setq eglot--recent-changes :pending)))
   (when eglot--change-idle-timer (cancel-timer eglot--change-idle-timer))
-  (let ((buf (current-buffer)))
-    (setq eglot--change-idle-timer
-          (run-with-idle-timer
-           eglot-send-changes-idle-time
-           nil (lambda () (eglot--when-live-buffer buf
-                            (when eglot--managed-mode
-                              (run-hooks 'eglot--document-changed-hook)
-                              (setq eglot--change-idle-timer nil))))))))
+  (setq eglot--change-idle-timer
+        (run-with-idle-timer
+         eglot-send-changes-idle-time nil
+         (lambda (buf)
+           (eglot--when-live-buffer buf
+             (when eglot--managed-mode
+               (if (track-changes-inconsistent-state-p)
+                   ;; Not a good time (e.g. in the middle of Quail thingy,
+                   ;; bug#70541): reschedule for the next idle period.
+                   (eglot--add-one-shot-hook
+                    'post-command-hook
+                    (lambda ()
+                      (eglot--when-live-buffer buf
+                        (eglot--track-changes-signal id))))
+                 (run-hooks 'eglot--document-changed-hook)
+                 (setq eglot--change-idle-timer nil)))))
+         (current-buffer))))
 
 (defvar-local eglot-workspace-configuration ()
   "Configure LSP servers specifically for a given project.
@@ -2618,7 +2739,7 @@ root of the current project.  It should return an object of the
 format described above.")
 
 ;;;###autoload
-(put 'eglot-workspace-configuration 'safe-local-variable 'listp)
+(put 'eglot-workspace-configuration 'safe-local-variable #'listp)
 
 (defun eglot-show-workspace-configuration (&optional server)
   "Dump `eglot-workspace-configuration' as JSON for debugging."
@@ -2691,6 +2812,7 @@ When called interactively, use the currently active server"
 
 (defun eglot--signal-textDocument/didChange ()
   "Send textDocument/didChange to server."
+  (eglot--track-changes-fetch eglot--track-changes)
   (when eglot--recent-changes
     (let* ((server (eglot--current-server-or-lose))
            (sync-capability (eglot-server-capable :textDocumentSync))
@@ -2708,12 +2830,6 @@ When called interactively, use the currently active server"
                               (buffer-substring-no-properties (point-min)
                                                               (point-max)))))
           (cl-loop for (beg end len text) in (reverse eglot--recent-changes)
-                   ;; github#259: `capitalize-word' and commands based
-                   ;; on `casify_region' will cause multiple duplicate
-                   ;; empty entries in `eglot--before-change' calls
-                   ;; without an `eglot--after-change' reciprocal.
-                   ;; Weed them out here.
-                   when (numberp len)
                    vconcat `[,(list :range `(:start ,beg :end ,end)
                                     :rangeLength len :text text)]))))
       (setq eglot--recent-changes nil)
@@ -2721,7 +2837,11 @@ When called interactively, use the currently active server"
 
 (defun eglot--signal-textDocument/didOpen ()
   "Send textDocument/didOpen to server."
-  (setq eglot--recent-changes nil eglot--versioned-identifier 0)
+  ;; Flush any potential pending change.
+  (eglot--track-changes-fetch eglot--track-changes)
+  (setq eglot--recent-changes nil
+        eglot--versioned-identifier 0
+        eglot--TextDocumentIdentifier-cache nil)
   (jsonrpc-notify
    (eglot--current-server-or-lose)
    :textDocument/didOpen `(:textDocument ,(eglot--TextDocumentItem))))
@@ -3044,15 +3164,22 @@ for which LSP on-type-formatting should be requested."
                                       nil comp)
            finally (cl-return comp)))
 
-(defun eglot--dumb-allc (pat table pred _point) (funcall table pat pred t))
+(defun eglot--dumb-allc (pat table pred point)
+  (funcall table (substring pat 0 point) pred t))
+
+(defun eglot--dumb-tryc (pat table pred point)
+  (let* ((probe (funcall table (substring pat 0 point) pred t)))
+    (cond ((and probe (null (cdr probe)))
+           (cons (car probe) (length (car probe))))
+          (t (cons pat point)))))
 
 (add-to-list 'completion-category-defaults '(eglot-capf (styles eglot--dumb-flex)))
-(add-to-list 'completion-styles-alist '(eglot--dumb-flex ignore eglot--dumb-allc))
+(add-to-list 'completion-styles-alist '(eglot--dumb-flex eglot--dumb-tryc eglot--dumb-allc))
 
 (defun eglot-completion-at-point ()
   "Eglot's `completion-at-point' function."
   ;; Commit logs for this function help understand what's going on.
-  (when-let (completion-capability (eglot-server-capable :completionProvider))
+  (when-let* ((completion-capability (eglot-server-capable :completionProvider)))
     (let* ((server (eglot--current-server-or-lose))
            (bounds (or (bounds-of-thing-at-point 'symbol)
                        (cons (point) (point))))
@@ -3106,27 +3233,31 @@ for which LSP on-type-formatting should be requested."
                          items)))
                   ;; (trace-values "Requested" (length proxies) cachep bounds)
                   (setq eglot--capf-session
-                        (if cachep (list bounds retval resolved orig-pos) :none))
+                        (if cachep (list bounds retval resolved orig-pos
+                                         bounds-string) :none))
                   (setq local-cache retval)))))
            (resolve-maybe
             ;; Maybe completion/resolve JSON object `lsp-comp' into
             ;; another JSON object, if at all possible.  Otherwise,
             ;; just return lsp-comp.
-            (lambda (lsp-comp)
+            (lambda (lsp-comp &optional dont-cancel-on-input)
               (or (gethash lsp-comp resolved)
                   (setf (gethash lsp-comp resolved)
                         (if (and (eglot-server-capable :completionProvider
                                                         :resolveProvider)
                                  (plist-get lsp-comp :data))
                             (eglot--request server :completionItem/resolve
-                                            lsp-comp :cancel-on-input t)
+                                            lsp-comp :cancel-on-input
+                                            (not dont-cancel-on-input)
+                                            :immediate t)
                           lsp-comp))))))
       (when (and (consp eglot--capf-session)
                  (= (car bounds) (car (nth 0 eglot--capf-session)))
                  (>= (cdr bounds) (cdr (nth 0 eglot--capf-session))))
         (setq local-cache (nth 1 eglot--capf-session)
               resolved (nth 2 eglot--capf-session)
-              orig-pos (nth 3 eglot--capf-session))
+              orig-pos (nth 3 eglot--capf-session)
+              bounds-string (nth 4 eglot--capf-session))
         ;; (trace-values "Recalling cache" (length local-cache) bounds orig-pos)
         )
       (list
@@ -3142,7 +3273,7 @@ for which LSP on-type-formatting should be requested."
            (try-completion pattern (funcall proxies)))
           ((eq action t)                                 ; all-completions
            (let ((comps (funcall proxies)))
-             (dolist (c comps) (eglot--dumb-flex pattern c t))
+             (dolist (c comps) (eglot--dumb-flex pattern c completion-ignore-case))
              (all-completions
               ""
               comps
@@ -3178,7 +3309,7 @@ for which LSP on-type-formatting should be requested."
              (_ (intern (downcase kind))))))
        :company-deprecated
        (lambda (proxy)
-         (when-let ((lsp-item (get-text-property 0 'eglot--lsp-item proxy)))
+         (when-let* ((lsp-item (get-text-property 0 'eglot--lsp-item proxy)))
            (or (seq-contains-p (plist-get lsp-item :tags)
                                1)
                (eq t (plist-get lsp-item :deprecated)))))
@@ -3232,9 +3363,21 @@ for which LSP on-type-formatting should be requested."
                       ;; A lookup should fix that (github#148)
                       (get-text-property
                        0 'eglot--lsp-item
-                       (cl-find proxy (funcall proxies) :test #'string=))))
-               (let ((snippet-fn (and (eql insertTextFormat 2)
-                                      (eglot--snippet-expansion-fn))))
+                       (cl-find proxy (funcall proxies) :test #'string=)))
+                  ;; Be sure to pass non-nil here since we don't want
+                  ;; any quick typing after the soon-to-be-undone
+                  ;; insertion to potentially cancel an essential
+                  ;; resolution request (github#1474).
+                  'dont-cancel-on-input)
+               (let* ((snippet-fn (and (eql insertTextFormat 2)
+                                       (eglot--snippet-expansion-fn)))
+                      (apply-edit
+                       (lambda (range text)
+                         (pcase-let ((`(,beg . ,end)
+                                      (eglot-range-region range)))
+                           (delete-region beg end)
+                           (goto-char beg)
+                           (funcall (or snippet-fn #'insert) text)))))
                  (cond (textEdit
                         ;; Revert buffer back to state when the edit
                         ;; was obtained from server. If a `proxy'
@@ -3243,12 +3386,11 @@ for which LSP on-type-formatting should be requested."
                         ;; state, _not_ the current "foo.bar".
                         (delete-region orig-pos (point))
                         (insert (substring bounds-string (- orig-pos (car bounds))))
-                        (eglot--dbind ((TextEdit) range newText) textEdit
-                          (pcase-let ((`(,beg . ,end)
-                                       (eglot-range-region range)))
-                            (delete-region beg end)
-                            (goto-char beg)
-                            (funcall (or snippet-fn #'insert) newText))))
+                        (eglot--dcase textEdit
+                          (((TextEdit) range newText)
+                           (funcall apply-edit range newText))
+                          (((InsertReplaceEdit) newText replace)
+                           (funcall apply-edit replace newText))))
                        (snippet-fn
                         ;; A snippet should be inserted, but using plain
                         ;; `insertText'.  This requires us to delete the
@@ -3272,7 +3414,7 @@ for which LSP on-type-formatting should be requested."
     (with-temp-buffer
       (insert siglabel)
       ;; Add documentation, indented so we can distinguish multiple signatures
-      (when-let (doc (and (not briefp) sigdoc (eglot--format-markup sigdoc)))
+      (when-let* ((doc (and (not briefp) sigdoc (eglot--format-markup sigdoc))))
         (goto-char (point-max))
         (insert "\n" (replace-regexp-in-string "^" "  " doc)))
       ;; Try to highlight function name only
@@ -3292,7 +3434,7 @@ for which LSP on-type-formatting should be requested."
                                        'font-lock-function-name-face))))
       ;; Now to the parameters
       (cl-loop
-       with active-param = (or sig-active activeParameter)
+       with active-param = (or activeParameter sig-active)
        for i from 0 for parameter across parameters do
        (eglot--dbind ((ParameterInformation)
                       ((:label parlabel))
@@ -3326,7 +3468,7 @@ for which LSP on-type-formatting should be requested."
                      ": " fpardoc)))))
       (buffer-string))))
 
-(defun eglot-signature-eldoc-function (cb)
+(defun eglot-signature-eldoc-function (cb &rest _ignored)
   "A member of `eldoc-documentation-functions', for signatures."
   (when (eglot-server-capable :signatureHelpProvider)
     (let ((buf (current-buffer)))
@@ -3350,7 +3492,7 @@ for which LSP on-type-formatting should be requested."
        :deferred :textDocument/signatureHelp))
     t))
 
-(defun eglot-hover-eldoc-function (cb)
+(defun eglot-hover-eldoc-function (cb &rest _ignored)
   "A member of `eldoc-documentation-functions', for hover."
   (when (eglot-server-capable :hoverProvider)
     (let ((buf (current-buffer)))
@@ -3461,7 +3603,7 @@ If SILENT, don't echo progress in mode-line."
            (howmany (length edits))
            (reporter (unless silent
                        (make-progress-reporter
-                        (format "[eglot] applying %s edits to `%s'..."
+                        (eglot--format "[eglot] applying %s edits to `%s'..."
                                 howmany (current-buffer))
                         0 howmany)))
            (done 0))
@@ -3477,8 +3619,12 @@ If SILENT, don't echo progress in mode-line."
                           (replace-buffer-contents temp)))
                       (when reporter
                         (eglot--reporter-update reporter (cl-incf done))))))))
-            (mapcar (eglot--lambda ((TextEdit) range newText)
-                      (cons newText (eglot-range-region range 'markers)))
+            (mapcar (lambda (edit)
+                      (eglot--dcase edit
+                        (((TextEdit) range newText)
+                         (cons newText (eglot-range-region range 'markers)))
+                        (((InsertReplaceEdit) newText replace)
+                         (cons newText (eglot-range-region replace 'markers)))))
                     (reverse edits)))
       (undo-amalgamate-change-group change-group)
       (when reporter
@@ -3583,8 +3729,9 @@ edit proposed by the server."
   "Rename the current symbol to NEWNAME."
   (interactive
    (list (read-from-minibuffer
-          (format "Rename `%s' to: " (or (thing-at-point 'symbol t)
-                                         "unknown symbol"))
+          (eglot--format "Rename `%s' to: "
+                         (or (thing-at-point 'symbol t)
+                             "unknown symbol"))
           nil nil nil nil
           (symbol-name (symbol-at-point)))))
   (eglot-server-capable-or-lose :renameProvider)
@@ -3596,16 +3743,17 @@ edit proposed by the server."
 
 (defun eglot--code-action-bounds ()
   "Calculate appropriate bounds depending on region and point."
-  (let (diags)
+  (let (diags boftap)
     (cond ((use-region-p) `(,(region-beginning) ,(region-end)))
           ((setq diags (flymake-diagnostics (point)))
            (cl-loop for d in diags
                     minimizing (flymake-diagnostic-beg d) into beg
                     maximizing (flymake-diagnostic-end d) into end
                     finally (cl-return (list beg end))))
+          ((setq boftap (bounds-of-thing-at-point 'sexp))
+           (list (car boftap) (cdr boftap)))
           (t
-           (let ((boftap (bounds-of-thing-at-point 'sexp)))
-             (list (car boftap) (cdr boftap)))))))
+           (list (point) (point))))))
 
 (defun eglot-code-actions (beg &optional end action-kind interactive)
   "Find LSP code actions of type ACTION-KIND between BEG and END.
@@ -3640,7 +3788,8 @@ at point.  With prefix argument, prompt for ACTION-KIND."
          ;; Redo filtering, in case the `:only' didn't go through.
          (actions (cl-loop for a across actions
                            when (or (not action-kind)
-                                    (equal action-kind (plist-get a :kind)))
+                                    ;; github#847
+                                    (string-prefix-p action-kind (plist-get a :kind)))
                            collect a)))
     (if interactive
         (eglot--read-execute-code-action actions server action-kind)
@@ -3730,12 +3879,12 @@ at point.  With prefix argument, prompt for ACTION-KIND."
                (handle-event `(,desc 'deleted ,file))
                (handle-event `(,desc 'created ,file1))))))
          (watch-dir (dir)
-           (when-let ((probe
-                       (and (file-readable-p dir)
-                            (or (gethash dir (eglot--file-watches server))
-                                (puthash dir (list (file-notify-add-watch
-                                                    dir '(change) #'handle-event))
-                                         (eglot--file-watches server))))))
+           (when-let* ((probe
+                        (and (file-readable-p dir)
+                             (or (gethash dir (eglot--file-watches server))
+                                 (puthash dir (list (file-notify-add-watch
+                                                     dir '(change) #'handle-event))
+                                          (eglot--file-watches server))))))
              (push id (cdr probe)))))
       (unwind-protect
           (progn
@@ -3769,7 +3918,7 @@ at point.  With prefix argument, prompt for ACTION-KIND."
      with grammar = '((:**      "\\*\\*/?"              eglot--glob-emit-**)
                       (:*       "\\*"                   eglot--glob-emit-*)
                       (:?       "\\?"                   eglot--glob-emit-?)
-                      (:{}      "{[^][*{}]+}"           eglot--glob-emit-{})
+                      (:{}      "{[^{}]+}"              eglot--glob-emit-{})
                       (:range   "\\[\\^?[^][/,*{}]+\\]" eglot--glob-emit-range)
                       (:literal "[^][,*?{}]+"           eglot--glob-emit-self))
      until (eobp)
@@ -3779,20 +3928,25 @@ at point.  With prefix argument, prompt for ACTION-KIND."
                            (list (cl-gensym "state-") emitter (match-string 0)))
               finally (error "Glob '%s' invalid at %s" (buffer-string) (point))))))
 
+(cl-defun eglot--glob-fsm (states &key (exit 'eobp) noerror)
+  `(cl-labels ,(cl-loop for (this that) on states
+                        for (self emit text) = this
+                        for next = (or (car that) exit)
+                        collect (funcall emit text self next))
+     ,(if noerror
+          `(,(caar states))
+        `(or (,(caar states))
+             (error "Glob done but more unmatched text: '%s'"
+                    (buffer-substring (point) (point-max)))))))
+
 (defun eglot--glob-compile (glob &optional byte-compile noerror)
   "Convert GLOB into Elisp function.  Maybe BYTE-COMPILE it.
 If NOERROR, return predicate, else erroring function."
-  (let* ((states (eglot--glob-parse glob))
+  (let* ((states (eglot--glob-parse  glob))
          (body `(with-current-buffer (get-buffer-create " *eglot-glob-matcher*")
                   (erase-buffer)
                   (save-excursion (insert string))
-                  (cl-labels ,(cl-loop for (this that) on states
-                                       for (self emit text) = this
-                                       for next = (or (car that) 'eobp)
-                                       collect (funcall emit text self next))
-                    (or (,(caar states))
-                        (error "Glob done but more unmatched text: '%s'"
-                               (buffer-substring (point) (point-max)))))))
+                  ,(eglot--glob-fsm states)))
          (form `(lambda (string) ,(if noerror `(ignore-errors ,body) body))))
     (if byte-compile (byte-compile form) form)))
 
@@ -3812,10 +3966,20 @@ If NOERROR, return predicate, else erroring function."
 
 (defun eglot--glob-emit-{} (arg self next)
   (let ((alternatives (split-string (substring arg 1 (1- (length arg))) ",")))
-    `(,self ()
-            (or (re-search-forward ,(concat "\\=" (regexp-opt alternatives)) nil t)
-                (error "Failed matching any of %s" ',alternatives))
-            (,next))))
+    (if (cl-notany (lambda (a) (string-match "\\*" a)) alternatives)
+        `(,self ()
+                (or (re-search-forward ,(concat "\\=" (regexp-opt alternatives)) nil t)
+                    (error "No alternatives match: %s" ',alternatives))
+                (,next))
+      (let ((fsms (mapcar (lambda (a)
+                            `(save-excursion
+                               (ignore-errors
+                                 ,(eglot--glob-fsm (eglot--glob-parse a)
+                                                   :exit next :noerror t))))
+                          alternatives)))
+        `(,self ()
+                (or ,@fsms
+                    (error "Glob match fail after alternatives %s" ',alternatives)))))))
 
 (defun eglot--glob-emit-range (arg self next)
   (when (eq ?! (aref arg 1)) (aset arg 1 ?^))
@@ -3825,8 +3989,9 @@ If NOERROR, return predicate, else erroring function."
 ;;; List connections mode
 
 (define-derived-mode eglot-list-connections-mode  tabulated-list-mode
-  "" "Eglot mode for listing server connections
+  "" "Eglot mode for listing server connections.
 \\{eglot-list-connections-mode-map}"
+  :interactive nil
   (setq-local tabulated-list-format
               `[("Language server" 16) ("Project name" 16) ("Modes handled" 16)])
   (tabulated-list-init-header))
@@ -3866,12 +4031,12 @@ If NOERROR, return predicate, else erroring function."
   "Face used for parameter inlay hint overlays.")
 
 (defvar-local eglot--outstanding-inlay-hints-region (cons nil nil)
-  "Jit-lock-calculated (FROM . TO) region with potentially outdated hints")
+  "Jit-lock-calculated (FROM . TO) region with potentially outdated hints.")
 
 (defvar-local eglot--outstanding-inlay-hints-last-region nil)
 
 (defvar-local eglot--outstanding-inlay-regions-timer nil
-  "Helper timer for `eglot--update-hints'")
+  "Helper timer for `eglot--update-hints'.")
 
 (defun eglot--update-hints (from to)
   "Jit-lock function for Eglot inlay hints."
@@ -4015,6 +4180,27 @@ If NOERROR, return predicate, else erroring function."
                 "https://github.com/joaotavora/eglot/issues/%s"
               "https://debbugs.gnu.org/%s")
             (match-string 3))))
+
+;; Add command-mode property manually for compatibility with Emacs < 28.
+(dolist (sym '(eglot-clear-status
+               eglot-code-action-inline
+               eglot-code-action-organize-imports
+               eglot-code-action-quickfix
+               eglot-code-action-rewrite
+               eglot-code-action-rewrite
+               eglot-code-actions
+               eglot-find-declaration
+               eglot-find-implementation
+               eglot-find-typeDefinition
+               eglot-forget-pending-continuations
+               eglot-format
+               eglot-format-buffer
+               eglot-inlay-hints-mode
+               eglot-reconnect
+               eglot-rename
+               eglot-signal-didChangeConfiguration
+               eglot-stderr-buffer))
+  (function-put sym 'command-modes '(eglot--managed-mode)))
 
 (provide 'eglot)
 
