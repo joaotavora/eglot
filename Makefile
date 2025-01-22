@@ -10,15 +10,20 @@ LOAD_PATH=-L .
 
 ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
-
-ELPADEPS ?=--eval '(setq package-user-dir (expand-file-name "elpa-eglot-test" temporary-file-directory))'	\
+ELPADIR := $(shell mktemp -d elpa-eglot-test.XXXXXXXX --tmpdir)
+ELPADEPS ?=--eval '(setq package-user-dir "$(ELPADIR)")'        \
+           --eval '(setq package-check-signature nil)'          \
            --eval '(package-initialize)'                        \
            --eval '(package-refresh-contents)'                  \
            --eval '(defun install-latest (p)                    \
-                     (package-install                           \
-                       (cadr (assoc p                           \
-                              package-archive-contents          \
-                              (quote equal)))))'                \
+                     (let ((desc (cadr                          \
+                                 (assoc p                       \
+                                        package-archive-contents\
+                                        (quote equal)))))       \
+                       (unless (package-installed-p             \
+                                  p                             \
+                                  (package-desc-version desc))  \
+                        (package-install desc))))'              \
            --eval '(install-latest (quote jsonrpc))'            \
            --eval '(install-latest (quote project))'            \
            --eval '(install-latest (quote xref))'               \
