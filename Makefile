@@ -30,7 +30,7 @@ ELPADEPS ?=--eval '(setq package-user-dir "$(ELPADIR)")'        \
            --eval '(install-latest (quote seq))'                \
            --eval '(install-latest (quote eldoc))'              \
            --eval '(unintern                                    \
-                     (quote eldoc-documentation-function))'     \
+                     (quote eldoc-documentation-function) nil)' \
            --eval '(load "eldoc")'                              \
            --eval '(install-latest (quote company))'            \
            --eval '(install-latest (quote yasnippet))'          \
