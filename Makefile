@@ -67,6 +67,7 @@ eglot-check-noelpa: eglot-check
 
 interactive: compile
 	$(EMACS) -Q							\
+		--eval '(setq debug-on-error t)'			\
 		$(ELPADEPS)						\
 		$(LOAD_PATH)						\
 		-l eglot						\
