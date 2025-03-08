@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
-<!-- Created by GNU Texinfo 7.1, https://www.gnu.org/software/texinfo/ -->
+<!-- Created by GNU Texinfo 7.1.1, https://www.gnu.org/software/texinfo/ -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!-- This manual is for Eglot, the Emacs LSP client.
 
-Copyright © 2022-2023 Free Software Foundation, Inc.
+Copyright © 2022-2025 Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3 or
 any later version published by the Free Software Foundation; with no
 Invariant Sections, with the Front-Cover Texts being "A GNU Manual",
-and with the Back-Cover Texts as in (a) below.  A copy of the license
-is included in the section entitled "GNU Free Documentation License".
+and with the Back-Cover Texts as in (a) below.  A copy of the license is
+included in the section entitled "GNU Free Documentation License".
 
 (a) The FSF's Back-Cover Text is: "You have the freedom to copy and
 modify this GNU manual." -->
@@ -46,6 +46,7 @@ td.printindex-index-section {vertical-align: top; padding-left: 1em}
 th.entries-header-printindex {text-align:left}
 th.sections-header-printindex {text-align:left; padding-left: 1em}
 ul.mark-bullet {list-style-type: disc}
+ul.mark-minus {list-style-type: "\2212"}
 ul.toc-numbered-mark {list-style: none}
 -->
 </style>
@@ -72,19 +73,19 @@ Next: <a href="#Quick-Start" accesskey="n" rel="next">Quick Start</a> &nbsp; [<a
 <p>Eglot is the Emacs client for the <em class="dfn">Language Server Protocol</em>
 (<abbr class="acronym">LSP</abbr>).  The name &ldquo;Eglot&rdquo; is an acronym that stands for
 &ldquo;<em class="emph">E</em>macs Poly<em class="emph">glot</em>&rdquo;.
-<a class="footnote" id="DOCF1" href="#FOOT1"><sup>1</sup></a> Eglot provides infrastructure and a set of commands for enriching
-the source code editing capabilities of Emacs via LSP.  LSP is a
-standardized communications protocol between source code editors (such
-as Emacs) and language servers&mdash;programs external to Emacs which
+<a class="footnote" id="DOCF1" href="#FOOT1"><sup>1</sup></a> Eglot provides infrastructure and a set of commands for
+enriching the source code editing capabilities of Emacs via LSP.  LSP
+is a standardized communications protocol between source code editors
+(such as Emacs) and language servers&mdash;programs external to Emacs which
 analyze the source code on behalf of Emacs.  The protocol allows Emacs
 to receive various source code services from the server, such as
 description and location of function calls, types of variables, class
 definitions, syntactic errors, etc.  This way, Emacs doesn&rsquo;t need to
-implement the language-specific parsing and analysis capabilities in
-its own code, but is still capable of providing sophisticated editing
+implement the language-specific parsing and analysis capabilities in its
+own code, but is still capable of providing sophisticated editing
 features that rely on such capabilities, such as automatic code
-completion, go-to definition of function/class, documentation of
-symbol at-point, refactoring, on-the-fly diagnostics, and more.
+completion, go-to definition of function/class, documentation of symbol
+at-point, refactoring, on-the-fly diagnostics, and more.
 </p>
 <p>Eglot itself is completely language-agnostic, but it can support any
 programming language for which there is a language server and an Emacs
@@ -94,15 +95,15 @@ major mode.
 </p>
 <p>This manual is for Eglot, the Emacs LSP client.
 </p>
-<p>Copyright &copy; 2022&ndash;2023 Free Software Foundation, Inc.
+<p>Copyright &copy; 2022&ndash;2025 Free Software Foundation, Inc.
 </p>
 <blockquote class="quotation">
 <p>Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3 or
 any later version published by the Free Software Foundation; with no
 Invariant Sections, with the Front-Cover Texts being &ldquo;A GNU Manual&rdquo;,
-and with the Back-Cover Texts as in (a) below.  A copy of the license
-is included in the section entitled &ldquo;GNU Free Documentation License&rdquo;.
+and with the Back-Cover Texts as in (a) below.  A copy of the license is
+included in the section entitled &ldquo;GNU Free Documentation License&rdquo;.
 </p>
 <p>(a) The FSF&rsquo;s Back-Cover Text is: &ldquo;You have the freedom to copy and
 modify this GNU manual.&rdquo;
@@ -127,9 +128,13 @@ modify this GNU manual.&rdquo;
     <li><a id="toc-Eglot-Features-1" href="#Eglot-Features">3.1 Eglot Features</a></li>
     <li><a id="toc-Buffers_002c-Projects_002c-and-Eglot" href="#Eglot-and-Buffers">3.2 Buffers, Projects, and Eglot</a></li>
     <li><a id="toc-Eglot-Commands-1" href="#Eglot-Commands">3.3 Eglot Commands</a></li>
-    <li><a id="toc-Eglot-Variables-1" href="#Eglot-Variables">3.4 Eglot Variables</a></li>
   </ul></li>
-  <li><a id="toc-Customizing-Eglot-1" href="#Customizing-Eglot">4 Customizing Eglot</a></li>
+  <li><a id="toc-Customizing-Eglot-1" href="#Customizing-Eglot">4 Customizing Eglot</a>
+  <ul class="toc-numbered-mark">
+    <li><a id="toc-Customization-Variables-1" href="#Customization-Variables">4.1 Customization Variables</a></li>
+    <li><a id="toc-Other-Variables-1" href="#Other-Variables">4.2 Other Variables</a></li>
+    <li><a id="toc-More-Customization-1" href="#More-Customization">4.3 More Customization</a></li>
+  </ul></li>
   <li><a id="toc-Advanced-server-configuration-1" href="#Advanced-server-configuration">5 Advanced server configuration</a>
   <ul class="toc-numbered-mark">
     <li><a id="toc-Project_002dspecific-configuration-1" href="#Project_002dspecific-configuration">5.1 Project-specific configuration</a>
@@ -161,8 +166,8 @@ Next: <a href="#Eglot-and-LSP-Servers" accesskey="n" rel="next">Eglot and LSP Se
 <a class="index-entry-id" id="index-quick-start"></a>
 
 <p>This chapter provides concise instructions for setting up and using
-Eglot with your programming project in common usage scenarios.  For
-more detailed instructions regarding Eglot setup, see <a class="pxref" href="#Eglot-and-LSP-Servers">Eglot and LSP Servers</a>.  See <a class="xref" href="#Using-Eglot">Using Eglot</a>, for detailed description of using Eglot,
+Eglot with your programming project in common usage scenarios.  For more
+detailed instructions regarding Eglot setup, see <a class="pxref" href="#Eglot-and-LSP-Servers">Eglot and LSP Servers</a>.  See <a class="xref" href="#Using-Eglot">Using Eglot</a>, for detailed description of using Eglot,
 and see <a class="ref" href="#Customizing-Eglot">Customizing Eglot</a>, for adapting Eglot to less common use
 patterns.
 </p>
@@ -171,42 +176,43 @@ patterns.
 <ol class="enumerate">
 <li> Select and install a language server.
 
-<p>Eglot comes pre-configured with many popular language servers, see the
-value of <code class="code">eglot-server-programs</code>.  If the server(s) mentioned
-there satisfy your needs for the programming language(s) with which
-you want to use Eglot, you just need to make sure those servers are
-installed on your system.  Alternatively, install one or more servers
-of your choice and add them to the value of
-<code class="code">eglot-server-programs</code>, as described in <a class="ref" href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>.
+<p>Eglot comes pre-configured for many popular language servers, see the
+value of <code class="code">eglot-server-programs</code>.  If the server(s) mentioned there
+satisfy your needs for the programming language(s) with which you want
+to use Eglot, you just need to make sure those servers are installed on
+your system and Eglot can find them.
+</p>
+<p>Alternatively, install one or more servers of your choice and tell Eglot
+where to find them.  To do that, you may add to the value of
+<code class="code">eglot-server-programs</code>, as described in <a class="ref" href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a> or have Eglot prompt you about it (see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
 </p>
 </li><li> Turn on Eglot for your project.
 
-<p>To start using Eglot for a project, type <kbd class="kbd">M-x eglot <kbd class="key">RET</kbd></kbd> in
-a buffer visiting any file that belongs to the project.  This starts
-the language server configured for the programming language of that
-buffer, and causes Eglot to start <em class="dfn">managing</em> file-visiting buffers
-related to that programming language.  This includes files that are
-already visited at the time the <code class="code">eglot</code> command is invoked, as
-well as any files visited after this invocation.
+<p>To start using Eglot for a project, type <kbd class="kbd">M-x eglot <kbd class="key">RET</kbd></kbd> in a
+buffer visiting any file that belongs to the project.  This starts the
+language server configured for the programming language of that buffer,
+and causes Eglot to start <em class="dfn">managing</em> file-visiting buffers related
+to that programming language.  This includes files that are already
+visited at the time the <code class="code">eglot</code> command is invoked, as well as any
+files visited after this invocation.
 </p>
 <p>The notion of a &ldquo;project&rdquo; used by Eglot is the same Emacs uses
-(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Projects">Projects</a> in <cite class="cite">GNU Emacs Manual</cite>): in the simplest case,
-the &ldquo;project&rdquo; is the single file you are editing, but it can also be
-all the files in a single directory or a directory tree under some
-version control system, such as Git.
+(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Projects">Projects</a> in <cite class="cite">GNU Emacs Manual</cite>): in the simplest case, the
+&ldquo;project&rdquo; is the single file you are editing, but it can also be all
+the files in a single directory or a directory tree under some version
+control system, such as Git.
 </p>
 <p>There are alternate ways of starting Eglot; see <a class="ref" href="#Starting-Eglot">Starting Eglot</a>
 for details.
 </p>
 </li><li> Use Eglot.
 
-<p>Most Eglot facilities are integrated into Emacs features, such as
-ElDoc, Flymake, Xref, and Imenu.  However, Eglot also provides
-commands of its own, mainly to perform tasks by the language server,
-such as <kbd class="kbd">M-x eglot-rename</kbd> (to rename an identifier across the
-entire project), <kbd class="kbd">M-x eglot-format</kbd> (to reformat and reindent
-code), and some others.  See <a class="xref" href="#Eglot-Commands">Eglot Commands</a>, for the detailed list
-of Eglot commands.
+<p>Most Eglot facilities are integrated into Emacs features, such as ElDoc,
+Flymake, Xref, and Imenu.  However, Eglot also provides commands of its
+own, mainly to perform tasks by the language server, such as <kbd class="kbd">M-x
+eglot-rename</kbd> (to rename an identifier across the entire project),
+<kbd class="kbd">M-x eglot-format</kbd> (to reformat and reindent code), and some others.
+See <a class="xref" href="#Eglot-Commands">Eglot Commands</a>, for the detailed list of Eglot commands.
 </p>
 </li><li> That&rsquo;s it!
 </li></ol>
@@ -241,10 +247,10 @@ Next: <a href="#Starting-Eglot" accesskey="n" rel="next">Starting Eglot</a>, Up:
 <a class="index-entry-id" id="index-language-server-for-Eglot"></a>
 
 <p>For Eglot to be useful, it must first be combined with a suitable
-language server.  Usually, that means running the server program
-locally as a child process of Emacs (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Processes">Processes</a> in <cite class="cite">GNU
-Emacs Lisp Reference Manual</cite>) and communicating with it via the
-standard input and output streams.
+language server.  Usually, that means running the server program locally
+as a child process of Emacs (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Processes">Processes</a> in <cite class="cite">GNU Emacs Lisp
+Reference Manual</cite>) and communicating with it via the standard input and
+output streams.
 </p>
 <p>The language server program must be installed separately, and is not
 further discussed in this manual; refer to the documentation of the
@@ -252,7 +258,7 @@ particular server(s) you want to install.
 </p>
 <p>To use a language server, Eglot must know how to start it and which
 programming languages each server supports.  This information is
-provided by the variable <code class="code">eglot-server-programs</code>.
+commonly provided by the variable <code class="code">eglot-server-programs</code>.
 </p>
 <dl class="first-defvr first-defvar-alias-first-defvr">
 <dt class="defvr defvar-alias-defvr" id="index-eglot_002dserver_002dprograms"><span class="category-def">Variable: </span><span><strong class="def-name">eglot-server-programs</strong><a class="copiable-link" href="#index-eglot_002dserver_002dprograms"> &para;</a></span></dt>
@@ -265,18 +271,16 @@ the source you are editing.
 <p>The value of the variable is an alist, whose elements are of the form
 <code class="code">(<var class="var">major-mode</var>&nbsp;.&nbsp;<var class="var">server</var>)</code><!-- /@w -->.
 </p>
-<p>The <var class="var">major-mode</var> of the alist elements can be either a symbol of
-an Emacs major mode or a list of the form <code class="code">(<var class="var">mode</var>&nbsp;:language-id&nbsp;<var class="var">id</var>)</code><!-- /@w -->, with <var class="var">mode</var> being a major-mode symbol
-and <var class="var">id</var> a string that identifies the language to the server (if
-Eglot cannot by itself convert the major-mode to the language
-identifier string required by the server).  In addition,
-<var class="var">major-mode</var> can be a list of several major modes specified in one
-of the above forms &ndash; this means a running instance of the associated
-server is responsible for files of multiple major modes or languages
-in the project.
+<p>The <var class="var">major-mode</var> of the alist elements can be either a symbol of an
+Emacs major mode or a list of the form <code class="code">(<var class="var">mode</var>&nbsp;:language-id&nbsp;<var class="var">id</var>)</code><!-- /@w -->, with <var class="var">mode</var> being a major-mode symbol and <var class="var">id</var> a
+string that identifies the language to the server (if Eglot cannot by
+itself convert the major-mode to the language identifier string required
+by the server).  In addition, <var class="var">major-mode</var> can be a list of several
+major modes specified in one of the above forms &ndash; this means a running
+instance of the associated server is responsible for files of multiple
+major modes or languages in the project.
 </p>
-<p>The <var class="var">server</var> part of the alist elements can be one of the
-following:
+<p>The <var class="var">server</var> part of the alist elements can be one of the following:
 </p>
 <dl class="table">
 <dt><code class="code">(<var class="var">program</var> <var class="var">args</var>&hellip;)</code></dt>
@@ -286,44 +290,42 @@ standard input and standard output streams.
 </p>
 </dd>
 <dt><code class="code">(<var class="var">program</var> <var class="var">args</var>&hellip; :initializationOptions <var class="var">options</var>&hellip;)</code></dt>
-<dd><p><var class="var">program</var> is invoked with <var class="var">args</var> but <var class="var">options</var> specifies
-how to construct the &lsquo;<samp class="samp">:initializationOptions</samp>&rsquo; JSON object to pass
-the server on during the LSP handshake (see <a class="pxref" href="#Advanced-server-configuration">Advanced server configuration</a>).
+<dd><p><var class="var">program</var> is invoked with <var class="var">args</var> but <var class="var">options</var> specifies how
+to construct the &lsquo;<samp class="samp">:initializationOptions</samp>&rsquo; JSON object to pass the
+server on during the LSP handshake (see <a class="pxref" href="#Advanced-server-configuration">Advanced server configuration</a>).
 </p>
 </dd>
 <dt><code class="code">(<var class="var">host</var> <var class="var">port</var> <var class="var">args</var>&hellip;)</code></dt>
 <dd><p>Here <var class="var">host</var> is a string and <var class="var">port</var> is a positive integer
 specifying a TCP connection to a remote server.  The <var class="var">args</var> are
-passed to <code class="code">open-network-stream</code>, e.g. if the connection needs
-to use encryption or other non-default parameters (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Network">Network</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>).
+passed to <code class="code">open-network-stream</code>, e.g. if the connection needs to
+use encryption or other non-default parameters (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Network">Network</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>).
 </p>
 </dd>
 <dt><code class="code">(<var class="var">program</var> <var class="var">args</var>&hellip; :autoport <var class="var">moreargs</var>&hellip;)</code></dt>
-<dd><p><var class="var">program</var> is started with a command line constructed from
-<var class="var">args</var> followed by an available server port and the rest of
-arguments in <var class="var">moreargs</var>; Eglot then establishes a TCP connection
-with the server via that port on the local host.
+<dd><p><var class="var">program</var> is started with a command line constructed from <var class="var">args</var>
+followed by an available server port and the rest of arguments in
+<var class="var">moreargs</var>; Eglot then establishes a TCP connection with the server
+via that port on the local host.
 </p>
 </dd>
 <dt><code class="code"><var class="var">function</var></code></dt>
 <dd><p>This should be a function of a single argument: non-<code class="code">nil</code> if the
 connection was requested interactively (e.g., by the <code class="code">eglot</code>
 command), otherwise <code class="code">nil</code>.  The function should return a value of
-any of the forms described above.  This allows interaction with the
-user for determining the program to start and its command-line
-arguments.
+any of the forms described above.  This allows interaction with the user
+for determining the program to start and its command-line arguments.
 </p></dd>
 </dl>
 
 </dd></dl>
 
-<p>Eglot comes with a fairly complete set of associations of major-modes
-to popular language servers predefined.  If you need to add server
-associations to the default list, use <code class="code">add-to-list</code>.  For
-example, if there is a hypothetical language server program
-<code class="command">fools</code> for the language <code class="code">Foo</code> which is supported by an
-Emacs major-mode <code class="code">foo-mode</code>, you can add it to the alist like
-this:
+<p>Eglot comes with a fairly complete set of associations of major-modes to
+popular language servers predefined.  If you need to add server
+associations to the default list, use <code class="code">add-to-list</code>.  For example,
+if there is a hypothetical language server program <code class="command">fools</code> for
+the language <code class="code">Foo</code> which is supported by an Emacs major-mode
+<code class="code">foo-mode</code>, you can add it to the alist like this:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">(with-eval-after-load 'eglot
@@ -353,10 +355,9 @@ given major-mode.  In those cases, you may combine the helper function
                                  (&quot;phewls&quot; &quot;--fast&quot;))))))
 </pre></div>
 
-<p>If you have <code class="command">fools</code> and <code class="command">phewls</code> installed, the
-function produced by <code class="code">eglot-alternatives</code> will prompt for the
-server to use in <code class="code">foo-mode</code> buffers.  Else it will use whichever
-is available.
+<p>If you have <code class="command">fools</code> and <code class="command">phewls</code> installed, the function
+produced by <code class="code">eglot-alternatives</code> will prompt for the server to use
+in <code class="code">foo-mode</code> buffers.  Else it will use whichever is available.
 </p>
 <hr>
 </div>
@@ -370,54 +371,53 @@ Next: <a href="#Shutting-Down-LSP-Servers" accesskey="n" rel="next">Shutting Dow
 <a class="index-entry-id" id="index-activating-Eglot-for-a-project"></a>
 
 <a class="index-entry-id" id="index-eglot"></a>
-<p>The most common way to start Eglot is to simply visit a source file of
-a given language and use the command <kbd class="kbd">M-x eglot</kbd>.  This starts the
-language server suitable for the visited file&rsquo;s major-mode, and
-attempts to connect to it.  If the connection to the language server
-is successful, you will see the <code class="code">[eglot:<var class="var">project</var>]</code> indicator
-on the mode line which reflects the server that was started.  If the
-server program couldn&rsquo;t be started or connection to it failed, you
-will see an error message; in that case, try to troubleshoot the
-problem as described in <a class="ref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>.  Once a language
-server was successfully started and Eglot connected to it, you can
-immediately start using the Emacs features supported by Eglot, as
-described in <a class="ref" href="#Eglot-Features">Eglot Features</a>.
+<p>The most common way to start Eglot is to simply visit a source file of a
+given language and use the command <kbd class="kbd">M-x eglot</kbd>.  This starts the
+language server suitable for the visited file&rsquo;s major-mode, and attempts
+to connect to it.  If the connection to the language server is
+successful, you will see the <code class="code">[eglot:<var class="var">project</var>]</code> indicator on
+the mode line which reflects the server that was started.  If the server
+program couldn&rsquo;t be started or connection to it failed, you will see an
+error message; in that case, try to troubleshoot the problem as
+described in <a class="ref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>.  Once a language server was
+successfully started and Eglot connected to it, you can immediately
+start using the Emacs features supported by Eglot, as described in
+<a class="ref" href="#Eglot-Features">Eglot Features</a>.
 </p>
 <p>A single Eglot session for a certain major-mode usually serves all the
-buffers under that mode which visit files from the same project, so
-you don&rsquo;t need to invoke <kbd class="kbd">M-x eglot</kbd> again when you visit another
-file from the same project which is edited using the same major-mode.
-This is because Eglot uses the Emacs project infrastructure, as
-described in <a class="ref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, and this knows about files that
-belong to the same project.  Thus, after starting an Eglot session for
-some buffer, that session is automatically reused when visiting files
-in the same project with the same major-mode.
+buffers under that mode which visit files from the same project, so you
+don&rsquo;t need to invoke <kbd class="kbd">M-x eglot</kbd> again when you visit another file
+from the same project which is edited using the same major-mode.  This
+is because Eglot uses the Emacs project infrastructure, as described in
+<a class="ref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, and this knows about files that belong to the
+same project.  Thus, after starting an Eglot session for some buffer,
+that session is automatically reused when visiting files in the same
+project with the same major-mode.
 </p>
 <a class="index-entry-id" id="index-eglot_002densure"></a>
-<p>Alternatively, you could configure Eglot to start automatically for
-one or more major-modes from the respective mode hooks.  Here&rsquo;s an
-example for a hypothetical <code class="code">foo-mode</code>:
+<p>Alternatively, you could configure Eglot to start automatically for one
+or more major-modes from the respective mode hooks.  Here&rsquo;s an example
+for a hypothetical <code class="code">foo-mode</code>:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted"> (add-hook 'foo-mode-hook 'eglot-ensure)
 </pre></div>
 
 <p>The function <code class="code">eglot-ensure</code> will start an Eglot session for each
-buffer in which <code class="code">foo-mode</code> is turned on, if there isn&rsquo;t already
-an Eglot session that handles the buffer.  Note that this variant of
-starting an Eglot session is non-interactive, so it should be used
-only when you are confident that Eglot can be started reliably for any
-file which may be visited with the major-mode in question.
+buffer in which <code class="code">foo-mode</code> is turned on, if there isn&rsquo;t already an
+Eglot session that handles the buffer.  Note that this variant of
+starting an Eglot session is non-interactive, so it should be used only
+when you are confident that Eglot can be started reliably for any file
+which may be visited with the major-mode in question.
 </p>
-<p>Note that it&rsquo;s often difficult to establish this confidence fully, so
-it may be wise to use the interactive command <code class="code">eglot</code> instead.
-You only need to invoke it once per project, as all other files
-visited within the same project will automatically be managed with no
-further user intervention needed.
+<p>Note that it&rsquo;s often difficult to establish this confidence fully, so it
+may be wise to use the interactive command <code class="code">eglot</code> instead.  You
+only need to invoke it once per project, as all other files visited
+within the same project will automatically be managed with no further
+user intervention needed.
 </p>
-<p>When Eglot connects to a language server for the first time in an
-Emacs session, it runs the hook <code class="code">eglot-connect-hook</code>
-(see <a class="pxref" href="#Eglot-Variables">Eglot Variables</a>).
+<p>When Eglot connects to a language server for the first time in an Emacs
+session, it runs the hook <code class="code">eglot-connect-hook</code> (see <a class="pxref" href="#Other-Variables">Other Variables</a>).
 </p>
 <hr>
 </div>
@@ -433,27 +433,26 @@ Previous: <a href="#Starting-Eglot" accesskey="p" rel="prev">Starting Eglot</a>,
 automatically if the language server process terminates.  Turning off
 Eglot means that it shuts down the server connection, ceases its
 management of all the buffers that use the server connection which was
-terminated, deactivates its minor mode, and restores the original
-values of the Emacs variables that Eglot changed when it was turned
-on.  See <a class="xref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, for more details of what Eglot
-management of a buffer entails.
+terminated, deactivates its minor mode, and restores the original values
+of the Emacs variables that Eglot changed when it was turned on.
+See <a class="xref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, for more details of what Eglot management of a
+buffer entails.
 </p>
 <a class="index-entry-id" id="index-eglot_002dshutdown"></a>
-<p>You can also shut down a language server manually, by using the
-command <kbd class="kbd">M-x eglot-shutdown</kbd>.  This prompts for the server (unless
-there&rsquo;s only one connection and it&rsquo;s used in the current buffer), and
-then shuts it down.  By default, it also kills the server&rsquo;s events
-buffer (see <a class="pxref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>), but a prefix argument prevents
-that.
+<p>You can also shut down a language server manually, by using the command
+<kbd class="kbd">M-x eglot-shutdown</kbd>.  This prompts for the server (unless there&rsquo;s
+only one connection and it&rsquo;s used in the current buffer), and then shuts
+it down.  By default, it also kills the server&rsquo;s events buffer
+(see <a class="pxref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>), but a prefix argument prevents that.
 </p>
-<p>Alternatively, you can customize the variable
-<code class="code">eglot-autoshutdown</code> to a non-<code class="code">nil</code> value, in which case
-Eglot will automatically shut down the language server process when
-the last buffer served by that language server is killed.  The default
-of this variable is <code class="code">nil</code>, so that visiting another file would
-automatically activate Eglot even when the project which started Eglot
-with the server no longer has any buffer associated with it.  This
-default allows you to start a server only once in each Emacs session.
+<p>Alternatively, you can customize the variable <code class="code">eglot-autoshutdown</code>
+to a non-<code class="code">nil</code> value, in which case Eglot will automatically shut
+down the language server process when the last buffer served by that
+language server is killed.  The default of this variable is <code class="code">nil</code>,
+so that visiting another file would automatically activate Eglot even
+when the project which started Eglot with the server no longer has any
+buffer associated with it.  This default allows you to start a server
+only once in each Emacs session.
 </p>
 <hr>
 </div>
@@ -474,7 +473,6 @@ commands and variables.
 <li><a href="#Eglot-Features" accesskey="1">Eglot Features</a></li>
 <li><a href="#Eglot-and-Buffers" accesskey="2">Buffers, Projects, and Eglot</a></li>
 <li><a href="#Eglot-Commands" accesskey="3">Eglot Commands</a></li>
-<li><a href="#Eglot-Variables" accesskey="4">Eglot Variables</a></li>
 </ul>
 <hr>
 <div class="section-level-extent" id="Eglot-Features">
@@ -485,8 +483,8 @@ Next: <a href="#Eglot-and-Buffers" accesskey="n" rel="next">Buffers, Projects, a
 <h3 class="section" id="Eglot-Features-1"><span>3.1 Eglot Features<a class="copiable-link" href="#Eglot-Features-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-features-in-buffers-supported-by-Eglot"></a>
 
-<p>While Eglot is enabled in a buffer, it is said to be <em class="dfn">managing</em>
-it, using LSP and the specific capabilities of the language server to
+<p>While Eglot is enabled in a buffer, it is said to be <em class="dfn">managing</em> it,
+using LSP and the specific capabilities of the language server to
 activate and enhance modern IDE features in Emacs.  Some of these
 features are provided via other Emacs packages, and some via Eglot
 directly (see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
@@ -494,68 +492,81 @@ directly (see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
 <p>Here&rsquo;s an overview of the main features that Eglot provides:
 </p>
 <ul class="itemize mark-bullet">
-<li>At-point documentation: when point is at or near a symbol or an
-identifier, the information about the symbol/identifier, such as the
-signature of a function or class method and server-generated
-diagnostics, is made available via the ElDoc package
-(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Programming-Language-Doc">Programming Language Doc</a> in <cite class="cite">GNU Emacs Manual</cite>).  This
-allows major modes to provide extensive help and documentation about
-the program identifiers.
+<li>At-point documentation: when point is near a symbol or an identifier,
+information about the identifier&rsquo;s significance in the program (its
+function or method signature, its type, its custom documentation string,
+etc.) is made available via the ElDoc package (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Programming-Language-Doc">Programming
+Language Doc</a> in <cite class="cite">GNU Emacs Manual</cite>).
 
 </li><li>On-the-fly diagnostic annotations, via the Flymake package
-(see <cite class="cite"><a data-manual="flymake" href="https://www.gnu.org/software/emacs/manual/html_mono/flymake.html#Top">GNU Flymake manual</a></cite>).  Eglot&rsquo;s Flymake backend
+(see <cite class="cite"><a data-manual="Flymake" href="Flymake.html#Top">GNU Flymake manual</a></cite>).  Eglot&rsquo;s Flymake backend
 replaces other Flymake backends while it is managing a buffer, and
-enhances diagnostics with interactive server-suggested fixes
-(so-called <em class="dfn">code actions</em>, see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>)
+enhances diagnostics with interactive server-suggested fixes (so-called
+<em class="dfn">code actions</em>, see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
 
 </li><li>Finding definitions and uses of identifiers, via Xref (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Xref">Xref</a> in <cite class="cite">GNU Emacs Manual</cite>).  Eglot provides a backend for the Xref
-capabilities which uses the language-server understanding of the
-program source.  In particular, it eliminates the need to generate
-tags tables (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Tags-tables">Tags tables</a> in <cite class="cite">GNU Emacs Manual</cite>) for
-languages which are only supported by the <code class="code">etags</code> backend.
+capabilities which uses the language-server understanding of the program
+source.  In particular, it eliminates the need to generate tags tables
+(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Tags-tables">Tags tables</a> in <cite class="cite">GNU Emacs Manual</cite>) for languages which are
+only supported by the <code class="code">etags</code> backend.
 
 </li><li>Buffer navigation by name of function, class, method, etc., via Imenu
 (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Imenu">Imenu</a> in <cite class="cite">GNU Emacs Manual</cite>).  Eglot provides its own
-variant of <code class="code">imenu-create-index-function</code>, which generates the
-index for the buffer based on language-server program source analysis.
+variant of <code class="code">imenu-create-index-function</code>, which generates the index
+for the buffer based on language-server program source analysis.
 
-</li><li>Enhanced completion of symbol at point by the
-<code class="code">completion-at-point</code> command (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Symbol-Completion">Symbol Completion</a> in <cite class="cite">GNU Emacs Manual</cite>).  This uses the language-server&rsquo;s parser data for
-the completion candidates.
+</li><li>Enhanced completion of symbol at point by the <code class="code">completion-at-point</code>
+command (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Symbol-Completion">Symbol Completion</a> in <cite class="cite">GNU Emacs Manual</cite>).  This
+uses the language-server&rsquo;s parser data for the completion candidates.
 
-</li><li>Automatic reformatting of source code as you type it.  This is similar
-to what the <code class="code">eglot-format</code> command does (see below), but is
-activated automatically as you type.
+</li><li>Server-suggested code refactorings.  The ElDoc package is also leveraged
+to retrieve so-called <em class="dfn">code actions</em> nearby point.  When such
+suggestions are available they are annotated with a special indication
+and can be easily invoked by the user with the <code class="code">eglot-code-action</code>
+command (see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
 
-</li><li>If a completion package such as <code class="code">company-mode</code>, a popular
-third-party completion package (or any other completion package), is
-installed, Eglot enhances it by providing completion candidates based
-on the language-server analysis of the source code.
-(<code class="code">company-mode</code> can be installed from GNU ELPA.)
+</li><li>On-the-fly succinct informative annotations, so-called <em class="dfn">inlay
+hints</em>.  Eglot adds special intangible text nearby certain identifiers,
+be it the type of a variable, or the name of a formal parameter in a
+function call.  See <a class="xref" href="#Eglot-Commands">Eglot Commands</a> and the
+<code class="code">eglot-inlay-hints-mode</code> minor mode.
 
-</li><li>If <code class="code">yasnippet</code>, a popular third-party package for automatic
-insertion of code templates (snippets), is installed, and the language
-server supports snippet completion candidates, Eglot arranges for the
-completion package to instantiate these snippets using
-<code class="code">yasnippet</code>.  (<code class="code">yasnippet</code> can be installed from GNU ELPA.)
+</li><li>Display of function call and type hierarchies via the
+<code class="code">eglot-show-call-hierarchy</code> and <code class="code">eglot-show-type-hierarchy</code>
+commands (see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).
+
+</li><li>Code reformatting via the <code class="code">eglot-format</code> and related commands
+(see <a class="pxref" href="#Eglot-Commands">Eglot Commands</a>).  Automatic reformatting of source code is also
+supported and is activated automatically as you type.
+
+</li><li>If a completion package such as the Company package (a popular
+third-party completion package providing <code class="code">company-mode</code>), is
+installed, Eglot enhances it by providing completion candidates based on
+the language-server analysis of the source code.  (Company can be
+installed from GNU ELPA.)
+
+</li><li>If YASnippet, a popular third-party package for automatic insertion of
+code templates (snippets), is installed, and the language server
+supports snippet completion candidates, Eglot arranges for the
+completion package to instantiate these snippets using YASnippet.
+(YASnippet can be installed from GNU ELPA.)
 
 </li><li>If the popular third-party package <code class="code">markdown-mode</code> is installed,
-and the server provides at-point documentation formatted as Markdown
-in addition to plain text, Eglot arranges for the ElDoc package to
-enrich this text with fontifications and other nice formatting before
-displaying it to the user.  This makes the documentation shown by
-ElDoc look nicer on display.
+and the server provides at-point documentation formatted as Markdown in
+addition to plain text, Eglot arranges for the ElDoc package to enrich
+this text with fontifications and other nice formatting before
+displaying it to the user.  This makes the documentation shown by ElDoc
+look nicer on display.
 
-</li><li>In addition to enabling and enhancing other features and packages,
-Eglot also provides a number of user commands based on the
-capabilities of language servers.  Examples include renaming symbols
-with <kbd class="kbd">eglot-rename</kbd> and asking to automatically correct problems
-with <kbd class="kbd">eglot-code-actions</kbd>.  See <a class="xref" href="#Eglot-Commands">Eglot Commands</a>.
+</li><li>In addition to enabling and enhancing other features and packages, Eglot
+also provides a number of user commands based on the capabilities of
+language servers.  Examples include renaming symbols with
+<kbd class="kbd">eglot-rename</kbd> and asking to automatically correct problems with
+<kbd class="kbd">eglot-code-actions</kbd>.  See <a class="xref" href="#Eglot-Commands">Eglot Commands</a>.
 </li></ul>
 
 <p>Not all servers support the full set of LSP capabilities, but most of
-them support enough to enable the basic set of features mentioned
-above.
+them support enough to enable the basic set of features mentioned above.
 </p>
 <p>Conversely, some servers offer capabilities for which no equivalent
 Emacs package exists yet, and so Eglot cannot (yet) expose these
@@ -579,17 +590,17 @@ Next: <a href="#Eglot-Commands" accesskey="n" rel="next">Eglot Commands</a>, Pre
 
 <a class="index-entry-id" id="index-workspace"></a>
 <p>One of the main strong points of using a language server is that a
-language server has a broad view of the program: it considers more
-than just the single source file you are editing.  Ideally, the
-language server should know about all the source files of your program
-which are written in the language supported by the server.  In the
-language-server parlance, the set of the source files of a program is
-known as a <em class="dfn">workspace</em>.  The Emacs equivalent of a workspace is a
-<em class="dfn">project</em> (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Projects">Projects</a> in <cite class="cite">GNU Emacs Manual</cite>).  Eglot
-fully supports Emacs projects, and considers the file in whose buffer
-Eglot is turned on as belonging to a project.  In the simplest case,
-that file is the entire project, i.e. your project consists of a
-single file.  But there are other more complex projects:
+language server has a broad view of the program: it considers more than
+just the single source file you are editing.  Ideally, the language
+server should know about all the source files of your program which are
+written in the language supported by the server.  In the language-server
+parlance, the set of the source files of a program is known as a
+<em class="dfn">workspace</em>.  The Emacs equivalent of a workspace is a <em class="dfn">project</em>
+(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Projects">Projects</a> in <cite class="cite">GNU Emacs Manual</cite>).  Eglot fully supports
+Emacs projects, and considers the file in whose buffer Eglot is turned
+on as belonging to a project.  In the simplest case, that file is the
+entire project, i.e. your project consists of a single file.  But
+there are other more complex projects:
 </p>
 <ul class="itemize mark-bullet">
 <li>A single-directory project: several source files in a single common
@@ -604,8 +615,8 @@ Emacs Development Environment (see <a data-manual="emacs" href="https://www.gnu.
 Manual</cite>).
 </li></ul>
 
-<p>Eglot uses Emacs&rsquo;s project management infrastructure to figure out
-which files and buffers belong to what project, so any kind of project
+<p>Eglot uses Emacs&rsquo;s project management infrastructure to figure out which
+files and buffers belong to what project, so any kind of project
 supported by that infrastructure is automatically supported by Eglot.
 </p>
 <p>When Eglot starts a server program, it does so in the project&rsquo;s root
@@ -613,75 +624,79 @@ directory, which is usually the top-level directory of the project&rsquo;s
 directory hierarchy.  This ensures the language server has the same
 comprehensive view of the project&rsquo;s files as you do.
 </p>
-<p>For example, if you visit the file <samp class="file">~/projects/fooey/lib/x.foo</samp>
-and <samp class="file">x.foo</samp> belongs to a project rooted at
-<samp class="file">~/projects/fooey</samp> (perhaps because a <samp class="file">.git</samp> directory
-exists there), then <kbd class="kbd">M-x eglot</kbd> causes the server program to start
-with that root as the current working directory.  The server then will
-analyze not only the file <samp class="file">lib/x.foo</samp> you visited, but likely
-also all the other <samp class="file">*.foo</samp> files under the
-<samp class="file">~/projects/fooey</samp> directory.
+<p>For example, if you visit the file <samp class="file">~/projects/fooey/lib/x.foo</samp> and
+<samp class="file">x.foo</samp> belongs to a project rooted at <samp class="file">~/projects/fooey</samp>
+(perhaps because a <samp class="file">.git</samp> directory exists there), then <kbd class="kbd">M-x
+eglot</kbd> causes the server program to start with that root as the current
+working directory.  The server then will analyze not only the file
+<samp class="file">lib/x.foo</samp> you visited, but likely also all the other <samp class="file">*.foo</samp>
+files under the <samp class="file">~/projects/fooey</samp> directory.
 </p>
 <p>In some cases, additional information specific to a given project will
 need to be provided to the language server when starting it.  The
-variable <code class="code">eglot-workspace-configuration</code> (see <a class="pxref" href="#Customizing-Eglot">Customizing Eglot</a>) exists for that purpose.  It specifies the parameters and
-their values to communicate to each language server which needs that.
+variable <code class="code">eglot-workspace-configuration</code> (see <a class="pxref" href="#Customizing-Eglot">Customizing Eglot</a>) exists for that purpose.  It specifies the parameters and their
+values to communicate to each language server which needs that.
 </p>
-<p>When Eglot is active for a project, it performs several background
-activities on behalf of the project and its buffers:
+<p>When Eglot is active for a project, the project&rsquo;s buffers are treated
+specially in several ways:
 </p>
 <ul class="itemize mark-bullet">
 <li><a class="index-entry-id" id="index-mode_002dline-indication-of-language-server"></a>
 <a class="index-entry-id" id="index-mouse-clicks-on-mode_002dline_002c-and-Eglot"></a>
 <a class="index-entry-id" id="index-eglot_002dmenu"></a>
-All of the project&rsquo;s file-visiting buffers under the same major-mode
-are served by a single language-server connection.  (If the project
-uses several programming languages, there will usually be a separate
-server connection for each group of files written in the same language
-and using the same Emacs major-mode.)  Eglot adds the
-&lsquo;<samp class="samp">[eglot:<var class="var">project</var>]</samp>&rsquo; indication to the mode line of
-each such buffer, where <var class="var">server</var> is the name of the server and
-<var class="var">project</var> identifies the project by its root directory.  Clicking
-the mouse on the Eglot mode-line indication activates a menu with
-server-specific items.
+All of the project&rsquo;s file-visiting buffers under the same major-mode are
+served by a single language-server connection.  (If the project uses
+several programming languages, there will usually be a separate server
+connection for each group of files written in the same language and
+using the same Emacs major-mode.)  Eglot adds the
+&lsquo;<samp class="samp">[eglot:<var class="var">project</var>]</samp>&rsquo; indication to the mode line of each such
+buffer, where <var class="var">server</var> is the name of the server and <var class="var">project</var>
+identifies the project by its root directory.  Clicking the mouse on the
+Eglot mode-line indication activates a menu with server-specific items.
+The layout of the Eglot mode-line can be changed by customizing
+<code class="code">eglot-mode-line-format</code> (see <a class="pxref" href="#Customization-Variables">Customization Variables</a>).
 
 </li><li>For each buffer in which Eglot is active, it notifies the language
 server that Eglot is <em class="dfn">managing</em> the file visited by that buffer.
 This tells the language server that the file&rsquo;s contents on disk may no
-longer be up-to-date due to unsaved edits.  Eglot reports to the
-server any changes in the text of each managed buffer, to make the
-server aware of unsaved changes.  This includes your editing of the
-buffer and also changes done automatically by other Emacs features and
-commands.  Killing a buffer relinquishes its management by Eglot and
-notifies the server that the file on disk is up-to-date.
-
-</li><li><a class="index-entry-id" id="index-eglot_002dmanaged_002dmode_002dhook"></a>
-<a class="index-entry-id" id="index-eglot_002dmanaged_002dp"></a>
-Eglot turns on a special minor mode in each buffer it manages.  This
-minor mode ensures the server is notified about files Eglot manages,
-and also arranges for other Emacs features supported by Eglot
-(see <a class="pxref" href="#Eglot-Features">Eglot Features</a>) to receive information from the language
-server, by changing the settings of these features.  Unlike other
-minor-modes, this special minor mode is not activated manually by the
-user, but automatically, as the result of starting an Eglot session
-for the buffer.  However, this minor mode provides a hook variable
-<code class="code">eglot-managed-mode-hook</code> that can be used to customize the Eglot
-management of the buffer.  This hook is run both when the minor mode
-is turned on and when it&rsquo;s turned off; use the variable
-<code class="code">eglot-managed-p</code> to tell if current buffer is still being
-managed or not.  When Eglot stops managing the buffer, this minor mode
-is turned off, and all the settings that Eglot changed are restored to
-their original values.
+longer be up-to-date due to unsaved edits.  Eglot reports to the server
+any changes in the text of each managed buffer, to make the server aware
+of unsaved changes.  This includes your editing of the buffer and also
+changes done automatically by other Emacs features and commands.
+Killing a buffer relinquishes its management by Eglot and notifies the
+server that the file on disk is up-to-date.
 
 </li><li>When you visit a file under the same project, whether an existing or a
 new file, its buffer is automatically added to the set of buffers
-managed by Eglot, and the server which supports the buffer&rsquo;s
-major-mode is notified about that.  Thus, visiting a non-existent file
+managed by Eglot, and the server which supports the buffer&rsquo;s major-mode
+is notified about that.  Thus, visiting a non-existent file
 <samp class="file">/home/joe/projects/fooey/lib/y.foo</samp> in the above example will
 notify the server of the <samp class="file">*.foo</samp> files&rsquo; language that a new file
 was added to the project, even before the file appears on disk.  The
 special Eglot minor mode is also turned on automatically in the buffer
 visiting the file.
+
+</li><li>Eglot turns on a special minor mode in each buffer it manages.  This
+minor mode ensures the server is notified about files Eglot manages.
+Unlike other minor-modes, this special minor mode is <em class="emph">not</em>
+activated manually by the user, but automatically, as the result of
+starting an Eglot session for the buffer.  When Eglot stops managing the
+buffer, the minor mode is turned off, and all the settings that Eglot
+changed are restored to their original values.
+
+</li><li><a class="index-entry-id" id="index-eglot_002dmanaged_002dmode_002dhook"></a>
+<a class="index-entry-id" id="index-eglot_002dmanaged_002dp"></a>
+The minor mode&rsquo;s main job is to &ldquo;hook up&rdquo; Eglot to other Emacs
+functionality, i.e.  arrange for these features to receive information
+from the language server, by changing special variables controlling
+these features.  See <a class="xref" href="#Eglot-Features">Eglot Features</a>.
+
+</li><li>To customize this, Eglot&rsquo;s special minor mode provides a hook variable
+<code class="code">eglot-managed-mode-hook</code> specifically to alter Eglot&rsquo;s interaction
+with these variables in each buffer.  This hook is run both when the
+minor mode is turned on and when it&rsquo;s turned off; use the function
+<code class="code">eglot-managed-p</code> to tell if current buffer is still being managed
+or not.
 </li></ul>
 
 <hr>
@@ -689,7 +704,7 @@ visiting the file.
 <div class="section-level-extent" id="Eglot-Commands">
 <div class="nav-panel">
 <p>
-Next: <a href="#Eglot-Variables" accesskey="n" rel="next">Eglot Variables</a>, Previous: <a href="#Eglot-and-Buffers" accesskey="p" rel="prev">Buffers, Projects, and Eglot</a>, Up: <a href="#Using-Eglot" accesskey="u" rel="up">Using Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+Previous: <a href="#Eglot-and-Buffers" accesskey="p" rel="prev">Buffers, Projects, and Eglot</a>, Up: <a href="#Using-Eglot" accesskey="u" rel="up">Using Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
 <h3 class="section" id="Eglot-Commands-1"><span>3.3 Eglot Commands<a class="copiable-link" href="#Eglot-Commands-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-commands_002c-Eglot"></a>
@@ -699,50 +714,50 @@ commands:
 </p>
 <dl class="ftable">
 <dt><a id="index-M_002dx-eglot"></a><span><code class="code">M-x eglot</code><a class="copiable-link" href="#index-M_002dx-eglot"> &para;</a></span></dt>
-<dd><p>This command adds the current buffer and the file it visits to the
-group of buffers and files managed by Eglot on behalf of a suitable
-language server.  If a language server for the buffer&rsquo;s
-<code class="code">major-mode</code> (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Major-Modes">Major Modes</a> in <cite class="cite">GNU Emacs Manual</cite>) is
-not yet running, it will be started; otherwise the buffer and its file
-will be added to those managed by an existing server session.
+<dd><p>This command adds the current buffer and the file it visits to the group
+of buffers and files managed by Eglot on behalf of a suitable language
+server.  If a language server for the buffer&rsquo;s <code class="code">major-mode</code>
+(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Major-Modes">Major Modes</a> in <cite class="cite">GNU Emacs Manual</cite>) is not yet running, it
+will be started; otherwise the buffer and its file will be added to
+those managed by an existing server session.
 </p>
 <p>The command attempts to figure out the buffer&rsquo;s major mode and the
 suitable language server; in case it fails, it might prompt for the
-major mode to use and for the server program to start.  If invoked
-with <kbd class="kbd">C-u</kbd>, it always prompts for the server program, and if
-invoked with <kbd class="kbd">C-u C-u</kbd>, it also prompts for the major mode.
+major mode to use and for the server program to start.  If invoked with
+<kbd class="kbd">C-u</kbd>, it always prompts for the server program, and if invoked with
+<kbd class="kbd">C-u C-u</kbd>, it also prompts for the major mode.
 </p>
 <p>If the language server is successfully started and contacted, this
-command arranges for any other buffers belonging to the same project
-and using the same major mode to use the same language-server session.
-That includes any buffers created by visiting files after this command
+command arranges for any other buffers belonging to the same project and
+using the same major mode to use the same language-server session.  That
+includes any buffers created by visiting files after this command
 succeeds to connect to a language server.
 </p>
 <p>All the Emacs features that are capable of using Eglot services
-(see <a class="pxref" href="#Eglot-Features">Eglot Features</a>) are automatically configured by this command
-to start using the language server via Eglot.  To customize which
-Emacs features will be configured to use Eglot, use the
+(see <a class="pxref" href="#Eglot-Features">Eglot Features</a>) are automatically configured by this command to
+start using the language server via Eglot.  To customize which Emacs
+features will be configured to use Eglot, use the
 <code class="code">eglot-stay-out-of</code> option (see <a class="pxref" href="#Customizing-Eglot">Customizing Eglot</a>).
 </p>
 </dd>
 <dt><a id="index-M_002dx-eglot_002dreconnect"></a><span><code class="code">M-x eglot-reconnect</code><a class="copiable-link" href="#index-M_002dx-eglot_002dreconnect"> &para;</a></span></dt>
-<dd><p>This command shuts down the current connection to the language
-server and immediately restarts it using the same options used
-originally.  This can sometimes be useful to unclog a partially
-malfunctioning server connection.
+<dd><p>This command shuts down the current connection to the language server
+and immediately restarts it using the same options used originally.
+This can sometimes be useful to unclog a partially malfunctioning server
+connection.
 </p>
 </dd>
 <dt><a id="index-M_002dx-eglot_002dshutdown"></a><span><code class="code">M-x eglot-shutdown</code><a class="copiable-link" href="#index-M_002dx-eglot_002dshutdown"> &para;</a></span></dt>
 <dd><p>This command shuts down a language server.  It prompts for a language
 server to shut down (unless there&rsquo;s only one server session, and it
-manages the current buffer).  Then the command shuts down the server
-and stops managing the buffers the server was used for.  Emacs
-features (see <a class="pxref" href="#Eglot-Features">Eglot Features</a>) that Eglot configured to work with
-the language server are restored back to their original configuration.
+manages the current buffer).  Then the command shuts down the server and
+stops managing the buffers the server was used for.  Emacs features
+(see <a class="pxref" href="#Eglot-Features">Eglot Features</a>) that Eglot configured to work with the language
+server are restored back to their original configuration.
 </p>
-<p>Normally, this command kills the buffers used for communicating with
-the language server, but if invoked with a prefix argument <kbd class="kbd">C-u</kbd>,
-the command doesn&rsquo;t kill those buffers, allowing them to be used for
+<p>Normally, this command kills the buffers used for communicating with the
+language server, but if invoked with a prefix argument <kbd class="kbd">C-u</kbd>, the
+command doesn&rsquo;t kill those buffers, allowing them to be used for
 diagnostics and problem reporting (see <a class="pxref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>).
 </p>
 </dd>
@@ -762,8 +777,8 @@ language server of the current buffer to implement the renaming.
 </dd>
 <dt><a id="index-M_002dx-eglot_002dformat"></a><span><code class="code">M-x eglot-format</code><a class="copiable-link" href="#index-M_002dx-eglot_002dformat"> &para;</a></span></dt>
 <dd><p>This command reformats the active region according to the
-language-server rules.  If no region is active, it reformats the
-entire current buffer.
+language-server rules.  If no region is active, it reformats the entire
+current buffer.
 </p>
 </dd>
 <dt><a id="index-M_002dx-eglot_002dformat_002dbuffer"></a><span><code class="code">M-x eglot-format-buffer</code><a class="copiable-link" href="#index-M_002dx-eglot_002dformat_002dbuffer"> &para;</a></span></dt>
@@ -789,11 +804,11 @@ region.  If there are, you have the choice to execute one of them via
 the minibuffer.
 </p>
 <p>A common use of code actions is fixing the Flymake error diagnostics
-issued by Eglot (see <cite class="cite"><a data-manual="flymake" href="https://www.gnu.org/software/emacs/manual/html_mono/flymake.html#Top">GNU Flymake manual</a></cite>).
-Clicking on a diagnostic with <kbd class="kbd">mouse-2</kbd> invokes
+issued by Eglot (see <cite class="cite"><a data-manual="Flymake" href="Flymake.html#Top">GNU Flymake manual</a></cite>).  Clicking
+on a diagnostic with <kbd class="kbd">mouse-2</kbd> invokes
 <code class="code">eglot-code-actions-at-mouse</code> which pops up a menu of available
-code actions.  The variable <code class="code">eglot-diagnostics-map</code> can be used
-to control the mouse binding.
+code actions.  The variable <code class="code">eglot-diagnostics-map</code> can be used to
+control the mouse binding.
 </p>
 <p>Other commands execute a specific code action.  For example,
 <code class="code">eglot-code-action-organize-imports</code> rearranges the program&rsquo;s
@@ -804,12 +819,24 @@ uses.
 <dt><a class="index-entry-id" id="index-inlay-hints"></a>
 <a id="index-M_002dx-eglot_002dinlay_002dhints_002dmode"></a><span><code class="code">M-x eglot-inlay-hints-mode</code><a class="copiable-link" href="#index-M_002dx-eglot_002dinlay_002dhints_002dmode"> &para;</a></span></dt>
 <dd><p>This command toggles LSP <em class="dfn">inlay hints</em> on and off for the current
-buffer.  Inlay hints are small text annotations to specific parts of
-the whole buffer, not unlike diagnostics, but designed to help
-readability instead of indicating problems.  For example, a C++
-language server can serve hints about positional parameter names in
-function calls and a variable&rsquo;s automatically deduced type.  Inlay
-hints help the user not have to remember these things by heart.
+buffer.  Inlay hints are small text annotations to specific parts of the
+whole buffer, not unlike diagnostics, but designed to help readability
+instead of indicating problems.  For example, a C++ language server can
+serve hints about positional parameter names in function calls and a
+variable&rsquo;s automatically deduced type.  Inlay hints help the user not
+have to remember these things by heart.
+</p>
+</dd>
+<dt><a class="index-entry-id" id="index-type-hierarchy"></a>
+<a id="index-M_002dx-eglot_002dshow_002dtype_002dhierarchy"></a><span><code class="code">M-x eglot-show-type-hierarchy</code><a class="copiable-link" href="#index-M_002dx-eglot_002dshow_002dtype_002dhierarchy"> &para;</a></span></dt>
+<dd><p>Pop up a special buffer showing a interactive tree which represents a
+hierarchy of subtypes and supertypes for the symbol at point.
+</p>
+</dd>
+<dt><a class="index-entry-id" id="index-call-hierarchy"></a>
+<a id="index-M_002dx-eglot_002dcall_002dtype_002dhierarchy"></a><span><code class="code">M-x eglot-call-type-hierarchy</code><a class="copiable-link" href="#index-M_002dx-eglot_002dcall_002dtype_002dhierarchy"> &para;</a></span></dt>
+<dd><p>Pop up a special buffer showing a interactive tree which represents a
+hierarchy of callers and callee for the symbol at point.
 </p></dd>
 </dl>
 
@@ -832,38 +859,37 @@ language server to its standard error stream.
 </p>
 </dd>
 <dt><a id="index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration"></a><span><code class="code">M-x eglot-signal-didChangeConfiguration</code><a class="copiable-link" href="#index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration"> &para;</a></span></dt>
-<dd><p>This command updates the language server configuration according to
-the current value of the variable <code class="code">eglot-workspace-configuration</code>
+<dd><p>This command updates the language server configuration according to the
+current value of the variable <code class="code">eglot-workspace-configuration</code>
 (see <a class="pxref" href="#Customizing-Eglot">Customizing Eglot</a>).
 </p>
 </dd>
 <dt><a id="index-M_002dx-eglot_002dclear_002dstatus"></a><span><code class="code">M-x eglot-clear-status</code><a class="copiable-link" href="#index-M_002dx-eglot_002dclear_002dstatus"> &para;</a></span></dt>
 <dd><p>Clear the last JSONRPC error for the server of the current buffer.
 Eglot keeps track of erroneous situations encountered by the server in
-its mode-line indication so that the user may inspect the
-communication leading up to it (see <a class="pxref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>).  If
-the situation is deemed uninteresting or temporary, this command can
-be used to &ldquo;forget&rdquo; the error.  Note that the command <code class="code">M-x
-eglot-reconnect</code> can sometimes be used to unclog a temporarily
-malfunctioning server.
+its mode-line indication so that the user may inspect the communication
+leading up to it (see <a class="pxref" href="#Troubleshooting-Eglot">Troubleshooting Eglot</a>).  If the situation is
+deemed uninteresting or temporary, this command can be used to
+&ldquo;forget&rdquo; the error.  Note that the command <code class="code">M-x eglot-reconnect</code>
+can sometimes be used to unclog a temporarily malfunctioning server.
 </p></dd>
 </dl>
 
-<p>As described in <a class="ref" href="#Eglot-Features">Eglot Features</a> most features associated with
-Eglot are actually provided by other Emacs packages and features, and
-Eglot only enhances them by allowing them to use the information
-coming from the language servers.  For completeness, here&rsquo;s the list
-of commands of those other packages that are very commonly used in
-Eglot-managed buffers:
+<p>As described in <a class="ref" href="#Eglot-Features">Eglot Features</a> most features associated with Eglot
+are actually provided by other Emacs packages and features, and Eglot
+only enhances them by allowing them to use the information coming from
+the language servers.  For completeness, here&rsquo;s the list of commands of
+those other packages that are very commonly used in Eglot-managed
+buffers:
 </p>
 <dl class="table">
 <dt><a class="index-entry-id" id="index-documentation-using-Eglot"></a>
-<a id="index-eldoc_002c-and-Eglot"></a><span><code class="code">M-x eldoc</code><a class="copiable-link" href="#index-eldoc_002c-and-Eglot"> &para;</a></span></dt>
+<a id="index-ElDoc_002c-and-Eglot"></a><span><code class="code">M-x eldoc</code><a class="copiable-link" href="#index-ElDoc_002c-and-Eglot"> &para;</a></span></dt>
 <dd><p>Ask the ElDoc system for help at point.
 </p>
 </dd>
 <dt><a class="index-entry-id" id="index-on_002dthe_002dfly-diagnostics-using-Eglot"></a>
-<a id="index-flymake_002c-and-Eglot"></a><span><code class="code">M-x flymake-show-buffer-diagnostics</code><a class="copiable-link" href="#index-flymake_002c-and-Eglot"> &para;</a></span></dt>
+<a id="index-Flymake_002c-and-Eglot"></a><span><code class="code">M-x flymake-show-buffer-diagnostics</code><a class="copiable-link" href="#index-Flymake_002c-and-Eglot"> &para;</a></span></dt>
 <dd><p>Ask Flymake system to display diagnostics for the current buffer.
 </p>
 </dd>
@@ -890,12 +916,44 @@ variable, etc.) and offering completion.
 
 <hr>
 </div>
-<div class="section-level-extent" id="Eglot-Variables">
+</div>
+<div class="chapter-level-extent" id="Customizing-Eglot">
 <div class="nav-panel">
 <p>
-Previous: <a href="#Eglot-Commands" accesskey="p" rel="prev">Eglot Commands</a>, Up: <a href="#Using-Eglot" accesskey="u" rel="up">Using Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+Next: <a href="#Advanced-server-configuration" accesskey="n" rel="next">Advanced server configuration</a>, Previous: <a href="#Using-Eglot" accesskey="p" rel="prev">Using Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
 </div>
-<h3 class="section" id="Eglot-Variables-1"><span>3.4 Eglot Variables<a class="copiable-link" href="#Eglot-Variables-1"> &para;</a></span></h3>
+<h2 class="chapter" id="Customizing-Eglot-1"><span>4 Customizing Eglot<a class="copiable-link" href="#Customizing-Eglot-1"> &para;</a></span></h2>
+<a class="index-entry-id" id="index-customizing-Eglot"></a>
+
+<p>To have Eglot behave like you want it, sometimes it suffices to
+customize Emacs packages and features that Eglot uses but to do so for
+all of Emacs (regardless of Eglot) .  For example, to configure the
+amount of space taken up by documentation in the echo area, customize
+the ElDoc variable <code class="code">eldoc-echo-area-use-multiline-p</code>.  To configure
+Flymake faces used for errors and warnings, customize the
+<code class="code">flymake-error</code> and <code class="code">flymake-warning</code> faces.
+</p>
+<p>Compared to the breadth of its functionality, Eglot itself has a
+relatively small number of customization variables.  There is
+additionally a set of variables that are usually set from Elisp snippets
+(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Init-File">Init File</a> in <cite class="cite">The GNU Emacs Manual</cite>).
+</p>
+<p>Other times, it&rsquo;s necessary to have finer control of Eglot&rsquo;s interaction
+with these features.  See <a class="xref" href="#More-Customization">More Customization</a>.
+</p>
+
+<ul class="mini-toc">
+<li><a href="#Customization-Variables" accesskey="1">Customization Variables</a></li>
+<li><a href="#Other-Variables" accesskey="2">Other Variables</a></li>
+<li><a href="#More-Customization" accesskey="3">More Customization</a></li>
+</ul>
+<hr>
+<div class="section-level-extent" id="Customization-Variables">
+<div class="nav-panel">
+<p>
+Next: <a href="#Other-Variables" accesskey="n" rel="next">Other Variables</a>, Up: <a href="#Customizing-Eglot" accesskey="u" rel="up">Customizing Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<h3 class="section" id="Customization-Variables-1"><span>4.1 Customization Variables<a class="copiable-link" href="#Customization-Variables-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-variables_002c-Eglot"></a>
 
 <p>This section provides a reference for the Eglot user options.
@@ -904,13 +962,12 @@ Previous: <a href="#Eglot-Commands" accesskey="p" rel="prev">Eglot Commands</a>,
 <dt><a id="index-eglot_002dautoreconnect"></a><span><code class="code">eglot-autoreconnect</code><a class="copiable-link" href="#index-eglot_002dautoreconnect"> &para;</a></span></dt>
 <dd><p>This option controls the ability to reconnect automatically to the
 language server when Eglot detects that the server process terminated
-unexpectedly.  The default value <code class="code">3</code> means to attempt reconnection only
-if the previous successful connection lasted for more than that number
-of seconds; a different positive value changes the minimal length of
-the connection to trigger reconnection.  A value of <code class="code">t</code> means
-always reconnect automatically, and <code class="code">nil</code> means never reconnect
-(in which case you will need to reconnect manually using <kbd class="kbd">M-x
-eglot</kbd>).
+unexpectedly.  The default value <code class="code">3</code> means to attempt reconnection
+only if the previous successful connection lasted for more than that
+number of seconds; a different positive value changes the minimal length
+of the connection to trigger reconnection.  A value of <code class="code">t</code> means
+always reconnect automatically, and <code class="code">nil</code> means never reconnect (in
+which case you will need to reconnect manually using <kbd class="kbd">M-x eglot</kbd>).
 </p>
 </dd>
 <dt><a id="index-eglot_002dconnect_002dtimeout"></a><span><code class="code">eglot-connect-timeout</code><a class="copiable-link" href="#index-eglot_002dconnect_002dtimeout"> &para;</a></span></dt>
@@ -924,10 +981,10 @@ out.  The default is 30 seconds.
 establish.  Whereas the variable <code class="code">eglot-connect-timeout</code> controls
 how long to wait for, this variable controls whether to block Emacs&rsquo;s
 user interface while waiting.  The default value is <code class="code">3</code>; a positive
-value means block for that many seconds, then wait for the connection
-in the background.  The value of <code class="code">t</code> means block during the whole
-waiting period.  The value of <code class="code">nil</code> or <code class="code">0</code> means don&rsquo;t block at
-all during the waiting period.
+value means block for that many seconds, then wait for the connection in
+the background.  The value of <code class="code">t</code> means block during the whole
+waiting period.  The value of <code class="code">nil</code> or <code class="code">0</code> means don&rsquo;t block
+at all during the waiting period.
 </p>
 </dd>
 <dt><a id="index-eglot_002devents_002dbuffer_002dconfig"></a><span><code class="code">eglot-events-buffer-config</code><a class="copiable-link" href="#index-eglot_002devents_002dbuffer_002dconfig"> &para;</a></span></dt>
@@ -948,35 +1005,35 @@ The default is <code class="code">nil</code>; if you want to shut down a server,
 <dt><a id="index-eglot_002dconfirm_002dserver_002dedits"></a><span><code class="code">eglot-confirm-server-edits</code><a class="copiable-link" href="#index-eglot_002dconfirm_002dserver_002dedits"> &para;</a></span></dt>
 <dd><p>Various Eglot commands and code actions result in the language server
 sending editing commands to Emacs.  If this option&rsquo;s value is
-non-<code class="code">nil</code>, Eglot will ask for confirmation before performing
-edits proposed by the language server.  This option&rsquo;s value can be
-crafted to require this confirmation for specific commands or only
-when the edit affects files not yet visited by the user.  Consult this
-option&rsquo;s docstring for more information.
+non-<code class="code">nil</code>, Eglot will ask for confirmation before performing edits
+proposed by the language server.  This option&rsquo;s value can be crafted to
+require this confirmation for specific commands or only when the edit
+affects files not yet visited by the user.  Consult this option&rsquo;s
+docstring for more information.
 </p>
 </dd>
 <dt><a id="index-eglot_002dignored_002dserver_002dcapabilities"></a><span><code class="code">eglot-ignored-server-capabilities</code><a class="copiable-link" href="#index-eglot_002dignored_002dserver_002dcapabilities"> &para;</a></span></dt>
 <dd><p>This variable&rsquo;s value is a list of language server capabilities that
-Eglot should not use.  The default is <code class="code">nil</code>: Eglot uses all of
-the capabilities supported by each server.
+Eglot should not use.  The default is <code class="code">nil</code>: Eglot uses all of the
+capabilities supported by each server.
 </p>
 </dd>
 <dt><a id="index-eglot_002dextend_002dto_002dxref"></a><span><code class="code">eglot-extend-to-xref</code><a class="copiable-link" href="#index-eglot_002dextend_002dto_002dxref"> &para;</a></span></dt>
-<dd><p>If this is non-<code class="code">nil</code>, and <kbd class="kbd">M-.</kbd>
-(<code class="code">xref-find-definitions</code>) lands you in a file outside of your
-project, such as a system-installed library or header file,
-transiently consider that file as managed by the same language server.
-That file is still outside your project (i.e. <code class="code">project-find-file</code>
-won&rsquo;t find it), but Eglot and the server will consider it to be part
-of the workspace.  The default is <code class="code">nil</code>.
+<dd><p>If this is non-<code class="code">nil</code>, and <kbd class="kbd">M-.</kbd> (<code class="code">xref-find-definitions</code>)
+lands you in a file outside of your project, such as a system-installed
+library or header file, transiently consider that file as managed by the
+same language server.  That file is still outside your project
+(i.e. <code class="code">project-find-file</code> won&rsquo;t find it), but Eglot and the server
+will consider it to be part of the workspace.  The default is
+<code class="code">nil</code>.
 </p>
 </dd>
 <dt><a id="index-eglot_002dmode_002dmap"></a><span><code class="code">eglot-mode-map</code><a class="copiable-link" href="#index-eglot_002dmode_002dmap"> &para;</a></span></dt>
-<dd><p>This variable is the keymap for binding Eglot-related command.  It is
-in effect only as long as the buffer is managed by Eglot.  By default,
-it is empty, with the single exception: <kbd class="kbd">C-h .</kbd> is remapped to
-invoke <code class="code">eldoc-doc-buffer</code>.  You can bind additional commands in
-this map.  For example:
+<dd><p>This variable is the keymap for binding Eglot-related command.  It is in
+effect only as long as the buffer is managed by Eglot.  By default, it
+is empty, with the single exception: <kbd class="kbd">C-h .</kbd> is remapped to invoke
+<code class="code">eldoc-doc-buffer</code>.  You can bind additional commands in this map.
+For example:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">  (define-key eglot-mode-map (kbd &quot;C-c r&quot;) 'eglot-rename)
@@ -986,44 +1043,74 @@ this map.  For example:
 </pre></div>
 
 </dd>
-</dl>
-
-<p>Additional variables, which are relevant for customizing the server
-connections, are documented in <a class="ref" href="#Customizing-Eglot">Customizing Eglot</a>.
+<dt><a class="index-entry-id" id="index-progress"></a>
+<a id="index-eglot_002dreport_002dprogress"></a><span><code class="code">eglot-report-progress</code><a class="copiable-link" href="#index-eglot_002dreport_002dprogress"> &para;</a></span></dt>
+<dd><p>Set this variable to non-nil if you&rsquo;d like progress notifications coming
+from the language server to be handled by Emacs&rsquo;s progress reporting
+facilities.  If the value is the symbol <code class="code">messages</code> the message
+buffer is used, else the progress is reported in the mode line.
 </p>
-<hr>
-</div>
-</div>
-<div class="chapter-level-extent" id="Customizing-Eglot">
-<div class="nav-panel">
-<p>
-Next: <a href="#Advanced-server-configuration" accesskey="n" rel="next">Advanced server configuration</a>, Previous: <a href="#Using-Eglot" accesskey="p" rel="prev">Using Eglot</a>, Up: <a href="#Top" accesskey="u" rel="up">Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
-</div>
-<h2 class="chapter" id="Customizing-Eglot-1"><span>4 Customizing Eglot<a class="copiable-link" href="#Customizing-Eglot-1"> &para;</a></span></h2>
-<a class="index-entry-id" id="index-customizing-Eglot"></a>
-
-<p>Eglot itself has a relatively small number of customization options.
-A large part of customizing Eglot to your needs and preferences should
-actually be done via options of the Emacs packages and features which
-Eglot supports and enhances (see <a class="pxref" href="#Eglot-Features">Eglot Features</a>).  For example:
+</dd>
+<dt><a class="index-entry-id" id="index-request-cancellation"></a>
+<a id="index-eglot_002dadvertise_002dcancellation"></a><span><code class="code">eglot-advertise-cancellation</code><a class="copiable-link" href="#index-eglot_002dadvertise_002dcancellation"> &para;</a></span></dt>
+<dd><p>Setting this variable to true causes Eglot to send special cancellation
+notification for certain stale client request.  This may help some LSP
+servers avoid doing costly but ultimately useless work on behalf of the
+client, improving overall performance.
 </p>
-<ul class="itemize mark-bullet">
-<li>To configure the face used for server-derived errors and warnings,
-customize the Flymake faces <code class="code">flymake-error</code> and
-<code class="code">flymake-warning</code>.
-
-</li><li>To configure the amount of space taken up by documentation in the
-echo area, customize the ElDoc variable
-<code class="code">eldoc-echo-area-use-multiline-p</code>.
-
-</li><li>To completely change how ElDoc displays the at-point documentation
-destination, customize the ElDoc variable
-<code class="code">eldoc-display-functions</code>.
+</dd>
+<dt><a id="index-eglot_002dcode_002daction_002dindications"></a><span><code class="code">eglot-code-action-indications</code><a class="copiable-link" href="#index-eglot_002dcode_002daction_002dindications"> &para;</a></span></dt>
+<dd><p>This variable controls the indication of code actions available at
+point.  Value is a list of symbols, more than one can be specified:
+</p>
+<ul class="itemize mark-minus">
+<li><code class="code">eldoc-hint</code>: ElDoc is used to hint about at-point actions.
+</li><li><code class="code">margin</code>: A special indicator appears in the margin of the line
+that point is currently on.  This indicator is not interactive (you
+cannot click on it with the mouse).
+</li><li><code class="code">nearby</code>: An interactive special indicator appears near point.
+</li><li><code class="code">mode-line</code>: An interactive special indicator appears in the mode
+line.
 </li></ul>
 
-<p>For this reason, this manual describes only how to customize
-Eglot&rsquo;s own operation, which mainly has to do with the server
-connections and the server features to be used by Eglot.
+<p><code class="code">margin</code> and <code class="code">nearby</code> are incompatible.  If the list is empty,
+ElDoc will not hint about at-point actions.
+</p>
+</dd>
+<dt><a id="index-eglot_002dcode_002daction_002dindicator"></a><span><code class="code">eglot-code-action-indicator</code><a class="copiable-link" href="#index-eglot_002dcode_002daction_002dindicator"> &para;</a></span></dt>
+<dd><p>This variable is a string determining what the special indicator looks
+like.
+</p>
+</dd>
+<dt><a id="index-eglot_002dmode_002dline_002dformat"></a><span><code class="code">eglot-mode-line-format</code><a class="copiable-link" href="#index-eglot_002dmode_002dline_002dformat"> &para;</a></span></dt>
+<dd><p>This variables controls the shape and look of Eglot&rsquo;s mode line.  Its
+value is a mode line &ldquo;construct&rdquo;, generally a list of symbols and
+strings.  The following symbols are meaningful and useful for Eglot&rsquo;s
+mode line:
+</p><ul class="itemize mark-minus">
+<li><code class="code">eglot-mode-line-menu</code>: access Eglot&rsquo;s main menu.  See also
+<code class="code">eglot-menu-string</code>;
+</li><li><code class="code">eglot-mode-line-session</code>: indicate current project and access
+current session&rsquo;s menu;
+</li><li><code class="code">eglot-mode-line-error</code>: an indication of recent LSP errors;
+</li><li><code class="code">eglot-mode-line-pending-requests</code>: number of pending LSP requests;
+</li><li><code class="code">eglot-mode-line-progress</code>: progress reporter widgets;
+</li><li><code class="code">eglot-mode-line-action-suggestion</code>: LSP code actions at point.
+</li></ul>
+</dd>
+</dl>
+
+<hr>
+</div>
+<div class="section-level-extent" id="Other-Variables">
+<div class="nav-panel">
+<p>
+Next: <a href="#More-Customization" accesskey="n" rel="next">More Customization</a>, Previous: <a href="#Customization-Variables" accesskey="p" rel="prev">Customization Variables</a>, Up: <a href="#Customizing-Eglot" accesskey="u" rel="up">Customizing Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<h3 class="section" id="Other-Variables-1"><span>4.2 Other Variables<a class="copiable-link" href="#Other-Variables-1"> &para;</a></span></h3>
+
+<p>This section provides a reference for Eglot variables that are meant to
+be changed from Elisp snippets.
 </p>
 <dl class="table">
 <dt><code class="code">eglot-server-programs</code></dt>
@@ -1039,12 +1126,16 @@ to <code class="code">(disallow-non-standard-keys&nbsp;enforce-required-keys)</c
 </p>
 </dd>
 <dt><a id="index-eglot_002dserver_002dinitialized_002dhook"></a><span><code class="code">eglot-server-initialized-hook</code><a class="copiable-link" href="#index-eglot_002dserver_002dinitialized_002dhook"> &para;</a></span></dt>
-<dd><p>A hook run after the server object is successfully initialized.
+<dd><p>A hook run after the server object is successfully initialized (which
+includes launching the process) but before any LSP communication is
+attempted.  Each function receives a <code class="code">eglot-lsp-server</code> instance as
+argument.
 </p>
 </dd>
 <dt><a id="index-eglot_002dconnect_002dhook"></a><span><code class="code">eglot-connect-hook</code><a class="copiable-link" href="#index-eglot_002dconnect_002dhook"> &para;</a></span></dt>
-<dd><p>A hook run after connection to the server is successfully
-established.  See <a class="xref" href="#Starting-Eglot">Starting Eglot</a>.
+<dd><p>A hook run after the LSP connection to the server is successfully
+established.  Each function receives a <code class="code">eglot-lsp-server</code> instance
+as argument.  See <a class="xref" href="#Starting-Eglot">Starting Eglot</a>.
 </p>
 </dd>
 <dt><code class="code">eglot-managed-mode-hook</code></dt>
@@ -1055,12 +1146,11 @@ See <a class="xref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>, 
 <dt><a id="index-eglot_002dstay_002dout_002dof"></a><span><code class="code">eglot-stay-out-of</code><a class="copiable-link" href="#index-eglot_002dstay_002dout_002dof"> &para;</a></span></dt>
 <dd><p>This variable&rsquo;s value lists Emacs features that Eglot shouldn&rsquo;t
 automatically try to manage on the user&rsquo;s behalf.  It is useful, for
-example, when you need to use non-LSP Flymake or Company back-ends.
-To have Eglot stay away from some Emacs feature, add that feature&rsquo;s
-symbol or a regexp that will match a symbol&rsquo;s name to the list: for
-example, the symbol <code class="code">xref</code> to leave Xref alone, or the string
-&lsquo;<samp class="samp">company</samp>&rsquo; to stay away from your Company customizations.  Here&rsquo;s an
-example:
+example, when you need to use non-LSP Flymake or Company back-ends.  To
+have Eglot stay away from some Emacs feature, add that feature&rsquo;s symbol
+or a regexp that will match a symbol&rsquo;s name to the list: for example,
+the symbol <code class="code">xref</code> to leave Xref alone, or the string &lsquo;<samp class="samp">company</samp>&rsquo;
+to stay away from your Company customizations.  Here&rsquo;s an example:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">(add-to-list 'eglot-stay-out-of 'flymake)
@@ -1069,17 +1159,111 @@ example:
 <p>Note that you can still configure the excluded Emacs features manually
 to use Eglot in your <code class="code">eglot-managed-mode-hook</code> or via some other
 mechanism.
-</p>
-</dd>
-<dt><a class="index-entry-id" id="index-progress"></a>
-<a id="index-eglot_002dreport_002dprogress"></a><span><code class="code">eglot-report-progress</code><a class="copiable-link" href="#index-eglot_002dreport_002dprogress"> &para;</a></span></dt>
-<dd><p>Set this variable to true if you&rsquo;d like progress notifications coming
-from the language server to be handled as Emacs&rsquo;s progress reporting
-facilities.
 </p></dd>
 </dl>
 
 <hr>
+</div>
+<div class="section-level-extent" id="More-Customization">
+<div class="nav-panel">
+<p>
+Previous: <a href="#Other-Variables" accesskey="p" rel="prev">Other Variables</a>, Up: <a href="#Customizing-Eglot" accesskey="u" rel="up">Customizing Eglot</a> &nbsp; [<a href="#SEC_Contents" title="Table of contents" rel="contents">Contents</a>][<a href="#Index" title="Index" rel="index">Index</a>]</p>
+</div>
+<h3 class="section" id="More-Customization-1"><span>4.3 More Customization<a class="copiable-link" href="#More-Customization-1"> &para;</a></span></h3>
+
+<p>As explained earlier (see <a class="pxref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>), Eglot hooks onto
+existing Emacs packages and features by setting special variables in its
+special minor mode.  To gain finer control of Eglot&rsquo;s operation, the
+<code class="code">eglot-managed-mode-hook</code> should be used to tweak, subdue or
+completely override Eglot&rsquo;s setting of these variables.
+</p>
+<ul class="itemize mark-bullet">
+<li>Eglot hooks onto ElDoc&rsquo;s <code class="code">eldoc-documentation-functions</code> variable,
+adding a number of functions to it:
+<ul class="itemize mark-minus">
+<li><code class="code">eglot-hover-eldoc-function</code>, to display general information
+about an identifier.
+</li><li><code class="code">eglot-signature-eldoc-function</code>, to display function
+signature information.
+</li><li><code class="code">eglot-highlight-eldoc-function</code>, to highlight nearby
+manifestations of an identifier.
+</li><li><code class="code">eglot-code-action-suggestion</code>, to retrieve relevant code
+actions at point.
+</li></ul>
+
+<p>A simple tweak to remove at-point identifier information for
+hypothetical language <code class="code">Foo</code> may look like:
+</p>
+<div class="example lisp">
+<pre class="lisp-preformatted">(add-hook 'foo-mode-hook
+  (lambda ()
+    (add-hook 'eglot-managed-mode-hook
+      (lambda ()
+        (remove-hook 'eldoc-documentation-functions
+                     'eglot-hover-eldoc-function
+                     nil t))
+      nil t)))
+</pre></div>
+
+<p>For more sophisticated changes, we can take advantage of ElDoc&rsquo;s
+well-defined protocols.  See <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Programming-Language-Doc">Programming Language Doc</a> in <cite class="cite">GNU
+Emacs Manual</cite>.  For instance, the functions in
+<code class="code">eldoc-display-functions</code> control displays of the at-point
+documentation produced by <code class="code">eldoc-documentation-functions</code>.  As an
+example, to ensure that hover documentation specifically is never output
+into the Echo area (in all programming modes):
+</p>
+<div class="example lisp">
+<pre class="lisp-preformatted">(require 'cl-lib)
+
+(defun my/special-eglot-hover-function (cb &amp;rest _ignored)
+  &quot;Same as `eglot-hover-eldoc-function`, but skip the echo area.&quot;
+  (eglot-hover-eldoc-function (lambda (info &amp;rest _ignore)
+                                (funcall cb info :echo 'skip))))
+
+;; substitute 'eldoc-hover-eldoc-function with our &quot;fixed&quot; variant.
+(add-hook
+  'eglot-managed-mode-hook
+  (lambda ()
+    (setq-local eldoc-documentation-functions
+                (cl-substitute #'my/special-eglot-hover-function
+                               'eglot-hover-eldoc-function
+                               eldoc-documentation-functions))))
+</pre></div>
+
+</li><li>Eglot hooks onto Flymake&rsquo;s <code class="code">flymake-diagnostic-functions</code> variable,
+completely replacing its value with Eglot&rsquo;s own
+<code class="code">eglot-flymake-backend</code> function.  Additional backends may be added
+to work alongside Eglot&rsquo;s.
+
+<div class="example lisp">
+<pre class="lisp-preformatted">(add-hook 'foo-mode-hook
+  (lambda ()
+    (add-hook 'eglot-managed-mode-hook
+      (lambda ()
+        (add-hook 'flymake-diagnostic-functions
+                  #'my/special-foo-mode-backend
+                  nil t))
+      nil t)))
+</pre></div>
+
+</li><li>Eglot hooks onto Xref&rsquo;s <code class="code">xref-backend-functions</code> variable, adding
+its own <code class="code">eglot-xref-backend</code> function to it.
+
+</li><li>Eglot hooks onto Imenu&rsquo;s <code class="code">imenu-create-index-function</code>.
+
+</li><li>Eglot hooks onto Emacs&rsquo;s <code class="code">completion-at-point-functions</code>.
+
+</li><li>Eglot hooks onto Company&rsquo;s <code class="code">company-backends</code> variable, ensuring
+only the <code class="code">company-capf</code> backend lives there.  This ensures the same
+set of completions as regular <code class="code">completion-at-point</code>.
+
+</li><li>Eglot hooks onto YASnippet by automatically activating
+<code class="code">yas-minor-mode</code> when needed to expand server-provided snippets.
+</li></ul>
+
+<hr>
+</div>
 </div>
 <div class="chapter-level-extent" id="Advanced-server-configuration">
 <div class="nav-panel">
@@ -1090,15 +1274,15 @@ Next: <a href="#Extending-Eglot" accesskey="n" rel="next">Extending Eglot</a>, P
 
 <p>Though many language servers work well out-of-the-box, most allow
 fine-grained control of their operation via specific configuration
-options that are transmitted over the LSP protocol and vary from
-server to server.  A small number of servers require such special
-configuration to work acceptably, or even to work at all.
+options that are transmitted over the LSP protocol and vary from server
+to server.  A small number of servers require such special configuration
+to work acceptably, or even to work at all.
 </p>
 <p>After having setup a server executable program in
 <code class="code">eglot-server-programs</code> (see <a class="pxref" href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>) and
-ensuring Eglot can invoke it, you may want to take advantage of some
-of these options.  You should first distinguish two main kinds of
-server configuration:
+ensuring Eglot can invoke it, you may want to take advantage of some of
+these options.  You should first distinguish two main kinds of server
+configuration:
 </p>
 <ul class="itemize mark-bullet">
 <li>Project-specific, applying to a specific project;
@@ -1111,20 +1295,20 @@ teach how Eglot&rsquo;s user variables can be used to achieve it:
 </p>
 
 <p>It&rsquo;s important to note that not all servers allow both kinds of
-configuration, nor is it guaranteed that user options can be copied
-over to project options, and vice-versa.  When in doubt, consult your
+configuration, nor is it guaranteed that user options can be copied over
+to project options, and vice-versa.  When in doubt, consult your
 language server&rsquo;s documentation.
 </p>
 <p>It&rsquo;s also worth noting that some language servers can read these
-settings from configuration files in the user&rsquo;s <code class="code">HOME</code> directory
-or in a project&rsquo;s directory.  For example, the <code class="command">pylsp</code> Python
+settings from configuration files in the user&rsquo;s <code class="code">HOME</code> directory or
+in a project&rsquo;s directory.  For example, the <code class="command">pylsp</code> Python
 server reads the file <samp class="file">~/.config/pycodestyle</samp> for user
 configuration.  The <code class="command">clangd</code> C/C++ server reads both
 <samp class="file">~/.config/clangd/config.yaml</samp> for user configuration and
-<samp class="file">.clangd</samp> for project configuration.  It may be advantageous to
-use these mechanisms instead of Eglot&rsquo;s, as this will probably work
-with other LSP clients and may be easier to debug than options riding
-on the LSP wire.
+<samp class="file">.clangd</samp> for project configuration.  It may be advantageous to use
+these mechanisms instead of Eglot&rsquo;s, as this will probably work with
+other LSP clients and may be easier to debug than options riding on the
+LSP wire.
 </p>
 <ul class="mini-toc">
 <li><a href="#Project_002dspecific-configuration" accesskey="1">Project-specific configuration</a></li>
@@ -1145,16 +1329,16 @@ Next: <a href="#User_002dspecific-configuration" accesskey="n" rel="next">User-s
 <em class="dfn">workspace configuration</em>, the variable
 <code class="code">eglot-workspace-configuration</code> may be used.
 </p>
-<p>This variable is a directory-local variable (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Directory-Variables">Per-directory Local Variables</a> in <cite class="cite">The GNU Emacs
-Manual</cite>).  It&rsquo;s important to recognize that this variable really only
-makes sense when set directory-locally.  It usually does not make
-sense to set it file-locally or in a major-mode hook.
+<p>This variable is a directory-local variable (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Directory-Variables">Per-directory Local Variables</a> in <cite class="cite">The GNU Emacs Manual</cite>).  It&rsquo;s
+important to recognize that this variable really only makes sense when
+set directory-locally.  It usually does not make sense to set it
+file-locally or in a major-mode hook.
 </p>
 <p>The most common way to set <code class="code">eglot-workspace-configuration </code> is
-using a <samp class="file">.dir-locals.el</samp> file in the root of your project.  If
-you can&rsquo;t do that, you may also set it from Elisp code via the
-<code class="code">dir-locals-set-class-variables</code> function.  (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Directory-Local-Variables">Directory
-Local Variables</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>).
+using a <samp class="file">.dir-locals.el</samp> file in the root of your project.  If you
+can&rsquo;t do that, you may also set it from Elisp code via the
+<code class="code">dir-locals-set-class-variables</code> function.  (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Directory-Local-Variables">Directory Local
+Variables</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>).
 </p>
 <p>However you choose to set it, the variable&rsquo;s value is a plist
 (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Property-Lists">Property Lists</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>) with
@@ -1177,10 +1361,10 @@ server (see <a class="pxref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in
 even before actually connecting to the server.
 </p>
 <p>These variable&rsquo;s value doesn&rsquo;t take effect immediately.  That happens
-upon establishing the connection, in response to an explicit query
-from the server, or when issuing the command <kbd class="kbd">M-x
-eglot-signal-didChangeConfiguration</kbd> which notifies the server during
-an ongoing Eglot session.
+upon establishing the connection, in response to an explicit query from
+the server, or when issuing the command <kbd class="kbd">M-x
+eglot-signal-didChangeConfiguration</kbd> which notifies the server during an
+ongoing Eglot session.
 </p>
 <ul class="mini-toc">
 <li><a href="#Examples" accesskey="1">Examples</a></li>
@@ -1197,11 +1381,10 @@ plists.  Some examples are useful.
 </p>
 <p>Let&rsquo;s say you want to configure two language servers to be used in a
 project written in a combination of the Python and Go languages.  You
-want to use the <code class="command">pylsp</code> and <code class="command">gopls</code> languages
-servers.  In the documentation of the servers in question (or in some
-other editor&rsquo;s configuration file, or in some blog article), you find
-the following configuration options in informal dotted-notation
-syntax:
+want to use the <code class="command">pylsp</code> and <code class="command">gopls</code> languages servers.
+In the documentation of the servers in question (or in some other
+editor&rsquo;s configuration file, or in some blog article), you find the
+following configuration options in informal dotted-notation syntax:
 </p>
 <div class="example">
 <pre class="example-preformatted">pylsp.plugins.jedi_completion.include_params: true
@@ -1225,12 +1408,11 @@ gopls.usePlaceholders: true
 </pre></div>
 
 <p>This sets the value of <code class="code">eglot-workspace-configuration</code> in all the
-buffers inside the project; each server will use only the section of
-the parameters intended for that server, and ignore the rest.  Note
-how alists are used for associating Emacs mode names with alists
-associating variable names with variable values.  Then notice how
-plists are used inside the value of
-<code class="code">eglot-workspace-configuration</code>.
+buffers inside the project; each server will use only the section of the
+parameters intended for that server, and ignore the rest.  Note how
+alists are used for associating Emacs mode names with alists associating
+variable names with variable values.  Then notice how plists are used
+inside the value of <code class="code">eglot-workspace-configuration</code>.
 </p>
 <p>This following form may also be used:
 </p>
@@ -1275,13 +1457,12 @@ may use something like:
       . (:gopls (:usePlaceholders nil))))))
 </pre></div>
 
-<p>Finally, if one needs to determine the workspace configuration based
-on some dynamic context, <code class="code">eglot-workspace-configuration</code> can be
-set to a function.  The function is called with the
-<code class="code">eglot-lsp-server</code> instance of the connected server (if any) and
-with <code class="code">default-directory</code> set to the root of the project.  The
-function should return a plist suitable for use as the variable&rsquo;s
-value.
+<p>Finally, if one needs to determine the workspace configuration based on
+some dynamic context, <code class="code">eglot-workspace-configuration</code> can be set to
+a function.  The function is called with the <code class="code">eglot-lsp-server</code>
+instance of the connected server (if any) and with
+<code class="code">default-directory</code> set to the root of the project.  The function
+should return a plist suitable for use as the variable&rsquo;s value.
 </p>
 <hr>
 </div>
@@ -1299,9 +1480,9 @@ Next: <a href="#JSONRPC-objects-in-Elisp" accesskey="n" rel="next">JSONRPC objec
 for.  Here, there are a number of ways to do this inside Eglot.
 </p>
 <p>A common way is to pass command-line options to the server invocation
-via <code class="code">eglot-server-programs</code>.  Let&rsquo;s say we want to configure
-where the <code class="command">clangd</code> server reads its
-<code class="code">compile_commands.json</code> from.  This can be done like so:
+via <code class="code">eglot-server-programs</code>.  Let&rsquo;s say we want to configure where
+the <code class="command">clangd</code> server reads its <code class="code">compile_commands.json</code> from.
+This can be done like so:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">(with-eval-after-load 'eglot
@@ -1310,9 +1491,9 @@ where the <code class="command">clangd</code> server reads its
 
 </pre></div>
 
-<p>Another way is to have Eglot pass a JSON object to the server during
-the LSP handshake.  This is done using the
-<code class="code">:initializationOptions</code> syntax of <code class="code">eglot-server-programs</code>:
+<p>Another way is to have Eglot pass a JSON object to the server during the
+LSP handshake.  This is done using the <code class="code">:initializationOptions</code>
+syntax of <code class="code">eglot-server-programs</code>:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">(with-eval-after-load 'eglot
@@ -1323,20 +1504,20 @@ the LSP handshake.  This is done using the
 
 <p>The argument <code class="code">(:compilationDatabasePath &quot;/tmp&quot;)</code> is Emacs&rsquo;s
 representation in plist format of a simple JSON object
-<code class="code">{&quot;compilationDatabasePath&quot;: &quot;/tmp&quot;}</code>.  To learn how to
-represent more deeply nested options in this format, see <a class="pxref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>.
+<code class="code">{&quot;compilationDatabasePath&quot;: &quot;/tmp&quot;}</code>.  To learn how to represent
+more deeply nested options in this format, see <a class="pxref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>.
 </p>
-<p>In this case, the two examples achieve exactly the same, but notice
-how the option&rsquo;s name has changed between them.
+<p>In this case, the two examples achieve exactly the same, but notice how
+the option&rsquo;s name has changed between them.
 </p>
 <a class="index-entry-id" id="index-eglot_002dworkspace_002dconfiguration-1"></a>
 <p>Finally there is another way to do user-specific configuration of
 language servers, which may be used if the methods above are not
 supported.  It consists of <em class="emph">globally</em> setting
-<code class="code">eglot-workspace-configuration</code>, a variable originally intended
-for project-specific configuration.  This has the same effect as
-giving all your projects a certain default configuration, as described
-in <a class="ref" href="#Project_002dspecific-configuration">Project-specific configuration</a>.  Here is an example:
+<code class="code">eglot-workspace-configuration</code>, a variable originally intended for
+project-specific configuration.  This has the same effect as giving all
+your projects a certain default configuration, as described in
+<a class="ref" href="#Project_002dspecific-configuration">Project-specific configuration</a>.  Here is an example:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">(setq-default eglot-workspace-configuration
@@ -1358,10 +1539,10 @@ Previous: <a href="#User_002dspecific-configuration" accesskey="p" rel="prev">Us
 </div>
 <h3 class="section" id="JSONRPC-objects-in-Elisp-1"><span>5.3 JSONRPC objects in Elisp<a class="copiable-link" href="#JSONRPC-objects-in-Elisp-1"> &para;</a></span></h3>
 
-<p>Emacs&rsquo;s preferred way of representing JSON is via Lisp lists.  In
-Eglot, the syntax of this list is the simplest possible (the one with
-fewer parenthesis), a plist (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Property-Lists">Property Lists</a> in <cite class="cite">GNU Emacs
-Lisp Reference Manual</cite>).
+<p>Emacs&rsquo;s preferred way of representing JSON is via Lisp lists.  In Eglot,
+the syntax of this list is the simplest possible (the one with fewer
+parenthesis), a plist (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Property-Lists">Property Lists</a> in <cite class="cite">GNU Emacs Lisp
+Reference Manual</cite>).
 </p>
 <p>The plist may be arbitrarily complex, and generally containing other
 keyword-value property sub-plists corresponding to JSON sub-objects.
@@ -1369,8 +1550,8 @@ keyword-value property sub-plists corresponding to JSON sub-objects.
 <p>For representing the JSON leaf values <code class="code">true</code>, <code class="code">false</code>,
 <code class="code">null</code> and <code class="code">{}</code>, you can use the Lisp values <code class="code">t</code>,
 <code class="code">:json-false</code>, <code class="code">nil</code>, and <code class="code">eglot-{}</code>, respectively.
-JSON arrays are represented as Elisp vectors surrounded by square brackets
-(see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Vectors">Vectors</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>).
+JSON arrays are represented as Elisp vectors surrounded by square
+brackets (see <a data-manual="elisp" href="https://www.gnu.org/software/emacs/manual/html_mono/elisp.html#Vectors">Vectors</a> in <cite class="cite">GNU Emacs Lisp Reference Manual</cite>).
 </p>
 <p>For example, the plist
 </p>
@@ -1414,22 +1595,21 @@ Next: <a href="#Troubleshooting-Eglot" accesskey="n" rel="next">Troubleshooting 
 </div>
 <h2 class="chapter" id="Extending-Eglot-1"><span>6 Extending Eglot<a class="copiable-link" href="#Extending-Eglot-1"> &para;</a></span></h2>
 
-<p>Sometimes it may be useful to extend existing Eglot functionality
-using Elisp its public methods.  A good example of when this need may
-arise is adding support for a custom LSP protocol extension only
-implemented by a specific server.
+<p>Sometimes it may be useful to extend existing Eglot functionality using
+Elisp its public methods.  A good example of when this need may arise is
+adding support for a custom LSP protocol extension only implemented by a
+specific server.
 </p>
-<p>The best source of documentation for this is probably Eglot source
-code itself, particularly the section marked &ldquo;API&rdquo;.
+<p>The best source of documentation for this is probably Eglot source code
+itself, particularly the section marked &ldquo;API&rdquo;.
 </p>
-<p>Most of the functionality is implemented with Common-Lisp style
-generic functions (see <a data-manual="eieio" href="https://www.gnu.org/software/emacs/manual/html_mono/eieio.html#Generics">Generics</a> in <cite class="cite">EIEIO</cite>) that can be easily
-extended or overridden.  The Eglot code itself is an example on how to
-do this.
+<p>Most of the functionality is implemented with Common-Lisp style generic
+functions (see <a data-manual="eieio" href="https://www.gnu.org/software/emacs/manual/html_mono/eieio.html#Generics">Generics</a> in <cite class="cite">EIEIO</cite>) that can be easily extended
+or overridden.  The Eglot code itself is an example on how to do this.
 </p>
 <p>The following is a relatively simple example that adds support for the
-<code class="code">inactiveRegions</code> experimental feature introduced in version 17
-of the <code class="command">clangd</code> C/C++ language server++.
+<code class="code">inactiveRegions</code> experimental feature introduced in version 17 of
+the <code class="command">clangd</code> C/C++ language server++.
 </p>
 <p>Summarily, the feature works by first having the server detect the
 Eglot&rsquo;s advertisement of the <code class="code">inactiveRegions</code> client capability
@@ -1439,17 +1619,17 @@ surrounded by C/C++ <code class="code">#ifdef</code> macros that the preprocesso
 based on compile-time information.
 </p>
 <p>The language server reports the regions by periodically sending a
-<code class="code">textDocument/inactiveRegions</code> notification for each managed
-buffer (see <a class="pxref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>). Normally, unknown server
-notifications are ignored by Eglot, but we&rsquo;re going change that.
+<code class="code">textDocument/inactiveRegions</code> notification for each managed buffer
+(see <a class="pxref" href="#Eglot-and-Buffers">Buffers, Projects, and Eglot</a>).  Normally, unknown server notifications are
+ignored by Eglot, but we&rsquo;re going change that.
 </p>
 <p>Both the announcement of the client capability and the handling of the
 new notification is done by adding methods to generic functions.
 </p>
 <ul class="itemize mark-bullet">
-<li>The first method extends <code class="code">eglot-client-capabilities</code> using a
-simple heuristic to detect if current server is <code class="command">clangd</code> and
-enables the <code class="code">inactiveRegion</code> capability.
+<li>The first method extends <code class="code">eglot-client-capabilities</code> using a simple
+heuristic to detect if current server is <code class="command">clangd</code> and enables
+the <code class="code">inactiveRegion</code> capability.
 
 <div class="example lisp">
 <pre class="lisp-preformatted">(cl-defmethod eglot-client-capabilities :around (server)
@@ -1463,10 +1643,10 @@ enables the <code class="code">inactiveRegion</code> capability.
     base))
 </pre></div>
 
-<p>Notice we use an internal function of the <code class="code">jsonrpc.el</code> library,
-and a regexp search to detect <code class="command">clangd</code>.  An alternative would
-be to define a new EIEIO subclass of <code class="code">eglot-lsp-server</code>, maybe
-called <code class="code">eglot-clangd</code>, so that the method would be simplified:
+<p>Notice we use an internal function of the <code class="code">jsonrpc.el</code> library, and
+a regexp search to detect <code class="command">clangd</code>.  An alternative would be to
+define a new EIEIO subclass of <code class="code">eglot-lsp-server</code>, maybe called
+<code class="code">eglot-clangd</code>, so that the method would be simplified:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">(cl-defmethod eglot-client-capabilities :around ((_s eglot-clangd))
@@ -1476,18 +1656,19 @@ called <code class="code">eglot-clangd</code>, so that the method would be simpl
             '(:inactiveRegions t))))
 </pre></div>
 
-<p>However, this would require that users tweak
-<code class="code">eglot-server-program</code> to tell Eglot instantiate such sub-classes
-instead of the generic <code class="code">eglot-lsp-server</code> (see <a class="pxref" href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>). For the purposes of this particular demonstration, we&rsquo;re
-going to use the more hacky regexp route which doesn&rsquo;t require that.
+<p>However, this would require that users tweak <code class="code">eglot-server-program</code>
+to tell Eglot instantiate such sub-classes instead of the generic
+<code class="code">eglot-lsp-server</code> (see <a class="pxref" href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a>).  For the
+purposes of this particular demonstration, we&rsquo;re going to use the more
+hacky regexp route which doesn&rsquo;t require that.
 </p>
 <p>Note, however, that detecting server versions before announcing new
 capabilities is generally not needed, as both server and client are
 required by LSP to ignore unknown capabilities advertised by their
 counterparts.
 </p>
-</li><li>The second method implements <code class="code">eglot-handle-notification</code> to
-process the server notification for the LSP method
+</li><li>The second method implements <code class="code">eglot-handle-notification</code> to process
+the server notification for the LSP method
 <code class="code">textDocument/inactiveRegions</code>.  For each region received it
 creates an overlay applying the <code class="code">shadow</code> face to the region.
 Overlays are recreated every time a new notification of this kind is
@@ -1497,8 +1678,8 @@ received.
 message is structured in detail you could consult that server&rsquo;s
 documentation.  Another possibility is to evaluate the first
 capability-announcing method, reconnect to the server and peek in the
-events buffer (see <a class="pxref" href="#Eglot-Commands">eglot-events-buffer</a>).  You
-could find something like:
+events buffer (see <a class="pxref" href="#Eglot-Commands">eglot-events-buffer</a>).  You could
+find something like:
 </p>
 <div class="example lisp">
 <pre class="lisp-preformatted">[server-notification] Mon Sep  4 01:10:04 2023:
@@ -1513,48 +1694,45 @@ could find something like:
 </pre></div>
 
 <p>This reveals that the <code class="code">textDocument/inactiveRegions</code> notification
-contains a <code class="code">:textDocument</code> property to designate the managed
-buffer and an array of LSP regions under the <code class="code">:regions</code> property.
-Notice how the message (originally in JSON format), is represented as
-Elisp plists (see <a class="pxref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>).
+contains a <code class="code">:textDocument</code> property to designate the managed buffer
+and an array of LSP regions under the <code class="code">:regions</code> property.  Notice
+how the message (originally in JSON format), is represented as Elisp
+plists (see <a class="pxref" href="#JSONRPC-objects-in-Elisp">JSONRPC objects in Elisp</a>).
 </p>
-<p>The Eglot generic function machinery will automatically destructure
-the incoming message, so these two properties can simply be added to
-the new method&rsquo;s lambda list as <code class="code">&amp;key</code> arguments.  Also, the
+<p>The Eglot generic function machinery will automatically destructure the
+incoming message, so these two properties can simply be added to the new
+method&rsquo;s lambda list as <code class="code">&amp;key</code> arguments.  Also, the
 <code class="code">eglot-uri-to-path</code> and <code class="code">eglot-range-region</code> may be used to
-easily parse the LSP <code class="code">:uri</code> and <code class="code">:start ... :end ...</code>
-objects to obtain Emacs objects for file names and positions.
+easily parse the LSP <code class="code">:uri</code> and <code class="code">:start ... :end ...</code>  objects
+to obtain Emacs objects for file names and positions.
 </p>
 <p>The remainder of the implementation consists of standard Elisp
 techniques to loop over arrays, manage buffers and overlays.
 </p>
 <div class="example lisp">
-<pre class="lisp-preformatted">(defvar-local eglot-clangd-inactive-region-overlays '())
-
-(cl-defmethod eglot-handle-notification
+<pre class="lisp-preformatted">(cl-defmethod eglot-handle-notification
   (_server (_method (eql textDocument/inactiveRegions))
            &amp;key regions textDocument &amp;allow-other-keys)
   (if-let* ((path (expand-file-name (eglot-uri-to-path
                                      (cl-getf textDocument :uri))))
             (buffer (find-buffer-visiting path)))
       (with-current-buffer buffer
-        (mapc #'delete-overlay eglot-clangd-inactive-region-overlays)
+        (remove-overlays nil nil 'inactive-code t)
         (cl-loop
          for r across regions
          for (beg . end) = (eglot-range-region r)
          for ov = (make-overlay beg end)
          do
          (overlay-put ov 'face 'shadow)
-         (push ov eglot-clangd-inactive-region-overlays)))))
+         (overlay-put ov 'inactive-code t)))))
 </pre></div>
 
 </li></ul>
 
 <p>After evaluating these two additions and reconnecting to the
 <code class="command">clangd</code> language server (version 17), the result will be that
-all the inactive code in the buffer will be nicely grayed out using
-the LSP server knowledge about current compile time preprocessor
-defines.
+all the inactive code in the buffer will be nicely grayed out using the
+LSP server knowledge about current compile time preprocessor defines.
 </p>
 <hr>
 </div>
@@ -1591,17 +1769,16 @@ Next: <a href="#Getting-the-latest-version" accesskey="n" rel="next">Getting the
 <h3 class="section" id="Performance-1"><span>7.1 Performance<a class="copiable-link" href="#Performance-1"> &para;</a></span></h3>
 <a class="index-entry-id" id="index-performance-problems_002c-with-Eglot"></a>
 <p>A common and easy-to-fix cause of performance problems in Eglot
-(especially in older versions) is its events buffer, since it
-represent additional work that Eglot must do (see <a class="pxref" href="#Eglot-Commands">eglot-events-buffer</a>).  If you find Eglot is operating correctly but
-slowly, try to customize the variable
-<code class="code">eglot-events-buffer-config</code> (see <a class="pxref" href="#Eglot-Variables">Eglot Variables</a>) and set
-its <code class="code">:size</code> property to 0.  This will disable recording any
-events and may speed things up.
+(especially in older versions) is its events buffer, since it represents
+additional work that Eglot must do (see <a class="pxref" href="#Eglot-Commands">eglot-events-buffer</a>).  If you find Eglot is operating correctly but
+slowly, try to customize the variable <code class="code">eglot-events-buffer-config</code>
+(see <a class="pxref" href="#Customization-Variables">Customization Variables</a>) and set its <code class="code">:size</code> property to
+0.  This will disable recording any events and may speed things up.
 </p>
-<p>In other situations, the cause of poor performance lies in the
-language server itself.  Servers use aggressive caching and other
-techniques to improve their performance.  Often, this can be tweaked
-by changing the server configuration (see <a class="pxref" href="#Advanced-server-configuration">Advanced server configuration</a>).
+<p>In other situations, the cause of poor performance lies in the language
+server itself.  Servers use aggressive caching and other techniques to
+improve their performance.  Often, this can be tweaked by changing the
+server configuration (see <a class="pxref" href="#Advanced-server-configuration">Advanced server configuration</a>).
 </p>
 <hr>
 </div>
@@ -1618,18 +1795,18 @@ Eglot, use <kbd class="kbd">M-x package-install</kbd>.
 </p>
 <p>Often, a newer Eglot version exists that has fixed a longstanding bug,
 has more LSP features, or just better supports a particular language
-server.  Recent Eglot versions can self-update via the command
-<kbd class="kbd">M-x eglot-upgrade-eglot</kbd>.  This will replace any currently
-installed version with the newest one available from the ELPA archives
-configured in <code class="code">package-archives</code>.
+server.  Recent Eglot versions can self-update via the command <kbd class="kbd">M-x
+eglot-upgrade-eglot</kbd>.  This will replace any currently installed version
+with the newest one available from the ELPA archives configured in
+<code class="code">package-archives</code>.
 </p>
 <p>You can also update Eglot through other methods, such as
-<code class="code">use-package</code> (see <a data-manual="use-package" href="use-package.html#Installing-packages">Installing packages</a> in <cite class="cite">use-package User Manual</cite>), <code class="code">package-install</code>,
-<code class="code">list-packages</code> or the newer <code class="code">package-upgrade</code>
-(see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Packages">Packages</a> in <cite class="cite">GNU Emacs Manual</cite>).  However, do read the
-docstrings of the command you intend to use before you use it, as some
-of them may not work in exactly the same way across Emacs versions,
-meaning your configuration may be not portable.
+<code class="code">use-package</code> (see <a data-manual="use-package" href="https://www.gnu.org/software/emacs/manual/html_mono/use-package.html#Installing-packages">Installing packages</a> in <cite class="cite">use-package User Manual</cite>), <code class="code">package-install</code>, <code class="code">list-packages</code>
+or the newer <code class="code">package-upgrade</code> (see <a data-manual="emacs" href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Packages">Packages</a> in <cite class="cite">GNU Emacs
+Manual</cite>).  However, do read the docstrings of the command you intend to
+use before you use it, as some of them may not work in exactly the same
+way across Emacs versions, meaning your configuration may be not
+portable.
 </p>
 <hr>
 </div>
@@ -1644,9 +1821,8 @@ Previous: <a href="#Getting-the-latest-version" accesskey="p" rel="prev">Getting
 <p>If you think you have found a bug, we want to hear about it.  Before
 reporting a bug, keep in mind that interaction with language servers
 represents a large quantity of unknown variables.  Therefore, it is
-generally both <em class="emph">difficult</em> and <em class="emph">absolutely essential</em> that
-the maintainers reproduce bugs exactly as they happened to you, the
-user.
+generally both <em class="emph">difficult</em> and <em class="emph">absolutely essential</em> that the
+maintainers reproduce bugs exactly as they happened to you, the user.
 </p>
 <p>To report an Eglot bug, send e-mail to <a class="email" href="mailto:bug-gnu-emacs@gnu.org">bug-gnu-emacs@gnu.org</a>.
 </p>
@@ -1655,26 +1831,26 @@ reporting guidelines (see <a data-manual="emacs" href="https://www.gnu.org/softw
 follow this Eglot-specific checklist:
 </p>
 <ol class="enumerate">
-<li> Include the transcript of JSONRPC events obtained from the buffer
-popped up by <kbd class="kbd">M-x eglot-events-buffer</kbd>.  You may narrow down the
-transcript if you are sure of where the problematic exchange is, but
-it&rsquo;s safer to include the whole transcript, either attached or inline.
+<li> Include the transcript of JSONRPC events obtained from the buffer popped
+up by <kbd class="kbd">M-x eglot-events-buffer</kbd>.  You may narrow down the transcript
+if you are sure of where the problematic exchange is, but it&rsquo;s safer to
+include the whole transcript, either attached or inline.
 
 </li><li> If Emacs signaled an error (an error message was seen or heard), make
 sure to repeat the process after turning on <code class="code">debug-on-error</code> via
-<kbd class="kbd">M-x toggle-debug-on-error</kbd>.  This normally produces a backtrace
-of the error that should also be attached to the bug report.
+<kbd class="kbd">M-x toggle-debug-on-error</kbd>.  This normally produces a backtrace of
+the error that should also be attached to the bug report.
 
-</li><li> Include a description of how the maintainer should obtain, install,
-and configure the language server you used.  Maintainers usually have
-access to GNU/Linux systems, though not necessarily the distribution
-that you may be using.  If possible, try to replicate the problem with
-the C/C<code class="t">++</code> or Python servers, as these are very easy to install.
+</li><li> Include a description of how the maintainer should obtain, install, and
+configure the language server you used.  Maintainers usually have access
+to GNU/Linux systems, though not necessarily the distribution that you
+may be using.  If possible, try to replicate the problem with the
+C/C<code class="t">++</code> or Python servers, as these are very easy to install.
 
 </li><li> Describe how to setup a <em class="emph">minimal</em> project directory where Eglot
-should be started for the problem to happen.  Describe each file&rsquo;s
-name and its contents.  Alternatively, you can supply the address of a
-public Git repository.
+should be started for the problem to happen.  Describe each file&rsquo;s name
+and its contents.  Alternatively, you can supply the address of a public
+Git repository.
 
 </li><li> Include versions of the software used.  The Emacs version can be
 obtained with <kbd class="kbd">M-x emacs-version</kbd>.
@@ -1686,30 +1862,28 @@ first check if the problem isn&rsquo;t already fixed in the latest version
 <p>It&rsquo;s also essential to include the version of ELPA packages that are
 explicitly or implicitly loaded.  The optional but popular Company or
 Markdown packages are distributed as GNU ELPA packages, not to mention
-Eglot itself in some situations.  Some major modes (Go, Rust, etc.)
-are provided by ELPA packages.  It&rsquo;s sometimes easy to miss these,
-since they are usually implicitly loaded when visiting a file in that
+Eglot itself in some situations.  Some major modes (Go, Rust, etc.)  are
+provided by ELPA packages.  It&rsquo;s sometimes easy to miss these, since
+they are usually implicitly loaded when visiting a file in that
 language.
 </p>
 <p>ELPA packages usually live in <code class="code">~/.emacs.d/elpa</code> (or what is in
 <code class="code">package-user-dir</code>).  Including a listing of files in that
-directory is a way to tell the maintainers about ELPA package
-versions.
+directory is a way to tell the maintainers about ELPA package versions.
 </p>
-</li><li> Include a recipe to replicate the problem with <em class="emph">a clean Emacs
-run</em>.  The invocation <code class="code">emacs -Q -f package-initialize</code> starts
-Emacs with no configuration and initializes the ELPA packages.  A very
-minimal <samp class="file">.emacs</samp> initialization file (10 lines or less) is also
-acceptable and good means to describe changes to variables.
+</li><li> Include a recipe to replicate the problem with <em class="emph">a clean Emacs run</em>.
+The invocation <code class="code">emacs -Q -f package-initialize</code> starts Emacs with
+no configuration and initializes the ELPA packages.  A very minimal
+<samp class="file">.emacs</samp> initialization file (10 lines or less) is also acceptable
+and good means to describe changes to variables.
 
 <p>There is usually no need to include <code class="code">require</code> statements in the
 recipe, as Eglot&rsquo;s functionality uses autoloads.
 </p>
-<p>Likewise, there is rarely the need to use things like
-<code class="code">use-package</code> or <code class="code">eglot-ensure</code>.  This just makes the recipe
-harder to follow.  Prefer setting variables with <code class="code">setq</code> and
-adding to hooks with <code class="code">add-hook</code>.  Prefer starting Eglot with
-<code class="code">M-x eglot</code>.
+<p>Likewise, there is rarely the need to use things like <code class="code">use-package</code>
+or <code class="code">eglot-ensure</code>.  This just makes the recipe harder to follow.
+Prefer setting variables with <code class="code">setq</code> and adding to hooks with
+<code class="code">add-hook</code>.  Prefer starting Eglot with <code class="code">M-x eglot</code>.
 </p>
 </li><li> Make sure to double check all the above elements and re-run the recipe
 to see that the problem is reproducible.  Following the recipe should
@@ -2233,6 +2407,8 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
  &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-Q"><b>Q</b></a>
  &nbsp; 
+<a class="summary-letter-printindex" href="#Index_cp_letter-R"><b>R</b></a>
+ &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-S"><b>S</b></a>
  &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-T"><b>T</b></a>
@@ -2257,6 +2433,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-bug-reports">bug reports</a></td><td class="printindex-index-section"><a href="#Reporting-bugs">Reporting bugs</a></td></tr>
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-C">C</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-call-hierarchy">call hierarchy</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-code-actions">code actions</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-command_002dline-arguments">command-line arguments</a></td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-commands_002c-Eglot">commands, Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
@@ -2267,35 +2444,39 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-E">E</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot"><code>eglot</code></a></td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoreconnect"><code>eglot-autoreconnect</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoshutdown"><code>eglot-autoshutdown</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconfirm_002dserver_002dedits"><code>eglot-confirm-server-edits</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dhook"><code>eglot-connect-hook</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dtimeout"><code>eglot-connect-timeout</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dadvertise_002dcancellation"><code>eglot-advertise-cancellation</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoreconnect"><code>eglot-autoreconnect</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dautoshutdown"><code>eglot-autoshutdown</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dcode_002daction_002dindications"><code>eglot-code-action-indications</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dcode_002daction_002dindicator"><code>eglot-code-action-indicator</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconfirm_002dserver_002dedits"><code>eglot-confirm-server-edits</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dhook"><code>eglot-connect-hook</code></a></td><td class="printindex-index-section"><a href="#Other-Variables">Other Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dconnect_002dtimeout"><code>eglot-connect-timeout</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002densure"><code>eglot-ensure</code></a></td><td class="printindex-index-section"><a href="#Starting-Eglot">Starting Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002devents_002dbuffer_002dconfig"><code>eglot-events-buffer-config</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dextend_002dto_002dxref"><code>eglot-extend-to-xref</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dignored_002dserver_002dcapabilities"><code>eglot-ignored-server-capabilities</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002devents_002dbuffer_002dconfig"><code>eglot-events-buffer-config</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dextend_002dto_002dxref"><code>eglot-extend-to-xref</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dignored_002dserver_002dcapabilities"><code>eglot-ignored-server-capabilities</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmanaged_002dmode_002dhook"><code>eglot-managed-mode-hook</code></a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmanaged_002dp"><code>eglot-managed-p</code></a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmenu"><code>eglot-menu</code></a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmode_002dmap"><code>eglot-mode-map</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dreport_002dprogress"><code>eglot-report-progress</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dserver_002dinitialized_002dhook"><code>eglot-server-initialized-hook</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmode_002dline_002dformat"><code>eglot-mode-line-format</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dmode_002dmap"><code>eglot-mode-map</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dreport_002dprogress"><code>eglot-report-progress</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dserver_002dinitialized_002dhook"><code>eglot-server-initialized-hook</code></a></td><td class="printindex-index-section"><a href="#Other-Variables">Other Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dserver_002dprograms"><code>eglot-server-programs</code></a></td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dshow_002dworkspace_002dconfiguration"><code>eglot-show-workspace-configuration</code></a></td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dshutdown"><code>eglot-shutdown</code></a></td><td class="printindex-index-section"><a href="#Shutting-Down-LSP-Servers">Shutting Down LSP Servers</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstay_002dout_002dof"><code>eglot-stay-out-of</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstrict_002dmode"><code>eglot-strict-mode</code></a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dsync_002dconnect"><code>eglot-sync-connect</code></a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstay_002dout_002dof"><code>eglot-stay-out-of</code></a></td><td class="printindex-index-section"><a href="#Other-Variables">Other Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dstrict_002dmode"><code>eglot-strict-mode</code></a></td><td class="printindex-index-section"><a href="#Other-Variables">Other Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dsync_002dconnect"><code>eglot-sync-connect</code></a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dworkspace_002dconfiguration"><code>eglot-workspace-configuration</code></a></td><td class="printindex-index-section"><a href="#Project_002dspecific-configuration">Project-specific configuration</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-eglot_002dworkspace_002dconfiguration-1"><code>eglot-workspace-configuration</code></a></td><td class="printindex-index-section"><a href="#User_002dspecific-configuration">User-specific configuration</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-eldoc_002c-and-Eglot">eldoc, and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-ElDoc_002c-and-Eglot">ElDoc, and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-F">F</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-features-in-buffers-supported-by-Eglot">features in buffers supported by Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Features">Eglot Features</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-finding-definitions-of-identifiers-using-Eglot">finding definitions of identifiers using Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-flymake_002c-and-Eglot">flymake, and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-Flymake_002c-and-Eglot">Flymake, and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-I">I</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-imenu-navigation-using-Eglot">imenu navigation using Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
@@ -2310,6 +2491,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-M">M</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot"><code>M-x eglot</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcall_002dtype_002dhierarchy"><code>M-x eglot-call-type-hierarchy</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dclear_002dstatus"><code>M-x eglot-clear-status</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dextract"><code>M-x eglot-code-action-extract</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dcode_002daction_002dinline"><code>M-x eglot-code-action-inline</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
@@ -2324,6 +2506,7 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dinlay_002dhints_002dmode"><code>M-x eglot-inlay-hints-mode</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dreconnect"><code>M-x eglot-reconnect</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002drename"><code>M-x eglot-rename</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dshow_002dtype_002dhierarchy"><code>M-x eglot-show-type-hierarchy</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dshutdown"><code>M-x eglot-shutdown</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dshutdown_002dall"><code>M-x eglot-shutdown-all</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-M_002dx-eglot_002dsignal_002ddidChangeConfiguration"><code>M-x eglot-signal-didChangeConfiguration</code></a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
@@ -2336,11 +2519,14 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-P">P</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-performance-problems_002c-with-Eglot">performance problems, with Eglot</a></td><td class="printindex-index-section"><a href="#Performance">Performance</a></td></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-progress">progress</a></td><td class="printindex-index-section"><a href="#Customizing-Eglot">Customizing Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-progress">progress</a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-projects-and-Eglot">projects and Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-Q">Q</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-quick-start">quick start</a></td><td class="printindex-index-section"><a href="#Quick-Start">Quick Start</a></td></tr>
+<tr><td colspan="3"><hr></td></tr>
+<tr><th id="Index_cp_letter-R">R</th></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-request-cancellation">request cancellation</a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-S">S</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-setting-up-LSP-server-for-Eglot">setting up LSP server for Eglot</a></td><td class="printindex-index-section"><a href="#Setting-Up-LSP-Servers">Setting Up LSP Servers</a></td></tr>
@@ -2350,12 +2536,13 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-T">T</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-troubleshooting-Eglot">troubleshooting Eglot</a></td><td class="printindex-index-section"><a href="#Troubleshooting-Eglot">Troubleshooting Eglot</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-type-hierarchy">type hierarchy</a></td><td class="printindex-index-section"><a href="#Eglot-Commands">Eglot Commands</a></td></tr>
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-U">U</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-upgrading-Eglot">upgrading Eglot</a></td><td class="printindex-index-section"><a href="#Getting-the-latest-version">Getting the latest version</a></td></tr>
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-V">V</th></tr>
-<tr><td></td><td class="printindex-index-entry"><a href="#index-variables_002c-Eglot">variables, Eglot</a></td><td class="printindex-index-section"><a href="#Eglot-Variables">Eglot Variables</a></td></tr>
+<tr><td></td><td class="printindex-index-entry"><a href="#index-variables_002c-Eglot">variables, Eglot</a></td><td class="printindex-index-section"><a href="#Customization-Variables">Customization Variables</a></td></tr>
 <tr><td colspan="3"><hr></td></tr>
 <tr><th id="Index_cp_letter-W">W</th></tr>
 <tr><td></td><td class="printindex-index-entry"><a href="#index-workspace">workspace</a></td><td class="printindex-index-section"><a href="#Eglot-and-Buffers">Eglot and Buffers</a></td></tr>
@@ -2389,6 +2576,8 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
  &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-Q"><b>Q</b></a>
  &nbsp; 
+<a class="summary-letter-printindex" href="#Index_cp_letter-R"><b>R</b></a>
+ &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-S"><b>S</b></a>
  &nbsp; 
 <a class="summary-letter-printindex" href="#Index_cp_letter-T"><b>T</b></a>
@@ -2411,9 +2600,8 @@ Previous: <a href="#GNU-Free-Documentation-License" accesskey="p" rel="prev">GNU
 <h4 class="footnotes-heading">Footnotes</h4>
 
 <h5 class="footnote-body-heading"><a id="FOOT1" href="#DOCF1">(1)</a></h5>
-<p>A <em class="dfn">polyglot</em> is a
-person who is able to use several languages.
-</p>
+<p>A <em class="dfn">polyglot</em> is a person who is able to use several
+languages.  </p>
 </div>
 
 
