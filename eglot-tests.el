@@ -165,7 +165,7 @@ directory hierarchy."
   `(eglot--call-with-timeout ,timeout (lambda () ,@body)))
 
 (defun eglot--call-with-timeout (timeout fn)
-  (let* ((tag (gensym "eglot-test-timeout"))
+  (let* ((tag (cl-gensym "eglot-test-timeout"))
          (timed-out (make-symbol "timeout"))
          (timeout-and-message
           (if (listp timeout) timeout
@@ -1236,7 +1236,7 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
 `eglot--guess-contact'.  Unless the server program evaluates to
 \"a-missing-executable.exe\", this macro will assume it exists."
   (declare (indent 1) (debug t))
-  (let ((i-sym (cl-gensym)))
+  (let ((i-sym (gensym)))
     `(dolist (,i-sym '(nil t))
        (let ((,interactive-sym ,i-sym)
              (buffer-file-name "_")
@@ -1422,7 +1422,7 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
 (defvar tramp-histfile-override)
 (defun eglot--call-with-tramp-test (fn)
   (unless (>= emacs-major-version 28)
-    (ert-skip "Tramp tests only work on Emacs 28+"))
+    (ert-skip "Tramp tests only work reliably on Emacs 28+"))
   ;; Set up a Tramp method that’s just a shell so the remote host is
   ;; really just the local host.
   (let* ((tramp-remote-path (cons 'tramp-own-remote-path
