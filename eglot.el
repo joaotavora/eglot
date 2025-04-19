@@ -1964,13 +1964,14 @@ encoding and Eglot will set this variable automatically.")
 (defun eglot-move-to-utf-16-linepos (n)
   "Move to line's Nth code unit as computed by LSP's UTF-16 criterion."
   (let* ((bol (eglot--bol))
-         (goal-char (+ bol n))
-         (eol (line-end-position)))
-    (goto-char bol)
-    (while (and (< (point) goal-char) (< (point) eol))
-      ;; code points in the "supplementary place" use two code units
-      (when (<= #x010000 (char-after) #x10ffff) (setq goal-char (1- goal-char)))
-      (forward-char 1))))
+         (line (buffer-substring-no-properties bol (line-end-position)))
+         (len (length line))
+         (idx 0))
+    (while (and (< idx len) (< idx n))
+      (when (<= #x010000 (elt line idx) #x10ffff)
+        (cl-decf n))
+      (cl-incf idx))
+    (goto-char (+ bol idx))))
 
 (defun eglot-move-to-utf-32-linepos (n)
   "Move to line's Nth codepoint as computed by LSP's UTF-32 criterion."
