@@ -3187,8 +3187,22 @@ Try to visit the target file for a richer summary line."
                  (start-pos (cl-getf start :character))
                  (end-pos (cl-getf (cl-getf range :end) :character)))
             (list name line start-pos (- end-pos start-pos)))))))
-    (setf (gethash (expand-file-name file) eglot--servers-by-xrefed-file)
-          (eglot--current-server-or-lose))
+
+    (when-let* ((from-server (eglot--current-server-or-lose))
+                (to-file-name (expand-file-name file)))
+      ;; if we xreffed to a project and it doesn't have a server - adopt
+      (or (when-let* ((to-file-dir (file-name-directory to-file-name))
+                      (to-project (project-current nil to-file-dir)))
+            (unless (cl-find major-mode
+                             (gethash to-project eglot--servers-by-project)
+                             :key #'eglot--major-modes
+                             :test #'memq)
+              (push from-server
+                    (gethash to-project eglot--servers-by-project))))
+          ;; if there's no project, create file->server binding
+          (setf (gethash to-file-name eglot--servers-by-xrefed-file)
+                from-server)))
+
     (xref-make-match summary (xref-make-file-location file line column) length)))
 
 (defun eglot--workspace-symbols (pat &optional buffer)
