@@ -310,7 +310,7 @@ for the request form, and we'll send it to you.
 [zls]: https://github.com/zigtools/zls
 
 <!-- Other references -->
-[manual]: https://joaotavora.github.io/eglot
+[manual]: https://elpa.gnu.org/devel/doc/eglot.html
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [company-mode]: https://github.com/company-mode/company-mode
 [ccls]: https://github.com/MaskRay/ccls
