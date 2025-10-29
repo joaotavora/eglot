@@ -136,12 +136,12 @@ altogether.
 
 These -- Eglot included -- are so-called `:core` packages.  They 
 are released periodically to GNU ELPA, so users of older Emacs
-versions can get all the googies via `M-x package-install`.
+versions can get all the goodies via `M-x package-install`.
 
 <a name="submitpatch"></a>
-## Actualy submitting a patch
+## Actually submitting a patch
 
-The recommended way to experiment with changes the code is to
+The recommended way to experiment with changes to the code is to
 compile Emacs from a Git repo like 
 [this one](https://cgit.git.savannah.gnu.org/cgit/emacs.git)
 or [this one](https://github.com/emacs-mirror/emacs).  Here are 
@@ -149,9 +149,9 @@ or [this one](https://github.com/emacs-mirror/emacs).  Here are
 [guides][compile-emacs3-official] for doing so.
 
 When you are content with your tweaks to Eglot (and/or its sibling 
-`:core` packages), submit you patch **💪via email💪** to 
+`:core` packages), submit your patch **💪via email💪** to 
 `bug-gnu-emacs@gnu.org`.  You may CC the authors/maintainers of 
-packages if you know their emails but it isn't strictly necessary.
+packages if you know their emails, but it isn't strictly necessary.
 We'll guide you if any more steps are needed (like copyright 
 assignments, etc).
 
