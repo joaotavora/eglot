@@ -3963,7 +3963,7 @@ edit proposed by the server."
           (eglot--format "Rename `%s' to: "
                          (or (thing-at-point 'symbol t)
                              "unknown symbol"))
-          nil nil nil nil
+          (thing-at-point 'symbol t) nil nil nil
           (symbol-name (symbol-at-point)))))
   (eglot-server-capable-or-lose :renameProvider)
   (eglot--apply-workspace-edit
