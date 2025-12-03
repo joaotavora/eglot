@@ -59,7 +59,7 @@ variable, where you can [easily add your own servers][manual].
 * Dockerfile's [docker-langserver][docker-langserver]
 * Elixir's [elixir-ls][elixir-ls]
 * Elm's [elm-language-server][elm-language-server]
-* Erlang's [erlang_ls][erlang_ls]
+* Erlang's [erlang-language-platform][erlang-language-platform]
 * Fortran's [fortls][fortls]
 * Futhark's [futhark lsp][futhark-lsp]
 * Go's [gopls][gopls]
@@ -348,7 +348,7 @@ for the request form, and we'll send it to you.
 [docker-langserver]: https://github.com/rcjsuen/dockerfile-language-server-nodejs
 [emacs-lsp-plugins]: https://github.com/emacs-lsp
 [emacs-lsp]: https://github.com/emacs-lsp/lsp-mode
-[erlang_ls]: https://github.com/erlang-ls/erlang_ls
+[erlang-language-platform]: https://github.com/WhatsApp/erlang-language-platform
 [gnuelpa]: https://elpa.gnu.org/packages/eglot.html
 [gnudevelelpa]: https://elpa.gnu.org/devel/eglot.html
 [melpa]: https://melpa.org/#/eglot

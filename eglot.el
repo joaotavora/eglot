@@ -302,7 +302,7 @@ automatically)."
     (racket-mode . ("racket" "-l" "racket-langserver"))
     ((latex-mode plain-tex-mode context-mode texinfo-mode bibtex-mode tex-mode)
      . ,(eglot-alternatives '("digestif" "texlab")))
-    (erlang-mode . ("erlang_ls" "--transport" "stdio"))
+    (erlang-mode . ("elp" "server"))
     ((yaml-ts-mode yaml-mode) . ("yaml-language-server" "--stdio"))
     (nix-mode . ,(eglot-alternatives '("nil" "rnix-lsp" "nixd")))
     (nickel-mode . ("nls"))
