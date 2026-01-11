@@ -299,7 +299,7 @@ directory hierarchy."
          (eglot-sync-connect t)
          (eglot-connect-timeout timeout)
          (eglot-server-programs
-          (if server `((,major-mode . ,(string-split server)))
+          (if server `((,major-mode . ,(split-string server)))
             eglot-server-programs)))
     (apply #'eglot--connect (eglot--guess-contact))))
 
@@ -775,7 +775,7 @@ directory hierarchy."
   ;; This originally appeared in github#1339
   (skip-unless (executable-find "rust-analyzer"))
   (skip-unless (executable-find "cargo"))
-  (skip-when (getenv "EMACS_EMBA_CI"))
+  (skip-unless (not (getenv "EMACS_EMBA_CI")))
   (eglot--with-fixture
       '(("cmpl-project" .
          (("main.rs" .
@@ -1583,6 +1583,7 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
 (ert-deftest eglot-test-semtok-basic ()
   "Test basic semantic tokens fontification."
   (skip-unless (executable-find "clangd"))
+  (skip-unless (fboundp 'text-property-search-forward))
   (eglot--with-fixture
       `(("project" . (("main.c" . "int main() { int x = 42; return x; }"))))
     (with-current-buffer
@@ -1602,6 +1603,7 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
 (ert-deftest eglot-test-semtok-refontify ()
   "Test semantic tokens refontification after edits."
   (skip-unless (executable-find "clangd"))
+  (skip-unless (fboundp 'text-property-search-forward))
   (eglot--with-fixture
       `(("project" . (("code.c" . "int foo() { return 0; }"))))
     (with-current-buffer

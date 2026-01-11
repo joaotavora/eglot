@@ -5017,7 +5017,7 @@ See `eglot--semtok-request' implementation for details.")
 
 (defun eglot--semtok-after-send-changes ()
   ;; (trace-values "Dispatching")
-  (setf (plist-get eglot--semtok-state :dispatched) t))
+  (setf (cl-getf eglot--semtok-state :dispatched) t))
 
 (cl-defun eglot--semtok-request (beg end &aux (docver eglot--docver))
   "Ask for tokens.  Arrange for BEG..END to be font-lock flushed."
