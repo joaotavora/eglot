@@ -343,7 +343,7 @@ for the request form, and we'll send it to you.
 
 <!-- Other references -->
 [manual]: https://elpa.gnu.org/devel/doc/eglot.html
-[manual-multi-server]: https://elpa.gnu.org/devel/doc/eglot.html
+[manual-multi-server]: https://elpa.gnu.org/devel/doc/eglot.html#Multi_002dserver-support
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [company-mode]: https://github.com/company-mode/company-mode
 [ccls]: https://github.com/MaskRay/ccls
