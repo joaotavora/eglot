@@ -2178,17 +2178,15 @@ MARKUP is either an LSP MarkedString or MarkupContent object."
         (font-lock-ensure)
         (goto-char (point-min))
         (let ((inhibit-read-only t))
-          ;; If `render-mode' is `gfm-view-mode', the `invisible'
-          ;; regions are set to `markdown-markup'.  Set them to 't'
-          ;; instead, since this has actual meaning in the "*eldoc*"
-          ;; buffer where we're taking this string (#bug79552).
-          (while (< (point) (point-max))
-            (let* ((start (point))
-                   (inv (get-text-property start 'invisible))
-                   (next-pos (or (next-single-property-change start 'invisible) (point-max))))
-              (when inv
-                (put-text-property start next-pos 'invisible t))
-              (goto-char next-pos))))
+          (when (fboundp 'text-property-search-forward)
+            ;; If `render-mode' is `gfm-view-mode', the `invisible'
+            ;; regions are set to `markdown-markup'.  Set them to 't'
+            ;; instead, since this has actual meaning in the "*eldoc*"
+            ;; buffer where we're taking this string (#bug79552).
+            (while (setq match (text-property-search-forward 'invisible))
+              (put-text-property (prop-match-beginning match)
+                                 (prop-match-end match)
+                                 'invisible t))))
         (string-trim (buffer-string))))))
 
 (defun eglot--read-server (prompt &optional dont-if-just-the-one)
@@ -5127,13 +5125,12 @@ lock machinery calls us again."
    (with-silent-modifications
      (save-excursion
        (cl-loop
-        for pos = beg then next-pos
-        while (< pos end)
-        for faces = (get-text-property pos 'eglot--semtok-faces)
-        for next-pos = (or (next-single-property-change pos 'eglot--semtok-faces nil end) end)
-        when faces
-        do (dolist (f faces)
-             (add-face-text-property pos next-pos f)))))))
+        initially (goto-char beg)
+        for match = (text-property-search-forward 'eglot--semtok-faces)
+        while (and match (< (point) end))
+        do (dolist (f (prop-match-value match))
+             (add-face-text-property
+              (prop-match-beginning match) (prop-match-end match) f)))))))
 
 
 ;;; Call and type hierarchies

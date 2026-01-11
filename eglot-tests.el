@@ -1576,17 +1576,14 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
       '(3 "Timeout waiting for semantic tokens")
     (while (not (save-excursion
                   (goto-char pos)
-                  (cl-loop for p = (point) then next-p
-                           while (< p (point-max))
-                           for faces = (get-text-property p 'eglot--semtok-faces)
-                           for next-p = (or (next-single-property-change p 'eglot--semtok-faces) (point-max))
-                           when faces return t)))
+                  (text-property-search-forward 'eglot--semtok-faces)))
       (accept-process-output nil 0.1)
       (font-lock-ensure))))
 
 (ert-deftest eglot-test-semtok-basic ()
   "Test basic semantic tokens fontification."
   (skip-unless (executable-find "clangd"))
+  (skip-unless (fboundp 'text-property-search-forward))
   (eglot--with-fixture
       `(("project" . (("main.c" . "int main() { int x = 42; return x; }"))))
     (with-current-buffer
@@ -1606,6 +1603,7 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
 (ert-deftest eglot-test-semtok-refontify ()
   "Test semantic tokens refontification after edits."
   (skip-unless (executable-find "clangd"))
+  (skip-unless (fboundp 'text-property-search-forward))
   (eglot--with-fixture
       `(("project" . (("code.c" . "int foo() { return 0; }"))))
     (with-current-buffer
