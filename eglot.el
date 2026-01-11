@@ -2184,7 +2184,8 @@ MARKUP is either an LSP MarkedString or MarkupContent object."
           (cl-loop for from = (point) then to
                    while (< from (point-max))
                    for inv = (get-text-property from 'invisible)
-                   for to = (next-single-property-change from 'invisible)
+                   for to = (or (next-single-property-change from 'invisible)
+                                (point-max))
                    when inv
                    do (put-text-property from to 'invisible t)))
         (string-trim (buffer-string))))))
