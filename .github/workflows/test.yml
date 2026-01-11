@@ -20,6 +20,7 @@ jobs:
         - 27.2
         - 28.2
         - 29.4
+        - 30.2
         - snapshot
 
     steps:
