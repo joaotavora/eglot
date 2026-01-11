@@ -12,6 +12,8 @@ your way:
 * 🏆 Folks over at Google [seem to like it][gospb].  Thanks!
 * ✨ Get the [stable](#stable) or the [latest](#latest) version
 * 👾 Eglot now [lives in Emacs itself](#core)! Learn how to [contribute](#emacscore)!
+* 👯 For multi-server support, [see here][manual-multi-server] and check out [Rassumfrassum][rassumfrassum]
+
 
 Also see [eglot-x][eglot-x] for non-standard protocol extensions support.
 
@@ -341,6 +343,7 @@ for the request form, and we'll send it to you.
 
 <!-- Other references -->
 [manual]: https://elpa.gnu.org/devel/doc/eglot.html
+[manual-multi-server]: https://elpa.gnu.org/devel/doc/eglot.html
 [lsp]: https://microsoft.github.io/language-server-protocol/
 [company-mode]: https://github.com/company-mode/company-mode
 [ccls]: https://github.com/MaskRay/ccls
@@ -384,3 +387,4 @@ for the request form, and we'll send it to you.
 [release-notes]: https://github.com/emacs-mirror/emacs/blob/master/etc/EGLOT-NEWS
 [build-status]: https://github.com/joaotavora/eglot/actions/workflows/test.yml
 [eglot-x]: https://github.com/nemethf/eglot-x
+[rassumfrassum]: https://github.com/joaotavora/rassumfrassum
