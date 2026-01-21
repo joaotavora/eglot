@@ -215,7 +215,7 @@ signature is relayed to the [ElDoc][eldoc] system.  The commands
 
 There are customization variables to help adjust [ElDoc][eldoc]'s
 liberal use of the lower "echo area", among other options.  If you
-still find the solicitous nature of this LSP feature too distracing,
+still find the solicitous nature of this LSP feature too distracting,
 you can use `eglot-ignored-server-capabilities` to turn it off.
 
 ## Rename
