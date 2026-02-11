@@ -73,6 +73,9 @@ interactive: compile
 		-l eglot						\
 		-l eglot-tests						\
 
+interactive-noelpa: ELPADEPS=-f package-initialize
+interactive-noelpa: interactive
+
 check: eglot-check-noelpa
 
 # Cleanup
