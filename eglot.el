@@ -1239,6 +1239,16 @@ object."
           (concat remote-prefix normalized))
       uri)))
 
+(defsubst eglot--uri-p (path)
+  "Return non-nil if PATH is a URI rather than a file-system path.
+Detects non-file URIs returned unchanged by `eglot-uri-to-path',
+such as \"jar:file:///...\".  These must not be passed to
+`expand-file-name', which would mangle them into bogus local paths."
+  (let ((scheme (url-type (url-generic-parse-url path))))
+    ;; Real URI schemes are always longer than 1 character.
+    ;; A single-character "scheme" is a Windows drive letter (e.g. C:).
+    (and scheme (> (length scheme) 1))))
+
 (cl-defun eglot-path-to-uri (path &key truenamep)
   "Convert PATH, a file name, to LSP URI string and return it.
 TRUENAMEP indicated PATH is already a truename."
@@ -2411,7 +2421,9 @@ the previous reports for TOKEN.")
                                        eglot--servers-by-project))
                   (and eglot-extend-to-xref
                        buffer-file-name
-                       (gethash (expand-file-name buffer-file-name)
+                       (gethash (if (eglot--uri-p buffer-file-name)
+                                    buffer-file-name
+                                  (expand-file-name buffer-file-name))
                                 eglot--servers-by-xrefed-file)))))))
 
 (defun eglot--current-server-or-lose ()
@@ -3378,7 +3390,8 @@ to eventually report the corresponding Flymake conversions of each
 object.  The originator of this \"push\" is usually either regular
 `textDocument/publishDiagnostics' or an experimental
 `$/streamDiagnostics' notification."
-  (if-let* ((path (expand-file-name (eglot-uri-to-path uri)))
+  (if-let* ((path (let ((p (eglot-uri-to-path uri)))
+                    (if (eglot--uri-p p) p (expand-file-name p))))
             (buffer (eglot--find-buffer-visiting server path)))
       (with-current-buffer buffer
         (if (and version (/= version eglot--docver))
@@ -3539,7 +3552,8 @@ Try to visit the target file for a richer summary line."
                  (start-pos (cl-getf start :character))
                  (end-pos (cl-getf (cl-getf range :end) :character)))
             (list name line start-pos (- end-pos start-pos)))))))
-    (setf (gethash (expand-file-name file) eglot--servers-by-xrefed-file)
+    (setf (gethash (if (eglot--uri-p file) file (expand-file-name file))
+                   eglot--servers-by-xrefed-file)
           (eglot--current-server-or-lose))
     (xref-make-match summary (xref-make-file-location file line column) length)))
 
