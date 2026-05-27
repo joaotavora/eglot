@@ -1,5 +1,5 @@
 ### Makefile for EGLOT
-### 
+###
 # Variables
 #
 EMACS?=emacs
