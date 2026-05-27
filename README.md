@@ -36,11 +36,11 @@ First, configure GNU-Devel ELPA as your ELPA source repository.
 ```
 
 Then, use `M-x package-install` or `M-x package-update` as before install
-an ELPA package from the latest upstream.  You will be running the same 
-Eglot version as if you were running Emacs master! 
+an ELPA package from the latest upstream.  You will be running the same
+Eglot version as if you were running Emacs master!
 
-`M-x eglot-upgrade-eglot` should  also work if you have already installed 
-it. 
+`M-x eglot-upgrade-eglot` should  also work if you have already installed
+it.
 
 <a name="connecting"></a>
 # Connecting to a server
@@ -107,9 +107,9 @@ It's **not** dead (yet 🧟)
   be moved to [Emacs's bug tracker][emacs-bug-tracker-eglot].  You may
   jump straight to that forum using `M-x report-emacs-bug` or simply
   sending mail to `bug-gnu-emacs@gnu.org`.
-  
+
   Please the [Eglot-specific bug-reporting instructions][bug-reporting].
-  
+
 * The [`eglot.el`][eglot.el] file here is periodically updated to mirror
   the [Emacs upstream][upstream-eglot.el]
 
@@ -120,7 +120,7 @@ It's **not** dead (yet 🧟)
 <a name="emacscore"></a>
 # Contribute to Eglot's development
 
-Contributing to Eglot is done by contributing to the Emacs 
+Contributing to Eglot is done by contributing to the Emacs
 project.  Read below for how Eglot fits in and how to quickly
 [submit a patch](#submitpatch).
 
@@ -131,11 +131,11 @@ Eglot in tandem with other related packages already in Emacs, such as
 [Flymake][flymake], [ElDoc][eldoc], [Xref][xref], [Project][project].
 
 This means adding or tweaking an Emacs LSP feature is a matter of
-submitting a single patch to Emacs targetting multiple relevant 
-packages, not just Eglot.  You may even propose a new package 
+submitting a single patch to Emacs targetting multiple relevant
+packages, not just Eglot.  You may even propose a new package
 altogether.
 
-These -- Eglot included -- are so-called `:core` packages.  They 
+These -- Eglot included -- are so-called `:core` packages.  They
 are released periodically to GNU ELPA, so users of older Emacs
 versions can get all the goodies via `M-x package-install`.
 
@@ -143,17 +143,17 @@ versions can get all the goodies via `M-x package-install`.
 ## Actually submitting a patch
 
 The recommended way to experiment with changes to the code is to
-compile Emacs from a Git repo like 
+compile Emacs from a Git repo like
 [this one](https://cgit.git.savannah.gnu.org/cgit/emacs.git)
-or [this one](https://github.com/emacs-mirror/emacs).  Here are 
+or [this one](https://github.com/emacs-mirror/emacs).  Here are
 [three][compile-emacs1] [separate][compile-emacs2]
 [guides][compile-emacs3-official] for doing so.
 
-When you are content with your tweaks to Eglot (and/or its sibling 
-`:core` packages), submit your patch **💪via email💪** to 
-`bug-gnu-emacs@gnu.org`.  You may CC the authors/maintainers of 
+When you are content with your tweaks to Eglot (and/or its sibling
+`:core` packages), submit your patch **💪via email💪** to
+`bug-gnu-emacs@gnu.org`.  You may CC the authors/maintainers of
 packages if you know their emails, but it isn't strictly necessary.
-We'll guide you if any more steps are needed (like copyright 
+We'll guide you if any more steps are needed (like copyright
 assignments, etc).
 
 <a name="animated_gifs"></a>
@@ -272,7 +272,7 @@ User-visible differences:
 - Server-initiated edits are confirmed with the user;
 - Diagnostics work out-of-the-box (no `flycheck.el` needed);
 - Smoother/more responsive (read below).
-   
+
 Under the hood:
 
 - Message parser is much simpler.
