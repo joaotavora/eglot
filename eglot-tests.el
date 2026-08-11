@@ -85,7 +85,8 @@ directory hierarchy."
 
 (defun eglot--call-with-fixture (fixture fn)
   "Helper for `eglot--with-fixture'.  Run FN under FIXTURE."
-  (let* ((fixture-directory (make-nearby-temp-file "eglot--fixture-" t))
+  (let* ((temporary-file-directory (file-truename temporary-file-directory))
+         (fixture-directory (make-nearby-temp-file "eglot--fixture-" t))
          (default-directory (file-name-as-directory fixture-directory))
          created-files
          new-servers
@@ -259,7 +260,7 @@ directory hierarchy."
                       do
                       (unless
                           ;; $/progress is *truly* uninteresting and spammy
-                          (and (string-match "$/progress" (format "%s" method)))
+                          (string-match "\\$/progress" (format "%s" method))
                         (eglot--test-message
                          "skip uninteresting event %s[%s]"
                          (plist-get json :method)
@@ -1017,7 +1018,8 @@ int main() {
            "fn main() -> i32 { return 42.2;}")
           ("other-file.rs" .
            "fn foo() -> () { let hi=3; }"))))
-    (let ((eglot-server-programs '((rust-mode . ("rust-analyzer")))))
+    (let ((eglot-server-programs '((rust-mode . ("rust-analyzer"))))
+          (project-vc-non-essential-cache-timeout 0))
       ;; Open other-file.rs, and see diagnostics arrive for main.rs,
       ;; which we didn't open.
       (with-current-buffer (eglot--find-file-noselect "project/other-file.rs")
@@ -1490,7 +1492,11 @@ GUESSED-MAJOR-MODES-SYM are bound to the useful return values of
   (should (eglot--glob-match "prefix/{**/*.js,**/foo.[0-9]}.suffix"
                              "prefix/a/b/c/d/foo.5.suffix"))
   (should (eglot--glob-match "prefix/{**/*.js,**/foo.[0-9]}.suffix"
-                             "prefix/a/b/c/d/foo.js.suffix")))
+                             "prefix/a/b/c/d/foo.js.suffix"))
+  ;; bug#81425
+  (should (eglot--glob-match "foo/**/notes,extra.py" "foo/bar/notes,extra.py"))
+  (should (eglot--glob-match "foo,bar.txt" "foo,bar.txt"))
+  (should (eglot--glob-match "example.[a,b]" "example.,")))
 
 (defvar tramp-histfile-override)
 (defun eglot--call-with-tramp-test (fn)
