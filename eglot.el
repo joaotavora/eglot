@@ -4750,18 +4750,19 @@ at point.  With prefix argument, prompt for ACTION-KIND."
 (eglot--code-action eglot-code-action-rewrite "refactor.rewrite")
 (eglot--code-action eglot-code-action-quickfix "quickfix")
 
-(define-fringe-bitmap 'eglot--fringe-action
-  [#b00000111
-   #b00001110
-   #b00011100
-   #b00111000
-   #b01111111
-   #b00001110
-   #b01011100
-   #b01111000
-   #b01110000
-   #b01111000]
-  nil nil 'center)
+(when (fboundp 'define-fringe-bitmap)
+  (define-fringe-bitmap 'eglot--fringe-action
+    [#b00000111
+     #b00001110
+     #b00011100
+     #b00111000
+     #b01111111
+     #b00001110
+     #b01011100
+     #b01111000
+     #b01110000
+     #b01111000]
+    nil nil 'center))
 
 (defun eglot-code-action-suggestion (cb &rest _ignored)
   "A member of `eldoc-documentation-functions', for suggesting actions."
