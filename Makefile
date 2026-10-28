@@ -11,7 +11,10 @@ LOAD_PATH=-L .
 ELFILES := eglot.el eglot-tests.el
 ELCFILES := $(ELFILES:.el=.elc)
 ELPADIR := $(shell mktemp -d elpa-eglot-test.XXXXXXXX --tmpdir)
+ELPA_ARCHIVE ?= https://elpa.gnu.org/devel/
 ELPADEPS ?=--eval '(setq package-user-dir "$(ELPADIR)")'        \
+           --eval '(setq package-archives                       \
+                         (quote (("gnu" . "$(ELPA_ARCHIVE)"))))' \
            --eval '(setq package-check-signature nil)'          \
            --eval '(package-initialize)'                        \
            --eval '(package-refresh-contents)'                  \
