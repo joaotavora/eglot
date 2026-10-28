@@ -35,7 +35,8 @@ ELPADEPS ?=--eval '(setq package-user-dir "$(ELPADIR)")'        \
            --eval '(install-latest (quote company))'            \
            --eval '(install-latest (quote yasnippet))'          \
            --eval '(install-latest (quote external-completion))'\
-           --eval '(install-latest (quote flymake))'
+           --eval '(install-latest (quote flymake))'           \
+           --eval '(install-latest (quote refactor))'
 
 BYTECOMP_ERROR_ON_WARN := \
 	--eval '(setq byte-compile-error-on-warn $(ERROR_ON_WARN))'
