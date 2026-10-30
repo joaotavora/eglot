@@ -2,12 +2,12 @@
 
 ;; Copyright (C) 2018-2026 Free Software Foundation, Inc.
 
-;; Version: 1.25
+;; Version: 1.26
 ;; Author: João Távora <joaotavora@gmail.com>
 ;; Maintainer: João Távora <joaotavora@gmail.com>
 ;; URL: https://github.com/joaotavora/eglot
 ;; Keywords: convenience, languages
-;; Package-Requires: ((emacs "26.3") (eldoc "1.16.0") (external-completion "0.1") (flymake "1.4.8") (jsonrpc "1.0.30") (project "0.11.2") (refactor "0.1") (seq "2.23") (xref "1.7.0"))
+;; Package-Requires: ((emacs "26.3") (eldoc "1.16.0") (external-completion "0.1") (flymake "1.4.8") (jsonrpc "1.0.30") (project "0.11.2") (refactor "0.1.1") (seq "2.23") (xref "1.8.0"))
 
 ;; This is a GNU ELPA :core package.  Avoid adding functionality
 ;; that is not available in the version of Emacs recorded above or any
@@ -3724,7 +3724,7 @@ EXTRA-ARGS are added to the request."
 
 (eglot--deffinder eglot-find-declaration declaration "declaration")
 (eglot--deffinder eglot-find-implementation implementation "implementation")
-(eglot--deffinder eglot-find-type-definition type-definition "type definition")
+(eglot--deffinder eglot-find-typeDefinition type-definition "type definition")
 
 (cl-defmethod xref-backend-definitions ((_backend (eql eglot)) id)
   (eglot--lsp-xrefs-for-id id :textDocument/definition :just-def t))
