@@ -2768,6 +2768,24 @@ still unanswered LSP requests to the server\n"))))
   (when (memq 'disallow-unknown-methods eglot-strict-mode)
     (jsonrpc-error "Unknown request method `%S'" method)))
 
+(defun eglot-execute-server-command (command)
+  "Ask current server to execute COMMAND
+(Server announces the available commands in its _initialize_ reply.)"
+  ;; This defun simply calls cl-defmethod `eglot-execute-command', because
+  ;; that cannot be interactive.
+  (interactive
+   (list (let ((commands (append (eglot--server-capable :executeCommandProvider
+                                                        :commands)
+                                 nil)))
+           (if (not commands)
+               (eglot--error "Server provides no custom commands.")
+             (completing-read "Select command: " commands nil t)))))
+  ;; Don't check if server knows COMMAND if it was given
+  ;; non-interactively.  If the server doesn't know it, the user is
+  ;; going to receive a jsonrpc error message.
+  (when (< 0 (length command))
+    (eglot-execute-command (eglot--current-server-or-lose) command nil)))
+
 (cl-defmethod eglot-handle-notification
   (server (_method (eql window/showMessage)) &key type message)
   "Handle notification window/showMessage."
