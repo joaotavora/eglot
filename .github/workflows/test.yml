@@ -25,7 +25,7 @@ jobs:
         - snapshot
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
     - name: Install emacs
       uses: purcell/setup-emacs@master
@@ -33,9 +33,9 @@ jobs:
         version: ${{ matrix.emacs_version }}
 
     - name: Install Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v6
       with:
-          python-version: "3.9"
+          python-version: "3.13"
           architecture: "x64"
 
     - name: Install Rust
